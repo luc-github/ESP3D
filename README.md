@@ -74,7 +74,7 @@ From serial:
     ...    
     TBD    
  
- ##Front End
+##Front End
  -- need Printer FW supported    
  
 ##TODO    
