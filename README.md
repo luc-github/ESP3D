@@ -53,7 +53,7 @@ GW:192.168.0.1
 Bridge Mode   
 Baud rate: 9600 
 
-From web:    
+From web: 
 --Need picture and flow     
 ...    
 TBD
@@ -63,7 +63,7 @@ TBD
     -M800 S1 , restart module done need a wifi/activity restart      
     -M801 [Message], Error message from module      
     -M802 [Message], Status message from module        
-    -M804 [AP/STATION,SSID,DHC/STATIC,IP,MASK,GW,STATUS,BAUD?], ]Module configuration without password    
+    -M804 [AP/STATION,SSID,DHC/STATIC,IP,MASK,GW,STATUS,MAC ADDRESSS, BAUD?], ]Module configuration without password    
     ...    
     TBD    
         
@@ -94,6 +94,8 @@ TBD
 -- do a complete drawing for connections   
 -- show available AP in web page and allow to select 
 -- show connected clients if in AP 
+-- need to display wifi information in front end
+-- need to display MAC address in front end/ configuration to help if MAC filtering on router is necessary
 
 more to come    
  
