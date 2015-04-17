@@ -14,7 +14,7 @@ TBD
 --Use GPIO2 to ground to reset all settings in hard way - 2-6 sec after boot / not before!! Set GPIO2 to ground before boot change boot mode and go to special boot that do not reach FW - I did not found information on this. Currently boot take 10 sec - giving 8 seconds to connect GPIO2 to GND and do an hard recovery for settings   
 --Use GPIO0 to ground to be in update mode   
 --Use a switch to reset/disable module    
-<S>--Use GPIO2 connected to a printer pin to interrupt the bridge loop if need change configuration (may be not necessary if no performance impact of allowing ESP screening commands - TBT - TBC)   </S> no need anymore
+<S>--Use GPIO2 connected to a printer pin to interrupt the bridge loop if need change configuration (may be not necessary if no performance impact of allowing ESP screening commands - TBT - TBC)   </S> no need anymore   
 --TODO: Full wiring with drawing     
 TBD         
 
@@ -38,7 +38,7 @@ Additionnaly:
 *Wifi Mode : Access point / Client station    (not sure it is useful to handle AP/STA in same time as make configuration more complex, but use AP/STA only to help the configuration mode = be able to scan other AP/ test connection when in AP mode )   
 *IP Generation: DHCP/Static IP      
 *IP/MASK/GATEWAY for static data    
-<S>*Usage: Bridge/Front End  </S> no need anymore 
+<S>*Usage: Bridge/Front End  </S> no need anymore     
 *Baud Rate for serial (supported : 9600, 19200, 38400, 57600, 115200, 230400)    
 ...       
 TBD   
@@ -50,7 +50,7 @@ PW:12345678
 IP: 192.168.0.1   
 Mask: 255.255.255.0   
 GW:192.168.0.1    
-<S>Bridge Mode   </S> no need anymore
+<S>Bridge Mode   </S> no need anymore    
 Baud rate: 9600 
 
 From web: 
