@@ -14,12 +14,13 @@
     You should have received a copy of the GNU General Public License
     along with Repetier-Firmware.  If not, see <http://www.gnu.org/licenses/>.
 
-    This firmware is using the arduino IDE modified to support ESP8266:
+    This firmware is using the standard arduino IDE with module to support ESP8266:
+    https://github.com/sandeepmistry/esp8266-Arduino based on :
     https://github.com/esp8266/Arduino
 
     Latest version of the code and documentation can be found here :
     https://github.com/luc-github/ESP8266
-        
+    
     Main author: luc lebosse
 
 */
@@ -33,8 +34,14 @@
 //includes: why EEPROM.h need to be there ???
 #include <EEPROM.h>
 #include "config.h"
-#include "ESP8266WiFi.h"
 #include "wifi.h"
+#include "webinterface.h"
+#include "datainterface.h"
+#include <ESP8266WiFi.h>
+#include <WiFiClient.h>
+#include <ESP8266WebServer.h>
+
+
 void setup() {
   // init :
   delay(8000);
@@ -69,12 +76,23 @@ void setup() {
   Serial.begin(baud_rate);
   //setup wifi according settings
   wifi_config.Setup();
+  delay(1000);
+  //define interfaces
+  //TODO move this to class 
+  web_interface.WebServer.on("/", [](){web_interface.WebServer.send(200, "text/plain", "this works as well - port 80");});
+  data_interface.WebServer.on("/", [](){data_interface.WebServer.send(200, "text/plain", "this works as well - port 8888");});
+  //start interfaces
+  web_interface.WebServer.begin();
+  data_interface.WebServer.begin();
+  CONFIG::print_config();
 }
 
 
 //main loop
 void loop() {
-  
-    delay (1000);
-    CONFIG::print_config();
+//web requests
+web_interface.WebServer.handleClient();
+//TODO use a method to handle serial also in class and call it instead of this one
+data_interface.WebServer.handleClient();
+
 }
