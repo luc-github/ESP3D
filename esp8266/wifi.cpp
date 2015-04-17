@@ -85,7 +85,7 @@ bool WIFI_CONFIG::Setup()
       //split in 4 parts
       split_ip (sbuf,ip); 
       IPAddress subnet (ip[0],ip[1],ip[2],ip[3]);
-      WiFi.config(local_ip, gateway, subnet);
+      WiFi.configAP(local_ip, gateway, subnet);
     }
   return true;
 }
