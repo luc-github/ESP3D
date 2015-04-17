@@ -22,6 +22,11 @@
 #include "config.h"
 #include "ESP8266WiFi.h"
 #include "IPAddress.h"
+extern "C" {
+#include "user_interface.h"
+}
+//to get access to some function like
+//wifi_get_opmode() in status
 
 //no strtok so this is simplified version
 //return number of part
