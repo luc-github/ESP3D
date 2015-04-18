@@ -75,10 +75,6 @@ void setup() {
   //setup wifi according settings
   wifi_config.Setup();
   delay(1000);
-  //define interfaces
-  //TODO move this to class 
-  web_interface.WebServer.on("/", [](){web_interface.WebServer.send(200, "text/plain", "this works as well - port 80");});
-  data_interface.WebServer.on("/", [](){data_interface.WebServer.send(200, "text/plain", "this works as well - port 8888");});
   //start interfaces
   web_interface.WebServer.begin();
   data_interface.WebServer.begin();

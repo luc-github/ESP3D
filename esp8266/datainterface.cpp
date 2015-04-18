@@ -24,8 +24,16 @@
 #include <WiFiServer.h>
 #include <ESP8266WebServer.h>
 
+//cannot put it in class then cast it as std::function<void(void)> so put outside
+void handle_data_interface_root()
+{
+  data_interface.WebServer.send(200, "text/plain", "hello from esp8266 from port 8888 ");
+}
+
 DATAINTERFACE_CLASS::DATAINTERFACE_CLASS (int port):WebServer(port)
 {
+   //init what will handle "/"
+  WebServer.on("/",HTTP_GET, handle_data_interface_root);
 }
 
 DATAINTERFACE_CLASS data_interface(8888);
