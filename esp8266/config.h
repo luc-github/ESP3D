@@ -23,8 +23,7 @@
 
 #include <Arduino.h>
 
-//pin used to stop bridge loop
-#define INTERRUPT_PIN 2
+//pin used to reset setting
 #define RESET_CONFIG_PIN 2
 
 //flags
@@ -32,9 +31,6 @@
 #define CLIENT_MODE        2
 #define DHCP_MODE          1 
 #define STATIC_IP_MODE     2
-#define BRIDGE_MODE        1
-#define FRONT_END_MODE     2
-
 
 //position in EEPROM
 //AP mode = 1; Station client mode = 2
@@ -45,8 +41,7 @@
 #define EP_IP_VALUE        100  //17 bytes xxx.xxx.xxx\0 = string
 #define EP_MASK_VALUE      117  //17 bytes xxx.xxx.xxx\0 = string
 #define EP_GATEWAY_VALUE   134  //17 bytes xxx.xxx.xxx\0 = string
-#define EP_USAGE_VALUE     151  //1 byte = flag
-#define EP_BAUD_RATE       168  //7 bytes = string (if integer value => save 4 bytes but need to create new interger function for eprom that will take more than 4 bytes)
+#define EP_BAUD_RATE       151  //7 bytes = string (if integer value => save 4 bytes but need to create new integer function for eeprom that will take more than 4 bytes)
 
 //default values
 #define DEFAULT_WIFI_MODE       AP_MODE
@@ -56,7 +51,6 @@
 #define DEFAULT_IP_VALUE        "192.168.0.1"
 #define DEFAULT_MASK_VALUE      "255.255.255.0"
 #define DEFAULT_GATEWAY_VALUE   DEFAULT_IP_VALUE
-#define DEFAULT_USAGE_MODE     BRIDGE_MODE
 #define DEFAULT_BAUD_RATE      "9600"
 
 #define EEPROM_SIZE 256 //max is 512

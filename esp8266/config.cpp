@@ -87,7 +87,6 @@ bool CONFIG::reset_config()
   if(!CONFIG::write_string(EP_IP_VALUE,DEFAULT_IP_VALUE,strlen(DEFAULT_IP_VALUE)))return false;
   if(!CONFIG::write_string(EP_MASK_VALUE,DEFAULT_MASK_VALUE,strlen(DEFAULT_MASK_VALUE)))return false;
   if(!CONFIG::write_string(EP_GATEWAY_VALUE,DEFAULT_GATEWAY_VALUE,strlen(DEFAULT_GATEWAY_VALUE)))return false;
-  if(!CONFIG::write_byte(EP_USAGE_VALUE,DEFAULT_USAGE_MODE))return false;
   if(!CONFIG::write_string(EP_BAUD_RATE,DEFAULT_BAUD_RATE,strlen(DEFAULT_BAUD_RATE)))return false;
   return true;
 }
@@ -103,6 +102,5 @@ void CONFIG::print_config()
   if (CONFIG::read_string(EP_IP_VALUE, sbuf , MAX_IP_LENGH))Serial.println(sbuf);
   if (CONFIG::read_string(EP_MASK_VALUE, sbuf , MAX_IP_LENGH))Serial.println(sbuf);
   if (CONFIG::read_string(EP_GATEWAY_VALUE, sbuf , MAX_IP_LENGH))Serial.println(sbuf);
-  if (CONFIG::read_byte(EP_USAGE_VALUE, &bbuf ))Serial.println(byte(bbuf));
   if (CONFIG::read_string(EP_BAUD_RATE, sbuf , MAX_BAUD_LENGH))Serial.println(sbuf);
 } 

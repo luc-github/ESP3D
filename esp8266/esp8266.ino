@@ -50,8 +50,6 @@ void setup() {
   //check if reset config is requested
   pinMode(RESET_CONFIG_PIN, INPUT);
   if (digitalRead(RESET_CONFIG_PIN)==0)breset_config=true;//if requested =>reset settings
-  //now setup interrupt loop pin for input
-  pinMode(INTERRUPT_PIN, INPUT);
   //default baud rate
   word baud_rate;
   char sbuf[7];
