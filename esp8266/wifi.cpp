@@ -49,6 +49,27 @@ byte WIFI_CONFIG::split_ip (char * ptr,byte * part)
   return pos+1;  
 }
 
+//Set IP configurstion to AP
+void WIFI_CONFIG::configAP(IPAddress local_ip, IPAddress gateway, IPAddress subnet)
+{
+ //no helper function to change AP IP so do it manually
+      struct ip_info info;
+      info.ip.addr = static_cast<uint32_t>(local_ip);
+      info.gw.addr = static_cast<uint32_t>(gateway);
+      info.netmask.addr = static_cast<uint32_t>(subnet);
+      wifi_softap_dhcps_stop();
+      wifi_set_ip_info(SOFTAP_IF, &info);
+      wifi_softap_dhcps_start();
+}
+//just simple helper to convert mac address to string
+char * WIFI_CONFIG::mac2str(uint8_t mac [WL_MAC_ADDR_LENGTH])
+{
+  static char macstr [18];
+  if (0>sprintf(macstr, "%02X:%02X:%02X:%02X:%02X:%02X",mac[5],mac[4],mac[3],mac[2],mac[1],mac[0])) strcpy (macstr, "00:00:00:00:00:00");
+  return macstr;
+}
+
+//Read configuration settings and apply them
 bool WIFI_CONFIG::Setup()
 {
   byte bbuf;
@@ -90,7 +111,9 @@ bool WIFI_CONFIG::Setup()
       //split in 4 parts
       split_ip (sbuf,ip); 
       IPAddress subnet (ip[0],ip[1],ip[2],ip[3]);
-      WiFi.configAP(local_ip, gateway, subnet);
+     //apply according active wifi mode
+      if (wifi_get_opmode()==WIFI_AP || wifi_get_opmode()==WIFI_AP_STA)  configAP( local_ip,  gateway,  subnet);
+      else WiFi.config( local_ip,  gateway,  subnet); 
     }
   return true;
 }
