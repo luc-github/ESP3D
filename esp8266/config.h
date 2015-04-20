@@ -22,6 +22,9 @@
 #define CONFIG_h
 
 #include <Arduino.h>
+//version and sources location
+#define FW_VERSION "V0.1"
+#define REPOSITORY "https://github.com/luc-github/ESP8266"
 
 //pin used to reset setting
 #define RESET_CONFIG_PIN 2

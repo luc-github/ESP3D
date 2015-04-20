@@ -28,9 +28,6 @@
 #ifndef ARDUINO_ESP8266_ESP01
 #error Oops!  Make sure you have 'ESP8266' selected from the 'Tools -> Boards' menu.
 #endif
-//version and sources location
-#define FW_VERSION "0.1"
-#define REPOSITORY "https://github.com/luc-github/ESP8266"
 //includes: why EEPROM.h need to be there ???
 #include <EEPROM.h>
 #include "config.h"
@@ -78,7 +75,6 @@ void setup() {
   //start interfaces
   web_interface.WebServer.begin();
   data_interface.WebServer.begin();
-  CONFIG::print_config();
 }
 
 
