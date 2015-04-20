@@ -29,6 +29,7 @@ class WIFI_CONFIG
   public:
   bool Setup();
   char * mac2str(uint8_t mac [WL_MAC_ADDR_LENGTH]);
+  char * ip2str(IPAddress Ip );
   void configAP(IPAddress local_ip, IPAddress gateway, IPAddress subnet);
   private:
   byte split_ip (char * ptr,byte * part);

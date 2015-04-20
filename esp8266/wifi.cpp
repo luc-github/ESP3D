@@ -69,6 +69,14 @@ char * WIFI_CONFIG::mac2str(uint8_t mac [WL_MAC_ADDR_LENGTH])
   return macstr;
 }
 
+//just simple helper to convert IP address to string
+char * WIFI_CONFIG::ip2str(IPAddress Ip )
+{
+  static char ipstr [16];
+  if (0>sprintf(ipstr, "%i.%i.%i.%i",Ip[0],Ip[1],Ip[2],Ip[3])) strcpy (ipstr, "0.0.0.0");
+  return ipstr;
+}
+
 //Read configuration settings and apply them
 bool WIFI_CONFIG::Setup()
 {
