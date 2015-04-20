@@ -21,13 +21,18 @@
 #ifndef WIFI_h
 #define WIFI_h
 #include <Arduino.h>
+#include "IPAddress.h"
+#include <ESP8266WiFi.h>
 
 class WIFI_CONFIG
 {
   public:
   bool Setup();
+  char * mac2str(uint8_t mac [WL_MAC_ADDR_LENGTH]);
+  void configAP(IPAddress local_ip, IPAddress gateway, IPAddress subnet);
   private:
   byte split_ip (char * ptr,byte * part);
+
 };
 
 extern WIFI_CONFIG wifi_config;
