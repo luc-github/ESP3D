@@ -26,6 +26,8 @@
 #define FW_VERSION "V0.1"
 #define REPOSITORY "https://github.com/luc-github/ESP8266"
 
+#define MDNS_FEATURE  1
+
 //pin used to reset setting
 #define RESET_CONFIG_PIN 2
 

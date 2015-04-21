@@ -27,7 +27,7 @@
 //cannot put it in class then cast it as std::function<void(void)> so put outside
 void handle_data_interface_root()
 {
-  data_interface.WebServer.send(200, "text/plain", "hello from esp8266 from port 8888 ");
+  data_interface.WebServer.send(200, "text/html", "hello from esp8266 from port 8888 ");
 }
 
 DATAINTERFACE_CLASS::DATAINTERFACE_CLASS (int port):WebServer(port)

@@ -30,6 +30,7 @@ class WEBINTERFACE_CLASS
   public:
   WEBINTERFACE_CLASS (int port = 82);
   ESP8266WebServer WebServer;
+  void urldecode(char *dst, const char *src);
   private:
   
 };
