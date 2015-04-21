@@ -37,7 +37,10 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
-
+#include <ESP8266mDNS.h>
+extern "C" {
+#include "user_interface.h"
+}
 
 void setup() {
   // init :
@@ -80,9 +83,12 @@ void setup() {
 
 //main loop
 void loop() {
+ // Check for any mDNS queries and send responses
+wifi_config.mdns.update();
 //web requests
 web_interface.WebServer.handleClient();
 //TODO use a method to handle serial also in class and call it instead of this one
 data_interface.WebServer.handleClient();
 
+  
 }
