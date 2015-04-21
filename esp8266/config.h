@@ -50,13 +50,16 @@
 
 //default values
 #define DEFAULT_WIFI_MODE       AP_MODE
-#define DEFAULT_SSID            "ESP8266"
-#define DEFAULT_PASSWORD        "12345678"
+const char DEFAULT_SSID []  PROGMEM =  "ESP8266";
+const char DEFAULT_PASSWORD [] PROGMEM = "12345678";
 #define DEFAULT_IP_MODE         STATIC_IP_MODE
-#define DEFAULT_IP_VALUE        "192.168.0.1"
-#define DEFAULT_MASK_VALUE      "255.255.255.0"
+const char DEFAULT_IP_VALUE[]  PROGMEM = "192.168.0.1";
+const char DEFAULT_MASK_VALUE[] PROGMEM = "255.255.255.0";
 #define DEFAULT_GATEWAY_VALUE   DEFAULT_IP_VALUE
-#define DEFAULT_BAUD_RATE      "9600"
+const char DEFAULT_BAUD_RATE[] PROGMEM = "9600";
+#if MDNS_FEATURE
+const char LOCAL_NAME[] PROGMEM = "esp8266";
+#endif
 
 #define EEPROM_SIZE 256 //max is 512
 #define MAX_SSID_LENGH 32
