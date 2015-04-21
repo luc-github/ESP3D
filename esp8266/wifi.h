@@ -23,10 +23,13 @@
 #include <Arduino.h>
 #include "IPAddress.h"
 #include <ESP8266WiFi.h>
+#include <ESP8266mDNS.h>
 
 class WIFI_CONFIG
 {
   public:
+  // multicast DNS responder
+  MDNSResponder mdns;
   bool Setup();
   char * mac2str(uint8_t mac [WL_MAC_ADDR_LENGTH]);
   char * ip2str(IPAddress Ip );
