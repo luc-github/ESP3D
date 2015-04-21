@@ -22,7 +22,9 @@
 #include "config.h"
 #include "ESP8266WiFi.h"
 #include "IPAddress.h"
+#if MDNS_FEATURE
 #include <ESP8266mDNS.h>
+#endif
 extern "C" {
 #include "user_interface.h"
 }
@@ -132,6 +134,7 @@ bool WIFI_CONFIG::Setup()
       if (wifi_get_opmode()==WIFI_AP || wifi_get_opmode()==WIFI_AP_STA)  configAP( local_ip,  gateway,  subnet);
       else WiFi.config( local_ip,  gateway,  subnet); 
     }
+    #if MDNS_FEATURE
     //Get IP
     if (wifi_get_opmode()==WIFI_STA)currentIP=WiFi.localIP();
     else currentIP=WiFi.softAPIP();
@@ -144,6 +147,7 @@ bool WIFI_CONFIG::Setup()
   if (!mdns.begin("esp8266", currentIP)) {
     Serial.println("Error setting up MDNS responder!");
     }
+    #endif
   return true;
 }
 

@@ -21,15 +21,20 @@
 #ifndef WIFI_h
 #define WIFI_h
 #include <Arduino.h>
+#include "config.h"
 #include "IPAddress.h"
 #include <ESP8266WiFi.h>
+#if MDNS_FEATURE
 #include <ESP8266mDNS.h>
+#endif
 
 class WIFI_CONFIG
 {
   public:
   // multicast DNS responder feature
+  #if MDNS_FEATURE
   MDNSResponder mdns;
+  #endif
   bool Setup();
   char * mac2str(uint8_t mac [WL_MAC_ADDR_LENGTH]);
   char * ip2str(IPAddress Ip );
