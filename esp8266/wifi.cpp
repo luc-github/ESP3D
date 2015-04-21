@@ -22,6 +22,7 @@
 #include "config.h"
 #include "ESP8266WiFi.h"
 #include "IPAddress.h"
+#include <ESP8266mDNS.h>
 extern "C" {
 #include "user_interface.h"
 }
@@ -65,7 +66,7 @@ void WIFI_CONFIG::configAP(IPAddress local_ip, IPAddress gateway, IPAddress subn
 char * WIFI_CONFIG::mac2str(uint8_t mac [WL_MAC_ADDR_LENGTH])
 {
   static char macstr [18];
-  if (0>sprintf(macstr, "%02X:%02X:%02X:%02X:%02X:%02X",mac[5],mac[4],mac[3],mac[2],mac[1],mac[0])) strcpy (macstr, "00:00:00:00:00:00");
+  if (0>sprintf(macstr, "%02X:%02X:%02X:%02X:%02X:%02X",mac[0],mac[1],mac[2],mac[3],mac[4],mac[5])) strcpy (macstr, "00:00:00:00:00:00");
   return macstr;
 }
 
@@ -85,6 +86,8 @@ bool WIFI_CONFIG::Setup()
   char sbuf[35];
   int wstatus;
   byte ip[4]={0,0,0,0};
+  IPAddress currentIP;
+
   //AP or client ?
   if (!CONFIG::read_byte(EP_WIFI_MODE, &bbuf ) ||  !CONFIG::read_string(EP_SSID, sbuf , MAX_SSID_LENGH) ||!CONFIG::read_string(EP_PASSWORD, pwd , MAX_PASSWORD_LENGH)) return false;
     //disconnect if connected
@@ -99,6 +102,12 @@ bool WIFI_CONFIG::Setup()
     {
       WiFi.mode(WIFI_STA);
       WiFi.begin(sbuf, pwd);
+      byte i=0;
+      while (WiFi.status() != WL_CONNECTED && i<40) {
+          delay(500);
+          Serial.println(WiFi.status());
+          i++;
+          }
     }
   //DHCP or Static IP ?
   if (!CONFIG::read_byte(EP_IP_MODE, &bbuf )) return false;
@@ -122,6 +131,18 @@ bool WIFI_CONFIG::Setup()
      //apply according active wifi mode
       if (wifi_get_opmode()==WIFI_AP || wifi_get_opmode()==WIFI_AP_STA)  configAP( local_ip,  gateway,  subnet);
       else WiFi.config( local_ip,  gateway,  subnet); 
+    }
+    //Get IP
+    if (wifi_get_opmode()==WIFI_STA)currentIP=WiFi.localIP();
+    else currentIP=WiFi.softAPIP();
+    // Set up mDNS responder:
+  // - first argument is the domain name, in this example
+  //   the fully-qualified domain name is "esp8266.local"
+  // - second argument is the IP address to advertise
+  //   we send our IP address on the WiFi network
+  //   Note: for AP mode we would use WiFi.softAPIP()!
+  if (!mdns.begin("esp8266", currentIP)) {
+    Serial.println("Error setting up MDNS responder!");
     }
   return true;
 }
