@@ -66,6 +66,8 @@ void handle_web_interface_root()
   String sbuf=PAGE_HEAD ;
   String IP;
   String sstatus;
+  struct softap_config apconfig;
+  struct ip_info info;
    int istatus;
   uint8_t mac [WL_MAC_ADDR_LENGTH];
   if (wifi_get_opmode()==WIFI_STA ) IP=wifi_config.ip2str(WiFi.localIP());
@@ -91,7 +93,7 @@ void handle_web_interface_root()
   LABEL_UNITS(sbuf,F("Free Memory: "),String(system_get_free_heap_size()),F(" octets"))
   LABEL(sbuf,F("SDK Version: "),system_get_sdk_version())
   #if MDNS_FEATURE
-  sstatus = F("http:\\\\");
+  sstatus = F("http://");
   sstatus+=LOCAL_NAME;
   LABEL_UNITS(sbuf,F("mDNS name: "),sstatus,F(".local"))
   #endif
@@ -109,16 +111,61 @@ void handle_web_interface_root()
   LABEL(sbuf,F("Boot version: "),String(system_get_boot_version()))
   sbuf+=PANEL_END;
   
+  //split to not reach the sending size limit
  web_interface.WebServer.send(200, F("text/html"), sbuf);
- 
+
+ //access point
   sbuf=PANEL_TOP;
   sbuf+=F("Access Point");
   if(wifi_get_opmode()==WIFI_AP ||  wifi_get_opmode()==WIFI_AP_STA) sbuf+=F(" (enabled)");
   else sbuf+=F(" (disabled)");
   sbuf+=PANEL_START;
-  
   LABEL(sbuf,F("Mac address: "),wifi_config.mac2str(WiFi.softAPmacAddress(mac));)
-  softap_config apconfig;
+  if (wifi_softap_get_config(&apconfig))
+    {
+      LABEL(sbuf,F("SSID: "),(char *)(apconfig.ssid))
+      if(apconfig.ssid_hidden==1)sstatus=F("No");
+      else sstatus=F("Yes");
+      LABEL(sbuf,F("Visible: "),sstatus)
+      LABEL(sbuf,F("Channel: "),String(apconfig.channel))
+      if (apconfig.authmode==AUTH_OPEN)sstatus=F("None");
+      else if (apconfig.authmode==AUTH_WEP)sstatus=F("WEP");
+      else if (apconfig.authmode==AUTH_WPA_PSK)sstatus=F("WPA");
+      else if (apconfig.authmode==AUTH_WPA2_PSK)sstatus=F("WPA2");
+      else if (apconfig.authmode==AUTH_WPA_WPA2_PSK)sstatus=F("WPA/WPA2");
+      else sstatus=F("MAX"); //what is this one ? WPS ? Cannot find information
+      LABEL(sbuf,F("Authentification: "),sstatus)
+      LABEL(sbuf,F("Maximum connections : "),String(apconfig.max_connection))
+    }
+     if (wifi_softap_dhcps_status()==DHCP_STARTED)sstatus=F("Started");
+     else sstatus=F("Stopped");
+     LABEL(sbuf,F("DHCP Server: "),sstatus)
+     if (wifi_get_ip_info(SOFTAP_IF,&info))
+        {
+          LABEL(sbuf,F("IP: "),wifi_config.ip2str(info.ip.addr))
+          LABEL(sbuf,F("Gateway: "),wifi_config.ip2str(info.gw.addr))
+          LABEL(sbuf,F("Subnet: "),wifi_config.ip2str(info.netmask.addr))
+        }
+    //List number of client
+    istatus = 0;
+    sstatus="";
+    struct station_info * station = wifi_softap_get_station_info();
+        while(station){
+          istatus++;
+          sstatus+=F("<TR><TD>Mac:</TD><TD>");
+          sstatus+=wifi_config.mac2str(station->bssid);
+          sstatus+=F("</TD><TD>IP:</TD><TD>");
+          static char ipstr [16];
+         if (0>sprintf(ipstr, IPSTR,IP2STR(&station->ip))) strcpy (ipstr, F("0.0.0.0"));
+          sstatus+=ipstr;
+           sstatus+=F("</TD></TR>");
+          station = STAILQ_NEXT(station, next);
+          }
+   wifi_softap_free_station_info();
+  LABEL(sbuf,F("Clients: "),String(istatus));
+   sbuf+=F("<TABLE>");
+   sbuf+=sstatus;
+   sbuf+=F("</TABLE>");
   sbuf+=PANEL_END;
   //split to not reach the sending size limit
   web_interface.WebServer.client().print(sbuf);
