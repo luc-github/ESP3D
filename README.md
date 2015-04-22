@@ -55,7 +55,10 @@ Baud rate: 9600
 
 From web: 
 port 80
---Need picture and flow     
+--Need picture and flow    
+<img src=https://raw.githubusercontent.com/luc-github/ESP8266/571463f4f6316998f4a3f171837b8ad202476598/screen.png>    
+
+
 ...    
 TBD
 
