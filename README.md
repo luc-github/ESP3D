@@ -1,4 +1,6 @@
 # ESP8266
+
+[![Join the chat at https://gitter.im/luc-github/ESP8266](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/luc-github/ESP8266?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 FW for ESP8266 used with 3D printer
 
 ##Description      
