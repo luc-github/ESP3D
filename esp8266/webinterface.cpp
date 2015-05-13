@@ -92,7 +92,7 @@ void handle_web_interface_root()
   LABEL_UNITS(sbuf,F("CPU Frequency: "),system_get_cpu_freq(),F("Hz"))
   LABEL_UNITS(sbuf,F("Free Memory: "),String(system_get_free_heap_size()),F(" octets"))
   LABEL(sbuf,F("SDK Version: "),system_get_sdk_version())
-  #if MDNS_FEATURE
+  #ifdef MDNS_FEATURE
   sstatus = F("http://");
   sstatus+=LOCAL_NAME;
   LABEL_UNITS(sbuf,F("mDNS name: "),sstatus,F(".local"))

@@ -22,7 +22,7 @@
 #include "config.h"
 #include "ESP8266WiFi.h"
 #include "IPAddress.h"
-#if MDNS_FEATURE
+#ifdef MDNS_FEATURE
 #include <ESP8266mDNS.h>
 #endif
 extern "C" {
@@ -71,42 +71,54 @@ char * WIFI_CONFIG::ip2str(IPAddress Ip )
 //Read configuration settings and apply them
 bool WIFI_CONFIG::Setup()
 {
-  byte bbuf;
-  char pwd[65];
-  char sbuf[35];
+  char pwd[MAX_PASSWORD_LENGH+1];
+  char sbuf[MAX_SSID_LENGH+1];
   int wstatus;
-  byte ip[4]={0,0,0,0};
-  IPAddress currentIP;
+   IPAddress currentIP;
+  byte bflag=0;
 
   //AP or client ?
-  if (!CONFIG::read_byte(EP_WIFI_MODE, &bbuf ) ||  !CONFIG::read_string(EP_SSID, sbuf , MAX_SSID_LENGH) ||!CONFIG::read_string(EP_PASSWORD, pwd , MAX_PASSWORD_LENGH)) return false;
+  if (!CONFIG::read_byte(EP_WIFI_MODE, &bflag ) ||  !CONFIG::read_string(EP_SSID, sbuf , MAX_SSID_LENGH) ||!CONFIG::read_string(EP_PASSWORD, pwd , MAX_PASSWORD_LENGH)) return false;
     //disconnect if connected
   WiFi.disconnect();
-  bbuf=AP_MODE;
    //this is AP mode
-  if (bbuf==AP_MODE)
+  if (bflag==AP_MODE)
     {
+		//setup Soft AP
       WiFi.mode(WIFI_AP);
       WiFi.softAP(sbuf, pwd);
-      
-       struct softap_config apconfig;
+      //setup PHY_MODE
+	  if (!CONFIG::read_byte(EP_PHY_MODE, &bflag ))return false;
+      wifi_set_phy_mode((phy_mode)bflag);
+      //get current config
+      struct softap_config apconfig;
        wifi_softap_get_config(&apconfig);
-       apconfig.channel=11;
-       //apconfig.authmode=AUTH_OPEN;
-       apconfig.ssid_hidden=0;
-       apconfig.max_connection=4;
-       apconfig.beacon_interval=100;
-       wifi_set_phy_mode(PHY_MODE_11G);
+       //set the chanel
+       if (!CONFIG::read_byte(EP_CHANNEL, &bflag ))return false;
+       apconfig.channel=bflag;
+       //set Authentification type
+        if (!CONFIG::read_byte(EP_AUTH_TYPE, &bflag ))return false;
+       apconfig.authmode=(AUTH_MODE)bflag;
+       //set the visibility of SSID
+        if (!CONFIG::read_byte(EP_SSID_VISIBLE, &bflag ))return false;
+       apconfig.ssid_hidden=!bflag;
+       //no need to add these settings to configuration just use default ones
+       apconfig.max_connection=DEFAULT_MAX_CONNECTIONS;
+       apconfig.beacon_interval=DEFAULT_BEACON_INTERVAL;
+      //apply settings to current and to default
       if (!wifi_softap_set_config(&apconfig))Serial.println(F("Error Wifi AP"));
       if (!wifi_softap_set_config_current(&apconfig))Serial.println(F("Error Wifi AP"));
       wifi_softap_dhcps_start();
-      wifi_set_phy_mode(PHY_MODE_11G);
     }
   else
-    {
+    {//setup station mode
       WiFi.mode(WIFI_STA);
       WiFi.begin(sbuf, pwd);
+       //setup PHY_MODE
+	   if (!CONFIG::read_byte(EP_PHY_MODE, &bflag ))return false;
+	   wifi_set_phy_mode((phy_mode)bflag);
       byte i=0;
+      //try to connect
       while (WiFi.status() != WL_CONNECTED && i<40) {
           delay(500);
           Serial.println(WiFi.status());
@@ -114,43 +126,36 @@ bool WIFI_CONFIG::Setup()
           }
     }
   //DHCP or Static IP ?
-  if (!CONFIG::read_byte(EP_IP_MODE, &bbuf )) return false;
-  if (bbuf==STATIC_IP_MODE)
+  if (!CONFIG::read_byte(EP_IP_MODE, &bflag )) return false;
+  if (bflag==STATIC_IP_MODE)
     {
       //get the IP 
-      if (!CONFIG::read_string(EP_IP_VALUE, sbuf , MAX_IP_LENGH))return false;
-      //split in 4 parts
-      split_ip (sbuf,ip); 
-      IPAddress local_ip (ip[0],ip[1],ip[2],ip[3]);
+      if (!CONFIG::read_buffer(EP_IP_VALUE,(byte *)sbuf , IP_LENGH))return false;
+      IPAddress local_ip (sbuf[0],sbuf[1],sbuf[2],sbuf[3]);
       //get the gateway 
-      if (!CONFIG::read_string(EP_GATEWAY_VALUE, sbuf , MAX_IP_LENGH))return false;
-      //split in 4 parts
-      split_ip (sbuf,ip); 
-      IPAddress gateway (ip[0],ip[1],ip[2],ip[3]);
+      if (!CONFIG::read_buffer(EP_GATEWAY_VALUE,(byte *)sbuf , IP_LENGH))return false;
+      IPAddress gateway (sbuf[0],sbuf[1],sbuf[2],sbuf[3]);
       //get the mask 
-      if (!CONFIG::read_string(EP_MASK_VALUE, sbuf , MAX_IP_LENGH))return false;
-      //split in 4 parts
-      split_ip (sbuf,ip); 
-      IPAddress subnet (ip[0],ip[1],ip[2],ip[3]);
+      if (!CONFIG::read_buffer(EP_MASK_VALUE,(byte *)sbuf , IP_LENGH))return false;
+      IPAddress subnet (sbuf[0],sbuf[1],sbuf[2],sbuf[3]);
      //apply according active wifi mode
       if (wifi_get_opmode()==WIFI_AP || wifi_get_opmode()==WIFI_AP_STA)  WiFi.softAPConfig( local_ip,  gateway,  subnet);
       else WiFi.config( local_ip,  gateway,  subnet); 
     }
-    #if MDNS_FEATURE
+    #ifdef MDNS_FEATURE
     //Get IP
     if (wifi_get_opmode()==WIFI_STA)currentIP=WiFi.localIP();
     else currentIP=WiFi.softAPIP();
     // Set up mDNS responder:
-  // - first argument is the domain name, in this example
-  //   the fully-qualified domain name is "esp8266.local"
-  // - second argument is the IP address to advertise
-  //   we send our IP address on the WiFi network
-  //   Note: for AP mode we would use WiFi.softAPIP()!
+    // - first argument is the domain name, in this example
+    //   the fully-qualified domain name is "esp8266.local"
+    // - second argument is the IP address to advertise
+    //   we send our IP address on the WiFi network
+    //   Note: for AP mode we would use WiFi.softAPIP()!
   if (!mdns.begin(LOCAL_NAME, currentIP)) {
     Serial.println(F("Error setting up MDNS responder!"));
     }
     #endif
-    CONFIG::print_config();
   return true;
 }
 

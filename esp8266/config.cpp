@@ -20,8 +20,8 @@
 #include "config.h"
 #include <EEPROM.h>
 
-//read a string or a unique byte/flag
-//a flag is 1 byte, a string is multibyte + \0, this is won't work if 1 char is multibyte like chinese char 
+//read a string 
+//a string is multibyte + \0, this is won't work if 1 char is multibyte like chinese char 
 bool CONFIG::read_string(word pos, char byte_buffer[], word size_max)
 {
   //check if parameters are acceptable
@@ -43,6 +43,22 @@ bool CONFIG::read_string(word pos, char byte_buffer[], word size_max)
   if (b!=0)byte_buffer[i-1]=0x00; 
   return true;
 }
+
+//read a buffer of size_buffer
+bool CONFIG::read_buffer(word pos, byte byte_buffer[], word size_buffer)
+{
+  //check if parameters are acceptable
+  if (size_buffer==0 ||  pos+size_buffer > EEPROM_SIZE || byte_buffer== NULL)return false;
+  word i=0;
+  //read until max size is reached
+  while (i<size_buffer )
+  {
+    byte_buffer[i]=EEPROM.read(pos+i);
+    i++;
+  } 
+  return true;
+}
+
 //read a flag / byte
 bool CONFIG::read_byte(word pos, byte * value)
 {
@@ -68,6 +84,19 @@ bool CONFIG::write_string(word pos, const char * byte_buffer, word size_buffer)
   return true;
 }
 
+//write a buffer 
+bool CONFIG::write_buffer(word pos, const byte * byte_buffer, word size_buffer)
+{
+  //check if parameters are acceptable
+  if (size_buffer==0 ||  pos+size_buffer > EEPROM_SIZE || byte_buffer== NULL)return false;
+  //copy the value(s)
+  for (word i = 0; i < size_buffer; i++) {
+    EEPROM.write(pos + i, byte_buffer[i]);
+  }
+  EEPROM.commit();
+  return true;
+}
+
 //read a flag / byte
 bool CONFIG::write_byte(word pos, const byte value)
 {
@@ -84,23 +113,35 @@ bool CONFIG::reset_config()
   if(!CONFIG::write_string(EP_SSID,DEFAULT_SSID,strlen(DEFAULT_SSID)))return false;
   if(!CONFIG::write_string(EP_PASSWORD,DEFAULT_PASSWORD,strlen(DEFAULT_PASSWORD)))return false;
   if(!CONFIG::write_byte(EP_IP_MODE,DEFAULT_IP_MODE))return false;
-  if(!CONFIG::write_string(EP_IP_VALUE,DEFAULT_IP_VALUE,strlen(DEFAULT_IP_VALUE)))return false;
-  if(!CONFIG::write_string(EP_MASK_VALUE,DEFAULT_MASK_VALUE,strlen(DEFAULT_MASK_VALUE)))return false;
-  if(!CONFIG::write_string(EP_GATEWAY_VALUE,DEFAULT_GATEWAY_VALUE,strlen(DEFAULT_GATEWAY_VALUE)))return false;
-  if(!CONFIG::write_string(EP_BAUD_RATE,DEFAULT_BAUD_RATE,strlen(DEFAULT_BAUD_RATE)))return false;
+  if(!CONFIG::write_buffer(EP_IP_VALUE,DEFAULT_IP_VALUE,IP_LENGH))return false;
+  if(!CONFIG::write_buffer(EP_MASK_VALUE,DEFAULT_MASK_VALUE,IP_LENGH))return false;
+  if(!CONFIG::write_buffer(EP_GATEWAY_VALUE,DEFAULT_GATEWAY_VALUE,IP_LENGH))return false;
+  if(!CONFIG::write_buffer(EP_BAUD_RATE,(const byte *)&DEFAULT_BAUD_RATE,BAUD_LENGH))return false;
+  if(!CONFIG::write_byte(EP_PHY_MODE,DEFAULT_PHY_MODE))return false;
+  if(!CONFIG::write_byte(EP_SLEEP_MODE,DEFAULT_SLEEP_MODE))return false;
+  if(!CONFIG::write_byte(EP_CHANNEL,DEFAULT_CHANNEL))return false;
+  if(!CONFIG::write_byte(EP_AUTH_TYPE,DEFAULT_AUTH_TYPE))return false;
+  if(!CONFIG::write_byte(EP_SSID_VISIBLE,DEFAULT_SSID_VISIBLE))return false;
   return true;
 }
 
 void CONFIG::print_config()
 {
-  char sbuf[70];
+ //use bigest size for buffer
+  char sbuf[MAX_PASSWORD_LENGH+1];
   byte bbuf=0;
+  int ibuf=0;
   if (CONFIG::read_byte(EP_WIFI_MODE, &bbuf ))Serial.println(byte(bbuf));
   if (CONFIG::read_string(EP_SSID, sbuf , MAX_SSID_LENGH))Serial.println(sbuf);
   if (CONFIG::read_string(EP_PASSWORD, sbuf , MAX_PASSWORD_LENGH))Serial.println(sbuf);
   if (CONFIG::read_byte(EP_IP_MODE, &bbuf ))Serial.println(byte(bbuf));
-  if (CONFIG::read_string(EP_IP_VALUE, sbuf , MAX_IP_LENGH))Serial.println(sbuf);
-  if (CONFIG::read_string(EP_MASK_VALUE, sbuf , MAX_IP_LENGH))Serial.println(sbuf);
-  if (CONFIG::read_string(EP_GATEWAY_VALUE, sbuf , MAX_IP_LENGH))Serial.println(sbuf);
-  if (CONFIG::read_string(EP_BAUD_RATE, sbuf , MAX_BAUD_LENGH))Serial.println(sbuf);
+  if (CONFIG::read_buffer(EP_IP_VALUE,(byte *)sbuf , IP_LENGH))Serial.println(wifi_config.ip2str((byte *)sbuf));
+  if (CONFIG::read_buffer(EP_MASK_VALUE, (byte *)sbuf  , IP_LENGH))Serial.println(wifi_config.ip2str((byte *)sbuf));
+  if (CONFIG::read_buffer(EP_GATEWAY_VALUE, (byte *)sbuf  , IP_LENGH))Serial.println(wifi_config.ip2str((byte *)sbuf));
+  if (CONFIG::read_buffer(EP_BAUD_RATE,  (byte *)&ibuf , BAUD_LENGH))Serial.println(ibuf);
+  if (CONFIG::read_byte(EP_PHY_MODE, &bbuf ))Serial.println(byte(bbuf));
+  if (CONFIG::read_byte(EP_SLEEP_MODE, &bbuf ))Serial.println(byte(bbuf));
+  if (CONFIG::read_byte(EP_CHANNEL, &bbuf ))Serial.println(byte(bbuf));
+  if (CONFIG::read_byte(EP_AUTH_TYPE, &bbuf ))Serial.println(byte(bbuf));
+  if (CONFIG::read_byte(EP_SSID_VISIBLE, &bbuf ))Serial.println(byte(bbuf));
 } 

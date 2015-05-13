@@ -37,7 +37,7 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
-#if MDNS_FEATURE
+#ifdef MDNS_FEATURE
 #include <ESP8266mDNS.h>
 #endif
 extern "C" {
@@ -53,24 +53,21 @@ void setup() {
   pinMode(RESET_CONFIG_PIN, INPUT);
   if (digitalRead(RESET_CONFIG_PIN)==0)breset_config=true;//if requested =>reset settings
   //default baud rate
-  word baud_rate;
-  char sbuf[7];
+  int baud_rate=0;
   //check if EEPROM has value
-  if ( CONFIG::read_string(EP_BAUD_RATE, sbuf , MAX_BAUD_LENGH))
+  if ( CONFIG::read_buffer(EP_BAUD_RATE,  (byte *)&baud_rate , BAUD_LENGH))
     {
-      word baud_tmp = atoi(sbuf);
       //check if baud value is one of allowed ones
-      if (baud_tmp==9600 || baud_tmp==19200 ||baud_tmp==38400 ||baud_tmp==57600 ||baud_tmp==115200 ||baud_tmp==230400) baud_rate=baud_tmp;
-      else breset_config=true;//baud rate is incorrect =>reset settings
+      if ( ! (baud_rate==9600 || baud_rate==19200 ||baud_rate==38400 ||baud_rate==57600 ||baud_rate==115200 ||baud_rate==230400) )breset_config=true;//baud rate is incorrect =>reset settings
     }
-    else breset_config=true;//cannot access to config settings=> reset settings
+  else breset_config=true;//cannot access to config settings=> reset settings
   //reset is requested
   if(breset_config)
     {
     //update EEPROM with default settings
     CONFIG::reset_config();
     //use default baud rate
-    baud_rate=atol(DEFAULT_BAUD_RATE);
+    baud_rate=DEFAULT_BAUD_RATE;
     }
   //setup serial
   Serial.begin(baud_rate);
@@ -85,14 +82,12 @@ void setup() {
 
 //main loop
 void loop() {
-#if MDNS_FEATURE
- // Check for any mDNS queries and send responses
-wifi_config.mdns.update();
+#ifdef MDNS_FEATURE
+	// Check for any mDNS queries and send responses
+	wifi_config.mdns.update();
 #endif
 //web requests
 web_interface.WebServer.handleClient();
 //TODO use a method to handle serial also in class and call it instead of this one
 data_interface.WebServer.handleClient();
-
-  
 }
