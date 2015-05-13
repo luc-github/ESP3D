@@ -52,18 +52,6 @@ byte WIFI_CONFIG::split_ip (char * ptr,byte * part)
   return pos+1;  
 }
 
-//Set IP configurstion to AP
-void WIFI_CONFIG::configAP(IPAddress local_ip, IPAddress gateway, IPAddress subnet)
-{
- //no helper function to change AP IP so do it manually
-      struct ip_info info;
-      info.ip.addr = static_cast<uint32_t>(local_ip);
-      info.gw.addr = static_cast<uint32_t>(gateway);
-      info.netmask.addr = static_cast<uint32_t>(subnet);
-      wifi_softap_dhcps_stop();
-      wifi_set_ip_info(SOFTAP_IF, &info);
-      wifi_softap_dhcps_start();
-}
 //just simple helper to convert mac address to string
 char * WIFI_CONFIG::mac2str(uint8_t mac [WL_MAC_ADDR_LENGTH])
 {
@@ -94,11 +82,25 @@ bool WIFI_CONFIG::Setup()
   if (!CONFIG::read_byte(EP_WIFI_MODE, &bbuf ) ||  !CONFIG::read_string(EP_SSID, sbuf , MAX_SSID_LENGH) ||!CONFIG::read_string(EP_PASSWORD, pwd , MAX_PASSWORD_LENGH)) return false;
     //disconnect if connected
   WiFi.disconnect();
-    //this is AP mode
+  bbuf=AP_MODE;
+   //this is AP mode
   if (bbuf==AP_MODE)
     {
       WiFi.mode(WIFI_AP);
       WiFi.softAP(sbuf, pwd);
+      
+       struct softap_config apconfig;
+       wifi_softap_get_config(&apconfig);
+       apconfig.channel=11;
+       //apconfig.authmode=AUTH_OPEN;
+       apconfig.ssid_hidden=0;
+       apconfig.max_connection=4;
+       apconfig.beacon_interval=100;
+       wifi_set_phy_mode(PHY_MODE_11G);
+      if (!wifi_softap_set_config(&apconfig))Serial.println(F("Error Wifi AP"));
+      if (!wifi_softap_set_config_current(&apconfig))Serial.println(F("Error Wifi AP"));
+      wifi_softap_dhcps_start();
+      wifi_set_phy_mode(PHY_MODE_11G);
     }
   else
     {
@@ -131,7 +133,7 @@ bool WIFI_CONFIG::Setup()
       split_ip (sbuf,ip); 
       IPAddress subnet (ip[0],ip[1],ip[2],ip[3]);
      //apply according active wifi mode
-      if (wifi_get_opmode()==WIFI_AP || wifi_get_opmode()==WIFI_AP_STA)  configAP( local_ip,  gateway,  subnet);
+      if (wifi_get_opmode()==WIFI_AP || wifi_get_opmode()==WIFI_AP_STA)  WiFi.softAPConfig( local_ip,  gateway,  subnet);
       else WiFi.config( local_ip,  gateway,  subnet); 
     }
     #if MDNS_FEATURE
@@ -148,6 +150,7 @@ bool WIFI_CONFIG::Setup()
     Serial.println(F("Error setting up MDNS responder!"));
     }
     #endif
+    CONFIG::print_config();
   return true;
 }
 
