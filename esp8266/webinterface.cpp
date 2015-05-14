@@ -42,7 +42,7 @@ const char NAV_ELEMENT_ACTIVE [] PROGMEM =  "class=\"active\"";
 const char  NAV_LEFT_PART2a[] PROGMEM =  "><a href=\"http://";
 const char NAV_LEFT_PART2b[] PROGMEM =  "\">Home</a></li>\n<li ";
 const char NAV_LEFT_PART3a[] PROGMEM = "><a href=\"http://";
-const char NAV_LEFT_PART3b[] PROGMEM =  "/CONFIG\">Configuration</a></li>\n</ul>\n";
+const char NAV_LEFT_PART3b[] PROGMEM =  "/CONFIGSYS\">Configuration System</a></li>\n</ul>\n";
  
 const char NAV_RIGHT_PART[] PROGMEM =  "<p class=\"navbar-text navbar-right\">&nbsp;&nbsp;&nbsp;&nbsp;</p>\n<ul class=\"nav navbar-nav navbar-right\">\n"\
                                                 "<li><a href=\""  REPOSITORY "\">Github</a></li>\n</ul>\n"\
@@ -108,7 +108,6 @@ void handle_web_interface_root()
   web_interface.add4send(PANEL_TOP);
   web_interface.add4send(F("System"));
   web_interface.add4send(PANEL_START);
-  
   LABEL(F("Chip ID: "),String(system_get_chip_id()).c_str())
   LABEL_UNITS(F("CPU Frequency: "),String(system_get_cpu_freq()).c_str(),F("Hz"))
   LABEL_UNITS(F("Free Memory: "),String(system_get_free_heap_size()).c_str(),F(" octets"))
@@ -130,6 +129,9 @@ void handle_web_interface_root()
   LABEL(F("Sleep mode: "),sstatus.c_str())
   //LABEL(sbuf,F("Boot mode: "),String(system_get_boot_mode())) //no meaning so far
   LABEL(F("Boot version: "),String(system_get_boot_version()).c_str())
+  istatus=0;
+  if (!CONFIG::read_buffer(EP_BAUD_RATE,  (byte *)&istatus , BAUD_LENGH))istatus=0;;
+  LABEL(F("Baud rate: "),String(istatus).c_str())
   web_interface.add4send(PANEL_END);
  //access point
   web_interface.add4send(PANEL_TOP);
@@ -240,7 +242,7 @@ void handle_web_interface_root()
   web_interface.flushbuffer(); 
 }
 
-void handle_web_interface_config()
+void handle_web_interface_configSys()
 {
   String IP;
   if (wifi_get_opmode()==WIFI_STA ) IP=wifi_config.ip2str(WiFi.localIP());
@@ -260,6 +262,17 @@ void handle_web_interface_config()
   web_interface.add4send("<div>Configuration</div>");
   web_interface.add4send(PAGE_BOTTOM); 
   web_interface.flushbuffer();
+}
+
+void handle_not_found()
+{
+  String IP;
+  if (wifi_get_opmode()==WIFI_STA ) IP=wifi_config.ip2str(WiFi.localIP());
+  else IP=wifi_config.ip2str(WiFi.softAPIP());
+	 web_interface.add4send(F("<H1>Page not found!</H1><BR>Please try <a href=http://"));
+	 web_interface.add4send(IP.c_str());
+	 web_interface.add4send(F(">here</a>"));
+	 web_interface.flushbuffer();
 }
 
 //URI Decoding function 
@@ -345,7 +358,8 @@ WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port):WebServer(port)
 {
   //init what will handle "/"
   WebServer.on(F("/"),HTTP_ANY, handle_web_interface_root);
-  WebServer.on(F("/CONFIG"),HTTP_ANY, handle_web_interface_config);
+  WebServer.on(F("/CONFIGSYS"),HTTP_ANY, handle_web_interface_configSys);
+  WebServer.onNotFound( handle_not_found);
   buffer2send="";
 }
 
