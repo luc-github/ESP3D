@@ -76,7 +76,9 @@ bool WIFI_CONFIG::Setup()
   int wstatus;
    IPAddress currentIP;
   byte bflag=0;
-
+  //set the sleep mode
+  if (!CONFIG::read_byte(EP_SLEEP_MODE, &bflag ))return false;
+  wifi_set_sleep_type ((sleep_type)bflag);
   //AP or client ?
   if (!CONFIG::read_byte(EP_WIFI_MODE, &bflag ) ||  !CONFIG::read_string(EP_SSID, sbuf , MAX_SSID_LENGH) ||!CONFIG::read_string(EP_PASSWORD, pwd , MAX_PASSWORD_LENGH)) return false;
     //disconnect if connected
