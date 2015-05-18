@@ -74,6 +74,9 @@ const char  TR_E[] PROGMEM = "</tr>\n";
 const char  TH_E[] PROGMEM = "</th>\n";
 const char  TD_E[] PROGMEM = "</td>\n";
 const char  TBODY_E[] PROGMEM = "</tbody>\n";
+const char  T404_PAGE[] PROGMEM = "<H1>Page not found!</H1><BR>Please try <a href=http://";
+const char  T404_PAGE_2[] PROGMEM = ">here</a>";
+
 #define LABEL( title, value)  web_interface.add4send(LABEL_START); web_interface.add4send(title);web_interface.add4send(LABEL_COLOR);web_interface.add4send(value);web_interface.add4send(LABEL_END);web_interface.add4send(BR);
 #define LABEL_UNITS(title, value,units) web_interface.add4send(LABEL_START);  web_interface.add4send(title);web_interface.add4send(LABEL_COLOR);web_interface.add4send(value);web_interface.add4send(units);web_interface.add4send(LABEL_END);web_interface.add4send(BR);
 #define TH_ENTRY(entry) web_interface.add4send(TH_S);web_interface.add4send(entry);web_interface.add4send(TH_E);
@@ -269,9 +272,9 @@ void handle_not_found()
   String IP;
   if (wifi_get_opmode()==WIFI_STA ) IP=wifi_config.ip2str(WiFi.localIP());
   else IP=wifi_config.ip2str(WiFi.softAPIP());
-	 web_interface.add4send(F("<H1>Page not found!</H1><BR>Please try <a href=http://"));
+	 web_interface.add4send(T404_PAGE);
 	 web_interface.add4send(IP.c_str());
-	 web_interface.add4send(F(">here</a>"));
+	 web_interface.add4send(T404_PAGE_2);
 	 web_interface.flushbuffer();
 }
 
