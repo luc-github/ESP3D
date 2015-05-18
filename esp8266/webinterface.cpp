@@ -100,6 +100,8 @@ const char  ALERT_SUCCESS[]  PROGMEM = "<div class=\"alert alert-success\" role=
 const char  ALERT_ERROR[]  PROGMEM = "<div class=\"alert alert-danger\" role=\"alert\">\n";
 const char  DIV_E[]  PROGMEM = "</div>\n";
 const char BAUD_RATE[] PROGMEM = "BAUD_RATE";
+const char SLEEP_MODE[] PROGMEM = "SLEEP_MODE";
+const char NETWORK[] PROGMEM = "NETWORK";
 const char REFRESH_1_5[] PROGMEM ="<META HTTP-EQUIV=\"Refresh\" CONTENT=\"5; URL=http://";
 const char REFRESH_1_15[] PROGMEM ="<META HTTP-EQUIV=\"Refresh\" CONTENT=\"15; URL=http://";
 const char REFRESH_2[] PROGMEM ="\">";
@@ -286,16 +288,23 @@ void handle_web_interface_configSys()
 {
   String stmp,smsg;
   int istatus=0;
+  byte bflag=0;
   bool msg_alert_error=false;
   bool msg_alert_success=false;
   int ibaud=0;
+  byte bnetwork=0;
+  byte bsleepmode=0;
   //check is it is a submission or a display
   if (web_interface.WebServer.hasArg(F("SUBMIT")))
-  {   //is there a baude rate
-	  if (web_interface.WebServer.hasArg(BAUD_RATE))
-		{   //is value correct ?
+  {   //is there a correct list of values?
+	  if (web_interface.WebServer.hasArg(BAUD_RATE) && web_interface.WebServer.hasArg(SLEEP_MODE)&& web_interface.WebServer.hasArg(NETWORK))
+		{   //is each value correct ?
 			ibaud  = atoi(web_interface.WebServer.arg(BAUD_RATE).c_str());
-			if (!(ibaud==9600 || ibaud==19200|| ibaud==38400|| ibaud==57600|| ibaud==115200|| ibaud==230400))
+			bnetwork  = atoi(web_interface.WebServer.arg(NETWORK).c_str());
+			bsleepmode = atoi(web_interface.WebServer.arg(SLEEP_MODE).c_str());
+			if (!(ibaud==9600 || ibaud==19200|| ibaud==38400|| ibaud==57600|| ibaud==115200|| ibaud==230400) ||
+			    !(bnetwork==PHY_MODE_11B||bnetwork==PHY_MODE_11G||bnetwork==PHY_MODE_11N) ||
+			    !(bsleepmode==NONE_SLEEP_T ||bsleepmode==LIGHT_SLEEP_T ||bsleepmode==MODEM_SLEEP_T ))
 				{
 					msg_alert_error=true;
 					smsg=F("Error in query!!");
@@ -309,7 +318,7 @@ void handle_web_interface_configSys()
 	   //if no error apply the changes
 		if (msg_alert_error!=true)
 			{
-			 if(!CONFIG::write_buffer(EP_BAUD_RATE,(const byte *)&ibaud,BAUD_LENGH))
+			 if(!CONFIG::write_buffer(EP_BAUD_RATE,(const byte *)&ibaud,BAUD_LENGH) ||!CONFIG::write_byte(EP_PHY_MODE,bnetwork) ||!CONFIG::write_byte(EP_SLEEP_MODE,bsleepmode))
 				{
 					msg_alert_error=true;
 					smsg=F("Error in writing changes!!");
@@ -363,6 +372,39 @@ void handle_web_interface_configSys()
    if (istatus==230400)stmp = F("selected");
   else stmp="";
   OPTION(F("230400"), stmp.c_str(),F("230400"))
+  SELECT_END
+  
+  web_interface.add4send(BR); 
+  
+  if (!CONFIG::read_byte(EP_PHY_MODE, &bflag ))bflag=0;
+  SELECT_START(F("SYS2"),F("Network"),NETWORK)
+  if (bflag==PHY_MODE_11B)stmp = F("selected");
+  else stmp="";
+  OPTION(String(PHY_MODE_11B).c_str(), stmp.c_str(),F("11b"))
+  if (bflag==PHY_MODE_11G)stmp = F("selected");
+  else stmp="";
+  OPTION(String(PHY_MODE_11G).c_str(), stmp.c_str(),F("11g"))
+  if (bflag==PHY_MODE_11N)stmp = F("selected");
+  else stmp="";
+  if (wifi_get_opmode()==WIFI_STA )
+	{
+		OPTION(String(PHY_MODE_11N).c_str(), stmp.c_str(),F("11n"))
+	}
+  SELECT_END
+  
+  web_interface.add4send(BR); 
+  
+  if (!CONFIG::read_byte(EP_SLEEP_MODE, &bflag ))bflag=0;
+  SELECT_START(F("SYS3"),F("Sleep Mode"),SLEEP_MODE)
+  if (bflag==NONE_SLEEP_T)stmp = F("selected");
+  else stmp="";
+  OPTION(String(NONE_SLEEP_T).c_str(), stmp.c_str(),F("None"))
+  if (bflag==LIGHT_SLEEP_T)stmp = F("selected");
+  else stmp="";
+  OPTION(String(LIGHT_SLEEP_T).c_str(), stmp.c_str(),F("Light"))
+  if (bflag==MODEM_SLEEP_T)stmp = F("selected");
+  else stmp="";
+  OPTION(String(MODEM_SLEEP_T).c_str(), stmp.c_str(),F("Modem"))
   SELECT_END
   
   web_interface.add4send(FORM_SUBMIT); 
