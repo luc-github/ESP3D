@@ -46,6 +46,7 @@ extern "C" {
 
 void setup() {
   // init :
+  ESP.wdtDisable();
   delay(8000);
   EEPROM.begin(EEPROM_SIZE);
   bool breset_config=false;

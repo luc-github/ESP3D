@@ -110,8 +110,8 @@ bool CONFIG::write_byte(word pos, const byte value)
 bool CONFIG::reset_config()
 {
   if(!CONFIG::write_byte(EP_WIFI_MODE,DEFAULT_WIFI_MODE))return false;
-  if(!CONFIG::write_string(EP_SSID,DEFAULT_SSID,strlen(DEFAULT_SSID)))return false;
-  if(!CONFIG::write_string(EP_PASSWORD,DEFAULT_PASSWORD,strlen(DEFAULT_PASSWORD)))return false;
+  if(!CONFIG::write_string(EP_SSID,PROGMEM2CHAR(DEFAULT_SSID),strlen(PROGMEM2CHAR(DEFAULT_SSID))))return false;
+  if(!CONFIG::write_string(EP_PASSWORD,PROGMEM2CHAR(DEFAULT_PASSWORD),strlen(PROGMEM2CHAR(DEFAULT_PASSWORD))))return false;
   if(!CONFIG::write_byte(EP_IP_MODE,DEFAULT_IP_MODE))return false;
   if(!CONFIG::write_buffer(EP_IP_VALUE,DEFAULT_IP_VALUE,IP_LENGH))return false;
   if(!CONFIG::write_buffer(EP_MASK_VALUE,DEFAULT_MASK_VALUE,IP_LENGH))return false;

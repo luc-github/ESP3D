@@ -56,7 +56,7 @@ byte WIFI_CONFIG::split_ip (char * ptr,byte * part)
 char * WIFI_CONFIG::mac2str(uint8_t mac [WL_MAC_ADDR_LENGTH])
 {
   static char macstr [18];
-  if (0>sprintf(macstr,F("%02X:%02X:%02X:%02X:%02X:%02X"),mac[0],mac[1],mac[2],mac[3],mac[4],mac[5])) strcpy (macstr, F("00:00:00:00:00:00"));
+  if (0>sprintf(macstr,"%02X:%02X:%02X:%02X:%02X:%02X",mac[0],mac[1],mac[2],mac[3],mac[4],mac[5])) strcpy (macstr, "00:00:00:00:00:00");
   return macstr;
 }
 
@@ -64,7 +64,7 @@ char * WIFI_CONFIG::mac2str(uint8_t mac [WL_MAC_ADDR_LENGTH])
 char * WIFI_CONFIG::ip2str(IPAddress Ip )
 {
   static char ipstr [16];
-  if (0>sprintf(ipstr, F("%i.%i.%i.%i"),Ip[0],Ip[1],Ip[2],Ip[3])) strcpy (ipstr, F("0.0.0.0"));
+  if (0>sprintf(ipstr, "%i.%i.%i.%i",Ip[0],Ip[1],Ip[2],Ip[3])) strcpy (ipstr, "0.0.0.0");
   return ipstr;
 }
 
@@ -154,7 +154,7 @@ bool WIFI_CONFIG::Setup()
     // - second argument is the IP address to advertise
     //   we send our IP address on the WiFi network
     //   Note: for AP mode we would use WiFi.softAPIP()!
-  if (!mdns.begin(LOCAL_NAME, currentIP)) {
+  if (!mdns.begin(PROGMEM2CHAR(LOCAL_NAME), currentIP)) {
     Serial.println(F("Error setting up MDNS responder!"));
     }
     #endif

@@ -20,7 +20,9 @@
 
 //comment to disable
 #define MDNS_FEATURE
+#define PROGMEM2CHAR progmem2char
 
+extern char * progmem2char(const char* src);
 #ifndef CONFIG_h
 #define CONFIG_h
 
@@ -32,7 +34,6 @@ extern "C" {
 //version and sources location
 #define FW_VERSION "V0.1"
 #define REPOSITORY "https://github.com/luc-github/ESP8266"
-
 
 
 //pin used to reset setting
@@ -65,8 +66,8 @@ extern "C" {
 const char DEFAULT_SSID []  PROGMEM =				"ESP8266";
 const char DEFAULT_PASSWORD [] PROGMEM =	"12345678";
 #define DEFAULT_IP_MODE										STATIC_IP_MODE
-const byte DEFAULT_IP_VALUE[]  PROGMEM =			{192,168,0,1};
-const byte DEFAULT_MASK_VALUE[] PROGMEM =	{255,255,255,0};
+const byte DEFAULT_IP_VALUE[]   =			{192,168,0,1};
+const byte DEFAULT_MASK_VALUE[]  =	{255,255,255,0};
 #define DEFAULT_GATEWAY_VALUE   						DEFAULT_IP_VALUE
 const int DEFAULT_BAUD_RATE =							9600;
 #ifdef MDNS_FEATURE
