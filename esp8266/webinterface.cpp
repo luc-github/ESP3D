@@ -18,6 +18,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include <PgmSpace.h>
 #include "config.h"
 #include "webinterface.h"
 #include "wifi.h"
@@ -43,9 +44,10 @@ const char NAV_START[] PROGMEM =  "<nav class=\"navbar navbar-inverse\">\n<div c
 const char NAV_LEFT_PART1 [] PROGMEM =  "<ul class=\"nav navbar-nav navbar-left\">\n<li ";
 const char NAV_ELEMENT_ACTIVE [] PROGMEM =  "class=\"active\"";
 const char NAV_LEFT_PART2a[] PROGMEM =  "><a href=\"http://";
-const char NAV_LEFT_PART2b[] PROGMEM =  "\">Home</a></li>\n<li ";
-const char NAV_LEFT_PART3a[] PROGMEM = "><a href=\"http://";
-const char NAV_LEFT_PART3b[] PROGMEM =  "/CONFIGSYS\">Configuration System</a></li>\n</ul>\n";
+const char NAV_LEFT_PART2b[] PROGMEM =  "\">Home</a></li>\n<li ><a href=\"http://";
+const char NAV_LEFT_PART3b[] PROGMEM =  "/CONFIGSYS\">System Configuration</a></li>\n<li ><a href=\"http://";
+const char NAV_LEFT_PART4b[] PROGMEM =  "/CONFIGAP\">AP Configuration</a></li>\n";
+const char NAV_LEFT_PARTEND[] PROGMEM =  "</ul>\n";
  
 const char NAV_RIGHT_PART[] PROGMEM =  "<p class=\"navbar-text navbar-right\">&nbsp;&nbsp;&nbsp;&nbsp;</p>\n<ul class=\"nav navbar-nav navbar-right\">\n"\
                                                 "<li><a href=\""  REPOSITORY "\">Github</a></li>\n</ul>\n"\
@@ -79,16 +81,22 @@ const char TD_E[] PROGMEM = "</td>\n";
 const char TBODY_E[] PROGMEM = "</tbody>\n";
 const char T404_PAGE[] PROGMEM = "<H1>Page not found!</H1><BR>Please try <a href=http://";
 const char T404_PAGE_2[] PROGMEM = ">here</a>";
-const char FORM_START[] PROGMEM = "<div class=\"col-sm-10\"><form METHOD=POST>\n";
+const char FORM_START[] PROGMEM = "<div class=\"col-sm-10\"><form METHOD=GET>\n";
 const char FORM_END[] PROGMEM = "</form></div>\n";
 const char FORM_INPUT_1[]  PROGMEM = "<div class=\"form-group\">\b<label for=\"";
-const char FORM_INPUT_1_ERROR[]  PROGMEM = "<div class=\"form-group has-error\">\b<label for=\"";
+const char FORM_INPUT_1_ERROR[]  PROGMEM = "<div class=\"form-group has-error\">\b<label class=\"control-label\" for=\"";
 const char FORM_INPUT_2[]  PROGMEM = "\">";
 const char FORM_INPUT_3[]  PROGMEM = "</label><BR>\n<input type=\"text\" class=\"form-control\" id=\"";
+const char FORM_INPUT_3P[]  PROGMEM = "</label><BR>\n<input type=\"password\" class=\"form-control\" id=\"";
 const char FORM_INPUT_4[]  PROGMEM = "\" name=\"";
-const char FORM_INPUT_5[]  PROGMEM = "\"placeholder=\"";
+const char FORM_INPUT_5[]  PROGMEM = "\" placeholder=\"";
 const char FORM_INPUT_6[]  PROGMEM = "\" value=\"";
-const char FORM_INPUT_7[]  PROGMEM = "\"style=\"width: auto;\"></div>\n";
+const char FORM_INPUT_7[]  PROGMEM = "\" style=\"width: auto;\" ></div>\n";
+
+const char FORM_CHECKBOX_1[]  PROGMEM ="<div class=\"checkbox\"><label>\n<input type=\"checkbox\" NAME=\"";  
+const char FORM_CHECKBOX_2[]  PROGMEM = "\" ";
+const char FORM_CHECKBOX_3[]  PROGMEM = " >";
+ const char FORM_CHECKBOX_4[]  PROGMEM = "\n</label>\n</div>\n";
 const char FORM_SELECT_1[] PROGMEM = "</label><BR>\n<select name=\"";
 const char FORM_SELECT_2[] PROGMEM = "\" id=\"";
 const char FORM_SELECT_3[] PROGMEM = "\" class=\"form-control\" style=\"width:auto;\">\n";
@@ -177,6 +185,37 @@ const char VALUE_230400[] PROGMEM = "230400";
 const char SYS_2_ID[] PROGMEM = "SYS2";
 const char SYS_3_ID[] PROGMEM = "SYS3";
 const char VALUE_SELECTED[] PROGMEM = "selected";
+const char AP_1_ID[] PROGMEM = "AP1";
+const char AP_2_ID[] PROGMEM = "AP2";
+const char AP_3_ID[] PROGMEM = "AP3";
+const char AP_4_ID[] PROGMEM = "AP4";
+const char AP_5_ID[] PROGMEM = "AP5";
+const char AP_6_ID[] PROGMEM = "AP6";
+const char AP_7_ID[] PROGMEM = "AP7";
+const char AP_8_ID[] PROGMEM = "AP8";
+const char AP_9_ID[] PROGMEM = "AP9";
+const char AP_10_ID[] PROGMEM = "AP10";
+const char SSID_ID[] PROGMEM = "SSID";
+const char PASSWORD_TITLE[] PROGMEM = "Password :";
+const char PASSWORD_NAME[] PROGMEM = "Password";
+const char PASSWORD_ID[] PROGMEM = "PASSWORD";
+const char CHECKED_VALUE[] PROGMEM = "checked";
+const char VISIBLE_NAME[] PROGMEM = "VISIBLE";
+const char VISIBLE_LABEL[] PROGMEM = "Visible";
+const char AUTENTIFICATION_ID[] PROGMEM = "AUTHENTIFICATION";
+const char STATIC_IP_LABEL[] PROGMEM = "Static IP";
+const char STATIC_IP_NAME[] PROGMEM = "STATIC_IP";
+const char IP_NAME[] PROGMEM = "IP";
+const char GATEWAY_ID[] PROGMEM = "GATEWAY";
+const char CHANNEL_ID[] PROGMEM = "CHANNEL";
+const char SUBNET_ID[] PROGMEM = "SUBNET";
+const char GATEWAY_NAME[] PROGMEM = "Gateway";
+const char SUBNET_NAME[] PROGMEM = "Subnet";
+const char ERROR_INCORRECT_SSID[] PROGMEM = "Incorrect SSID :only char and digit, no space, limited to 33 char length";
+const char ERROR_INCORRECT_PASSWORD[] PROGMEM = "Incorrect password : space not allowed, limited to 8~64 char length<BR>";
+const char ERROR_INCORRECT_IP_FORMAT[] PROGMEM = "Incorrect IP format, should be : xxx.xxx.xxx.xxx<BR>";
+const char SHOW_IP_BLOCK[] PROGMEM = "<div NAME=\"IP_BLOCK\" >";
+const char HIDE_IP_BLOCK[] PROGMEM = "<div NAME=\"IP_BLOCK\" style=\"visibility:none;\">";
 
 #define MSG_SUCCESS(msg) web_interface.add4send(PROGMEM2CHAR(ALERT_SUCCESS));web_interface.add4send(msg);web_interface.add4send(PROGMEM2CHAR(DIV_E));
 #define MSG_ERROR(msg) web_interface.add4send(PROGMEM2CHAR(ALERT_ERROR));web_interface.add4send(msg);web_interface.add4send(PROGMEM2CHAR(DIV_E));
@@ -186,31 +225,84 @@ const char VALUE_SELECTED[] PROGMEM = "selected";
 #define SELECT_END  web_interface.add4send(PROGMEM2CHAR(FORM_SELECT_END));
 #define INPUT_TEXT( id,label, name,placeholder,value)  web_interface.add4send(PROGMEM2CHAR(FORM_INPUT_1));web_interface.add4send(id);web_interface.add4send(PROGMEM2CHAR(FORM_INPUT_2));web_interface.add4send(label);web_interface.add4send(PROGMEM2CHAR(FORM_INPUT_3));web_interface.add4send(id);web_interface.add4send(PROGMEM2CHAR(FORM_INPUT_4));web_interface.add4send(name);web_interface.add4send(PROGMEM2CHAR(FORM_INPUT_5));web_interface.add4send(placeholder);web_interface.add4send(PROGMEM2CHAR(FORM_INPUT_6));web_interface.add4send(value);web_interface.add4send(PROGMEM2CHAR(FORM_INPUT_7));
 #define INPUT_TEXT_ERROR( id,label, name,placeholder,value)  web_interface.add4send(PROGMEM2CHAR(FORM_INPUT_1_ERROR));web_interface.add4send(id);web_interface.add4send(PROGMEM2CHAR(FORM_INPUT_2));web_interface.add4send(label);web_interface.add4send(PROGMEM2CHAR(FORM_INPUT_3));web_interface.add4send(id);web_interface.add4send(PROGMEM2CHAR(FORM_INPUT_4));web_interface.add4send(name);web_interface.add4send(PROGMEM2CHAR(FORM_INPUT_5));web_interface.add4send(placeholder);web_interface.add4send(PROGMEM2CHAR(FORM_INPUT_6));web_interface.add4send(value);web_interface.add4send(PROGMEM2CHAR(FORM_INPUT_7));
+#define INPUT_PASSWORD( id,label, name,placeholder,value)  web_interface.add4send(PROGMEM2CHAR(FORM_INPUT_1));web_interface.add4send(id);web_interface.add4send(PROGMEM2CHAR(FORM_INPUT_2));web_interface.add4send(label);web_interface.add4send(PROGMEM2CHAR(FORM_INPUT_3P));web_interface.add4send(id);web_interface.add4send(PROGMEM2CHAR(FORM_INPUT_4));web_interface.add4send(name);web_interface.add4send(PROGMEM2CHAR(FORM_INPUT_5));web_interface.add4send(placeholder);web_interface.add4send(PROGMEM2CHAR(FORM_INPUT_6));web_interface.add4send(value);web_interface.add4send(PROGMEM2CHAR(FORM_INPUT_7));
+#define INPUT_PASSWORD_ERROR( id,label, name,placeholder,value)  web_interface.add4send(PROGMEM2CHAR(FORM_INPUT_1_ERROR));web_interface.add4send(id);web_interface.add4send(PROGMEM2CHAR(FORM_INPUT_2));web_interface.add4send(label);web_interface.add4send(PROGMEM2CHAR(FORM_INPUT_3P));web_interface.add4send(id);web_interface.add4send(PROGMEM2CHAR(FORM_INPUT_4));web_interface.add4send(name);web_interface.add4send(PROGMEM2CHAR(FORM_INPUT_5));web_interface.add4send(placeholder);web_interface.add4send(PROGMEM2CHAR(FORM_INPUT_6));web_interface.add4send(value);web_interface.add4send(PROGMEM2CHAR(FORM_INPUT_7));
+#define INPUT_CHECKBOX(name,label,status)  web_interface.add4send(PROGMEM2CHAR(FORM_CHECKBOX_1));web_interface.add4send(name);web_interface.add4send(PROGMEM2CHAR(FORM_CHECKBOX_2));web_interface.add4send(status);web_interface.add4send(PROGMEM2CHAR(FORM_CHECKBOX_3));web_interface.add4send(label);web_interface.add4send(PROGMEM2CHAR(FORM_CHECKBOX_4));
 #define LABEL( title, value)  web_interface.add4send(PROGMEM2CHAR(LABEL_START)); web_interface.add4send(title);web_interface.add4send(PROGMEM2CHAR(LABEL_COLOR));web_interface.add4send(value);web_interface.add4send(PROGMEM2CHAR(LABEL_END));web_interface.add4send(PROGMEM2CHAR(BR));
 #define LABEL_UNITS(title, value,units) web_interface.add4send(PROGMEM2CHAR(LABEL_START));  web_interface.add4send(title);web_interface.add4send(PROGMEM2CHAR(LABEL_COLOR));web_interface.add4send(value);web_interface.add4send(units);web_interface.add4send(PROGMEM2CHAR(LABEL_END));web_interface.add4send(PROGMEM2CHAR(BR));
 #define TH_ENTRY(entry) web_interface.add4send(PROGMEM2CHAR(TH_S));web_interface.add4send(entry);web_interface.add4send(PROGMEM2CHAR(TH_E));
 #define THR_ENTRY(entry) web_interface.add4send(PROGMEM2CHAR(TH_R));web_interface.add4send(entry);web_interface.add4send(PROGMEM2CHAR(TH_E));
 #define TD_ENTRY(entry) web_interface.add4send(PROGMEM2CHAR(TD_S));web_interface.add4send(entry);web_interface.add4send(PROGMEM2CHAR(TD_E));
+#define TOPBAR(IP)  web_interface.add4send(PROGMEM2CHAR(NAV_START)); web_interface.add4send(PROGMEM2CHAR(NAV_LEFT_PART1)) ;  web_interface.add4send(PROGMEM2CHAR(NAV_ELEMENT_ACTIVE)) ;  web_interface.add4send(PROGMEM2CHAR(NAV_LEFT_PART2a) );  web_interface.add4send(IP);  web_interface.add4send(PROGMEM2CHAR(NAV_LEFT_PART2b)); web_interface.add4send(IP);  web_interface.add4send(PROGMEM2CHAR(NAV_LEFT_PART3b));  web_interface.add4send(IP);  web_interface.add4send(PROGMEM2CHAR(NAV_LEFT_PART4b));web_interface.add4send(PROGMEM2CHAR(NAV_LEFT_PARTEND)); web_interface.add4send(PROGMEM2CHAR(NAV_RIGHT_PART)) ;  web_interface.add4send(PROGMEM2CHAR(NAV_END));
 
-char* ICACHE_FLASH_ATTR strncpy_P(char* dest, const char* src, size_t size) {
-    const char* read = src;
-    char* write = dest;
-    char ch = '.';
-    while (size > 0 && ch != '\0')
-    {
-        ch = pgm_read_byte(read++);
-        *write++ = ch;
-        size--;
-    } 
-
-    return dest;
-}
 
 char * progmem2char(const char* src)
 {
   static char buffer[300];
   strcpy_P(buffer,src);
   return buffer;
+}
+
+bool WEBINTERFACE_CLASS::isSSIDValid(const char * ssid)
+{  //limited size 
+	char c;
+	if (strlen(ssid)>MAX_SSID_LENGH || strlen(ssid)<MIN_SSID_LENGH) return false;
+	//only letter and digit
+	for (int i=0;i < strlen(ssid);i++)
+		{
+			c = ssid[i];
+			if (!(isdigit(c) || isalpha(c))) return false;
+		}
+	return true;
+}
+
+bool WEBINTERFACE_CLASS::isPasswordValid(const char * password)
+{
+	char c;
+	 //limited size 
+	if ((strlen(password)>MAX_PASSWORD_LENGH)||  (strlen(password)<MIN_PASSWORD_LENGH)) return false;
+	//no space allowed
+	for (int i=0;i < strlen(password);i++)
+		{
+			c= password[i];
+			if (c==' ') return false;
+		}
+	return true;
+}
+
+bool WEBINTERFACE_CLASS::isIPValid(const char * IP)
+{  //limited size 
+	int internalcount=0;
+	int dotcount = 0;
+	bool previouswasdot=false;
+	char c;
+	if (strlen(IP)>15 || strlen(IP)==0) return false;
+	//cannot start with .
+	if (IP[0]=='.')return false;
+	//only letter and digit
+	for (int i=0;i < strlen(IP);i++)
+		{
+			c = IP[i];
+			if (isdigit(c))
+				{//only 3 digit at once
+					internalcount++;
+					previouswasdot=false;
+					if (internalcount>3)return false;
+				}
+			else if(c=='.')
+				{   //cannot have 2 dots side by side
+					if (previouswasdot)return false;
+					previouswasdot=true;
+					internalcount=0;
+					dotcount++;
+				}//if not a dot neither a digit it is wrong
+			else return false;
+		}
+	//if not 3 dots then it is wrong
+	if (dotcount!=3)return false;
+	//cannot have the last dot as last char
+	if (IP[strlen(IP)-1]=='.')return false;
+	return true;
 }
 
 //cannot put it in class then cast it as std::function<void(void)> so put outside
@@ -227,17 +319,7 @@ void handle_web_interface_root()
   web_interface.add4send(PROGMEM2CHAR(PAGE_HEAD_1));
   web_interface.add4send(PROGMEM2CHAR(PAGE_HEAD_2));
   //top bar
-  web_interface.add4send(PROGMEM2CHAR(NAV_START));
-  web_interface.add4send(PROGMEM2CHAR(NAV_LEFT_PART1)) ;
-  web_interface.add4send(PROGMEM2CHAR(NAV_ELEMENT_ACTIVE)) ;
-  web_interface.add4send(PROGMEM2CHAR(NAV_LEFT_PART2a) );
-  web_interface.add4send(IP.c_str());
-  web_interface.add4send(PROGMEM2CHAR(NAV_LEFT_PART2b));
-  web_interface.add4send(PROGMEM2CHAR(NAV_LEFT_PART3a));
-  web_interface.add4send(IP.c_str());
-  web_interface.add4send(PROGMEM2CHAR(NAV_LEFT_PART3b));
-  web_interface.add4send(PROGMEM2CHAR(NAV_RIGHT_PART)) ;
-  web_interface.add4send(PROGMEM2CHAR(NAV_END));
+  TOPBAR(IP.c_str())
  //system part
   web_interface.add4send(PROGMEM2CHAR(PANEL_TOP));
   web_interface.add4send(PROGMEM2CHAR(TITLE_SYSTEM));
@@ -334,8 +416,6 @@ void handle_web_interface_root()
 			 web_interface.add4send(PROGMEM2CHAR(TR_S));
 			 THR_ENTRY(String(istatus).c_str())
 			 TD_ENTRY(wifi_config.mac2str(station->bssid))
-			 //static char ipstr [16];
-			 //if (0>sprintf(ipstr, IPSTR,IP2STR(&station->ip))) strcpy (ipstr, "0.0.0.0");
 			 TD_ENTRY(wifi_config.ip2str((byte *)&station->ip))
 			 web_interface.add4send(PROGMEM2CHAR(TR_E));
 			station = STAILQ_NEXT(station, next);
@@ -429,17 +509,7 @@ void handle_web_interface_configSys()
   else stmp=wifi_config.ip2str(WiFi.softAPIP());
   web_interface.add4send(PROGMEM2CHAR(PAGE_HEAD_1));
   web_interface.add4send(PROGMEM2CHAR(PAGE_HEAD_2));
-  web_interface.add4send(PROGMEM2CHAR(NAV_START)) ;
-  web_interface.add4send(PROGMEM2CHAR(NAV_LEFT_PART1)) ;
-  web_interface.add4send(PROGMEM2CHAR(NAV_LEFT_PART2a)) ;
-  web_interface.add4send(stmp.c_str());
-  web_interface.add4send(PROGMEM2CHAR(NAV_LEFT_PART2b));
-  web_interface.add4send(PROGMEM2CHAR(NAV_ELEMENT_ACTIVE)) ;
-  web_interface.add4send(PROGMEM2CHAR(NAV_LEFT_PART3a));
-  web_interface.add4send(stmp.c_str());
-  web_interface.add4send(PROGMEM2CHAR(NAV_LEFT_PART3b));
-  web_interface.add4send(PROGMEM2CHAR(NAV_RIGHT_PART));
-  web_interface.add4send(PROGMEM2CHAR(NAV_END));
+  TOPBAR(stmp.c_str())
   web_interface.add4send(PROGMEM2CHAR(PANEL_TOP));
   web_interface.add4send(PROGMEM2CHAR(TITLE_SYSTEM));
   web_interface.add4send(PROGMEM2CHAR(PANEL_START));
@@ -466,7 +536,7 @@ void handle_web_interface_configSys()
   OPTION(PROGMEM2CHAR(VALUE_230400), stmp.c_str(),PROGMEM2CHAR(VALUE_230400))
   SELECT_END
   
-  web_interface.add4send(PROGMEM2CHAR(BR)); 
+  //web_interface.add4send(PROGMEM2CHAR(BR)); 
   
   if (!CONFIG::read_byte(EP_PHY_MODE, &bflag ))bflag=0;
   SELECT_START(PROGMEM2CHAR(SYS_2_ID),PROGMEM2CHAR(NETWORK_NAME),PROGMEM2CHAR(NETWORK_ID))
@@ -484,7 +554,7 @@ void handle_web_interface_configSys()
 	}
   SELECT_END
   
-  web_interface.add4send(PROGMEM2CHAR(BR)); 
+ // web_interface.add4send(PROGMEM2CHAR(BR)); 
   
   if (!CONFIG::read_byte(EP_SLEEP_MODE, &bflag ))bflag=0;
   SELECT_START(PROGMEM2CHAR(SYS_3_ID),PROGMEM2CHAR(SLEEP_MODE_NAME),PROGMEM2CHAR(SLEEP_MODE_ID))
@@ -499,17 +569,19 @@ void handle_web_interface_configSys()
   OPTION(String(MODEM_SLEEP_T).c_str(), stmp.c_str(),PROGMEM2CHAR(VALUE_MODEM))
   SELECT_END
   
-  web_interface.add4send(PROGMEM2CHAR(FORM_SUBMIT)); 
-  web_interface.add4send(PROGMEM2CHAR(FORM_END));
-  web_interface.add4send(PROGMEM2CHAR(PANEL_END)); 
   if(msg_alert_error) 
 	{
 		MSG_ERROR(smsg.c_str()) 
+		web_interface.add4send(PROGMEM2CHAR(FORM_SUBMIT)); 
 	}
-if(msg_alert_success) 
-	{
-		MSG_SUCCESS(smsg.c_str()) 
-	}
+  else if(msg_alert_success) 
+		{
+			MSG_SUCCESS(smsg.c_str()) 
+		}
+	else web_interface.add4send(PROGMEM2CHAR(FORM_SUBMIT)); 
+	
+  web_interface.add4send(PROGMEM2CHAR(FORM_END));
+  web_interface.add4send(PROGMEM2CHAR(PANEL_END)); 
   web_interface.add4send(PROGMEM2CHAR(PAGE_BOTTOM));
   web_interface.flushbuffer();
   if (msg_alert_success && !msg_alert_error)
@@ -517,6 +589,363 @@ if(msg_alert_success)
 		system_restart();
 	}
 }
+
+void handle_web_interface_configAP()
+{
+  String stmp,smsg;
+  char sbuf[MAX_PASSWORD_LENGH+1];
+  char error_display[9]={0,0,0,0,0,0,0,0,0};
+  char password_buf[MAX_PASSWORD_LENGH+1];
+  char ssid_buf[MAX_SSID_LENGH+1];
+  char ip_buf[15+1];
+  byte ip_sav[4];
+  byte gw_sav[4];
+  byte msk_sav[4];
+  char gw_buf[15+1];
+  char msk_buf[15+1];
+  byte visible_buf;
+  byte static_ip_buf;
+  byte auth_buf;
+  byte channel_buf;
+  byte phy_mode_buf;
+  int istatus=0;
+  byte bflag=0;
+  bool msg_alert_error=false;
+  bool msg_alert_success=false;
+  //check is it is a submission or a display
+  smsg="";
+  if (web_interface.WebServer.hasArg(PROGMEM2CHAR(SUBMIT_ID)))
+  {   //is there a correct list of values?
+	  if (web_interface.WebServer.hasArg(PROGMEM2CHAR(SSID_ID)) && web_interface.WebServer.hasArg(PROGMEM2CHAR(PASSWORD_ID))&& web_interface.WebServer.hasArg(PROGMEM2CHAR(NETWORK_ID))&& web_interface.WebServer.hasArg(PROGMEM2CHAR(AUTENTIFICATION_ID))&& web_interface.WebServer.hasArg(PROGMEM2CHAR(IP_NAME))&& web_interface.WebServer.hasArg(PROGMEM2CHAR(GATEWAY_ID))&& web_interface.WebServer.hasArg(PROGMEM2CHAR(SUBNET_ID))&& web_interface.WebServer.hasArg(PROGMEM2CHAR(CHANNEL_ID)))
+		{	//ssid
+			if (web_interface.WebServer.arg(PROGMEM2CHAR(SSID_ID)).length() > MAX_SSID_LENGH)
+				{
+				stmp = 	web_interface.WebServer.arg(PROGMEM2CHAR(SSID_ID)).substring(0,MAX_SSID_LENGH);
+				msg_alert_error=true;
+				error_display[0]=1;
+				smsg+=PROGMEM2CHAR(ERROR_INCORRECT_SSID);
+				web_interface.urldecode(ssid_buf,stmp.c_str());
+				}
+			else
+				web_interface.urldecode(ssid_buf,web_interface.WebServer.arg(PROGMEM2CHAR(SSID_ID)).c_str());
+			if (!web_interface.isSSIDValid(ssid_buf))
+				{
+				msg_alert_error=true;
+				smsg+=PROGMEM2CHAR(ERROR_INCORRECT_SSID);
+				error_display[0]=1;	
+				}
+
+			if (web_interface.WebServer.arg(PROGMEM2CHAR(PASSWORD_ID)).length() > MAX_PASSWORD_LENGH)
+				{
+				stmp = 	web_interface.WebServer.arg(PROGMEM2CHAR(PASSWORD_ID)).substring(0,MAX_PASSWORD_LENGH);
+				msg_alert_error=true;
+				error_display[0]=2;
+				smsg+=PROGMEM2CHAR(ERROR_INCORRECT_PASSWORD);
+				web_interface.urldecode(password_buf,stmp.c_str());
+				}
+			else
+				web_interface.urldecode(password_buf,web_interface.WebServer.arg(PROGMEM2CHAR(PASSWORD_ID)).c_str());
+				Serial.println(password_buf);
+			if (!web_interface.isPasswordValid(password_buf))
+				{
+				msg_alert_error=true;
+				smsg+=PROGMEM2CHAR(ERROR_INCORRECT_PASSWORD);
+				error_display[2]=1;	
+				}
+			//ssid visible ?	
+			if (web_interface.WebServer.hasArg(PROGMEM2CHAR(VISIBLE_NAME))) 
+				{
+					visible_buf=1;
+				}
+			else
+				{
+					visible_buf=0;
+				}
+			//phy mode
+			phy_mode_buf  = atoi(web_interface.WebServer.arg(PROGMEM2CHAR(NETWORK_ID)).c_str());
+			if (!(phy_mode_buf==PHY_MODE_11B||phy_mode_buf==PHY_MODE_11G) )
+				 {
+					msg_alert_error=true;
+					smsg+=PROGMEM2CHAR(ERROR_QUERY);
+				 }
+			//channel
+			channel_buf  = atoi(web_interface.WebServer.arg(PROGMEM2CHAR(CHANNEL_ID)).c_str());
+			if (channel_buf< 1|| channel_buf>11) 
+				 {
+					msg_alert_error=true;
+					smsg+=PROGMEM2CHAR(ERROR_QUERY);
+				 }
+			//authentification
+			auth_buf  = atoi(web_interface.WebServer.arg(PROGMEM2CHAR(AUTENTIFICATION_ID)).c_str());
+			if (!(auth_buf==AUTH_OPEN||auth_buf==AUTH_WEP||auth_buf==AUTH_WPA_PSK||auth_buf==AUTH_WPA2_PSK||auth_buf==AUTH_WPA_WPA2_PSK||auth_buf==AUTH_MAX) )
+				 {
+					msg_alert_error=true;
+					smsg+=PROGMEM2CHAR(ERROR_QUERY);
+				 }	
+		    //Static IP ?	
+			if (web_interface.WebServer.hasArg(PROGMEM2CHAR(STATIC_IP_NAME))) 
+				{
+					static_ip_buf=STATIC_IP_MODE;
+				}
+			else
+				{
+					static_ip_buf=DHCP_MODE;
+				}
+				
+			//IP
+			if (web_interface.WebServer.arg(PROGMEM2CHAR(IP_NAME)).length() > MAX_SSID_LENGH)
+				{
+				stmp = 	web_interface.WebServer.arg(PROGMEM2CHAR(IP_NAME)).substring(0,MAX_SSID_LENGH);
+				msg_alert_error=true;
+				error_display[6]=1;
+				smsg+=PROGMEM2CHAR(ERROR_INCORRECT_IP_FORMAT);
+				web_interface.urldecode(ip_buf,stmp.c_str());
+				}
+			else
+				web_interface.urldecode(ip_buf,web_interface.WebServer.arg(PROGMEM2CHAR(IP_NAME)).c_str());
+			if (!web_interface.isIPValid(ip_buf))
+				{
+				msg_alert_error=true;
+				smsg+=PROGMEM2CHAR(ERROR_INCORRECT_IP_FORMAT);
+				error_display[6]=1;	
+				}
+				
+			//Gateway
+			if (web_interface.WebServer.arg(PROGMEM2CHAR(GATEWAY_ID)).length() > MAX_SSID_LENGH)
+				{
+				stmp = 	web_interface.WebServer.arg(PROGMEM2CHAR(GATEWAY_ID)).substring(0,MAX_SSID_LENGH);
+				msg_alert_error=true;
+				error_display[7]=1;
+				smsg+=PROGMEM2CHAR(ERROR_INCORRECT_IP_FORMAT);
+				web_interface.urldecode(gw_buf,stmp.c_str());
+				}
+			else
+				web_interface.urldecode(gw_buf,web_interface.WebServer.arg(PROGMEM2CHAR(GATEWAY_ID)).c_str());
+			if (!web_interface.isIPValid(gw_buf))
+				{
+				msg_alert_error=true;
+				smsg+=PROGMEM2CHAR(ERROR_INCORRECT_IP_FORMAT);
+				error_display[7]=1;	
+				}
+			//subnet
+			if (web_interface.WebServer.arg(PROGMEM2CHAR(SUBNET_ID)).length() > MAX_SSID_LENGH)
+				{
+				stmp = 	web_interface.WebServer.arg(PROGMEM2CHAR(SUBNET_ID)).substring(0,MAX_SSID_LENGH);
+				msg_alert_error=true;
+				error_display[8]=1;
+				smsg+=PROGMEM2CHAR(ERROR_INCORRECT_IP_FORMAT);
+				web_interface.urldecode(msk_buf,stmp.c_str());
+				}
+			else
+				web_interface.urldecode(msk_buf,web_interface.WebServer.arg(PROGMEM2CHAR(SUBNET_ID)).c_str());
+			if (!web_interface.isIPValid(msk_buf))
+				{
+				msg_alert_error=true;
+				smsg+=PROGMEM2CHAR(ERROR_INCORRECT_IP_FORMAT);
+				error_display[8]=1;	
+				}	 	    	  	    
+		}
+      else
+	   {
+		msg_alert_error=true;
+		smsg=PROGMEM2CHAR(ERROR_QUERY);
+	   }
+	   
+	   
+	   //no error ? then save
+	   if (msg_alert_error==false)
+		{
+		//save
+		 wifi_config.split_ip(ip_buf,ip_sav);
+		 wifi_config.split_ip(gw_buf,gw_sav);
+		 wifi_config.split_ip(msk_buf,msk_sav);
+		 if((!CONFIG::write_byte(EP_WIFI_MODE,AP_MODE))||
+			(!CONFIG::write_string(EP_SSID,ssid_buf,strlen(ssid_buf)))||
+			(!CONFIG::write_string(EP_PASSWORD,password_buf,strlen(password_buf)))||
+			(!CONFIG::write_byte(EP_SSID_VISIBLE,visible_buf))||
+			(!CONFIG::write_byte(EP_PHY_MODE,phy_mode_buf))||
+			(!CONFIG::write_byte(EP_CHANNEL,channel_buf)) ||
+			(!CONFIG::write_byte(EP_AUTH_TYPE,auth_buf)) ||
+			(!CONFIG::write_byte(EP_IP_MODE,static_ip_buf)) ||
+			(!CONFIG::write_buffer(EP_IP_VALUE,ip_sav,IP_LENGH))||
+			(!CONFIG::write_buffer(EP_GATEWAY_VALUE,gw_sav,IP_LENGH))||
+			(!CONFIG::write_buffer(EP_MASK_VALUE,msk_sav,IP_LENGH)))msg_alert_error=true;
+		
+		if (msg_alert_error)smsg=PROGMEM2CHAR(ERROR_WRITING_CHANGES);
+		if (!msg_alert_error)
+			{
+				msg_alert_success=true;
+				smsg=PROGMEM2CHAR(SAVED_CHANGES);
+				
+			}
+		}
+	   
+	}
+	else
+	{
+	//ssid
+	if (!CONFIG::read_string(EP_SSID, ssid_buf , MAX_SSID_LENGH) )strcpy(ssid_buf,PROGMEM2CHAR(DEFAULT_SSID));
+	//password 
+	if (!CONFIG::read_string(EP_PASSWORD, password_buf , MAX_PASSWORD_LENGH) )strcpy(password_buf,PROGMEM2CHAR(DEFAULT_PASSWORD));
+	//ssid visible ?
+	if (!CONFIG::read_byte(EP_SSID_VISIBLE, &visible_buf ))visible_buf=DEFAULT_SSID_VISIBLE;
+	//phy mode
+	if (!CONFIG::read_byte(EP_PHY_MODE, &phy_mode_buf ))phy_mode_buf=DEFAULT_PHY_MODE;
+	//authentification
+	if (!CONFIG::read_byte(EP_AUTH_TYPE, &auth_buf ))auth_buf=DEFAULT_AUTH_TYPE;
+	//channel
+	if (!CONFIG::read_byte(EP_CHANNEL, &channel_buf ))channel_buf=DEFAULT_CHANNEL;
+	//static IP ?
+	if (!CONFIG::read_byte(EP_IP_MODE, &static_ip_buf ))static_ip_buf=DEFAULT_IP_MODE;
+	//IP for static IP
+	if (!CONFIG::read_buffer(EP_IP_VALUE,(byte *)sbuf , IP_LENGH) )
+		strcpy(ip_buf,wifi_config.ip2str((byte *)DEFAULT_IP_VALUE));
+	else
+		strcpy(ip_buf,wifi_config.ip2str((byte *)sbuf));  
+	//GW for static IP
+	if (!CONFIG::read_buffer(EP_GATEWAY_VALUE,(byte *)sbuf , IP_LENGH) )
+		strcpy(gw_buf,wifi_config.ip2str((byte *)DEFAULT_GATEWAY_VALUE));
+	else
+		strcpy(gw_buf,wifi_config.ip2str((byte *)sbuf));  
+	
+	//Subnet for static IP
+	if (!CONFIG::read_buffer(EP_MASK_VALUE,(byte *)sbuf , IP_LENGH) )
+		strcpy(msk_buf,wifi_config.ip2str((byte *)DEFAULT_MASK_VALUE));
+	else
+		strcpy(msk_buf,wifi_config.ip2str((byte *)sbuf));  
+	}
+  
+  //display page
+  if (wifi_get_opmode()==WIFI_STA ) stmp=wifi_config.ip2str(WiFi.localIP());
+  else stmp=wifi_config.ip2str(WiFi.softAPIP());
+  web_interface.add4send(PROGMEM2CHAR(PAGE_HEAD_1));
+  web_interface.add4send(PROGMEM2CHAR(PAGE_HEAD_2));
+  TOPBAR(stmp.c_str())
+  web_interface.add4send(PROGMEM2CHAR(PANEL_TOP));
+  web_interface.add4send(PROGMEM2CHAR(ACCESS_POINT_TITLE));
+  web_interface.add4send(PROGMEM2CHAR(PANEL_START));
+  web_interface.add4send(PROGMEM2CHAR(FORM_START));
+  //ssid
+   if(error_display[0]==0)
+    {
+		INPUT_TEXT( PROGMEM2CHAR(AP_1_ID),PROGMEM2CHAR(SSID_TITLE), PROGMEM2CHAR(SSID_ID),PROGMEM2CHAR(SSID_ID),ssid_buf)
+	}
+    else
+    {
+		INPUT_TEXT_ERROR( PROGMEM2CHAR(AP_1_ID),PROGMEM2CHAR(SSID_TITLE), PROGMEM2CHAR(SSID_ID),PROGMEM2CHAR(SSID_ID),ssid_buf)
+	}
+  //password 
+   if(error_display[1]==0)
+    {
+		INPUT_PASSWORD( PROGMEM2CHAR(AP_2_ID),PROGMEM2CHAR(PASSWORD_TITLE), PROGMEM2CHAR(PASSWORD_ID),PROGMEM2CHAR(PASSWORD_NAME),password_buf)
+	}
+   else
+    {
+		INPUT_PASSWORD_ERROR( PROGMEM2CHAR(AP_2_ID),PROGMEM2CHAR(PASSWORD_TITLE), PROGMEM2CHAR(PASSWORD_ID),PROGMEM2CHAR(PASSWORD_NAME),password_buf)
+	}
+  //ssid visible ?
+  if (visible_buf==1)stmp=PROGMEM2CHAR(CHECKED_VALUE);
+  else stmp="";
+  INPUT_CHECKBOX( PROGMEM2CHAR(VISIBLE_NAME),PROGMEM2CHAR(VISIBLE_LABEL),stmp.c_str())
+  //Phy mode
+  SELECT_START(PROGMEM2CHAR(AP_4_ID),PROGMEM2CHAR(NETWORK_TITLE),PROGMEM2CHAR(NETWORK_ID))
+  if (phy_mode_buf==PHY_MODE_11B)stmp = PROGMEM2CHAR(VALUE_SELECTED);
+  else stmp="";
+  OPTION(String(PHY_MODE_11B).c_str(), stmp.c_str(),PROGMEM2CHAR(VALUE_11B))
+  if (phy_mode_buf==PHY_MODE_11G)stmp = PROGMEM2CHAR(VALUE_SELECTED);
+  else stmp="";
+  OPTION(String(PHY_MODE_11G).c_str(), stmp.c_str(),PROGMEM2CHAR(VALUE_11G))
+  SELECT_END
+
+  //CHANNEL
+  SELECT_START(PROGMEM2CHAR(AP_10_ID),PROGMEM2CHAR(CHANNEL_TITLE),PROGMEM2CHAR(CHANNEL_ID))
+  for (int c=1;c < 12;c++)
+	{
+	if (channel_buf==c)stmp = PROGMEM2CHAR(VALUE_SELECTED);
+	else stmp="";
+	OPTION(String(c).c_str(), stmp.c_str(),String(c).c_str())
+	}
+  SELECT_END
+	
+  //Authentification
+  SELECT_START(PROGMEM2CHAR(AP_5_ID),PROGMEM2CHAR(AUTENTIFICATION_TITLE),PROGMEM2CHAR(AUTENTIFICATION_ID))
+  if (auth_buf==AUTH_OPEN)stmp = PROGMEM2CHAR(VALUE_SELECTED);
+  else stmp="";
+  OPTION(String(AUTH_OPEN).c_str(), stmp.c_str(),PROGMEM2CHAR(VALUE_NONE))
+  if (auth_buf==AUTH_WEP)stmp = PROGMEM2CHAR(VALUE_SELECTED);
+  else stmp="";
+  OPTION(String(AUTH_WEP).c_str(), stmp.c_str(),PROGMEM2CHAR(VALUE_WEP))
+  if (auth_buf==AUTH_WPA_PSK)stmp = PROGMEM2CHAR(VALUE_SELECTED);
+  else stmp="";
+  OPTION(String(AUTH_WPA_PSK).c_str(), stmp.c_str(),PROGMEM2CHAR(VALUE_WPA))
+  if (auth_buf==AUTH_WPA2_PSK)stmp = PROGMEM2CHAR(VALUE_SELECTED);
+  else stmp="";
+  OPTION(String(AUTH_WPA2_PSK).c_str(), stmp.c_str(),PROGMEM2CHAR(VALUE_WPA2))
+  if (auth_buf==AUTH_WPA_WPA2_PSK)stmp = PROGMEM2CHAR(VALUE_SELECTED);
+  else stmp="";
+  OPTION(String(AUTH_WPA_WPA2_PSK).c_str(), stmp.c_str(),PROGMEM2CHAR(VALUE_WPAWPA2))
+  if (auth_buf==AUTH_MAX)stmp = PROGMEM2CHAR(VALUE_SELECTED);
+  else stmp="";
+  OPTION(String(AUTH_MAX).c_str(), stmp.c_str(),PROGMEM2CHAR(VALUE_MAX))
+  SELECT_END
+  //static IP ?
+  if (static_ip_buf==STATIC_IP_MODE)stmp=PROGMEM2CHAR(CHECKED_VALUE);
+  else stmp="";
+  INPUT_CHECKBOX(PROGMEM2CHAR(STATIC_IP_NAME), PROGMEM2CHAR(STATIC_IP_LABEL),stmp.c_str())
+  // if (static_ip_buf==STATIC_IP_MODE)web_interface.add4send(PROGMEM2CHAR(SHOW_IP_BLOCK));
+  //else web_interface.add4send(PROGMEM2CHAR(HIDE_IP_BLOCK));
+  //IP for static IP
+   if(error_display[6]==0)
+    {
+		INPUT_TEXT( PROGMEM2CHAR(AP_7_ID),PROGMEM2CHAR(IP_TITLE), PROGMEM2CHAR(IP_NAME),PROGMEM2CHAR(IP_NAME),ip_buf)
+	}
+   else
+	{
+		INPUT_TEXT_ERROR( PROGMEM2CHAR(AP_7_ID),PROGMEM2CHAR(IP_TITLE), PROGMEM2CHAR(IP_NAME),PROGMEM2CHAR(IP_NAME),ip_buf)
+	}
+ //Gateway for static IP
+   if(error_display[7]==0)
+    {
+		INPUT_TEXT( PROGMEM2CHAR(AP_8_ID),PROGMEM2CHAR(GATEWAY_TITLE), PROGMEM2CHAR(GATEWAY_ID),PROGMEM2CHAR(GATEWAY_NAME),gw_buf)
+	}
+   else
+    {
+		INPUT_TEXT_ERROR( PROGMEM2CHAR(AP_8_ID),PROGMEM2CHAR(GATEWAY_TITLE), PROGMEM2CHAR(GATEWAY_ID),PROGMEM2CHAR(GATEWAY_NAME),gw_buf)
+	}
+  //Mask for static IP
+   if(error_display[8]==0)
+    {
+	INPUT_TEXT( PROGMEM2CHAR(AP_9_ID),PROGMEM2CHAR(SUBNET_TITLE), PROGMEM2CHAR(SUBNET_ID),PROGMEM2CHAR(SUBNET_NAME),msk_buf)
+	}
+   else
+    {
+	INPUT_TEXT_ERROR( PROGMEM2CHAR(AP_9_ID),PROGMEM2CHAR(SUBNET_TITLE), PROGMEM2CHAR(SUBNET_ID),PROGMEM2CHAR(SUBNET_NAME),msk_buf)
+	}
+	//web_interface.add4send(PROGMEM2CHAR(DIV_E));
+
+  
+  if(msg_alert_error) 
+	{
+		MSG_ERROR(smsg.c_str()) 
+		web_interface.add4send(PROGMEM2CHAR(FORM_SUBMIT)); 
+	}
+  else if(msg_alert_success) 
+		{
+			MSG_SUCCESS(smsg.c_str()) 
+		}
+	else web_interface.add4send(PROGMEM2CHAR(FORM_SUBMIT)); 
+		
+ 
+  web_interface.add4send(PROGMEM2CHAR(FORM_END));
+  web_interface.add4send(PROGMEM2CHAR(PANEL_END)); 
+  web_interface.add4send(PROGMEM2CHAR(PAGE_BOTTOM));
+  web_interface.flushbuffer();
+  if (msg_alert_success && !msg_alert_error)
+	{
+		system_restart();
+	}
+}
+
 
 void handle_not_found()
 {
@@ -534,7 +963,7 @@ void handle_not_found()
 //use same size as src is a recommendation
 void WEBINTERFACE_CLASS::urldecode(char *dst, const char *src)
 {
-  char a, b;
+  char a, b,c;
   if (dst==NULL) return;
   while (*src) {
     if ((*src == '%') &&
@@ -556,7 +985,9 @@ void WEBINTERFACE_CLASS::urldecode(char *dst, const char *src)
       src+=3;
     } 
     else {
-      *dst++ = *src++;
+		c = *src++;
+		if(c=='+')c=' ';
+      *dst++ = c;
     }
   }
   *dst++ = '\0';
@@ -613,6 +1044,7 @@ WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port):WebServer(port)
   //init what will handle "/"
   WebServer.on("/",HTTP_ANY, handle_web_interface_root);
   WebServer.on("/CONFIGSYS",HTTP_ANY, handle_web_interface_configSys);
+   WebServer.on("/CONFIGAP",HTTP_ANY, handle_web_interface_configAP);
   WebServer.onNotFound( handle_not_found);
   buffer2send="";
 }

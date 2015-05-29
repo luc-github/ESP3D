@@ -39,7 +39,6 @@ class WIFI_CONFIG
   bool Setup();
   char * mac2str(uint8_t mac [WL_MAC_ADDR_LENGTH]);
   char * ip2str(IPAddress Ip );
-  private:
   byte split_ip (char * ptr,byte * part);
 
 };

@@ -84,7 +84,9 @@ const char LOCAL_NAME[] PROGMEM =					"esp8266";
 //sizes
 #define EEPROM_SIZE					256 //max is 512
 #define MAX_SSID_LENGH				32
-#define MAX_PASSWORD_LENGH 	64
+#define MIN_SSID_LENGH				1
+#define MAX_PASSWORD_LENGH 			64
+#define MIN_PASSWORD_LENGH 			8
 #define IP_LENGH 							4
 #define BAUD_LENGH 					4
 

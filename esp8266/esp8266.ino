@@ -15,8 +15,7 @@
     along with Repetier-Firmware.  If not, see <http://www.gnu.org/licenses/>.
 
     This firmware is using the standard arduino IDE with module to support ESP8266:
-    https://github.com/sandeepmistry/esp8266-Arduino based on :
-    https://github.com/esp8266/Arduino
+    https://github.com/esp8266/Arduino from Bootmanager
 
     Latest version of the code and documentation can be found here :
     https://github.com/luc-github/ESP8266
@@ -46,7 +45,7 @@ extern "C" {
 
 void setup() {
   // init :
-  ESP.wdtDisable();
+ // ESP.wdtDisable();
   delay(8000);
   EEPROM.begin(EEPROM_SIZE);
   bool breset_config=false;
