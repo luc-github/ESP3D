@@ -30,15 +30,12 @@ class WEBINTERFACE_CLASS
   public:
   WEBINTERFACE_CLASS (int port = 82);
   ESP8266WebServer WebServer;
-  void flushbuffer(); 
-  void add4send(const char * data2send, bool bimmediatsend = false);
   void urldecode(char *dst, const char *src);
   bool isSSIDValid(const char * ssid);
   bool isPasswordValid(const char * password);
   bool isIPValid(const char * IP);
   private:
-  String buffer2send;
-  bool bsendingstarted; 
+
 };
 
 extern WEBINTERFACE_CLASS web_interface;
