@@ -214,8 +214,8 @@ const char ERROR_INCORRECT_PASSWORD[] PROGMEM = "Incorrect password : space not 
 const char ERROR_INCORRECT_IP_FORMAT[] PROGMEM = "Incorrect IP format, should be : xxx.xxx.xxx.xxx<BR>";
 const char SHOW_IP_BLOCK[] PROGMEM = "<div NAME=\"IP_BLOCK\" >";
 const char HIDE_IP_BLOCK[] PROGMEM = "<div NAME=\"IP_BLOCK\" style=\"visibility:none;\">";
-const char AVAILABLE_APS[] PROGMEM = " available AP";
-const char RSSI_NAME[] PROGMEM = "RSSI";
+const char AVAILABLE_APS[] PROGMEM = " AP(s) available";
+const char RSSI_NAME[] PROGMEM = "Signal";
 const char PROTECTED_NAME[] PROGMEM = "Protected";
 
 #define MSG_SUCCESS(msg) buffer2send+=(PROGMEM2CHAR(ALERT_SUCCESS));buffer2send+=(msg);buffer2send+=(PROGMEM2CHAR(DIV_E));
@@ -1167,7 +1167,8 @@ void handle_web_interface_configSTA()
       buffer2send+=(PROGMEM2CHAR(TR_S));
 	  THR_ENTRY(String(i+1).c_str())
 	  TD_ENTRY(WiFi.SSID(i))
-	  TD_ENTRY(String(WiFi.RSSI(i)).c_str())
+	  stmp = String(100+WiFi.RSSI(i)) + "%";
+	  TD_ENTRY(stmp.c_str())
 	  TD_ENTRY((WiFi.encryptionType(i) == ENC_TYPE_NONE)?" ":"*")
     }
    //close table
