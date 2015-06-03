@@ -32,7 +32,6 @@
 #include "config.h"
 #include "wifi.h"
 #include "webinterface.h"
-#include "datainterface.h"
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
@@ -42,6 +41,9 @@
 extern "C" {
 #include "user_interface.h"
 }
+#define MAX_SRV_CLIENTS 1
+WiFiServer server(8888);
+WiFiClient serverClients[MAX_SRV_CLIENTS];
 
 void setup() {
   // init :
@@ -76,7 +78,8 @@ void setup() {
   delay(1000);
   //start interfaces
   web_interface.WebServer.begin();
-  data_interface.WebServer.begin();
+  server.begin();
+  server.setNoDelay(true);
 }
 
 
@@ -89,5 +92,41 @@ void loop() {
 //web requests
 web_interface.WebServer.handleClient();
 //TODO use a method to handle serial also in class and call it instead of this one
-data_interface.WebServer.handleClient();
+uint8_t i;
+  //check if there are any new clients
+  if (server.hasClient()){
+    for(i = 0; i < MAX_SRV_CLIENTS; i++){
+      //find free/disconnected spot
+      if (!serverClients[i] || !serverClients[i].connected()){
+        if(serverClients[i]) serverClients[i].stop();
+        serverClients[i] = server.available();
+        continue;
+      }
+    }
+    //no free/disconnected spot so reject
+    WiFiClient serverClient = server.available();
+    serverClient.stop();
+  }
+  //check clients for data
+  for(i = 0; i < MAX_SRV_CLIENTS; i++){
+    if (serverClients[i] && serverClients[i].connected()){
+      if(serverClients[i].available()){
+        //get data from the telnet client and push it to the UART
+        while(serverClients[i].available()) Serial.write(serverClients[i].read());
+      }
+    }
+  }
+  //check UART for data
+  if(Serial.available()){
+    size_t len = Serial.available();
+    uint8_t sbuf[len];
+    Serial.readBytes(sbuf, len);
+    //push UART data to all connected telnet clients
+    for(i = 0; i < MAX_SRV_CLIENTS; i++){
+      if (serverClients[i] && serverClients[i].connected()){
+        serverClients[i].write(sbuf, len);
+        delay(1);
+      }
+    }
+  }
 }
