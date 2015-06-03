@@ -44,13 +44,13 @@ TBD
 ##Configuration      
 Default Settings:    
 AP:ESP8266    
-PW:12345678 
-Authentification: WPA
-Mode: g (n is not supported by AP, just by STA)
-channel: 11
-AP: visible
-Sleep Mode: Modem
-IP Mode: Static IP
+PW:12345678   
+Authentification: WPA     
+Mode: g (n is not supported by AP, just by STA)    
+channel: 11    
+AP: visible    
+Sleep Mode: Modem    
+IP Mode: Static IP    
 IP: 192.168.0.1   
 Mask: 255.255.255.0   
 GW:192.168.0.1    
