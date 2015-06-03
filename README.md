@@ -4,7 +4,7 @@
 FW for ESP8266 used with 3D printer
 
 ##Description      
-Thanks to @disneysw for bringing this module idea
+Thanks to @disneysw for bringing this module idea    
 Thanks to @lkarlslund for suggestion about independant reset using GPIO2   
 
 Have a bridge configurable by web (implemented) and optionally by printer (not yet implemented)  
