@@ -116,12 +116,14 @@ bool CONFIG::reset_config()
   if(!CONFIG::write_buffer(EP_IP_VALUE,DEFAULT_IP_VALUE,IP_LENGH))return false;
   if(!CONFIG::write_buffer(EP_MASK_VALUE,DEFAULT_MASK_VALUE,IP_LENGH))return false;
   if(!CONFIG::write_buffer(EP_GATEWAY_VALUE,DEFAULT_GATEWAY_VALUE,IP_LENGH))return false;
-  if(!CONFIG::write_buffer(EP_BAUD_RATE,(const byte *)&DEFAULT_BAUD_RATE,BAUD_LENGH))return false;
+  if(!CONFIG::write_buffer(EP_BAUD_RATE,(const byte *)&DEFAULT_BAUD_RATE,INTEGER_LENGH))return false;
   if(!CONFIG::write_byte(EP_PHY_MODE,DEFAULT_PHY_MODE))return false;
   if(!CONFIG::write_byte(EP_SLEEP_MODE,DEFAULT_SLEEP_MODE))return false;
   if(!CONFIG::write_byte(EP_CHANNEL,DEFAULT_CHANNEL))return false;
   if(!CONFIG::write_byte(EP_AUTH_TYPE,DEFAULT_AUTH_TYPE))return false;
   if(!CONFIG::write_byte(EP_SSID_VISIBLE,DEFAULT_SSID_VISIBLE))return false;
+  if(!CONFIG::write_buffer(EP_WEB_PORT,(const byte *)&DEFAULT_WEB_PORT,INTEGER_LENGH))return false;
+  if(!CONFIG::write_buffer(EP_DATA_PORT,(const byte *)&DEFAULT_DATA_PORT,INTEGER_LENGH))return false;
   return true;
 }
 
@@ -138,10 +140,12 @@ void CONFIG::print_config()
   if (CONFIG::read_buffer(EP_IP_VALUE,(byte *)sbuf , IP_LENGH))Serial.println(wifi_config.ip2str((byte *)sbuf));
   if (CONFIG::read_buffer(EP_MASK_VALUE, (byte *)sbuf  , IP_LENGH))Serial.println(wifi_config.ip2str((byte *)sbuf));
   if (CONFIG::read_buffer(EP_GATEWAY_VALUE, (byte *)sbuf  , IP_LENGH))Serial.println(wifi_config.ip2str((byte *)sbuf));
-  if (CONFIG::read_buffer(EP_BAUD_RATE,  (byte *)&ibuf , BAUD_LENGH))Serial.println(ibuf);
+  if (CONFIG::read_buffer(EP_BAUD_RATE,  (byte *)&ibuf , INTEGER_LENGH))Serial.println(ibuf);
   if (CONFIG::read_byte(EP_PHY_MODE, &bbuf ))Serial.println(byte(bbuf));
   if (CONFIG::read_byte(EP_SLEEP_MODE, &bbuf ))Serial.println(byte(bbuf));
   if (CONFIG::read_byte(EP_CHANNEL, &bbuf ))Serial.println(byte(bbuf));
   if (CONFIG::read_byte(EP_AUTH_TYPE, &bbuf ))Serial.println(byte(bbuf));
   if (CONFIG::read_byte(EP_SSID_VISIBLE, &bbuf ))Serial.println(byte(bbuf));
+  if (CONFIG::read_buffer(EP_WEB_PORT,  (byte *)&ibuf , INTEGER_LENGH))Serial.println(ibuf);
+  if (CONFIG::read_buffer(EP_DATA_PORT,  (byte *)&ibuf , INTEGER_LENGH))Serial.println(ibuf);
 } 

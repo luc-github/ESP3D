@@ -170,7 +170,6 @@ const char ERROR_QUERY[] PROGMEM = "Error in query!!";
 const char ERROR_WRITING_CHANGES[] PROGMEM = "Error in writing changes!!";
 const char SAVED_CHANGES[] PROGMEM = "Change saved, restarting module...";
 const char SUBMIT_ID[] PROGMEM = "SUBMIT";
-const char SYS_1_ID[] PROGMEM = "SYS1";
 const char BAUD_RATE_NAME[] PROGMEM = "Baud rate";
 const char NETWORK_NAME[] PROGMEM = "Network";
 const char SLEEP_MODE_NAME[] PROGMEM = "Sleep Mode";
@@ -180,8 +179,6 @@ const char VALUE_38400[] PROGMEM = "38400";
 const char VALUE_57600[] PROGMEM = "57600";
 const char VALUE_115200[] PROGMEM = "115200";
 const char VALUE_230400[] PROGMEM = "230400";
-const char SYS_2_ID[] PROGMEM = "SYS2";
-const char SYS_3_ID[] PROGMEM = "SYS3";
 const char VALUE_SELECTED[] PROGMEM = "selected";
 const char AP_1_ID[] PROGMEM = "AP1";
 const char AP_2_ID[] PROGMEM = "AP2";
@@ -211,12 +208,19 @@ const char GATEWAY_NAME[] PROGMEM = "Gateway";
 const char SUBNET_NAME[] PROGMEM = "Subnet";
 const char ERROR_INCORRECT_SSID[] PROGMEM = "Incorrect SSID :only char and digit, no space, limited to 33 char length";
 const char ERROR_INCORRECT_PASSWORD[] PROGMEM = "Incorrect password : space not allowed, limited to 8~64 char length<BR>";
+const char ERROR_INCORRECT_PORT[] PROGMEM = "Incorrect port : 1~65000 only<BR>";
+const char ERROR_INCORRECT_PORT2[] PROGMEM = "Incorrect port : web port aannot be same as data port<BR>";
 const char ERROR_INCORRECT_IP_FORMAT[] PROGMEM = "Incorrect IP format, should be : xxx.xxx.xxx.xxx<BR>";
 const char SHOW_IP_BLOCK[] PROGMEM = "<div NAME=\"IP_BLOCK\" >";
 const char HIDE_IP_BLOCK[] PROGMEM = "<div NAME=\"IP_BLOCK\" style=\"visibility:none;\">";
 const char AVAILABLE_APS[] PROGMEM = " AP(s) available";
 const char RSSI_NAME[] PROGMEM = "Signal";
 const char PROTECTED_NAME[] PROGMEM = "Protected";
+const char WEB_PORT_TITLE[] PROGMEM = "Web port:";
+const char DATA_PORT_TITLE[] PROGMEM = "Data port:";
+const char WEB_PORT_ID[] PROGMEM = "WEBPORT";
+const char DATA_PORT_ID[] PROGMEM = "DATAPORT";
+const char PORT_DESC[]PROGMEM = "1~65000";
 
 #define MSG_SUCCESS(msg) buffer2send+=(PROGMEM2CHAR(ALERT_SUCCESS));buffer2send+=(msg);buffer2send+=(PROGMEM2CHAR(DIV_E));
 #define MSG_ERROR(msg) buffer2send+=(PROGMEM2CHAR(ALERT_ERROR));buffer2send+=(msg);buffer2send+=(PROGMEM2CHAR(DIV_E));
@@ -315,10 +319,15 @@ void handle_web_interface_root()
   String sstatus;
   struct softap_config apconfig;
   struct ip_info info;
-   int istatus;
+  int istatus;
   uint8_t mac [WL_MAC_ADDR_LENGTH];
   if (wifi_get_opmode()==WIFI_STA ) IP=wifi_config.ip2str(WiFi.localIP());
   else IP=wifi_config.ip2str(WiFi.softAPIP());
+  if (wifi_config.iweb_port!=80)
+	{
+		IP+=":";
+		IP+=String(wifi_config.iweb_port);
+	}
   buffer2send+=(PROGMEM2CHAR(PAGE_HEAD_1));
   buffer2send+=(PROGMEM2CHAR(PAGE_HEAD_2));
   //top bar
@@ -332,9 +341,12 @@ void handle_web_interface_root()
   LABEL_UNITS(PROGMEM2CHAR(FREE_MEM_TITLE),String(system_get_free_heap_size()).c_str(),PROGMEM2CHAR(UNIT_OCTET))
   LABEL(PROGMEM2CHAR(SDK_VERSION_TITLE),system_get_sdk_version())
   #ifdef MDNS_FEATURE
-  sstatus = PROGMEM2CHAR(HTTP_START);
-  sstatus+=PROGMEM2CHAR(LOCAL_NAME);
-  LABEL_UNITS(PROGMEM2CHAR(HTTP_MDNS_NAME),sstatus.c_str(),PROGMEM2CHAR(HTTP_END))
+  if (wifi_get_opmode()==WIFI_STA )
+	{
+	sstatus = PROGMEM2CHAR(HTTP_START);
+	sstatus+=PROGMEM2CHAR(LOCAL_NAME);
+	LABEL_UNITS(PROGMEM2CHAR(HTTP_MDNS_NAME),sstatus.c_str(),PROGMEM2CHAR(HTTP_END))
+	}
   #endif
   istatus = wifi_get_phy_mode();
   if (istatus==PHY_MODE_11B) sstatus=PROGMEM2CHAR(VALUE_11B);
@@ -349,8 +361,14 @@ void handle_web_interface_root()
   //LABEL(sbuf,"Boot mode: ",String(system_get_boot_mode())) //no meaning so far
   LABEL(PROGMEM2CHAR(BOOT_VERSION_TITLE),String(system_get_boot_version()).c_str())
   istatus=0;
-  if (!CONFIG::read_buffer(EP_BAUD_RATE,  (byte *)&istatus , BAUD_LENGH))istatus=0;
+  if (!CONFIG::read_buffer(EP_BAUD_RATE,  (byte *)&istatus , INTEGER_LENGH))istatus=0;
   LABEL(PROGMEM2CHAR(BAUD_RATE_TITLE),String(istatus).c_str())
+  istatus=0;
+  if (!CONFIG::read_buffer(EP_WEB_PORT,  (byte *)&istatus , INTEGER_LENGH))istatus=0;
+  LABEL(PROGMEM2CHAR(WEB_PORT_TITLE),String(istatus).c_str())
+  istatus=0;
+  if (!CONFIG::read_buffer(EP_DATA_PORT,  (byte *)&istatus , INTEGER_LENGH))istatus=0;
+  LABEL(PROGMEM2CHAR(DATA_PORT_TITLE),String(istatus).c_str())
   buffer2send+=(PROGMEM2CHAR(PANEL_END));
  //access point
   buffer2send+=(PROGMEM2CHAR(PANEL_TOP));
@@ -456,7 +474,7 @@ void handle_web_interface_root()
 	 }
   buffer2send+=(PROGMEM2CHAR(PANEL_END));
   buffer2send+=(PROGMEM2CHAR(PAGE_BOTTOM));
-  web_interface.WebServer.send(200, "text/html", buffer2send);
+  web_interface->WebServer.send(200, "text/html", buffer2send);
 }
 
 void handle_web_interface_configSys()
@@ -465,20 +483,35 @@ void handle_web_interface_configSys()
   String buffer2send ="";
   int istatus=0;
   byte bflag=0;
+  char error_display[4]={0,0,0,0};
   bool msg_alert_error=false;
   bool msg_alert_success=false;
   int ibaud=0;
-  byte bnetwork=0;
+  int iweb_port =0;
+  int idata_port =0;
   byte bsleepmode=0;
   //check is it is a submission or a display
-  if (web_interface.WebServer.hasArg(PROGMEM2CHAR(SUBMIT_ID)))
+  if (web_interface->WebServer.hasArg(PROGMEM2CHAR(SUBMIT_ID)))
   {   //is there a correct list of values?
-	  if (web_interface.WebServer.hasArg(PROGMEM2CHAR(BAUD_RATE_ID)) && web_interface.WebServer.hasArg(PROGMEM2CHAR(SLEEP_MODE_ID)))
+	  if (web_interface->WebServer.hasArg(PROGMEM2CHAR(BAUD_RATE_ID)) && web_interface->WebServer.hasArg(PROGMEM2CHAR(SLEEP_MODE_ID))&& web_interface->WebServer.hasArg(PROGMEM2CHAR(WEB_PORT_ID))&& web_interface->WebServer.hasArg(PROGMEM2CHAR(DATA_PORT_ID)))
 		{   //is each value correct ?
-			ibaud  = atoi(web_interface.WebServer.arg(PROGMEM2CHAR(BAUD_RATE_ID)).c_str());
-			bsleepmode = atoi(web_interface.WebServer.arg(PROGMEM2CHAR(SLEEP_MODE_ID)).c_str());
+			ibaud  = atoi(web_interface->WebServer.arg(PROGMEM2CHAR(BAUD_RATE_ID)).c_str());
+			iweb_port  = atoi(web_interface->WebServer.arg(PROGMEM2CHAR(WEB_PORT_ID)).c_str());
+			idata_port  = atoi(web_interface->WebServer.arg(PROGMEM2CHAR(DATA_PORT_ID)).c_str());
+			bsleepmode = atoi(web_interface->WebServer.arg(PROGMEM2CHAR(SLEEP_MODE_ID)).c_str());
+			if (!(iweb_port>0 && iweb_port<65001) ||
+				!(idata_port>0 && idata_port<65001))
+				{
+					msg_alert_error=true;
+					smsg=PROGMEM2CHAR(ERROR_INCORRECT_PORT);
+			    }
+			if (iweb_port== idata_port)
+				{
+					msg_alert_error=true;
+					smsg=PROGMEM2CHAR(ERROR_INCORRECT_PORT2);
+			    }
 			if (!(ibaud==9600 || ibaud==19200|| ibaud==38400|| ibaud==57600|| ibaud==115200|| ibaud==230400) ||
-			     !(bsleepmode==NONE_SLEEP_T ||bsleepmode==LIGHT_SLEEP_T ||bsleepmode==MODEM_SLEEP_T ))
+			    !(bsleepmode==NONE_SLEEP_T ||bsleepmode==LIGHT_SLEEP_T ||bsleepmode==MODEM_SLEEP_T ))
 				{
 					msg_alert_error=true;
 					smsg=PROGMEM2CHAR(ERROR_QUERY);
@@ -492,7 +525,7 @@ void handle_web_interface_configSys()
 	   //if no error apply the changes
 		if (msg_alert_error!=true)
 			{
-			 if(!CONFIG::write_buffer(EP_BAUD_RATE,(const byte *)&ibaud,BAUD_LENGH)||!CONFIG::write_byte(EP_SLEEP_MODE,bsleepmode))
+			 if(!CONFIG::write_buffer(EP_BAUD_RATE,(const byte *)&ibaud,INTEGER_LENGH)||!CONFIG::write_buffer(EP_WEB_PORT,(const byte *)&iweb_port,INTEGER_LENGH)||!CONFIG::write_buffer(EP_DATA_PORT,(const byte *)&idata_port,INTEGER_LENGH)||!CONFIG::write_byte(EP_SLEEP_MODE,bsleepmode))
 				{
 					msg_alert_error=true;
 					smsg=PROGMEM2CHAR(ERROR_WRITING_CHANGES);
@@ -501,14 +534,27 @@ void handle_web_interface_configSys()
 			if (!msg_alert_error)
 				{
 					msg_alert_success=true;
+					wifi_config.iweb_port=iweb_port;
+					wifi_config.idata_port=idata_port;
 					smsg=PROGMEM2CHAR(SAVED_CHANGES);
 				}
 			}
 		
   }
-  if (!CONFIG::read_buffer(EP_BAUD_RATE,  (byte *)&istatus , BAUD_LENGH))istatus=0;
+  else
+	{
+	if (!CONFIG::read_buffer(EP_BAUD_RATE,  (byte *)&ibaud , INTEGER_LENGH))ibaud=DEFAULT_BAUD_RATE;
+	if (!CONFIG::read_byte(EP_SLEEP_MODE, &bsleepmode ))bsleepmode=DEFAULT_SLEEP_MODE;
+	if (!CONFIG::read_buffer(EP_WEB_PORT,  (byte *)&iweb_port , INTEGER_LENGH))ibaud=DEFAULT_WEB_PORT;
+	if (!CONFIG::read_buffer(EP_DATA_PORT,  (byte *)&idata_port , INTEGER_LENGH))ibaud=DEFAULT_DATA_PORT;
+	}
   if (wifi_get_opmode()==WIFI_STA ) stmp=wifi_config.ip2str(WiFi.localIP());
   else stmp=wifi_config.ip2str(WiFi.softAPIP());
+  if (wifi_config.iweb_port!=80)
+	{
+		stmp+=":";
+		stmp+=String(wifi_config.iweb_port);
+	}
   buffer2send+=(PROGMEM2CHAR(PAGE_HEAD_1));
   buffer2send+=(PROGMEM2CHAR(PAGE_HEAD_2));
   TOPBAR(stmp.c_str())
@@ -516,43 +562,61 @@ void handle_web_interface_configSys()
   buffer2send+=(PROGMEM2CHAR(TITLE_SYSTEM));
   buffer2send+=(PROGMEM2CHAR(PANEL_START));
   buffer2send+=(PROGMEM2CHAR(FORM_START));
- 
-  SELECT_START(PROGMEM2CHAR(SYS_1_ID),PROGMEM2CHAR(BAUD_RATE_NAME),PROGMEM2CHAR(BAUD_RATE_ID))
-  if (istatus==9600)stmp = PROGMEM2CHAR(VALUE_SELECTED);
+  //baud rate
+  SELECT_START(PROGMEM2CHAR(AP_1_ID),PROGMEM2CHAR(BAUD_RATE_NAME),PROGMEM2CHAR(BAUD_RATE_ID))
+  if (ibaud==9600)stmp = PROGMEM2CHAR(VALUE_SELECTED);
   else stmp="";
   OPTION(PROGMEM2CHAR(VALUE_9600), stmp.c_str(),PROGMEM2CHAR(VALUE_9600))
-   if (istatus==19200)stmp = PROGMEM2CHAR(VALUE_SELECTED);
+   if (ibaud==19200)stmp = PROGMEM2CHAR(VALUE_SELECTED);
   else stmp="";
   OPTION(PROGMEM2CHAR(VALUE_19200), stmp.c_str(),PROGMEM2CHAR(VALUE_19200))
-   if (istatus==38400)stmp = PROGMEM2CHAR(VALUE_SELECTED);
+   if (ibaud==38400)stmp = PROGMEM2CHAR(VALUE_SELECTED);
   else stmp="";
   OPTION(PROGMEM2CHAR(VALUE_38400), stmp.c_str(),PROGMEM2CHAR(VALUE_38400))
-   if (istatus==57600)stmp = PROGMEM2CHAR(VALUE_SELECTED);
+   if (ibaud==57600)stmp = PROGMEM2CHAR(VALUE_SELECTED);
   else stmp="";
   OPTION(PROGMEM2CHAR(VALUE_57600), stmp.c_str(),PROGMEM2CHAR(VALUE_57600))
-   if (istatus==115200)stmp = PROGMEM2CHAR(VALUE_SELECTED);
+   if (ibaud==115200)stmp = PROGMEM2CHAR(VALUE_SELECTED);
   else stmp="";
   OPTION(PROGMEM2CHAR(VALUE_115200), stmp.c_str(),PROGMEM2CHAR(VALUE_115200))
-   if (istatus==230400)stmp = PROGMEM2CHAR(VALUE_SELECTED);
+   if (ibaud==230400)stmp = PROGMEM2CHAR(VALUE_SELECTED);
   else stmp="";
   OPTION(PROGMEM2CHAR(VALUE_230400), stmp.c_str(),PROGMEM2CHAR(VALUE_230400))
   SELECT_END
    
  // buffer2send+=(PROGMEM2CHAR(BR)); 
   
-  if (!CONFIG::read_byte(EP_SLEEP_MODE, &bflag ))bflag=0;
-  SELECT_START(PROGMEM2CHAR(SYS_3_ID),PROGMEM2CHAR(SLEEP_MODE_NAME),PROGMEM2CHAR(SLEEP_MODE_ID))
-  if (bflag==NONE_SLEEP_T)stmp = PROGMEM2CHAR(VALUE_SELECTED);
+  //sleep mode
+  SELECT_START(PROGMEM2CHAR(AP_2_ID),PROGMEM2CHAR(SLEEP_MODE_NAME),PROGMEM2CHAR(SLEEP_MODE_ID))
+  if (bsleepmode==NONE_SLEEP_T)stmp = PROGMEM2CHAR(VALUE_SELECTED);
   else stmp="";
   OPTION(String(NONE_SLEEP_T).c_str(), stmp.c_str(),PROGMEM2CHAR(VALUE_NONE))
-  if (bflag==LIGHT_SLEEP_T)stmp = PROGMEM2CHAR(VALUE_SELECTED);
+  if (bsleepmode==LIGHT_SLEEP_T)stmp = PROGMEM2CHAR(VALUE_SELECTED);
   else stmp="";
   OPTION(String(LIGHT_SLEEP_T).c_str(), stmp.c_str(),PROGMEM2CHAR(VALUE_LIGHT))
-  if (bflag==MODEM_SLEEP_T)stmp = PROGMEM2CHAR(VALUE_SELECTED);
+  if (bsleepmode==MODEM_SLEEP_T)stmp = PROGMEM2CHAR(VALUE_SELECTED);
   else stmp="";
   OPTION(String(MODEM_SLEEP_T).c_str(), stmp.c_str(),PROGMEM2CHAR(VALUE_MODEM))
   SELECT_END
   
+  //web port
+  if(error_display[2]==0)
+    {
+		INPUT_TEXT( PROGMEM2CHAR(AP_3_ID),PROGMEM2CHAR(WEB_PORT_TITLE), PROGMEM2CHAR(WEB_PORT_ID),PROGMEM2CHAR(PORT_DESC),String(iweb_port).c_str())
+	}
+   else
+	{
+		INPUT_TEXT_ERROR( PROGMEM2CHAR(AP_3_ID),PROGMEM2CHAR(WEB_PORT_TITLE), PROGMEM2CHAR(WEB_PORT_ID),PROGMEM2CHAR(PORT_DESC),String(iweb_port).c_str())
+	}
+  //data port
+  if(error_display[3]==0)
+    {
+		INPUT_TEXT( PROGMEM2CHAR(AP_4_ID),PROGMEM2CHAR(DATA_PORT_TITLE), PROGMEM2CHAR(DATA_PORT_ID),PROGMEM2CHAR(PORT_DESC),String(idata_port).c_str())
+	}
+   else
+	{
+		INPUT_TEXT_ERROR( PROGMEM2CHAR(AP_4_ID),PROGMEM2CHAR(DATA_PORT_TITLE), PROGMEM2CHAR(DATA_PORT_ID),PROGMEM2CHAR(PORT_DESC),String(idata_port).c_str())
+	}
   if(msg_alert_error) 
 	{
 		MSG_ERROR(smsg.c_str()) 
@@ -567,7 +631,7 @@ void handle_web_interface_configSys()
   buffer2send+=(PROGMEM2CHAR(FORM_END));
   buffer2send+=(PROGMEM2CHAR(PANEL_END)); 
   buffer2send+=(PROGMEM2CHAR(PAGE_BOTTOM));
-  web_interface.WebServer.send(200, "text/html", buffer2send);
+  web_interface->WebServer.send(200, "text/html", buffer2send);
   if (msg_alert_success && !msg_alert_error)
 	{
 		system_restart();
@@ -599,46 +663,46 @@ void handle_web_interface_configAP()
   bool msg_alert_success=false;
   //check is it is a submission or a display
   smsg="";
-  if (web_interface.WebServer.hasArg(PROGMEM2CHAR(SUBMIT_ID)))
+  if (web_interface->WebServer.hasArg(PROGMEM2CHAR(SUBMIT_ID)))
   {   //is there a correct list of values?
-	  if (web_interface.WebServer.hasArg(PROGMEM2CHAR(SSID_ID)) && web_interface.WebServer.hasArg(PROGMEM2CHAR(PASSWORD_ID))&& web_interface.WebServer.hasArg(PROGMEM2CHAR(NETWORK_ID))&& web_interface.WebServer.hasArg(PROGMEM2CHAR(AUTENTIFICATION_ID))&& web_interface.WebServer.hasArg(PROGMEM2CHAR(IP_NAME))&& web_interface.WebServer.hasArg(PROGMEM2CHAR(GATEWAY_ID))&& web_interface.WebServer.hasArg(PROGMEM2CHAR(SUBNET_ID))&& web_interface.WebServer.hasArg(PROGMEM2CHAR(CHANNEL_ID)))
+	  if (web_interface->WebServer.hasArg(PROGMEM2CHAR(SSID_ID)) && web_interface->WebServer.hasArg(PROGMEM2CHAR(PASSWORD_ID))&& web_interface->WebServer.hasArg(PROGMEM2CHAR(NETWORK_ID))&& web_interface->WebServer.hasArg(PROGMEM2CHAR(AUTENTIFICATION_ID))&& web_interface->WebServer.hasArg(PROGMEM2CHAR(IP_NAME))&& web_interface->WebServer.hasArg(PROGMEM2CHAR(GATEWAY_ID))&& web_interface->WebServer.hasArg(PROGMEM2CHAR(SUBNET_ID))&& web_interface->WebServer.hasArg(PROGMEM2CHAR(CHANNEL_ID)))
 		{	//ssid
-			if (web_interface.WebServer.arg(PROGMEM2CHAR(SSID_ID)).length() > MAX_SSID_LENGH)
+			if (web_interface->WebServer.arg(PROGMEM2CHAR(SSID_ID)).length() > MAX_SSID_LENGH)
 				{
-				stmp = 	web_interface.WebServer.arg(PROGMEM2CHAR(SSID_ID)).substring(0,MAX_SSID_LENGH);
+				stmp = 	web_interface->WebServer.arg(PROGMEM2CHAR(SSID_ID)).substring(0,MAX_SSID_LENGH);
 				msg_alert_error=true;
 				error_display[0]=1;
 				smsg+=PROGMEM2CHAR(ERROR_INCORRECT_SSID);
-				web_interface.urldecode(ssid_buf,stmp.c_str());
+				web_interface->urldecode(ssid_buf,stmp.c_str());
 				}
 			else
-				web_interface.urldecode(ssid_buf,web_interface.WebServer.arg(PROGMEM2CHAR(SSID_ID)).c_str());
-			if (!web_interface.isSSIDValid(ssid_buf))
+				web_interface->urldecode(ssid_buf,web_interface->WebServer.arg(PROGMEM2CHAR(SSID_ID)).c_str());
+			if (!web_interface->isSSIDValid(ssid_buf))
 				{
 				msg_alert_error=true;
 				smsg+=PROGMEM2CHAR(ERROR_INCORRECT_SSID);
 				error_display[0]=1;	
 				}
 
-			if (web_interface.WebServer.arg(PROGMEM2CHAR(PASSWORD_ID)).length() > MAX_PASSWORD_LENGH)
+			if (web_interface->WebServer.arg(PROGMEM2CHAR(PASSWORD_ID)).length() > MAX_PASSWORD_LENGH)
 				{
-				stmp = 	web_interface.WebServer.arg(PROGMEM2CHAR(PASSWORD_ID)).substring(0,MAX_PASSWORD_LENGH);
+				stmp = 	web_interface->WebServer.arg(PROGMEM2CHAR(PASSWORD_ID)).substring(0,MAX_PASSWORD_LENGH);
 				msg_alert_error=true;
 				error_display[0]=2;
 				smsg+=PROGMEM2CHAR(ERROR_INCORRECT_PASSWORD);
-				web_interface.urldecode(password_buf,stmp.c_str());
+				web_interface->urldecode(password_buf,stmp.c_str());
 				}
 			else
-				web_interface.urldecode(password_buf,web_interface.WebServer.arg(PROGMEM2CHAR(PASSWORD_ID)).c_str());
+				web_interface->urldecode(password_buf,web_interface->WebServer.arg(PROGMEM2CHAR(PASSWORD_ID)).c_str());
 				Serial.println(password_buf);
-			if (!web_interface.isPasswordValid(password_buf))
+			if (!web_interface->isPasswordValid(password_buf))
 				{
 				msg_alert_error=true;
 				smsg+=PROGMEM2CHAR(ERROR_INCORRECT_PASSWORD);
 				error_display[2]=1;	
 				}
 			//ssid visible ?	
-			if (web_interface.WebServer.hasArg(PROGMEM2CHAR(VISIBLE_NAME))) 
+			if (web_interface->WebServer.hasArg(PROGMEM2CHAR(VISIBLE_NAME))) 
 				{
 					visible_buf=1;
 				}
@@ -647,28 +711,28 @@ void handle_web_interface_configAP()
 					visible_buf=0;
 				}
 			//phy mode
-			phy_mode_buf  = atoi(web_interface.WebServer.arg(PROGMEM2CHAR(NETWORK_ID)).c_str());
+			phy_mode_buf  = atoi(web_interface->WebServer.arg(PROGMEM2CHAR(NETWORK_ID)).c_str());
 			if (!(phy_mode_buf==PHY_MODE_11B||phy_mode_buf==PHY_MODE_11G) )
 				 {
 					msg_alert_error=true;
 					smsg+=PROGMEM2CHAR(ERROR_QUERY);
 				 }
 			//channel
-			channel_buf  = atoi(web_interface.WebServer.arg(PROGMEM2CHAR(CHANNEL_ID)).c_str());
+			channel_buf  = atoi(web_interface->WebServer.arg(PROGMEM2CHAR(CHANNEL_ID)).c_str());
 			if (channel_buf< 1|| channel_buf>11) 
 				 {
 					msg_alert_error=true;
 					smsg+=PROGMEM2CHAR(ERROR_QUERY);
 				 }
 			//authentification
-			auth_buf  = atoi(web_interface.WebServer.arg(PROGMEM2CHAR(AUTENTIFICATION_ID)).c_str());
+			auth_buf  = atoi(web_interface->WebServer.arg(PROGMEM2CHAR(AUTENTIFICATION_ID)).c_str());
 			if (!(auth_buf==AUTH_OPEN||auth_buf==AUTH_WEP||auth_buf==AUTH_WPA_PSK||auth_buf==AUTH_WPA2_PSK||auth_buf==AUTH_WPA_WPA2_PSK||auth_buf==AUTH_MAX) )
 				 {
 					msg_alert_error=true;
 					smsg+=PROGMEM2CHAR(ERROR_QUERY);
 				 }	
 		    //Static IP ?	
-			if (web_interface.WebServer.hasArg(PROGMEM2CHAR(STATIC_IP_NAME))) 
+			if (web_interface->WebServer.hasArg(PROGMEM2CHAR(STATIC_IP_NAME))) 
 				{
 					static_ip_buf=STATIC_IP_MODE;
 				}
@@ -678,17 +742,17 @@ void handle_web_interface_configAP()
 				}
 				
 			//IP
-			if (web_interface.WebServer.arg(PROGMEM2CHAR(IP_NAME)).length() > MAX_SSID_LENGH)
+			if (web_interface->WebServer.arg(PROGMEM2CHAR(IP_NAME)).length() > MAX_SSID_LENGH)
 				{
-				stmp = 	web_interface.WebServer.arg(PROGMEM2CHAR(IP_NAME)).substring(0,MAX_SSID_LENGH);
+				stmp = 	web_interface->WebServer.arg(PROGMEM2CHAR(IP_NAME)).substring(0,MAX_SSID_LENGH);
 				msg_alert_error=true;
 				error_display[6]=1;
 				smsg+=PROGMEM2CHAR(ERROR_INCORRECT_IP_FORMAT);
-				web_interface.urldecode(ip_buf,stmp.c_str());
+				web_interface->urldecode(ip_buf,stmp.c_str());
 				}
 			else
-				web_interface.urldecode(ip_buf,web_interface.WebServer.arg(PROGMEM2CHAR(IP_NAME)).c_str());
-			if (!web_interface.isIPValid(ip_buf))
+				web_interface->urldecode(ip_buf,web_interface->WebServer.arg(PROGMEM2CHAR(IP_NAME)).c_str());
+			if (!web_interface->isIPValid(ip_buf))
 				{
 				msg_alert_error=true;
 				smsg+=PROGMEM2CHAR(ERROR_INCORRECT_IP_FORMAT);
@@ -696,34 +760,34 @@ void handle_web_interface_configAP()
 				}
 				
 			//Gateway
-			if (web_interface.WebServer.arg(PROGMEM2CHAR(GATEWAY_ID)).length() > MAX_SSID_LENGH)
+			if (web_interface->WebServer.arg(PROGMEM2CHAR(GATEWAY_ID)).length() > MAX_SSID_LENGH)
 				{
-				stmp = 	web_interface.WebServer.arg(PROGMEM2CHAR(GATEWAY_ID)).substring(0,MAX_SSID_LENGH);
+				stmp = 	web_interface->WebServer.arg(PROGMEM2CHAR(GATEWAY_ID)).substring(0,MAX_SSID_LENGH);
 				msg_alert_error=true;
 				error_display[7]=1;
 				smsg+=PROGMEM2CHAR(ERROR_INCORRECT_IP_FORMAT);
-				web_interface.urldecode(gw_buf,stmp.c_str());
+				web_interface->urldecode(gw_buf,stmp.c_str());
 				}
 			else
-				web_interface.urldecode(gw_buf,web_interface.WebServer.arg(PROGMEM2CHAR(GATEWAY_ID)).c_str());
-			if (!web_interface.isIPValid(gw_buf))
+				web_interface->urldecode(gw_buf,web_interface->WebServer.arg(PROGMEM2CHAR(GATEWAY_ID)).c_str());
+			if (!web_interface->isIPValid(gw_buf))
 				{
 				msg_alert_error=true;
 				smsg+=PROGMEM2CHAR(ERROR_INCORRECT_IP_FORMAT);
 				error_display[7]=1;	
 				}
 			//subnet
-			if (web_interface.WebServer.arg(PROGMEM2CHAR(SUBNET_ID)).length() > MAX_SSID_LENGH)
+			if (web_interface->WebServer.arg(PROGMEM2CHAR(SUBNET_ID)).length() > MAX_SSID_LENGH)
 				{
-				stmp = 	web_interface.WebServer.arg(PROGMEM2CHAR(SUBNET_ID)).substring(0,MAX_SSID_LENGH);
+				stmp = 	web_interface->WebServer.arg(PROGMEM2CHAR(SUBNET_ID)).substring(0,MAX_SSID_LENGH);
 				msg_alert_error=true;
 				error_display[8]=1;
 				smsg+=PROGMEM2CHAR(ERROR_INCORRECT_IP_FORMAT);
-				web_interface.urldecode(msk_buf,stmp.c_str());
+				web_interface->urldecode(msk_buf,stmp.c_str());
 				}
 			else
-				web_interface.urldecode(msk_buf,web_interface.WebServer.arg(PROGMEM2CHAR(SUBNET_ID)).c_str());
-			if (!web_interface.isIPValid(msk_buf))
+				web_interface->urldecode(msk_buf,web_interface->WebServer.arg(PROGMEM2CHAR(SUBNET_ID)).c_str());
+			if (!web_interface->isIPValid(msk_buf))
 				{
 				msg_alert_error=true;
 				smsg+=PROGMEM2CHAR(ERROR_INCORRECT_IP_FORMAT);
@@ -803,6 +867,11 @@ void handle_web_interface_configAP()
   //display page
   if (wifi_get_opmode()==WIFI_STA ) stmp=wifi_config.ip2str(WiFi.localIP());
   else stmp=wifi_config.ip2str(WiFi.softAPIP());
+  if (wifi_config.iweb_port!=80)
+	{
+		stmp+=":";
+		stmp+=String(wifi_config.iweb_port);
+	}
   buffer2send+=(PROGMEM2CHAR(PAGE_HEAD_1));
   buffer2send+=(PROGMEM2CHAR(PAGE_HEAD_2));
   TOPBAR(stmp.c_str())
@@ -924,7 +993,7 @@ void handle_web_interface_configAP()
   buffer2send+=(PROGMEM2CHAR(FORM_END));
   buffer2send+=(PROGMEM2CHAR(PANEL_END)); 
   buffer2send+=(PROGMEM2CHAR(PAGE_BOTTOM));
-  web_interface.WebServer.send(200, "text/html", buffer2send);
+  web_interface->WebServer.send(200, "text/html", buffer2send);
   if (msg_alert_success && !msg_alert_error)
 	{
 		system_restart();
@@ -958,53 +1027,53 @@ void handle_web_interface_configSTA()
   bool msg_alert_success=false;
   //check is it is a submission or a display
   smsg="";
-  if (web_interface.WebServer.hasArg(PROGMEM2CHAR(SUBMIT_ID)))
+  if (web_interface->WebServer.hasArg(PROGMEM2CHAR(SUBMIT_ID)))
   {   //is there a correct list of values?
-	  if (web_interface.WebServer.hasArg(PROGMEM2CHAR(SSID_ID)) && web_interface.WebServer.hasArg(PROGMEM2CHAR(PASSWORD_ID))&& web_interface.WebServer.hasArg(PROGMEM2CHAR(NETWORK_ID))&& web_interface.WebServer.hasArg(PROGMEM2CHAR(IP_NAME))&& web_interface.WebServer.hasArg(PROGMEM2CHAR(GATEWAY_ID))&& web_interface.WebServer.hasArg(PROGMEM2CHAR(SUBNET_ID)))
+	  if (web_interface->WebServer.hasArg(PROGMEM2CHAR(SSID_ID)) && web_interface->WebServer.hasArg(PROGMEM2CHAR(PASSWORD_ID))&& web_interface->WebServer.hasArg(PROGMEM2CHAR(NETWORK_ID))&& web_interface->WebServer.hasArg(PROGMEM2CHAR(IP_NAME))&& web_interface->WebServer.hasArg(PROGMEM2CHAR(GATEWAY_ID))&& web_interface->WebServer.hasArg(PROGMEM2CHAR(SUBNET_ID)))
 		{	//ssid
-			if (web_interface.WebServer.arg(PROGMEM2CHAR(SSID_ID)).length() > MAX_SSID_LENGH)
+			if (web_interface->WebServer.arg(PROGMEM2CHAR(SSID_ID)).length() > MAX_SSID_LENGH)
 				{
-				stmp = 	web_interface.WebServer.arg(PROGMEM2CHAR(SSID_ID)).substring(0,MAX_SSID_LENGH);
+				stmp = 	web_interface->WebServer.arg(PROGMEM2CHAR(SSID_ID)).substring(0,MAX_SSID_LENGH);
 				msg_alert_error=true;
 				error_display[0]=1;
 				smsg+=PROGMEM2CHAR(ERROR_INCORRECT_SSID);
-				web_interface.urldecode(ssid_buf,stmp.c_str());
+				web_interface->urldecode(ssid_buf,stmp.c_str());
 				}
 			else
-				web_interface.urldecode(ssid_buf,web_interface.WebServer.arg(PROGMEM2CHAR(SSID_ID)).c_str());
-			if (!web_interface.isSSIDValid(ssid_buf))
+				web_interface->urldecode(ssid_buf,web_interface->WebServer.arg(PROGMEM2CHAR(SSID_ID)).c_str());
+			if (!web_interface->isSSIDValid(ssid_buf))
 				{
 				msg_alert_error=true;
 				smsg+=PROGMEM2CHAR(ERROR_INCORRECT_SSID);
 				error_display[0]=1;	
 				}
 
-			if (web_interface.WebServer.arg(PROGMEM2CHAR(PASSWORD_ID)).length() > MAX_PASSWORD_LENGH)
+			if (web_interface->WebServer.arg(PROGMEM2CHAR(PASSWORD_ID)).length() > MAX_PASSWORD_LENGH)
 				{
-				stmp = 	web_interface.WebServer.arg(PROGMEM2CHAR(PASSWORD_ID)).substring(0,MAX_PASSWORD_LENGH);
+				stmp = 	web_interface->WebServer.arg(PROGMEM2CHAR(PASSWORD_ID)).substring(0,MAX_PASSWORD_LENGH);
 				msg_alert_error=true;
 				error_display[0]=2;
 				smsg+=PROGMEM2CHAR(ERROR_INCORRECT_PASSWORD);
-				web_interface.urldecode(password_buf,stmp.c_str());
+				web_interface->urldecode(password_buf,stmp.c_str());
 				}
 			else
-				web_interface.urldecode(password_buf,web_interface.WebServer.arg(PROGMEM2CHAR(PASSWORD_ID)).c_str());
+				web_interface->urldecode(password_buf,web_interface->WebServer.arg(PROGMEM2CHAR(PASSWORD_ID)).c_str());
 				Serial.println(password_buf);
-			if (!web_interface.isPasswordValid(password_buf))
+			if (!web_interface->isPasswordValid(password_buf))
 				{
 				msg_alert_error=true;
 				smsg+=PROGMEM2CHAR(ERROR_INCORRECT_PASSWORD);
 				error_display[2]=1;	
 				}
 			//phy mode
-			phy_mode_buf  = atoi(web_interface.WebServer.arg(PROGMEM2CHAR(NETWORK_ID)).c_str());
+			phy_mode_buf  = atoi(web_interface->WebServer.arg(PROGMEM2CHAR(NETWORK_ID)).c_str());
 			if (!(phy_mode_buf==PHY_MODE_11B||phy_mode_buf==PHY_MODE_11G  ||phy_mode_buf==PHY_MODE_11N))
 				 {
 					msg_alert_error=true;
 					smsg+=PROGMEM2CHAR(ERROR_QUERY);
 				 }
 		    //Static IP ?	
-			if (web_interface.WebServer.hasArg(PROGMEM2CHAR(STATIC_IP_NAME))) 
+			if (web_interface->WebServer.hasArg(PROGMEM2CHAR(STATIC_IP_NAME))) 
 				{
 					static_ip_buf=STATIC_IP_MODE;
 				}
@@ -1014,17 +1083,17 @@ void handle_web_interface_configSTA()
 				}
 				
 			//IP
-			if (web_interface.WebServer.arg(PROGMEM2CHAR(IP_NAME)).length() > MAX_SSID_LENGH)
+			if (web_interface->WebServer.arg(PROGMEM2CHAR(IP_NAME)).length() > MAX_SSID_LENGH)
 				{
-				stmp = 	web_interface.WebServer.arg(PROGMEM2CHAR(IP_NAME)).substring(0,MAX_SSID_LENGH);
+				stmp = 	web_interface->WebServer.arg(PROGMEM2CHAR(IP_NAME)).substring(0,MAX_SSID_LENGH);
 				msg_alert_error=true;
 				error_display[6]=1;
 				smsg+=PROGMEM2CHAR(ERROR_INCORRECT_IP_FORMAT);
-				web_interface.urldecode(ip_buf,stmp.c_str());
+				web_interface->urldecode(ip_buf,stmp.c_str());
 				}
 			else
-				web_interface.urldecode(ip_buf,web_interface.WebServer.arg(PROGMEM2CHAR(IP_NAME)).c_str());
-			if (!web_interface.isIPValid(ip_buf))
+				web_interface->urldecode(ip_buf,web_interface->WebServer.arg(PROGMEM2CHAR(IP_NAME)).c_str());
+			if (!web_interface->isIPValid(ip_buf))
 				{
 				msg_alert_error=true;
 				smsg+=PROGMEM2CHAR(ERROR_INCORRECT_IP_FORMAT);
@@ -1032,34 +1101,34 @@ void handle_web_interface_configSTA()
 				}
 				
 			//Gateway
-			if (web_interface.WebServer.arg(PROGMEM2CHAR(GATEWAY_ID)).length() > MAX_SSID_LENGH)
+			if (web_interface->WebServer.arg(PROGMEM2CHAR(GATEWAY_ID)).length() > MAX_SSID_LENGH)
 				{
-				stmp = 	web_interface.WebServer.arg(PROGMEM2CHAR(GATEWAY_ID)).substring(0,MAX_SSID_LENGH);
+				stmp = 	web_interface->WebServer.arg(PROGMEM2CHAR(GATEWAY_ID)).substring(0,MAX_SSID_LENGH);
 				msg_alert_error=true;
 				error_display[7]=1;
 				smsg+=PROGMEM2CHAR(ERROR_INCORRECT_IP_FORMAT);
-				web_interface.urldecode(gw_buf,stmp.c_str());
+				web_interface->urldecode(gw_buf,stmp.c_str());
 				}
 			else
-				web_interface.urldecode(gw_buf,web_interface.WebServer.arg(PROGMEM2CHAR(GATEWAY_ID)).c_str());
-			if (!web_interface.isIPValid(gw_buf))
+				web_interface->urldecode(gw_buf,web_interface->WebServer.arg(PROGMEM2CHAR(GATEWAY_ID)).c_str());
+			if (!web_interface->isIPValid(gw_buf))
 				{
 				msg_alert_error=true;
 				smsg+=PROGMEM2CHAR(ERROR_INCORRECT_IP_FORMAT);
 				error_display[7]=1;	
 				}
 			//subnet
-			if (web_interface.WebServer.arg(PROGMEM2CHAR(SUBNET_ID)).length() > MAX_SSID_LENGH)
+			if (web_interface->WebServer.arg(PROGMEM2CHAR(SUBNET_ID)).length() > MAX_SSID_LENGH)
 				{
-				stmp = 	web_interface.WebServer.arg(PROGMEM2CHAR(SUBNET_ID)).substring(0,MAX_SSID_LENGH);
+				stmp = 	web_interface->WebServer.arg(PROGMEM2CHAR(SUBNET_ID)).substring(0,MAX_SSID_LENGH);
 				msg_alert_error=true;
 				error_display[8]=1;
 				smsg+=PROGMEM2CHAR(ERROR_INCORRECT_IP_FORMAT);
-				web_interface.urldecode(msk_buf,stmp.c_str());
+				web_interface->urldecode(msk_buf,stmp.c_str());
 				}
 			else
-				web_interface.urldecode(msk_buf,web_interface.WebServer.arg(PROGMEM2CHAR(SUBNET_ID)).c_str());
-			if (!web_interface.isIPValid(msk_buf))
+				web_interface->urldecode(msk_buf,web_interface->WebServer.arg(PROGMEM2CHAR(SUBNET_ID)).c_str());
+			if (!web_interface->isIPValid(msk_buf))
 				{
 				msg_alert_error=true;
 				smsg+=PROGMEM2CHAR(ERROR_INCORRECT_IP_FORMAT);
@@ -1131,6 +1200,11 @@ void handle_web_interface_configSTA()
   //display page
   if (wifi_get_opmode()==WIFI_STA ) stmp=wifi_config.ip2str(WiFi.localIP());
   else stmp=wifi_config.ip2str(WiFi.softAPIP());
+  if (wifi_config.iweb_port!=80)
+	{
+		stmp+=":";
+		stmp+=String(wifi_config.iweb_port);
+	}
   buffer2send+=(PROGMEM2CHAR(PAGE_HEAD_1));
   buffer2send+=(PROGMEM2CHAR(PAGE_HEAD_2));
   TOPBAR(stmp.c_str())
@@ -1258,7 +1332,7 @@ void handle_web_interface_configSTA()
   buffer2send+=(PROGMEM2CHAR(FORM_END));
   buffer2send+=(PROGMEM2CHAR(PANEL_END)); 
   buffer2send+=(PROGMEM2CHAR(PAGE_BOTTOM));
-  web_interface.WebServer.send(200, "text/html", buffer2send);
+  web_interface->WebServer.send(200, "text/html", buffer2send);
   if (msg_alert_success && !msg_alert_error)
 	{
 		system_restart();
@@ -1272,10 +1346,15 @@ void handle_not_found()
   String buffer2send ="";
   if (wifi_get_opmode()==WIFI_STA ) IP=wifi_config.ip2str(WiFi.localIP());
   else IP=wifi_config.ip2str(WiFi.softAPIP());
-	 buffer2send+=(PROGMEM2CHAR(T404_PAGE));
-	 buffer2send+=(IP.c_str());
-	 buffer2send+=(PROGMEM2CHAR(T404_PAGE_2));
-	 web_interface.WebServer.send(200, "text/html", buffer2send);
+  if (wifi_config.iweb_port!=80)
+	{
+		IP+=":";
+		IP+=String(wifi_config.iweb_port);
+	}
+  buffer2send+=(PROGMEM2CHAR(T404_PAGE));
+  buffer2send+=(IP.c_str());
+  buffer2send+=(PROGMEM2CHAR(T404_PAGE_2));
+  web_interface->WebServer.send(200, "text/html", buffer2send);
 }
 
 //URI Decoding function 
@@ -1325,5 +1404,5 @@ WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port):WebServer(port)
   WebServer.onNotFound( handle_not_found);
 }
 
-WEBINTERFACE_CLASS web_interface(80);
+WEBINTERFACE_CLASS * web_interface;
 

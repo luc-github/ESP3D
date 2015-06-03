@@ -42,7 +42,7 @@ extern "C" {
 #include "user_interface.h"
 }
 #define MAX_SRV_CLIENTS 1
-WiFiServer server(8888);
+WiFiServer * data_server;
 WiFiClient serverClients[MAX_SRV_CLIENTS];
 
 void setup() {
@@ -56,20 +56,27 @@ void setup() {
   if (digitalRead(RESET_CONFIG_PIN)==0)breset_config=true;//if requested =>reset settings
   //default baud rate
   int baud_rate=0;
+  
   //check if EEPROM has value
-  if ( CONFIG::read_buffer(EP_BAUD_RATE,  (byte *)&baud_rate , BAUD_LENGH))
+  if ( CONFIG::read_buffer(EP_BAUD_RATE,  (byte *)&baud_rate , INTEGER_LENGH)&&CONFIG::read_buffer(EP_WEB_PORT,  (byte *)&(wifi_config.iweb_port) , INTEGER_LENGH)&&CONFIG::read_buffer(EP_DATA_PORT,  (byte *)&(wifi_config.idata_port) , INTEGER_LENGH))
     {
       //check if baud value is one of allowed ones
       if ( ! (baud_rate==9600 || baud_rate==19200 ||baud_rate==38400 ||baud_rate==57600 ||baud_rate==115200 ||baud_rate==230400) )breset_config=true;//baud rate is incorrect =>reset settings
+	  if (wifi_config.iweb_port<1 ||wifi_config.iweb_port>65001 || wifi_config.idata_port <1 || wifi_config.idata_port >65001)breset_config=true; //out of range =>reset settings
+    
     }
   else breset_config=true;//cannot access to config settings=> reset settings
+ 
+  
   //reset is requested
   if(breset_config)
     {
     //update EEPROM with default settings
     CONFIG::reset_config();
-    //use default baud rate
+    //use default baud rate and ports
     baud_rate=DEFAULT_BAUD_RATE;
+    wifi_config.iweb_port=DEFAULT_WEB_PORT;
+    wifi_config.idata_port=DEFAULT_DATA_PORT;
     }
   //setup serial
   Serial.begin(baud_rate);
@@ -77,9 +84,11 @@ void setup() {
   wifi_config.Setup();
   delay(1000);
   //start interfaces
-  web_interface.WebServer.begin();
-  server.begin();
-  server.setNoDelay(true);
+  web_interface = new WEBINTERFACE_CLASS(wifi_config.iweb_port);
+  data_server = new WiFiServer (wifi_config.idata_port);
+  web_interface->WebServer.begin();
+  data_server->begin();
+  data_server->setNoDelay(true);
 }
 
 
@@ -87,31 +96,31 @@ void setup() {
 void loop() {
 #ifdef MDNS_FEATURE
 	// Check for any mDNS queries and send responses
-	wifi_config.mdns.update();
+	wifi_config.Updatemdns();
 #endif
 //web requests
-web_interface.WebServer.handleClient();
+web_interface->WebServer.handleClient();
 //TODO use a method to handle serial also in class and call it instead of this one
 uint8_t i;
   //check if there are any new clients
-  if (server.hasClient()){
+  if (data_server->hasClient()){
     for(i = 0; i < MAX_SRV_CLIENTS; i++){
       //find free/disconnected spot
       if (!serverClients[i] || !serverClients[i].connected()){
         if(serverClients[i]) serverClients[i].stop();
-        serverClients[i] = server.available();
+        serverClients[i] = data_server->available();
         continue;
       }
     }
     //no free/disconnected spot so reject
-    WiFiClient serverClient = server.available();
+    WiFiClient serverClient = data_server->available();
     serverClient.stop();
   }
   //check clients for data
   for(i = 0; i < MAX_SRV_CLIENTS; i++){
     if (serverClients[i] && serverClients[i].connected()){
       if(serverClients[i].available()){
-        //get data from the telnet client and push it to the UART
+        //get data from the tpc client and push it to the UART
         while(serverClients[i].available()) Serial.write(serverClients[i].read());
       }
     }
@@ -121,7 +130,7 @@ uint8_t i;
     size_t len = Serial.available();
     uint8_t sbuf[len];
     Serial.readBytes(sbuf, len);
-    //push UART data to all connected telnet clients
+    //push UART data to all connected tcp clients
     for(i = 0; i < MAX_SRV_CLIENTS; i++){
       if (serverClients[i] && serverClients[i].connected()){
         serverClients[i].write(sbuf, len);

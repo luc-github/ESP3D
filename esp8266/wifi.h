@@ -35,7 +35,11 @@ class WIFI_CONFIG
   // multicast DNS responder feature
   #ifdef MDNS_FEATURE
 	MDNSResponder mdns;
+	void Updatemdns();
   #endif
+  byte current_mode;
+  int iweb_port;
+  int idata_port;
   bool Setup();
   char * mac2str(uint8_t mac [WL_MAC_ADDR_LENGTH]);
   char * ip2str(IPAddress Ip );

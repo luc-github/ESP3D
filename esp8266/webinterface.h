@@ -28,7 +28,7 @@
 class WEBINTERFACE_CLASS
 {
   public:
-  WEBINTERFACE_CLASS (int port = 82);
+  WEBINTERFACE_CLASS (int port = 80);
   ESP8266WebServer WebServer;
   void urldecode(char *dst, const char *src);
   bool isSSIDValid(const char * ssid);
@@ -38,6 +38,6 @@ class WEBINTERFACE_CLASS
 
 };
 
-extern WEBINTERFACE_CLASS web_interface;
+extern WEBINTERFACE_CLASS * web_interface;
 
 #endif

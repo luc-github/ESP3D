@@ -83,6 +83,7 @@ bool WIFI_CONFIG::Setup()
   if (!CONFIG::read_byte(EP_WIFI_MODE, &bflag ) ||  !CONFIG::read_string(EP_SSID, sbuf , MAX_SSID_LENGH) ||!CONFIG::read_string(EP_PASSWORD, pwd , MAX_PASSWORD_LENGH)) return false;
     //disconnect if connected
   WiFi.disconnect();
+  current_mode=bflag;
    //this is AP mode
   if (bflag==AP_MODE)
     {
@@ -160,5 +161,10 @@ bool WIFI_CONFIG::Setup()
     #endif
   return true;
 }
-
+#ifdef MDNS_FEATURE
+void WIFI_CONFIG::Updatemdns()
+{
+	if(current_mode==CLIENT_MODE)mdns.update();
+}
+#endif
 WIFI_CONFIG wifi_config;
