@@ -16,17 +16,14 @@ TBD
 --Use GPIO2 to ground to reset all settings in hard way - 2-6 sec after boot / not before!! Set GPIO2 to ground before boot change boot mode and go to special boot that do not reach FW - I did not found information on this. Currently boot take 10 sec - giving 8 seconds to connect GPIO2 to GND and do an hard recovery for settings   
 --Use GPIO0 to ground to be in update mode   
 --Use a switch to reset/disable module    
-<S>--Use GPIO2 connected to a printer pin to interrupt the bridge loop if need change configuration (may be not necessary if no performance impact of allowing ESP screening commands - TBT - TBC)   </S> no need anymore   
 --TODO: Full wiring with drawing     
 TBD         
 
 ##Development   
-Currently using [Arduino IDE 1.6.3](http://arduino.cc/en/Main/Software)  with the stand alone  esp8266 module 0.0.3 (https://github.com/sandeepmistry/esp8266-Arduino)    
-Full IDE from https://github.com/esp8266/Arduino can be used   
+Currently using [Arduino IDE 1.6.4](http://arduino.cc/en/Main/Software)  with the esp8266 module from board manager added from [github.com/esp8266/Arduino](https://github.com/esp8266/Arduino)
   
 Additionnaly:   
 --Use minimal css from http://getbootstrap.com/examples/theme/ if connected to internet, this is to get better UI and rendering according display device (link can be changed in FW), if not available ,CSS is ignored displaying basic HTML   
---Some Javascript is used to enhance web UI - very limited but I expected so error depending browser so will try to limit usage (test done using chrome/IE looks Ok but no time for safari/firefox/opera/etc...)    
 
 ##Flash the Module    
 *Tools:      
@@ -48,24 +45,32 @@ TBD
 ##Configuration      
 Default Settings:    
 AP:ESP8266    
-PW:12345678    
+PW:12345678 
+Authentification: WPA
+Mode: g (n is not supported by AP, just by STA)
+channel: 11
+AP: visible
+Sleep Mode: Modem
+IP Mode: Static IP
 IP: 192.168.0.1   
 Mask: 255.255.255.0   
 GW:192.168.0.1    
-<S>Bridge Mode   </S> no need anymore    
 Baud rate: 9600 
 
 From web: 
 port 80
 --Need picture and flow    
-<img src=https://raw.githubusercontent.com/luc-github/ESP8266/571463f4f6316998f4a3f171837b8ad202476598/screen.png>    
+<img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Page1.png><br> 
+<img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Page2.png><br>     
+<img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Page3.png><br>     
+<img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Page4.png>     
 
 
 ...    
 TBD
 
 
-##Commands from/to serial:    
+##Commands from/to serial(not yet implemented):    
 *from module to printer   [Need Printer FW support and can be disabled in ESP FW]    
     -M800 S1 , restart module done need a wifi/activity restart      
     -M801 [Message], Error message from module      
@@ -99,11 +104,10 @@ TBD
 -- do the bridge serial/TCPIP
 -- do coding   
 -- do testing   
--- do a complete drawing for connections   
--- show available AP in web page and allow to select 
--- show connected clients if in AP 
--- need to display wifi information in front end
--- need to display MAC address in front end/ configuration to help if MAC filtering on router is necessary
+-- do a complete drawing for connections    
+-- add some Javascript to enhance web UI 
+-- allow to change ports from Web UI, currently fixed to 80 and 8888
+
 
 more to come    
  
