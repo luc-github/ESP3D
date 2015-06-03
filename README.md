@@ -34,10 +34,9 @@ Additionnaly:
 --Connect GPIO0 to ground to be in update mode 
 
 ##Wifi connection      
-*Wifi Mode : Access point / Client station    (not sure it is useful to handle AP/STA in same time as make configuration more complex, but use AP/STA only to help the configuration mode = be able to scan other AP/ test connection when in AP mode )   
+*Wifi Mode : Access point / Client station  
 *IP Generation: DHCP/Static IP      
 *IP/MASK/GATEWAY for static data    
-<S>*Usage: Bridge/Front End  </S> no need anymore     
 *Baud Rate for serial (supported : 9600, 19200, 38400, 57600, 115200, 230400)    
 ...       
 TBD   
@@ -79,14 +78,14 @@ TBD
     ...    
     TBD    
         
-*from host to printer    [Need Printer FW support] on port 8888    
+*from host to printer   (not yet implemented) [Need Printer FW support] on port 8888    
     -M803 [IP, AP,SSID, Password....], ]Module configuration settings to be used  by module    
     -M805 query to get M804 informations    
     ...      
     TBD           
 
 
-*from printer to module   [Need Printer FW support and can be disabled in ESP FW]   
+*from printer to module   [Need Printer FW support and can be disabled in ESP FW] (not yet implemented)  
     -request configuration/status (generate the M804 as answer)   
     -set AP/STATION,SSID,PASSSWORD,DHC/STATIC,IP,MASK,GW,BAUD from serial    
     ...    
