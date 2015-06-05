@@ -19,7 +19,9 @@ Have a front end to know what is the wifi status (implemented) or know what is t
        
 
 ##Development   
-Currently using [Arduino IDE 1.6.4](http://arduino.cc/en/Main/Software)  with the esp8266 module from board manager added from [github.com/esp8266/Arduino](https://github.com/esp8266/Arduino)
+Currently using [Arduino IDE 1.6.4](http://arduino.cc/en/Main/Software)  with the esp8266 module from board manager added from [github.com/esp8266/Arduino](https://github.com/esp8266/Arduino)    
+using relased version (http://arduino.esp8266.com/package_esp8266com_index.json)     
+and staging version (http://arduino.esp8266.com/staging/package_esp8266com_index.json)     
   
 Additionnaly:   
 --Use minimal css from http://getbootstrap.com/examples/theme/ if connected to internet, this is to get better UI and rendering according display device (link can be changed in FW), if not available ,CSS is ignored displaying basic HTML   
