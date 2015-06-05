@@ -805,9 +805,13 @@ void handle_web_interface_configAP()
 	   if (msg_alert_error==false)
 		{
 		//save
-		 wifi_config.split_ip(ip_buf,ip_sav);
-		 wifi_config.split_ip(gw_buf,gw_sav);
-		 wifi_config.split_ip(msk_buf,msk_sav);
+		 char ip_buftmp[15+1];
+		 strcpy(ip_buftmp,ip_buf);
+		 wifi_config.split_ip(ip_buftmp,ip_sav);
+		 strcpy(ip_buftmp,gw_buf);
+		 wifi_config.split_ip(ip_buftmp,gw_sav);
+		 strcpy(ip_buftmp,msk_buf);
+		 wifi_config.split_ip(ip_buftmp,msk_sav);
 		 if((!CONFIG::write_byte(EP_WIFI_MODE,AP_MODE))||
 			(!CONFIG::write_string(EP_SSID,ssid_buf,strlen(ssid_buf)))||
 			(!CONFIG::write_string(EP_PASSWORD,password_buf,strlen(password_buf)))||
@@ -1146,9 +1150,13 @@ void handle_web_interface_configSTA()
 	   if (msg_alert_error==false)
 		{
 		//save
-		 wifi_config.split_ip(ip_buf,ip_sav);
-		 wifi_config.split_ip(gw_buf,gw_sav);
-		 wifi_config.split_ip(msk_buf,msk_sav);
+		 char ip_buftmp[15+1];
+		 strcpy(ip_buftmp,ip_buf);
+		 wifi_config.split_ip(ip_buftmp,ip_sav);
+		 strcpy(ip_buftmp,gw_buf);
+		 wifi_config.split_ip(ip_buftmp,gw_sav);
+		 strcpy(ip_buftmp,msk_buf);
+		 wifi_config.split_ip(ip_buftmp,msk_sav);
 		 if((!CONFIG::write_byte(EP_WIFI_MODE,CLIENT_MODE))||
 			(!CONFIG::write_string(EP_SSID,ssid_buf,strlen(ssid_buf)))||
 			(!CONFIG::write_string(EP_PASSWORD,password_buf,strlen(password_buf)))||
