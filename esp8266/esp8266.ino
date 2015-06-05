@@ -32,6 +32,7 @@
 #include "config.h"
 #include "wifi.h"
 #include "webinterface.h"
+#include "command.h"
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
@@ -101,7 +102,7 @@ void loop() {
 //web requests
 web_interface->WebServer.handleClient();
 //TODO use a method to handle serial also in class and call it instead of this one
-uint8_t i;
+uint8_t i,data;
   //check if there are any new clients
   if (data_server->hasClient()){
     for(i = 0; i < MAX_SRV_CLIENTS; i++){
@@ -120,8 +121,12 @@ uint8_t i;
   for(i = 0; i < MAX_SRV_CLIENTS; i++){
     if (serverClients[i] && serverClients[i].connected()){
       if(serverClients[i].available()){
-        //get data from the tpc client and push it to the UART
-        while(serverClients[i].available()) Serial.write(serverClients[i].read());
+        //get data from the tcp client and push it to the UART
+        while(serverClients[i].available()){
+         data = serverClients[i].read();
+         Serial.write(data);
+         COMMAND::read_buffer_tcp(data);
+         }
       }
     }
   }
@@ -136,6 +141,7 @@ uint8_t i;
         serverClients[i].write(sbuf, len);
         delay(1);
       }
+	  COMMAND::read_buffer_serial(sbuf, len);
     }
   }
 }
