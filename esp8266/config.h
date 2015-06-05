@@ -73,7 +73,7 @@ const char DEFAULT_PASSWORD [] PROGMEM =	"12345678";
 const byte DEFAULT_IP_VALUE[]   =	        {192, 168, 0, 1};
 const byte DEFAULT_MASK_VALUE[]  =	        {255, 255, 255, 0};
 #define DEFAULT_GATEWAY_VALUE   	        DEFAULT_IP_VALUE
-const int DEFAULT_BAUD_RATE =			9600;
+const long DEFAULT_BAUD_RATE =			9600;
 #ifdef MDNS_FEATURE
 const char LOCAL_NAME[] PROGMEM =		"esp8266";
 #endif

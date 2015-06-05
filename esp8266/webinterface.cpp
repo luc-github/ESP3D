@@ -320,6 +320,7 @@ void handle_web_interface_root()
   struct softap_config apconfig;
   struct ip_info info;
   int istatus;
+  int lstatus;
   uint8_t mac [WL_MAC_ADDR_LENGTH];
   if (wifi_get_opmode()==WIFI_STA ) IP=wifi_config.ip2str(WiFi.localIP());
   else IP=wifi_config.ip2str(WiFi.softAPIP());
@@ -361,8 +362,8 @@ void handle_web_interface_root()
   //LABEL(sbuf,"Boot mode: ",String(system_get_boot_mode())) //no meaning so far
   LABEL(PROGMEM2CHAR(BOOT_VERSION_TITLE),String(system_get_boot_version()).c_str())
   istatus=0;
-  if (!CONFIG::read_buffer(EP_BAUD_RATE,  (byte *)&istatus , INTEGER_LENGH))istatus=0;
-  LABEL(PROGMEM2CHAR(BAUD_RATE_TITLE),String(istatus).c_str())
+  if (!CONFIG::read_buffer(EP_BAUD_RATE,  (byte *)&lstatus , INTEGER_LENGH))lstatus=0;
+  LABEL(PROGMEM2CHAR(BAUD_RATE_TITLE),String(lstatus).c_str())
   istatus=0;
   if (!CONFIG::read_buffer(EP_WEB_PORT,  (byte *)&istatus , INTEGER_LENGH))istatus=0;
   LABEL(PROGMEM2CHAR(WEB_PORT_TITLE),String(istatus).c_str())
@@ -481,12 +482,11 @@ void handle_web_interface_configSys()
 {
   String stmp,smsg;
   String buffer2send ="";
-  int istatus=0;
   byte bflag=0;
   char error_display[4]={0,0,0,0};
   bool msg_alert_error=false;
   bool msg_alert_success=false;
-  int ibaud=0;
+  long ibaud=0;
   int iweb_port =0;
   int idata_port =0;
   byte bsleepmode=0;
@@ -495,8 +495,8 @@ void handle_web_interface_configSys()
   {   //is there a correct list of values?
 	  if (web_interface->WebServer.hasArg(PROGMEM2CHAR(BAUD_RATE_ID)) && web_interface->WebServer.hasArg(PROGMEM2CHAR(SLEEP_MODE_ID))&& web_interface->WebServer.hasArg(PROGMEM2CHAR(WEB_PORT_ID))&& web_interface->WebServer.hasArg(PROGMEM2CHAR(DATA_PORT_ID)))
 		{   //is each value correct ?
-			ibaud  = atoi(web_interface->WebServer.arg(PROGMEM2CHAR(BAUD_RATE_ID)).c_str());
-			iweb_port  = atoi(web_interface->WebServer.arg(PROGMEM2CHAR(WEB_PORT_ID)).c_str());
+			ibaud  = atol(web_interface->WebServer.arg(PROGMEM2CHAR(BAUD_RATE_ID)).c_str());
+			iweb_port  = atol(web_interface->WebServer.arg(PROGMEM2CHAR(WEB_PORT_ID)).c_str());
 			idata_port  = atoi(web_interface->WebServer.arg(PROGMEM2CHAR(DATA_PORT_ID)).c_str());
 			bsleepmode = atoi(web_interface->WebServer.arg(PROGMEM2CHAR(SLEEP_MODE_ID)).c_str());
 			if (!(iweb_port>0 && iweb_port<65001) ||
@@ -657,7 +657,6 @@ void handle_web_interface_configAP()
   byte auth_buf;
   byte channel_buf;
   byte phy_mode_buf;
-  int istatus=0;
   byte bflag=0;
   bool msg_alert_error=false;
   bool msg_alert_success=false;
@@ -1024,7 +1023,6 @@ void handle_web_interface_configSTA()
   byte auth_buf;
   byte channel_buf;
   byte phy_mode_buf;
-  int istatus=0;
   byte bflag=0;
   bool revertSTA=false;
   bool msg_alert_error=false;

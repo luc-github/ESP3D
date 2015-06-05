@@ -55,7 +55,7 @@ void setup() {
   pinMode(RESET_CONFIG_PIN, INPUT);
   if (digitalRead(RESET_CONFIG_PIN)==0)breset_config=true;//if requested =>reset settings
   //default baud rate
-  int baud_rate=0;
+  long baud_rate=0;
   
   //check if EEPROM has value
   if ( CONFIG::read_buffer(EP_BAUD_RATE,  (byte *)&baud_rate , INTEGER_LENGH)&&CONFIG::read_buffer(EP_WEB_PORT,  (byte *)&(wifi_config.iweb_port) , INTEGER_LENGH)&&CONFIG::read_buffer(EP_DATA_PORT,  (byte *)&(wifi_config.idata_port) , INTEGER_LENGH))
