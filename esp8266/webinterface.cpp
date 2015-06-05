@@ -206,7 +206,7 @@ const char CHANNEL_ID[] PROGMEM = "CHANNEL";
 const char SUBNET_ID[] PROGMEM = "SUBNET";
 const char GATEWAY_NAME[] PROGMEM = "Gateway";
 const char SUBNET_NAME[] PROGMEM = "Subnet";
-const char ERROR_INCORRECT_SSID[] PROGMEM = "Incorrect SSID :only char and digit, no space, limited to 33 char length";
+const char ERROR_INCORRECT_SSID[] PROGMEM = "Incorrect SSID : no space, limited to 33 char length";
 const char ERROR_INCORRECT_PASSWORD[] PROGMEM = "Incorrect password : space not allowed, limited to 8~64 char length<BR>";
 const char ERROR_INCORRECT_PORT[] PROGMEM = "Incorrect port : 1~65000 only<BR>";
 const char ERROR_INCORRECT_PORT2[] PROGMEM = "Incorrect port : web port aannot be same as data port<BR>";
@@ -257,7 +257,8 @@ bool WEBINTERFACE_CLASS::isSSIDValid(const char * ssid)
 	for (int i=0;i < strlen(ssid);i++)
 		{
 			c = ssid[i];
-			if (!(isdigit(c) || isalpha(c))) return false;
+			//if (!(isdigit(c) || isalpha(c))) return false;
+			if (c==' ') return false;
 		}
 	return true;
 }
