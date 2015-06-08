@@ -41,10 +41,15 @@ const char NAV_START[] PROGMEM =  "<nav class=\"navbar navbar-inverse\">\n<div c
 const char NAV_LEFT_PART1 [] PROGMEM =  "<ul class=\"nav navbar-nav navbar-left\">\n<li ";
 const char NAV_ELEMENT_ACTIVE [] PROGMEM =  "class=\"active\"";
 const char NAV_LEFT_PART2a[] PROGMEM =  "><a href=\"http://";
-const char NAV_LEFT_PART2b[] PROGMEM =  "\">Home</a></li>\n<li ><a href=\"http://";
-const char NAV_LEFT_PART3b[] PROGMEM =  "/CONFIGSYS\">System Configuration</a></li>\n<li><a href=\"http://";
-const char NAV_LEFT_PART4b[] PROGMEM =  "/CONFIGAP\">AP Configuration</a></li>\n<li><a href=\"http://";
-const char NAV_LEFT_PART5b[] PROGMEM =  "/CONFIGSTA\">Station Configuration</a></li>\n";
+const char NAV_LEFT_PART2b[] PROGMEM =  "\">Home</a></li>\n<li ";
+const char NAV_LEFT_PART3a[] PROGMEM =  "><a href=\"http://";
+const char NAV_LEFT_PART3b[] PROGMEM =  "/CONFIGSYS\">System Configuration</a></li>\n<li ";
+const char NAV_LEFT_PART4a[] PROGMEM =  "><a href=\"http://";
+const char NAV_LEFT_PART4b[] PROGMEM =  "/CONFIGAP\">AP Configuration</a></li>\n<li ";
+const char NAV_LEFT_PART5a[] PROGMEM =  "><a href=\"http://";
+const char NAV_LEFT_PART5b[] PROGMEM =  "/CONFIGSTA\">Station Configuration</a></li>\n<li ";
+const char NAV_LEFT_PART6a[] PROGMEM =  "><a href=\"http://";
+const char NAV_LEFT_PART6b[] PROGMEM =  "/PRINTER\">Printer Status</a></li>\n";
 const char NAV_LEFT_PARTEND[] PROGMEM =  "</ul>\n";
  
 const char NAV_RIGHT_PART[] PROGMEM =  "<p class=\"navbar-text navbar-right\">&nbsp;&nbsp;&nbsp;&nbsp;</p>\n<ul class=\"nav navbar-nav navbar-right\">\n"\
@@ -222,6 +227,42 @@ const char WEB_PORT_ID[] PROGMEM = "WEBPORT";
 const char DATA_PORT_ID[] PROGMEM = "DATAPORT";
 const char PORT_DESC[]PROGMEM = "1~65000";
 
+const char TEMP_SVG_1[]PROGMEM ="<svg height=\"30px\" width=\"300px\" xmlns=\"http://wwww.w3.org/2000/svg\">\n<linearGradient id=\"gradient\">\n<stop class=\"begin\" style=\"stop-color:green;\" offset=\"0%\"/>\n";
+const char TEMP_SVG_2[]PROGMEM ="<stop class=\"middle\" style=\"stop-color:yellow;\" offset=\"100%\"/>\n</linearGradient>\n<linearGradient id=\"gradient2\">\n";
+const char TEMP_SVG_3[]PROGMEM ="<stop class=\"middle\" style=\"stop-color:yellow;\" offset=\"0%\"/>\n<stop class=\"end\" style=\"stop-color:red;\" offset=\"100%\"/>\n";
+const char TEMP_SVG_4[]PROGMEM ="</linearGradient>\n<rect x=\"10\" y=\"4\" width=\"24\" height=\"21\" style=\"fill:url(#gradient)\" />\n<rect x=\"34\" y=\"4\" width=\"280\" height=\"21\" style=\"fill:url(#gradient2)\" />\n";
+const char TEMP_SVG_5[]PROGMEM ="<path d=\"M";
+const char TEMP_SVG_6[]PROGMEM =" 0 L";
+const char TEMP_SVG_7[]PROGMEM =" 0 L";
+const char TEMP_SVG_8[]PROGMEM =" 8 Z\" stroke=\"white\" stroke-width=\"1\" />\n<path d=\"M";
+const char TEMP_SVG_9[]PROGMEM =" 30 L";
+const char TEMP_SVG_10[]PROGMEM =" 30 L";
+const char TEMP_SVG_11[]PROGMEM =" 22 Z\" stroke=\"white\" stroke-width=\"1\"/>\n<text x=\"10\" y=\"19\" fill=\"black\" style=\"font-family: calibri; font-size:10pt;\">\n";
+const char TEMP_SVG_12[]PROGMEM =" &#176;C</text>\n</svg>";
+const char DATA_S[]PROGMEM ="<HTML><BODY><DIV NAME=\"data\" ID=\"data\" >";
+const char DATA_E[]PROGMEM ="</BODY>\n</HTML>";
+
+const char PRINTER_1a[]PROGMEM ="<DIV ID=\"display_data\" NAME=\"display_data\"></DIV><BR>\n";
+const char PRINTER_1b[]PROGMEM ="<DIV ID=\"position\" NAME=\"position\"></DIV><BR>\n";
+const char PRINTER_1c[]PROGMEM ="<LABEL>Speed:</LABEL><LABEL ID=\"speed\" NAME=\"speed\" class=\"text-info\"></LABEL>&nbsp;&nbsp;&nbsp;\n";
+const char PRINTER_1d[]PROGMEM ="<LABEL>Flow:</LABEL><LABEL ID=\"flow\" NAME=\"flow\" class=\"text-info\"></LABEL><BR>\n";
+const char PRINTER_2[]PROGMEM ="<iframe ID=\"dataframe\" NAME=\"dataframe\"src=\"http://";
+const char PRINTER_3[]PROGMEM ="/STATUS\" frameborder=0 width=\"320\" height=\"300\" style=\"visibility:hidden;\"></iframe>\n";
+const char PRINTER_4[]PROGMEM ="<SCRIPT TYPE=\"text/javascript\">\n document.getElementById(\"dataframe\").onload=function(){\n";
+const char PRINTER_5[]PROGMEM ="var ifrm=document.getElementById(\"dataframe\");\nvar doc=ifrm.contentDocument?ifrm.contentDocument:ifrm.contentWindow.document;\n";
+const char PRINTER_6a[]PROGMEM ="document.getElementById(\"display_data\").innerHTML=doc.getElementById(\"data\").innerHTML;\n";
+const char PRINTER_6b[]PROGMEM ="document.getElementById(\"position\").innerHTML=doc.getElementById(\"position\").innerHTML;\n";
+const char PRINTER_6c[]PROGMEM ="document.getElementById(\"speed\").innerHTML=doc.getElementById(\"speed\").innerHTML;\n";
+const char PRINTER_6d[]PROGMEM ="document.getElementById(\"flow\").innerHTML=doc.getElementById(\"flow\").innerHTML;\n";
+const char PRINTER_7[]PROGMEM ="}\n";
+const char PRINTER_8[]PROGMEM ="setInterval(function(){";
+const char PRINTER_9[]PROGMEM ="var ifrm=document.getElementById(\"dataframe\");var doc=ifrm.contentDocument?ifrm.contentDocument:ifrm.contentWindow.document;";
+const char PRINTER_10[]PROGMEM ="doc.location.reload(true);";
+const char PRINTER_11[]PROGMEM ="},2000);\n";
+const char PRINTER_12[]PROGMEM ="</SCRIPT>\n";
+
+#define TEMP_SVG(temperature,description) buffer2send+=(PROGMEM2CHAR(TEMP_SVG_1));buffer2send+=(PROGMEM2CHAR(TEMP_SVG_2));buffer2send+=(PROGMEM2CHAR(TEMP_SVG_3));buffer2send+=(PROGMEM2CHAR(TEMP_SVG_4));buffer2send+=(PROGMEM2CHAR(TEMP_SVG_5));buffer2send+=String(temperature+5);buffer2send+=(PROGMEM2CHAR(TEMP_SVG_6));buffer2send+=String(temperature+15);buffer2send+=(PROGMEM2CHAR(TEMP_SVG_7));buffer2send+=String(temperature+10);buffer2send+=(PROGMEM2CHAR(TEMP_SVG_8));buffer2send+=String(temperature+5);buffer2send+=(PROGMEM2CHAR(TEMP_SVG_9));buffer2send+=String(temperature+15);buffer2send+=(PROGMEM2CHAR(TEMP_SVG_10));buffer2send+=String(temperature+10);buffer2send+=(PROGMEM2CHAR(TEMP_SVG_11));buffer2send+=description;buffer2send+=(PROGMEM2CHAR(TEMP_SVG_12));
+
 #define MSG_SUCCESS(msg) buffer2send+=(PROGMEM2CHAR(ALERT_SUCCESS));buffer2send+=(msg);buffer2send+=(PROGMEM2CHAR(DIV_E));
 #define MSG_ERROR(msg) buffer2send+=(PROGMEM2CHAR(ALERT_ERROR));buffer2send+=(msg);buffer2send+=(PROGMEM2CHAR(DIV_E));
 #define OPTION(value, selected,content) buffer2send+=(PROGMEM2CHAR(FORM_OPTION_1));buffer2send+=(value);buffer2send+=(PROGMEM2CHAR(FORM_OPTION_2));buffer2send+=(selected);buffer2send+=(PROGMEM2CHAR(FORM_OPTION_3));buffer2send+=(content);buffer2send+=(PROGMEM2CHAR(FORM_OPTION_4));
@@ -238,7 +279,7 @@ const char PORT_DESC[]PROGMEM = "1~65000";
 #define TH_ENTRY(entry) buffer2send+=(PROGMEM2CHAR(TH_S));buffer2send+=(entry);buffer2send+=(PROGMEM2CHAR(TH_E));
 #define THR_ENTRY(entry) buffer2send+=(PROGMEM2CHAR(TH_R));buffer2send+=(entry);buffer2send+=(PROGMEM2CHAR(TH_E));
 #define TD_ENTRY(entry) buffer2send+=(PROGMEM2CHAR(TD_S));buffer2send+=(entry);buffer2send+=(PROGMEM2CHAR(TD_E));
-#define TOPBAR(IP)  buffer2send+=(PROGMEM2CHAR(NAV_START)); buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART1)) ;  buffer2send+=(PROGMEM2CHAR(NAV_ELEMENT_ACTIVE)) ;  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART2a) );  buffer2send+=(IP);  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART2b)); buffer2send+=(IP);  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART3b));  buffer2send+=(IP);  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART4b)); buffer2send+=(IP);  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART5b));buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PARTEND)); buffer2send+=(PROGMEM2CHAR(NAV_RIGHT_PART)) ;  buffer2send+=(PROGMEM2CHAR(NAV_END));
+#define TOPBAR(IP,menu)  buffer2send+=(PROGMEM2CHAR(NAV_START)); buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART1)) ;  buffer2send+=(menu==1?PROGMEM2CHAR(NAV_ELEMENT_ACTIVE):"") ;  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART2a) );  buffer2send+=(IP);  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART2b));buffer2send+=(menu==2?PROGMEM2CHAR(NAV_ELEMENT_ACTIVE):"") ;  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART3a) ); buffer2send+=(IP);  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART3b));buffer2send+=(menu==3?PROGMEM2CHAR(NAV_ELEMENT_ACTIVE):"") ;  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART4a) );  buffer2send+=(IP);  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART4b)); buffer2send+=(menu==4?PROGMEM2CHAR(NAV_ELEMENT_ACTIVE):"") ;  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART5a) ); buffer2send+=(IP);  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART5b));buffer2send+=(menu==5?PROGMEM2CHAR(NAV_ELEMENT_ACTIVE):"") ;  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART6a) ); buffer2send+=(IP);  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART6b));buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PARTEND)); buffer2send+=(PROGMEM2CHAR(NAV_RIGHT_PART)) ;  buffer2send+=(PROGMEM2CHAR(NAV_END));
 
 
 
@@ -333,7 +374,7 @@ void handle_web_interface_root()
   buffer2send+=(PROGMEM2CHAR(PAGE_HEAD_1));
   buffer2send+=(PROGMEM2CHAR(PAGE_HEAD_2));
   //top bar
-  TOPBAR(IP.c_str())
+  TOPBAR(IP.c_str(),1)
  //system part
   buffer2send+=(PROGMEM2CHAR(PANEL_TOP));
   buffer2send+=(PROGMEM2CHAR(TITLE_SYSTEM));
@@ -558,7 +599,7 @@ void handle_web_interface_configSys()
 	}
   buffer2send+=(PROGMEM2CHAR(PAGE_HEAD_1));
   buffer2send+=(PROGMEM2CHAR(PAGE_HEAD_2));
-  TOPBAR(stmp.c_str())
+  TOPBAR(stmp.c_str(),2)
   buffer2send+=(PROGMEM2CHAR(PANEL_TOP));
   buffer2send+=(PROGMEM2CHAR(TITLE_SYSTEM));
   buffer2send+=(PROGMEM2CHAR(PANEL_START));
@@ -694,7 +735,6 @@ void handle_web_interface_configAP()
 				}
 			else
 				web_interface->urldecode(password_buf,web_interface->WebServer.arg(PROGMEM2CHAR(PASSWORD_ID)).c_str());
-				Serial.println(password_buf);
 			if (!web_interface->isPasswordValid(password_buf))
 				{
 				msg_alert_error=true;
@@ -878,7 +918,7 @@ void handle_web_interface_configAP()
 	}
   buffer2send+=(PROGMEM2CHAR(PAGE_HEAD_1));
   buffer2send+=(PROGMEM2CHAR(PAGE_HEAD_2));
-  TOPBAR(stmp.c_str())
+  TOPBAR(stmp.c_str(),3)
   buffer2send+=(PROGMEM2CHAR(PANEL_TOP));
   buffer2send+=(PROGMEM2CHAR(ACCESS_POINT_TITLE));
   buffer2send+=(PROGMEM2CHAR(PANEL_START));
@@ -1061,14 +1101,13 @@ void handle_web_interface_configSTA()
 				}
 			else
 				web_interface->urldecode(password_buf,web_interface->WebServer.arg(PROGMEM2CHAR(PASSWORD_ID)).c_str());
-				Serial.println(password_buf);
 			if (!web_interface->isPasswordValid(password_buf))
 				{
 				msg_alert_error=true;
 				smsg+=PROGMEM2CHAR(ERROR_INCORRECT_PASSWORD);
 				error_display[2]=1;	
 				}
-			//phy mode
+			//phy modeString stmp,smsg;
 			phy_mode_buf  = atoi(web_interface->WebServer.arg(PROGMEM2CHAR(NETWORK_ID)).c_str());
 			if (!(phy_mode_buf==PHY_MODE_11B||phy_mode_buf==PHY_MODE_11G  ||phy_mode_buf==PHY_MODE_11N))
 				 {
@@ -1214,7 +1253,7 @@ void handle_web_interface_configSTA()
 	}
   buffer2send+=(PROGMEM2CHAR(PAGE_HEAD_1));
   buffer2send+=(PROGMEM2CHAR(PAGE_HEAD_2));
-  TOPBAR(stmp.c_str())
+  TOPBAR(stmp.c_str(),4)
   buffer2send+=(PROGMEM2CHAR(PANEL_TOP));
   buffer2send+=(PROGMEM2CHAR(STATION_TITLE));
   buffer2send+=(PROGMEM2CHAR(PANEL_START));
@@ -1364,6 +1403,128 @@ void handle_not_found()
   web_interface->WebServer.send(200, "text/html", buffer2send);
 }
 
+void handle_web_interface_printer()
+{
+  String IP;
+  String stmp;
+  String buffer2send ="";
+  Serial.println("M114");
+  Serial.println("M220");
+  Serial.println("M221");
+  //display page
+  if (wifi_get_opmode()==WIFI_STA ) stmp=wifi_config.ip2str(WiFi.localIP());
+  else stmp=wifi_config.ip2str(WiFi.softAPIP());
+  if (wifi_config.iweb_port!=80)
+	{
+		stmp+=":";
+		stmp+=String(wifi_config.iweb_port);
+	}
+  buffer2send+=(PROGMEM2CHAR(PAGE_HEAD_1));
+  buffer2send+=(PROGMEM2CHAR(PAGE_HEAD_2));
+  TOPBAR(stmp.c_str(),5)
+  buffer2send+=(PROGMEM2CHAR(PRINTER_1a));
+  buffer2send+=(PROGMEM2CHAR(PRINTER_1b));
+  buffer2send+=(PROGMEM2CHAR(PRINTER_1c));
+  buffer2send+=(PROGMEM2CHAR(PRINTER_1d));
+  buffer2send+=(PROGMEM2CHAR(PRINTER_2));
+  buffer2send+=stmp.c_str();
+  buffer2send+=(PROGMEM2CHAR(PRINTER_3));
+  buffer2send+=(PROGMEM2CHAR(PRINTER_4));
+  buffer2send+=(PROGMEM2CHAR(PRINTER_5));
+  buffer2send+=(PROGMEM2CHAR(PRINTER_6a));
+  buffer2send+=(PROGMEM2CHAR(PRINTER_6b));
+  buffer2send+=(PROGMEM2CHAR(PRINTER_6c));
+  buffer2send+=(PROGMEM2CHAR(PRINTER_6d));
+  buffer2send+=(PROGMEM2CHAR(PRINTER_7));
+  buffer2send+=(PROGMEM2CHAR(PRINTER_8));
+  buffer2send+=(PROGMEM2CHAR(PRINTER_9));
+  buffer2send+=(PROGMEM2CHAR(PRINTER_10));
+  buffer2send+=(PROGMEM2CHAR(PRINTER_11));
+  buffer2send+=(PROGMEM2CHAR(PRINTER_12));
+  buffer2send+=(PROGMEM2CHAR(PAGE_BOTTOM));
+  web_interface->WebServer.send(200, "text/html", buffer2send);
+}
+
+void handle_web_interface_status()
+{
+	Serial.println("M105");
+	String buffer2send =(PROGMEM2CHAR(DATA_S));
+	String description;
+	int temperature,target;
+	if ((system_get_time()-web_interface->last_temp)<3200000)
+		{
+		int Tpos = web_interface->answer4M105.indexOf("T:");
+		int slashpos = web_interface->answer4M105.indexOf(" /",Tpos);	
+		int spacepos = web_interface->answer4M105.indexOf(" ",slashpos+1);
+		if(slashpos!=-1 && spacepos!=-1 )
+				{
+				temperature = (int)atof(web_interface->answer4M105.substring(Tpos+2,slashpos).c_str());
+				target = (int)atof(web_interface->answer4M105.substring(slashpos+2,spacepos).c_str());
+				Tpos = web_interface->answer4M105.indexOf("T1:");
+				if (Tpos>-1) description = "Extruder 1: ";
+				else description = "Extruder : ";
+				description += String(temperature);
+				description += "/";
+				if (target >0) description += String(target);
+				else description += "off";
+				TEMP_SVG(temperature,description)
+				}
+		//check for second extruder
+		Tpos = web_interface->answer4M105.indexOf("T1:");
+		if (Tpos>-1)
+			{
+			slashpos = web_interface->answer4M105.indexOf(" /",Tpos);
+			spacepos = web_interface->answer4M105.indexOf(" ",slashpos+1);
+			if(slashpos!=-1 && spacepos!=-1 )
+				{
+				temperature = (int)atof(web_interface->answer4M105.substring(Tpos+3,slashpos).c_str());
+				target = (int)atof(web_interface->answer4M105.substring(slashpos+2,spacepos).c_str());
+				description = "Extruder 2: ";
+				description += String(temperature);
+				description += "/";
+				if (target >0) description += String(target);
+				else description += "off";
+				buffer2send+=(PROGMEM2CHAR(BR));
+				TEMP_SVG(temperature,description)
+				}
+			}
+		//check for bed
+		Tpos = web_interface->answer4M105.indexOf("B:");
+		if (Tpos>-1)
+			{
+			slashpos = web_interface->answer4M105.indexOf(" /",Tpos);	
+			spacepos = web_interface->answer4M105.indexOf(" ",slashpos+1);
+			if(slashpos!=-1 && spacepos!=-1 )
+				{
+				temperature = (int)atof(web_interface->answer4M105.substring(Tpos+2,slashpos).c_str());
+				target = (int)atof(web_interface->answer4M105.substring(slashpos+2,spacepos).c_str());
+				description = "Bed: ";
+				description += String(temperature);
+				description += "/";
+				if (target >0) description += String(target);
+				else description += "off";
+				buffer2send+=(PROGMEM2CHAR(BR));
+				TEMP_SVG(temperature*2,description)
+				}
+			}
+		}
+	else buffer2send += "Processing....";
+	buffer2send+=(PROGMEM2CHAR(DIV_E));
+	buffer2send+="<DIV NAME=\"position\" ID=\"position\">";
+	int Epos = web_interface->answer4M114.indexOf("E:");
+	buffer2send+=web_interface->answer4M114.substring(0,Epos);
+	buffer2send+=(PROGMEM2CHAR(DIV_E));
+	buffer2send+="<DIV NAME=\"speed\" ID=\"speed\">";
+	buffer2send+=web_interface->answer4M220;
+	buffer2send+=(PROGMEM2CHAR(DIV_E));
+	buffer2send+="<DIV NAME=\"flow\" ID=\"flow\">";
+	buffer2send+=web_interface->answer4M221;
+	buffer2send+=(PROGMEM2CHAR(DIV_E));
+	buffer2send+=(PROGMEM2CHAR(DATA_E));
+	web_interface->WebServer.send(200, "text/html", buffer2send);
+	
+}
+
 //URI Decoding function 
 //no check if dst buffer is big enough to receive string so 
 //use same size as src is a recommendation
@@ -1408,7 +1569,14 @@ WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port):WebServer(port)
   WebServer.on("/CONFIGSYS",HTTP_ANY, handle_web_interface_configSys);
   WebServer.on("/CONFIGAP",HTTP_ANY, handle_web_interface_configAP);
   WebServer.on("/CONFIGSTA",HTTP_ANY, handle_web_interface_configSTA);
+  WebServer.on("/STATUS",HTTP_ANY, handle_web_interface_status);
+  WebServer.on("/PRINTER",HTTP_ANY, handle_web_interface_printer);
   WebServer.onNotFound( handle_not_found);
+  answer4M105="T:0 /0";
+  answer4M114="";
+  answer4M220="";
+  answer4M221="";
+  last_temp=system_get_time();
 }
 
 WEBINTERFACE_CLASS * web_interface;

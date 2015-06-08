@@ -19,9 +19,14 @@
 */
 
 #include "command.h"
+#include "webinterface.h"
+extern "C" {
+#include "user_interface.h"
+}
 
 String COMMAND::buffer_serial;
 String COMMAND::buffer_tcp;
+
 
 void COMMAND::execute_command(int cmd,String cmd_params)
 {
@@ -43,6 +48,12 @@ void COMMAND::check_command(String buffer)
 	//look for ESP command
 	//is there a first part ?
 	int ESPpos = buffer.indexOf("[ESP");
+	int Tpos = buffer.indexOf("T:");
+	int Xpos = buffer.indexOf("X:");
+	int Ypos = buffer.indexOf("Y:");
+	int Zpos = buffer.indexOf("Z:");
+	int Speedpos = buffer.indexOf("SpeedMultiply:");
+	int Flowpos = buffer.indexOf("FlowMultiply:");
 	if (ESPpos>-1)
 		{//is there the second part?
 		int ESPpos2 = buffer.indexOf("]",ESPpos);	
@@ -60,7 +71,25 @@ void COMMAND::check_command(String buffer)
 				//if not is not a valid [ESPXXX] command
 			}
 		}
-	//TODO look for response from printer not using [ESPXXX] format
+	//check for temperature 
+	if (Tpos>-1)
+		{
+		//look for valid temperature answer
+		int slashpos = buffer.indexOf(" /",Tpos);	
+		int spacepos = buffer.indexOf(" ",slashpos+1);
+		//if match mask T:xxx.xx /xxx.xx 
+		if(spacepos-Tpos < 17)
+			{
+			 web_interface->answer4M105=buffer; //do not interprete just need when requested so store it
+			 web_interface->last_temp=system_get_time();
+			}
+		}
+	//Position of axis
+	if (Xpos>-1 && Ypos>-1 && Zpos>-1)web_interface->answer4M114=buffer;
+	//Speed
+	if (Speedpos>-1)web_interface->answer4M220=buffer.substring(Speedpos+14);
+	//Flow
+	if (Flowpos>-1)web_interface->answer4M221=buffer.substring(Flowpos+13);
 }
 
 //read a buffer in an array

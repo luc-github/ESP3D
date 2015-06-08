@@ -24,6 +24,8 @@
 #include <WiFiClient.h>
 #include <WiFiServer.h>
 #include <ESP8266WebServer.h>
+#define MAX_EXTRUDERS 4
+
 
 class WEBINTERFACE_CLASS
 {
@@ -34,6 +36,11 @@ class WEBINTERFACE_CLASS
   bool isSSIDValid(const char * ssid);
   bool isPasswordValid(const char * password);
   bool isIPValid(const char * IP);
+  String answer4M105;
+  String answer4M114;
+  String answer4M220;
+  String answer4M221;
+  uint32_t last_temp;
   private:
 
 };
