@@ -63,7 +63,7 @@ These are the UI when css is in cache or internet is available:
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Page2.png><br>     
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Page3.png><br>     
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Page4.png><br>     
-<img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Page5.png><br>     
+<img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/page5.png><br>     
 
 
 ##Commands from/to serial(not yet implemented):    
