@@ -231,21 +231,33 @@ const char TEMP_SVG_1[]PROGMEM ="<svg height=\"30px\" width=\"300px\" xmlns=\"ht
 const char TEMP_SVG_2[]PROGMEM ="<stop class=\"middle\" style=\"stop-color:yellow;\" offset=\"100%\"/>\n</linearGradient>\n<linearGradient id=\"gradient2\">\n";
 const char TEMP_SVG_3[]PROGMEM ="<stop class=\"middle\" style=\"stop-color:yellow;\" offset=\"0%\"/>\n<stop class=\"end\" style=\"stop-color:red;\" offset=\"100%\"/>\n";
 const char TEMP_SVG_4[]PROGMEM ="</linearGradient>\n<rect x=\"10\" y=\"4\" width=\"24\" height=\"21\" style=\"fill:url(#gradient)\" />\n<rect x=\"34\" y=\"4\" width=\"280\" height=\"21\" style=\"fill:url(#gradient2)\" />\n";
-const char TEMP_SVG_5[]PROGMEM ="<path d=\"M";
-const char TEMP_SVG_6[]PROGMEM =" 0 L";
-const char TEMP_SVG_7[]PROGMEM =" 0 L";
-const char TEMP_SVG_8[]PROGMEM =" 8 Z\" stroke=\"white\" stroke-width=\"1\" />\n<path d=\"M";
-const char TEMP_SVG_9[]PROGMEM =" 30 L";
-const char TEMP_SVG_10[]PROGMEM =" 30 L";
-const char TEMP_SVG_11[]PROGMEM =" 22 Z\" stroke=\"white\" stroke-width=\"1\"/>\n<text x=\"10\" y=\"19\" fill=\"black\" style=\"font-family: calibri; font-size:10pt;\">\n";
-const char TEMP_SVG_12[]PROGMEM =" &#176;C</text>\n</svg>";
+const char TEMP_SVG_5[]PROGMEM ="<line x1=\"";
+const char TEMP_SVG_6[]PROGMEM ="\" y1=\"4\" x2=\"";
+const char TEMP_SVG_7[]PROGMEM ="\" y2=\"25\" style=\"stroke:rgb(255,255,255);stroke-width:1\" />\n";
+const char TEMP_SVG_8[]PROGMEM ="<path d=\"M";
+const char TEMP_SVG_9[]PROGMEM =" 0 L";
+const char TEMP_SVG_10[]PROGMEM =" 0 L";
+const char TEMP_SVG_11[]PROGMEM =" 8 Z\" stroke=\"white\" stroke-width=\"1\" />\n<path d=\"M";
+const char TEMP_SVG_12[]PROGMEM =" 30 L";
+const char TEMP_SVG_13[]PROGMEM =" 30 L";
+const char TEMP_SVG_14[]PROGMEM =" 22 Z\" stroke=\"white\" stroke-width=\"1\"/>\n<text x=\"10\" y=\"19\" fill=\"black\" style=\"font-family: calibri; font-size:10pt;\">\n";
+const char TEMP_SVG_15[]PROGMEM =" &#176;C</text>\n";
+const char TEMP_SVG_16[]PROGMEM ="</svg>";
 const char DATA_S[]PROGMEM ="<HTML><BODY><DIV NAME=\"data\" ID=\"data\" >";
 const char DATA_E[]PROGMEM ="</BODY>\n</HTML>";
+const char DIV_FLOW[]PROGMEM = "<DIV NAME=\"flow\" ID=\"flow\">";
+const char DIV_SPEED[]PROGMEM ="<DIV NAME=\"speed\" ID=\"speed\">";
+const char DIV_POSITION[]PROGMEM ="<DIV NAME=\"position\" ID=\"position\">";
+const char DIV_STATUS[]PROGMEM ="<DIV NAME=\"status\" ID=\"status\">";
+const char STATUS_1[]PROGMEM ="<svg width=\"20\" height=\"20\">\n<circle cx=\"10\" cy=\"10\" r=\"8\" stroke=\"black\" stroke-width=\"2\" fill=\"";
+const char STATUS_2[]PROGMEM ="\" />\n</svg>";
 
-const char PRINTER_1a[]PROGMEM ="<DIV ID=\"display_data\" NAME=\"display_data\"></DIV><BR>\n";
-const char PRINTER_1b[]PROGMEM ="<DIV ID=\"position\" NAME=\"position\"></DIV><BR>\n";
-const char PRINTER_1c[]PROGMEM ="<LABEL>Speed:</LABEL><LABEL ID=\"speed\" NAME=\"speed\" class=\"text-info\"></LABEL>&nbsp;&nbsp;&nbsp;\n";
-const char PRINTER_1d[]PROGMEM ="<LABEL>Flow:</LABEL><LABEL ID=\"flow\" NAME=\"flow\" class=\"text-info\"></LABEL><BR>\n";
+const char PRINTER_1a[]PROGMEM ="<TABLE BORDER=0 ><TR><TD ID=\"display_data\" NAME=\"display_data\"></TD><TD>&nbsp;&nbsp;</TD>\n";
+const char PRINTER_1b[]PROGMEM ="<TD ID=\"status\" NAME=\"status\" ></TD><TR></TABLE>\n";
+const char PRINTER_1c[]PROGMEM ="<BR><TABLE BORDER=0><TR><TD ID=\"position\" NAME=\"position\"></TD>\n";
+const char PRINTER_1d[]PROGMEM ="<TD><LABEL>Speed:</LABEL><LABEL ID=\"speed\" NAME=\"speed\" class=\"text-info\"></LABEL><LABEL class=\"text-info\">&#37;</LABEL>&nbsp;&nbsp;\n";
+const char PRINTER_1e[]PROGMEM ="<LABEL>Flow:</LABEL><LABEL ID=\"flow\" NAME=\"flow\" class=\"text-info\"></LABEL><LABEL class=\"text-info\">&#37;</LABEL></TD></TR></TABLE><BR>\n";
+
 const char PRINTER_2[]PROGMEM ="<iframe ID=\"dataframe\" NAME=\"dataframe\"src=\"http://";
 const char PRINTER_3[]PROGMEM ="/STATUS\" frameborder=0 width=\"320\" height=\"300\" style=\"visibility:hidden;\"></iframe>\n";
 const char PRINTER_4[]PROGMEM ="<SCRIPT TYPE=\"text/javascript\">\n document.getElementById(\"dataframe\").onload=function(){\n";
@@ -254,6 +266,7 @@ const char PRINTER_6a[]PROGMEM ="document.getElementById(\"display_data\").inner
 const char PRINTER_6b[]PROGMEM ="document.getElementById(\"position\").innerHTML=doc.getElementById(\"position\").innerHTML;\n";
 const char PRINTER_6c[]PROGMEM ="document.getElementById(\"speed\").innerHTML=doc.getElementById(\"speed\").innerHTML;\n";
 const char PRINTER_6d[]PROGMEM ="document.getElementById(\"flow\").innerHTML=doc.getElementById(\"flow\").innerHTML;\n";
+const char PRINTER_6e[]PROGMEM ="document.getElementById(\"status\").innerHTML=doc.getElementById(\"status\").innerHTML;\n";
 const char PRINTER_7[]PROGMEM ="}\n";
 const char PRINTER_8[]PROGMEM ="setInterval(function(){";
 const char PRINTER_9[]PROGMEM ="var ifrm=document.getElementById(\"dataframe\");var doc=ifrm.contentDocument?ifrm.contentDocument:ifrm.contentWindow.document;";
@@ -261,7 +274,7 @@ const char PRINTER_10[]PROGMEM ="doc.location.reload(true);";
 const char PRINTER_11[]PROGMEM ="},2000);\n";
 const char PRINTER_12[]PROGMEM ="</SCRIPT>\n";
 
-#define TEMP_SVG(temperature,description) buffer2send+=(PROGMEM2CHAR(TEMP_SVG_1));buffer2send+=(PROGMEM2CHAR(TEMP_SVG_2));buffer2send+=(PROGMEM2CHAR(TEMP_SVG_3));buffer2send+=(PROGMEM2CHAR(TEMP_SVG_4));buffer2send+=(PROGMEM2CHAR(TEMP_SVG_5));buffer2send+=String(temperature+5);buffer2send+=(PROGMEM2CHAR(TEMP_SVG_6));buffer2send+=String(temperature+15);buffer2send+=(PROGMEM2CHAR(TEMP_SVG_7));buffer2send+=String(temperature+10);buffer2send+=(PROGMEM2CHAR(TEMP_SVG_8));buffer2send+=String(temperature+5);buffer2send+=(PROGMEM2CHAR(TEMP_SVG_9));buffer2send+=String(temperature+15);buffer2send+=(PROGMEM2CHAR(TEMP_SVG_10));buffer2send+=String(temperature+10);buffer2send+=(PROGMEM2CHAR(TEMP_SVG_11));buffer2send+=description;buffer2send+=(PROGMEM2CHAR(TEMP_SVG_12));
+#define TEMP_SVG(temperature,target,description) buffer2send+=(PROGMEM2CHAR(TEMP_SVG_1));buffer2send+=(PROGMEM2CHAR(TEMP_SVG_2));buffer2send+=(PROGMEM2CHAR(TEMP_SVG_3));buffer2send+=(PROGMEM2CHAR(TEMP_SVG_4));buffer2send+=(PROGMEM2CHAR(TEMP_SVG_5));buffer2send+=String(target+10); buffer2send+=(PROGMEM2CHAR(TEMP_SVG_6));buffer2send+=String(target+10); buffer2send+=(PROGMEM2CHAR(TEMP_SVG_7));buffer2send+=(PROGMEM2CHAR(TEMP_SVG_8));buffer2send+=String(temperature+5);buffer2send+=(PROGMEM2CHAR(TEMP_SVG_9));buffer2send+=String(temperature+15);buffer2send+=(PROGMEM2CHAR(TEMP_SVG_10));buffer2send+=String(temperature+10);buffer2send+=(PROGMEM2CHAR(TEMP_SVG_11));buffer2send+=String(temperature+5);buffer2send+=(PROGMEM2CHAR(TEMP_SVG_12));buffer2send+=String(temperature+15);buffer2send+=(PROGMEM2CHAR(TEMP_SVG_13));buffer2send+=String(temperature+10);buffer2send+=(PROGMEM2CHAR(TEMP_SVG_14));buffer2send+=description;buffer2send+=(PROGMEM2CHAR(TEMP_SVG_15));buffer2send+=(PROGMEM2CHAR(TEMP_SVG_16));
 
 #define MSG_SUCCESS(msg) buffer2send+=(PROGMEM2CHAR(ALERT_SUCCESS));buffer2send+=(msg);buffer2send+=(PROGMEM2CHAR(DIV_E));
 #define MSG_ERROR(msg) buffer2send+=(PROGMEM2CHAR(ALERT_ERROR));buffer2send+=(msg);buffer2send+=(PROGMEM2CHAR(DIV_E));
@@ -280,7 +293,7 @@ const char PRINTER_12[]PROGMEM ="</SCRIPT>\n";
 #define THR_ENTRY(entry) buffer2send+=(PROGMEM2CHAR(TH_R));buffer2send+=(entry);buffer2send+=(PROGMEM2CHAR(TH_E));
 #define TD_ENTRY(entry) buffer2send+=(PROGMEM2CHAR(TD_S));buffer2send+=(entry);buffer2send+=(PROGMEM2CHAR(TD_E));
 #define TOPBAR(IP,menu)  buffer2send+=(PROGMEM2CHAR(NAV_START)); buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART1)) ;  buffer2send+=(menu==1?PROGMEM2CHAR(NAV_ELEMENT_ACTIVE):"") ;  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART2a) );  buffer2send+=(IP);  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART2b));buffer2send+=(menu==2?PROGMEM2CHAR(NAV_ELEMENT_ACTIVE):"") ;  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART3a) ); buffer2send+=(IP);  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART3b));buffer2send+=(menu==3?PROGMEM2CHAR(NAV_ELEMENT_ACTIVE):"") ;  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART4a) );  buffer2send+=(IP);  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART4b)); buffer2send+=(menu==4?PROGMEM2CHAR(NAV_ELEMENT_ACTIVE):"") ;  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART5a) ); buffer2send+=(IP);  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART5b));buffer2send+=(menu==5?PROGMEM2CHAR(NAV_ELEMENT_ACTIVE):"") ;  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART6a) ); buffer2send+=(IP);  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART6b));buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PARTEND)); buffer2send+=(PROGMEM2CHAR(NAV_RIGHT_PART)) ;  buffer2send+=(PROGMEM2CHAR(NAV_END));
-
+#define STATUS_SVG(color) buffer2send+=(PROGMEM2CHAR(STATUS_1));buffer2send+=(color);buffer2send+=(PROGMEM2CHAR(STATUS_2));
 
 
 char * progmem2char(const char* src)
@@ -1408,7 +1421,7 @@ void handle_web_interface_printer()
   String IP;
   String stmp;
   String buffer2send ="";
-  Serial.println("M114");
+  //Serial.println("M114");
   Serial.println("M220");
   Serial.println("M221");
   //display page
@@ -1426,6 +1439,7 @@ void handle_web_interface_printer()
   buffer2send+=(PROGMEM2CHAR(PRINTER_1b));
   buffer2send+=(PROGMEM2CHAR(PRINTER_1c));
   buffer2send+=(PROGMEM2CHAR(PRINTER_1d));
+  buffer2send+=(PROGMEM2CHAR(PRINTER_1e));
   buffer2send+=(PROGMEM2CHAR(PRINTER_2));
   buffer2send+=stmp.c_str();
   buffer2send+=(PROGMEM2CHAR(PRINTER_3));
@@ -1435,6 +1449,7 @@ void handle_web_interface_printer()
   buffer2send+=(PROGMEM2CHAR(PRINTER_6b));
   buffer2send+=(PROGMEM2CHAR(PRINTER_6c));
   buffer2send+=(PROGMEM2CHAR(PRINTER_6d));
+  buffer2send+=(PROGMEM2CHAR(PRINTER_6e));
   buffer2send+=(PROGMEM2CHAR(PRINTER_7));
   buffer2send+=(PROGMEM2CHAR(PRINTER_8));
   buffer2send+=(PROGMEM2CHAR(PRINTER_9));
@@ -1448,77 +1463,101 @@ void handle_web_interface_printer()
 void handle_web_interface_status()
 {
 	Serial.println("M105");
+	Serial.println("M114");
 	String buffer2send =(PROGMEM2CHAR(DATA_S));
 	String description;
+	String status_color;
+	static bool flashit = true;
 	int temperature,target;
+	flashit=!flashit;
 	if ((system_get_time()-web_interface->last_temp)<3200000)
 		{
-		int Tpos = web_interface->answer4M105.indexOf("T:");
-		int slashpos = web_interface->answer4M105.indexOf(" /",Tpos);	
-		int spacepos = web_interface->answer4M105.indexOf(" ",slashpos+1);
-		if(slashpos!=-1 && spacepos!=-1 )
-				{
-				temperature = (int)atof(web_interface->answer4M105.substring(Tpos+2,slashpos).c_str());
-				target = (int)atof(web_interface->answer4M105.substring(slashpos+2,spacepos).c_str());
-				Tpos = web_interface->answer4M105.indexOf("T1:");
-				if (Tpos>-1) description = "Extruder 1: ";
-				else description = "Extruder : ";
-				description += String(temperature);
-				description += "/";
-				if (target >0) description += String(target);
-				else description += "off";
-				TEMP_SVG(temperature,description)
-				}
-		//check for second extruder
-		Tpos = web_interface->answer4M105.indexOf("T1:");
-		if (Tpos>-1)
+		if (flashit)status_color="lime";
+		else status_color="darkgreen";
+		}
+	else if ((system_get_time()-web_interface->last_temp)<32000000)
+		{
+		if (flashit)status_color="#FFFF66";
+		else status_color="gold";
+		}
+	else 
+		{
+		if (flashit)status_color="red";
+		else status_color="darkred";
+		}
+		
+	int Tpos = web_interface->answer4M105.indexOf("T:");
+	int slashpos = web_interface->answer4M105.indexOf(" /",Tpos);	
+	int spacepos = web_interface->answer4M105.indexOf(" ",slashpos+1);
+	if(slashpos!=-1 && spacepos!=-1 )
 			{
-			slashpos = web_interface->answer4M105.indexOf(" /",Tpos);
-			spacepos = web_interface->answer4M105.indexOf(" ",slashpos+1);
-			if(slashpos!=-1 && spacepos!=-1 )
-				{
-				temperature = (int)atof(web_interface->answer4M105.substring(Tpos+3,slashpos).c_str());
-				target = (int)atof(web_interface->answer4M105.substring(slashpos+2,spacepos).c_str());
-				description = "Extruder 2: ";
-				description += String(temperature);
-				description += "/";
-				if (target >0) description += String(target);
-				else description += "off";
-				buffer2send+=(PROGMEM2CHAR(BR));
-				TEMP_SVG(temperature,description)
-				}
+			temperature = (int)atof(web_interface->answer4M105.substring(Tpos+2,slashpos).c_str());
+			target = (int)atof(web_interface->answer4M105.substring(slashpos+2,spacepos).c_str());
+			Tpos = web_interface->answer4M105.indexOf("T1:");
+			if (Tpos>-1) description = "Extruder 1: ";
+			else description = "Extruder : ";
+			description += String(temperature);
+			description += "/";
+			if (target >0) description += String(target);
+			else description += "off";
+			TEMP_SVG(temperature,target,description)
 			}
-		//check for bed
-		Tpos = web_interface->answer4M105.indexOf("B:");
-		if (Tpos>-1)
+	//check for second extruder
+	Tpos = web_interface->answer4M105.indexOf("T1:");
+	if (Tpos>-1)
+		{
+		slashpos = web_interface->answer4M105.indexOf(" /",Tpos);
+		spacepos = web_interface->answer4M105.indexOf(" ",slashpos+1);
+		if(slashpos!=-1 && spacepos!=-1 )
 			{
-			slashpos = web_interface->answer4M105.indexOf(" /",Tpos);	
-			spacepos = web_interface->answer4M105.indexOf(" ",slashpos+1);
-			if(slashpos!=-1 && spacepos!=-1 )
-				{
-				temperature = (int)atof(web_interface->answer4M105.substring(Tpos+2,slashpos).c_str());
-				target = (int)atof(web_interface->answer4M105.substring(slashpos+2,spacepos).c_str());
-				description = "Bed: ";
-				description += String(temperature);
-				description += "/";
-				if (target >0) description += String(target);
-				else description += "off";
-				buffer2send+=(PROGMEM2CHAR(BR));
-				TEMP_SVG(temperature*2,description)
-				}
+			temperature = (int)atof(web_interface->answer4M105.substring(Tpos+3,slashpos).c_str());
+			target = (int)atof(web_interface->answer4M105.substring(slashpos+2,spacepos).c_str());
+			description = "Extruder 2: ";
+			description += String(temperature);
+			description += "/";
+			if (target >0) description += String(target);
+			else description += "off";
+			buffer2send+=(PROGMEM2CHAR(BR));
+			TEMP_SVG(temperature,target,description)
 			}
 		}
-	else buffer2send += "Processing....";
+	//check for bed
+	Tpos = web_interface->answer4M105.indexOf("B:");
+	if (Tpos>-1)
+		{
+		slashpos = web_interface->answer4M105.indexOf(" /",Tpos);	
+		spacepos = web_interface->answer4M105.indexOf(" ",slashpos+1);
+		if(slashpos!=-1 && spacepos!=-1 )
+			{
+			temperature = (int)atof(web_interface->answer4M105.substring(Tpos+2,slashpos).c_str());
+			target = (int)atof(web_interface->answer4M105.substring(slashpos+2,spacepos).c_str());
+			description = "Bed: ";
+			description += String(temperature);
+			description += "/";
+			if (target >0) description += String(target);
+			else description += "off";
+			buffer2send+=(PROGMEM2CHAR(BR));
+			TEMP_SVG(temperature*2,target*2,description)
+			}
+		}
 	buffer2send+=(PROGMEM2CHAR(DIV_E));
-	buffer2send+="<DIV NAME=\"position\" ID=\"position\">";
+	buffer2send+=(PROGMEM2CHAR(DIV_POSITION));
 	int Epos = web_interface->answer4M114.indexOf("E:");
-	buffer2send+=web_interface->answer4M114.substring(0,Epos);
+	description=web_interface->answer4M114.substring(0,Epos);
+	description.replace("X:","<LABEL>X:</LABEL><LABEL class=\"text-info\">");
+	description.replace("Y:","</LABEL><LABEL>&nbsp;&nbsp;Y:</LABEL><LABEL class=\"text-info\">");
+	description.replace("Z:","</LABEL><LABEL>&nbsp;&nbsp;Z:</LABEL><LABEL class=\"text-info\">");
+	buffer2send+=description;
+	buffer2send+="</LABEL>&nbsp;&nbsp;";
 	buffer2send+=(PROGMEM2CHAR(DIV_E));
-	buffer2send+="<DIV NAME=\"speed\" ID=\"speed\">";
+	buffer2send+=(PROGMEM2CHAR(DIV_SPEED));
 	buffer2send+=web_interface->answer4M220;
 	buffer2send+=(PROGMEM2CHAR(DIV_E));
-	buffer2send+="<DIV NAME=\"flow\" ID=\"flow\">";
+	buffer2send+=(PROGMEM2CHAR(DIV_FLOW));
 	buffer2send+=web_interface->answer4M221;
+	buffer2send+=(PROGMEM2CHAR(DIV_E));
+	buffer2send+=(PROGMEM2CHAR(DIV_STATUS));
+	STATUS_SVG(status_color)
 	buffer2send+=(PROGMEM2CHAR(DIV_E));
 	buffer2send+=(PROGMEM2CHAR(DATA_E));
 	web_interface->WebServer.send(200, "text/html", buffer2send);
@@ -1572,10 +1611,10 @@ WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port):WebServer(port)
   WebServer.on("/STATUS",HTTP_ANY, handle_web_interface_status);
   WebServer.on("/PRINTER",HTTP_ANY, handle_web_interface_printer);
   WebServer.onNotFound( handle_not_found);
-  answer4M105="T:0 /0";
-  answer4M114="";
-  answer4M220="";
-  answer4M221="";
+  answer4M105="T:0 /0 ";
+  answer4M114="X:0.0 Y:0.0 Z:0.0";
+  answer4M220="100";
+  answer4M221="100";
   last_temp=system_get_time();
 }
 
