@@ -257,6 +257,9 @@ const char PRINTER_1b[]PROGMEM ="<TD ID=\"status\" NAME=\"status\" ></TD><TR></T
 const char PRINTER_1c[]PROGMEM ="<BR><TABLE BORDER=0><TR><TD ID=\"position\" NAME=\"position\"></TD>\n";
 const char PRINTER_1d[]PROGMEM ="<TD><LABEL>Speed:</LABEL><LABEL ID=\"speed\" NAME=\"speed\" class=\"text-info\"></LABEL><LABEL class=\"text-info\">&#37;</LABEL>&nbsp;&nbsp;\n";
 const char PRINTER_1e[]PROGMEM ="<LABEL>Flow:</LABEL><LABEL ID=\"flow\" NAME=\"flow\" class=\"text-info\"></LABEL><LABEL class=\"text-info\">&#37;</LABEL></TD></TR></TABLE><BR>\n";
+const char PRINTER_1f[]PROGMEM ="<TABLE BORDER=0><TR style=\"vertical-align:top\" ><TD><LABEL>Info:</LABEL></TD><TD ID=\"infomsg\" NAME=\"infomsg\" class=\"text-info\"></TD></TR></TABLE><HR>\n";
+const char PRINTER_1g[]PROGMEM ="<TABLE BORDER=0><TR style=\"vertical-align:top\"><TD><LABEL>Error:</LABEL></TD><TD ID=\"errormsg\" NAME=\"errormsg\" class=\"text-info\"></TD></TR></TABLE><HR>\n";
+const char PRINTER_1h[]PROGMEM ="<TABLE BORDER=0><TR style=\"vertical-align:top\"><TD><LABEL>Status:</LABEL></TD><TD ID=\"statusmsg\" NAME=\"statusmsg\" class=\"text-info\"></TD></TR></TABLE>\n";
 
 const char PRINTER_2[]PROGMEM ="<iframe ID=\"dataframe\" NAME=\"dataframe\"src=\"http://";
 const char PRINTER_3[]PROGMEM ="/STATUS\" frameborder=0 width=\"320\" height=\"300\" style=\"visibility:hidden;\"></iframe>\n";
@@ -267,12 +270,18 @@ const char PRINTER_6b[]PROGMEM ="document.getElementById(\"position\").innerHTML
 const char PRINTER_6c[]PROGMEM ="document.getElementById(\"speed\").innerHTML=doc.getElementById(\"speed\").innerHTML;\n";
 const char PRINTER_6d[]PROGMEM ="document.getElementById(\"flow\").innerHTML=doc.getElementById(\"flow\").innerHTML;\n";
 const char PRINTER_6e[]PROGMEM ="document.getElementById(\"status\").innerHTML=doc.getElementById(\"status\").innerHTML;\n";
+const char PRINTER_6f[]PROGMEM ="document.getElementById(\"infomsg\").innerHTML=doc.getElementById(\"infomsg\").innerHTML;\n";
+const char PRINTER_6g[]PROGMEM ="document.getElementById(\"errormsg\").innerHTML=doc.getElementById(\"errormsg\").innerHTML;\n";
+const char PRINTER_6h[]PROGMEM ="document.getElementById(\"statusmsg\").innerHTML=doc.getElementById(\"statusmsg\").innerHTML;\n";
 const char PRINTER_7[]PROGMEM ="}\n";
 const char PRINTER_8[]PROGMEM ="setInterval(function(){";
 const char PRINTER_9[]PROGMEM ="var ifrm=document.getElementById(\"dataframe\");var doc=ifrm.contentDocument?ifrm.contentDocument:ifrm.contentWindow.document;";
 const char PRINTER_10[]PROGMEM ="doc.location.reload(true);";
 const char PRINTER_11[]PROGMEM ="},2000);\n";
 const char PRINTER_12[]PROGMEM ="</SCRIPT>\n";
+const char DIV_ERRORMSG[]PROGMEM ="<DIV ID=\"errormsg\" NAME=\"errormsg\">\n";
+const char DIV_INFOMSG[]PROGMEM ="<DIV ID=\"infomsg\" NAME=\"infomsg\">\n";
+const char DIV_STATUSMSG[]PROGMEM ="<DIV ID=\"statusmsg\" NAME=\"statusmsg\">\n";
 
 #define TEMP_SVG(temperature,target,description) buffer2send+=(PROGMEM2CHAR(TEMP_SVG_1));buffer2send+=(PROGMEM2CHAR(TEMP_SVG_2));buffer2send+=(PROGMEM2CHAR(TEMP_SVG_3));buffer2send+=(PROGMEM2CHAR(TEMP_SVG_4));buffer2send+=(PROGMEM2CHAR(TEMP_SVG_5));buffer2send+=String(target+10); buffer2send+=(PROGMEM2CHAR(TEMP_SVG_6));buffer2send+=String(target+10); buffer2send+=(PROGMEM2CHAR(TEMP_SVG_7));buffer2send+=(PROGMEM2CHAR(TEMP_SVG_8));buffer2send+=String(temperature+5);buffer2send+=(PROGMEM2CHAR(TEMP_SVG_9));buffer2send+=String(temperature+15);buffer2send+=(PROGMEM2CHAR(TEMP_SVG_10));buffer2send+=String(temperature+10);buffer2send+=(PROGMEM2CHAR(TEMP_SVG_11));buffer2send+=String(temperature+5);buffer2send+=(PROGMEM2CHAR(TEMP_SVG_12));buffer2send+=String(temperature+15);buffer2send+=(PROGMEM2CHAR(TEMP_SVG_13));buffer2send+=String(temperature+10);buffer2send+=(PROGMEM2CHAR(TEMP_SVG_14));buffer2send+=description;buffer2send+=(PROGMEM2CHAR(TEMP_SVG_15));buffer2send+=(PROGMEM2CHAR(TEMP_SVG_16));
 
@@ -1440,6 +1449,9 @@ void handle_web_interface_printer()
   buffer2send+=(PROGMEM2CHAR(PRINTER_1c));
   buffer2send+=(PROGMEM2CHAR(PRINTER_1d));
   buffer2send+=(PROGMEM2CHAR(PRINTER_1e));
+  buffer2send+=(PROGMEM2CHAR(PRINTER_1f));
+  buffer2send+=(PROGMEM2CHAR(PRINTER_1g));
+  buffer2send+=(PROGMEM2CHAR(PRINTER_1h));
   buffer2send+=(PROGMEM2CHAR(PRINTER_2));
   buffer2send+=stmp.c_str();
   buffer2send+=(PROGMEM2CHAR(PRINTER_3));
@@ -1450,6 +1462,9 @@ void handle_web_interface_printer()
   buffer2send+=(PROGMEM2CHAR(PRINTER_6c));
   buffer2send+=(PROGMEM2CHAR(PRINTER_6d));
   buffer2send+=(PROGMEM2CHAR(PRINTER_6e));
+  buffer2send+=(PROGMEM2CHAR(PRINTER_6f));
+  buffer2send+=(PROGMEM2CHAR(PRINTER_6g));
+  buffer2send+=(PROGMEM2CHAR(PRINTER_6h));
   buffer2send+=(PROGMEM2CHAR(PRINTER_7));
   buffer2send+=(PROGMEM2CHAR(PRINTER_8));
   buffer2send+=(PROGMEM2CHAR(PRINTER_9));
@@ -1558,6 +1573,41 @@ void handle_web_interface_status()
 	buffer2send+=(PROGMEM2CHAR(DIV_E));
 	buffer2send+=(PROGMEM2CHAR(DIV_STATUS));
 	STATUS_SVG(status_color)
+	buffer2send+=(PROGMEM2CHAR(DIV_E));
+	int p=1;
+	buffer2send+=(PROGMEM2CHAR(DIV_INFOMSG));
+	if (web_interface->info_msg.get_used_max_index()>-1)
+	for (int i=web_interface->info_msg.get_used_max_index();i>=0;i--)
+		{
+			buffer2send+=String(p);
+			buffer2send+="-";
+			p++;
+			buffer2send+=web_interface->info_msg.get_index_at(i);
+			buffer2send+=(PROGMEM2CHAR(BR));
+		}
+	buffer2send+=(PROGMEM2CHAR(DIV_E));
+	p=1;
+	buffer2send+=(PROGMEM2CHAR(DIV_ERRORMSG));
+	if (web_interface->error_msg.get_used_max_index()>-1)
+	for (int i=web_interface->error_msg.get_used_max_index();i>=0;i--)
+		{
+			buffer2send+=String(p);
+			buffer2send+="-";
+			p++;
+			buffer2send+=web_interface->error_msg.get_index_at(i);
+			buffer2send+=(PROGMEM2CHAR(BR));
+		}
+	buffer2send+=(PROGMEM2CHAR(DIV_E));
+	p=1;
+	buffer2send+=(PROGMEM2CHAR(DIV_STATUSMSG));
+	if (web_interface->status_msg.get_used_max_index()>-1)
+	for (int i=web_interface->status_msg.get_used_max_index();i>=0;i--)
+		{	buffer2send+=String(p);
+			buffer2send+="-";
+			p++;
+			buffer2send+=web_interface->status_msg.get_index_at(i);
+			buffer2send+=(PROGMEM2CHAR(BR));
+		}
 	buffer2send+=(PROGMEM2CHAR(DIV_E));
 	buffer2send+=(PROGMEM2CHAR(DATA_E));
 	web_interface->WebServer.send(200, "text/html", buffer2send);

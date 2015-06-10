@@ -1,5 +1,5 @@
 /* 
-  webinterface.h - esp8266 configuration class
+  storestrings.h - rolling storage class
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
  
@@ -18,37 +18,23 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef WEBINTERFACE_h
-#define WEBINTERFACE_h
+#ifndef STORESTRINGS_h
+#define STORESTRINGS_h
 #include <Arduino.h>
-#include <WiFiClient.h>
-#include <WiFiServer.h>
-#include <ESP8266WebServer.h>
-#include "storestrings.h"
 
-#define MAX_EXTRUDERS 4
-
-class WEBINTERFACE_CLASS
+class STORESTRINGS_CLASS
 {
   public:
-  WEBINTERFACE_CLASS (int port = 80);
-  ESP8266WebServer WebServer;
-  void urldecode(char *dst, const char *src);
-  bool isSSIDValid(const char * ssid);
-  bool isPasswordValid(const char * password);
-  bool isIPValid(const char * IP);
-  String answer4M105;
-  String answer4M114;
-  String answer4M220;
-  String answer4M221;
-  uint32_t last_temp;
-  STORESTRINGS_CLASS error_msg;
-  STORESTRINGS_CLASS info_msg;
-  STORESTRINGS_CLASS status_msg;
+  STORESTRINGS_CLASS (uint8_t size = 10);
+  ~STORESTRINGS_CLASS ();
+  bool add (const char * string);
+  String get_index_at(uint pos);
+  uint get_size();
+  int get_used_max_index();
   private:
-
+  String * storage;
+  uint storage_size;
+  uint storage_cursor;
 };
-
-extern WEBINTERFACE_CLASS * web_interface;
 
 #endif

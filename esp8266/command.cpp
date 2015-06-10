@@ -54,6 +54,9 @@ void COMMAND::check_command(String buffer)
 	int Zpos = buffer.indexOf("Z:");
 	int Speedpos = buffer.indexOf("SpeedMultiply:");
 	int Flowpos = buffer.indexOf("FlowMultiply:");
+	int Errorpos= buffer.indexOf("Error:");
+	int Infopos= buffer.indexOf("Info:");
+	int Statuspos= buffer.indexOf("Status:");
 	if (ESPpos>-1)
 		{//is there the second part?
 		int ESPpos2 = buffer.indexOf("]",ESPpos);	
@@ -90,6 +93,12 @@ void COMMAND::check_command(String buffer)
 	if (Speedpos>-1)web_interface->answer4M220=buffer.substring(Speedpos+14);
 	//Flow
 	if (Flowpos>-1)web_interface->answer4M221=buffer.substring(Flowpos+13);
+	//Error
+	if (Errorpos>-1 && !(buffer.indexOf("Format error")!=-1 || buffer.indexOf("wait")==Errorpos+6) )(web_interface->error_msg).add(buffer.substring(Errorpos+6).c_str());
+	//Info
+	if (Infopos>-1)(web_interface->info_msg).add(buffer.substring(Infopos+5).c_str());
+	//Status
+	if (Statuspos>-1)(web_interface->status_msg).add(buffer.substring(Statuspos+7).c_str());
 }
 
 //read a buffer in an array
