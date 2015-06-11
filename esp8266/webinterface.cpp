@@ -252,7 +252,7 @@ const char DIV_STATUS[]PROGMEM ="<DIV NAME=\"status\" ID=\"status\">";
 const char STATUS_1[]PROGMEM ="<svg width=\"20\" height=\"20\">\n<circle cx=\"10\" cy=\"10\" r=\"8\" stroke=\"black\" stroke-width=\"2\" fill=\"";
 const char STATUS_2[]PROGMEM ="\" />\n</svg>";
 
-const char PRINTER_1a[]PROGMEM ="<TABLE BORDER=0 ><TR><TD ID=\"display_data\" NAME=\"display_data\"></TD><TD>&nbsp;&nbsp;</TD>\n";
+const char PRINTER_1a[]PROGMEM ="<TABLE><TR style=\"vertical-align:top\"><TD><TABLE BORDER=0 ><TR><TD ID=\"display_data\" NAME=\"display_data\"></TD><TD>&nbsp;&nbsp;</TD>\n";
 const char PRINTER_1b[]PROGMEM ="<TD ID=\"status\" NAME=\"status\" ></TD><TR></TABLE>\n";
 const char PRINTER_1c[]PROGMEM ="<BR><TABLE BORDER=0><TR><TD ID=\"position\" NAME=\"position\"></TD>\n";
 const char PRINTER_1d[]PROGMEM ="<TD><LABEL>Speed:</LABEL><LABEL ID=\"speed\" NAME=\"speed\" class=\"text-info\"></LABEL><LABEL class=\"text-info\">&#37;</LABEL>&nbsp;&nbsp;\n";
@@ -260,9 +260,10 @@ const char PRINTER_1e[]PROGMEM ="<LABEL>Flow:</LABEL><LABEL ID=\"flow\" NAME=\"f
 const char PRINTER_1f[]PROGMEM ="<TABLE BORDER=0><TR style=\"vertical-align:top\" ><TD><LABEL>Info:</LABEL></TD><TD ID=\"infomsg\" NAME=\"infomsg\" class=\"text-info\"></TD></TR></TABLE><HR>\n";
 const char PRINTER_1g[]PROGMEM ="<TABLE BORDER=0><TR style=\"vertical-align:top\"><TD><LABEL>Error:</LABEL></TD><TD ID=\"errormsg\" NAME=\"errormsg\" class=\"text-info\"></TD></TR></TABLE><HR>\n";
 const char PRINTER_1h[]PROGMEM ="<TABLE BORDER=0><TR style=\"vertical-align:top\"><TD><LABEL>Status:</LABEL></TD><TD ID=\"statusmsg\" NAME=\"statusmsg\" class=\"text-info\"></TD></TR></TABLE>\n";
-
-const char PRINTER_2[]PROGMEM ="<iframe ID=\"dataframe\" NAME=\"dataframe\"src=\"http://";
-const char PRINTER_3[]PROGMEM ="/STATUS\" frameborder=0 width=\"320\" height=\"300\" style=\"visibility:hidden;\"></iframe>\n";
+const char PRINTER_1_a_1[]PROGMEM="</TD><TD>&nbsp;&nbsp;&nbsp;</TD><TD><BUTTON TYPE=\"BUTTON\" class=\"btn btn-danger\" VALUE=\"Emergency Stop\" Onclick=\"window.open('http://";
+const char PRINTER_1_a_2[]PROGMEM="/CMD?COM=M112','frmcmd');\">Emergency Stop</BUTTON>";
+const char PRINTER_2[]PROGMEM ="</TD></TR></TABLE><iframe ID=\"dataframe\" NAME=\"dataframe\"src=\"http://";
+const char PRINTER_3[]PROGMEM ="/STATUS\" frameborder=0 width=\"2\" height=\"2\" style=\"visibility:hidden;\"></iframe>\n<IFRAME width=\"2\" height=\"2\" style=\"visibility:hidden\" ID=\"frmcmd\" NAME=\"frmcmd\" ></IFRAME>\n";
 const char PRINTER_4[]PROGMEM ="<SCRIPT TYPE=\"text/javascript\">\n document.getElementById(\"dataframe\").onload=function(){\n";
 const char PRINTER_5[]PROGMEM ="var ifrm=document.getElementById(\"dataframe\");\nvar doc=ifrm.contentDocument?ifrm.contentDocument:ifrm.contentWindow.document;\n";
 const char PRINTER_6a[]PROGMEM ="document.getElementById(\"display_data\").innerHTML=doc.getElementById(\"data\").innerHTML;\n";
@@ -282,6 +283,8 @@ const char PRINTER_12[]PROGMEM ="</SCRIPT>\n";
 const char DIV_ERRORMSG[]PROGMEM ="<DIV ID=\"errormsg\" NAME=\"errormsg\">\n";
 const char DIV_INFOMSG[]PROGMEM ="<DIV ID=\"infomsg\" NAME=\"infomsg\">\n";
 const char DIV_STATUSMSG[]PROGMEM ="<DIV ID=\"statusmsg\" NAME=\"statusmsg\">\n";
+const char COMMAND_ID[]PROGMEM ="COM";
+const char PARAM_ID[]PROGMEM ="PARAM";
 
 #define TEMP_SVG(temperature,target,description) buffer2send+=(PROGMEM2CHAR(TEMP_SVG_1));buffer2send+=(PROGMEM2CHAR(TEMP_SVG_2));buffer2send+=(PROGMEM2CHAR(TEMP_SVG_3));buffer2send+=(PROGMEM2CHAR(TEMP_SVG_4));buffer2send+=(PROGMEM2CHAR(TEMP_SVG_5));buffer2send+=String(target+10); buffer2send+=(PROGMEM2CHAR(TEMP_SVG_6));buffer2send+=String(target+10); buffer2send+=(PROGMEM2CHAR(TEMP_SVG_7));buffer2send+=(PROGMEM2CHAR(TEMP_SVG_8));buffer2send+=String(temperature+5);buffer2send+=(PROGMEM2CHAR(TEMP_SVG_9));buffer2send+=String(temperature+15);buffer2send+=(PROGMEM2CHAR(TEMP_SVG_10));buffer2send+=String(temperature+10);buffer2send+=(PROGMEM2CHAR(TEMP_SVG_11));buffer2send+=String(temperature+5);buffer2send+=(PROGMEM2CHAR(TEMP_SVG_12));buffer2send+=String(temperature+15);buffer2send+=(PROGMEM2CHAR(TEMP_SVG_13));buffer2send+=String(temperature+10);buffer2send+=(PROGMEM2CHAR(TEMP_SVG_14));buffer2send+=description;buffer2send+=(PROGMEM2CHAR(TEMP_SVG_15));buffer2send+=(PROGMEM2CHAR(TEMP_SVG_16));
 
@@ -1452,6 +1455,9 @@ void handle_web_interface_printer()
   buffer2send+=(PROGMEM2CHAR(PRINTER_1f));
   buffer2send+=(PROGMEM2CHAR(PRINTER_1g));
   buffer2send+=(PROGMEM2CHAR(PRINTER_1h));
+  buffer2send+=(PROGMEM2CHAR(PRINTER_1_a_1));
+  buffer2send+=stmp.c_str();
+  buffer2send+=(PROGMEM2CHAR(PRINTER_1_a_2));
   buffer2send+=(PROGMEM2CHAR(PRINTER_2));
   buffer2send+=stmp.c_str();
   buffer2send+=(PROGMEM2CHAR(PRINTER_3));
@@ -1614,6 +1620,17 @@ void handle_web_interface_status()
 	
 }
 
+void handle_web_command()
+{
+if (web_interface->WebServer.hasArg(PROGMEM2CHAR(COMMAND_ID)))
+  {  String cmd = web_interface->WebServer.arg(PROGMEM2CHAR(COMMAND_ID));
+	 String param = web_interface->WebServer.arg(PROGMEM2CHAR(PARAM_ID));
+	  if (cmd=="M112")
+				{	
+					Serial.println(cmd.c_str());
+				}
+  }
+}
 //URI Decoding function 
 //no check if dst buffer is big enough to receive string so 
 //use same size as src is a recommendation
@@ -1660,6 +1677,7 @@ WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port):WebServer(port)
   WebServer.on("/CONFIGSTA",HTTP_ANY, handle_web_interface_configSTA);
   WebServer.on("/STATUS",HTTP_ANY, handle_web_interface_status);
   WebServer.on("/PRINTER",HTTP_ANY, handle_web_interface_printer);
+  WebServer.on("/CMD",HTTP_ANY, handle_web_command);
   WebServer.onNotFound( handle_not_found);
   answer4M105="T:0 /0 ";
   answer4M114="X:0.0 Y:0.0 Z:0.0";
