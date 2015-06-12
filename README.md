@@ -9,7 +9,8 @@ Thanks to @lkarlslund for suggestion about independant reset using GPIO2
 
 Have a bridge configurable by web (implemented) and optionally by printer (not yet implemented)  
 Have a front end to know what is the wifi status (implemented) or know what is the print status (not yet implemented) - this part can be optional and removed by compilation directive if no need    
-    
+
+Should be compatible with reprap printer (Marlin FW/Repetier FW)       
 
 ##Hardware connection       
 --Use GPIO2 to ground to reset all settings in hard way - 2-6 sec after boot / not before!! Set GPIO2 to ground before boot change boot mode and go to special boot that do not reach FW - I did not found information on this. Currently boot take 10 sec - giving 8 seconds to connect GPIO2 to GND and do an hard recovery for settings   
