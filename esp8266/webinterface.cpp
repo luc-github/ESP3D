@@ -1563,11 +1563,20 @@ void handle_web_interface_status()
 		}
 	buffer2send+=(PROGMEM2CHAR(DIV_E));
 	buffer2send+=(PROGMEM2CHAR(DIV_POSITION));
-	int Epos = web_interface->answer4M114.indexOf("E:");
-	description=web_interface->answer4M114.substring(0,Epos);
-	description.replace("X:","<LABEL>X:</LABEL><LABEL class=\"text-info\">");
-	description.replace("Y:","</LABEL><LABEL>&nbsp;&nbsp;Y:</LABEL><LABEL class=\"text-info\">");
-	description.replace("Z:","</LABEL><LABEL>&nbsp;&nbsp;Z:</LABEL><LABEL class=\"text-info\">");
+	int tagpos = web_interface->answer4M114.indexOf("X:");
+	int tagpos2 = web_interface->answer4M114.indexOf(" ",tagpos);
+	description=web_interface->answer4M114.substring(tagpos+2,tagpos2);
+	buffer2send+="<LABEL>X:</LABEL><LABEL class=\"text-info\">";
+	buffer2send+=description;
+	buffer2send+="</LABEL>&nbsp;&nbsp;<LABEL>Y:</LABEL><LABEL class=\"text-info\">";
+	tagpos = web_interface->answer4M114.indexOf("Y:");
+	tagpos2 = web_interface->answer4M114.indexOf(" ",tagpos);
+	description=web_interface->answer4M114.substring(tagpos+2,tagpos2);
+	buffer2send+=description;
+	buffer2send+="</LABEL>&nbsp;&nbsp;<LABEL>Z:</LABEL><LABEL class=\"text-info\">";
+	tagpos = web_interface->answer4M114.indexOf("Z:");
+	tagpos2 = web_interface->answer4M114.indexOf(" ",tagpos);
+	description=web_interface->answer4M114.substring(tagpos+2,tagpos2);
 	buffer2send+=description;
 	buffer2send+="</LABEL>&nbsp;&nbsp;";
 	buffer2send+=(PROGMEM2CHAR(DIV_E));
@@ -1680,7 +1689,7 @@ WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port):WebServer(port)
   WebServer.on("/CMD",HTTP_ANY, handle_web_command);
   WebServer.onNotFound( handle_not_found);
   answer4M105="T:0 /0 ";
-  answer4M114="X:0.0 Y:0.0 Z:0.0";
+  answer4M114="X:0.0 Y:0.0 Z:0.000";
   answer4M220="100";
   answer4M221="100";
   last_temp=system_get_time();
