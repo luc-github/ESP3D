@@ -17,7 +17,8 @@ Should be compatible with reprap printer (Marlin FW/Repetier FW)
 --Use GPIO0 to ground to be in update mode   
 --Use a switch to reset/disable module    
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Wires.png><br>   
-       
+For Davinci Board:<BR>
+<img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/davinci.png><br> 
 
 ##Development   
 Currently using [Arduino IDE 1.6.4](http://arduino.cc/en/Main/Software)  with the esp8266 module from board manager added from [github.com/esp8266/Arduino](https://github.com/esp8266/Arduino)    
