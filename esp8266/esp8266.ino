@@ -112,6 +112,7 @@ uint8_t i,data;
         serverClients[i] = data_server->available();
         continue;
       }
+     yield();
     }
     //no free/disconnected spot so reject
     WiFiClient serverClient = data_server->available();
@@ -127,6 +128,7 @@ uint8_t i,data;
          Serial.write(data);
          COMMAND::read_buffer_tcp(data);
          }
+         yield();
       }
     }
   }

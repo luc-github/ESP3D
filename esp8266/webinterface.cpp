@@ -482,6 +482,7 @@ void handle_web_interface_root()
 			{
 			istatus++;
 			stationtmp = STAILQ_NEXT(stationtmp, next);
+			yield();
 			}
 		//start table as at least one connected
 		 buffer2send+=(PROGMEM2CHAR(TABLE_START));
@@ -500,6 +501,7 @@ void handle_web_interface_root()
 		istatus=0;
 		while(station)
 			{
+			yield();
 			istatus++;
 			//display each client
 			 buffer2send+=(PROGMEM2CHAR(TR_S));
@@ -1483,7 +1485,6 @@ void handle_web_interface_printer()
 
 void handle_web_interface_status()
 {
-	Serial.println("M105");
 	Serial.println("M114");
 	String buffer2send =(PROGMEM2CHAR(DATA_S));
 	String description;
@@ -1491,6 +1492,9 @@ void handle_web_interface_status()
 	static bool flashit = true;
 	int temperature,target;
 	flashit=!flashit;
+	//request temperature only if no feedback
+	if ((system_get_time()-web_interface->last_temp)>3000000)
+		Serial.println("M105");
 	if ((system_get_time()-web_interface->last_temp)<3200000)
 		{
 		if (flashit)status_color="lime";
