@@ -62,6 +62,7 @@ extern "C" {
 #define EP_SSID_VISIBLE			120 //1 byte = flag
 #define EP_WEB_PORT			121 //4  bytes = int
 #define EP_DATA_PORT			125 //4  bytes = int
+#define EP_POLLING_TIME			129 //1  bytes = flag
 
 
 
@@ -86,6 +87,7 @@ const char LOCAL_NAME[] PROGMEM =		"esp8266";
 #define DEFAULT_BEACON_INTERVAL			100
 const int DEFAULT_WEB_PORT =			80;
 const int DEFAULT_DATA_PORT =			8888;
+#define DEFAULT_POLLING_TIME			3
 
 //sizes
 #define EEPROM_SIZE				256 //max is 512

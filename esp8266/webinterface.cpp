@@ -121,6 +121,7 @@ const char CPU_FREQ_TITLE[] PROGMEM = "CPU Frequency: ";
 const char FREE_MEM_TITLE[] PROGMEM = "Free Memory: ";
 const char UNIT_HZ [] PROGMEM = "Hz";
 const char UNIT_OCTET[] PROGMEM = " octets";
+const char UNIT_SECONDS[]  PROGMEM = " second(s)";
 const char SDK_VERSION_TITLE[] PROGMEM = "SDK Version: ";
 const char HTTP_START[] PROGMEM = "http://";
 const char HTTP_MDNS_NAME[] PROGMEM = "mDNS name: ";
@@ -178,6 +179,14 @@ const char SUBMIT_ID[] PROGMEM = "SUBMIT";
 const char BAUD_RATE_NAME[] PROGMEM = "Baud rate";
 const char NETWORK_NAME[] PROGMEM = "Network";
 const char SLEEP_MODE_NAME[] PROGMEM = "Sleep Mode";
+const char VALUE_1[] PROGMEM = "1";
+const char VALUE_2[] PROGMEM = "2";
+const char VALUE_3[] PROGMEM = "3";
+const char VALUE_4[] PROGMEM = "4";
+const char VALUE_5[] PROGMEM = "5";
+const char VALUE_10[] PROGMEM = "10";
+const char VALUE_30[] PROGMEM = "30";
+const char VALUE_60[] PROGMEM = "60";
 const char VALUE_9600[] PROGMEM = "9600";
 const char VALUE_19200[] PROGMEM = "19200";
 const char VALUE_38400[] PROGMEM = "38400";
@@ -278,13 +287,20 @@ const char PRINTER_7[]PROGMEM ="}\n";
 const char PRINTER_8[]PROGMEM ="setInterval(function(){";
 const char PRINTER_9[]PROGMEM ="var ifrm=document.getElementById(\"dataframe\");var doc=ifrm.contentDocument?ifrm.contentDocument:ifrm.contentWindow.document;";
 const char PRINTER_10[]PROGMEM ="doc.location.reload(true);";
-const char PRINTER_11[]PROGMEM ="},2000);\n";
+const char PRINTER_11a[]PROGMEM ="},";
+const char PRINTER_11b[]PROGMEM =");\n";
 const char PRINTER_12[]PROGMEM ="</SCRIPT>\n";
 const char DIV_ERRORMSG[]PROGMEM ="<DIV ID=\"errormsg\" NAME=\"errormsg\">\n";
 const char DIV_INFOMSG[]PROGMEM ="<DIV ID=\"infomsg\" NAME=\"infomsg\">\n";
 const char DIV_STATUSMSG[]PROGMEM ="<DIV ID=\"statusmsg\" NAME=\"statusmsg\">\n";
 const char COMMAND_ID[]PROGMEM ="COM";
 const char PARAM_ID[]PROGMEM ="PARAM";
+const char POLLING_TITLE[]PROGMEM ="Refresh Web page (s):";
+const char POLLING_NAME[]PROGMEM ="Refresh printer status every :";
+const char POLLING_ID[]PROGMEM ="POLLING";
+
+
+
 
 #define TEMP_SVG(temperature,target,description) buffer2send+=(PROGMEM2CHAR(TEMP_SVG_1));buffer2send+=(PROGMEM2CHAR(TEMP_SVG_2));buffer2send+=(PROGMEM2CHAR(TEMP_SVG_3));buffer2send+=(PROGMEM2CHAR(TEMP_SVG_4));buffer2send+=(PROGMEM2CHAR(TEMP_SVG_5));buffer2send+=String(target+10); buffer2send+=(PROGMEM2CHAR(TEMP_SVG_6));buffer2send+=String(target+10); buffer2send+=(PROGMEM2CHAR(TEMP_SVG_7));buffer2send+=(PROGMEM2CHAR(TEMP_SVG_8));buffer2send+=String(temperature+5);buffer2send+=(PROGMEM2CHAR(TEMP_SVG_9));buffer2send+=String(temperature+15);buffer2send+=(PROGMEM2CHAR(TEMP_SVG_10));buffer2send+=String(temperature+10);buffer2send+=(PROGMEM2CHAR(TEMP_SVG_11));buffer2send+=String(temperature+5);buffer2send+=(PROGMEM2CHAR(TEMP_SVG_12));buffer2send+=String(temperature+15);buffer2send+=(PROGMEM2CHAR(TEMP_SVG_13));buffer2send+=String(temperature+10);buffer2send+=(PROGMEM2CHAR(TEMP_SVG_14));buffer2send+=description;buffer2send+=(PROGMEM2CHAR(TEMP_SVG_15));buffer2send+=(PROGMEM2CHAR(TEMP_SVG_16));
 
@@ -386,6 +402,7 @@ void handle_web_interface_root()
   String sstatus;
   struct softap_config apconfig;
   struct ip_info info;
+  byte bbuf;
   int istatus;
   int lstatus;
   uint8_t mac [WL_MAC_ADDR_LENGTH];
@@ -437,6 +454,8 @@ void handle_web_interface_root()
   istatus=0;
   if (!CONFIG::read_buffer(EP_DATA_PORT,  (byte *)&istatus , INTEGER_LENGH))istatus=0;
   LABEL(PROGMEM2CHAR(DATA_PORT_TITLE),String(istatus).c_str())
+  if (!CONFIG::read_byte(EP_POLLING_TIME, &bbuf ))bbuf=DEFAULT_POLLING_TIME;
+  LABEL_UNITS(PROGMEM2CHAR(POLLING_NAME),String(bbuf).c_str(),PROGMEM2CHAR(UNIT_SECONDS))
   buffer2send+=(PROGMEM2CHAR(PANEL_END));
  //access point
   buffer2send+=(PROGMEM2CHAR(PANEL_TOP));
@@ -559,15 +578,17 @@ void handle_web_interface_configSys()
   int iweb_port =0;
   int idata_port =0;
   byte bsleepmode=0;
+  byte polling_time=3;
   //check is it is a submission or a display
   if (web_interface->WebServer.hasArg(PROGMEM2CHAR(SUBMIT_ID)))
   {   //is there a correct list of values?
-	  if (web_interface->WebServer.hasArg(PROGMEM2CHAR(BAUD_RATE_ID)) && web_interface->WebServer.hasArg(PROGMEM2CHAR(SLEEP_MODE_ID))&& web_interface->WebServer.hasArg(PROGMEM2CHAR(WEB_PORT_ID))&& web_interface->WebServer.hasArg(PROGMEM2CHAR(DATA_PORT_ID)))
+	  if (web_interface->WebServer.hasArg(PROGMEM2CHAR(BAUD_RATE_ID)) && web_interface->WebServer.hasArg(PROGMEM2CHAR(SLEEP_MODE_ID))&& web_interface->WebServer.hasArg(PROGMEM2CHAR(POLLING_ID))&& web_interface->WebServer.hasArg(PROGMEM2CHAR(WEB_PORT_ID))&& web_interface->WebServer.hasArg(PROGMEM2CHAR(DATA_PORT_ID)))
 		{   //is each value correct ?
 			ibaud  = atol(web_interface->WebServer.arg(PROGMEM2CHAR(BAUD_RATE_ID)).c_str());
 			iweb_port  = atol(web_interface->WebServer.arg(PROGMEM2CHAR(WEB_PORT_ID)).c_str());
 			idata_port  = atoi(web_interface->WebServer.arg(PROGMEM2CHAR(DATA_PORT_ID)).c_str());
 			bsleepmode = atoi(web_interface->WebServer.arg(PROGMEM2CHAR(SLEEP_MODE_ID)).c_str());
+			polling_time = atoi(web_interface->WebServer.arg(PROGMEM2CHAR(POLLING_ID)).c_str());
 			if (!(iweb_port>0 && iweb_port<65001) ||
 				!(idata_port>0 && idata_port<65001))
 				{
@@ -580,7 +601,8 @@ void handle_web_interface_configSys()
 					smsg=PROGMEM2CHAR(ERROR_INCORRECT_PORT2);
 			    }
 			if (!(ibaud==9600 || ibaud==19200|| ibaud==38400|| ibaud==57600|| ibaud==115200|| ibaud==230400) ||
-			    !(bsleepmode==NONE_SLEEP_T ||bsleepmode==LIGHT_SLEEP_T ||bsleepmode==MODEM_SLEEP_T ))
+			    !(bsleepmode==NONE_SLEEP_T ||bsleepmode==LIGHT_SLEEP_T ||bsleepmode==MODEM_SLEEP_T )||
+			    !(polling_time==1 || polling_time==2 ||polling_time==3 || polling_time==4 ||polling_time==5 ||polling_time==10 ||polling_time==30 ||polling_time==60))
 				{
 					msg_alert_error=true;
 					smsg=PROGMEM2CHAR(ERROR_QUERY);
@@ -594,7 +616,7 @@ void handle_web_interface_configSys()
 	   //if no error apply the changes
 		if (msg_alert_error!=true)
 			{
-			 if(!CONFIG::write_buffer(EP_BAUD_RATE,(const byte *)&ibaud,INTEGER_LENGH)||!CONFIG::write_buffer(EP_WEB_PORT,(const byte *)&iweb_port,INTEGER_LENGH)||!CONFIG::write_buffer(EP_DATA_PORT,(const byte *)&idata_port,INTEGER_LENGH)||!CONFIG::write_byte(EP_SLEEP_MODE,bsleepmode))
+			 if(!CONFIG::write_buffer(EP_BAUD_RATE,(const byte *)&ibaud,INTEGER_LENGH)||!CONFIG::write_buffer(EP_WEB_PORT,(const byte *)&iweb_port,INTEGER_LENGH)||!CONFIG::write_buffer(EP_DATA_PORT,(const byte *)&idata_port,INTEGER_LENGH)||!CONFIG::write_byte(EP_SLEEP_MODE,bsleepmode)||!CONFIG::write_byte(EP_POLLING_TIME,polling_time))
 				{
 					msg_alert_error=true;
 					smsg=PROGMEM2CHAR(ERROR_WRITING_CHANGES);
@@ -616,6 +638,7 @@ void handle_web_interface_configSys()
 	if (!CONFIG::read_byte(EP_SLEEP_MODE, &bsleepmode ))bsleepmode=DEFAULT_SLEEP_MODE;
 	if (!CONFIG::read_buffer(EP_WEB_PORT,  (byte *)&iweb_port , INTEGER_LENGH))ibaud=DEFAULT_WEB_PORT;
 	if (!CONFIG::read_buffer(EP_DATA_PORT,  (byte *)&idata_port , INTEGER_LENGH))ibaud=DEFAULT_DATA_PORT;
+	if (!CONFIG::read_byte(EP_POLLING_TIME, &polling_time ))polling_time=DEFAULT_POLLING_TIME;
 	}
   if (wifi_get_opmode()==WIFI_STA ) stmp=wifi_config.ip2str(WiFi.localIP());
   else stmp=wifi_config.ip2str(WiFi.softAPIP());
@@ -686,6 +709,35 @@ void handle_web_interface_configSys()
 	{
 		INPUT_TEXT_ERROR( PROGMEM2CHAR(AP_4_ID),PROGMEM2CHAR(DATA_PORT_TITLE), PROGMEM2CHAR(DATA_PORT_ID),PROGMEM2CHAR(PORT_DESC),String(idata_port).c_str())
 	}
+	
+  //polling
+  SELECT_START(PROGMEM2CHAR(AP_10_ID),PROGMEM2CHAR(POLLING_TITLE),PROGMEM2CHAR(POLLING_ID))
+  if (polling_time==1)stmp = PROGMEM2CHAR(VALUE_SELECTED);
+  else stmp="";
+  OPTION(PROGMEM2CHAR(VALUE_1), stmp.c_str(),PROGMEM2CHAR(VALUE_1))
+   if (polling_time==2)stmp = PROGMEM2CHAR(VALUE_SELECTED);
+  else stmp="";
+  OPTION(PROGMEM2CHAR(VALUE_2), stmp.c_str(),PROGMEM2CHAR(VALUE_2))
+   if (polling_time==3)stmp = PROGMEM2CHAR(VALUE_SELECTED);
+  else stmp="";
+  OPTION(PROGMEM2CHAR(VALUE_3), stmp.c_str(),PROGMEM2CHAR(VALUE_3))
+   if (polling_time==4)stmp = PROGMEM2CHAR(VALUE_SELECTED);
+  else stmp="";
+  OPTION(PROGMEM2CHAR(VALUE_4), stmp.c_str(),PROGMEM2CHAR(VALUE_4))
+   if (polling_time==5)stmp = PROGMEM2CHAR(VALUE_SELECTED);
+  else stmp="";
+  OPTION(PROGMEM2CHAR(VALUE_5), stmp.c_str(),PROGMEM2CHAR(VALUE_5))
+   if (polling_time==10)stmp = PROGMEM2CHAR(VALUE_SELECTED);
+  else stmp="";
+  OPTION(PROGMEM2CHAR(VALUE_10), stmp.c_str(),PROGMEM2CHAR(VALUE_10))
+   if (polling_time==30)stmp = PROGMEM2CHAR(VALUE_SELECTED);
+  else stmp="";
+  OPTION(PROGMEM2CHAR(VALUE_30), stmp.c_str(),PROGMEM2CHAR(VALUE_30))
+   if (polling_time==60)stmp = PROGMEM2CHAR(VALUE_SELECTED);
+  else stmp="";
+  OPTION(PROGMEM2CHAR(VALUE_60), stmp.c_str(),PROGMEM2CHAR(VALUE_60))
+  
+  SELECT_END
   if(msg_alert_error) 
 	{
 		MSG_ERROR(smsg.c_str()) 
@@ -1435,6 +1487,8 @@ void handle_web_interface_printer()
   String IP;
   String stmp;
   String buffer2send ="";
+  byte polling_time = 3;
+  if (!CONFIG::read_byte(EP_POLLING_TIME, &polling_time ))polling_time=DEFAULT_POLLING_TIME;
   //Serial.println("M114");
   Serial.println("M220");
   Serial.println("M221");
@@ -1477,7 +1531,10 @@ void handle_web_interface_printer()
   buffer2send+=(PROGMEM2CHAR(PRINTER_8));
   buffer2send+=(PROGMEM2CHAR(PRINTER_9));
   buffer2send+=(PROGMEM2CHAR(PRINTER_10));
-  buffer2send+=(PROGMEM2CHAR(PRINTER_11));
+  buffer2send+=(PROGMEM2CHAR(PRINTER_11a));
+  stmp=String(1000*polling_time);
+  buffer2send+=stmp.c_str();
+  buffer2send+=(PROGMEM2CHAR(PRINTER_11b));
   buffer2send+=(PROGMEM2CHAR(PRINTER_12));
   buffer2send+=(PROGMEM2CHAR(PAGE_BOTTOM));
   web_interface->WebServer.send(200, "text/html", buffer2send);
@@ -1493,7 +1550,7 @@ void handle_web_interface_status()
 	int temperature,target;
 	flashit=!flashit;
 	//request temperature only if no feedback
-	if ((system_get_time()-web_interface->last_temp)>3000000)
+	if ((system_get_time()-web_interface->last_temp)>2000000)
 		Serial.println("M105");
 	if ((system_get_time()-web_interface->last_temp)<3200000)
 		{

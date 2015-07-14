@@ -124,6 +124,7 @@ bool CONFIG::reset_config()
   if(!CONFIG::write_byte(EP_SSID_VISIBLE,DEFAULT_SSID_VISIBLE))return false;
   if(!CONFIG::write_buffer(EP_WEB_PORT,(const byte *)&DEFAULT_WEB_PORT,INTEGER_LENGH))return false;
   if(!CONFIG::write_buffer(EP_DATA_PORT,(const byte *)&DEFAULT_DATA_PORT,INTEGER_LENGH))return false;
+  if(!CONFIG::write_byte(EP_POLLING_TIME,DEFAULT_POLLING_TIME))return false;
   return true;
 }
 
@@ -148,4 +149,5 @@ void CONFIG::print_config()
   if (CONFIG::read_byte(EP_SSID_VISIBLE, &bbuf ))Serial.println(byte(bbuf));
   if (CONFIG::read_buffer(EP_WEB_PORT,  (byte *)&ibuf , INTEGER_LENGH))Serial.println(ibuf);
   if (CONFIG::read_buffer(EP_DATA_PORT,  (byte *)&ibuf , INTEGER_LENGH))Serial.println(ibuf);
+  if (CONFIG::read_byte(EP_POLLING_TIME, &bbuf ))Serial.println(byte(bbuf));
 } 
