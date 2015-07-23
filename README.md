@@ -13,7 +13,7 @@ Have a front end to know what is the wifi status (implemented) or know what is t
 Should be compatible with reprap printer (Marlin FW/Repetier FW)       
 
 ##Hardware connection       
---Use GPIO2 to ground to reset all settings in hard way - 2-6 sec after boot / not before!! Set GPIO2 to ground before boot change boot mode and go to special boot that do not reach FW - I did not found information on this. Currently boot take 10 sec - giving 8 seconds to connect GPIO2 to GND and do an hard recovery for settings   
+--Use GPIO2 to ground to reset all settings in hard way - 2-6 sec after boot / not before!! Set GPIO2 to ground before boot change boot mode and go to special boot that do not reach FW. Currently boot take 10 sec - giving 8 seconds to connect GPIO2 to GND and do an hard recovery for settings   
 --Use GPIO0 to ground to be in update mode   
 --Use a switch to reset/disable module    
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Wires.png><br>   
@@ -21,7 +21,7 @@ For Davinci Board:<BR>
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/davinci.png><br> 
 
 ##Development   
-Currently using [Arduino IDE 1.6.4](http://arduino.cc/en/Main/Software)  with the esp8266 module from board manager added from [github.com/esp8266/Arduino](https://github.com/esp8266/Arduino)    
+Currently using [Arduino IDE 1.6.5](http://arduino.cc/en/Main/Software)  with the esp8266 module from board manager added from [github.com/esp8266/Arduino](https://github.com/esp8266/Arduino)    
 using relased version (http://arduino.esp8266.com/package_esp8266com_index.json)     
 and staging version (http://arduino.esp8266.com/staging/package_esp8266com_index.json)     
   
@@ -58,7 +58,8 @@ Mask: 255.255.255.0
 GW:192.168.0.1    
 Baud rate: 9600   
 Web port:80   
-Data port: 8888   
+Data port: 8888     
+Web Page refresh: 3 secondes    
 
 These are the UI when css is in cache or internet is available:    
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Page1.png><br> 
