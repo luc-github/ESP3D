@@ -90,15 +90,20 @@ void setup() {
   web_interface->WebServer.begin();
   data_server->begin();
   data_server->setNoDelay(true);
+
+#ifdef MDNS_FEATURE
+	// Check for any mDNS queries and send responses
+	if (wifi_get_opmode()==WIFI_STA )
+		{
+			wifi_config.mdns.addService("http", "tcp", wifi_config.iweb_port);
+		}
+#endif
+
 }
 
 
 //main loop
 void loop() {
-#ifdef MDNS_FEATURE
-	// Check for any mDNS queries and send responses
-	wifi_config.Updatemdns();
-#endif
 //web requests
 web_interface->WebServer.handleClient();
 //TODO use a method to handle serial also in class and call it instead of this one

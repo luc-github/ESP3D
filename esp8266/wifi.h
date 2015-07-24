@@ -35,7 +35,6 @@ class WIFI_CONFIG
   // multicast DNS responder feature
   #ifdef MDNS_FEATURE
 	MDNSResponder mdns;
-	void Updatemdns();
   #endif
   byte current_mode;
   int iweb_port;

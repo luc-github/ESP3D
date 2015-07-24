@@ -19,6 +19,9 @@
 */
 
 //comment to disable
+//MDNS_FEATURE: this feature allow in Station mode to enter the name defined
+//in web browser by default : http:\\esp8266.local and connect 
+//this feature does not work in AP mode
 #define MDNS_FEATURE
 #define PROGMEM2CHAR progmem2char
 
@@ -78,6 +81,7 @@ const long DEFAULT_BAUD_RATE =			9600;
 #ifdef MDNS_FEATURE
 const char LOCAL_NAME[] PROGMEM =		"esp8266";
 #endif
+const char M117_[] PROGMEM =		"M117 ";
 #define DEFAULT_PHY_MODE			PHY_MODE_11G
 #define DEFAULT_SLEEP_MODE			MODEM_SLEEP_T
 #define DEFAULT_CHANNEL				11

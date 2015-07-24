@@ -109,8 +109,11 @@ bool WIFI_CONFIG::Setup()
        apconfig.max_connection=DEFAULT_MAX_CONNECTIONS;
        apconfig.beacon_interval=DEFAULT_BEACON_INTERVAL;
       //apply settings to current and to default
-      if (!wifi_softap_set_config(&apconfig))Serial.println(F("Error Wifi AP"));
-      if (!wifi_softap_set_config_current(&apconfig))Serial.println(F("Error Wifi AP"));
+      if (!wifi_softap_set_config(&apconfig) || !wifi_softap_set_config_current(&apconfig))
+		{
+			Serial.println(F("M117 Error Wifi AP!"));
+			delay(1000);
+		}
       wifi_softap_dhcps_start();
     }
   else
@@ -123,8 +126,17 @@ bool WIFI_CONFIG::Setup()
       byte i=0;
       //try to connect
       while (WiFi.status() != WL_CONNECTED && i<40) {
+
+          switch(WiFi.status())
+          {
+			  case 1:Serial.println(F("M117 No SSID found!"));
+					break;
+			  case 4:Serial.println(F("M117 No Connection!"));
+					break;
+			   default: Serial.println(F("M117 Connecting..."));
+					break;
+		  }
           delay(500);
-          Serial.println(WiFi.status());
           i++;
           }
     }
@@ -146,25 +158,18 @@ bool WIFI_CONFIG::Setup()
       else WiFi.config( local_ip,  gateway,  subnet); 
     }
     #ifdef MDNS_FEATURE
+    // Set up mDNS responder:
+    if (wifi_get_opmode()==WIFI_STA )
+		if (!mdns.begin(PROGMEM2CHAR(LOCAL_NAME))) {
+		Serial.println(F("M117 Error with mDNS!"));
+		delay(1000);
+		}
+    #endif
     //Get IP
     if (wifi_get_opmode()==WIFI_STA)currentIP=WiFi.localIP();
     else currentIP=WiFi.softAPIP();
-    // Set up mDNS responder:
-    // - first argument is the domain name, in this example
-    //   the fully-qualified domain name is "esp8266.local"
-    // - second argument is the IP address to advertise
-    //   we send our IP address on the WiFi network
-    //   Note: for AP mode we would use WiFi.softAPIP()!
-  if (!mdns.begin(PROGMEM2CHAR(LOCAL_NAME), currentIP)) {
-    Serial.println(F("Error setting up MDNS responder!"));
-    }
-    #endif
+    Serial.print(PROGMEM2CHAR(M117_));
+    Serial.println(currentIP);
   return true;
 }
-#ifdef MDNS_FEATURE
-void WIFI_CONFIG::Updatemdns()
-{
-	if(current_mode==CLIENT_MODE)mdns.update();
-}
-#endif
 WIFI_CONFIG wifi_config;
