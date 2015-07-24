@@ -193,6 +193,7 @@ const char VALUE_38400[] PROGMEM = "38400";
 const char VALUE_57600[] PROGMEM = "57600";
 const char VALUE_115200[] PROGMEM = "115200";
 const char VALUE_230400[] PROGMEM = "230400";
+const char VALUE_250000[] PROGMEM = "250000";
 const char VALUE_SELECTED[] PROGMEM = "selected";
 const char AP_1_ID[] PROGMEM = "AP1";
 const char AP_2_ID[] PROGMEM = "AP2";
@@ -600,7 +601,7 @@ void handle_web_interface_configSys()
 					msg_alert_error=true;
 					smsg=PROGMEM2CHAR(ERROR_INCORRECT_PORT2);
 			    }
-			if (!(ibaud==9600 || ibaud==19200|| ibaud==38400|| ibaud==57600|| ibaud==115200|| ibaud==230400) ||
+			if (!(ibaud==9600 || ibaud==19200|| ibaud==38400|| ibaud==57600|| ibaud==115200|| ibaud==230400 || ibaud==250000) ||
 			    !(bsleepmode==NONE_SLEEP_T ||bsleepmode==LIGHT_SLEEP_T ||bsleepmode==MODEM_SLEEP_T )||
 			    !(polling_time==1 || polling_time==2 ||polling_time==3 || polling_time==4 ||polling_time==5 ||polling_time==10 ||polling_time==30 ||polling_time==60))
 				{
@@ -674,6 +675,9 @@ void handle_web_interface_configSys()
    if (ibaud==230400)stmp = PROGMEM2CHAR(VALUE_SELECTED);
   else stmp="";
   OPTION(PROGMEM2CHAR(VALUE_230400), stmp.c_str(),PROGMEM2CHAR(VALUE_230400))
+  if (ibaud==250000)stmp = PROGMEM2CHAR(VALUE_SELECTED);
+  else stmp="";
+  OPTION(PROGMEM2CHAR(VALUE_250000), stmp.c_str(),PROGMEM2CHAR(VALUE_250000))
   SELECT_END
    
  // buffer2send+=(PROGMEM2CHAR(BR)); 
