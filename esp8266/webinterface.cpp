@@ -1716,7 +1716,6 @@ if (web_interface->WebServer.hasArg(PROGMEM2CHAR(COMMAND_ID)))
  #ifdef SSDP_FEATURE
  void handle_SSDP(){
       SSDP.schema(web_interface->WebServer.client());
-      Serial.printf("SSDP.\n");
     }
  #endif
 
