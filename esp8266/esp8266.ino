@@ -39,6 +39,9 @@
 #ifdef MDNS_FEATURE
 #include <ESP8266mDNS.h>
 #endif
+#ifdef SSDP_FEATURE
+#include <ESP8266SSDP.h>
+#endif
 extern "C" {
 #include "user_interface.h"
 }
@@ -99,6 +102,19 @@ void setup() {
 		}
 #endif
 
+#ifdef SSDP_FEATURE
+	SSDP.setSchemaURL("description.xml");
+    SSDP.setHTTPPort( wifi_config.iweb_port);
+    SSDP.setName("ESP8266 Module");
+    SSDP.setSerialNumber(String(system_get_chip_id()).c_str());
+    SSDP.setURL("/");
+    SSDP.setModelName("ESP8266 01");
+    SSDP.setModelNumber("01");
+    SSDP.setModelURL("http://espressif.com/en/products/esp8266/");
+    SSDP.setManufacturer("Espressif Systems");
+    SSDP.setManufacturerURL("http://espressif.com");
+    SSDP.begin();
+#endif
 }
 
 

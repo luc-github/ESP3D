@@ -23,6 +23,10 @@
 //in web browser by default : http:\\esp8266.local and connect 
 //this feature does not work in AP mode
 #define MDNS_FEATURE
+
+//SSDD_FEATURE: this feature is a discovery protocol, supported on Windows out of the box
+#define SSDP_FEATURE
+
 #define PROGMEM2CHAR progmem2char
 
 extern char * progmem2char(const char* src);

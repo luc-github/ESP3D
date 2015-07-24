@@ -30,6 +30,9 @@ extern "C" {
 #include "user_interface.h"
 }
 
+#ifdef SSDP_FEATURE
+#include <ESP8266SSDP.h>
+#endif
 
 const char  PAGE_HEAD_1[] PROGMEM =  "<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n" \
                                       "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n";
@@ -126,6 +129,7 @@ const char SDK_VERSION_TITLE[] PROGMEM = "SDK Version: ";
 const char HTTP_START[] PROGMEM = "http://";
 const char HTTP_MDNS_NAME[] PROGMEM = "mDNS name: ";
 const char HTTP_END[] PROGMEM = ".local";
+const char SSDP_PROTOCOL_NAME[] PROGMEM = "SSDP Protocol： ";
 const char VALUE_11B[] PROGMEM = "11b";
 const char VALUE_11N[] PROGMEM = "11n";
 const char VALUE_11G[] PROGMEM = "11g";
@@ -433,6 +437,9 @@ void handle_web_interface_root()
 	sstatus+=PROGMEM2CHAR(LOCAL_NAME);
 	LABEL_UNITS(PROGMEM2CHAR(HTTP_MDNS_NAME),sstatus.c_str(),PROGMEM2CHAR(HTTP_END))
 	}
+  #endif
+  #ifdef SSDP_FEATURE
+  LABEL(PROGMEM2CHAR(SSDP_PROTOCOL_NAME),PROGMEM2CHAR(VALUE_YES))
   #endif
   istatus = wifi_get_phy_mode();
   if (istatus==PHY_MODE_11B) sstatus=PROGMEM2CHAR(VALUE_11B);
@@ -1705,6 +1712,14 @@ if (web_interface->WebServer.hasArg(PROGMEM2CHAR(COMMAND_ID)))
 				}
   }
 }
+
+ #ifdef SSDP_FEATURE
+ void handle_SSDP(){
+      SSDP.schema(web_interface->WebServer.client());
+      Serial.printf("SSDP.\n");
+    }
+ #endif
+
 //URI Decoding function 
 //no check if dst buffer is big enough to receive string so 
 //use same size as src is a recommendation
@@ -1752,6 +1767,9 @@ WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port):WebServer(port)
   WebServer.on("/STATUS",HTTP_ANY, handle_web_interface_status);
   WebServer.on("/PRINTER",HTTP_ANY, handle_web_interface_printer);
   WebServer.on("/CMD",HTTP_ANY, handle_web_command);
+  #ifdef SSDP_FEATURE
+  WebServer.on("/description.xml", HTTP_GET, handle_SSDP);
+  #endif
   WebServer.onNotFound( handle_not_found);
   answer4M105="T:0 /0 ";
   answer4M114="X:0.0 Y:0.0 Z:0.000";
