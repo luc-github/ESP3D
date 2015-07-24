@@ -84,7 +84,7 @@ const char TD_E[] PROGMEM = "</td>\n";
 const char TBODY_E[] PROGMEM = "</tbody>\n";
 const char T404_PAGE[] PROGMEM = "<H1>Page not found!</H1><BR>Please try <a href=http://";
 const char T404_PAGE_2[] PROGMEM = ">here</a>";
-const char FORM_START[] PROGMEM = "<div class=\"col-sm-10\"><form METHOD=GET>\n";
+const char FORM_START[] PROGMEM = "<div class=\"col-sm-10\"><form METHOD=POST>\n";
 const char FORM_END[] PROGMEM = "</form></div>\n";
 const char FORM_INPUT_1[]  PROGMEM = "<div class=\"form-group\">\b<label for=\"";
 const char FORM_INPUT_1_ERROR[]  PROGMEM = "<div class=\"form-group has-error\">\b<label class=\"control-label\" for=\"";
