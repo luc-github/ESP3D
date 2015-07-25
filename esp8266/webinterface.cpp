@@ -1379,7 +1379,7 @@ void handle_web_interface_configSTA()
 	  TD_ENTRY(WiFi.SSID(i))
 	  stmp = String(100+WiFi.RSSI(i)) + "%";
 	  TD_ENTRY(stmp.c_str())
-	  TD_ENTRY((WiFi.encryptionType(i) == ENC_TYPE_NONE)?" ":"*")
+	  TD_ENTRY((WiFi.encryptionType(i) == ENC_TYPE_NONE)?PROGMEM2CHAR(VALUE_NO):PROGMEM2CHAR(VALUE_YES))
     }
    //close table
    buffer2send+=(PROGMEM2CHAR(TABLE_END));
