@@ -332,7 +332,8 @@ const char POLLING_ID[]PROGMEM ="POLLING";
 char * progmem2char(const char* src)
 {
   static char buffer[300];
-  strcpy_P(buffer,src);
+  buffer[0]=0;
+  if(strlen_P(src)<299)strcpy_P(buffer,src);
   return buffer;
 }
 
