@@ -85,7 +85,7 @@ These are the UI when css is in cache or internet is available:
           
 
 
-*from printer to module   [Need Printer FW support and can be disabled in ESP FW] (not yet implemented)  
+*from printer to module   (Need Printer FW support and can be disabled in ESP FW)   (not yet implemented)  
     -request configuration/status (generate the M804 as answer)   
     -set AP/STATION,SSID,PASSSWORD,DHC/STATIC,IP,MASK,GW,BAUD from serial    
  
