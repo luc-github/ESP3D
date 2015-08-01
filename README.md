@@ -39,7 +39,7 @@ Additionnaly:
 *Wifi Mode : Access point / Client station  
 *IP Generation: DHCP/Static IP      
 *IP/MASK/GATEWAY for static data    
-*Baud Rate for serial (supported : 9600, 19200, 38400, 57600, 115200, 230400)    
+*Baud Rate for serial (supported : 9600, 19200, 38400, 57600, 115200, 230400, 250000)    
 *web port and data port      
 
     
@@ -68,12 +68,15 @@ These are the UI when css is in cache or internet is available:
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Page4.png><br>     
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/page5.png><br>     
 
+##Protocol for discovery   
+*mDNS : on Station mode only with bonjour installed on computer   
+*SSDP : on Station and AP mode   
+*DNS Server / Captive portal : on AP mode only (not yet implemented)    
 
 ##Commands from/to serial(not yet implemented):    
 *from module to printer   [Need Printer FW support and can be disabled in ESP FW]    
     -M800 S1 , restart module done need a wifi/activity restart      
-    -M801 [Message], Error message from module      
-    -M802 [Message], Status message from module        
+    -M117 [Message], Error/status message from module (done)     
     -M804 [AP/STATION,SSID,DHC/STATIC,IP,MASK,GW,STATUS,MAC ADDRESSS, BAUD?], ]Module configuration without password    
         
 *from host to printer   (not yet implemented) [Need Printer FW support] on port 8888    
@@ -82,22 +85,22 @@ These are the UI when css is in cache or internet is available:
           
 
 
-*from printer to module   [Need Printer FW support and can be disabled in ESP FW] (not yet implemented)  
+*from printer to module   (Need Printer FW support and can be disabled in ESP FW)   (not yet implemented)  
     -request configuration/status (generate the M804 as answer)   
     -set AP/STATION,SSID,PASSSWORD,DHC/STATIC,IP,MASK,GW,BAUD from serial    
  
 ##Front End (basic implemented)  [need Printer FW support it] or just display module status 
---Display printer status   
---Display temperatures   (done)    
---Display positions/flow/speed   (done)    
---Display print progress if any   
+--Display printer status (done)   
+--Display temperatures (done)    
+--Display positions/flow/speed (done)    
+--Display print progress if any (done)   
 --List SDCard Content   
 --Launch/Stop/(Pause?) a Print   
+--Emergency Stop (done)   
  
 ##TODO    
 -- Define Front End Functions  
 -- do testing   
--- do a complete drawing for connections    
 -- add some Javascript to enhance web UI     
 
 
