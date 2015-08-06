@@ -167,4 +167,9 @@ uint8_t i,data;
 	  COMMAND::read_buffer_serial(sbuf, len);
     }
   }
+  if (web_interface->restartmodule)
+	{
+			ESP.restart();
+			while (1){delay(1);};
+	}
 }

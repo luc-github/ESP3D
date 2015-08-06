@@ -314,6 +314,8 @@ const char POLLING_TITLE[]PROGMEM ="Refresh Web page (s):";
 const char POLLING_NAME[]PROGMEM ="Refresh printer status every :";
 const char POLLING_ID[]PROGMEM ="POLLING";
 const char TEXT_HTML[]PROGMEM ="text/html";
+const char RESTARTCMD [] PROGMEM ="<script>setTimeout(function(){window.location.href='/RESTART'},10000);</script>";
+const char RESTARTINGMSG [] PROGMEM = "<CENTER>Restarting, please wait.... </CENTER><script>setTimeout(function(){window.location.href='/'},20000);</script>";
 
 
 
@@ -772,14 +774,14 @@ void handle_web_interface_configSys()
 		}
 	else buffer2send+=(PROGMEM2CHAR(FORM_SUBMIT)); 
 	
-  buffer2send+=(PROGMEM2CHAR(FORM_END));
-  buffer2send+=(PROGMEM2CHAR(PANEL_END)); 
-  buffer2send+=(PROGMEM2CHAR(PAGE_BOTTOM));
-  web_interface->WebServer.send(200, "text/html", buffer2send);
+	buffer2send+=(PROGMEM2CHAR(FORM_END));
+	buffer2send+=(PROGMEM2CHAR(PANEL_END)); 
   if (msg_alert_success && !msg_alert_error)
 	{
-		system_restart();
+		buffer2send+= PROGMEM2CHAR(RESTARTCMD);
 	}
+	buffer2send+=(PROGMEM2CHAR(PAGE_BOTTOM));
+	web_interface->WebServer.send(200, "text/html", buffer2send);
 }
 
 void handle_web_interface_configAP()
@@ -1136,14 +1138,14 @@ void handle_web_interface_configAP()
 	else buffer2send+=(PROGMEM2CHAR(FORM_SUBMIT)); 
 		
   
-  buffer2send+=(PROGMEM2CHAR(FORM_END));
-  buffer2send+=(PROGMEM2CHAR(PANEL_END)); 
-  buffer2send+=(PROGMEM2CHAR(PAGE_BOTTOM));
-  web_interface->WebServer.send(200, "text/html", buffer2send);
-  if (msg_alert_success && !msg_alert_error)
+	buffer2send+=(PROGMEM2CHAR(FORM_END));
+	buffer2send+=(PROGMEM2CHAR(PANEL_END)); 
+	if (msg_alert_success && !msg_alert_error)
 	{
-		system_restart();
+		buffer2send+=PROGMEM2CHAR(RESTARTCMD);
 	}
+	buffer2send+=(PROGMEM2CHAR(PAGE_BOTTOM));
+	web_interface->WebServer.send(200, "text/html", buffer2send);
 }
 
 
@@ -1477,14 +1479,14 @@ void handle_web_interface_configSTA()
 	else buffer2send+=(PROGMEM2CHAR(FORM_SUBMIT)); 
 		
  
-  buffer2send+=(PROGMEM2CHAR(FORM_END));
-  buffer2send+=(PROGMEM2CHAR(PANEL_END)); 
-  buffer2send+=(PROGMEM2CHAR(PAGE_BOTTOM));
-  web_interface->WebServer.send(200, "text/html", buffer2send);
+	buffer2send+=(PROGMEM2CHAR(FORM_END));
+	buffer2send+=(PROGMEM2CHAR(PANEL_END)); 
   if (msg_alert_success && !msg_alert_error)
 	{
-		system_restart();
+		buffer2send+= PROGMEM2CHAR(RESTARTCMD);
 	}
+	buffer2send+=(PROGMEM2CHAR(PAGE_BOTTOM));
+	web_interface->WebServer.send(200, "text/html", buffer2send);
 }
 
 
@@ -1713,6 +1715,12 @@ void handle_web_interface_status()
 	
 }
 
+void handle_restart()
+{
+	web_interface->WebServer.send(200,"text/html",PROGMEM2CHAR(RESTARTINGMSG));
+    web_interface->restartmodule=true;
+}
+
 void handle_web_command()
 {
 if (web_interface->WebServer.hasArg(PROGMEM2CHAR(COMMAND_ID)))
@@ -1784,6 +1792,7 @@ WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port):WebServer(port)
   WebServer.on("/PRINTER",HTTP_ANY, handle_web_interface_printer);
   WebServer.on("/CMD",HTTP_ANY, handle_web_command);
   WebServer.on("/mincss.css",HTTP_GET, handle_css);
+  WebServer.on("/RESTART",HTTP_GET, handle_restart);
   #ifdef SSDP_FEATURE
   WebServer.on("/description.xml", HTTP_GET, handle_SSDP);
   #endif
@@ -1793,6 +1802,7 @@ WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port):WebServer(port)
   answer4M220="100";
   answer4M221="100";
   last_temp=system_get_time();
+  restartmodule=false;
 }
 
 WEBINTERFACE_CLASS * web_interface;

@@ -45,6 +45,7 @@ class WEBINTERFACE_CLASS
   STORESTRINGS_CLASS error_msg;
   STORESTRINGS_CLASS info_msg;
   STORESTRINGS_CLASS status_msg;
+  bool restartmodule; 
   private:
 
 };
