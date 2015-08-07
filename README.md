@@ -73,20 +73,17 @@ These are the UI when css is in cache or internet is available:
 *SSDP : on Station and AP mode   
 *DNS Server / Captive portal : on AP mode only (not yet implemented)    
 
-##Commands from/to serial(not yet implemented):    
+##Commands/msg from/to serial(not yet implemented):    
 *from module to printer   [Need Printer FW support and can be disabled in ESP FW]    
-    -M800 S1 , restart module done need a wifi/activity restart      
     -M117 [Message], Error/status message from module (done)     
-    -M804 [AP/STATION,SSID,DHC/STATIC,IP,MASK,GW,STATUS,MAC ADDRESSS, BAUD?], ]Module configuration without password    
+    -Send Wifi settings [AP/STATION,SSID,DHC/STATIC,IP,MASK,GW,STATUS,MAC ADDRESSS, BAUD?], ]Module configuration without password    
         
 *from host to printer   (not yet implemented) [Need Printer FW support] on port 8888    
-    -M803 [IP, AP,SSID, Password....], ]Module configuration settings to be used  by module    
-    -M805 query to get M804 informations    
+    -M800 [IP, AP,SSID, Password....], ]Module configuration settings to be used  by module    
+    -M801 query to get wifi informations    
           
-
-
 *from printer to module   (Need Printer FW support and can be disabled in ESP FW)   (not yet implemented)  
-    -request configuration/status (generate the M804 as answer)   
+    -request configuration/status    
     -set AP/STATION,SSID,PASSSWORD,DHC/STATIC,IP,MASK,GW,BAUD from serial    
  
 ##Front End (basic implemented)  [need Printer FW support it] or just display module status 
