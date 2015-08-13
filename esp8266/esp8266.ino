@@ -27,7 +27,7 @@
 #ifndef ARDUINO_ESP8266_ESP01
 #error Oops!  Make sure you have 'ESP8266' selected from the 'Tools -> Boards' menu.
 #endif
-//includes: why EEPROM.h need to be there ???
+#include <SPI.h>
 #include <EEPROM.h>
 #include "config.h"
 #include "wifi.h"
