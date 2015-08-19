@@ -33,60 +33,84 @@ extern "C" {
 #ifdef SSDP_FEATURE
 #include <ESP8266SSDP.h>
 #endif
-const char CSS[] PROGMEM = "html{font-family:sans-serif;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;}body{margin:0;}main,menu,nav,summary{display:block;}[hidden],template{display:none;}a{background-color:transparent;}a:active,a:hover{outline:0;}h1{margin:.67em 0;font-size:2em;}img{border:0;}svg:not(:root){overflow:hidden;}hr{height:0;-webkit-box-sizing:content-box; -moz-box-sizing:content-box;box-sizing:content-box;}button,input,select{margin:0;font:inherit;color:inherit;}button{overflow:visible;}button,select{text-transform:none;}button,html input[type=\nbutton\n],input[type=\nreset\n],input[type=\nsubmit\n]{-webkit-appearance:button;cursor:pointer;}input{line-height:normal;}input[type=\ncheckbox\n],input[type=\nradio\n]{-webkit-box-sizing:border-box; -moz-box-sizing:border-box;box-sizing:border-box;padding:0;}input[type=\nnumber\n]::-webkit-inner-spin-button,input[type=\nnumber\n]::-webkit-outer-spin-button{height:auto;}table{border-spacing:0;border-collapse:collapse;}td,th{padding:0;}*{-webkit-box-sizing:border-box; -moz-box-sizing:border-box;box-sizing:border-box;}*:before,*:after{-webkit-box-sizing:border-box; -moz-box-sizing:border-box;box-sizing:border-box;}html{font-size:10px;-webkit-tap-highlight-color:rgba(0, 0, 0, 0);}"\
-"body{font-family:\nHelvetica Neue\n, Helvetica, Arial, sans-serif;font-size:14px;line-height:1.42857143;color:#333;background-color:#fff;}input,button,select,a{color:#337ab7;text-decoration:none;}a:hover,a:focus{color:#23527c;text-decoration:underline;}a:focus{outline:thin dotted;outline:5px auto -webkit-focus-ring-color;outline-offset:-2px;}img{vertical-align:middle;}hr{margin-top:20px;margin-bottom:20px;border:0;border-top:1px solid #eee;}[role=\nbutton\n]{cursor:pointer;}h1,h3,.h1,.h3{font-family:inherit;font-weight:500;line-height:1.1;color:inherit;}h1,.h1,h3,.h3{margin-top:20px;margin-bottom:10px;}h1,.h1{font-size:36px;}h3,.h3{font-size:24px;}p{margin:0 0 10px;}@media (min-width:768px){.lead{font-size:21px;}}.text-left{text-align:left;}.text-right{text-align:right;}.text-center{text-align:center;}.text-primary{color:#337ab7;}.text-success{color:#3c763d;}.text-info{color:#31708f;}.page-header{padding-bottom:9px;margin:40px 0 20px;border-bottom:1px solid #eee;}.container{padding-right:15px;padding-left:15px;margin-right:auto;margin-left:auto;}@media (min-width:768px){.container{width:750px;}}@media (min-width:992px){.container{width:970px;}}@media (min-width:1200px){.container{width:1170px;}}.row{margin-right:-15px;margin-left:-15px;}"\
-"table{background-color:transparent;}caption{padding-top:8px;padding-bottom:8px;color:#777;text-align:left;}th{text-align:left;}.table{width:100%;max-width:100%;margin-bottom:20px;}.table>thead>tr>th,.table>tbody>tr>th,.table>tfoot>tr>th,.table>thead>tr>td,.table>tbody>tr>td,.table>tfoot>tr>td{padding:8px;line-height:1.42857143;vertical-align:top;border-top:1px solid #ddd;}.table>thead>tr>th{vertical-align:bottom;border-bottom:2px solid #ddd;}.table>caption + thead>tr:first-child>th,.table>colgroup + thead>tr:first-child>th,.table>thead:first-child>tr:first-child>th,.table>caption + thead>tr:first-child>td,.table>colgroup + thead>tr:first-child>td,.table>thead:first-child>tr:first-child>td{border-top:0;}.table>tbody + tbody{border-top:2px solid #ddd;}.table .table{background-color:#fff;}.table-bordered{border:1px solid #ddd;}.table-bordered>thead>tr>th,.table-bordered>tbody>tr>th,.table-bordered>tfoot>tr>th,.table-bordered>thead>tr>td,.table-bordered>tbody>tr>td,.table-bordered>tfoot>tr>td{border:1px solid #ddd;}.table-bordered>thead>tr>th,.table-bordered>thead>tr>td{border-bottom-width:2px;}.table-striped>tbody>tr:nth-of-type(odd){background-color:#f9f9f9;}.table-hover>tbody>tr:hover{background-color:#f5f5f5;}"\
-"table col[class*=\ncol-\n]{position:static;display:table-column;float:none;}table td[class*=\ncol-\n],table th[class*=\ncol-\n]{position:static;display:table-cell;float:none;}.table>thead>tr>td.active,.table>tbody>tr>td.active,.table>tfoot>tr>td.active,.table>thead>tr>th.active,.table>tbody>tr>th.active,.table>tfoot>tr>th.active,.table>thead>tr.active>td,.table>tbody>tr.active>td,.table>tfoot>tr.active>td,.table>thead>tr.active>th,.table>tbody>tr.active>th,.table>tfoot>tr.active>th{background-color:#f5f5f5;}.table-hover>tbody>tr>td.active:hover,.table-hover>tbody>tr>th.active:hover,.table-hover>tbody>tr.active:hover>td,.table-hover>tbody>tr:hover>.active,.table-hover>tbody>tr.active:hover>th{background-color:#e8e8e8;}label{display:inline-block;max-width:100%;margin-bottom:5px;font-weight:bold;}input[type=\nradio\n],input[type=\ncheckbox\n]{margin:4px 0 0;margin-top:1px;line-height:normal;}input[type=\nfile\n]{display:block;}input[type=\nrange\n]{display:block;width:100%;}input[type=\nfile\n]:focus,input[type=\nradio\n]:focus,input[type=\ncheckbox\n]:focus{outline:thin dotted;outline:5px auto -webkit-focus-ring-color;outline-offset:-2px;}"\
-".form-control{display:block;width:100%;height:34px;padding:6px 12px;font-size:14px;line-height:1.42857143;color:#555;background-color:#fff;background-image:none;border:1px solid #ccc;border-radius:4px;-webkit-box-shadow:inset 0 1px 1px rgba(0, 0, 0, .075);box-shadow:inset 0 1px 1px rgba(0, 0, 0, .075);-webkit-transition:border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s; -o-transition:border-color ease-in-out .15s, box-shadow ease-in-out .15s;transition:border-color ease-in-out .15s, box-shadow ease-in-out .15s;}.form-control:focus{border-color:#66afe9;outline:0;-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);box-shadow:inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);}.form-control::-moz-placeholder{color:#999;opacity:1;}.form-control:-ms-input-placeholder{color:#999;}.form-control::-webkit-input-placeholder{color:#999;}.form-control[readonly]{background-color:#eee;opacity:1;}textarea.form-control{height:auto;}.form-group{margin-bottom:15px;}.radio,.checkbox{position:relative;display:block;margin-top:10px;margin-bottom:10px;}.radio label,.checkbox label{min-height:20px;padding-left:20px;margin-bottom:0;font-weight:normal;cursor:pointer;}"\
-".radio input[type=\nradio\n],.checkbox input[type=\ncheckbox\n]{position:absolute;margin-top:4px;margin-left:-20px;}.radio + .radio,.checkbox + .checkbox{margin-top:-5px;}.has-error .control-label{color:#a94442;}.has-error .form-control{border-color:#a94442;-webkit-box-shadow:inset 0 1px 1px rgba(0, 0, 0, .075);box-shadow:inset 0 1px 1px rgba(0, 0, 0, .075);}.has-error .form-control:focus{border-color:#843534;-webkit-box-shadow:inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 6px #ce8483;box-shadow:inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 6px #ce8483;}.btn{display:inline-block;padding:6px 12px;margin-bottom:0;font-size:14px;font-weight:normal;line-height:1.42857143;text-align:center;white-space:nowrap;vertical-align:middle;-ms-touch-action:manipulation;touch-action:manipulation;cursor:pointer;-webkit-user-select:none; -moz-user-select:none;-ms-user-select:none;user-select:none;background-image:none;border:1px solid transparent;border-radius:4px;}.btn:focus,.btn:active:focus,.btn.active:focus,.btn.focus,.btn:active.focus,.btn.active.focus{outline:thin dotted;outline:5px auto -webkit-focus-ring-color;outline-offset:-2px;}.btn:hover,.btn:focus,.btn.focus{color:#333;text-decoration:none;}.btn:active,.btn.active{background-image:none;outline:0;-webkit-box-shadow:inset 0 3px 5px rgba(0, 0, 0, .125);box-shadow:inset 0 3px 5px rgba(0, 0, 0, .125);}"\
-".btn-primary{color:#fff;background-color:#337ab7;border-color:#2e6da4;}.btn-primary:hover,.btn-primary:focus,.btn-primary.focus,.btn-primary:active,.btn-primary.active{color:#fff;background-color:#286090;border-color:#204d74;}.btn-primary:active,.btn-primary.active{background-image:none;}.btn-danger{color:#fff;background-color:#d9534f;border-color:#d43f3a;}.btn-danger:hover,.btn-danger:focus,.btn-danger.focus,.btn-danger:active,.btn-danger.active{color:#fff;background-color:#c9302c;border-color:#ac2925;}.btn-danger:active,.btn-danger.active{background-image:none;}.nav{padding-left:0;margin-bottom:0;list-style:none;}.nav>li{position:relative;display:block;}.nav>li>a{position:relative;display:block;padding:10px 15px;}.nav>li>a:hover,.nav>li>a:focus{text-decoration:none;background-color:#eee;}.nav-tabs{border-bottom:1px solid #ddd;}.nav-tabs>li{float:left;margin-bottom:-1px;}.nav-tabs>li>a{margin-right:2px;line-height:1.42857143;border:1px solid transparent;border-radius:4px 4px 0 0;}.nav-tabs>li>a:hover{border-color:#eee #eee #ddd;}.nav-tabs>li.active>a,.nav-tabs>li.active>a:hover,.nav-tabs>li.active>a:focus{color:#555;cursor:default;background-color:#fff;border:1px solid #ddd;border-bottom-color:transparent;}"\
-".navbar{position:relative;min-height:50px;margin-bottom:20px;border:1px solid transparent;}@media (min-width:768px){.navbar{border-radius:4px;}}@media (min-width:768px){.navbar-header{float:left;}}.container>.navbar-header{margin-right:-15px;margin-left:-15px;}@media (min-width:768px){.container>.navbar-header{margin-right:0;margin-left:0;}}.navbar-nav{margin:7.5px -15px;}.navbar-nav>li>a{padding-top:10px;padding-bottom:10px;line-height:20px;}@media (min-width:768px){.navbar-nav{float:left;margin:0;}.navbar-nav>li{float:left;}.navbar-nav>li>a{padding-top:15px;padding-bottom:15px;}}.navbar-text{margin-top:15px;margin-bottom:15px;}@media (min-width:768px){.navbar-text{float:left;margin-right:15px;margin-left:15px;}}@media (min-width:768px){.navbar-left{float:left !important;}.navbar-right{float:right !important;margin-right:-15px;}.navbar-right ~ .navbar-right{margin-right:0;}}.navbar-inverse{background-color:#222;border-color:#080808;}.navbar-inverse .navbar-text{color:#9d9d9d;}.navbar-inverse .navbar-nav>li>a{color:#9d9d9d;}.navbar-inverse .navbar-nav>li>a:hover,.navbar-inverse .navbar-nav>li>a:focus{color:#fff;background-color:transparent;}"\
-".navbar-inverse .navbar-nav>.active>a,.navbar-inverse .navbar-nav>.active>a:hover,.navbar-inverse .navbar-nav>.active>a:focus{color:#fff;background-color:#080808;}.navbar-inverse .navbar-link{color:#9d9d9d;}.navbar-inverse .navbar-link:hover{color:#fff;}.navbar-inverse .btn-link{color:#9d9d9d;}.navbar-inverse .btn-link:hover,.navbar-inverse .btn-link:focus{color:#fff;}.label{display:inline;padding:.2em .6em .3em;font-size:75%;font-weight:bold;line-height:1;color:#fff;text-align:center;white-space:nowrap;vertical-align:baseline;border-radius:.25em;}a.label:hover,a.label:focus{color:#fff;text-decoration:none;cursor:pointer;}.label:empty{display:none;}.btn .label{position:relative;top:-1px;}.label-info{background-color:#5bc0de;}.label-info[href]:hover,.label-info[href]:focus{background-color:#31b0d5;}.alert{padding:15px;margin-bottom:20px;border:1px solid transparent;border-radius:4px;}.alert h4{margin-top:0;color:inherit;}.alert-success{color:#3c763d;background-color:#dff0d8;border-color:#d6e9c6;}.alert-success hr{border-top-color:#c9e2b3;}.alert-success .alert-link{color:#2b542c;}.alert-danger{color:#a94442;background-color:#f2dede;border-color:#ebccd1;}.alert-danger hr{border-top-color:#e4b9c0;}.alert-danger .alert-link{color:#843534;}"\
-".panel{margin-bottom:20px;background-color:#fff;border:1px solid transparent;border-radius:4px;-webkit-box-shadow:0 1px 1px rgba(0, 0, 0, .05);box-shadow:0 1px 1px rgba(0, 0, 0, .05);}.panel-body{padding:15px;}.panel-heading{padding:10px 15px;border-bottom:1px solid transparent;border-top-left-radius:3px;border-top-right-radius:3px;}.panel-title{margin-top:0;margin-bottom:0;font-size:16px;color:inherit;}.panel-footer{padding:10px 15px;background-color:#f5f5f5;border-top:1px solid #ddd;border-bottom-right-radius:3px;border-bottom-left-radius:3px;}.panel>.table{margin-bottom:0;}.panel>.table caption{padding-right:15px;padding-left:15px;}..panel>.table-bordered{border:0;}.panel-default{border-color:#ddd;}.panel-default>.panel-heading{color:#333;background-color:#f5f5f5;border-color:#ddd;}@-ms-viewport{width:device-width;}";
+const char CSS_START[] PROGMEM ="<style>\n";
+const char CSS_1[] PROGMEM ="html{font-family:sans-serif;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%; font-size:10px;}\n";
+const char CSS_2[] PROGMEM ="body{font-family:\"Helvetica Neue\",Helvetica,Arial,sans-serif;font-size:14px;line-height:1.42857143;color:#333333;background-color:#ffffff;}\n";
+const char CSS_3[] PROGMEM =".container{margin-right:auto;margin-left:auto;padding-left:15px;padding-right:15px;}\n";
+const char CSS_4[] PROGMEM ="table{width:100%;border:0px;border-spacing:0;max-width:100%;margin-bottom:20px;}\n";
+const char CSS_5[] PROGMEM =".table-bordered{border:1px solid #dddddd;}\n";
+const char CSS_6[] PROGMEM ="td{white-space:nowrap; padding:2mm;}\n";
+const char CSS_7[] PROGMEM ="th{text-align:left;}\n";
+const char CSS_8[] PROGMEM =".table>thead>tr>th,.table>tbody>tr>th,.table>thead>tr>td,.table>tbody>tr>td{padding:8px;line-height:1.42857143;vertical-align:top;border-top:1px solid #dddddd;}\n";
+const char CSS_9[] PROGMEM =".table-bordered>thead>tr>th,.table-bordered>tbody>tr>th,.table-bordered>thead>tr>td,.table-bordered>tbody>tr>td{border:1px solid #dddddd;}\n";
+const char CSS_10[] PROGMEM =".table-bordered>thead>tr>th,.table-bordered>thead>tr>td{border-bottom-width:2px;}\n";
+const char CSS_11[] PROGMEM =".table-striped>tbody>tr:nth-of-type(odd){background-color:#f9f9f9;}\n";
+const char CSS_12[] PROGMEM ="@media (min-width:768px){.container{width:750px;}}\n";
+const char CSS_13[] PROGMEM ="@media (min-width:992px){.container{width:970px;}}\n";
+const char CSS_14[] PROGMEM ="@media (min-width:1200px){.container{width:1170px;}}\n";
+const char CSS_15[] PROGMEM =".nav{color:#cccccc;padding-left:10;padding-right:10;list-style:none;background-color:#333333;border-radius:6px ;}\n";
+const char CSS_16[] PROGMEM ="a{position:relative;display:block;padding:10px 15px;text-decoration:none;color:#cccccc;}\n";
+const char CSS_17[] PROGMEM =" .active{color:#ffffff;background-color:#000000;}\n";
+const char CSS_18[] PROGMEM =".active a,a:hover,a:focus{color:#FFFFFF;}\n";
+const char CSS_19[] PROGMEM =".panel{margin-bottom:20px;background-color:#ffffff;border:1px solid #dddddd;border-radius:4px;-webkit-box-shadow:0 1px 1px rgba(0,0,0,0.05);box-shadow:0 1px 1px rgba(0,0,0,0.05);}\n";
+const char CSS_20[] PROGMEM =".panel-body{padding:15px;}\n";
+const char CSS_21[] PROGMEM =".panel-heading{padding:10px 15px;color:#333333;background-color:#f5f5f5;border-color:#dddddd;border-top-right-radius:3px;border-top-left-radius:3px;border-bottom:1px solid #dddddd;}\n";
+const char CSS_22[] PROGMEM ="label{display:inline-block;max-width:100%;margin-bottom:5px;font-weight:bold;}\n";
+const char CSS_23[] PROGMEM =".text-info{color:#31708f;}\n";
+const char CSS_24_1[] PROGMEM =".form-control{display:block;width:auto;height:34px;padding:6px 12px;font-size:14px;line-height:1.42857143;color:#555555;background-color:#ffffff;background-image:none;";
+const char CSS_24_2[] PROGMEM ="border:1px solid #cccccc;border-radius:4px;-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,0.075);box-shadow:inset 0 1px 1px rgba(0,0,0,0.075);-webkit-transition:border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;";
+const char CSS_24_3[] PROGMEM ="-o-transition:border-color ease-in-out .15s,box-shadow ease-in-out .15s;transition:border-color ease-in-out .15s,box-shadow ease-in-out .15s;}";
+const char CSS_25[] PROGMEM =".form-control:focus{border-color:#66afe9;outline:0;-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,0.6);box-shadow:inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,0.6);}\n";
+const char CSS_26[] PROGMEM =".form-group{margin-bottom:15px;}\n";
+const char CSS_27_1[] PROGMEM =".btn{display:inline-block;margin-bottom:0;font-weight:normal;text-align:center;vertical-align:middle;-ms-touch-action:manipulation;  touch-action:manipulation;cursor:pointer;background-image:none;border:1px solid transparent;";
+const char CSS_27_2[] PROGMEM ="white-space:nowrap;padding:6px 12px;font-size:14px;line-height:1.42857143;border-radius:4px;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}\n";
+
+const char CSS_28[] PROGMEM =".btn-primary{color:#ffffff;background-color:#337ab7;border-color:#2e6da4;}\n";
+const char CSS_29[] PROGMEM =".btn-primary:focus,.btn-primary:active,.btn-primary:hover,.btn-primary.focus,.btn-primary.active,.btn-primary.hover{color:#ffffff;background-color:#286090;border-color:#122b40;}\n";
+const char CSS_30[] PROGMEM ="caption{padding-top:8px;padding-bottom:8px;color:#777777;text-align:left;}\n";
+const char CSS_31[] PROGMEM =".alert{padding:15px;margin-bottom:20px;border:1px solid transparent;border-radius:4px;}\n";
+const char CSS_32[] PROGMEM =".alert-success{background-color:#dff0d8;border-color:#d6e9c6;color:#3c763d;}\n";
+const char CSS_33[] PROGMEM =".alert-danger{background-color:#f2dede;border-color:#ebccd1;color:#a94442;}\n";
+const char CSS_34[] PROGMEM =".has-error .form-control{border-color:#a94442;-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,0.075);box-shadow:inset 0 1px 1px rgba(0,0,0,0.075);}\n";
+const char CSS_35[] PROGMEM =".has-error .form-control:focus{border-color:#843534;-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,0.075),0 0 6px #ce8483;box-shadow:inset 0 1px 1px rgba(0,0,0,0.075),0 0 6px #ce8483;}\n";
+const char CSS_36[] PROGMEM =".has-error .control-label{color:#a94442;}\n";
+const char CSS_END[] PROGMEM ="</style>\n";
 const char  PAGE_HEAD_1[] PROGMEM =  "<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n" \
-                                      "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n"\
-                                      "<meta http-equiv=\"Cache-control\" content=\"public\">";
+                                      "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n";
 const char  PAGE_HEAD_2[] PROGMEM = "<title>Wifi Configuration</title>" \
-  									  "<link rel=\"stylesheet\" href=\"/mincss.css\" type=\"text/css\">\n</head>\n<body>"\
-                                      " <div class=\"container theme-showcase\" role=\"main\">";
-const char NAV_START[] PROGMEM =  "<nav class=\"navbar navbar-inverse\">\n<div class=\"container\">\n";
- 
-const char NAV_LEFT_PART1 [] PROGMEM =  "<ul class=\"nav navbar-nav navbar-left\">\n<li ";
+                                      " </head>\n<body>\n<div class=\"container\">";
+                                      
+const char NAV_START[] PROGMEM =  "<table class=\"nav\">\n";
+const char NAV_LEFT_PART1 [] PROGMEM =  "<tr width=100%><td ";
 const char NAV_ELEMENT_ACTIVE [] PROGMEM =  "class=\"active\"";
 const char NAV_LEFT_PART2a[] PROGMEM =  "><a href=\"http://";
-const char NAV_LEFT_PART2b[] PROGMEM =  "\">Home</a></li>\n<li ";
+const char NAV_LEFT_PART2b[] PROGMEM =  "\">Home</a></td><td ";
 const char NAV_LEFT_PART3a[] PROGMEM =  "><a href=\"http://";
-const char NAV_LEFT_PART3b[] PROGMEM =  "/CONFIGSYS\">System Configuration</a></li>\n<li ";
+const char NAV_LEFT_PART3b[] PROGMEM =  "/CONFIGSYS\">System Configuration</a></td><td ";
 const char NAV_LEFT_PART4a[] PROGMEM =  "><a href=\"http://";
-const char NAV_LEFT_PART4b[] PROGMEM =  "/CONFIGAP\">AP Configuration</a></li>\n<li ";
+const char NAV_LEFT_PART4b[] PROGMEM =  "/CONFIGAP\">AP Configuration</a></td><td ";
 const char NAV_LEFT_PART5a[] PROGMEM =  "><a href=\"http://";
-const char NAV_LEFT_PART5b[] PROGMEM =  "/CONFIGSTA\">Station Configuration</a></li>\n<li ";
+const char NAV_LEFT_PART5b[] PROGMEM =  "/CONFIGSTA\">Station Configuration</a></td><td ";
 const char NAV_LEFT_PART6a[] PROGMEM =  "><a href=\"http://";
-const char NAV_LEFT_PART6b[] PROGMEM =  "/PRINTER\">Printer Status</a></li>\n";
-const char NAV_LEFT_PARTEND[] PROGMEM =  "</ul>\n";
- 
-const char NAV_RIGHT_PART[] PROGMEM =  "<p class=\"navbar-text navbar-right\">&nbsp;&nbsp;&nbsp;&nbsp;</p>\n<ul class=\"nav navbar-nav navbar-right\">\n"\
-                                                "<li><a href=\""  REPOSITORY "\">Github</a></li>\n</ul>\n"\
-                                                "<p class=\"navbar-text navbar-right\">FW: " FW_VERSION "</p>\n";
-
-const char NAV_END[] PROGMEM = "</div>\n</nav>";
+const char NAV_LEFT_PART6b[] PROGMEM =  "/PRINTER\">Printer Status</a></td>\n";
+const char NAV_RIGHT_PART[] PROGMEM =  "<td width=100%>&nbsp;</td><td>FW:  " FW_VERSION "</td><td><a href=\""  REPOSITORY "\" >Github</a></td></tr>\n";
+const char NAV_END[] PROGMEM = "</table>\n";
                                       
 const char PAGE_BOTTOM[] PROGMEM =  "</body>\n</html>\n" ;
 
-const char PANEL_TOP[] PROGMEM = "<div class=\"panel panel-default\">\n<div class=\"panel-heading\">\n<h3 class=\"panel-title\">";
-const char PANEL_START[] PROGMEM ="</h3>\n</div>\n<div class=\"panel-body\">";
-const char PANEL_END[] PROGMEM = "</div>\n</div>";
+const char PANEL_TOP[] PROGMEM = "<div class=\"panel\">\n<div class=\"panel-heading\">\n";
+const char PANEL_START[] PROGMEM ="</div>\n<div class=\"panel-body\">";
+const char PANEL_END[] PROGMEM = "</div>\n</div>\n";
 const char LABEL_START[] PROGMEM = "<label>";
 const char LABEL_COLOR[] PROGMEM = "</label><label class=\"text-info\">";
 const char LABEL_END[] PROGMEM = "</label>";
 const char BR[] PROGMEM = "<BR>\n";
-const char TABLE_START[] PROGMEM = "<div class=\"table-responsive\">\n<table class=\"table table-bordered table-striped\">";
-const char TABLE_END [] PROGMEM = "</table></div>\n";
+const char TABLE_START[] PROGMEM = "<table class=\"table table-bordered table-striped\">";
+const char TABLE_END [] PROGMEM = "</table>\n";
 const char CAPTION_S [] PROGMEM = "<caption>\n";
 const char THEAD_S[] PROGMEM = "<thead>\n";
 const char TR_S[] PROGMEM = "<tr>\n";
 const char TH_S[] PROGMEM = "<th>\n";
-const char TH_R[] PROGMEM = "<th scope=\"row\">\n";
 const char TD_S[] PROGMEM = "<td>\n";
 const char TBODY_S[] PROGMEM = "<tbody>\n";
 const char CAPTION_E [] PROGMEM = "</caption>\n";
@@ -99,8 +123,8 @@ const char T404_PAGE[] PROGMEM = "<H1>Page not found!</H1><BR>Please try <a href
 const char T404_PAGE_2[] PROGMEM = ">here</a>";
 const char FORM_START[] PROGMEM = "<form METHOD=POST>\n";
 const char FORM_END[] PROGMEM = "</form></div>\n";
-const char FORM_INPUT_1[]  PROGMEM = "<div class=\"form-group\">\b<label for=\"";
-const char FORM_INPUT_1_ERROR[]  PROGMEM = "<div class=\"form-group has-error\">\b<label class=\"control-label\" for=\"";
+const char FORM_INPUT_1[]  PROGMEM = "<div class=\"form-group\">\n<label for=\"";
+const char FORM_INPUT_1_ERROR[]  PROGMEM = "<div class=\"form-group has-error\">\n<label class=\"control-label\" for=\"";
 const char FORM_INPUT_2[]  PROGMEM = "\">";
 const char FORM_INPUT_3[]  PROGMEM = "</label><BR>\n<input type=\"text\" class=\"form-control\" id=\"";
 const char FORM_INPUT_3P[]  PROGMEM = "</label><BR>\n<input type=\"password\" class=\"form-control\" id=\"";
@@ -251,7 +275,7 @@ const char WEB_PORT_ID[] PROGMEM = "WEBPORT";
 const char DATA_PORT_ID[] PROGMEM = "DATAPORT";
 const char PORT_DESC[]PROGMEM = "1~65000";
 
-const char TEMP_SVG_1[]PROGMEM ="<svg height=\"30px\" width=\"300px\" xmlns=\"http://wwww.w3.org/2000/svg\">\n<linearGradient id=\"gradient\">\n<stop class=\"begin\" style=\"stop-color:green;\" offset=\"0%\"/>\n";
+const char TEMP_SVG_1[]PROGMEM ="<svg height=\"30px \" width=\"300px \" xmlns=\"http://wwww.w3.org/2000/svg\">\n<linearGradient id=\"gradient\">\n<stop class=\"begin\" style=\"stop-color:green;\" offset=\"0%\"/>\n";
 const char TEMP_SVG_2[]PROGMEM ="<stop class=\"middle\" style=\"stop-color:yellow;\" offset=\"100%\"/>\n</linearGradient>\n<linearGradient id=\"gradient2\">\n";
 const char TEMP_SVG_3[]PROGMEM ="<stop class=\"middle\" style=\"stop-color:yellow;\" offset=\"0%\"/>\n<stop class=\"end\" style=\"stop-color:red;\" offset=\"100%\"/>\n";
 const char TEMP_SVG_4[]PROGMEM ="</linearGradient>\n<rect x=\"10\" y=\"4\" width=\"24\" height=\"21\" style=\"fill:url(#gradient)\" />\n<rect x=\"34\" y=\"4\" width=\"280\" height=\"21\" style=\"fill:url(#gradient2)\" />\n";
@@ -314,7 +338,7 @@ const char POLLING_TITLE[]PROGMEM ="Refresh Web page (s):";
 const char POLLING_NAME[]PROGMEM ="Refresh printer status every :";
 const char POLLING_ID[]PROGMEM ="POLLING";
 const char TEXT_HTML[]PROGMEM ="text/html";
-const char RESTARTCMD [] PROGMEM ="<script>setTimeout(function(){window.location.href='/RESTART'},10000);</script>";
+const char RESTARTCMD [] PROGMEM ="<script>setTimeout(function(){window.location.href='/RESTART'},3000);</script>";
 const char RESTARTINGMSG [] PROGMEM = "<CENTER>Restarting, please wait.... </CENTER><script>setTimeout(function(){window.location.href='/'},20000);</script>";
 
 
@@ -336,9 +360,9 @@ const char RESTARTINGMSG [] PROGMEM = "<CENTER>Restarting, please wait.... </CEN
 #define LABEL( title, value)  buffer2send+=(PROGMEM2CHAR(LABEL_START)); buffer2send+=(title);buffer2send+=(PROGMEM2CHAR(LABEL_COLOR));buffer2send+=(value);buffer2send+=(PROGMEM2CHAR(LABEL_END));buffer2send+=(PROGMEM2CHAR(BR));
 #define LABEL_UNITS(title, value,units) buffer2send+=(PROGMEM2CHAR(LABEL_START));  buffer2send+=(title);buffer2send+=(PROGMEM2CHAR(LABEL_COLOR));buffer2send+=(value);buffer2send+=(units);buffer2send+=(PROGMEM2CHAR(LABEL_END));buffer2send+=(PROGMEM2CHAR(BR));
 #define TH_ENTRY(entry) buffer2send+=(PROGMEM2CHAR(TH_S));buffer2send+=(entry);buffer2send+=(PROGMEM2CHAR(TH_E));
-#define THR_ENTRY(entry) buffer2send+=(PROGMEM2CHAR(TH_R));buffer2send+=(entry);buffer2send+=(PROGMEM2CHAR(TH_E));
+#define THR_ENTRY(entry) buffer2send+=(PROGMEM2CHAR(TH_S));buffer2send+=(entry);buffer2send+=(PROGMEM2CHAR(TH_E));
 #define TD_ENTRY(entry) buffer2send+=(PROGMEM2CHAR(TD_S));buffer2send+=(entry);buffer2send+=(PROGMEM2CHAR(TD_E));
-#define TOPBAR(IP,menu)  buffer2send+=(PROGMEM2CHAR(NAV_START)); buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART1)) ;  buffer2send+=(menu==1?PROGMEM2CHAR(NAV_ELEMENT_ACTIVE):"") ;  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART2a) );  buffer2send+=(IP);  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART2b));buffer2send+=(menu==2?PROGMEM2CHAR(NAV_ELEMENT_ACTIVE):"") ;  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART3a) ); buffer2send+=(IP);  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART3b));buffer2send+=(menu==3?PROGMEM2CHAR(NAV_ELEMENT_ACTIVE):"") ;  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART4a) );  buffer2send+=(IP);  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART4b)); buffer2send+=(menu==4?PROGMEM2CHAR(NAV_ELEMENT_ACTIVE):"") ;  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART5a) ); buffer2send+=(IP);  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART5b));buffer2send+=(menu==5?PROGMEM2CHAR(NAV_ELEMENT_ACTIVE):"") ;  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART6a) ); buffer2send+=(IP);  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART6b));buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PARTEND)); buffer2send+=(PROGMEM2CHAR(NAV_RIGHT_PART)) ;  buffer2send+=(PROGMEM2CHAR(NAV_END));
+#define TOPBAR(IP,menu)  buffer2send+=(PROGMEM2CHAR(NAV_START)); buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART1)) ;  buffer2send+=(menu==1?PROGMEM2CHAR(NAV_ELEMENT_ACTIVE):"") ;  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART2a) );  buffer2send+=(IP);  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART2b));buffer2send+=(menu==2?PROGMEM2CHAR(NAV_ELEMENT_ACTIVE):"") ;  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART3a) ); buffer2send+=(IP);  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART3b));buffer2send+=(menu==3?PROGMEM2CHAR(NAV_ELEMENT_ACTIVE):"") ;  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART4a) );  buffer2send+=(IP);  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART4b)); buffer2send+=(menu==4?PROGMEM2CHAR(NAV_ELEMENT_ACTIVE):"") ;  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART5a) ); buffer2send+=(IP);  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART5b));buffer2send+=(menu==5?PROGMEM2CHAR(NAV_ELEMENT_ACTIVE):"") ;  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART6a) ); buffer2send+=(IP);  buffer2send+=(PROGMEM2CHAR(NAV_LEFT_PART6b));buffer2send+=(PROGMEM2CHAR(NAV_RIGHT_PART)) ;  buffer2send+=(PROGMEM2CHAR(NAV_END));
 #define STATUS_SVG(color) buffer2send+=(PROGMEM2CHAR(STATUS_1));buffer2send+=(color);buffer2send+=(PROGMEM2CHAR(STATUS_2));
 
 
@@ -413,6 +437,51 @@ bool WEBINTERFACE_CLASS::isIPValid(const char * IP)
 	return true;
 }
 
+void add_css(String & buffer2send)
+{
+  buffer2send+=PROGMEM2CHAR(CSS_START);
+  buffer2send+=PROGMEM2CHAR(CSS_1);
+  buffer2send+=PROGMEM2CHAR(CSS_2);
+  buffer2send+=PROGMEM2CHAR(CSS_3);
+  buffer2send+=PROGMEM2CHAR(CSS_4);
+  buffer2send+=PROGMEM2CHAR(CSS_5);
+  buffer2send+=PROGMEM2CHAR(CSS_6);
+  buffer2send+=PROGMEM2CHAR(CSS_7);
+  buffer2send+=PROGMEM2CHAR(CSS_8);
+  buffer2send+=PROGMEM2CHAR(CSS_9);
+  buffer2send+=PROGMEM2CHAR(CSS_10);
+  buffer2send+=PROGMEM2CHAR(CSS_11);
+  buffer2send+=PROGMEM2CHAR(CSS_12);
+  buffer2send+=PROGMEM2CHAR(CSS_13);
+  buffer2send+=PROGMEM2CHAR(CSS_14);
+  buffer2send+=PROGMEM2CHAR(CSS_15);
+  buffer2send+=PROGMEM2CHAR(CSS_16);
+  buffer2send+=PROGMEM2CHAR(CSS_17);
+  buffer2send+=PROGMEM2CHAR(CSS_18);
+  buffer2send+=PROGMEM2CHAR(CSS_19);
+  buffer2send+=PROGMEM2CHAR(CSS_20);
+  buffer2send+=PROGMEM2CHAR(CSS_21);
+  buffer2send+=PROGMEM2CHAR(CSS_22);
+  buffer2send+=PROGMEM2CHAR(CSS_23);
+  buffer2send+=PROGMEM2CHAR(CSS_24_1);
+  buffer2send+=PROGMEM2CHAR(CSS_24_2);
+  buffer2send+=PROGMEM2CHAR(CSS_24_3);
+  buffer2send+=PROGMEM2CHAR(CSS_25);
+  buffer2send+=PROGMEM2CHAR(CSS_26);
+  buffer2send+=PROGMEM2CHAR(CSS_27_1);
+  buffer2send+=PROGMEM2CHAR(CSS_27_2);
+  buffer2send+=PROGMEM2CHAR(CSS_28);
+  buffer2send+=PROGMEM2CHAR(CSS_29);
+  buffer2send+=PROGMEM2CHAR(CSS_30);
+  buffer2send+=PROGMEM2CHAR(CSS_31);
+  buffer2send+=PROGMEM2CHAR(CSS_32);
+  buffer2send+=PROGMEM2CHAR(CSS_33);
+  buffer2send+=PROGMEM2CHAR(CSS_34);
+  buffer2send+=PROGMEM2CHAR(CSS_35);
+  buffer2send+=PROGMEM2CHAR(CSS_36);
+  buffer2send+=PROGMEM2CHAR(CSS_END);
+}
+
 //cannot put it in class then cast it as std::function<void(void)> so put outside
 void handle_web_interface_root()
 {
@@ -433,6 +502,7 @@ void handle_web_interface_root()
 		IP+=String(wifi_config.iweb_port);
 	}
   buffer2send+=(PROGMEM2CHAR(PAGE_HEAD_1));
+  add_css (buffer2send);
   buffer2send+=(PROGMEM2CHAR(PAGE_HEAD_2));
   //top bar
   TOPBAR(IP.c_str(),1)
@@ -670,6 +740,7 @@ void handle_web_interface_configSys()
 		stmp+=String(wifi_config.iweb_port);
 	}
   buffer2send+=(PROGMEM2CHAR(PAGE_HEAD_1));
+  add_css (buffer2send);
   buffer2send+=(PROGMEM2CHAR(PAGE_HEAD_2));
   TOPBAR(stmp.c_str(),2)
   buffer2send+=(PROGMEM2CHAR(PANEL_TOP));
@@ -1021,6 +1092,7 @@ void handle_web_interface_configAP()
 		stmp+=String(wifi_config.iweb_port);
 	}
   buffer2send+=(PROGMEM2CHAR(PAGE_HEAD_1));
+  add_css (buffer2send);
   buffer2send+=(PROGMEM2CHAR(PAGE_HEAD_2));
   TOPBAR(stmp.c_str(),3)
   buffer2send+=(PROGMEM2CHAR(PANEL_TOP));
@@ -1356,6 +1428,7 @@ void handle_web_interface_configSTA()
 		stmp+=String(wifi_config.iweb_port);
 	}
   buffer2send+=(PROGMEM2CHAR(PAGE_HEAD_1));
+  add_css (buffer2send);
   buffer2send+=(PROGMEM2CHAR(PAGE_HEAD_2));
   TOPBAR(stmp.c_str(),4)
   buffer2send+=(PROGMEM2CHAR(PANEL_TOP));
@@ -1526,6 +1599,7 @@ void handle_web_interface_printer()
 		stmp+=String(wifi_config.iweb_port);
 	}
   buffer2send+=(PROGMEM2CHAR(PAGE_HEAD_1));
+  add_css (buffer2send);
   buffer2send+=(PROGMEM2CHAR(PAGE_HEAD_2));
   TOPBAR(stmp.c_str(),5)
   buffer2send+=(PROGMEM2CHAR(PRINTER_1a));
@@ -1733,10 +1807,6 @@ if (web_interface->WebServer.hasArg(PROGMEM2CHAR(COMMAND_ID)))
   }
 }
 
-void handle_css()
-{
-	web_interface->WebServer.send_P(200, TEXT_HTML, CSS);
-}
 
  #ifdef SSDP_FEATURE
  void handle_SSDP(){
@@ -1791,7 +1861,6 @@ WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port):WebServer(port)
   WebServer.on("/STATUS",HTTP_ANY, handle_web_interface_status);
   WebServer.on("/PRINTER",HTTP_ANY, handle_web_interface_printer);
   WebServer.on("/CMD",HTTP_ANY, handle_web_command);
-  WebServer.on("/mincss.css",HTTP_GET, handle_css);
   WebServer.on("/RESTART",HTTP_GET, handle_restart);
   #ifdef SSDP_FEATURE
   WebServer.on("/description.xml", HTTP_GET, handle_SSDP);

@@ -39,7 +39,7 @@ extern "C" {
 #include "user_interface.h"
 }
 //version and sources location
-#define FW_VERSION "V0.2"
+#define FW_VERSION "V0.3"
 #define REPOSITORY "https://github.com/luc-github/ESP8266"
 
 
