@@ -75,6 +75,8 @@ const char CSS_33[] PROGMEM =".alert-danger{background-color:#f2dede;border-colo
 const char CSS_34[] PROGMEM =".has-error .form-control{border-color:#a94442;-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,0.075);box-shadow:inset 0 1px 1px rgba(0,0,0,0.075);}\n";
 const char CSS_35[] PROGMEM =".has-error .form-control:focus{border-color:#843534;-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,0.075),0 0 6px #ce8483;box-shadow:inset 0 1px 1px rgba(0,0,0,0.075),0 0 6px #ce8483;}\n";
 const char CSS_36[] PROGMEM =".has-error .control-label{color:#a94442;}\n";
+const char CSS_37[] PROGMEM =".btn-danger{color:#ffffff;background-color:#d9534f;border-color:#d43f3a;}\n";
+const char CSS_38[] PROGMEM =".btn-danger:focus,.btn-danger:active,.btn-danger:hover,.btn-danger.focus,.btn-danger.active,.btn-danger.hover{color: #ffffff;background-color:#c9302c;border-color:#761c19;}\n";
 #else
 const char CSS_1[] PROGMEM ="td{white-space:nowrap; padding:2mm;}\n";
 const char CSS_2[] PROGMEM =".panel-body{padding:15px;}\n";
@@ -306,8 +308,8 @@ const char DIV_STATUS[]PROGMEM ="<DIV NAME=\"status\" ID=\"status\">";
 const char STATUS_1[]PROGMEM ="<svg width=\"20\" height=\"20\">\n<circle cx=\"10\" cy=\"10\" r=\"8\" stroke=\"black\" stroke-width=\"2\" fill=\"";
 const char STATUS_2[]PROGMEM ="\" />\n</svg>";
 
-const char PRINTER_1a[]PROGMEM ="<TABLE><TR style=\"vertical-align:top\"><TD><TABLE BORDER=0 ><TR><TD ID=\"display_data\" NAME=\"display_data\"></TD><TD>&nbsp;&nbsp;</TD>\n";
-const char PRINTER_1b[]PROGMEM ="<TD ID=\"status\" NAME=\"status\" ></TD><TR></TABLE>\n";
+const char PRINTER_1a[]PROGMEM ="<TABLE><TR style=\"vertical-align:top\"><TD><TABLE><TR><TD ID=\"display_data\" NAME=\"display_data\"></TD>\n";
+const char PRINTER_1b[]PROGMEM ="<TD ID=\"status\" NAME=\"status\" ></TD><TD width=100%>&nbsp;</TD><TR></TABLE>\n";
 const char PRINTER_1c[]PROGMEM ="<BR><TABLE BORDER=0><TR><TD ID=\"position\" NAME=\"position\"></TD>\n";
 const char PRINTER_1d[]PROGMEM ="<TD><LABEL>Speed:</LABEL><LABEL ID=\"speed\" NAME=\"speed\" class=\"text-info\"></LABEL><LABEL class=\"text-info\">&#37;</LABEL>&nbsp;&nbsp;\n";
 const char PRINTER_1e[]PROGMEM ="<LABEL>Flow:</LABEL><LABEL ID=\"flow\" NAME=\"flow\" class=\"text-info\"></LABEL><LABEL class=\"text-info\">&#37;</LABEL></TD></TR></TABLE><BR>\n";
@@ -486,6 +488,8 @@ void add_css(String & buffer2send)
   buffer2send+=PROGMEM2CHAR(CSS_34);
   buffer2send+=PROGMEM2CHAR(CSS_35);
   buffer2send+=PROGMEM2CHAR(CSS_36);
+  buffer2send+=PROGMEM2CHAR(CSS_37);
+  buffer2send+=PROGMEM2CHAR(CSS_38);
   #else
   buffer2send+=PROGMEM2CHAR(CSS_1);
   buffer2send+=PROGMEM2CHAR(CSS_2);
