@@ -27,6 +27,9 @@
 //SSDD_FEATURE: this feature is a discovery protocol, supported on Windows out of the box
 #define SSDP_FEATURE
 
+//USE_CSS_FEATURE: this feature allow to have fancy UI by adding css in page
+#define USE_CSS_FEATURE
+
 #define PROGMEM2CHAR progmem2char
 
 extern char * progmem2char(const char* src);

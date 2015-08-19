@@ -34,6 +34,7 @@ extern "C" {
 #include <ESP8266SSDP.h>
 #endif
 const char CSS_START[] PROGMEM ="<style>\n";
+#ifdef USE_CSS_FEATURE
 const char CSS_1[] PROGMEM ="html{font-family:sans-serif;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%; font-size:10px;}\n";
 const char CSS_2[] PROGMEM ="body{font-family:\"Helvetica Neue\",Helvetica,Arial,sans-serif;font-size:14px;line-height:1.42857143;color:#333333;background-color:#ffffff;}\n";
 const char CSS_3[] PROGMEM =".container{margin-right:auto;margin-left:auto;padding-left:15px;padding-right:15px;}\n";
@@ -74,6 +75,11 @@ const char CSS_33[] PROGMEM =".alert-danger{background-color:#f2dede;border-colo
 const char CSS_34[] PROGMEM =".has-error .form-control{border-color:#a94442;-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,0.075);box-shadow:inset 0 1px 1px rgba(0,0,0,0.075);}\n";
 const char CSS_35[] PROGMEM =".has-error .form-control:focus{border-color:#843534;-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,0.075),0 0 6px #ce8483;box-shadow:inset 0 1px 1px rgba(0,0,0,0.075),0 0 6px #ce8483;}\n";
 const char CSS_36[] PROGMEM =".has-error .control-label{color:#a94442;}\n";
+#else
+const char CSS_1[] PROGMEM ="td{white-space:nowrap; padding:2mm;}\n";
+const char CSS_2[] PROGMEM =".panel-body{padding:15px;}\n";
+const char CSS_3[] PROGMEM =".form-group{margin-bottom:15px;}\n";
+#endif
 const char CSS_END[] PROGMEM ="</style>\n";
 const char  PAGE_HEAD_1[] PROGMEM =  "<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n" \
                                       "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n";
@@ -440,6 +446,7 @@ bool WEBINTERFACE_CLASS::isIPValid(const char * IP)
 void add_css(String & buffer2send)
 {
   buffer2send+=PROGMEM2CHAR(CSS_START);
+  #ifdef USE_CSS_FEATURE
   buffer2send+=PROGMEM2CHAR(CSS_1);
   buffer2send+=PROGMEM2CHAR(CSS_2);
   buffer2send+=PROGMEM2CHAR(CSS_3);
@@ -479,6 +486,11 @@ void add_css(String & buffer2send)
   buffer2send+=PROGMEM2CHAR(CSS_34);
   buffer2send+=PROGMEM2CHAR(CSS_35);
   buffer2send+=PROGMEM2CHAR(CSS_36);
+  #else
+  buffer2send+=PROGMEM2CHAR(CSS_1);
+  buffer2send+=PROGMEM2CHAR(CSS_2);
+  buffer2send+=PROGMEM2CHAR(CSS_3);
+  #endif
   buffer2send+=PROGMEM2CHAR(CSS_END);
 }
 
