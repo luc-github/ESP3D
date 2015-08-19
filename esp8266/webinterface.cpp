@@ -313,9 +313,9 @@ const char PRINTER_1b[]PROGMEM ="<TD ID=\"status\" NAME=\"status\" ></TD><TD wid
 const char PRINTER_1c[]PROGMEM ="<BR><TABLE BORDER=0><TR><TD ID=\"position\" NAME=\"position\"></TD>\n";
 const char PRINTER_1d[]PROGMEM ="<TD><LABEL>Speed:</LABEL><LABEL ID=\"speed\" NAME=\"speed\" class=\"text-info\"></LABEL><LABEL class=\"text-info\">&#37;</LABEL>&nbsp;&nbsp;\n";
 const char PRINTER_1e[]PROGMEM ="<LABEL>Flow:</LABEL><LABEL ID=\"flow\" NAME=\"flow\" class=\"text-info\"></LABEL><LABEL class=\"text-info\">&#37;</LABEL></TD></TR></TABLE><BR>\n";
-const char PRINTER_1f[]PROGMEM ="<TABLE BORDER=0><TR style=\"vertical-align:top\" ><TD><LABEL>Info:</LABEL></TD><TD ID=\"infomsg\" NAME=\"infomsg\" class=\"text-info\"></TD></TR></TABLE><HR>\n";
-const char PRINTER_1g[]PROGMEM ="<TABLE BORDER=0><TR style=\"vertical-align:top\"><TD><LABEL>Error:</LABEL></TD><TD ID=\"errormsg\" NAME=\"errormsg\" class=\"text-info\"></TD></TR></TABLE><HR>\n";
-const char PRINTER_1h[]PROGMEM ="<TABLE BORDER=0><TR style=\"vertical-align:top\"><TD><LABEL>Status:</LABEL></TD><TD ID=\"statusmsg\" NAME=\"statusmsg\" class=\"text-info\"></TD></TR></TABLE>\n";
+const char PRINTER_1f[]PROGMEM ="<TABLE BORDER=0><TR style=\"vertical-align:top\" ><TD><LABEL>Info:</LABEL></TD><TD width=100% ID=\"infomsg\" NAME=\"infomsg\" class=\"text-info\"></TD></TR></TABLE><HR>\n";
+const char PRINTER_1g[]PROGMEM ="<TABLE BORDER=0><TR style=\"vertical-align:top\"><TD><LABEL>Error:</LABEL></TD><TD width=100% ID=\"errormsg\" NAME=\"errormsg\" class=\"text-info\"></TD></TR></TABLE><HR>\n";
+const char PRINTER_1h[]PROGMEM ="<TABLE BORDER=0><TR style=\"vertical-align:top\"><TD><LABEL>Status:</LABEL></TD><TD width=100% ID=\"statusmsg\" NAME=\"statusmsg\" class=\"text-info\"></TD></TR></TABLE>\n";
 const char PRINTER_1_a_1[]PROGMEM="</TD><TD>&nbsp;&nbsp;&nbsp;</TD><TD><BUTTON TYPE=\"BUTTON\" class=\"btn btn-danger\" VALUE=\"Emergency Stop\" Onclick=\"window.open('http://";
 const char PRINTER_1_a_2[]PROGMEM="/CMD?COM=M112','frmcmd');\">Emergency Stop</BUTTON>";
 const char PRINTER_2[]PROGMEM ="</TD></TR></TABLE><iframe ID=\"dataframe\" NAME=\"dataframe\"src=\"http://";
