@@ -52,6 +52,7 @@ WiFiClient serverClients[MAX_SRV_CLIENTS];
 void setup() {
   // init :
  // ESP.wdtDisable();
+  system_update_cpu_freq(SYS_CPU_160MHZ);
   delay(8000);
   EEPROM.begin(EEPROM_SIZE);
   bool breset_config=false;
@@ -84,6 +85,7 @@ void setup() {
     }
   //setup serial
   Serial.begin(baud_rate);
+  //Serial1.setDebugOutput(true);
   //setup wifi according settings
   wifi_config.Setup();
   delay(1000);

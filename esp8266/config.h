@@ -30,9 +30,6 @@
 //USE_CSS_FEATURE: this feature allow to have fancy UI by adding css in page
 #define USE_CSS_FEATURE
 
-#define PROGMEM2CHAR progmem2char
-
-extern char * progmem2char(const char* src);
 #ifndef CONFIG_h
 #define CONFIG_h
 
