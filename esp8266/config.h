@@ -19,13 +19,15 @@
 */
 
 //comment to disable
-//MDNS_FEATURE: this feature allow in Station mode to enter the name defined
+//MDNS_FEATURE: this feature allow  type the name defined
 //in web browser by default : http:\\esp8266.local and connect 
-//this feature does not work in AP mode
 #define MDNS_FEATURE
 
 //SSDD_FEATURE: this feature is a discovery protocol, supported on Windows out of the box
 #define SSDP_FEATURE
+
+//CAPTIVE_PORTAL_FEATURE: In SoftAP redirect all unknow call to main page
+#define CAPTIVE_PORTAL_FEATURE
 
 //USE_CSS_FEATURE: this feature allow to have fancy UI by adding css in page
 #define USE_CSS_FEATURE

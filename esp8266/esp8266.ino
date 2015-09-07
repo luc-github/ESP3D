@@ -39,6 +39,11 @@
 #ifdef MDNS_FEATURE
 #include <ESP8266mDNS.h>
 #endif
+#ifdef CAPTIVE_PORTAL_FEATURE
+#include <DNSServer.h>
+const byte DNS_PORT = 53;
+DNSServer dnsServer;
+#endif
 #ifdef SSDP_FEATURE
 #include <ESP8266SSDP.h>
 #endif
@@ -101,6 +106,15 @@ void setup() {
 	wifi_config.mdns.addService("http", "tcp", wifi_config.iweb_port);
 #endif
 
+#ifdef CAPTIVE_PORTAL_FEATURE
+   if (wifi_get_opmode()!=WIFI_STA )
+	{
+	 // if DNSServer is started with "*" for domain name, it will reply with
+	 // provided IP to all DNS request
+     dnsServer.start(DNS_PORT, "*", WiFi.softAPIP());
+	}
+  #endif
+
 #ifdef SSDP_FEATURE
 	SSDP.setSchemaURL("description.xml");
     SSDP.setHTTPPort( wifi_config.iweb_port);
@@ -119,6 +133,12 @@ void setup() {
 
 //main loop
 void loop() {
+#ifdef CAPTIVE_PORTAL_FEATURE
+   if (wifi_get_opmode()!=WIFI_STA )
+	{
+	dnsServer.processNextRequest();
+	}
+#endif
 //web requests
 web_interface->WebServer.handleClient();
 //TODO use a method to handle serial also in class and call it instead of this one

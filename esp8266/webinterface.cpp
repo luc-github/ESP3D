@@ -173,6 +173,7 @@ const char HTTP_START[] PROGMEM = "http://";
 const char HTTP_MDNS_NAME[] PROGMEM = "mDNS name: ";
 const char HTTP_END[] PROGMEM = ".local";
 const char SSDP_PROTOCOL_NAME[] PROGMEM = "SSDP Protocol： ";
+const char CAPTIVE_PORTAL_LABEL[] PROGMEM = "Captive Portal： ";
 const char VALUE_11B[] PROGMEM = "11b";
 const char VALUE_11N[] PROGMEM = "11n";
 const char VALUE_11G[] PROGMEM = "11g";
@@ -527,6 +528,12 @@ void handle_web_interface_root()
   sstatus = FPSTR(HTTP_START);
   sstatus+=FPSTR(LOCAL_NAME);
   LABEL_UNITS(FPSTR(HTTP_MDNS_NAME),sstatus.c_str(),FPSTR(HTTP_END))
+  #endif
+  #ifdef CAPTIVE_PORTAL_FEATURE
+   if (wifi_get_opmode()!=WIFI_STA )
+	{
+	LABEL(FPSTR(CAPTIVE_PORTAL_LABEL),FPSTR(VALUE_YES))
+	}
   #endif
   #ifdef SSDP_FEATURE
   LABEL(FPSTR(SSDP_PROTOCOL_NAME),FPSTR(VALUE_YES))
@@ -1568,23 +1575,6 @@ void handle_web_interface_configSTA()
 }
 
 
-void handle_not_found()
-{
-  String IP;
-  String buffer2send ="";
-  if (wifi_get_opmode()==WIFI_STA ) IP=wifi_config.ip2str(WiFi.localIP());
-  else IP=wifi_config.ip2str(WiFi.softAPIP());
-  if (wifi_config.iweb_port!=80)
-	{
-		IP+=":";
-		IP+=String(wifi_config.iweb_port);
-	}
-  buffer2send+=(FPSTR(T404_PAGE));
-  buffer2send+=(IP.c_str());
-  buffer2send+=(FPSTR(T404_PAGE_2));
-  web_interface->WebServer.send(200, "text/html", buffer2send);
-}
-
 void handle_web_interface_printer()
 {
   String IP;
@@ -1876,7 +1866,7 @@ WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port):WebServer(port)
   #ifdef SSDP_FEATURE
   WebServer.on("/description.xml", HTTP_GET, handle_SSDP);
   #endif
-  WebServer.onNotFound( handle_not_found);
+  WebServer.onNotFound( handle_web_interface_root);
   answer4M105="T:0 /0 ";
   answer4M114="X:0.0 Y:0.0 Z:0.000";
   answer4M220="100";
