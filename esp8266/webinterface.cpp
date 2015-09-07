@@ -524,12 +524,9 @@ void handle_web_interface_root()
   LABEL_UNITS(FPSTR(FREE_MEM_TITLE),String(system_get_free_heap_size()).c_str(),FPSTR(UNIT_OCTET))
   LABEL(FPSTR(SDK_VERSION_TITLE),system_get_sdk_version())
   #ifdef MDNS_FEATURE
-  if (wifi_get_opmode()==WIFI_STA )
-	{
-	sstatus = FPSTR(HTTP_START);
-	sstatus+=FPSTR(LOCAL_NAME);
-	LABEL_UNITS(FPSTR(HTTP_MDNS_NAME),sstatus.c_str(),FPSTR(HTTP_END))
-	}
+  sstatus = FPSTR(HTTP_START);
+  sstatus+=FPSTR(LOCAL_NAME);
+  LABEL_UNITS(FPSTR(HTTP_MDNS_NAME),sstatus.c_str(),FPSTR(HTTP_END))
   #endif
   #ifdef SSDP_FEATURE
   LABEL(FPSTR(SSDP_PROTOCOL_NAME),FPSTR(VALUE_YES))
@@ -544,7 +541,6 @@ void handle_web_interface_root()
   else if (istatus==LIGHT_SLEEP_T) sstatus=FPSTR(VALUE_LIGHT);
   else  sstatus=FPSTR(VALUE_MODEM);
   LABEL(FPSTR(SLEEP_MODE_TITLE),sstatus.c_str())
-  //LABEL(sbuf,"Boot mode: ",String(system_get_boot_mode())) //no meaning so far
   LABEL(FPSTR(BOOT_VERSION_TITLE),String(system_get_boot_version()).c_str())
   istatus=0;
   if (!CONFIG::read_buffer(EP_BAUD_RATE,  (byte *)&lstatus , INTEGER_LENGH))lstatus=0;

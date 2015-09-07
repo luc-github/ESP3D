@@ -159,11 +159,10 @@ bool WIFI_CONFIG::Setup()
     }
     #ifdef MDNS_FEATURE
     // Set up mDNS responder:
-    if (wifi_get_opmode()==WIFI_STA )
-		if (!mdns.begin(String(FPSTR(LOCAL_NAME)).c_str())) {
-		Serial.println(F("M117 Error with mDNS!"));
-		delay(1000);
-		}
+	if (!mdns.begin(String(FPSTR(LOCAL_NAME)).c_str())) {
+	Serial.println(F("M117 Error with mDNS!"));
+	delay(1000);
+	}
     #endif
     //Get IP
     if (wifi_get_opmode()==WIFI_STA)currentIP=WiFi.localIP();

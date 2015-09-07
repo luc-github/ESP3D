@@ -98,10 +98,7 @@ void setup() {
 
 #ifdef MDNS_FEATURE
 	// Check for any mDNS queries and send responses
-	if (wifi_get_opmode()==WIFI_STA )
-		{
-			wifi_config.mdns.addService("http", "tcp", wifi_config.iweb_port);
-		}
+	wifi_config.mdns.addService("http", "tcp", wifi_config.iweb_port);
 #endif
 
 #ifdef SSDP_FEATURE
