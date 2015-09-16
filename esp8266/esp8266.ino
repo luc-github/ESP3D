@@ -90,7 +90,6 @@ void setup() {
     }
   //setup serial
   Serial.begin(baud_rate);
-  //Serial1.setDebugOutput(true);
   //setup wifi according settings
   wifi_config.Setup();
   delay(1000);
@@ -186,6 +185,10 @@ uint8_t i,data;
   }
   if (web_interface->restartmodule)
 	{
+			Serial.flush();
+			delay(500);
+			Serial.swap();
+			delay(100);
 			ESP.restart();
 			while (1){delay(1);};
 	}

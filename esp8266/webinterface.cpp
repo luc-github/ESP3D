@@ -349,7 +349,7 @@ const char POLLING_NAME[]PROGMEM ="Refresh printer status every :";
 const char POLLING_ID[]PROGMEM ="POLLING";
 const char TEXT_HTML[]PROGMEM ="text/html";
 const char RESTARTCMD [] PROGMEM ="<script>setTimeout(function(){window.location.href='/RESTART'},3000);</script>";
-const char RESTARTINGMSG [] PROGMEM = "<CENTER>Restarting, please wait.... </CENTER><script>setTimeout(function(){window.location.href='/'},20000);</script>";
+const char RESTARTINGMSG [] PROGMEM = "<HTML>\n<BODY>\n<CENTER>Restarting, please wait.... \n<BR>\n<PROGRESS name='prg' id='prg'>\n</CENTER>\n<script>\nvar i = 0; var x = document.getElementById(\"prg\"); x.max=30; function refreshbar(){}setInterval(function(){i=i+1; var x = document.getElementById(\"prg\"); x.value=i; if (i>30) {window.location.href='/';}},1000);</script>\n</BODY>\n</HTML>\n";
 
 
 
