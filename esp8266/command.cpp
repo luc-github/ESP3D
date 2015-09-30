@@ -19,6 +19,7 @@
 */
 
 #include "command.h"
+#include "config.h"
 #include "webinterface.h"
 extern "C" {
 #include "user_interface.h"
@@ -36,6 +37,26 @@ void COMMAND::execute_command(int cmd,String cmd_params)
     {
 		case 800:
 			Serial.println("\nCommand received");
+		break;
+		case 111:
+			{
+			String currentIP ;
+			if (wifi_get_opmode()==WIFI_STA)currentIP=WiFi.localIP().toString();
+			else currentIP=WiFi.softAPIP().toString();
+			Serial.print("\n\r");
+			Serial.print(cmd_params);
+			Serial.println(currentIP);
+			Serial.print("\r\n");
+			}
+		break;
+		case 888:
+			if (cmd_params=="RESTART")
+				{
+				Serial.print("\r");
+				Serial.print(cmd_params);
+				web_interface->restartmodule=true;
+				Serial.print("\r\n");
+				}
 		break;
 		//default:
 
