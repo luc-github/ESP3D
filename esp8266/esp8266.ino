@@ -24,8 +24,8 @@
 
 */
 //be sure correct IDE and settings are used for ESP8266
-#ifndef ARDUINO_ESP8266_ESP01
-#error Oops!  Make sure you have 'ESP8266' selected from the 'Tools -> Boards' menu.
+#ifndef ARDUINO_ARCH_ESP8266
+#error Oops!  Make sure you have 'ESP8266' compatible board selected from the 'Tools -> Boards' menu.
 #endif
 #include <SPI.h>
 #include <EEPROM.h>
