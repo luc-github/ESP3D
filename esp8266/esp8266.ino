@@ -12,7 +12,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Repetier-Firmware.  If not, see <http://www.gnu.org/licenses/>.
+    along with  this Firmware.  If not, see <http://www.gnu.org/licenses/>.
 
     This firmware is using the standard arduino IDE with module to support ESP8266:
     https://github.com/esp8266/Arduino from Bootmanager
