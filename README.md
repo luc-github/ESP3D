@@ -61,19 +61,23 @@ Web port:80
 Data port: 8888     
 Web Page refresh: 3 secondes    
 
-These are the UI when css is in cache or internet is available:    
+These are the pages defined using template:    
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Page1.png><br> 
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Page2.png><br>     
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Page3.png><br>     
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Page4.png><br>     
-<img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Page5.png><br>     
+<img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/page5.png><br>     
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Page6.png><br>     
-the html files are using templates stored on SPIFFS
+the template files are stored on SPIFFS:    
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/files.png><br>
-and uploaded using IDE (http://arduino.esp8266.com/versions/1.6.5-1160-gef26c5f/doc/reference.html#file-system)
-list of keywords can be find here : https://github.com/luc-github/ESP8266/blob/master/keywords.txt
-Any files on SPIFFS can be called on web interface without having the path hard coded  - this give more flexibility     
-So UI is kind of separated from FW which allow easier modifications     
+and uploaded using [IDE](http://arduino.esp8266.com/versions/1.6.5-1160-gef26c5f/doc/reference.html#file-system)    
+The list of keywords can be find here : https://github.com/luc-github/ESP8266/blob/master/keywords.txt     
+Any files on SPIFFS can be called on web interface without having the path hard coded  - this give more flexibility,  favicon.ico is a good example of it.         
+So UI is kind of separated from FW which allow easier modifications.
+
+Additionally 404.tpl (the page not found) and restart.tpl(restart page when applying changes) are not mandatory, a fail safe version is embeded if they are not present.     
+
+Currently, I tested on ESP01 using 64K SPIFFS ( please use data directory content accordingly due to space limitation) and NodeMCU 1.0 1M SPIFFS.     
 
 ##Protocol for discovery   
 *mDNS : on Station mode only with bonjour installed on computer   
