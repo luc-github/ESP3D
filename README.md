@@ -66,24 +66,32 @@ These are the UI when css is in cache or internet is available:
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Page2.png><br>     
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Page3.png><br>     
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Page4.png><br>     
-<img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/page5.png><br>     
+<img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Page5.png><br>     
+<img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Page6.png><br>     
+the html files are using templates stored on SPIFFS
+<img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/files.png><br>
+and uploaded using IDE (http://arduino.esp8266.com/versions/1.6.5-1160-gef26c5f/doc/reference.html#file-system)
+list of keywords can be find here : https://github.com/luc-github/ESP8266/blob/master/keywords.txt
+Any files on SPIFFS can be called on web interface without having the path hard coded  - this give more flexibility     
+So UI is kind of separated from FW which allow easier modifications     
 
 ##Protocol for discovery   
 *mDNS : on Station mode only with bonjour installed on computer   
 *SSDP : on Station and AP mode   
-*DNS Server / Captive portal : on AP mode only (not yet implemented)    
+*DNS Server / Captive portal : on AP mode only (not yet functionnal)    
 
 ##Commands/msg from/to serial(not yet implemented):    
 *from module to printer   [Need Printer FW support and can be disabled in ESP FW]    
     -M117 [Message], Error/status message from module (done)     
     -Send Wifi settings [AP/STATION,SSID,DHC/STATIC,IP,MASK,GW,STATUS,MAC ADDRESSS, BAUD?], ]Module configuration without password    
         
-*from host to printer   (not yet implemented) [Need Printer FW support] on port 8888    
+*from host to printer   (not fully yet implemented) [Need Printer FW support] on port 8888    
     -M800 [IP, AP,SSID, Password....], ]Module configuration settings to be used  by module    
     -M801 query to get wifi informations    
+    - bridge is implemented from TCP/IP to Serial and vice-versa
           
-*from printer to module   (Need Printer FW support and can be disabled in ESP FW)   (not yet implemented)  
-    -request configuration/status    
+*from printer to module   (Need Printer FW support and can be disabled in ESP FW)   (not fully yet implemented)  
+    -request configuration/status   (done)       
     -set AP/STATION,SSID,PASSSWORD,DHC/STATIC,IP,MASK,GW,BAUD from serial    
  
 ##Front End (basic implemented)  [need Printer FW support it] or just display module status 
@@ -92,13 +100,16 @@ These are the UI when css is in cache or internet is available:
 --Display positions/flow/speed (done)    
 --Display print progress if any (done)   
 --List SDCard Content   
---Launch/Stop/(Pause?) a Print   
+--Launch a Print
+--Stop/Pause a Print (done)   
 --Emergency Stop (done)   
+--Jog control / custom commands (done)     
  
-##TODO    
--- Define Front End Functions  
--- do testing   
--- add some Javascript to enhance web UI     
+##TODO      
+-- do testing     
+--SD Card management    
+--Printer EEPROM management    
+
 
 
 more to come    
