@@ -20,21 +20,29 @@
 
 #ifndef STORESTRINGS_h
 #define STORESTRINGS_h
-#include <Arduino.h>
-
+#include <ESP8266WiFi.h>
+#include "LinkedList.h"
 class STORESTRINGS_CLASS
 {
   public:
-  STORESTRINGS_CLASS (uint8_t size = 10);
+  STORESTRINGS_CLASS (int maxsize = -1, int maxstringlength=-1);
   ~STORESTRINGS_CLASS ();
   bool add (const char * string);
-  String get_index_at(uint pos);
-  uint get_size();
-  int get_used_max_index();
+  bool add (String & string);
+  bool add (const __FlashStringHelper *str);
+  bool remove(int pos);
+  const char * get(int pos);
+  int get_index(const char * string);
+  void clear();
+  int size();
+  bool setsize(int size);
+  bool setlenght(int lenght);
+  int getsize();
+  int getlenght();
   private:
-  String * storage;
-  uint storage_size;
-  uint storage_cursor;
+  int _maxsize;
+  int _maxstringlength;
+  LinkedList<char *> _charlist;
 };
 
 #endif

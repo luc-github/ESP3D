@@ -91,7 +91,7 @@ void COMMAND::check_command(String buffer)
 					cmd_part2=buffer.substring(ESPpos2+1);
 					}
 				//if command is a valid number then execute command
-				if(atoi(cmd_part1.c_str())!=0)execute_command(atoi(cmd_part1.c_str()),cmd_part2);
+				if(cmd_part1.toInt()!=0)execute_command(cmd_part1.toInt(),cmd_part2);
 				//if not is not a valid [ESPXXX] command
 			}
 		}

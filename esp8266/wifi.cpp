@@ -28,27 +28,62 @@
 extern "C" {
 #include "user_interface.h"
 }
-//to get access to some function like
-//wifi_get_opmode() in status
+
+const char * WIFI_CONFIG::get_hostname(){
+	if (WiFi.hostname().length()==0)
+	{
+	if (!CONFIG::read_string(EP_HOSTNAME, _hostname , MAX_HOSTNAME_LENGTH))strcpy(_hostname,get_default_hostname());
+	}
+	else strcpy(_hostname,WiFi.hostname().c_str());
+return _hostname;
+}
+
+const char * WIFI_CONFIG::get_default_hostname()
+{
+	static char hostname[13];
+	uint8_t mac [WL_MAC_ADDR_LENGTH];
+	WiFi.macAddress(mac);
+	if (0>sprintf(hostname,"ESP_%02X%02X%02X",mac[3],mac[4],mac[5])) strcpy (hostname, "ESP8266");
+	return hostname;
+}
 
 //no strtok so this is simplified version
 //return number of part
-byte WIFI_CONFIG::split_ip (char * ptr,byte * part)
+byte WIFI_CONFIG::split_ip (const char * ptr,byte * part)
 {
-  char * pstart = ptr;
-  byte i = strlen(ptr);
+  if (strlen(ptr)>15 || strlen(ptr)< 7)
+	{
+		part[0]=0;
+		part[1]=0;
+		part[2]=0;
+		part[3]=0;
+		return 0;
+	}
+  char pstart [16];
+  char * ptr2;
+  strcpy(pstart,ptr);
+  ptr2 = pstart;
+  byte i = strlen(pstart);
   byte pos = 0;
   for (byte j=0;j<i;j++)
     {
-      if (ptr[j]=='.')
+      if (pstart[j]=='.')
         {
-          ptr[j]=0x0;
-          part[pos]=atoi(pstart);
+		  if (pos==4)
+			{
+				part[0]=0;
+				part[1]=0;
+				part[2]=0;
+				part[3]=0;
+				return 0;
+			}
+          pstart[j]=0x0;
+          part[pos]=atoi(ptr2);
           pos++;
-          pstart = &ptr[j+1]; 
+          ptr2 = &pstart[j+1]; 
         }
     }
-  part[pos]=atoi(pstart);
+  part[pos]=atoi(ptr2);
   return pos+1;  
 }
 
@@ -68,19 +103,46 @@ char * WIFI_CONFIG::ip2str(IPAddress Ip )
   return ipstr;
 }
 
+void  WIFI_CONFIG::Safe_Setup()
+{
+	  WiFi.disconnect();
+	  //setup Soft AP
+	  WiFi.mode(WIFI_AP);
+      IPAddress local_ip (DEFAULT_IP_VALUE[0],DEFAULT_IP_VALUE[1],DEFAULT_IP_VALUE[2],DEFAULT_IP_VALUE[3]);
+      IPAddress gateway (DEFAULT_GATEWAY_VALUE[0],DEFAULT_GATEWAY_VALUE[1],DEFAULT_GATEWAY_VALUE[2],DEFAULT_GATEWAY_VALUE[3]);
+      IPAddress subnet (DEFAULT_MASK_VALUE[0],DEFAULT_MASK_VALUE[1],DEFAULT_MASK_VALUE[2],DEFAULT_MASK_VALUE[3]);
+      String ssid = FPSTR(DEFAULT_SSID);
+      String pwd = FPSTR(DEFAULT_PASSWORD);
+      WiFi.softAP(ssid.c_str(),pwd.c_str());
+      delay(500);
+	  wifi_set_phy_mode(PHY_MODE_11B);
+	  WiFi.softAPConfig( local_ip,  gateway,  subnet);
+	  Serial.println(F("M117 Safe mode started"));
+	  delay(1000);
+}
+
 //Read configuration settings and apply them
 bool WIFI_CONFIG::Setup()
 {
-  char pwd[MAX_PASSWORD_LENGH+1];
-  char sbuf[MAX_SSID_LENGH+1];
+  char pwd[MAX_PASSWORD_LENGTH+1];
+  char sbuf[MAX_SSID_LENGTH+1];
+  char hostname [MAX_HOSTNAME_LENGTH+1];
   int wstatus;
    IPAddress currentIP;
   byte bflag=0;
   //set the sleep mode
-  if (!CONFIG::read_byte(EP_SLEEP_MODE, &bflag ))return false;
+  if (!CONFIG::read_byte(EP_SLEEP_MODE, &bflag ))
+	{
+	return false;
+	}
   wifi_set_sleep_type ((sleep_type)bflag);
+  sleep_mode=bflag;
   //AP or client ?
-  if (!CONFIG::read_byte(EP_WIFI_MODE, &bflag ) ||  !CONFIG::read_string(EP_SSID, sbuf , MAX_SSID_LENGH) ||!CONFIG::read_string(EP_PASSWORD, pwd , MAX_PASSWORD_LENGH)) return false;
+  if (!CONFIG::read_byte(EP_WIFI_MODE, &bflag ) ||  !CONFIG::read_string(EP_SSID, sbuf , MAX_SSID_LENGTH) ||!CONFIG::read_string(EP_PASSWORD, pwd , MAX_PASSWORD_LENGTH)) 
+	{
+	return false;
+	}
+	if (!CONFIG::read_string(EP_HOSTNAME, hostname , MAX_HOSTNAME_LENGTH))strcpy(hostname,get_default_hostname());
     //disconnect if connected
   WiFi.disconnect();
   current_mode=bflag;
@@ -91,7 +153,10 @@ bool WIFI_CONFIG::Setup()
       WiFi.mode(WIFI_AP);
       WiFi.softAP(sbuf, pwd);
       //setup PHY_MODE
-	  if (!CONFIG::read_byte(EP_PHY_MODE, &bflag ))return false;
+	  if (!CONFIG::read_byte(EP_PHY_MODE, &bflag ))
+	  {
+	  return false;
+	  }
       wifi_set_phy_mode((phy_mode)bflag);
       //get current config
       struct softap_config apconfig;
@@ -114,52 +179,54 @@ bool WIFI_CONFIG::Setup()
 			Serial.println(F("M117 Error Wifi AP!"));
 			delay(1000);
 		}
-      wifi_softap_dhcps_start();
     }
   else
     {//setup station mode
-      WiFi.mode(WIFI_STA);
-      WiFi.begin(sbuf, pwd);
-       //setup PHY_MODE
-	   if (!CONFIG::read_byte(EP_PHY_MODE, &bflag ))return false;
-	   wifi_set_phy_mode((phy_mode)bflag);
-      byte i=0;
-      //try to connect
-      while (WiFi.status() != WL_CONNECTED && i<40) {
-
-          switch(WiFi.status())
-          {
+		WiFi.mode(WIFI_STA);
+		WiFi.begin(sbuf, pwd);
+		delay(500);
+		//setup PHY_MODE
+		if (!CONFIG::read_byte(EP_PHY_MODE, &bflag ))return false;
+		wifi_set_phy_mode((phy_mode)bflag);
+		byte i=0;
+		//try to connect
+		while (WiFi.status() != WL_CONNECTED && i<40) {
+		switch(WiFi.status())
+			{
 			  case 1:Serial.println(F("M117 No SSID found!"));
 					break;
 			  case 4:Serial.println(F("M117 No Connection!"));
 					break;
 			   default: Serial.println(F("M117 Connecting..."));
 					break;
-		  }
-          delay(500);
-          i++;
-          }
+			}
+			delay(500);
+			i++;
+			}
+		if (WiFi.status() != WL_CONNECTED) return false;
+	    WiFi.hostname(hostname);
     }
   //DHCP or Static IP ?
   if (!CONFIG::read_byte(EP_IP_MODE, &bflag )) return false;
   if (bflag==STATIC_IP_MODE)
     {
+		byte ip_buf[4];
       //get the IP 
-      if (!CONFIG::read_buffer(EP_IP_VALUE,(byte *)sbuf , IP_LENGH))return false;
-      IPAddress local_ip (sbuf[0],sbuf[1],sbuf[2],sbuf[3]);
+      if (!CONFIG::read_buffer(EP_IP_VALUE,ip_buf , IP_LENGTH))return false;
+      IPAddress local_ip (ip_buf[0],ip_buf[1],ip_buf[2],ip_buf[3]);
       //get the gateway 
-      if (!CONFIG::read_buffer(EP_GATEWAY_VALUE,(byte *)sbuf , IP_LENGH))return false;
-      IPAddress gateway (sbuf[0],sbuf[1],sbuf[2],sbuf[3]);
+      if (!CONFIG::read_buffer(EP_GATEWAY_VALUE,ip_buf , IP_LENGTH))return false;
+      IPAddress gateway (ip_buf[0],ip_buf[1],ip_buf[2],ip_buf[3]);
       //get the mask 
-      if (!CONFIG::read_buffer(EP_MASK_VALUE,(byte *)sbuf , IP_LENGH))return false;
-      IPAddress subnet (sbuf[0],sbuf[1],sbuf[2],sbuf[3]);
+      if (!CONFIG::read_buffer(EP_MASK_VALUE,ip_buf , IP_LENGTH))return false;
+      IPAddress subnet (ip_buf[0],ip_buf[1],ip_buf[2],ip_buf[3]);
      //apply according active wifi mode
-      if (wifi_get_opmode()==WIFI_AP || wifi_get_opmode()==WIFI_AP_STA)  WiFi.softAPConfig( local_ip,  gateway,  subnet);
-      else WiFi.config( local_ip,  gateway,  subnet); 
+     if (wifi_get_opmode()==WIFI_AP || wifi_get_opmode()==WIFI_AP_STA)  WiFi.softAPConfig( local_ip,  gateway,  subnet);
+     else WiFi.config( local_ip,  gateway,  subnet); 
     }
     #ifdef MDNS_FEATURE
     // Set up mDNS responder:
-	if (!mdns.begin(String(FPSTR(LOCAL_NAME)).c_str())) {
+	if (!mdns.begin(hostname)) {
 	Serial.println(F("M117 Error with mDNS!"));
 	delay(1000);
 	}

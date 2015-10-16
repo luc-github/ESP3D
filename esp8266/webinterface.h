@@ -32,10 +32,12 @@ class WEBINTERFACE_CLASS
 {
   public:
   WEBINTERFACE_CLASS (int port = 80);
+  ~WEBINTERFACE_CLASS();
   ESP8266WebServer WebServer;
-  void urldecode(char *dst, const char *src);
+  void urldecode( String & dst, const char *src);
   bool isSSIDValid(const char * ssid);
   bool isPasswordValid(const char * password);
+  bool isHostnameValid(const char * hostname);
   bool isIPValid(const char * IP);
   String answer4M105;
   String answer4M114;

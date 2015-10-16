@@ -18,52 +18,130 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "storestrings.h"
-#define MAX_STORAGE 20
-
-STORESTRINGS_CLASS::STORESTRINGS_CLASS (uint8_t size){
-
-	storage_size = (size<MAX_STORAGE)?size:MAX_STORAGE;
-	storage = new String[storage_size];
-	storage_cursor=0;
+//Constructor
+STORESTRINGS_CLASS::STORESTRINGS_CLASS (int maxsize , int maxstringlength){
+//for rolling buffer
+//if max size is reached then remove oldest one and add the new one
+_maxsize=maxsize;
+//to limit the storage space
+_maxstringlength=maxstringlength;
+//need space for the "..."
+if (_maxstringlength<4 && _maxstringlength!=-1)_maxstringlength=4;
 }
-
+//Destructor
 STORESTRINGS_CLASS::~STORESTRINGS_CLASS (){
-	 delete storage;
-	 storage_size = 0;
+	// clear list and content
+	clear();
 }
 
-bool STORESTRINGS_CLASS::add (const char * string){
-	//check if if there is something to add
-	if (strlen(string)> 0 )
-	{	//is current cursor available or need a shift
-		if (storage_cursor > storage_size-1)
-		{
-			for (uint i=0;i<storage_size-1;i++)
-				{
-				storage[i]=storage[i+1];
-				}
-			storage_cursor--;
-		}
-		storage[storage_cursor]=String(string);
-		storage_cursor++;
-		
+bool STORESTRINGS_CLASS::setsize(int size)
+{
+	_maxsize=size;
+	return true;
+}
+bool STORESTRINGS_CLASS::setlenght(int lenght)
+{
+	if (lenght<4)return false;
+	_maxstringlength=lenght;
+	return true;
+}
+int STORESTRINGS_CLASS::getsize()
+{
+	return _maxsize;
+}
+int STORESTRINGS_CLASS::getlenght()
+{
+	return _maxstringlength;
+}
+
+//Clear list and content
+void STORESTRINGS_CLASS::clear(){
+	//while list is not empty
+	while(_charlist.size()){
+		//remove element
+		char * str = _charlist.pop();
+		//destroy it
+		delete str;
 	}
-	else return false;
 }
 
-String STORESTRINGS_CLASS::get_index_at(uint pos)
+bool STORESTRINGS_CLASS::add (String & string)
 {
-	if (pos > storage_size-1) return storage[storage_size-1];
-	else return storage[pos];
+	return add(string.c_str());
 }
 
-uint STORESTRINGS_CLASS::get_size()
+bool STORESTRINGS_CLASS::add (const __FlashStringHelper *str)
 {
-	return storage_size;
+	String stmp;
+	stmp=str;
+	return add(stmp.c_str());
+}
+//Add element in storage
+bool STORESTRINGS_CLASS::add (const char * string){
+	//if we reach max size
+	if (_maxsize==_charlist.size())
+		{//remove oldest one
+			char * str = _charlist.shift();
+			delete str;
+		}
+	//add new one
+	//get size including \0 at the end
+	size_t size = strlen(string)+1;
+	bool need_resize=false;
+	if ( (_maxstringlength!=-1) && (size >_maxstringlength+1 ))
+		{
+			need_resize = true;
+			size=_maxstringlength+1;
+		}
+	//reserve memory
+	char * ptr = new char[size*sizeof(char)];
+	//copy string to storage
+	if (need_resize)
+		{  //copy maximum length minus 3
+			strncpy(ptr,string,_maxstringlength-3);
+			//add nul char
+			ptr[_maxstringlength-3]='\0';
+			//add dot to show string was cutted
+			strcat(ptr,"...");
+		}
+	else
+		{ //copy as it is
+			strcpy(ptr,string);
+		}
+	//add storage to list
+	_charlist.add(ptr);
+	return true;
+}
+//Remove element at pos position
+bool STORESTRINGS_CLASS::remove(int pos)
+{  //be sure index is in range
+	if (pos<0 && pos>(_charlist.size()-1)) return false;
+	//remove item from list
+	char * str = _charlist.remove(pos);
+	//destroy item
+	delete str;
+	return true;
+}
+//Get element at pos position
+const char * STORESTRINGS_CLASS::get(int pos)
+{  //be sure index is in range
+	if (pos<0 && pos>(_charlist.size()-1)) return NULL;
+	return (const char *) _charlist.get(pos);
+}
+//Get index for defined string
+int STORESTRINGS_CLASS::get_index(const char * string)
+{//parse the list until it is found
+	for (int p=0;p<_charlist.size();p++)
+		{
+			if (strcmp ( _charlist.get(p),  string)==0)return p;
+		}
+	//if not found return -1
+	return -1;
+}
+//Number of elements in list
+int STORESTRINGS_CLASS::size()
+{
+	return _charlist.size();
 }
 
-int STORESTRINGS_CLASS::get_used_max_index()
-{
-if (storage_cursor > storage_size-1) return storage_size-1;
-else return storage_cursor-1;	
-}
+

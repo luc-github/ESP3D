@@ -12,7 +12,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with  this Firmware.  If not, see <http://www.gnu.org/licenses/>.
+    along with this Firmware.  If not, see <http://www.gnu.org/licenses/>.
 
     This firmware is using the standard arduino IDE with module to support ESP8266:
     https://github.com/esp8266/Arduino from Bootmanager
@@ -50,6 +50,7 @@ DNSServer dnsServer;
 extern "C" {
 #include "user_interface.h"
 }
+#include <FS.h>
 #define MAX_SRV_CLIENTS 1
 WiFiServer * data_server;
 WiFiClient serverClients[MAX_SRV_CLIENTS];
@@ -68,7 +69,7 @@ void setup() {
   long baud_rate=0;
   
   //check if EEPROM has value
-  if ( CONFIG::read_buffer(EP_BAUD_RATE,  (byte *)&baud_rate , INTEGER_LENGH)&&CONFIG::read_buffer(EP_WEB_PORT,  (byte *)&(wifi_config.iweb_port) , INTEGER_LENGH)&&CONFIG::read_buffer(EP_DATA_PORT,  (byte *)&(wifi_config.idata_port) , INTEGER_LENGH))
+  if ( CONFIG::read_buffer(EP_BAUD_RATE,  (byte *)&baud_rate , INTEGER_LENGTH)&&CONFIG::read_buffer(EP_WEB_PORT,  (byte *)&(wifi_config.iweb_port) , INTEGER_LENGTH)&&CONFIG::read_buffer(EP_DATA_PORT,  (byte *)&(wifi_config.idata_port) , INTEGER_LENGTH))
     {
       //check if baud value is one of allowed ones
       if ( ! (baud_rate==9600 || baud_rate==19200 ||baud_rate==38400 ||baud_rate==57600 ||baud_rate==115200 ||baud_rate==230400 ||baud_rate==250000) )breset_config=true;//baud rate is incorrect =>reset settings
@@ -83,6 +84,7 @@ void setup() {
     {
     //update EEPROM with default settings
     CONFIG::reset_config();
+    delay(1000);
     //use default baud rate and ports
     baud_rate=DEFAULT_BAUD_RATE;
     wifi_config.iweb_port=DEFAULT_WEB_PORT;
@@ -90,8 +92,10 @@ void setup() {
     }
   //setup serial
   Serial.begin(baud_rate);
+  delay(1000);
+  wifi_config.baud_rate=baud_rate;
   //setup wifi according settings
-  wifi_config.Setup();
+  if (!wifi_config.Setup()) wifi_config.Safe_Setup();
   delay(1000);
   //start interfaces
   web_interface = new WEBINTERFACE_CLASS(wifi_config.iweb_port);
@@ -110,15 +114,19 @@ void setup() {
 	{
 	 // if DNSServer is started with "*" for domain name, it will reply with
 	 // provided IP to all DNS request
+	 dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
      dnsServer.start(DNS_PORT, "*", WiFi.softAPIP());
 	}
   #endif
 
 #ifdef SSDP_FEATURE
+	String stmp;
 	SSDP.setSchemaURL("description.xml");
     SSDP.setHTTPPort( wifi_config.iweb_port);
-    SSDP.setName("ESP8266 Module");
-    SSDP.setSerialNumber(String(system_get_chip_id()).c_str());
+    if (!CONFIG::read_string(EP_HOSTNAME, stmp , MAX_HOSTNAME_LENGTH))stmp=wifi_config.get_default_hostname();
+    SSDP.setName(stmp.c_str());
+    stmp=String(system_get_chip_id());
+    SSDP.setSerialNumber(stmp.c_str());
     SSDP.setURL("/");
     SSDP.setModelName("ESP8266 01");
     SSDP.setModelNumber("01");
@@ -127,6 +135,7 @@ void setup() {
     SSDP.setManufacturerURL("http://espressif.com");
     SSDP.begin();
 #endif
+SPIFFS.begin();
 }
 
 

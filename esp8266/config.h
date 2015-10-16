@@ -27,10 +27,7 @@
 #define SSDP_FEATURE
 
 //CAPTIVE_PORTAL_FEATURE: In SoftAP redirect all unknow call to main page
-#define CAPTIVE_PORTAL_FEATURE
-
-//USE_CSS_FEATURE: this feature allow to have fancy UI by adding css in page
-#define USE_CSS_FEATURE
+//#define CAPTIVE_PORTAL_FEATURE
 
 #ifndef CONFIG_h
 #define CONFIG_h
@@ -41,7 +38,7 @@ extern "C" {
 #include "user_interface.h"
 }
 //version and sources location
-#define FW_VERSION "V0.3"
+#define FW_VERSION "0.4"
 #define REPOSITORY "https://github.com/luc-github/ESP8266"
 
 
@@ -71,7 +68,11 @@ extern "C" {
 #define EP_SSID_VISIBLE			120 //1 byte = flag
 #define EP_WEB_PORT			121 //4  bytes = int
 #define EP_DATA_PORT			125 //4  bytes = int
-#define EP_POLLING_TIME			129 //1  bytes = flag
+#define EP_REFRESH_PAGE_TIME			129 //1  bytes = flag
+#define EP_HOSTNAME				130//33 bytes 32+1 = string  ; warning does not support multibyte char like chinese
+#define EP_XY_FEEDRATE		    164//4  bytes = int
+#define EP_Z_FEEDRATE		    168//4  bytes = int
+#define EP_E_FEEDRATE		    172//4  bytes = int
 
 
 
@@ -84,9 +85,6 @@ const byte DEFAULT_IP_VALUE[]   =	        {192, 168, 0, 1};
 const byte DEFAULT_MASK_VALUE[]  =	        {255, 255, 255, 0};
 #define DEFAULT_GATEWAY_VALUE   	        DEFAULT_IP_VALUE
 const long DEFAULT_BAUD_RATE =			9600;
-#ifdef MDNS_FEATURE
-const char LOCAL_NAME[] PROGMEM =		"esp8266";
-#endif
 const char M117_[] PROGMEM =		"M117 ";
 #define DEFAULT_PHY_MODE			PHY_MODE_11G
 #define DEFAULT_SLEEP_MODE			MODEM_SLEEP_T
@@ -97,26 +95,32 @@ const char M117_[] PROGMEM =		"M117 ";
 #define DEFAULT_BEACON_INTERVAL			100
 const int DEFAULT_WEB_PORT =			80;
 const int DEFAULT_DATA_PORT =			8888;
-#define DEFAULT_POLLING_TIME			3
+#define DEFAULT_REFRESH_PAGE_TIME			3
+const int  DEFAULT_XY_FEEDRATE=1000;
+const int  DEFAULT_Z_FEEDRATE	=100;
+const int  DEFAULT_E_FEEDRATE=400;
 
 //sizes
 #define EEPROM_SIZE				256 //max is 512
-#define MAX_SSID_LENGH				32
-#define MIN_SSID_LENGH				1
-#define MAX_PASSWORD_LENGH 			64
-#define MIN_PASSWORD_LENGH 			8
-#define IP_LENGH 				4
-#define INTEGER_LENGH 				4
+#define MAX_SSID_LENGTH				32
+#define MIN_SSID_LENGTH				1
+#define MAX_PASSWORD_LENGTH 			64
+#define MIN_PASSWORD_LENGTH 			8
+#define IP_LENGTH 				4
+#define INTEGER_LENGTH 				4
+#define MAX_HOSTNAME_LENGTH		32
 
 class CONFIG
 {
   public:
-    static bool read_string(word pos, char byte_buffer[], word size_max);
-    static bool read_buffer(word pos, byte byte_buffer[], word size_buffer);
-    static bool read_byte(word pos, byte * value);
-    static bool write_string(word pos, const char * byte_buffer, word size_buffer);
-    static bool write_buffer(word pos, const byte * byte_buffer, word size_buffer);
-    static bool write_byte(word pos, const byte value);
+    static bool read_string(int pos, char byte_buffer[], int size_max);
+    static bool read_string(int pos, String & sbuffer, int size_max);
+    static bool read_buffer(int pos, byte byte_buffer[], int size_buffer);
+    static bool read_byte(int pos, byte * value);
+    static bool write_string(int pos, const char * byte_buffer);
+    static bool write_string(int pos, const __FlashStringHelper *str);
+    static bool write_buffer(int pos, const byte * byte_buffer, int size_buffer);
+    static bool write_byte(int pos, const byte value);
     static bool reset_config();
     static void print_config();
 };

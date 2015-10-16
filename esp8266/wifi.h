@@ -39,10 +39,17 @@ class WIFI_CONFIG
   byte current_mode;
   int iweb_port;
   int idata_port;
+  long baud_rate;
+  int sleep_mode;
   bool Setup();
+  void Safe_Setup();
   char * mac2str(uint8_t mac [WL_MAC_ADDR_LENGTH]);
   char * ip2str(IPAddress Ip );
-  byte split_ip (char * ptr,byte * part);
+  byte split_ip (const char * ptr,byte * part);
+  const char * get_default_hostname();
+  const char * get_hostname();
+  private:
+  char _hostname[33];
 
 };
 
