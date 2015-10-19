@@ -128,7 +128,7 @@ var Zfeedrate=$Z_FEEDRATE$;
 var Efeedrate=$E_FEEDRATE$;
 function Sendcommand(commandtxt){
 var xmlhttp = new XMLHttpRequest();
-var url = "http://$WEB_ADDRESS$/CMD?COM="+encodeURI(commandtxt);;
+var url = "http://$WEB_ADDRESS$/CMD?COM="+encodeURIComponent(commandtxt);;
 xmlhttp.open("POST", url, true);
 xmlhttp.send();
 }
