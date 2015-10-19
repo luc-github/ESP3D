@@ -24,10 +24,11 @@ a{position:relative;display:block;padding:10px 15px;text-decoration:none;color:#
 .table-bordered>thead>tr>th,.table-bordered>tbody>tr>th,.table-bordered>tbody>tr>td{border:1px solid #dddddd;}
  .active{color:#ffffff;background-color:#000000;}
  caption{text-align:left;}
+ .btnimg {cursor:hand; border-radius:6px ;;border:1px solid #FFFFFF;}
 </style><title>$PAGE_TITLE$</title> </head><body><div class="container"><table class="nav"><tr width=100%>
 <td class="$MENU_HOME$"><a href="http://$WEB_ADDRESS$">Home</a></td><td class="$MENU_SYSTEM$"><a href="http://$WEB_ADDRESS$/CONFIGSYS">System Configuration</a></td>
 <td class="$MENU_AP$"><a href="http://$WEB_ADDRESS$/CONFIGAP">AP Configuration</a></td><td class="$MENU_STA$"><a href="http://$WEB_ADDRESS$/CONFIGSTA">Station Configuration</a></td>
-<td class="$MENU_PRINTER$"><a href="http://$WEB_ADDRESS$/PRINTER">Printer Status</a></td><td class="$MENU_SETTINGS$"><a href="http://$WEB_ADDRESS$/SETTINGS">Printer Settings</a></td>
+<td class="$MENU_PRINTER$"><a href="http://$WEB_ADDRESS$/PRINTER">Printer Status</a></td><td class="$MENU_SETTINGS$"><a href="http://$WEB_ADDRESS$/SETTINGS">Extra Settings</a></td>
 <td width=100%>&nbsp;</td><td>FW:  V$FW_VER$</td><td><a href="https://github.com/luc-github/ESP8266" >Github</a></td>
 </tr>
 </table>
