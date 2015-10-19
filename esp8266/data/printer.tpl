@@ -62,23 +62,23 @@ $INCLUDE[header.inc]$
 <polygon points="7,40 7,25 4,28 0,24 20,4 26,10 26,6 32,6 32,16 40,24 36,28 33,25 33,40" fill="blue" stroke-width:"1" stroke:"black" /><line x1="25" y1="8" x2="33" y2="16" style="stroke:white;stroke-width:1" />
 <polyline points="4,28 20,12 36,28" style="fill:none;stroke:white;stroke-width:1" /><text x="15" y="35" font-family="Verdana" font-size="14" fill="white">Y</text></svg></td>
 <td></td><td><table><tr><td class="btnimg" onclick="SendJogcommand( 'Z-10',Zfeedrate);"><svg width="40" height="20" viewBox="0 0 40 20">
-<polyline points="5,18 20,5 35,18" style="fill:none;stroke:green;stroke-width:7"/><text x="14" y="20" font-family="Verdana" font-size="7" fill="black">-10</text></svg></td></tr>
+<polyline points="5,18 20,5 35,18" style="fill:none;stroke:green;stroke-width:7"/><text x="13" y="20" font-family="Verdana" font-size="7" fill="black">-10</text></svg></td></tr>
 <tr><td class="btnimg" onclick="SendJogcommand( 'Z-1',Zfeedrate);"><svg width="40" height="20" viewBox="0 2 40 20">
 <polyline points="5,18 20,5 35,18" style="fill:none;stroke:green;stroke-width:5"/><text x="15" y="20" font-family="Verdana" font-size="7" fill="black">-1</text></svg></td></tr>
 <tr><td class="btnimg" onclick="SendJogcommand( 'Z-0.1',Zfeedrate);"><svg width="40" height="20" viewBox="0 4 40 20"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:green;stroke-width:2"/>
 <text x="12" y="20" font-family="Verdana" font-size="7" fill="black">-0.1</text></svg></td></tr></table></td>
-<td></td><td id="JogExtruder1-1" style="visibility:hidden;"><table><tr><td class="btnimg" onclick="SendJogcommand( 'E0-10',Efeedrate);"><svg width="40" height="20" viewBox="0 0 40 20">
-<polyline points="5,18 20,5 35,18" style="fill:none;stroke:orange;stroke-width:7"/><text x="14" y="20" font-family="Verdana" font-size="7" fill="black">-10</text></svg></td></tr>
-<tr><td class="btnimg" onclick="SendJogcommand( 'E0-1',Efeedrate);"><svg width="40" height="20" viewBox="0 2 40 20"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:orange;stroke-width:5"/>
-<text x="15" y="20" font-family="Verdana" font-size="7" fill="black">-1</text></svg></td></tr>
-<tr><td class="btnimg" onclick="SendJogcommand( 'E0-0.1',Efeedrate);"><svg width="40" height="20" viewBox="0 4 40 20"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:orange;stroke-width:2"/>
-<text x="12" y="20" font-family="Verdana" font-size="7" fill="black">-0.1</text></svg></td></tr></table></td>
-<td></td><td id="JogExtruder2-1" style="visibility:hidden;"><table><tr><td class="btnimg" onclick="SendJogcommand( 'E1-10',Efeedrate);"><svg width="40" height="20" viewBox="0 0 40 20">
-<polyline points="5,18 20,5 35,18" style="fill:none;stroke:pink;stroke-width:7"/><text x="14" y="20" font-family="Verdana" font-size="7" fill="black">-10</text></svg></td></tr>
-<tr><td class="btnimg" onclick="SendJogcommand( 'E1-1',Efeedrate);"><svg width="40" height="20" viewBox="0 2 40 20"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:pink;stroke-width:5"/>
-<text x="15" y="20" font-family="Verdana" font-size="7" fill="black">-1</text></svg></td></tr>
-<tr><td class="btnimg" onclick="SendJogcommand( 'E1-0.1',Efeedrate);"><svg width="40" height="20" viewBox="0 4 40 20"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:pink;stroke-width:2"/>
-<text x="12" y="20" font-family="Verdana" font-size="7" fill="black">-0.1</text></svg></td></tr></table></td></tr>
+<td></td><td id="JogExtruder1-1" style="visibility:hidden;"><table><tr><td class="btnimg" onclick="SendJogcommand( 'E0-50',Efeedrate);"><svg width="40" height="20" viewBox="0 0 40 20">
+<polyline points="5,18 20,5 35,18" style="fill:none;stroke:orange;stroke-width:7"/><text x="13" y="20" font-family="Verdana" font-size="7" fill="black">-50</text></svg></td></tr>
+<tr><td class="btnimg" onclick="SendJogcommand( 'E0-10',Efeedrate);"><svg width="40" height="20" viewBox="0 2 40 20"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:orange;stroke-width:5"/>
+<text x="14" y="20" font-family="Verdana" font-size="7" fill="black">-10</text></svg></td></tr>
+<tr><td class="btnimg" onclick="SendJogcommand( 'E0-1',Efeedrate);"><svg width="40" height="20" viewBox="0 4 40 20"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:orange;stroke-width:2"/>
+<text x="14" y="20" font-family="Verdana" font-size="7" fill="black">-1</text></svg></td></tr></table></td>
+<td></td><td id="JogExtruder2-1" style="visibility:hidden;"><table><tr><td class="btnimg" onclick="SendJogcommand( 'E1-50',Efeedrate);"><svg width="40" height="20" viewBox="0 0 40 20">
+<polyline points="5,18 20,5 35,18" style="fill:none;stroke:pink;stroke-width:7"/><text x="13" y="20" font-family="Verdana" font-size="7" fill="black">-50</text></svg></td></tr>
+<tr><td class="btnimg" onclick="SendJogcommand( 'E1-10',Efeedrate);"><svg width="40" height="20" viewBox="0 2 40 20"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:pink;stroke-width:5"/>
+<text x="14" y="20" font-family="Verdana" font-size="7" fill="black">-10</text></svg></td></tr>
+<tr><td class="btnimg" onclick="SendJogcommand( 'E1-1',Efeedrate);"><svg width="40" height="20" viewBox="0 4 40 20"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:pink;stroke-width:2"/>
+<text x="15" y="20" font-family="Verdana" font-size="7" fill="black">-1</text></svg></td></tr></table></td></tr>
 <tr align="center" valign="middle"><td><table><tr><td class="btnimg" onclick="SendJogcommand( 'X10',XYfeedrate);"><svg width="20" height="40" viewBox="12 -10 20 40">
 <polyline points="5,18 20,5 35,18" style="fill:none;stroke:black;stroke-width:7" transform="rotate(-90 20 10)"/><text x="22" y="13" font-family="Verdana" font-size="7" fill="black">10</text></svg></td>
 <td class="btnimg" onclick="SendJogcommand( 'X1',XYfeedrate);"><svg width="20" height="40" viewBox="10 -10 20 40"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:black;stroke-width:5" transform="rotate(-90 20 10)"/>
@@ -110,18 +110,18 @@ $INCLUDE[header.inc]$
 <text x="18" y="7" font-family="Verdana" font-size="7" fill="black">1</text></svg></td></tr>
 <tr><td class="btnimg" onclick="SendJogcommand( 'Z10',Zfeedrate);"><svg width="40" height="20" viewBox="0 0 40 20">
 <polyline points="5,18 20,5 35,18" style="fill:none;stroke:green;stroke-width:7" transform="rotate(180 20 10)"/><text x="15" y="6" font-family="Verdana" font-size="7" fill="black">10</text></svg></td></tr></table></td>
-<td></td><td id="JogExtruder1-3" style="visibility:hidden;"><table><tr><td class="btnimg" onclick="SendJogcommand( 'E0+0.1',Efeedrate);"><svg width="40" height="20" viewBox="0 -4 40 20">
-<polyline points="5,18 20,5 35,18" style="fill:none;stroke:orange;stroke-width:3" transform="rotate(180 20 10)"/><text x="14" y="6" font-family="Verdana" font-size="7" fill="black">0.1</text></svg></td></tr>
-<tr><td class="btnimg" onclick="SendJogcommand( 'E0+1',Efeedrate);"><svg width="40" height="20" viewBox="0 -2 40 20"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:orange;stroke-width:5" transform="rotate(180 20 10)"/>
-<text x="18" y="7" font-family="Verdana" font-size="7" fill="black">1</text></svg></td></tr>
-<tr><td class="btnimg" onclick="SendJogcommand( 'E0+10',Efeedrate);"><svg width="40" height="20" viewBox="0 0 40 20">
-<polyline points="5,18 20,5 35,18" style="fill:none;stroke:orange;stroke-width:7" transform="rotate(180 20 10)"/><text x="15" y="6" font-family="Verdana" font-size="7" fill="black">10</text></svg></td></tr></table></td>
-<td></td><td id="JogExtruder2-3" style="visibility:hidden;"><table><tr><td class="btnimg" onclick="SendJogcommand( 'E1+0.1',Efeedrate);"><svg width="40" height="20" viewBox="0 -4 40 20">
-<polyline points="5,18 20,5 35,18" style="fill:none;stroke:pink;stroke-width:3" transform="rotate(180 20 10)"/><text x="14" y="6" font-family="Verdana" font-size="7" fill="black">0.1</text></svg></td></tr>
-<tr><td class="btnimg" onclick="SendJogcommand( 'E1+1',Efeedrate);"><svg width="40" height="20" viewBox="0 -2 40 20"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:pink;stroke-width:5" transform="rotate(180 20 10)"/>
-<text x="18" y="7" font-family="Verdana" font-size="7" fill="black">1</text></svg></td></tr>
-<tr><td class="btnimg" onclick="SendJogcommand( 'E1+10',Efeedrate);"><svg width="40" height="20" viewBox="0 0 40 20" ><polyline points="5,18 20,5 35,18" style="fill:none;stroke:pink;stroke-width:7" transform="rotate(180 20 10)"/>
-<text x="15" y="6" font-family="Verdana" font-size="7" fill="black">10</text></svg></td></tr></table></td></tr></table></td></tr></table>
+<td></td><td id="JogExtruder1-3" style="visibility:hidden;"><table><tr><td class="btnimg" onclick="SendJogcommand( 'E0+1',Efeedrate);"><svg width="40" height="20" viewBox="0 -4 40 20">
+<polyline points="5,18 20,5 35,18" style="fill:none;stroke:orange;stroke-width:3" transform="rotate(180 20 10)"/><text x="18" y="6" font-family="Verdana" font-size="7" fill="black">1</text></svg></td></tr>
+<tr><td class="btnimg" onclick="SendJogcommand( 'E0+10',Efeedrate);"><svg width="40" height="20" viewBox="0 -2 40 20"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:orange;stroke-width:5" transform="rotate(180 20 10)"/>
+<text x="14" y="7" font-family="Verdana" font-size="7" fill="black">10</text></svg></td></tr>
+<tr><td class="btnimg" onclick="SendJogcommand( 'E0+50',Efeedrate);"><svg width="40" height="20" viewBox="0 0 40 20">
+<polyline points="5,18 20,5 35,18" style="fill:none;stroke:orange;stroke-width:7" transform="rotate(180 20 10)"/><text x="15" y="6" font-family="Verdana" font-size="7" fill="black">50</text></svg></td></tr></table></td>
+<td></td><td id="JogExtruder2-3" style="visibility:hidden;"><table><tr><td class="btnimg" onclick="SendJogcommand( 'E1+1',Efeedrate);"><svg width="40" height="20" viewBox="0 -4 40 20">
+<polyline points="5,18 20,5 35,18" style="fill:none;stroke:pink;stroke-width:3" transform="rotate(180 20 10)"/><text x="18" y="6" font-family="Verdana" font-size="7" fill="black">1</text></svg></td></tr>
+<tr><td class="btnimg" onclick="SendJogcommand( 'E1+10',Efeedrate);"><svg width="40" height="20" viewBox="0 -2 40 20"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:pink;stroke-width:5" transform="rotate(180 20 10)"/>
+<text x="14" y="7" font-family="Verdana" font-size="7" fill="black">10</text></svg></td></tr>
+<tr><td class="btnimg" onclick="SendJogcommand( 'E1+50',Efeedrate);"><svg width="40" height="20" viewBox="0 0 40 20" ><polyline points="5,18 20,5 35,18" style="fill:none;stroke:pink;stroke-width:7" transform="rotate(180 20 10)"/>
+<text x="15" y="6" font-family="Verdana" font-size="7" fill="black">50</text></svg></td></tr></table></td></tr></table></td></tr></table>
 <script type="text/javascript">
 var XYfeedrate=$XY_FEEDRATE$;
 var Zfeedrate=$Z_FEEDRATE$;
