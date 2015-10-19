@@ -2307,9 +2307,7 @@ void handle_web_interface_status()
 	}
 	buffer2send+="]";
 	buffer2send+="}";
-	web_interface->WebServer.send(200, "application/json",buffer2send);
-	Serial.println(system_get_free_heap_size());
-	
+	web_interface->WebServer.send(200, "application/json",buffer2send);	
 }
 
 String formatBytes(size_t bytes){
