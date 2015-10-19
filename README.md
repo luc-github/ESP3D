@@ -73,7 +73,7 @@ the template files are stored on SPIFFS:
 and uploaded using [IDE](http://arduino.esp8266.com/versions/1.6.5-1160-gef26c5f/doc/reference.html#file-system)    
 The list of keywords can be find here : https://github.com/luc-github/ESP8266/blob/master/keywords.txt     
 Any files on SPIFFS can be called on web interface without having the path hard coded  - this give more flexibility,  favicon.ico is a good example of it.         
-So UI is kind of separated from FW which allow easier modifications.
+So UI is kind of separated from FW which allow easier modifications. For this a light file manager is available in extra settings page, it allows to upload/download/delete files. as SPIFFS is flat filesystem no directory management is necessary so it is very simple.
 
 Additionally 404.tpl (the page not found) and restart.tpl(restart page when applying changes) are not mandatory, a fail safe version is embeded if they are not present.     
 

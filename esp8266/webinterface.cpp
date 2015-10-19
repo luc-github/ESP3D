@@ -180,7 +180,7 @@ const char KEY_E_FEEDRATE [] PROGMEM = "$E_FEEDRATE$";
 const char KEY_XY_FEEDRATE_STATUS [] PROGMEM = "$XY_FEEDRATE_STATUS$";
 const char KEY_Z_FEEDRATE_STATUS [] PROGMEM = "$Z_FEEDRATE_STATUS$";
 const char KEY_E_FEEDRATE_STATUS [] PROGMEM = "$E_FEEDRATE_STATUS$";
-const char VALUE_SETTINGS [] PROGMEM = "Printer Settings";
+const char VALUE_SETTINGS [] PROGMEM = "Extra Settings";
 const char KEY_REFRESH_PAGE_STATUS [] PROGMEM = "$REFRESH_PAGE_STATUS$";
 
 bool WEBINTERFACE_CLASS::isHostnameValid(const char * hostname)
@@ -2306,11 +2306,22 @@ void handle_web_interface_status()
 		buffer2send+="\"}";
 	}
 	buffer2send+="]";
-//	buffer2send+="\"end\":\"end\"";
 	buffer2send+="}";
-	web_interface->WebServer.send(200, "text/plain",buffer2send);
+	web_interface->WebServer.send(200, "application/json",buffer2send);
 	Serial.println(system_get_free_heap_size());
 	
+}
+
+String formatBytes(size_t bytes){
+  if (bytes < 1024){
+    return String(bytes)+"oct";
+  } else if(bytes < (1024 * 1024)){
+    return String(bytes/1024.0)+"Ko";
+  } else if(bytes < (1024 * 1024 * 1024)){
+    return String(bytes/1024.0/1024.0)+"Mo";
+  } else {
+    return String(bytes/1024.0/1024.0/1024.0)+"Go";
+  }
 }
 
 String getContentType(String filename){
@@ -2330,6 +2341,65 @@ String getContentType(String filename){
   else if(filename.endsWith(".inc")) return "text/plain";
   else if(filename.endsWith(".txt")) return "text/plain";
   return "application/octet-stream";
+}
+void handleFileUpload(){
+   if(web_interface->WebServer.uri() != "/FILES") return;
+  HTTPUpload& upload = (web_interface->WebServer).upload();
+  if(upload.status == UPLOAD_FILE_START){
+    String filename = upload.filename;
+    web_interface->fsUploadFile = SPIFFS.open(filename, "w");
+    filename = String();
+  } else if(upload.status == UPLOAD_FILE_WRITE){
+    if(web_interface->fsUploadFile)
+		{
+		web_interface->fsUploadFile.write(upload.buf, upload.currentSize);
+		}
+  } else if(upload.status == UPLOAD_FILE_END){
+    if(web_interface->fsUploadFile)
+      web_interface->fsUploadFile.close();
+  }
+  else Serial.println("Cannot open file");
+}
+
+void handleFileList() {
+	String path = "/";
+	String status="Ok";
+	if(web_interface->WebServer.hasArg("action")) {
+		if(web_interface->WebServer.arg("action")=="delete" && web_interface->WebServer.hasArg("filename"))
+			{
+				String filename;
+				 web_interface->urldecode(filename,web_interface->WebServer.arg("filename").c_str());
+				if(!SPIFFS.exists(filename)){
+					 status="Cannot delete, file not found!";
+					}
+				else
+					{
+						SPIFFS.remove(filename);
+					}
+			}
+	  }
+	String jsonfile = "{\"path\":\"" + path + "\",";
+	Dir dir = SPIFFS.openDir(path);
+	jsonfile+="\"files\":[";
+	bool firstentry=true;
+	while (dir.next()) {
+		if (!firstentry) jsonfile+=",";
+		else firstentry=false;
+		jsonfile+="{";
+		jsonfile+="\"name\":\"";
+		jsonfile+=dir.fileName();
+		jsonfile+="\",\"size\":\"";
+		File f = dir.openFile("r");
+		jsonfile+=formatBytes(f.size());
+		jsonfile+="\"";
+		jsonfile+="}";
+		f.close();
+		}	
+	jsonfile+="],";
+	jsonfile+="\"status\":\"" + status + "\"";
+	jsonfile+="}";
+	path = "";
+	web_interface->WebServer.send(200, "application/json", jsonfile);
 }
 
 //do a redirect to avoid to many query
@@ -2558,6 +2628,8 @@ WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port):WebServer(port)
 	WebServer.on("/PRINTER",HTTP_ANY, handle_web_interface_printer);
 	WebServer.on("/CMD",HTTP_ANY, handle_web_command);
 	WebServer.on("/RESTART",HTTP_GET, handle_restart);
+	WebServer.on("/FILES", HTTP_ANY, handleFileList);
+	WebServer.onFileUpload(handleFileUpload);
 	//Captive portal Feature
 	#ifdef CAPTIVE_PORTAL_FEATURE
 	WebServer.on("/generate_204",HTTP_ANY, handle_web_interface_root);
@@ -2580,6 +2652,7 @@ WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port):WebServer(port)
 	info_msg.setlenght(50);
 	status_msg.setsize(4);
 	status_msg.setlenght(50);
+	fsUploadFile=(fs::File)0;
 }
 //Destructor
 WEBINTERFACE_CLASS::~WEBINTERFACE_CLASS()

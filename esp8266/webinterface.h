@@ -24,6 +24,7 @@
 #include <WiFiClient.h>
 #include <WiFiServer.h>
 #include <ESP8266WebServer.h>
+#include <FS.h>
 #include "storestrings.h"
 
 #define MAX_EXTRUDERS 4
@@ -34,6 +35,7 @@ class WEBINTERFACE_CLASS
   WEBINTERFACE_CLASS (int port = 80);
   ~WEBINTERFACE_CLASS();
   ESP8266WebServer WebServer;
+  File fsUploadFile;
   void urldecode( String & dst, const char *src);
   bool isSSIDValid(const char * ssid);
   bool isPasswordValid(const char * password);

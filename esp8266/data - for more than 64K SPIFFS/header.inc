@@ -15,7 +15,7 @@ $INCLUDE[css.inc]$
 	<td class="$MENU_AP$"><a href="http://$WEB_ADDRESS$/CONFIGAP">AP Configuration</a></td>
 	<td class="$MENU_STA$"><a href="http://$WEB_ADDRESS$/CONFIGSTA">Station Configuration</a></td>
 	<td class="$MENU_PRINTER$"><a href="http://$WEB_ADDRESS$/PRINTER">Printer Status</a></td>
-	<td class="$MENU_SETTINGS$"><a href="http://$WEB_ADDRESS$/SETTINGS">Printer Settings</a></td>
+	<td class="$MENU_SETTINGS$"><a href="http://$WEB_ADDRESS$/SETTINGS">Extra Settings</a></td>
 	<td width=100%>&nbsp;</td>
 	<td>FW:  V$FW_VER$</td>
 	<td><a href="https://github.com/luc-github/ESP8266" >Github</a></td>
