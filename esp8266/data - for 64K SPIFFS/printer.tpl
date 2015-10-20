@@ -1,22 +1,19 @@
 $INCLUDE[header.inc]$
 <table>
 <tr><td style="padding:0px;"><div id="Extruder1" style="visibility:hidden;height:0px;"> 
-<table><tr><td>E1:&nbsp;</td>
-<td id="data_extruder1"></td>
-<td><input class="form-control" id="numberinput1" type="number" min=0 max=270 step=1 value=0></td><td> &#176;C
-<td><input type="submit" value="Set" onclick="SendValue( 'M104 T0 S', '1');"></td></tr></table></div></td></tr>
+<table><tr><td>E1:&nbsp;</td><td id="data_extruder1"></td>
+<td><input class="form-control" id="numberinput1" type="number" min=0 max=270 step=1 value=0></td><td>&#176;C
+<input type="submit" value="Set" onclick="SendValue( 'M104 T0 S', '1');"></td></tr></table></div></td></tr>
 <tr ><td style="padding:0px;"><div id="Extruder2" style="visibility:hidden;height:0px;">
-<table><tr><td>E2:&nbsp;</td>
-<td id="data_extruder2"></td>
+	
+<table><tr><td>E2:&nbsp;</td><td id="data_extruder2"></td>
 <td><input class="form-control" id="numberinput2" type="number" min=0 max=270 step=1 value=0></td><td>&#176;C
-<input type="submit" value="Set" onclick="SendValue( 'M104 T1 S', '2');">
-</td></tr></table></div></td></tr>
+<input type="submit" value="Set" onclick="SendValue( 'M104 T1 S', '2');"></td></tr></table></div></td></tr>
 <tr><td style="padding:0px;"><div id="Bed" style="visibility:hidden;height:0px;">
-<table><tr><td>Bed:</td>
-<td id="data_bed"></td>
+
+<table><tr><td>Bed:</td><td id="data_bed"></td>
 <td><input class="form-control" id="numberinputbed"type="number" min=0 max=270 step=1 value=0></td><td>&#176;C
-<input type="submit" value="Set" onclick="SendValue( 'M140 S', 'bed');">
-</td></tr></table></div></td></tr>
+<input type="submit" value="Set" onclick="SendValue( 'M140 S', 'bed');"></td></tr></table></div></td></tr>
 <tr><td id="speed"><table><tr>
 <td>Speed:</td><td class="text-info" id="currentspeed"></td>
 <td><input class="form-control" id="numberinputspeed" type="number" size="3" min=0 max=300 step=1 value=0></td><td>%
@@ -34,11 +31,19 @@ $INCLUDE[header.inc]$
 <tr><td><hr></td></tr><tr><td><table><tr><td>Info:</td><td width=100% id="infomsg" class="text-info"></td></tr></table></tr>
 <tr><td><hr></td></tr><tr><td><table><tr><td>Error:</td><td width=100% id="errormsg" class="text-info"></td></tr></table></tr>
 <tr><td><hr></td></tr><tr><td><table><tr><td>Status:</td><td width=100% id="statusmsg" class="text-info"></td></tr></table></tr>
-<tr><td><hr></td></tr><tr><td><table><tr><td class="btnimg" style="color:#ffffff;background-color:#337ab7;border-color:#2e6da4;" onclick="Sendcommand('M24');">Play</td><td>&nbsp;&nbsp;</td>
+<tr><td><hr></td></tr>
+<tr><td><table>
+<tr><td class="btnimg" style="color:#ffffff;background-color:#337ab7;border-color:#2e6da4;" onclick="Sendcommand('M24');">Play</td><td>&nbsp;&nbsp;</td>
 <td class="btnimg" style="color:#ffffff;background-color:#337ab7;border-color:#2e6da4;" onclick="Sendcommand('M25');">Pause</td><td>&nbsp;&nbsp;</td>
 <td class="btnimg" style="color:#ffffff;background-color:#337ab7;border-color:#2e6da4;" onclick="Sendcommand('M50');" >Stop</td><td>&nbsp;&nbsp;</td>
 <td class="btnimg" style="color:#ffffff;background-color:#337ab7;border-color:#2e6da4;" onclick="alert('Not yet implemented');">SD</td>
-<td>&nbsp;</td></tr></table></td></tr>
+</tr></table></td></tr>
+<tr><td><table>
+<tr><td class="btnimg" style="color:#ffffff;background-color:#00A058;border-color:#00FF90;" onclick="Sendcommand('G28 X');">Home X</td><td>&nbsp;&nbsp;</td>
+<td class="btnimg" style="color:#ffffff;background-color:#00A058;border-color:#00FF90;" onclick="Sendcommand('G28 Y');">Home Y</td><td>&nbsp;&nbsp;</td>
+<td class="btnimg" style="color:#ffffff;background-color:#00A058;border-color:#00FF90;" onclick="Sendcommand('G28 Z');" >Home Z</td><td>&nbsp;&nbsp;</td>
+<td class="btnimg" style="color:#ffffff;background-color:#00A058;border-color:#00FF90;" onclick="Sendcommand('G28');">Home All</td>
+</tr></table></td></tr>
 <tr><td >
 	<form><table><tr><td>Axis:</td>
 	<td><input type="radio" id="X_axis" name="axis" value="X"><label class="control-label" for="X_axis">X</label></td>
