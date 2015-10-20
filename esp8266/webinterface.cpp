@@ -2400,6 +2400,20 @@ void handleFileList() {
 	web_interface->WebServer.send(200, "application/json", jsonfile);
 }
 
+void handleSDFileList() {
+	String jsonfile = "[";
+	for (int i=0;i<web_interface->fileslist.size();i++)
+	{
+		if (i>0)jsonfile+=",";
+		jsonfile+="{\"entry\":\"";
+		jsonfile+=web_interface->fileslist.get(i);
+		jsonfile+="\"}";
+	}
+	jsonfile+="]";
+	web_interface->WebServer.send(200, "application/json", jsonfile);
+}
+
+
 //do a redirect to avoid to many query
 //and handle not registred path
 void handle_not_found()
@@ -2627,6 +2641,7 @@ WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port):WebServer(port)
 	WebServer.on("/CMD",HTTP_ANY, handle_web_command);
 	WebServer.on("/RESTART",HTTP_GET, handle_restart);
 	WebServer.on("/FILES", HTTP_ANY, handleFileList);
+	WebServer.on("/SDFILES", HTTP_ANY, handleSDFileList);
 	WebServer.onFileUpload(handleFileUpload);
 	//Captive portal Feature
 	#ifdef CAPTIVE_PORTAL_FEATURE
@@ -2643,13 +2658,15 @@ WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port):WebServer(port)
 	answer4M221="100";
 	last_temp=system_get_time();
 	restartmodule=false;
-	//rolling list of 5 entries with a maximum of 50 char for each entry
+	//rolling list of 4entries with a maximum of 50 char for each entry
 	error_msg.setsize(4);
 	error_msg.setlenght(50);
 	info_msg.setsize(4);
 	info_msg.setlenght(50);
 	status_msg.setsize(4);
 	status_msg.setlenght(50);
+	fileslist.setlenght(30);//12 for filename + space + size
+	fileslist.setsize(70); // 70 files to limite to 2K
 	fsUploadFile=(fs::File)0;
 }
 //Destructor
@@ -2658,6 +2675,7 @@ WEBINTERFACE_CLASS::~WEBINTERFACE_CLASS()
 	info_msg.clear();
 	error_msg.clear();
 	status_msg.clear();
+	fileslist.clear();
 }
 
 WEBINTERFACE_CLASS * web_interface;

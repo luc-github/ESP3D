@@ -66,7 +66,7 @@ Home page :
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Page1.png><br>
 System Configuration Page:     
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Page2.png><br>     
-Access Point Configuation Page:    
+Access Point Configuration Page:    
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Page3.png><br>     
 Client Configuration Page:     
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Page4.png><br>     

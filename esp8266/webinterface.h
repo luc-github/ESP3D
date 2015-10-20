@@ -45,6 +45,7 @@ class WEBINTERFACE_CLASS
   String answer4M114;
   String answer4M220;
   String answer4M221;
+  STORESTRINGS_CLASS fileslist;
   uint32_t last_temp;
   STORESTRINGS_CLASS error_msg;
   STORESTRINGS_CLASS info_msg;
