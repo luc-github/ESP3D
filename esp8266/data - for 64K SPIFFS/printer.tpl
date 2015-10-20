@@ -5,7 +5,7 @@ $INCLUDE[header.inc]$
 <td><input class="form-control" id="numberinput1" type="number" min=0 max=270 step=1 value=0></td><td>&#176;C
 <input type="submit" value="Set" onclick="SendValue( 'M104 T0 S', '1');"></td></tr></table></div></td></tr>
 <tr ><td style="padding:0px;"><div id="Extruder2" style="visibility:hidden;height:0px;">
-	
+
 <table><tr><td>E2:&nbsp;</td><td id="data_extruder2"></td>
 <td><input class="form-control" id="numberinput2" type="number" min=0 max=270 step=1 value=0></td><td>&#176;C
 <input type="submit" value="Set" onclick="SendValue( 'M104 T1 S', '2');"></td></tr></table></div></td></tr>
@@ -33,10 +33,11 @@ $INCLUDE[header.inc]$
 <tr><td><hr></td></tr><tr><td><table><tr><td>Status:</td><td width=100% id="statusmsg" class="text-info"></td></tr></table></tr>
 <tr><td><hr></td></tr>
 <tr><td><table>
-<tr><td class="btnimg" style="color:#ffffff;background-color:#337ab7;border-color:#2e6da4;" onclick="Sendcommand('M24');">Play</td><td>&nbsp;&nbsp;</td>
+<tr><td class="btnimg" style="color:#ffffff;background-color:#337ab7;border-color:#2e6da4;" onclick="Sendcommand('M24');">Continue</td><td>&nbsp;&nbsp;</td>
 <td class="btnimg" style="color:#ffffff;background-color:#337ab7;border-color:#2e6da4;" onclick="Sendcommand('M25');">Pause</td><td>&nbsp;&nbsp;</td>
 <td class="btnimg" style="color:#ffffff;background-color:#337ab7;border-color:#2e6da4;" onclick="Sendcommand('M50');" >Stop</td><td>&nbsp;&nbsp;</td>
-<td class="btnimg" style="color:#ffffff;background-color:#337ab7;border-color:#2e6da4;" onclick="alert('Not yet implemented');">SD</td>
+<td class="btnimg" style="color:#ffffff;background-color:#337ab7;border-color:#2e6da4;" onclick="getSDfiles();">Get SD Content</td><td>&nbsp;&nbsp;</td>
+<td id="SDLIST"></td>
 </tr></table></td></tr>
 <tr><td><table>
 <tr><td class="btnimg" style="color:#ffffff;background-color:#00A058;border-color:#00FF90;" onclick="Sendcommand('G28 X');">Home X</td><td>&nbsp;&nbsp;</td>
@@ -45,26 +46,26 @@ $INCLUDE[header.inc]$
 <td class="btnimg" style="color:#ffffff;background-color:#00A058;border-color:#00FF90;" onclick="Sendcommand('G28');">Home All</td>
 </tr></table></td></tr>
 <tr><td >
-	<form><table><tr><td>Axis:</td>
-	<td><input type="radio" id="X_axis" name="axis" value="X"><label class="control-label" for="X_axis">X</label></td>
-	<td><input type="radio" id="Y_axis" name="axis" value="Y"><label class="control-label" for="Y_axis">Y</label></td>
-	<td><input type="radio" id="Z_axis"name="axis" value="Z"><label class="control-label" for="Z_axis">Z</label></td>
-	<td id="radioE1"><input type="radio" id="E1_axis"name="axis" value="E0"><label class="control-label" for="E1_axis">E1</label></td>
-	<td id="radioE2"><input type="radio" id="E2_axis" name="axis" value="E1"><label class="control-label" for="E2_axis">E2</label></td></tr></table></form>
+<form><table><tr><td>Axis:</td>
+<td><input type="radio" id="X_axis" name="axis" value="X"><label class="control-label" for="X_axis">X</label></td>
+<td><input type="radio" id="Y_axis" name="axis" value="Y"><label class="control-label" for="Y_axis">Y</label></td>
+<td><input type="radio" id="Z_axis"name="axis" value="Z"><label class="control-label" for="Z_axis">Z</label></td>
+<td id="radioE1"><input type="radio" id="E1_axis"name="axis" value="E0"><label class="control-label" for="E1_axis">E1</label></td>
+<td id="radioE2"><input type="radio" id="E2_axis" name="axis" value="E1"><label class="control-label" for="E2_axis">E2</label></td></tr></table></form>
 </td><tr>
 <tr><td >
-	<form><table><tr><td>Steps:</td>
-	<td><input id="pos01" type="radio" name="position" value="0.1"><label class="control-label" for="pos01">0.1</label></td>
-	<td><input id="pos1" type="radio" name="position" value="1"><label class="control-label" for="pos1">1</label></td>
-	<td><input id="pos10"type="radio" name="position" value="10"><label class="control-label" for="pos10">10</label></td>
-	<td><input id="pos50"type="radio" name="position" value="50"><label class="control-label" for="pos50">50</label></td></tr></table></form>
+<form><table><tr><td>Steps:</td>
+<td><input id="pos01" type="radio" name="position" value="0.1"><label class="control-label" for="pos01">0.1</label></td>
+<td><input id="pos1" type="radio" name="position" value="1"><label class="control-label" for="pos1">1</label></td>
+<td><input id="pos10"type="radio" name="position" value="10"><label class="control-label" for="pos10">10</label></td>
+<td><input id="pos50"type="radio" name="position" value="50"><label class="control-label" for="pos50">50</label></td></tr></table></form>
 </td><tr>
 <tr><td >
-	<table><tr>
-	<td>Direction:</td>
-	<td class="btnimg" style="color:#ffffff;background-color:#337ab7;border-color:#2e6da4;" onclick="SendJog('-');">&nbsp;&nbsp;-&nbsp;&nbsp;</td>
-	<td></td><td></td><td></td>
-	<td class="btnimg" style="color:#ffffff;background-color:#337ab7;border-color:#2e6da4;" onclick="SendJog('+');" >&nbsp;&nbsp;+&nbsp;&nbsp;</td>
+<table><tr>
+<td>Direction:</td>
+<td class="btnimg" style="color:#ffffff;background-color:#337ab7;border-color:#2e6da4;" onclick="SendJog('-');">&nbsp;&nbsp;-&nbsp;&nbsp;</td>
+<td></td><td></td><td></td>
+<td class="btnimg" style="color:#ffffff;background-color:#337ab7;border-color:#2e6da4;" onclick="SendJog('+');" >&nbsp;&nbsp;+&nbsp;&nbsp;</td>
 </td><tr>
 </table>
 <script type="text/javascript">
@@ -85,11 +86,11 @@ while (new Date() < ms){}
 
 function SendJog( direction){
 
-	var axischecked;
-	var feedrate;
-	var step;
-	var i;
-	for (i = 0; i < axis.length; i++) {
+var axischecked;
+var feedrate;
+var step;
+var i;
+for (i = 0; i < axis.length; i++) {
         if (axis[i].checked) {
             axischecked=axis[i].value;
         }
@@ -206,6 +207,50 @@ dispatchstatus(jsonresponse);}
 xmlhttp.open("GET", url, true);
 xmlhttp.send();
 }
+
+function printfile(){
+var filename = document.getElementById("sdfilelist").value;
+if (filename.length>0){
+Sendcommand("M23 " + filename);
+delay(100);
+Sendcommand("M24");}
+}
+
+function refreshfilelist(jsonresponse){
+var list2display="<select id=\"sdfilelist\">";
+var content="";
+var i;
+for (i = 0; i < jsonresponse.length; i++){ 
+content =jsonresponse[i].entry;
+var tcontent=content.split(" ");
+if (tcontent.length==2){
+list2display+="<OPTION value=\"";
+list2display+=tcontent[0];
+list2display+="\">";
+list2display+=tcontent[0] ;
+list2display+="</OPTION>";}
+}
+list2display+="</select>";
+if ( jsonresponse.length>0){
+list2display+="&nbsp;&nbsp;<input type=\"button\"  Onclick=\"printfile();\" value=\"Print\" />";}
+document.getElementById("SDLIST").innerHTML=list2display;
+}
+
+function getSDfiles(){
+document.getElementById("SDLIST").innerHTML="";
+Sendcommand("M20");
+delay(1000);
+var xmlhttp = new XMLHttpRequest();
+var url = "http://$WEB_ADDRESS$/SDFILES";
+xmlhttp.onreadystatechange = function() {
+if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+var jsonresponse = JSON.parse(xmlhttp.responseText);
+refreshfilelist(jsonresponse);}
+}
+xmlhttp.open("GET", url, true);
+xmlhttp.send();
+}
+
 setInterval(function(){getstatus();},$REFRESH_PAGE$);
 var axis = document.forms[0];
 var pos = document.forms[1];

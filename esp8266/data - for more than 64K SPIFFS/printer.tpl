@@ -24,7 +24,7 @@ $INCLUDE[header.inc]$
 <input type="submit" value="Set" onclick="SendValue( 'M220 S', 'speed');"></td>
 <td>&nbsp;&nbsp;</td><td>Status:</td><td id="status" align="center" valign="middle">
 <svg width="20" height="20"><circle cx="10" cy="10" r="8" stroke="black" stroke-width="2" fill="white"></circle></svg></td>
-<td id="status-text"></td><td>&nbsp;&nbsp;</td><td class="btnimg" onclick="OnclickEmergency();">
+<td id="status-text" style="width:100px;"></td><td>&nbsp;&nbsp;</td><td class="btnimg" onclick="OnclickEmergency();">
 <svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" stroke="black" stroke-width="2" fill="red" />
 <circle cx="20" cy="20" r="10" stroke="black" stroke-width="4" fill="red" /><rect x="15" y="8" width="10" height="10" style="fill:red;stroke-width:1;stroke:red" />
 <rect x="18" y="6" rx="1" ry="1" width="4" height="14" style="fill:black;stroke-width:1;stroke:black" /></svg></td></tr></table></td></tr>
@@ -46,9 +46,10 @@ $INCLUDE[header.inc]$
 <rect x="10" y="10" width="7" height="20" rx="2" ry="2" style="fill:rgb(0,0,0);stroke-width:1;stroke:rgb(0,0,0)" /> <rect x="23" y="10" width="7" height="20" rx="2" ry="2" style="fill:rgb(0,0,0);stroke-width:1;stroke:rgb(0,0,0)" /></svg></td>
 <td class="btnimg" onclick="Sendcommand('M50');"><svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" stroke="black" stroke-width="2" fill="white" />
 <rect x="10" y="10" width="20" height="20" rx="2" ry="2" style="fill:rgb(0,0,0);stroke-width:1;stroke:rgb(0,0,0)" /></svg></td>
-<td class="btnimg" onclick="alert('Not yet implemented');"><svg width="40" height="40" viewBox="0 0 40 40"><rect x="5" y="10" width="30" height="20" rx="2" ry="2" style="fill:rgb(0,0,0);stroke-width:1;stroke:rgb(0,0,0)" />
+<td class="btnimg" onclick="getSDfiles();"><svg width="40" height="40" viewBox="0 0 40 40"><rect x="5" y="10" width="30" height="20" rx="2" ry="2" style="fill:rgb(0,0,0);stroke-width:1;stroke:rgb(0,0,0)" />
 <rect x="20" y="5" width="15" height="15" rx="2" ry="2" style="fill:rgb(0,0,0);stroke-width:1;stroke:rgb(0,0,0)" /><text x="10" y="25" font-family="Verdana" font-size="14" fill="white">SD</text></svg></td>
-<td>&nbsp;</td></tr></table></td></tr><tr><td><table><tr align="center" valign="middle"><td class="btnimg" onclick=" Sendcommand('G28 X');">
+<td>&nbsp;&nbsp;</td>
+<td id="SDLIST"></td></tr></table></td></tr><tr><td><table><tr align="center" valign="middle"><td class="btnimg" onclick=" Sendcommand('G28 X');">
 <svg width="40" height="40" viewBox="0 0 40 40" ><polygon points="7,40 7,25 4,28 0,24 20,4 26,10 26,6 32,6 32,16 40,24 36,28 33,25 33,40" fill="black" stroke-width:"1" stroke:"black" />
 <line x1="25" y1="8" x2="33" y2="16" style="stroke:white;stroke-width:1" /><polyline points="4,28 20,12 36,28" style="fill:none;stroke:white;stroke-width:1" />
 <text x="15" y="35" font-family="Verdana" font-size="14" fill="white">X</text></svg></td><td>
@@ -294,6 +295,57 @@ xmlhttp.onreadystatechange = function() {
 if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
 var jsonresponse = JSON.parse(xmlhttp.responseText);
 dispatchstatus(jsonresponse);}
+}
+xmlhttp.open("GET", url, true);
+xmlhttp.send();
+}
+function printfile(){
+var filename = document.getElementById("sdfilelist").value;
+if (filename.length>0){
+Sendcommand("M23 " + filename);
+delay(100);
+Sendcommand("M24");}
+}
+
+function refreshfilelist(jsonresponse){
+var list2display="<table><tr><td><select class=\"form-control\"  id=\"sdfilelist\">";
+var content="";
+var i;
+for (i = 0; i < jsonresponse.length; i++){ 
+content =jsonresponse[i].entry;
+var tcontent=content.split(" ");
+if (tcontent.length==2){
+list2display+="<OPTION value=\"";
+list2display+=tcontent[0];
+list2display+="\">";
+list2display+=tcontent[0] ;
+list2display+="</OPTION>";}
+}
+list2display+="</select>";
+if ( jsonresponse.length>0){
+list2display+="</td><td>&#8667;</td><td>";
+list2display+="<div class=\"btnimg\" Onclick=\"printfile();\" ><svg width=\"40\" height=\"40\">";
+list2display+="<rect width=\"40\" height=\"40\" style=\"fill:black;\"/>";
+list2display+="<rect x=\"3\" y=\"3\" rx=\"5\" ry=\"5\" width=\"34\" height=\"34\"  style=\"fill:white;\"/>";
+list2display+="<line x1=\"0\" y1=\"15\" x2=\"15\" y2=\"15\" style=\"stroke:black;stroke-width:2\"/>";
+list2display+="<line x1=\"25\" y1=\"15\" x2=\"40\" y2=\"15\" style=\"stroke:black;stroke-width:2\"/>";
+list2display+="<polygon points=\"12,10 20,18 28,10\" style=\"fill:black;stroke-width:1\"/>";
+list2display+="<polyline points=\"20,18 25,25\" style=\"stroke:black;stroke-width:1\" />";
+list2display+="<text x=\"10\" y=\"35\" fill=\"black\">3D</text></svg></div>";}
+list2display+="</td></tr></table>";
+document.getElementById("SDLIST").innerHTML=list2display;
+}
+
+function getSDfiles(){
+document.getElementById("SDLIST").innerHTML="";
+Sendcommand("M20");
+delay(1000);
+var xmlhttp = new XMLHttpRequest();
+var url = "http://$WEB_ADDRESS$/SDFILES";
+xmlhttp.onreadystatechange = function() {
+if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+var jsonresponse = JSON.parse(xmlhttp.responseText);
+refreshfilelist(jsonresponse);}
 }
 xmlhttp.open("GET", url, true);
 xmlhttp.send();

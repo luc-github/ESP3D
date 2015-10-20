@@ -22,20 +22,15 @@ $CHANNEL_OPTION_LIST$
 $AUTH_OPTION_LIST$
 </select></div>
 <script  type="text/javascript">
-function update_ip_set()
-{
-	if (document.getElementById("STATIC_IP").checked)
-		{
-			document.getElementById("IP_SET").style.visibility="visible";
-			document.getElementById("IP_SET").style.width="auto";
-			document.getElementById("IP_SET").style.height="auto";
-		}
-	else
-		{
-			document.getElementById("IP_SET").style.visibility="hidden";
-			document.getElementById("IP_SET").style.width="0px";
-			document.getElementById("IP_SET").style.height="0px";
-		}
+function update_ip_set(){
+if (document.getElementById("STATIC_IP").checked){
+document.getElementById("IP_SET").style.visibility="visible";
+document.getElementById("IP_SET").style.width="auto";
+document.getElementById("IP_SET").style.height="auto";}
+else{
+document.getElementById("IP_SET").style.visibility="hidden";
+document.getElementById("IP_SET").style.width="0px";
+document.getElementById("IP_SET").style.height="0px";}
 }
 </script>
 <div class="checkbox $AP_STATIC_IP_STATUS$"><label class="control-label"><input type="checkbox"  id="STATIC_IP" name="STATIC_IP"  onclick="update_ip_set();" $IS_STATIC_IP$>Static IP</label></div>
@@ -60,5 +55,8 @@ $SUCCESS_MSG$
 <script  type="text/javascript">
 update_ip_set();
 </script>
-$INCLUDE[footer.inc]$
+$SERVICE_PAGE$
+</body>
+</html>
+
 

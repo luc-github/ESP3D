@@ -21,26 +21,20 @@ $INCLUDE[header.inc]$
 $NETWORK_OPTION_LIST$
 </select></div>
 <script  type="text/javascript">
-function update_ip_set()
-{
-	if (document.getElementById("STATIC_IP").checked)
-		{
-			document.getElementById("IP_SET").style.visibility="visible";
-			document.getElementById("IP_SET").style.width="auto";
-			document.getElementById("IP_SET").style.height="auto";
-		}
-	else
-		{
-			document.getElementById("IP_SET").style.visibility="hidden";
-			document.getElementById("IP_SET").style.width="0px";
-			document.getElementById("IP_SET").style.height="0px";
-		}
+function update_ip_set(){
+if (document.getElementById("STATIC_IP").checked){
+document.getElementById("IP_SET").style.visibility="visible";
+document.getElementById("IP_SET").style.width="auto";
+document.getElementById("IP_SET").style.height="auto";}
+else{
+document.getElementById("IP_SET").style.visibility="hidden";
+document.getElementById("IP_SET").style.width="0px";
+document.getElementById("IP_SET").style.height="0px";}
 }
 </script>
 <div class="checkbox $STA_STATIC_IP_STATUS$"><label class="control-label">
 <input type="checkbox" id="STATIC_IP" name="STATIC_IP" onclick="update_ip_set();" $IS_STATIC_IP$ >Static IP
-</label>
-</div>
+</label></div>
 <div id="IP_SET" name="IP_SET">
 <div class="form-group $STA_IP_STATUS$"><label class="control-label" for="CONFIG4">IP: </label><br>
 <input type="text" class="form-control" id="CONFIG4" name="IP" placeholder="IP" value="$STA_IP$" max="15" style="width: auto;"></div>
@@ -50,16 +44,13 @@ function update_ip_set()
 <input type="text" class="form-control" id="CONFIG6" name="SUBNET" placeholder="Subnet" value="$STA_SUBNET$" max="15"  style="width: auto;"></div>
 </div>
 <div class="alert alert-danger" role="alert" style="$ERROR_MSG_VISIBILITY$" >
-$ERROR_MSG$
-</div>
+$ERROR_MSG$</div>
 <hr><input style="$SUBMIT_BUTTON_VISIBILITY$" type="submit" class="btn btn-primary" name="SUBMIT" value="Apply">
 </form>
 <div class="alert alert-success" role="alert" style="$SUCCESS_MSG_VISIBILITY$" >
-$SUCCESS_MSG$
-</div>
-</div>
-</div>
-<script  type="text/javascript">
-update_ip_set();
-</script>
-$INCLUDE[footer.inc]$
+$SUCCESS_MSG$</div></div></div>
+<script  type="text/javascript">update_ip_set();</script>
+$SERVICE_PAGE$
+</body>
+</html>
+

@@ -41,7 +41,7 @@ content +="<TR><TD style=\"cursor:hand;\"  onclick=\"window.open('"+jsonresponse
 content +=jsonresponse.files[i].name;
 content +="</TD><TD>";
 content +=jsonresponse.files[i].size;
-content +="</TD><TD width='0%'><div style=\"cursor:hand; background:red; color:white;border-radius:12px ;\" onclick=\"Delete('"+jsonresponse.files[i].name+"')\">&nbsp;&#215;&nbsp;";
+content +="</TD><TD width='0%'><div style=\"cursor:hand; background:red; color:white;border-radius:12px ;\" onclick=\"Delete('"+jsonresponse.files[i].name+"')\">&nbsp;&#215;&nbsp;"; 
 content +="</div></TD></TR>";
 }
  document.getElementById('file_list').innerHTML=content;}

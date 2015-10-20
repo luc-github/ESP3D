@@ -27,4 +27,7 @@ $SUCCESS_MSG$
 </div>
 </div>
 </div>
-$INCLUDE[footer.inc]$
+$SERVICE_PAGE$
+</body>
+</html>
+
