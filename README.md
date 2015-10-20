@@ -62,11 +62,19 @@ Data port: 8888
 Web Page refresh: 3 secondes    
 
 These are the pages defined using template:    
-<img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Page1.png><br> 
+Home page :     
+<img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Page1.png><br>
+System Configuration Page:     
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Page2.png><br>     
+Access Point Configuation Page:    
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Page3.png><br>     
+Client Configuration Page:     
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Page4.png><br>     
+Printer Status Page for 64K SPIFFS, due to limited space available no fancy:     
+<img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Page5-2.png><br>    
+Printer Status Page for more than 64K SPIFFS, fancy one:     
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/page5.png><br>     
+Extra Settings Page, for web UI and for printer:     
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Page6.png><br>     
 the template files are stored on SPIFFS:    
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/files.png><br>
