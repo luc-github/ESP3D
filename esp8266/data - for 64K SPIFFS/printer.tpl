@@ -14,12 +14,12 @@ $INCLUDE[header.inc]$
 <table><tr><td>Bed:</td><td id="data_bed"></td>
 <td><input class="form-control" id="numberinputbed"type="number" min=0 max=270 step=1 value=0></td><td>&#176;C
 <input type="submit" value="Set" onclick="SendValue( 'M140 S', 'bed');"></td></tr></table></div></td></tr>
-<tr><td id="speed"><table><tr>
-<td>Speed:</td><td class="text-info" id="currentspeed"></td>
+<tr ><td id="speed"><table><tr>
+<td style="height:30px;">Speed:</td><td class="text-info" id="currentspeed"></td>
 <td><input class="form-control" id="numberinputspeed" type="number" size="3" min=0 max=300 step=1 value=0></td><td>%
 <input type="submit" value="Set" onclick="SendValue( 'M220 S', 'speed');"></td>
 <td>&nbsp;&nbsp;</td><td>Status:</td><td id="status">&#9711;</td>
-<td id="status-text"></td><td>&nbsp;&nbsp;</td><td class="btnimg" style="color:#ffffff;background-color:#d9534f;border:1px solid #d43f3a;" onclick="OnclickEmergency();">Emergency</td></tr></table></td></tr>
+<td tyle="width:100px;"  id="status-text"></td><td>&nbsp;&nbsp;</td><td class="btnimg" style="color:#ffffff;background-color:#d9534f;border:1px solid #d43f3a;" onclick="OnclickEmergency();">Emergency</td></tr></table></td></tr>
 <tr><td id="flow"><table><tr><td>Flow:</td><td class="text-info" id="currentflow"></td>
 <td><input class="form-control" id="numberinputflow" size="3" type="number" min=0 max=300 step=1 value=0 ></td><td>%
 <input type="submit" value="Set" onclick="SendValue( 'M221 S', 'flow');"></td><td>&nbsp;&nbsp;</td>
