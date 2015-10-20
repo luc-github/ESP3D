@@ -10,7 +10,7 @@ Thanks to @lkarlslund for suggestion about independant reset using GPIO2
 Have a bridge configurable by web (implemented) and optionally by printer (not yet implemented)  
 Have a front end to know what is the wifi status (implemented) or know what is the print status (not yet implemented) - this part can be optional and removed by compilation directive if no need    
 
-Should be compatible with reprap printer (Marlin FW/Repetier FW)       
+Should be compatible with reprap printer (Marlin FW/Repetier FW)  as soon as you can make both serial to communicate.     
 
 ##Hardware connection       
 --Use GPIO2 to ground to reset all settings in hard way - 2-6 sec after boot / not before!! Set GPIO2 to ground before boot change boot mode and go to special boot that do not reach FW. Currently boot take 10 sec - giving 8 seconds to connect GPIO2 to GND and do an hard recovery for settings   
@@ -34,6 +34,8 @@ Additionnaly:
 
 *Connection
 --Connect GPIO0 to ground to be in update mode
+
+<H3>Do not flash Printer fw with ESP connected - it bring troubles, at least on DaVinci     </H3>
 
 ##Web configuration      
 *Wifi Mode : Access point / Client station  
@@ -88,39 +90,40 @@ Additionally 404.tpl (the page not found) and restart.tpl(restart page when appl
 Currently, I tested on ESP01 using 64K SPIFFS ( please use data directory content accordingly due to space limitation) and NodeMCU 1.0 1M SPIFFS.     
 
 ##Protocol for discovery   
-*mDNS : on Station mode only with bonjour installed on computer   
-*SSDP : on Station and AP mode   
-*DNS Server / Captive portal : on AP mode only (not yet functionnal)    
+*mDNS : on Station mode only with bonjour installed on computer (done)  
+*SSDP : on Station and AP mode (done)    
+*Captive portal : on AP mode only (not yet functionnal)    
 
-##Commands/msg from/to serial(not yet implemented):    
-*from module to printer   [Need Printer FW support and can be disabled in ESP FW]    
+##Commands/msg from/to serial(not fully implemented):    
+*from module to printer by serial communication   
     -M117 [Message], Error/status message from module (done)     
     -Send Wifi settings [AP/STATION,SSID,DHC/STATIC,IP,MASK,GW,STATUS,MAC ADDRESSS, BAUD?], ]Module configuration without password    
         
-*from host to printer   (not fully yet implemented) [Need Printer FW support] on port 8888    
-    -M800 [IP, AP,SSID, Password....], ]Module configuration settings to be used  by module    
-    -M801 query to get wifi informations    
-    - bridge is implemented from TCP/IP to Serial and vice-versa
+*from host to printer on port 8888  (implemented) 
+    - bridge from TCP/IP to Serial and vice-versa (done)   
           
-*from printer to module   (Need Printer FW support and can be disabled in ESP FW)   (not fully yet implemented)  
-    -request configuration/status   (done)       
-    -set AP/STATION,SSID,PASSSWORD,DHC/STATIC,IP,MASK,GW,BAUD from serial    
+*from printer/host to module  (not fully implemented)  
+    -request configuration/status      
+    -set AP/STATION,SSID,PASSSWORD,DHC/STATIC,IP,MASK,GW,BAUD from serial 
+    -reset module from host/printer: [ESP888]RESTART (done)
+    -Get IP (only printer see answer): [ESP111]M117 (done) 
  
-##Front End (basic implemented)  [need Printer FW support it] or just display module status 
+##Front End (implemented)
 --Display printer status (done)   
 --Display temperatures (done)    
 --Display positions/flow/speed (done)    
 --Display print progress if any (done)   
---List SDCard Content   
---Launch a Print
+--List SDCard Content (done)   
+--Launch a Print (done)    
 --Stop/Pause a Print (done)   
 --Emergency Stop (done)   
 --Jog control / custom commands (done)     
  
-##TODO      
--- do testing     
---SD Card management    
---Printer EEPROM management    
+##TODO   
+-- Close open topics    
+-- Do testing (a lot)    
+-- UI Improvement    
+--<s>Printer EEPROM management</s>    (Canceled/Postponed for next stage)
 
 
 
