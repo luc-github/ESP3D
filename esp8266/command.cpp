@@ -36,9 +36,31 @@ void COMMAND::execute_command(int cmd,String cmd_params)
 	
 	switch(cmd)
     {
+		byte mode;
 		case 800:
 			Serial.println("\nCommand received");
 		break;
+		case 100:
+			if(!CONFIG::write_string(EP_SSID,cmd_params.c_str()))Serial.println("\nError");
+			else Serial.println("\nOk");
+			break;
+		case 101:
+			if(!CONFIG::write_string(EP_PASSWORD,cmd_params.c_str()))Serial.println("\nError");
+			else Serial.println("\nOk");
+			break;
+		case 103:
+
+			if (cmd_params=="STA")mode = CLIENT_MODE;
+			else mode=AP_MODE;
+			if(!CONFIG::write_byte(EP_WIFI_MODE,mode))Serial.println("\nError");
+			else Serial.println("\nOk");
+			break;
+		case 104:
+			if (cmd_params=="STATIC")mode = STATIC_IP_MODE;
+			else mode=DHCP_MODE;
+			if(!CONFIG::write_byte(EP_IP_MODE,mode))Serial.println("\nError");
+			else Serial.println("\nOk");
+			break;
 		case 111:
 			{
 			String currentIP ;
