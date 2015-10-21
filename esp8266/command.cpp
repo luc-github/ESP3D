@@ -20,6 +20,7 @@
 
 #include "command.h"
 #include "config.h"
+#include "wifi.h"
 #include "webinterface.h"
 extern "C" {
 #include "user_interface.h"
@@ -48,6 +49,21 @@ void COMMAND::execute_command(int cmd,String cmd_params)
 			Serial.println(currentIP);
 			Serial.print("\r\n");
 			}
+		break;
+		case 444:
+			if (cmd_params=="RESET")
+				{
+				CONFIG::reset_config();
+				web_interface->restartmodule=true;
+				}
+			if (cmd_params=="SAFEMODE")
+				{
+				wifi_config.Safe_Setup();
+				}
+			if (cmd_params=="CONFIG")
+				{
+				CONFIG::print_config();
+				}
 		break;
 		case 888:
 			if (cmd_params=="RESTART")

@@ -159,7 +159,6 @@ bool CONFIG::reset_config()
   if(!CONFIG::write_buffer(EP_XY_FEEDRATE,(const byte *)&DEFAULT_XY_FEEDRATE,INTEGER_LENGTH))return false;
   if(!CONFIG::write_buffer(EP_Z_FEEDRATE,(const byte *)&DEFAULT_Z_FEEDRATE,INTEGER_LENGTH))return false;
   if(!CONFIG::write_buffer(EP_E_FEEDRATE,(const byte *)&DEFAULT_E_FEEDRATE,INTEGER_LENGTH))return false;
-
   return true;
 }
 
@@ -171,7 +170,7 @@ void CONFIG::print_config()
   int ibuf=0;
   if (CONFIG::read_byte(EP_WIFI_MODE, &bbuf ))Serial.println(byte(bbuf));
   if (CONFIG::read_string(EP_SSID, sbuf , MAX_SSID_LENGTH))Serial.println(sbuf);
-  if (CONFIG::read_string(EP_PASSWORD, sbuf , MAX_PASSWORD_LENGTH))Serial.println(sbuf);
+  //if (CONFIG::read_string(EP_PASSWORD, sbuf , MAX_PASSWORD_LENGTH))Serial.println(sbuf);
   if (CONFIG::read_byte(EP_IP_MODE, &bbuf ))Serial.println(byte(bbuf));
   if (CONFIG::read_buffer(EP_IP_VALUE,(byte *)sbuf , IP_LENGTH))Serial.println(wifi_config.ip2str((byte *)sbuf));
   if (CONFIG::read_buffer(EP_MASK_VALUE, (byte *)sbuf  , IP_LENGTH))Serial.println(wifi_config.ip2str((byte *)sbuf));
@@ -189,5 +188,4 @@ void CONFIG::print_config()
   if (CONFIG::read_buffer(EP_XY_FEEDRATE,  (byte *)&ibuf , INTEGER_LENGTH))Serial.println(ibuf);
   if (CONFIG::read_buffer(EP_Z_FEEDRATE,  (byte *)&ibuf , INTEGER_LENGTH))Serial.println(ibuf);
   if (CONFIG::read_buffer(EP_E_FEEDRATE,  (byte *)&ibuf , INTEGER_LENGTH))Serial.println(ibuf);
-  
 } 

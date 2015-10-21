@@ -28,6 +28,10 @@
 extern "C" {
 #include "user_interface.h"
 }
+#ifdef CAPTIVE_PORTAL_FEATURE
+#include <DNSServer.h>
+extern DNSServer dnsServer;
+#endif
 
 const char * WIFI_CONFIG::get_hostname(){
 	if (WiFi.hostname().length()==0)
@@ -105,20 +109,23 @@ char * WIFI_CONFIG::ip2str(IPAddress Ip )
 
 void  WIFI_CONFIG::Safe_Setup()
 {
-	  WiFi.disconnect();
-	  //setup Soft AP
-	  WiFi.mode(WIFI_AP);
-      IPAddress local_ip (DEFAULT_IP_VALUE[0],DEFAULT_IP_VALUE[1],DEFAULT_IP_VALUE[2],DEFAULT_IP_VALUE[3]);
-      IPAddress gateway (DEFAULT_GATEWAY_VALUE[0],DEFAULT_GATEWAY_VALUE[1],DEFAULT_GATEWAY_VALUE[2],DEFAULT_GATEWAY_VALUE[3]);
-      IPAddress subnet (DEFAULT_MASK_VALUE[0],DEFAULT_MASK_VALUE[1],DEFAULT_MASK_VALUE[2],DEFAULT_MASK_VALUE[3]);
-      String ssid = FPSTR(DEFAULT_SSID);
-      String pwd = FPSTR(DEFAULT_PASSWORD);
-      WiFi.softAP(ssid.c_str(),pwd.c_str());
-      delay(500);
-	  wifi_set_phy_mode(PHY_MODE_11B);
-	  WiFi.softAPConfig( local_ip,  gateway,  subnet);
-	  Serial.println(F("M117 Safe mode started"));
-	  delay(1000);
+		#ifdef CAPTIVE_PORTAL_FEATURE
+		dnsServer.stop();
+		delay(100);
+		#endif
+		WiFi.disconnect();
+		//setup Soft AP
+		WiFi.mode(WIFI_AP);
+		IPAddress local_ip (DEFAULT_IP_VALUE[0],DEFAULT_IP_VALUE[1],DEFAULT_IP_VALUE[2],DEFAULT_IP_VALUE[3]);
+		IPAddress gateway (DEFAULT_GATEWAY_VALUE[0],DEFAULT_GATEWAY_VALUE[1],DEFAULT_GATEWAY_VALUE[2],DEFAULT_GATEWAY_VALUE[3]);
+		IPAddress subnet (DEFAULT_MASK_VALUE[0],DEFAULT_MASK_VALUE[1],DEFAULT_MASK_VALUE[2],DEFAULT_MASK_VALUE[3]);
+		String ssid = FPSTR(DEFAULT_SSID);
+		String pwd = FPSTR(DEFAULT_PASSWORD);
+		WiFi.softAP(ssid.c_str(),pwd.c_str());
+		delay(500);
+		WiFi.softAPConfig( local_ip,  gateway,  subnet);
+		delay(1000);
+		Serial.println(F("M117 Safe mode started"));
 }
 
 //Read configuration settings and apply them

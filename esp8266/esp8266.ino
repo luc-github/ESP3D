@@ -57,6 +57,8 @@ WiFiClient serverClients[MAX_SRV_CLIENTS];
 
 void setup() {
   // init :
+   web_interface = NULL;
+  data_server = NULL;
  // ESP.wdtDisable();
   system_update_cpu_freq(SYS_CPU_160MHZ);
   delay(8000);

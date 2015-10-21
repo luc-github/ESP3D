@@ -27,7 +27,7 @@
 #define SSDP_FEATURE
 
 //CAPTIVE_PORTAL_FEATURE: In SoftAP redirect all unknow call to main page
-//#define CAPTIVE_PORTAL_FEATURE
+#define CAPTIVE_PORTAL_FEATURE
 
 #ifndef CONFIG_h
 #define CONFIG_h
