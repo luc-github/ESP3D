@@ -105,8 +105,11 @@ Currently, I tested on ESP01 using 64K SPIFFS ( please use data directory conten
 *from printer/host to module  (not fully implemented)  
     -request configuration/status      
     -set AP/STATION,SSID,PASSSWORD,DHC/STATIC,IP,MASK,GW,BAUD from serial 
-    -reset module from host/printer: [ESP888]RESTART (done)
+    -restart module from host/printer: [ESP888]RESTART (done)
     -Get IP (only printer see answer): [ESP111]M117 (done) 
+    -reset EEPROM and restart: [ESP444]RESET
+    -display EEPROM content: [ESP444]CONFIG
+    -go to safe mode without restart: [ESP444]SAFEMODE
  
 ##Front End (implemented)
 --Display printer status (done)   
