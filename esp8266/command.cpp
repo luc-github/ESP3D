@@ -76,7 +76,6 @@ void COMMAND::execute_command(int cmd,String cmd_params)
 			if (cmd_params=="RESET")
 				{
 				CONFIG::reset_config();
-				web_interface->restartmodule=true;
 				}
 			if (cmd_params=="SAFEMODE")
 				{

@@ -62,7 +62,6 @@ void setup() {
  // ESP.wdtDisable();
   system_update_cpu_freq(SYS_CPU_160MHZ);
   delay(8000);
-  EEPROM.begin(EEPROM_SIZE);
   bool breset_config=false;
   //check if reset config is requested
   pinMode(RESET_CONFIG_PIN, INPUT);
