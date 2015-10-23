@@ -50,8 +50,5 @@ $INCLUDE[header.inc]$
 </div>
 </div>
 </div>
-$SERVICE_PAGE$
-</body>
-</html>
-
+$INCLUDE[footer.inc]$
 

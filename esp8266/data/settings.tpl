@@ -35,13 +35,18 @@ $SUCCESS_MSG$
 function dispatchstatus(jsonresponse)
 {
 var content ="";
-document.getElementById('status').innerHTML=jsonresponse.status;
+content ="Status: "+jsonresponse.status;
+content +="&nbsp;&nbsp;Total space: "+jsonresponse.total;
+content +="&nbsp;&nbsp;Used space: "+jsonresponse.used;
+content +="&nbsp;&nbsp;Occupation: "+jsonresponse.occupation;
+document.getElementById('status').innerHTML=content;
+content ="";
 for (var i=0;i <jsonresponse.files.length;i++){
 content +="<TR><TD style=\"cursor:hand;\"  onclick=\"window.open('"+jsonresponse.files[i].name+"');\">";
 content +=jsonresponse.files[i].name;
 content +="</TD><TD>";
 content +=jsonresponse.files[i].size;
-content +="</TD><TD width='0%'><div style=\"cursor:hand; background:red; color:white;border-radius:12px ;\" onclick=\"Delete('"+jsonresponse.files[i].name+"')\">&nbsp;&#215;&nbsp;"; 
+content +="</TD><TD width='0%'><div style=\"cursor:hand; background:red; color:white;border-radius:12px ;\" onclick=\"Delete('"+jsonresponse.files[i].name+"')\">&nbsp;&#215;&nbsp;";
 content +="</div></TD></TR>";
 }
  document.getElementById('file_list').innerHTML=content;}
