@@ -35,7 +35,12 @@ $SUCCESS_MSG$
 function dispatchstatus(jsonresponse)
 {
 var content ="";
-document.getElementById('status').innerHTML=jsonresponse.status;
+content ="Status: "+jsonresponse.status;
+content +="&nbsp;&nbsp;Total space: "+jsonresponse.total;
+content +="&nbsp;&nbsp;Used space: "+jsonresponse.used;
+content +="&nbsp;&nbsp;Occupation: "+jsonresponse.occupation;
+document.getElementById('status').innerHTML=content;
+content ="";
 for (var i=0;i <jsonresponse.files.length;i++){
 content +="<TR><TD style=\"cursor:hand;\"  onclick=\"window.open('"+jsonresponse.files[i].name+"');\">";
 content +=jsonresponse.files[i].name;

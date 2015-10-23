@@ -2394,7 +2394,15 @@ void handleFileList() {
 		f.close();
 		}	
 	jsonfile+="],";
-	jsonfile+="\"status\":\"" + status + "\"";
+	jsonfile+="\"status\":\"" + status + "\",";
+	uint32_t total;
+	uint32_t  used;
+	SPIFFS.info(&total,&used);
+	jsonfile+="\"total\":\"" + formatBytes(total) + "\",";
+	jsonfile+="\"used\":\"" + formatBytes(used) + "\",";
+	jsonfile+="\"occupation\":\"" ;
+	jsonfile+= intTostr(100*used/total);
+	jsonfile+="%\"";
 	jsonfile+="}";
 	path = "";
 	web_interface->WebServer.send(200, "application/json", jsonfile);
