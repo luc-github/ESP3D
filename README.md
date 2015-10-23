@@ -23,7 +23,12 @@ If you use an ESP with more than 512K flsah please use master.
 --Use GPIO2 to ground to reset all settings in hard way - 2-6 sec after boot / not before!! Set GPIO2 to ground before boot change boot mode and go to special boot that do not reach FW. Currently boot take 10 sec - giving 8 seconds to connect GPIO2 to GND and do an hard recovery for settings   
 --Use GPIO0 to ground to be in update mode   
 --Use a switch to reset/disable module    
+For ESP01:
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Wires.png><br>   
+
+For ESP12E:    
+<img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/WiresESP12E.png><br>
+<br>
 For Davinci Board:<BR>
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/davinci.png><br> 
 
