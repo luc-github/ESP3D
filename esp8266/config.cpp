@@ -333,7 +333,7 @@ Serial.print("SSDP : ");
 	Serial.println("Disabled");
 #endif
 Serial.print("mDNS : ");
-#ifdef MDNS
+#ifdef MDNS_FEATURE
     Serial.println("Enabled");
  #else
 	Serial.println("Disabled");
