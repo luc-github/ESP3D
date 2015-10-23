@@ -4,24 +4,24 @@ $INCLUDE[header.inc]$
 <table><tr><td><label>E1:&nbsp;</label></td>
 <td id="data_extruder1"></td><td>0<input id="rangeinput1" type="range" min=0 max=270 onchange="Updatenumber('1');">270</td>
 <td><input class="form-control" id="numberinput1" type="number" min=0 max=270 step=1 value=0 onchange="Updaterange('1');"></td><td> &#176;C
-<td><input type="submit" value="Set" onclick="SendValue( 'M104 T0 S', '1');"></td></tr></table></div></td></tr>
+<td><input type="button" class="btn btn-primary" value="Set" onclick="SendValue( 'M104 T0 S', '1');"></td></tr></table></div></td></tr>
 <tr ><td style="padding:0px;"><div id="Extruder2" style="visibility:hidden;height:0px;">
 <table><tr><td><label>E2:&nbsp;</label></td>
 <td id="data_extruder2"></td><td>0<input id="rangeinput2" type="range" min=0 max=270 onchange="Updatenumber('2');">270</td>
 <td><input class="form-control" id="numberinput2" type="number" min=0 max=270 step=1 value=0 onchange="Updaterange('2');"></td><td>&#176;C
-<input type="submit" value="Set" onclick="SendValue( 'M104 T1 S', '2');">
+<input type="button" class="btn btn-primary" value="Set" onclick="SendValue( 'M104 T1 S', '2');">
 </td></tr></table></div></td></tr>
 <tr><td style="padding:0px;"><div id="Bed" style="visibility:hidden;height:0px;">
 <table><tr><td><label>Bed:</label></td>
 <td id="data_bed"></td><td>0<input id="rangeinputbed" type="range" min=0 max=130 onchange="Updatenumber('bed');">130</td>
 <td><input class="form-control" id="numberinputbed"type="number" min=0 max=270 step=1 value=0 onchange="Updaterange('bed');"></td><td>&#176;C
-<input type="submit" value="Set" onclick="SendValue( 'M140 S', 'bed');">
+<input type="button" class="btn btn-primary" value="Set" onclick="SendValue( 'M140 S', 'bed');">
 </td></tr></table></div></td></tr>
 <tr><td id="speed"><table><tr>
 <td><label>Speed:</label></td><td class="text-info" id="currentspeed"></td>
 <td>0<input id="rangeinputspeed" type="range" min=0 max=300 onchange="Updatenumber('speed');">300</td>
 <td><input class="form-control" id="numberinputspeed" type="number" size="3" min=0 max=300 step=1 value=0 onchange="Updaterange('speed');"></td><td>%
-<input type="submit" value="Set" onclick="SendValue( 'M220 S', 'speed');"></td>
+<input type="button" class="btn btn-primary" class="btn btn-primary" value="Set" onclick="SendValue( 'M220 S', 'speed');"></td>
 <td>&nbsp;&nbsp;</td><td>Status:</td><td id="status" align="center" valign="middle">
 <svg width="20" height="20"><circle cx="10" cy="10" r="8" stroke="black" stroke-width="2" fill="white"></circle></svg></td>
 <td id="status-text" style="width:100px;"></td><td>&nbsp;&nbsp;</td><td class="btnimg" onclick="OnclickEmergency();">
@@ -31,12 +31,12 @@ $INCLUDE[header.inc]$
 <tr><td id="flow"><table><tr><td><label>Flow:</label></td><td class="text-info" id="currentflow"></td>
 <td>0<input id="rangeinputflow" type="range" min=0 max=300 onchange="Updatenumber('flow');">300</td>
 <td><input class="form-control" id="numberinputflow" size="3" type="number" min=0 max=300 step=1 value=0 onchange="Updaterange('flow');"></td><td>%
-<input type="submit" value="Set" onclick="SendValue( 'M221 S', 'flow');"></td><td>&nbsp;&nbsp;</td>
+<input type="button" class="btn btn-primary" value="Set" onclick="SendValue( 'M221 S', 'flow');"></td><td>&nbsp;&nbsp;</td>
 <td><label>X:</label></td><td class="text-info" id="posx"></td><td>&nbsp;&nbsp;</td><td><label>Y:</label></td><td class="text-info" id="posy"></td><td>&nbsp;&nbsp;</td>
 <td><label>Z:</label></td><td class="text-info" id="posz" ></td></tr></table></td></tr>
 <tr><td><table width="100%"><tr><td width="auto"><label>Command:</label></td>
 <td width="100%"><input class="form-control" id="cmd" type="text" style="width: 100%;"></td>
-<td width="auto"><input type="submit" value="Send" onclick="Sendcustomcommand();"></td></tr></table></td></tr>
+<td width="auto"><input type="button" class="btn btn-primary" value="Send" onclick="Sendcustomcommand();"></td></tr></table></td></tr>
 <tr><td><hr></td></tr><tr><td><table><tr><td><label>Info:</label></td><td width=100% id="infomsg" class="text-info"></td></tr></table></tr>
 <tr><td><hr></td></tr><tr><td><table><tr><td><label>Error:</label></td><td width=100% id="errormsg" class="text-info"></td></tr></table></tr>
 <tr><td><hr></td></tr><tr><td><table><tr><td><label>Status:</label></td><td width=100% id="statusmsg" class="text-info"></td></tr></table></tr>
