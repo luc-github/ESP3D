@@ -10,7 +10,11 @@ Thanks to @lkarlslund for suggestion about independant reset using GPIO2
 Have a bridge configurable by web (implemented) and optionally by printer (not yet implemented)  
 Have a front end to know what is the wifi status (implemented) or know what is the print status (not yet implemented) - this part can be optional and removed by compilation directive if no need    
 
-Should be compatible with reprap printer (Marlin FW/Repetier FW)  as soon as you can make both serial to communicate.     
+Should be compatible with reprap printer (Marlin FW/Repetier FW)  as soon as you can make both serial to communicate. 
+
+current release is v0.4-beta.1: https://github.com/luc-github/ESP8266/releases/tag/v0.4-beta.1, need to use at least staging version 1.6.5-1160-gef26c5f
+
+master may not work unless you use the latest code of https://github.com/esp8266/arduino due to delay between PR integration in staging/stable versions
 
 ##Hardware connection       
 --Use GPIO2 to ground to reset all settings in hard way - 2-6 sec after boot / not before!! Set GPIO2 to ground before boot change boot mode and go to special boot that do not reach FW. Currently boot take 10 sec - giving 8 seconds to connect GPIO2 to GND and do an hard recovery for settings   
