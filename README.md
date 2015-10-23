@@ -42,7 +42,9 @@ Additionnaly:
 
 ##Flash the Module    
 *Tools:      
---Use IDE to upload directly  (latest version of board manager module generate one binary)    
+--Use IDE to upload directly  (latest version of board manager module generate one binary)     
+-- to flash the htm files present in data directory you need to use another tool, installation and usage is explained here:  http://arduino.esp8266.com/versions/1.6.5-1160-gef26c5f/doc/reference.html#file-system   
+
 
 *Connection
 --Connect GPIO0 to ground to be in update mode
