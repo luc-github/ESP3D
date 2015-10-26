@@ -9,6 +9,8 @@ background-image:none;border:1px solid transparent;white-space:nowrap;padding:6p
 input[type="file"]::-webkit-file-upload-button:hover{display:inline-block;margin-bottom:0;font-weight:normal;text-align:center;vertical-align:middle;-ms-touch-action:manipulation;  touch-action:manipulation;cursor:pointer;
 background-image:none;border:1px solid transparent;white-space:nowrap;padding:6px 12px;font-size:14px;line-height:1.42857143;border-radius:4px;
 * -webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none; color: #ffffff;background-color: #31b0d5;border-color: #269abc;}
+.filelink {color:#000000;}
+.filelink:hover, .filelink:focus {color:#0094FF;}
 </STYLE>
 <div class="panel">
 <div class="panel-heading">Extra Settings</div>
@@ -53,9 +55,9 @@ content +="&nbsp;&nbsp;Occupation: "+jsonresponse.occupation;
 document.getElementById('status').innerHTML=content;
 content ="";
 for (var i=0;i <jsonresponse.files.length;i++){
-content +="<TR><TD style=\"cursor:hand;\"  onclick=\"window.open('"+jsonresponse.files[i].name+"');\">";
+content +="<TR><TD style=\"padding:0px;\"><a href=\""+jsonresponse.files[i].name+"\" target=_blank><div class=\"filelink\">";
 content +=jsonresponse.files[i].name;
-content +="</TD><TD>";
+content +="</div></a></TD><TD>";
 content +=jsonresponse.files[i].size;
 content +="</TD><TD width='0%'><div style=\"cursor:hand; background:red; color:white;border-radius:12px ;\" onclick=\"Delete('"+jsonresponse.files[i].name+"')\">&nbsp;&#215;&nbsp;";
 content +="</div></TD></TR>";
