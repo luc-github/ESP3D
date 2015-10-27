@@ -57,7 +57,7 @@ content ="&nbsp;&nbsp;Status: "+jsonresponse.status;
 content +="&nbsp;&nbsp;|&nbsp;&nbsp;Total space: "+jsonresponse.total;
 content +="&nbsp;&nbsp;|&nbsp;&nbsp;Used space: "+jsonresponse.used;
 content +="&nbsp;&nbsp;|&nbsp;&nbsp;Occupation: ";
-content +="<meter min='0' max='100' high='90' value='"+jsonresponse.occupation +"'></meter>"+jsonresponse.occupation +"%";
+content +="<meter min='0' max='100' high='90' value='"+jsonresponse.occupation +"'></meter>&nbsp;"+jsonresponse.occupation +"%";
 document.getElementById('status').innerHTML=content;
 content ="";
 for (var i=0;i <jsonresponse.files.length;i++){
