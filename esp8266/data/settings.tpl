@@ -59,8 +59,9 @@ content +="<TR><TD style=\"padding:0px;\"><a href=\""+jsonresponse.files[i].name
 content +=jsonresponse.files[i].name;
 content +="</div></a></TD><TD>";
 content +=jsonresponse.files[i].size;
-content +="</TD><TD width='0%'><div style=\"cursor:hand;\" onclick=\"Delete('"+jsonresponse.files[i].name+"')\">";
-content +="<svg height=\"20\" width=\"20\" viewBox=\"0 0 40 40\"><circle cx=\"20\" cy=\"20\" r=\"17\" stroke=\"black\" stroke-width=\"1\" fill=\"red\" />";
+content +="</TD><TD width='0%'><div class=\"btnimg\" onclick=\"Delete('"+jsonresponse.files[i].name+"')\">";
+content +="<svg height=\"20\" width=\"20\" viewBox=\"0 0 40 40\" >";
+content +="<circle cx=\"20\" cy=\"20\" r=\"17\" stroke=\"black\" stroke-width=\"1\" fill=\"red\" />";
 content +="<line x1=\"11\" y1=\"11\" x2=\"29\" y2=\"29\" style=\"stroke:white;stroke-width:6\" /><line x1=\"29\" y1=\"11\" x2=\"11\" y2=\"29\" style=\"stroke:white;stroke-width:6\" /></svg> ";
 content +="</div></TD></TR>";
 }
