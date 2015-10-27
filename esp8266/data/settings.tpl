@@ -11,6 +11,7 @@ background-image:none;border:1px solid transparent;white-space:nowrap;padding:6p
 * -webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none; color: #ffffff;background-color: #31b0d5;border-color: #269abc;}
 .filelink {color:#000000;}
 .filelink:hover, .filelink:focus {color:#0094FF;}
+.panel-footer{padding:10px 15px;color:#31708f;background-color:#f5f5f5;border-color:#dddddd;border-top:1px solid #dddddd;}
 </STYLE>
 <div class="panel">
 <div class="panel-heading">Extra Settings</div>
@@ -40,18 +41,22 @@ $SUCCESS_MSG$
 <div class="panel-body">
 <input type="file" id="file-select" name="myfiles[]" multiple />
 <input class="btn btn-primary" type="button" id="upload-button" onclick="Sendfile();" value="Upload"/>&nbsp;&nbsp;<progress style="visibility:hidden;" name='prg' id='prg'></progress>
-<table class="table table-striped" style="border:1px;solid #dddddd;margin-bottom:20px;" ><thead><tr><th>Name</th><th>size</th><th width='0%'></th></tr></thead><tbody id="file_list"><tbody></table>
-<label class="text-info" id="status"></label>
+<br><br><div class="panel">
+<div class="panel-body">
+<table class="table table-striped" style="border:1px;solid #dddddd;margin-bottom:20px;" ><thead><tr><th>Name</th><th>size</th><th width='0%'></th><th width='100%'></th></tr></thead><tbody id="file_list"><tbody></table>
+</div>
+<div class="panel-footer " id="status"></div>
+</div>
 </div>
 </div>
 <script>
 function dispatchstatus(jsonresponse)
 {
 var content ="";
-content ="Status: "+jsonresponse.status;
-content +="&nbsp;&nbsp;Total space: "+jsonresponse.total;
-content +="&nbsp;&nbsp;Used space: "+jsonresponse.used;
-content +="&nbsp;&nbsp;Occupation: ";
+content ="&nbsp;&nbsp;Status: "+jsonresponse.status;
+content +="&nbsp;&nbsp;|&nbsp;&nbsp;Total space: "+jsonresponse.total;
+content +="&nbsp;&nbsp;|&nbsp;&nbsp;Used space: "+jsonresponse.used;
+content +="&nbsp;&nbsp;|&nbsp;&nbsp;Occupation: ";
 content +="<meter min='0' max='100' high='90' value='"+jsonresponse.occupation +"'></meter>"+jsonresponse.occupation +"%";
 document.getElementById('status').innerHTML=content;
 content ="";
@@ -64,7 +69,7 @@ content +="</TD><TD width='0%'><div class=\"btnimg\" onclick=\"Delete('"+jsonres
 content +="<svg height=\"20\" width=\"20\" viewBox=\"0 0 40 40\" >";
 content +="<circle cx=\"20\" cy=\"20\" r=\"17\" stroke=\"black\" stroke-width=\"1\" fill=\"red\" />";
 content +="<line x1=\"11\" y1=\"11\" x2=\"29\" y2=\"29\" style=\"stroke:white;stroke-width:6\" /><line x1=\"29\" y1=\"11\" x2=\"11\" y2=\"29\" style=\"stroke:white;stroke-width:6\" /></svg> ";
-content +="</div></TD></TR>";
+content +="</div></TD><td></td></TR>";
 }
  document.getElementById('file_list').innerHTML=content;}
 function Delete(filename){
