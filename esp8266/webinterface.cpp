@@ -63,7 +63,7 @@ const char VALUE_CONNECTION_FAILED2[] PROGMEM = "Connection failed! (Wrong Passw
 const char VALUE_IDLE[] PROGMEM = "Idle";
 const char VALUE_DISCONNECTED[] PROGMEM = "Disconnected";
 const char VALUE_ITEM_VISIBLE[] PROGMEM = "visibility:visible;";
-const char VALUE_ITEM_HIDDEN[] PROGMEM ="visibility:hidden;height:0px;width:0px;";
+const char VALUE_ITEM_HIDDEN[] PROGMEM ="visibility:hidden;height:0px;width:0px;padding:0px";
 const char KEY_IP[] PROGMEM ="$IP$";
 const char KEY_WEB_ADDRESS[] PROGMEM ="$WEB_ADDRESS$";
 const char KEY_HOSTNAME[] PROGMEM ="$HOSTNAME$";
@@ -2402,7 +2402,7 @@ void handleFileList() {
 	jsonfile+="\"used\":\"" + formatBytes(used) + "\",";
 	jsonfile+="\"occupation\":\"" ;
 	jsonfile+= intTostr(100*used/total);
-	jsonfile+="%\"";
+	jsonfile+="\"";
 	jsonfile+="}";
 	path = "";
 	web_interface->WebServer.send(200, "application/json", jsonfile);

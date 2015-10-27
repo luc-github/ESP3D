@@ -39,7 +39,7 @@ $SUCCESS_MSG$
 <div class="panel-heading">Filesystem</div>
 <div class="panel-body">
 <input type="file" id="file-select" name="myfiles[]" multiple />
-<input class="btn btn-primary" type="button" id="upload-button" onclick="Sendfile();" value="Upload"/><br><br>
+<input class="btn btn-primary" type="button" id="upload-button" onclick="Sendfile();" value="Upload"/>&nbsp;&nbsp;<progress style="visibility:hidden;" name='prg' id='prg'></progress>
 <table class="table table-striped" style="border:1px;solid #dddddd;margin-bottom:20px;" ><thead><tr><th>Name</th><th>size</th><th width='0%'></th></tr></thead><tbody id="file_list"><tbody></table>
 <label class="text-info" id="status"></label>
 </div>
@@ -51,7 +51,8 @@ var content ="";
 content ="Status: "+jsonresponse.status;
 content +="&nbsp;&nbsp;Total space: "+jsonresponse.total;
 content +="&nbsp;&nbsp;Used space: "+jsonresponse.used;
-content +="&nbsp;&nbsp;Occupation: "+jsonresponse.occupation;
+content +="&nbsp;&nbsp;Occupation: ";
+content +="<meter min='0' max='100' high='90' value='"+jsonresponse.occupation +"'></meter>"+jsonresponse.occupation +"%";
 document.getElementById('status').innerHTML=content;
 content ="";
 for (var i=0;i <jsonresponse.files.length;i++){
@@ -82,8 +83,10 @@ xmlhttp.open("GET", url, true);
 xmlhttp.send();
 }
 function Sendfile(){
-document.getElementById('upload-button').value = "Uploading...";
 var files = document.getElementById('file-select').files;
+if (files.length==0)return;
+document.getElementById('upload-button').value = "Uploading...";
+document.getElementById('prg').style.visibility = "visible";
 var formData = new FormData();
 for (var i = 0; i < files.length; i++) {
 var file = files[i];
@@ -93,6 +96,7 @@ xmlhttp.open('POST', '/FILES', true);
 xmlhttp.onload = function () {
  if (xmlhttp.status === 200) {
 document.getElementById('upload-button').value = 'Upload';
+document.getElementById('prg').style.visibility = "hidden";
 document.getElementById('file-select').value="";
 var jsonresponse = JSON.parse(xmlhttp.responseText);
 dispatchstatus(jsonresponse);
