@@ -170,7 +170,7 @@ Updaterange('speed');
 Updaterange('flow');
 var pulse=true;
 var initialization_done = false;
-function displaytemp(temperature, target,item){
+function displaytemp(temperature, target,item,factor){
 var displaypicture = "<svg height=\"30px \" width=\"300px \" xmlns=\"http://wwww.w3.org/2000/svg\">\n<linearGradient id=\"gradient\">\n";
 var description = String (temperature) + "/";
 if (target>0)description += String (target);
@@ -180,21 +180,21 @@ displaypicture+="<stop class=\"middle\" style=\"stop-color:yellow;\" offset=\"10
 displaypicture+="<stop class=\"middle\" style=\"stop-color:yellow;\" offset=\"0%\"/>\n<stop class=\"end\" style=\"stop-color:red;\" offset=\"100%\"/>\n";
 displaypicture+="</linearGradient>\n<rect x=\"10\" y=\"4\" width=\"24\" height=\"21\" style=\"fill:url(#gradient)\" />\n";
 displaypicture+="<rect x=\"34\" y=\"4\" width=\"280\" height=\"21\" style=\"fill:url(#gradient2)\" />\n<line x1=\"";
-displaypicture+=String(parseFloat(target)+10);
+displaypicture+=String(parseFloat(target)*factor+10);
 displaypicture+="\" y1=\"4\" x2=\"";
-displaypicture+=String(parseFloat(target)+10);
+displaypicture+=String(parseFloat(target)*factor+10);
 displaypicture+="\" y2=\"25\" style=\"stroke:rgb(255,255,255);stroke-width:1\" />\n<path d=\"M";
-displaypicture+=String(parseFloat(temperature)+5);
+displaypicture+=String(parseFloat(temperature)*factor+5);
 displaypicture+=" 0 L";
-displaypicture+=String(parseFloat(temperature)+15);
+displaypicture+=String(parseFloat(temperature)*factor+15);
 displaypicture+=" 0 L";
-displaypicture+=String(parseFloat(temperature)+10);
+displaypicture+=String(parseFloat(temperature)*factor+10);
 displaypicture+=" 8 Z\" stroke=\"white\" stroke-width=\"1\" />\n<path d=\"M";
-displaypicture+=String(parseFloat(temperature)+5);
+displaypicture+=String(parseFloat(temperature)*factor+5);
 displaypicture+=" 30 L";
-displaypicture+=String(parseFloat(temperature)+15);
+displaypicture+=String(parseFloat(temperature)*factor+15);
 displaypicture+=" 30 L";
-displaypicture+=String(parseFloat(temperature)+10);
+displaypicture+=String(parseFloat(temperature)*factor+10);
 displaypicture+=" 22 Z\" stroke=\"white\" stroke-width=\"1\"/>\n<text x=\"30\" y=\"19\" fill=\"black\" style=\"font-family: calibri; font-size:10pt;\">\n";
 displaypicture+=description;
 displaypicture+=" &#176;C</text>\n</svg>";
@@ -224,7 +224,7 @@ document.getElementById("Extruder1").style.height="auto";
 document.getElementById("JogExtruder1-1").style.visibility="visible";
 document.getElementById("JogExtruder1-2").style.visibility="visible";
 document.getElementById("JogExtruder1-3").style.visibility="visible";
-displaytemp(jsonresponse.heater[0].temperature, jsonresponse.heater[0].target,"data_extruder1");
+displaytemp(jsonresponse.heater[0].temperature, jsonresponse.heater[0].target,"data_extruder1",1);
 Updaterange('1');}
 else {
 document.getElementById("Extruder1").style.visibility="hidden";
@@ -238,7 +238,7 @@ document.getElementById("Extruder2").style.height="auto";
 document.getElementById("JogExtruder2-1").style.visibility="visible";
 document.getElementById("JogExtruder2-2").style.visibility="visible";
 document.getElementById("JogExtruder2-3").style.visibility="visible";
-displaytemp(jsonresponse.heater[1].temperature, jsonresponse.heater[1].target,"data_extruder2");
+displaytemp(jsonresponse.heater[1].temperature, jsonresponse.heater[1].target,"data_extruder2",1);
 Updaterange('2');}
 else {
 document.getElementById("Extruder2").style.visibility="hidden";
@@ -249,7 +249,7 @@ document.getElementById("JogExtruder2-3").style.visibility="hidden";}
 if(jsonresponse.heater[2].active==1){
 document.getElementById("Bed").style.visibility="visible";
 document.getElementById("Bed").style.height="auto";
-displaytemp(jsonresponse.heater[2].temperature, jsonresponse.heater[2].target,"data_bed");
+displaytemp(jsonresponse.heater[2].temperature, jsonresponse.heater[2].target,"data_bed",2);
 Updaterange('bed');}
 else {
 document.getElementById("Bed").style.visibility="hidden";
