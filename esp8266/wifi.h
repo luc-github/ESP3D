@@ -36,7 +36,7 @@ class WIFI_CONFIG
   #ifdef MDNS_FEATURE
 	MDNSResponder mdns;
   #endif
-  byte current_mode;
+  WIFI_CONFIG();
   int iweb_port;
   int idata_port;
   long baud_rate;

@@ -149,7 +149,13 @@ Currently, I tested on ESP01 using 64K SPIFFS ( please use data directory conten
 -- UI Improvement    
 --<s>Printer EEPROM management</s>    (Canceled/Postponed for next stage)
 
-
-
-more to come    
+##Result of ESP12E on Davinci    
+I use a proto board to connect ESP12E socket, one micro switch for recovery, one jumper for normal usage/ flash, I did not put hardware switch.    
+<img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Davinci/board.jpg><br>  
+Connected to Davinci:    
+<img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Davinci/boardconnected.jpg><br>  
+The back cover:    
+<img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Davinci/backside.jpg><br>  
+The screen when connected to AP:    
+<img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Davinci/screen.jpg.jpg><br>  
  

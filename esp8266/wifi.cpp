@@ -33,6 +33,15 @@ extern "C" {
 extern DNSServer dnsServer;
 #endif
 
+WIFI_CONFIG::WIFI_CONFIG()
+{
+  iweb_port=DEFAULT_WEB_PORT;
+  idata_port=DEFAULT_DATA_PORT;
+  baud_rate=DEFAULT_BAUD_RATE;
+  sleep_mode=DEFAULT_SLEEP_MODE;
+  _hostname[0]=0;
+}
+
 const char * WIFI_CONFIG::get_hostname(){
 	if (WiFi.hostname().length()==0)
 	{
@@ -152,7 +161,6 @@ bool WIFI_CONFIG::Setup()
 	if (!CONFIG::read_string(EP_HOSTNAME, hostname , MAX_HOSTNAME_LENGTH))strcpy(hostname,get_default_hostname());
     //disconnect if connected
   WiFi.disconnect();
-  current_mode=bflag;
    //this is AP mode
   if (bflag==AP_MODE)
     {
