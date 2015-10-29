@@ -157,5 +157,5 @@ Connected to Davinci:
 The back cover:    
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Davinci/backside.jpg><br>  
 The screen when connected to AP:    
-<img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Davinci/screen.jpg.jpg><br>  
+<img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Davinci/screen.jpg><br>  
  
