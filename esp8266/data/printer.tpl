@@ -218,13 +218,14 @@ document.getElementById("status-text").innerHTML=status;
 }
 
 function dispatchstatus(jsonresponse){
+var temp=0;
 if(jsonresponse.heater[0].active==1){
 document.getElementById("Extruder1").style.visibility="visible";
 document.getElementById("Extruder1").style.height="auto";
 document.getElementById("JogExtruder1-1").style.visibility="visible";
 document.getElementById("JogExtruder1-2").style.visibility="visible";
 document.getElementById("JogExtruder1-3").style.visibility="visible";
-displaytemp(jsonresponse.heater[0].temperature, jsonresponse.heater[0].target,"data_extruder1",1);
+displaytemp(jsonresponse.heater[0].temperature, jsonresponse.heater[0].target,"data_extruder1",1.03);
 Updaterange('1');}
 else {
 document.getElementById("Extruder1").style.visibility="hidden";
@@ -238,7 +239,7 @@ document.getElementById("Extruder2").style.height="auto";
 document.getElementById("JogExtruder2-1").style.visibility="visible";
 document.getElementById("JogExtruder2-2").style.visibility="visible";
 document.getElementById("JogExtruder2-3").style.visibility="visible";
-displaytemp(jsonresponse.heater[1].temperature, jsonresponse.heater[1].target,"data_extruder2",1);
+displaytemp(jsonresponse.heater[1].temperature, jsonresponse.heater[1].target,"data_extruder2",1.03);
 Updaterange('2');}
 else {
 document.getElementById("Extruder2").style.visibility="hidden";
@@ -249,7 +250,7 @@ document.getElementById("JogExtruder2-3").style.visibility="hidden";}
 if(jsonresponse.heater[2].active==1){
 document.getElementById("Bed").style.visibility="visible";
 document.getElementById("Bed").style.height="auto";
-displaytemp(jsonresponse.heater[2].temperature, jsonresponse.heater[2].target,"data_bed",2);
+displaytemp(jsonresponse.heater[2].temperature, jsonresponse.heater[2].target,"data_bed",2.15);
 Updaterange('bed');}
 else {
 document.getElementById("Bed").style.visibility="hidden";
@@ -283,6 +284,21 @@ document.getElementById("numberinputspeed").value=jsonresponse.speed;
 Updaterange('speed');
 document.getElementById("numberinputflow").value=jsonresponse.flow;
 Updaterange('flow');
+if(jsonresponse.heater[0].active==1){
+if (jsonresponse.heater[0].target.length==0)temp=0;
+else temp = parseInt(jsonresponse.heater[0].target);
+document.getElementById("numberinput1").value= temp;
+Updaterange('1');}
+if(jsonresponse.heater[1].active==1){
+if (jsonresponse.heater[1].target.length==0)temp=0;
+else temp = parseInt(jsonresponse.heater[1].target);
+document.getElementById("numberinput2").value=temp;
+Updaterange('2');}
+if(jsonresponse.heater[2].active==1){
+if (jsonresponse.heater[2].target.length==0)temp=0;
+else temp = parseInt(jsonresponse.heater[2].target);
+document.getElementById("numberinputbed").value=temp;
+Updaterange('bed');}
 initialization_done=true;}
 document.getElementById("currentspeed").innerHTML=jsonresponse.speed + "%";
 document.getElementById("currentflow").innerHTML=jsonresponse.flow + "%";
