@@ -18,7 +18,7 @@ $INCLUDE[header.inc]$
 <input type="button" class="btn btn-primary" value="Set" onclick="SendValue( 'M140 S', 'bed');">
 </td></tr></table></div></td></tr>
 <tr><td id="speed"><table><tr>
-<td><label>Speed:</label></td><td class="text-info" id="currentspeed"></td>
+<td><label>Speed:</label></td><td><label class="text-info" id="currentspeed"></label></td>
 <td>0<input id="rangeinputspeed" type="range" min=0 max=300 onchange="Updatenumber('speed');">300</td>
 <td><input class="form-control" id="numberinputspeed" type="number" size="3" min=0 max=300 step=1 value=0 onchange="Updaterange('speed');"></td><td>%
 <input type="button" class="btn btn-primary" class="btn btn-primary" value="Set" onclick="SendValue( 'M220 S', 'speed');"></td>
@@ -28,12 +28,12 @@ $INCLUDE[header.inc]$
 <svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" stroke="black" stroke-width="2" fill="red" />
 <circle cx="20" cy="20" r="10" stroke="black" stroke-width="4" fill="red" /><rect x="15" y="8" width="10" height="10" style="fill:red;stroke-width:1;stroke:red" />
 <rect x="18" y="6" rx="1" ry="1" width="4" height="14" style="fill:black;stroke-width:1;stroke:black" /></svg></td></tr></table></td></tr>
-<tr><td id="flow"><table><tr><td><label>Flow:</label></td><td class="text-info" id="currentflow"></td>
+<tr><td id="flow"><table><tr><td><label>Flow:</label></td><td><label  class="text-info" id="currentflow"></label></td>
 <td>0<input id="rangeinputflow" type="range" min=0 max=300 onchange="Updatenumber('flow');">300</td>
 <td><input class="form-control" id="numberinputflow" size="3" type="number" min=0 max=300 step=1 value=0 onchange="Updaterange('flow');"></td><td>%
 <input type="button" class="btn btn-primary" value="Set" onclick="SendValue( 'M221 S', 'flow');"></td><td>&nbsp;&nbsp;</td>
-<td><label>X:</label></td><td class="text-info" id="posx"></td><td>&nbsp;&nbsp;</td><td><label>Y:</label></td><td class="text-info" id="posy"></td><td>&nbsp;&nbsp;</td>
-<td><label>Z:</label></td><td class="text-info" id="posz" ></td></tr></table></td></tr>
+<td><label>X:</label></td><td><label class="text-info" id="posx"></label></td><td>&nbsp;&nbsp;</td><td><label>Y:</label></td><td><label class="text-info" id="posy"></label></td><td>&nbsp;&nbsp;</td>
+<td><label>Z:</label></td><td><label class="text-info" id="posz" ></label></td></tr></table></td></tr>
 <tr><td><table width="100%"><tr><td width="auto"><label>Command:</label></td>
 <td width="100%"><input class="form-control" id="cmd" type="text" style="width: 100%;"></td>
 <td width="auto"><input type="button" class="btn btn-primary" value="Send" onclick="Sendcustomcommand();"></td></tr></table></td></tr>
