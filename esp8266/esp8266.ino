@@ -84,12 +84,21 @@ void setup() {
   if(breset_config)
     {
     //update EEPROM with default settings
+    Serial.begin(9600);
+    delay(2000);
+    Serial.println("M117 Reset requested");
     CONFIG::reset_config();
     delay(1000);
-    //use default baud rate and ports
-    baud_rate=DEFAULT_BAUD_RATE;
-    wifi_config.iweb_port=DEFAULT_WEB_PORT;
-    wifi_config.idata_port=DEFAULT_DATA_PORT;
+    //put some default value to a void some exception at first start
+    WiFi.mode(WIFI_AP);
+    wifi_set_phy_mode(PHY_MODE_11G);
+    Serial.flush();
+	delay(500);
+	Serial.swap();
+	delay(100);
+	//restart once reset config is done
+    ESP.restart();
+	while (1){delay(1);};
     }
   //setup serial
   Serial.begin(baud_rate);
