@@ -159,12 +159,12 @@ The back cover:
 The screen when connected to AP:    
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Davinci/screen.jpg><br>  
 The settings:     
-<img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Davinci/Capture.png><br>  
+<img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Davinci/Capture.PNG><br>  
  
- ##Result of ESP12E on Due/RADDS
+##Result of ESP12E on Due/RADDS
  Use Serial1 for communications
  <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/RADDS/RADDS.png><br> 
  the rendering on screen when connection to AP is done:   
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/RADDS/screen.jpg><br> 
  The settings:     
-<img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/RADDS/Capture.png><br>  
+<img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/RADDS/Capture.PNG><br>  
