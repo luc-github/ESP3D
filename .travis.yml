@@ -1,0 +1,34 @@
+sudo: false
+
+language: bash
+
+os:
+  - linux
+
+before_install:
+  - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1280x1024x16"
+
+before_script:
+  - "export DISPLAY=:99.0"
+  - sleep 3 # give xvfb some time to start
+  - wget http://downloads.arduino.cc/arduino-1.6.5-linux64.tar.xz
+  - tar xf arduino-1.6.5-linux64.tar.xz
+  - mv arduino-1.6.5 $HOME/arduino_ide
+  - cd $HOME/arduino_ide/hardware
+  - mkdir esp8266com
+  - cd esp8266com
+  - git clone https://github.com/esp8266/Arduino.git esp8266
+  - cd esp8266/tools
+  - python get.py
+
+script:
+  - cd $TRAVIS_BUILD_DIR
+  - export PATH="$HOME/arduino_ide:$PATH"
+  - arduino --board esp8266com:esp8266:generic --save-prefs
+  - arduino --get-pref sketchbook.path
+  - build_sketch esp8266/esp8266.ino
+
+notifications:
+  email:
+    on_success: change
+    on_failure: change
