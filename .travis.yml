@@ -23,6 +23,7 @@ before_script:
 
 script:
   - cd $TRAVIS_BUILD_DIR
+  - source command.sh
   - export PATH="$HOME/arduino_ide:$PATH"
   - arduino --board esp8266com:esp8266:generic --save-prefs
   - arduino --get-pref sketchbook.path
