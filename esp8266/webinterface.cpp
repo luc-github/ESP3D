@@ -777,8 +777,8 @@ void handle_web_interface_root()
 	ValuesList.add(wifi_config.mac2str(WiFi.macAddress(mac)));
 	//SSID used by STA
 	KeysList.add(FPSTR(KEY_STA_SSID));
-	if (strlen(WiFi.SSID())==0)ValuesList.add(FPSTR(VALUE_NOT_AVAILABLE));
-	else ValuesList.add(WiFi.SSID());
+	if (WiFi.SSID().length()==0)ValuesList.add(FPSTR(VALUE_NOT_AVAILABLE));
+	else ValuesList.add(WiFi.SSID().c_str());
 	//Channel
 	KeysList.add(FPSTR(KEY_STA_CHANNEL));
 	ValuesList.add(intTostr (wifi_get_channel()));
@@ -1758,7 +1758,7 @@ void handle_web_interface_configSTA()
 				  //SSID
 				stmp = "$AP_SSID["+String(i)+"]$";
 				KeysList.add(stmp);
-				ValuesList.add(WiFi.SSID(i));
+				ValuesList.add(WiFi.SSID(i).c_str());
 				//signal strenght
 				 stmp = "$AP_SIGNAL["+String(i)+"]$";
 				 KeysList.add(stmp);
