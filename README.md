@@ -170,3 +170,7 @@ The settings:
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/RADDS/screen.jpg><br> 
  The settings:     
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/RADDS/Capture.PNG><br>  
+
+##Donation:
+Every support is welcome: [<img src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG_global.gif" border="0" alt="PayPal – The safer, easier way to pay online.">](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Y8FFE7NA4LJWQ)    
+Especially if need to buy new modules for testing.
