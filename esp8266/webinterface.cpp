@@ -2695,13 +2695,12 @@ void handleFileList() {
 		}	
 	jsonfile+="],";
 	jsonfile+="\"status\":\"" + status + "\",";
-	uint32_t total;
-	uint32_t  used;
-	SPIFFS.info(&total,&used);
-	jsonfile+="\"total\":\"" + formatBytes(total) + "\",";
-	jsonfile+="\"used\":\"" + formatBytes(used) + "\",";
+	FSInfo info;
+	SPIFFS.info(info);
+	jsonfile+="\"total\":\"" + formatBytes(info.totalBytes) + "\",";
+	jsonfile+="\"used\":\"" + formatBytes(info.usedBytes) + "\",";
 	jsonfile+="\"occupation\":\"" ;
-	jsonfile+= intTostr(100*used/total);
+	jsonfile+= intTostr(100*info.usedBytes/info.totalBytes);
 	jsonfile+="\"";
 	jsonfile+="}";
 	path = "";
