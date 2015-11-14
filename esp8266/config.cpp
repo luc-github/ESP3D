@@ -176,6 +176,7 @@ bool CONFIG::reset_config()
   if(!CONFIG::write_buffer(EP_XY_FEEDRATE,(const byte *)&DEFAULT_XY_FEEDRATE,INTEGER_LENGTH))return false;
   if(!CONFIG::write_buffer(EP_Z_FEEDRATE,(const byte *)&DEFAULT_Z_FEEDRATE,INTEGER_LENGTH))return false;
   if(!CONFIG::write_buffer(EP_E_FEEDRATE,(const byte *)&DEFAULT_E_FEEDRATE,INTEGER_LENGTH))return false;
+  if(!CONFIG::write_string(EP_ADMIN_PWD,FPSTR(DEFAULT_ADMIN)))return false;
   return true;
 }
 

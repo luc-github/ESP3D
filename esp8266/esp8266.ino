@@ -110,6 +110,11 @@ void setup() {
   //start interfaces
   web_interface = new WEBINTERFACE_CLASS(wifi_config.iweb_port);
   data_server = new WiFiServer (wifi_config.idata_port);
+  //here the list of headers to be recorded
+  const char * headerkeys[] = {"Cookie"} ;
+  size_t headerkeyssize = sizeof(headerkeys)/sizeof(char*);
+  //ask server to track these headers
+  web_interface->WebServer.collectHeaders(headerkeys, headerkeyssize );
   web_interface->WebServer.begin();
   data_server->begin();
   data_server->setNoDelay(true);

@@ -46,7 +46,7 @@ Additionnaly:
 *Tools:      
 --Use IDE to upload directly  (latest version of board manager module generate one binary)     
 -- to flash the htm files present in data directory you need to use another tool, installation and usage is explained here:  http://arduino.esp8266.com/versions/1.6.5-1160-gef26c5f/doc/reference.html#file-system   
-
+Once flashed you also can use the web updater to flash new FW in System Configuration Page
 
 *Connection
 --Connect GPIO0 to ground to be in update mode
@@ -78,6 +78,8 @@ Baud rate: 9600
 Web port:80   
 Data port: 8888     
 Web Page refresh: 3 secondes    
+User: admin
+Password: admin
 
 These are the pages defined using template:    
 Home page :     
@@ -94,6 +96,10 @@ Printer Status Page for more than 64K SPIFFS, fancy one:
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/page5.png><br>     
 Extra Settings Page, for web UI and for printer:     
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Page6.png><br>     
+Change password Page:    
+<img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Page7.png><br>     
+Login Page:    
+<img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/Page8.png><br>     
 the template files are stored on SPIFFS:    
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/files.png><br>
 and uploaded using [IDE](http://arduino.esp8266.com/versions/1.6.5-1160-gef26c5f/doc/reference.html#file-system)    
@@ -109,6 +115,14 @@ Currently, I tested on ESP01 using 64K SPIFFS ( please use data directory conten
 *mDNS : on Station mode only with bonjour installed on computer (done)  
 *SSDP : on Station and AP mode (done)    
 *Captive portal : on AP mode only (not yet functionnal)    
+
+##Basic Authentification   
+Can be disabled  in FW
+default user: admin
+default password: admin 
+
+#OTA support
+Currently only web update is supported not telnet one
 
 ##Commands/msg from/to serial(not fully implemented):    
 *from module to printer by serial communication   

@@ -29,6 +29,13 @@
 
 #define MAX_EXTRUDERS 4
 
+struct auth_ip{
+	IPAddress ip;
+	char sessionID[17];
+	uint32_t last_time;
+	auth_ip * _next;
+	};
+
 class WEBINTERFACE_CLASS
 {
   public:
@@ -39,6 +46,7 @@ class WEBINTERFACE_CLASS
   void urldecode( String & dst, const char *src);
   bool isSSIDValid(const char * ssid);
   bool isPasswordValid(const char * password);
+  bool isAdminPasswordValid(const char * password);
   bool isHostnameValid(const char * hostname);
   bool isIPValid(const char * IP);
   String answer4M105;
@@ -51,8 +59,15 @@ class WEBINTERFACE_CLASS
   STORESTRINGS_CLASS info_msg;
   STORESTRINGS_CLASS status_msg;
   bool restartmodule; 
+  char * create_session_ID();
+  bool is_authenticated();
+  bool AddAuthIP(auth_ip * item);
+  bool ResetAuthIP(IPAddress ip,const char * sessionID);
+  uint8_t _upload_status;
   private:
-
+  auth_ip * _head;
+  uint8_t _nb_ip;
+  
 };
 
 extern WEBINTERFACE_CLASS * web_interface;

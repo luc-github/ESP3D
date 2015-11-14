@@ -29,6 +29,9 @@
 //CAPTIVE_PORTAL_FEATURE: In SoftAP redirect all unknow call to main page
 #define CAPTIVE_PORTAL_FEATURE
 
+//AUTHENTICATION_FEATURE: protect pages by login password
+#define AUTHENTICATION_FEATURE
+
 #ifndef CONFIG_h
 #define CONFIG_h
 
@@ -38,7 +41,7 @@ extern "C" {
 #include "user_interface.h"
 }
 //version and sources location
-#define FW_VERSION "0.4"
+#define FW_VERSION "0.5"
 #define REPOSITORY "https://github.com/luc-github/ESP8266"
 
 
@@ -73,6 +76,7 @@ extern "C" {
 #define EP_XY_FEEDRATE		    164//4  bytes = int
 #define EP_Z_FEEDRATE		    168//4  bytes = int
 #define EP_E_FEEDRATE		    172//4  bytes = int
+#define EP_ADMIN_PWD		    176//21  bytes 20+1 = string  ; warning does not support multibyte char like chinese
 
 
 
@@ -99,6 +103,7 @@ const int DEFAULT_DATA_PORT =			8888;
 const int  DEFAULT_XY_FEEDRATE=1000;
 const int  DEFAULT_Z_FEEDRATE	=100;
 const int  DEFAULT_E_FEEDRATE=400;
+const char DEFAULT_ADMIN []  PROGMEM =	"admin";
 
 //sizes
 #define EEPROM_SIZE				256 //max is 512
@@ -106,6 +111,8 @@ const int  DEFAULT_E_FEEDRATE=400;
 #define MIN_SSID_LENGTH				1
 #define MAX_PASSWORD_LENGTH 			64
 #define MIN_PASSWORD_LENGTH 			8
+#define MAX_ADMIN_PASSWORD_LENGTH 			16
+#define MIN_ADMIN_PASSWORD_LENGTH 			1
 #define IP_LENGTH 				4
 #define INTEGER_LENGTH 				4
 #define MAX_HOSTNAME_LENGTH		32
