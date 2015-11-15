@@ -37,9 +37,27 @@ $INCLUDE[header.inc]$
 <tr><td><table width="100%"><tr><td width="auto"><label>Command:</label></td>
 <td width="100%"><input class="form-control" id="cmd" type="text" style="width: 100%;"></td>
 <td width="auto"><input type="button" class="btn btn-primary" value="Send" onclick="Sendcustomcommand();"></td></tr></table></td></tr>
-<tr><td><hr></td></tr><tr><td><table><tr><td><label>Info:</label></td><td width=100% id="infomsg" class="text-info"></td></tr></table></tr>
-<tr><td><hr></td></tr><tr><td><table><tr><td><label>Error:</label></td><td width=100% id="errormsg" class="text-info"></td></tr></table></tr>
-<tr><td><hr></td></tr><tr><td><table><tr><td><label>Status:</label></td><td width=100% id="statusmsg" class="text-info"></td></tr></table></tr>
+<tr><td><hr></td></tr><tr><td><table><tr><td><label>Info:</label><br>
+<center><table><tr><td><div class="btnimg" onclick="if(confirm('Clear Info log ?'))Sendcommand('[ESP999]INFO');">
+<svg height="20" width="20" viewBox="0 0 40 40" >";
+<circle cx="20" cy="20" r="17" stroke="black" stroke-width="1" fill="red" />
+<line x1="11" y1="11" x2="29" y2="29" style="stroke:white;stroke-width:6" />
+<line x1="29" y1="11" x2="11" y2="29" style="stroke:white;stroke-width:6" /></svg></div></td></tr></table></center>
+</td><td width=100% id="infomsg" class="text-info"></td></tr></table></tr>
+<tr><td><hr></td></tr><tr><td><table><tr><td><label>Error:</label><br>
+<center><table><tr><td><div class="btnimg" onclick="if(confirm('Clear Error log ?'))Sendcommand('[ESP999]ERROR');">
+<svg height="20" width="20" viewBox="0 0 40 40" >";
+<circle cx="20" cy="20" r="17" stroke="black" stroke-width="1" fill="red" />
+<line x1="11" y1="11" x2="29" y2="29" style="stroke:white;stroke-width:6" />
+<line x1="29" y1="11" x2="11" y2="29" style="stroke:white;stroke-width:6" /></svg></div></td></tr></table></center>
+</td><td width=100% id="errormsg" class="text-info"></td></tr></table></tr>
+<tr><td><hr></td></tr><tr><td><table><tr><td><label>Status:</label><br>
+<center><table><tr><td><div class="btnimg" onclick="if(confirm('Clear Status log ?'))Sendcommand('[ESP999]STATUS');">
+<svg height="20" width="20" viewBox="0 0 40 40" >";
+<circle cx="20" cy="20" r="17" stroke="black" stroke-width="1" fill="red" />
+<line x1="11" y1="11" x2="29" y2="29" style="stroke:white;stroke-width:6" />
+<line x1="29" y1="11" x2="11" y2="29" style="stroke:white;stroke-width:6" /></svg></div></td></tr></table></center>
+</td><td width=100% id="statusmsg" class="text-info"></td></tr></table></tr>
 <tr><td><hr></td></tr><tr><td><table><tr><td class="btnimg" onclick="Sendcommand('M24');">
 <svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" stroke="black" stroke-width="2" fill="white" /><polygon points="15,10 30,20 15,30" fill:"white" stroke:"white" stroke-width:"1" /></svg></td>
 <td class="btnimg" onclick="Sendcommand('M25');"><svg width="40" height="40" viewBox="0 0 40 40"> <circle cx="20" cy="20" r="18" stroke="black" stroke-width="2" fill="white" />

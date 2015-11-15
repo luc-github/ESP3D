@@ -32,6 +32,7 @@ extern "C" {
 #include <FS.h>
 #include "LinkedList.h"
 #include "storestrings.h"
+#include "command.h"
 
 #ifdef SSDP_FEATURE
 #include <ESP8266SSDP.h>
@@ -3091,6 +3092,25 @@ void handle_web_command()
 		  Serial.println(scmd);
 		  //give an ack - we need to be polite, right ?
 		  web_interface->WebServer.send(200,"text/plain","Ok");
+		  //if it is for ESP module [ESPXXX]<parameter>
+		  int ESPpos = scmd.indexOf("[ESP");
+		  if (ESPpos>-1)
+			{//is there the second part?
+			int ESPpos2 = scmd.indexOf("]",ESPpos);	
+			if (ESPpos2>-1)
+				{	//Split in command and parameters
+					String cmd_part1=scmd.substring(ESPpos+4,ESPpos2);
+					String cmd_part2="";
+					//is there space for parameters?
+					if (ESPpos2<scmd.length())
+						{
+						cmd_part2=scmd.substring(ESPpos2+1);
+						}
+					//if command is a valid number then execute command
+					if(cmd_part1.toInt()!=0)COMMAND::execute_command(cmd_part1.toInt(),cmd_part2);
+					//if not is not a valid [ESPXXX] command
+				}
+			}
 	  }
 }
 

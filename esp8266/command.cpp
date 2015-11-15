@@ -95,6 +95,26 @@ void COMMAND::execute_command(int cmd,String cmd_params)
 				Serial.print("\r\n");
 				}
 		break;
+		case 999:
+			if (cmd_params=="ERROR")
+			{
+				web_interface->error_msg.clear();
+			}
+			else if (cmd_params=="INFO")
+			{
+				web_interface->info_msg.clear();
+			}
+			else if (cmd_params=="STATUS")
+			{
+				web_interface->status_msg.clear();
+			}
+			else if (cmd_params=="ALL")
+			{
+				web_interface->error_msg.clear();
+				web_interface->status_msg.clear();
+				web_interface->info_msg.clear();
+			}
+		break;
 		//default:
 
 	}
