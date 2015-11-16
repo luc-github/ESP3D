@@ -78,7 +78,7 @@ Baud rate: 9600
 Web port:80   
 Data port: 8888     
 Web Page refresh: 3 secondes    
-User: admin
+User: admin     
 Password: admin
 
 These are the pages defined using template:    
@@ -114,7 +114,7 @@ Currently, I tested on ESP01 using 64K SPIFFS ( please use data directory conten
 ##Protocol for discovery   
 *mDNS : on Station mode only with bonjour installed on computer (done)  
 *SSDP : on Station and AP mode (done)    
-*Captive portal : on AP mode only (not yet functionnal)    
+*Captive portal : on AP mode only (done)    
 
 ##Basic Authentification   
 Can be disabled  in FW
