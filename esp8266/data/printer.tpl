@@ -2,12 +2,12 @@ $INCLUDE[header.inc]$
 <table>
 <tr><td style="padding:0px;"><div id="Extruder1" style="visibility:hidden;height:0px;"> 
 <table><tr><td><label>E1:&nbsp;</label></td>
-<td id="data_extruder1"></td><td>0<input id="rangeinput1" type="range" min=0 max=270 onchange="Updatenumber('1');">270</td>
+<td id="data_extruder1" style="overflow: hidden;"></td><td>0<input id="rangeinput1" type="range" min=0 max=270 onchange="Updatenumber('1');">270</td>
 <td><input class="form-control" id="numberinput1" type="number" min=0 max=270 step=1 value=0 onchange="Updaterange('1');"></td><td> &#176;C
 <td><input type="button" class="btn btn-primary" value="Set" onclick="SendValue( 'M104 T0 S', '1');"></td></tr></table></div></td></tr>
 <tr ><td style="padding:0px;"><div id="Extruder2" style="visibility:hidden;height:0px;">
 <table><tr><td><label>E2:&nbsp;</label></td>
-<td id="data_extruder2"></td><td>0<input id="rangeinput2" type="range" min=0 max=270 onchange="Updatenumber('2');">270</td>
+<td id="data_extruder2" style="overflow: hidden;"></td><td>0<input id="rangeinput2" type="range" min=0 max=270 onchange="Updatenumber('2');">270</td>
 <td><input class="form-control" id="numberinput2" type="number" min=0 max=270 step=1 value=0 onchange="Updaterange('2');"></td><td>&#176;C
 <input type="button" class="btn btn-primary" value="Set" onclick="SendValue( 'M104 T1 S', '2');">
 </td></tr></table></div></td></tr>
