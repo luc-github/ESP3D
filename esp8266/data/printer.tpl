@@ -13,7 +13,7 @@ $INCLUDE[header.inc]$
 </td></tr></table></div></td></tr>
 <tr><td style="padding:0px;"><div id="Bed" style="visibility:hidden;height:0px;">
 <table><tr><td><label>Bed:</label></td>
-<td id="data_bed"></td><td>0<input id="rangeinputbed" type="range" min=0 max=130 onchange="Updatenumber('bed');">130</td>
+<td id="data_bed" style="overflow: hidden;"></td><td>0<input id="rangeinputbed" type="range" min=0 max=130 onchange="Updatenumber('bed');">130</td>
 <td><input class="form-control" id="numberinputbed"type="number" min=0 max=270 step=1 value=0 onchange="Updaterange('bed');"></td><td>&#176;C
 <input type="button" class="btn btn-primary" value="Set" onclick="SendValue( 'M140 S', 'bed');">
 </td></tr></table></div></td></tr>

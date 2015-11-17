@@ -2561,6 +2561,7 @@ void handle_web_interface_status()
 	}
 	buffer2send+="]";
 	buffer2send+="}";
+	web_interface->WebServer.sendHeader("Cache-Control", "no-cache");
 	web_interface->WebServer.send(200, "application/json",buffer2send);	
 }
 
@@ -2651,6 +2652,7 @@ void handleUpdate(){
 	jsonfile+=intTostr(web_interface->_upload_status);
 	jsonfile+="\"}";
 	//send status
+	web_interface->WebServer.sendHeader("Cache-Control", "no-cache");
 	web_interface->WebServer.send(200, "application/json", jsonfile);
 	//if success restart
 	if (web_interface->_upload_status==UPLOAD_STATUS_SUCCESSFUL)web_interface->restartmodule=true;
@@ -2705,6 +2707,7 @@ void handleFileList() {
 	jsonfile+="\"";
 	jsonfile+="}";
 	path = "";
+	web_interface->WebServer.sendHeader("Cache-Control", "no-cache");
 	web_interface->WebServer.send(200, "application/json", jsonfile);
 }
 
@@ -2722,6 +2725,7 @@ void handleSDFileList() {
 		jsonfile+="\"}";
 	}
 	jsonfile+="]";
+	web_interface->WebServer.sendHeader("Cache-Control", "no-cache");
 	web_interface->WebServer.send(200, "application/json", jsonfile);
 }
 
