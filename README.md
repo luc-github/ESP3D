@@ -3,7 +3,7 @@
 [![Join the chat at https://gitter.im/luc-github/ESP8266](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/luc-github/ESP8266?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 FW for ESP8266 used with 3D printer     
 
-Arduino ide 1.6.5 with latest master : [![Build Status](https://travis-ci.org/luc-github/ESP8266.svg?branch=master)](https://travis-ci.org/luc-github/ESP8266)    
+Arduino ide 1.6.5 with latest master from ESP8266 : [![Build Status](https://travis-ci.org/luc-github/ESP8266.svg?branch=master)](https://travis-ci.org/luc-github/ESP8266)    
 
 ##Description      
 Thanks to @disneysw for bringing this module idea    
@@ -14,12 +14,12 @@ Have a front end to know what is the wifi status (implemented) or know what is t
 
 Should be compatible with reprap printer (Marlin FW/Repetier FW)  as soon as you can make both serial to communicate. 
 
-current release is v0.4-beta.1: https://github.com/luc-github/ESP8266/releases/tag/v0.4-beta.1, need to use at least staging version 1.6.5-1160-gef26c5f
+Current release listed here: https://github.com/luc-github/ESP8266/wiki
 
-master may not work unless you use the latest code of https://github.com/esp8266/arduino due to delay between PR integration in staging/stable versions
+Master may not work unless you use the latest code of https://github.com/esp8266/arduino (https://github.com/esp8266/Arduino#using-git-version-) due to delay between PR integration in staging/stable versions
 
 If you use an ESP with 512K flash like ESP01 please go here : https://github.com/luc-github/ESP8266/tree/ESP-512K-64KSPIFFS, it is dedicated to low memory device.      
-If you use an ESP with more than 512K flsah please use master.      
+If you use an ESP with more than 512K flash please use master.      
 
 ##Hardware connection       
 --Use GPIO2 to ground to reset all settings in hard way - 2-6 sec after boot / not before!! Set GPIO2 to ground before boot change boot mode and go to special boot that do not reach FW. Currently boot take 10 sec - giving 8 seconds to connect GPIO2 to GND and do an hard recovery for settings   
