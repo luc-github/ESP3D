@@ -144,8 +144,8 @@ Currently only web update is supported not telnet one
     -Password: [ESP101]<Password>   
     -Station mode: [ESP103]STA   
     -AP mode: [ESP103]AP   
-    -IP Static: [ESP103]STATIC    
-    -IP DHCP: [ESP103]DHCP    
+    -IP Static: [ESP104]STATIC    
+    -IP DHCP: [ESP104]DHCP    
  
  
 ##Front End (implemented)
