@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 
-import sys, os
 import SimpleHTTPServer, SocketServer
+import sys
+import os
+import json
+import re
 
 #Replace this with a different path if you need to...
 base_path = os.path.join(os.getcwd(),"esp8266","data")
@@ -13,44 +16,52 @@ class MyHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             self.send_header("Content-type", "text/html")
             self.end_headers()
 
-            data = self.process(self.path)
+            data = self.process_tpl(self.path)
             self.wfile.write(data)
             self.wfile.close()
             return
         SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
 
-    def process(self,fn):
+    def process_tpl(self,fn):
+        p = re.compile('\$(.*?)\$')
         if fn.startswith("/") or fn.startswith("\\"):
             fn = fn[1:]
-        fn = os.path.join(base_path,os.path.normpath(fn))
-        fpath,_ = os.path.split(fn)
-        lines = open(fn).read()
-        lines = lines.split("\n")
-        n_lines = len(lines)
-        i = 0
-        while i < n_lines: 
-            line = lines[i].strip()
-            if line.startswith("$INCLUDE["):
-                p0 = line.find("[")+1
-                p1 = line.find("]")
-                if p0 < 0 or p0 == len(line) or p1 < 0:
-                    continue
-                fn_inc = os.path.join(fpath,line[p0:p1])
-                if not os.path.exists(fn_inc):
-                    i = i+1
-                    continue
 
-                lines_inc = open(fn_inc).read()
-                lines_inc = lines_inc.split("\n")
-                if i < n_lines-1:
-                    lines1 = lines[i+1:]
-                else:
-                    lines1 = []
-                lines = lines[:i]+lines_inc+lines1
-                n_lines = len(lines)
+        fn = os.path.join(base_path,fn)
+        data = open(fn).read()
+
+        fn_json = os.path.join(base_path,"tags.json")
+        if os.path.exists(fn_json):
+            json_dic = json.loads(open(fn_json).read())
+        else:
+            json_dic = {}
+
+        tags = p.findall(data)
+        i = 0
+        n_tags = len(tags)
+        while i < n_tags:
+            dd = self.process_tag(data,tags[i],json_dic)
+            if dd != data:
+                data = dd
+                tags = p.findall(data)
+                n = len(tags)
             else:
                 i = i+1
-        return "\n".join(lines)
+        return data
+
+    def process_tag(self, data, tag, json_dic={}):
+        print "  processing $%s$" % tag
+        if tag in json_dic.keys():
+            data = data.replace("$"+tag+"$",json_dic[tag])
+        elif tag.startswith("INCLUDE[") and tag.endswith("]"):
+            fn = tag[8:-1]
+            fn = os.path.join(base_path,fn)
+            d = open(fn).read()
+            p0 = data.find("$"+tag)
+            p1 = data.find("]",p0)+2
+            data = data[:p0]+d+data[p1:]
+
+        return data
 
 if __name__ == '__main__':
     print "="*60
