@@ -7,7 +7,7 @@ import json
 import re
 
 #Replace this with a different path if you need to...
-base_path = os.path.join(os.getcwd(),"esp8266","data")
+base_path = os.path.join(os.getcwd(),"..","esp8266","data")
 
 class MyHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     def do_GET(self):
