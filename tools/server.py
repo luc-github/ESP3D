@@ -8,19 +8,43 @@ import re
 
 #Replace this with a different path if you need to...
 base_path = os.path.join(os.getcwd(),"..","esp8266","data")
+base_path = os.path.join(os.getcwd(),"data")
 
 class MyHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     def do_GET(self):
-        if self.path.endswith(".tpl"):
+        is_tpl, s = self.process_path(self.path)
+        if is_tpl:
             self.send_response(301)
             self.send_header("Content-type", "text/html")
             self.end_headers()
 
-            data = self.process_tpl(self.path)
+            data = self.process_tpl(s)
             self.wfile.write(data)
             self.wfile.close()
             return
         SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
+
+    def process_path(self,s):
+        #A template link is all caps and is associated to a lower().tpl file in base_path
+        if s == "/":
+            return True,"home.tpl"
+
+        ret = False,""
+        s = s.replace("/","")
+        if s.endswith(".tpl"):
+           return True,s
+
+        s = s.lower()+".tpl"
+
+        #these do not exactly match, so let's make them!
+        s = s.replace("configsta","config_sta") 
+        s = s.replace("configap","config_ap") 
+        s = s.replace("configsys","system") 
+
+        if os.path.exists(os.path.join(base_path,s)):
+            ret = True,s
+
+        return ret
 
     def process_tpl(self,fn):
         p = re.compile('\$(.*?)\$')
@@ -44,7 +68,7 @@ class MyHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             if dd != data:
                 data = dd
                 tags = p.findall(data)
-                n = len(tags)
+                n_tags = len(tags)
             else:
                 i = i+1
         return data
@@ -72,3 +96,4 @@ if __name__ == '__main__':
     handler = MyHandler
     server = SocketServer.TCPServer(("",8080), handler)
     server.serve_forever()
+
