@@ -2641,10 +2641,6 @@ void WebUpdateUpload()
 	yield();
 }
 
-void handleFileUpload(){
-   if(web_interface->WebServer.uri() == "/FILES") SPIFFSFileupload();
-   if(web_interface->WebServer.uri() == "/UPDATE") WebUpdateUpload();
-}
 
 void handleUpdate(){
 	web_interface->is_authenticated();
@@ -3171,12 +3167,11 @@ WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port):WebServer(port)
 	WebServer.on("/PRINTER",HTTP_ANY, handle_web_interface_printer);
 	WebServer.on("/CMD",HTTP_ANY, handle_web_command);
 	WebServer.on("/RESTART",HTTP_GET, handle_restart);
-	WebServer.on("/UPDATE",HTTP_ANY, handleUpdate);
-	WebServer.on("/FILES", HTTP_ANY, handleFileList);
+	WebServer.on("/UPDATE",HTTP_ANY, handleUpdate,WebUpdateUpload);
+	WebServer.on("/FILES", HTTP_ANY, handleFileList,SPIFFSFileupload);
 	WebServer.on("/SDFILES", HTTP_ANY, handleSDFileList);
 	WebServer.on("/LOGIN", HTTP_ANY, handle_login);
 	WebServer.on("/PASSWORD", HTTP_ANY, handle_password);
-	WebServer.onFileUpload(handleFileUpload);
 	//Captive portal Feature
 	#ifdef CAPTIVE_PORTAL_FEATURE
 	WebServer.on("/generate_204",HTTP_ANY, handle_web_interface_root);
