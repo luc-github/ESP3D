@@ -90,6 +90,7 @@ const char KEY_MENU_AP [] PROGMEM ="$MENU_AP$";
 const char KEY_MENU_STA [] PROGMEM ="$MENU_STA$";
 const char KEY_MENU_PRINTER [] PROGMEM ="$MENU_PRINTER$";
 const char KEY_MENU_SETTINGS [] PROGMEM ="$MENU_SETTINGS$";
+const char KEY_MENU_ADMIN [] PROGMEM ="$MENU_ADMIN$";
 const char KEY_FW_VER [] PROGMEM ="$FW_VER$";
 const char KEY_CHIP_ID [] PROGMEM ="$CHIP_ID$";
 const char KEY_CPU_FREQ [] PROGMEM ="$CPU_FREQ$";
@@ -1194,10 +1195,10 @@ void handle_password()
 	//page title and filenames
 	SetPageProp(KeysList,ValuesList,FPSTR(VALUE_CHANGE_PASSWORD),F("password"));
 	//menu item
-	KeysList.add(FPSTR(KEY_MENU_AP));
+  KeysList.add(FPSTR(KEY_MENU_ADMIN));
 	ValuesList.add(FPSTR(VALUE_ACTIVE));
 
-  //check is it is a submission or a display
+  //check if it is a submission or a display
   smsg="";
   if (web_interface->WebServer.hasArg("SUBMIT"))
   {   //is there a correct list of values?
