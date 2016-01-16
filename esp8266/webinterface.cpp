@@ -690,7 +690,6 @@ void handle_web_interface_root()
 	if (web_interface->is_authenticated())ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
 	else ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
 
-
 	//IP+Web
 	GetIpWeb(KeysList, ValuesList);
 
@@ -1249,7 +1248,7 @@ void handle_password()
 			}
 		}
   
-	else //no submit need to get data from EEPROM
+	else //no submit, need to get data from EEPROM
 	{
 	//password 
 	sPassword="";
@@ -1321,8 +1320,6 @@ void handle_web_interface_configAP()
 		return;
 	}
 
-	//Firmware and Free Mem, put at the end to reflect situation
-	GetFreeMem(KeysList, ValuesList);
 	//IP+Web
 	GetIpWeb(KeysList, ValuesList);
 	//mode
@@ -2790,12 +2787,12 @@ WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port):WebServer(port)
 	restartmodule=false;
 	//rolling list of 4entries with a maximum of 50 char for each entry
 	error_msg.setsize(4);
-	error_msg.setlenght(50);
+  error_msg.setlength(50);
 	info_msg.setsize(4);
-	info_msg.setlenght(50);
+  info_msg.setlength(50);
 	status_msg.setsize(4);
-	status_msg.setlenght(50);
-	fileslist.setlenght(30);//12 for filename + space + size
+  status_msg.setlength(50);
+  fileslist.setlength(30);//12 for filename + space + size
 	fileslist.setsize(70); // 70 files to limite to 2K
 	fsUploadFile=(fs::File)0;
 	_head=NULL;
