@@ -346,7 +346,7 @@ void CONFIG::print_config()
  #else
   Serial.println(F("Disabled"));
 #endif
-  Serial.print(F("mDNS : "));
+  Serial.print(F("mDNS: "));
 #ifdef MDNS_FEATURE
   Serial.println(F("Enabled"));
  #else

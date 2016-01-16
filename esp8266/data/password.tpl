@@ -5,7 +5,7 @@ $INCLUDE[header.inc]$
 <form method="POST">
 <div id="divpassword1" class="form-group $PASSWORD_STATUS$" ><label class="control-label"  for="PASSWORD1">Password: </label><br>
 <input type="password" class="form-control" onkeyup="checkpassword()"  id="PASSWORD1" name="PASSWORD" placeholder="Password (1~16)" value="$PASSWORD$" max="16" m1n="1" style="width: auto;"></div>
-<div id="divpassword2" class="form-group $PASSWORD_STATUS2$"><label class="control-label"for="PASSWORD2">Confirm Password :</label><br>
+<div id="divpassword2" class="form-group $PASSWORD_STATUS2$"><label class="control-label"for="PASSWORD2">Confirm Password:</label><br>
 <input type="password" class="form-control" onkeyup="checkpassword()" id="PASSWORD2" name="PASSWORD2" placeholder="Password (1~16)" max="16"  minn="1" value="$PASSWORD2$" style="width: auto;"></div>
 <div class="alert alert-danger" role="alert" id="alerterror" style="$ERROR_MSG_VISIBILITY$" >
 $ERROR_MSG$

@@ -73,7 +73,7 @@ content +="</div></TD><td></td></TR>";
 }
  document.getElementById('file_list').innerHTML=content;}
 function Delete(filename){
-if (confirm("Confirm deletion of :" + filename))SendCommand("delete",filename);
+if (confirm("Confirm deletion of:" + filename))SendCommand("delete",filename);
 }
 function SendCommand(action,filename){
 var xmlhttp = new XMLHttpRequest();

@@ -6,7 +6,7 @@ $INCLUDE[header.inc]$
 <div class="form-group $AP_SSID_STATUS$">
 <label class="control-label" for="CONFIG1">SSID: </label><br>
 <input type="text" class="form-control" id="CONFIG1" name="SSID" placeholder="SSID (8~32)" max="32"  value="$AP_SSID$" style="width: auto;"></div>
-<div class="form-group $AP_PASSWORD_STATUS$"><label class="control-label" for="CONFIG2">Password :</label><br>
+<div class="form-group $AP_PASSWORD_STATUS$"><label class="control-label" for="CONFIG2">Password:</label><br>
 <input type="password" class="form-control" id="CONFIG2" name="PASSWORD" placeholder="Password (0~64)" max="64"  value="$AP_PASSWORD$" style="width: auto;"></div>
 <div class="checkbox $IS_SSID_VISIBLE_STATUS$"><label class="control-label"><input type="checkbox" name="SSID_VISIBLE" $IS_SSID_VISIBLE$>Visible</label></div>
 <div class="form-group $NETWORK_OPTION_LIST_STATUS$"><label class="control-label" for="CONFIG3">Network: </label><br>

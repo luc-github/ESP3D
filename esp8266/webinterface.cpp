@@ -298,7 +298,7 @@ sprintf(result,"%d",value);
 return result;
 }
 
-//TODO : should be in webserver class
+//TODO: should be in webserver class
 bool processTemplate(const char  * filename, STORESTRINGS_CLASS & KeysList ,  STORESTRINGS_CLASS & ValuesList )
 {
 	if(KeysList.size() != ValuesList.size())  //Sanity check  
@@ -352,7 +352,7 @@ bool processTemplate(const char  * filename, STORESTRINGS_CLASS & KeysList ,  ST
 										File includefile = SPIFFS.open(includefilename, "r");
 										 if (!includefile)  //if error display it on web page
 											{
-											buffer2send+= String("Error opening : ") + includefilename;
+											buffer2send+= String("Error opening: ") + includefilename;
 											}
 										else //if include is open lets read it, current open file is now include file
 											{

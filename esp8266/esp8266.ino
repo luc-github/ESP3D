@@ -17,7 +17,7 @@
     This firmware is using the standard arduino IDE with module to support ESP8266:
     https://github.com/esp8266/Arduino from Bootmanager
 
-    Latest version of the code and documentation can be found here :
+    Latest version of the code and documentation can be found here:
     https://github.com/luc-github/ESP8266
     
     Main author: luc lebosse
@@ -56,7 +56,7 @@ WiFiServer * data_server;
 WiFiClient serverClients[MAX_SRV_CLIENTS];
 
 void setup() {
-  // init :
+  // init:
    web_interface = NULL;
   data_server = NULL;
  // ESP.wdtDisable();
