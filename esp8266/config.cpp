@@ -31,22 +31,21 @@ bool CONFIG::read_string(int pos, char byte_buffer[], int size_max)
   //check if parameters are acceptable
   if (size_max==0 ||  pos+size_max+1 > EEPROM_SIZE || byte_buffer== NULL)return false;
   EEPROM.begin(EEPROM_SIZE);
-  byte b=0;
+  byte b = 13; // non zero for the while loop below
   int i=0;
-  //read first byte
-  b = EEPROM.read(pos + i);
-  byte_buffer[i]=b;
-  i++;
+
   //read until max size is reached or \0 is found
-  while (i<size_max+1 && b!=0)
+  while (i < size_max && b != 0)
   {
     b = EEPROM.read(pos+i);
     byte_buffer[i]=b; 
     i++;
   } 
-  //if it is a string be sure there is an 0 at the end
+  
+  // Be sure there is a 0 at the end.
   if (b!=0)byte_buffer[i-1]=0x00; 
   EEPROM.end();
+  
   return true;
 }
 
@@ -54,22 +53,20 @@ bool CONFIG::read_string(int pos, String & sbuffer, int size_max)
 {
   //check if parameters are acceptable
   if (size_max==0 ||  pos+size_max+1 > EEPROM_SIZE )return false;
-  byte b=0;
+  byte b = 13; // non zero for the while loop below
   int i=0;
   sbuffer="";
+
   EEPROM.begin(EEPROM_SIZE);
-  //read first byte
-  b = EEPROM.read(pos + i);
-  sbuffer+=char(b);
-  i++;
   //read until max size is reached or \0 is found
-  while (i<size_max+1 && b!=0)
+  while (i < size_max && b != 0)
   {
     b = EEPROM.read(pos+i);
     sbuffer+=char(b); 
     i++;
   } 
   EEPROM.end();
+
   return true;
 }
 
@@ -182,7 +179,7 @@ bool CONFIG::reset_config()
 
 void CONFIG::print_config()
 {
- //use bigest size for buffer
+  //use biggest size for buffer
   char sbuf[MAX_PASSWORD_LENGTH+1];
   byte bbuf=0;
   int ibuf=0;
