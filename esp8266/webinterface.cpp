@@ -799,7 +799,7 @@ void handle_web_interface_root()
 	//Boot version
 	KeysList.add(FPSTR(KEY_BOOT_VER));
 	ValuesList.add(intTostr(system_get_boot_version()));
-	//baud rate
+	//Baud rate
 	KeysList.add(FPSTR(KEY_BAUD_RATE));
 	ValuesList.add(intTostr(wifi_config.baud_rate));
 	// Web and Data ports
@@ -865,7 +865,7 @@ void handle_web_interface_root()
 		//SSID
 		KeysList.add(FPSTR(KEY_AP_SSID));
 		ValuesList.add((char *)(apconfig.ssid));
-		//AP visibile or hidden
+		//AP visible or hidden
 		KeysList.add(FPSTR(KEY_AP_IS_VISIBLE));
 		if(apconfig.ssid_hidden==1)ValuesList.add(FPSTR(VALUE_NO));
 		else ValuesList.add(FPSTR(VALUE_YES));
@@ -889,7 +889,7 @@ void handle_web_interface_root()
 		//SSID
 		KeysList.add(FPSTR(KEY_AP_SSID));
 		ValuesList.add(FPSTR(VALUE_NOT_AVAILABLE));
-		//AP visibile or hidden
+		//AP visible or hidden
 		KeysList.add(FPSTR(KEY_AP_IS_VISIBLE));
 		ValuesList.add(FPSTR(VALUE_NOT_AVAILABLE));
 		//Channel
@@ -902,11 +902,10 @@ void handle_web_interface_root()
 		KeysList.add(FPSTR(KEY_AP_MAX_CON));
 		ValuesList.add(FPSTR(VALUE_NOT_AVAILABLE));
 		}
-	KeysList.add(FPSTR(KEY_AP_DHCP_STATUS));
-	if (wifi_softap_dhcps_status()==DHCP_STARTED)ValuesList.add(FPSTR(VALUE_STARTED));
-	else ValuesList.add(FPSTR(VALUE_STOPPED));
-	//IP/GW/MASK
-	if (wifi_get_ip_info(SOFTAP_IF,&info))
+		//DHCP Status
+		GetDHCPStatus(KeysList, ValuesList);
+		//IP/GW/MASK
+		if (wifi_get_ip_info(SOFTAP_IF,&info))
 		{
 			//IP address
 			KeysList.add(FPSTR(KEY_AP_IP));
@@ -2639,50 +2638,16 @@ else
 			STORESTRINGS_CLASS KeysList ;
 			STORESTRINGS_CLASS ValuesList ;
 			String stmp;
-			KeysList.add(FPSTR(KEY_FREE_MEM));
-			ValuesList.add(intTostr(system_get_free_heap_size()));
-			//IP
-			stmp=FPSTR(KEY_IP);
-			KeysList.add(stmp);
-			if (wifi_get_opmode()==WIFI_STA ) stmp=WiFi.localIP().toString();
-			else stmp=WiFi.softAPIP().toString();
-			ValuesList.add(stmp);
-			//Web address = ip + port
-			KeysList.add(FPSTR(KEY_WEB_ADDRESS));
-			if (wifi_config.iweb_port!=80)
-				{
-				stmp+=":";
-				stmp+=intTostr(wifi_config.iweb_port);
-				}
-			ValuesList.add(stmp);
+
+	  //Free Mem
+	  GetFreeMem(KeysList, ValuesList);
+	  //IP+Web
+	  GetIpWeb(KeysList, ValuesList);
 			//mode
-			if (wifi_get_opmode()==WIFI_STA )
-				{
-				KeysList.add(FPSTR(KEY_MODE));
-				ValuesList.add(FPSTR(VALUE_STA));
-				}
-			else
-				{
-				if (wifi_get_opmode()==WIFI_AP )
-					{
-						KeysList.add(FPSTR(KEY_MODE));
-						ValuesList.add(FPSTR(VALUE_AP));
-					}
-				else
-					{
-						KeysList.add(FPSTR(KEY_MODE));
-						ValuesList.add(FPSTR(VALUE_AP_STA));
-					}
-				}
-			//page title
-			KeysList.add(FPSTR(KEY_PAGE_TITLE));
-			ValuesList.add("404 Page not found");
-			//tpl file name with extension
-			KeysList.add(FPSTR(KEY_FILE_NAME));
-			ValuesList.add("404.tpl");
-			//tpl file name without extension
-			KeysList.add(FPSTR(KEY_SHORT_FILE_NAME));
-			ValuesList.add("404");
+	  GetMode(KeysList, ValuesList);
+	  //page title and filenames
+	  SetPageProp(KeysList,ValuesList,F("404 Page not found"),F("404"));
+	  
 			//process the template file and provide list of variables
 			processTemplate("/404.tpl", KeysList , ValuesList);
 			//need to clean to speed up memory recovery
