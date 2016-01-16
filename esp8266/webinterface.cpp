@@ -301,6 +301,9 @@ return result;
 //TODO : should be in webserver class
 bool processTemplate(const char  * filename, STORESTRINGS_CLASS & KeysList ,  STORESTRINGS_CLASS & ValuesList )
 {
+	if(KeysList.size() != ValuesList.size())  //Sanity check  
+	return false;
+
 	LinkedList<File> myFileList  = LinkedList<File>();
 	String  buffer2send;
 	String bufferheader;
@@ -510,6 +513,165 @@ bool processTemplate(const char  * filename, STORESTRINGS_CLASS & KeysList ,  ST
 	return true;
 }
 
+// -----------------------------------------------------------------------------
+// Helper for FreeMem and Firmware
+// -----------------------------------------------------------------------------
+void GetFreeMem(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList)
+{
+  //FreeMem
+  KeysList.add(FPSTR(KEY_FREE_MEM));
+  ValuesList.add(intTostr(system_get_free_heap_size()));
+  //FW Version
+  KeysList.add(FPSTR(KEY_FW_VER));
+  ValuesList.add(FPSTR(VALUE_FW_VERSION));
+}
+// -----------------------------------------------------------------------------
+// Helper for IP+Web address
+// -----------------------------------------------------------------------------
+void GetIpWeb(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList)
+{
+  String stmp;
+  
+  KeysList.add(FPSTR(KEY_IP));
+  if (wifi_get_opmode() == WIFI_STA )
+    stmp = WiFi.localIP().toString();
+  else stmp = WiFi.softAPIP().toString();
+  ValuesList.add(stmp);
+
+  //Web address = ip + port
+  KeysList.add(FPSTR(KEY_WEB_ADDRESS));
+  if (wifi_config.iweb_port != 80)
+    {
+      stmp.concat(":");
+      stmp.concat(wifi_config.iweb_port);
+    }
+  ValuesList.add(stmp);
+}
+// -----------------------------------------------------------------------------
+// Helper for Wifi Mode
+// -----------------------------------------------------------------------------
+void GetMode(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList)
+{
+  if (wifi_get_opmode() == WIFI_STA )
+    {
+      KeysList.add(FPSTR(KEY_MODE));
+      ValuesList.add(FPSTR(VALUE_STA));
+    }
+  else
+    {
+      if (wifi_get_opmode() == WIFI_AP )
+	{
+	  KeysList.add(FPSTR(KEY_MODE));
+	  ValuesList.add(FPSTR(VALUE_AP));
+	}
+      else
+	{
+	  KeysList.add(FPSTR(KEY_MODE));
+	  ValuesList.add(FPSTR(VALUE_AP_STA));
+	}
+    }
+}
+// -----------------------------------------------------------------------------
+// Helper for Web ports
+// -----------------------------------------------------------------------------
+void GetPorts(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList)
+{
+  //Web port
+  KeysList.add(FPSTR(KEY_WEB_PORT));
+  ValuesList.add(intTostr(wifi_config.iweb_port));
+  //Data port
+  KeysList.add(FPSTR(KEY_DATA_PORT));
+  ValuesList.add(intTostr(wifi_config.idata_port));
+}
+// -----------------------------------------------------------------------------
+// Helper for Page properties
+// -----------------------------------------------------------------------------
+void SetPageProp(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList,
+		 const __FlashStringHelper *title, const __FlashStringHelper *filename)
+{
+  String fullFilename(filename);
+  fullFilename.concat(".tpl");
+
+  //page title
+  KeysList.add(FPSTR(KEY_PAGE_TITLE));
+  ValuesList.add(title);
+  //tpl file name with extension
+  KeysList.add(FPSTR(KEY_FILE_NAME));
+  ValuesList.add(fullFilename);
+  //tpl file name without extension
+  KeysList.add(FPSTR(KEY_SHORT_FILE_NAME));
+  ValuesList.add(filename);
+}
+
+// -----------------------------------------------------------------------------
+// Helper for DHCP (APP/STA)tus
+// -----------------------------------------------------------------------------
+void GetDHCPStatus(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList)
+{
+  KeysList.add(FPSTR(KEY_AP_DHCP_STATUS));
+  if (wifi_softap_dhcps_status() == DHCP_STARTED) ValuesList.add(FPSTR(VALUE_STARTED));
+  else ValuesList.add(FPSTR(VALUE_STOPPED));
+
+  KeysList.add(FPSTR(KEY_STA_DHCP_STATUS));
+  if (wifi_station_dhcpc_status()==DHCP_STARTED)ValuesList.add(FPSTR(VALUE_STARTED));
+  else ValuesList.add(FPSTR(VALUE_STOPPED));
+}
+
+// -----------------------------------------------------------------------------
+// Helper for Error Msg processing
+// -----------------------------------------------------------------------------
+void ProcessAlertError(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList, String & smsg)
+{
+  KeysList.add(FPSTR(KEY_ERROR_MSG));
+  ValuesList.add(smsg);
+  KeysList.add(FPSTR(KEY_SUCCESS_MSG));
+  ValuesList.add("");
+  KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
+  ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
+  KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
+  ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
+  KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
+  ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
+  KeysList.add(FPSTR(KEY_SERVICE_PAGE));
+  ValuesList.add("");
+}
+
+// -----------------------------------------------------------------------------
+// Helper for Success Msg processing
+// -----------------------------------------------------------------------------
+void ProcessAlertSuccess(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList, String & smsg)
+{
+  KeysList.add(FPSTR(KEY_ERROR_MSG));
+  ValuesList.add("");
+  KeysList.add(FPSTR(KEY_SUCCESS_MSG));
+  ValuesList.add(smsg);
+  KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
+  ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
+  KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
+  ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
+  KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
+  ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
+}
+
+// -----------------------------------------------------------------------------
+// Helper for No Msg processing
+// -----------------------------------------------------------------------------
+void ProcessNoAlert(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList)
+{
+  KeysList.add(FPSTR(KEY_ERROR_MSG));
+  ValuesList.add("");
+  KeysList.add(FPSTR(KEY_SUCCESS_MSG));
+  ValuesList.add("");
+  KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
+  ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
+  KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
+  ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
+  KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
+  ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
+  KeysList.add(FPSTR(KEY_SERVICE_PAGE));
+  ValuesList.add("");
+}
+
 //root insterface
 void handle_web_interface_root()
 {
@@ -522,26 +684,16 @@ void handle_web_interface_root()
 	struct softap_config apconfig;
 	struct ip_info info;
 	uint8_t mac [WL_MAC_ADDR_LENGTH];
+
 	KeysList.add(FPSTR(KEY_DISCONNECT_VISIBILITY));
 	if (web_interface->is_authenticated())ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
 	else ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-	//Free Mem, put at the end to reflect situation
-	KeysList.add(FPSTR(KEY_FREE_MEM));
-	ValuesList.add(intTostr(system_get_free_heap_size()));
-	//IP
-	stmp=FPSTR(KEY_IP);
-	KeysList.add(stmp);
-	if (wifi_get_opmode()==WIFI_STA ) stmp=WiFi.localIP().toString();
-	else stmp=WiFi.softAPIP().toString();
-	ValuesList.add(stmp);
-	//Web address = ip + port
-	KeysList.add(FPSTR(KEY_WEB_ADDRESS));
-	if (wifi_config.iweb_port!=80)
-		{
-		stmp+=":";
-		stmp+=intTostr(wifi_config.iweb_port);
-		}
-	ValuesList.add(stmp);
+
+	//Firmware & Free Mem, put at the end to reflect situation
+	GetFreeMem(KeysList, ValuesList);
+	//IP+Web
+	GetIpWeb(KeysList, ValuesList);
+
 	//Hostname
 	if (wifi_get_opmode()==WIFI_STA )
 		{
@@ -569,30 +721,22 @@ void handle_web_interface_root()
 				ValuesList.add(FPSTR(VALUE_AP_STA));
 			}
 		}
-	//page title
-	KeysList.add(FPSTR(KEY_PAGE_TITLE));
-	ValuesList.add(FPSTR(VALUE_HOME));
-	//tpl file name with extension
-	KeysList.add(FPSTR(KEY_FILE_NAME));
-	ValuesList.add("home.tpl");
-	//tpl file name without extension
-	KeysList.add(FPSTR(KEY_SHORT_FILE_NAME));
-	ValuesList.add("home");
+
+	//page title and filenames
+	SetPageProp(KeysList,ValuesList,FPSTR(VALUE_HOME),F("home"));
 	//menu item
 	KeysList.add(FPSTR(KEY_MENU_HOME));
 	ValuesList.add(FPSTR(VALUE_ACTIVE));
-	//FW Version
-	KeysList.add(FPSTR(KEY_FW_VER));
-	ValuesList.add(FPSTR(VALUE_FW_VERSION));
 	//Chip ID
 	KeysList.add(FPSTR(KEY_CHIP_ID));
-	ValuesList.add( intTostr(system_get_chip_id()));
+	ValuesList.add(intTostr(system_get_chip_id()));
 	//CPU Freq
 	KeysList.add(FPSTR(KEY_CPU_FREQ));
 	ValuesList.add(intTostr(system_get_cpu_freq()));
 	//SDK Version
 	KeysList.add(FPSTR(KEY_SDK_VER));
 	ValuesList.add(system_get_sdk_version());
+
 	//MDNS Feature
 	#ifdef MDNS_FEATURE
 	KeysList.add(FPSTR(KEY_MDNS_NAME));
@@ -658,12 +802,9 @@ void handle_web_interface_root()
 	//baud rate
 	KeysList.add(FPSTR(KEY_BAUD_RATE));
 	ValuesList.add(intTostr(wifi_config.baud_rate));
-	//Web Port
-	KeysList.add(FPSTR(KEY_WEB_PORT));
-	ValuesList.add(intTostr(wifi_config.iweb_port));
-	//Web Port
-	KeysList.add(FPSTR(KEY_DATA_PORT));
-	ValuesList.add(intTostr(wifi_config.idata_port));
+	// Web and Data ports
+	GetPorts(KeysList, ValuesList);
+
 	//AP part
 	if (wifi_get_opmode()==WIFI_AP ||  wifi_get_opmode()==WIFI_AP_STA) 
 		{
@@ -828,9 +969,7 @@ void handle_web_interface_root()
 	else if  (istatus==STATION_IDLE) ValuesList.add(FPSTR(VALUE_IDLE));//should not happen
 	else ValuesList.add(FPSTR(VALUE_DISCONNECTED));
 	//DHCP Client status
-	KeysList.add(FPSTR(KEY_STA_DHCP_STATUS));
-	if (wifi_station_dhcpc_status()==DHCP_STARTED)ValuesList.add(FPSTR(VALUE_STARTED));
-	else ValuesList.add(FPSTR(VALUE_STOPPED));
+	GetDHCPStatus(KeysList, ValuesList);
 	//IP address
 	KeysList.add(FPSTR(KEY_STA_IP));
 	ValuesList.add(WiFi.localIP().toString().c_str());
@@ -840,13 +979,12 @@ void handle_web_interface_root()
 	//Sub Net Mask
 	KeysList.add(FPSTR(KEY_STA_SUBNET));
 	ValuesList.add(WiFi.subnetMask().toString().c_str());
-    //Service page / no need refresh on this page
-    KeysList.add(FPSTR(KEY_SERVICE_PAGE));
+	//Service page / no need refresh on this page
+	KeysList.add(FPSTR(KEY_SERVICE_PAGE));
 	ValuesList.add("");
 
 	//process the template file and provide list of variables
-	if(KeysList.size()==ValuesList.size())	//Sanity check
-		processTemplate("/home.tpl", KeysList , ValuesList);
+	processTemplate("/home.tpl", KeysList , ValuesList);
 	//need to clean to speed up memory recovery
 	KeysList.clear();
 	ValuesList.clear();
@@ -875,54 +1013,14 @@ void handle_web_interface_configSys()
 		web_interface->WebServer.sendContent(header);
 		return;
 	}
-	//Free Mem, put at the end to reflect situation
-	KeysList.add(FPSTR(KEY_FREE_MEM));
-	ValuesList.add(intTostr(system_get_free_heap_size()));
-	//IP
-	stmp=FPSTR(KEY_IP);
-	KeysList.add(stmp);
-	if (wifi_get_opmode()==WIFI_STA ) stmp=WiFi.localIP().toString();
-	else stmp=WiFi.softAPIP().toString();
-	ValuesList.add(stmp);
-	//Web address = ip + port
-	KeysList.add(FPSTR(KEY_WEB_ADDRESS));
-	if (wifi_config.iweb_port!=80)
-		{
-		stmp+=":";
-		stmp+=intTostr(wifi_config.iweb_port);
-		}
-	ValuesList.add(stmp);
+	//Firmware and Free Mem, put at the end to reflect situation
+	GetFreeMem(KeysList, ValuesList);
+	//IP+Web
+	GetIpWeb(KeysList, ValuesList);
 	//mode
-	if (wifi_get_opmode()==WIFI_STA )
-		{
-		KeysList.add(FPSTR(KEY_MODE));
-		ValuesList.add(FPSTR(VALUE_STA));
-		}
-	else
-		{
-		if (wifi_get_opmode()==WIFI_AP )
-			{
-				KeysList.add(FPSTR(KEY_MODE));
-				ValuesList.add(FPSTR(VALUE_AP));
-			}
-		else
-			{
-				KeysList.add(FPSTR(KEY_MODE));
-				ValuesList.add(FPSTR(VALUE_AP_STA));
-			}
-		}
-	//FW Version
-	KeysList.add(FPSTR(KEY_FW_VER));
-	ValuesList.add(FPSTR(VALUE_FW_VERSION));
-	//page title
-	KeysList.add(FPSTR(KEY_PAGE_TITLE));
-	ValuesList.add(FPSTR(VALUE_HOME));
-	//tpl file name with extension
-	KeysList.add(FPSTR(KEY_FILE_NAME));
-	ValuesList.add("system.tpl");
-	//tpl file name without extension
-	KeysList.add(FPSTR(KEY_SHORT_FILE_NAME));
-	ValuesList.add("system");
+	GetMode(KeysList, ValuesList);
+	//page title and filenames
+	SetPageProp(KeysList,ValuesList,FPSTR(VALUE_HOME),F("system"));
 	//menu item
 	KeysList.add(FPSTR(KEY_MENU_SYSTEM));
 	ValuesList.add(FPSTR(VALUE_ACTIVE));
@@ -1038,13 +1136,9 @@ void handle_web_interface_configSys()
 	 KeysList.add(FPSTR(KEY_SLEEP_MODE_OPTIONS_LIST));
 	 ValuesList.add(stmp);
 	 
-	 //Web port
-	 KeysList.add(FPSTR(KEY_WEB_PORT));
-	 ValuesList.add(intTostr(iweb_port));
-	 
-	 //Data port
-	KeysList.add(FPSTR(KEY_DATA_PORT));
-	ValuesList.add(intTostr(idata_port));
+	// Web and Data ports
+	GetPorts(KeysList, ValuesList);
+
 	if (msg_alert_error)
 	{
 		KeysList.add(FPSTR(KEY_ERROR_MSG));
@@ -1102,8 +1196,7 @@ void handle_web_interface_configSys()
 	}
 	
 	//process the template file and provide list of variables
-	if(KeysList.size()==ValuesList.size())	//Sanity check
-		processTemplate("/system.tpl", KeysList , ValuesList);
+	processTemplate("/system.tpl", KeysList , ValuesList);
 	//need to clean to speed up memory recovery
 	KeysList.clear();
 	ValuesList.clear();
@@ -1124,54 +1217,14 @@ void handle_password()
 		web_interface->WebServer.sendContent(header);
 		return;
 	}
-	//Free Mem, put at the end to reflect situation
-	KeysList.add(FPSTR(KEY_FREE_MEM));
-	ValuesList.add(intTostr(system_get_free_heap_size()));
-	//IP
-	stmp=FPSTR(KEY_IP);
-	KeysList.add(stmp);
-	if (wifi_get_opmode()==WIFI_STA ) stmp=WiFi.localIP().toString();
-	else stmp=WiFi.softAPIP().toString();
-	ValuesList.add(stmp);
-	//Web address = ip + port
-	KeysList.add(FPSTR(KEY_WEB_ADDRESS));
-	if (wifi_config.iweb_port!=80)
-		{
-		stmp+=":";
-		stmp+=intTostr(wifi_config.iweb_port);
-		}
-	ValuesList.add(stmp);
+	//Firmware and Free Mem, put at the end to reflect situation
+	GetFreeMem(KeysList, ValuesList);
+	//IP+Web
+	GetIpWeb(KeysList, ValuesList);
 	//mode
-	if (wifi_get_opmode()==WIFI_STA )
-		{
-		KeysList.add(FPSTR(KEY_MODE));
-		ValuesList.add(FPSTR(VALUE_STA));
-		}
-	else
-		{
-		if (wifi_get_opmode()==WIFI_AP )
-			{
-				KeysList.add(FPSTR(KEY_MODE));
-				ValuesList.add(FPSTR(VALUE_AP));
-			}
-		else
-			{
-				KeysList.add(FPSTR(KEY_MODE));
-				ValuesList.add(FPSTR(VALUE_AP_STA));
-			}
-		}
-	//FW Version
-	KeysList.add(FPSTR(KEY_FW_VER));
-	ValuesList.add(FPSTR(VALUE_FW_VERSION));
-	//page title
-	KeysList.add(FPSTR(KEY_PAGE_TITLE));
-	ValuesList.add(FPSTR(VALUE_CHANGE_PASSWORD));
-	//tpl file name with extension
-	KeysList.add(FPSTR(KEY_FILE_NAME));
-	ValuesList.add("password.tpl");
-	//tpl file name without extension
-	KeysList.add(FPSTR(KEY_SHORT_FILE_NAME));
-	ValuesList.add("password");
+	GetMode(KeysList, ValuesList);
+	//page title and filenames
+	SetPageProp(KeysList,ValuesList,FPSTR(VALUE_CHANGE_PASSWORD),F("password"));
 	//menu item
 	KeysList.add(FPSTR(KEY_MENU_AP));
 	ValuesList.add(FPSTR(VALUE_ACTIVE));
@@ -1290,8 +1343,7 @@ if (msg_alert_error)
 		ValuesList.add("");
 	}
 	//process the template file and provide list of variables
-	if(KeysList.size()==ValuesList.size())	//Sanity check
-		processTemplate("/password.tpl", KeysList , ValuesList);
+	processTemplate("/password.tpl", KeysList , ValuesList);
 	//need to clean to speed up memory recovery
 	KeysList.clear();
 	ValuesList.clear();
@@ -1325,54 +1377,14 @@ void handle_web_interface_configAP()
 		web_interface->WebServer.sendContent(header);
 		return;
 	}
-	//Free Mem, put at the end to reflect situation
-	KeysList.add(FPSTR(KEY_FREE_MEM));
-	ValuesList.add(intTostr(system_get_free_heap_size()));
-	//IP
-	stmp=FPSTR(KEY_IP);
-	KeysList.add(stmp);
-	if (wifi_get_opmode()==WIFI_STA ) stmp=WiFi.localIP().toString();
-	else stmp=WiFi.softAPIP().toString();
-	ValuesList.add(stmp);
-	//Web address = ip + port
-	KeysList.add(FPSTR(KEY_WEB_ADDRESS));
-	if (wifi_config.iweb_port!=80)
-		{
-		stmp+=":";
-		stmp+=intTostr(wifi_config.iweb_port);
-		}
-	ValuesList.add(stmp);
+	//Firmware and Free Mem, put at the end to reflect situation
+	GetFreeMem(KeysList, ValuesList);
+	//IP+Web
+	GetIpWeb(KeysList, ValuesList);
 	//mode
-	if (wifi_get_opmode()==WIFI_STA )
-		{
-		KeysList.add(FPSTR(KEY_MODE));
-		ValuesList.add(FPSTR(VALUE_STA));
-		}
-	else
-		{
-		if (wifi_get_opmode()==WIFI_AP )
-			{
-				KeysList.add(FPSTR(KEY_MODE));
-				ValuesList.add(FPSTR(VALUE_AP));
-			}
-		else
-			{
-				KeysList.add(FPSTR(KEY_MODE));
-				ValuesList.add(FPSTR(VALUE_AP_STA));
-			}
-		}
-	//FW Version
-	KeysList.add(FPSTR(KEY_FW_VER));
-	ValuesList.add(FPSTR(VALUE_FW_VERSION));
-	//page title
-	KeysList.add(FPSTR(KEY_PAGE_TITLE));
-	ValuesList.add(FPSTR(VALUE_CONFIG_AP));
-	//tpl file name with extension
-	KeysList.add(FPSTR(KEY_FILE_NAME));
-	ValuesList.add("config_ap.tpl");
-	//tpl file name without extension
-	KeysList.add(FPSTR(KEY_SHORT_FILE_NAME));
-	ValuesList.add("config_ap");
+	GetMode(KeysList, ValuesList);
+	//page title and filenames
+	SetPageProp(KeysList,ValuesList,FPSTR(VALUE_CONFIG_AP),F("config_ap"));
 	//menu item
 	KeysList.add(FPSTR(KEY_MENU_AP));
 	ValuesList.add(FPSTR(VALUE_ACTIVE));
@@ -1701,8 +1713,7 @@ if (msg_alert_error)
 		ValuesList.add("");
 	}
 	//process the template file and provide list of variables
-	if(KeysList.size()==ValuesList.size())	//Sanity check
-		processTemplate("/config_ap.tpl", KeysList , ValuesList);
+	processTemplate("/config_ap.tpl", KeysList , ValuesList);
 	//need to clean to speed up memory recovery
 	KeysList.clear();
 	ValuesList.clear();
@@ -1731,55 +1742,15 @@ void handle_web_interface_configSTA()
 		web_interface->WebServer.sendContent(header);
 		return;
 	}
-	//Free Mem, put at the end to reflect situation
-	KeysList.add(FPSTR(KEY_FREE_MEM));
-	ValuesList.add(intTostr(system_get_free_heap_size()));
-	//IP
-	stmp=FPSTR(KEY_IP);
-	KeysList.add(stmp);
-	if (wifi_get_opmode()==WIFI_STA ) stmp=WiFi.localIP().toString();
-	else stmp=WiFi.softAPIP().toString();
-	ValuesList.add(stmp);
-	//Web address = ip + port
-	KeysList.add(FPSTR(KEY_WEB_ADDRESS));
-	if (wifi_config.iweb_port!=80)
-		{
-		stmp+=":";
-		stmp+=intTostr(wifi_config.iweb_port);
-		}
-	ValuesList.add(stmp);
+
+	//Firmware and Free Mem, put at the end to reflect situation
+	GetFreeMem(KeysList, ValuesList);
+	//IP+Web
+	GetIpWeb(KeysList, ValuesList);
 	//mode
-	if (wifi_get_opmode()==WIFI_STA )
-		{
-		KeysList.add(FPSTR(KEY_MODE));
-		ValuesList.add(FPSTR(VALUE_STA));
-		}
-	else
-		{
-		if (wifi_get_opmode()==WIFI_AP )
-			{
-				KeysList.add(FPSTR(KEY_MODE));
-				ValuesList.add(FPSTR(VALUE_AP));
-			}
-		else
-			{
-				KeysList.add(FPSTR(KEY_MODE));
-				ValuesList.add(FPSTR(VALUE_AP_STA));
-			}
-		}
-		
-	//FW Version
-	KeysList.add(FPSTR(KEY_FW_VER));
-	ValuesList.add(FPSTR(VALUE_FW_VERSION));
-	//page title
-	KeysList.add(FPSTR(KEY_PAGE_TITLE));
-	ValuesList.add(FPSTR(VALUE_CONFIG_STA));
-	//tpl file name with extension
-	KeysList.add(FPSTR(KEY_FILE_NAME));
-	ValuesList.add("config_sta.tpl");
-	//tpl file name without extension
-	KeysList.add(FPSTR(KEY_SHORT_FILE_NAME));
-	ValuesList.add("config_sta");
+	GetMode(KeysList, ValuesList);
+	//page title and filenames
+	SetPageProp(KeysList,ValuesList,FPSTR(VALUE_CONFIG_STA),F("config_sta"));
 	//menu item
 	KeysList.add(FPSTR(KEY_MENU_STA));
 	ValuesList.add(FPSTR(VALUE_ACTIVE));
@@ -2096,8 +2067,7 @@ if (msg_alert_error)
 	}
 	
 	//process the template file and provide list of variables
-	if(KeysList.size()==ValuesList.size())	//Sanity check
-		processTemplate("/config_sta.tpl", KeysList , ValuesList);
+	processTemplate("/config_sta.tpl", KeysList , ValuesList);
 	//need to clean to speed up memory recovery
 	KeysList.clear();
 	ValuesList.clear();
@@ -2116,54 +2086,15 @@ void handle_web_interface_printer()
 		web_interface->WebServer.sendContent(header);
 		return;
 	}
-	//Free Mem, put at the end to reflect situation
-	KeysList.add(FPSTR(KEY_FREE_MEM));
-	ValuesList.add(intTostr(system_get_free_heap_size()));
-	//IP
-	stmp=FPSTR(KEY_IP);
-	KeysList.add(stmp);
-	if (wifi_get_opmode()==WIFI_STA ) stmp=WiFi.localIP().toString();
-	else stmp=WiFi.softAPIP().toString();
-	ValuesList.add(stmp);
-	//Web address = ip + port
-	KeysList.add(FPSTR(KEY_WEB_ADDRESS));
-	if (wifi_config.iweb_port!=80)
-		{
-		stmp+=":";
-		stmp+=intTostr(wifi_config.iweb_port);
-		}
-	ValuesList.add(stmp);
+
+	//Firmware and Free Mem, put at the end to reflect situation
+	GetFreeMem(KeysList, ValuesList);
+	//IP+Web
+	GetIpWeb(KeysList, ValuesList);
 	//mode
-	if (wifi_get_opmode()==WIFI_STA )
-		{
-		KeysList.add(FPSTR(KEY_MODE));
-		ValuesList.add(FPSTR(VALUE_STA));
-		}
-	else
-		{
-		if (wifi_get_opmode()==WIFI_AP )
-			{
-				KeysList.add(FPSTR(KEY_MODE));
-				ValuesList.add(FPSTR(VALUE_AP));
-			}
-		else
-			{
-				KeysList.add(FPSTR(KEY_MODE));
-				ValuesList.add(FPSTR(VALUE_AP_STA));
-			}
-		}
-	//FW Version
-	KeysList.add(FPSTR(KEY_FW_VER));
-	ValuesList.add(FPSTR(VALUE_FW_VERSION));
-	//page title
-	KeysList.add(FPSTR(KEY_PAGE_TITLE));
-	ValuesList.add(FPSTR(VALUE_PRINTER));
-	//tpl file name with extension
-	KeysList.add(FPSTR(KEY_FILE_NAME));
-	ValuesList.add("printer.tpl");
-	//tpl file name without extension
-	KeysList.add(FPSTR(KEY_SHORT_FILE_NAME));
-	ValuesList.add("printer");
+	GetMode(KeysList, ValuesList);		
+	//page title and filenames
+	SetPageProp(KeysList,ValuesList,FPSTR(VALUE_PRINTER),F("printer"));
 	//menu item
 	KeysList.add(FPSTR(KEY_MENU_PRINTER));
 	ValuesList.add(FPSTR(VALUE_ACTIVE));
@@ -2193,8 +2124,7 @@ void handle_web_interface_printer()
     KeysList.add(FPSTR(KEY_SERVICE_PAGE));
 	ValuesList.add("");
 	
-	if(KeysList.size()==ValuesList.size())	//Sanity check
-		processTemplate("/printer.tpl", KeysList , ValuesList);
+	processTemplate("/printer.tpl", KeysList , ValuesList);
 	//need to clean to speed up memory recovery
 	KeysList.clear();
 	ValuesList.clear();
@@ -2217,54 +2147,14 @@ void handle_web_settings()
 		web_interface->WebServer.sendContent(header);
 		return;
 	}
-	//Free Mem, put at the end to reflect situation
-	KeysList.add(FPSTR(KEY_FREE_MEM));
-	ValuesList.add(intTostr(system_get_free_heap_size()));
-	//IP
-	stmp=FPSTR(KEY_IP);
-	KeysList.add(stmp);
-	if (wifi_get_opmode()==WIFI_STA ) stmp=WiFi.localIP().toString();
-	else stmp=WiFi.softAPIP().toString();
-	ValuesList.add(stmp);
-	//Web address = ip + port
-	KeysList.add(FPSTR(KEY_WEB_ADDRESS));
-	if (wifi_config.iweb_port!=80)
-		{
-		stmp+=":";
-		stmp+=intTostr(wifi_config.iweb_port);
-		}
-	ValuesList.add(stmp);
+	//Firmware and Free Mem, put at the end to reflect situation
+	GetFreeMem(KeysList, ValuesList);
+	//IP+Web
+	GetIpWeb(KeysList, ValuesList);
 	//mode
-	if (wifi_get_opmode()==WIFI_STA )
-		{
-		KeysList.add(FPSTR(KEY_MODE));
-		ValuesList.add(FPSTR(VALUE_STA));
-		}
-	else
-		{
-		if (wifi_get_opmode()==WIFI_AP )
-			{
-				KeysList.add(FPSTR(KEY_MODE));
-				ValuesList.add(FPSTR(VALUE_AP));
-			}
-		else
-			{
-				KeysList.add(FPSTR(KEY_MODE));
-				ValuesList.add(FPSTR(VALUE_AP_STA));
-			}
-		}
-	//FW Version
-	KeysList.add(FPSTR(KEY_FW_VER));
-	ValuesList.add(FPSTR(VALUE_FW_VERSION));
-	//page title
-	KeysList.add(FPSTR(KEY_PAGE_TITLE));
-	ValuesList.add(FPSTR(VALUE_SETTINGS));
-	//tpl file name with extension
-	KeysList.add(FPSTR(KEY_FILE_NAME));
-	ValuesList.add("settings.tpl");
-	//tpl file name without extension
-	KeysList.add(FPSTR(KEY_SHORT_FILE_NAME));
-	ValuesList.add("settings");
+	GetMode(KeysList, ValuesList);
+	//page title and filenames
+	SetPageProp(KeysList,ValuesList,FPSTR(VALUE_SETTINGS),F("settings"));
 	//menu item
 	KeysList.add(FPSTR(KEY_MENU_SETTINGS));
 	ValuesList.add(FPSTR(VALUE_ACTIVE));
@@ -2409,8 +2299,7 @@ void handle_web_settings()
 	}
 	
 	//process the template file and provide list of variables
-	if(KeysList.size()==ValuesList.size())	//Sanity check
-		processTemplate("/settings.tpl", KeysList , ValuesList);
+	processTemplate("/settings.tpl", KeysList , ValuesList);
 	//need to clean to speed up memory recovery
 	KeysList.clear();
 	ValuesList.clear();
@@ -2795,8 +2684,7 @@ else
 			KeysList.add(FPSTR(KEY_SHORT_FILE_NAME));
 			ValuesList.add("404");
 			//process the template file and provide list of variables
-			if(KeysList.size()==ValuesList.size())	//Sanity check
-				processTemplate("/404.tpl", KeysList , ValuesList);
+			processTemplate("/404.tpl", KeysList , ValuesList);
 			//need to clean to speed up memory recovery
 			KeysList.clear();
 			ValuesList.clear();
@@ -2902,57 +2790,17 @@ void handle_login()
 	//Display values
 	KeysList.add(FPSTR(KEY_RETURN));
 	ValuesList.add(sReturn);
-	//Free Mem, put at the end to reflect situation
-	KeysList.add(FPSTR(KEY_FREE_MEM));
-	ValuesList.add(intTostr(system_get_free_heap_size()));
+	//Firmware and Free Mem, put at the end to reflect situation
+	GetFreeMem(KeysList, ValuesList);
 	KeysList.add(FPSTR(KEY_DISCONNECT_VISIBILITY));
 	if (web_interface->is_authenticated())ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
 	else ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-	//IP
-	stmp=FPSTR(KEY_IP);
-	KeysList.add(stmp);
-	if (wifi_get_opmode()==WIFI_STA ) stmp=WiFi.localIP().toString();
-	else stmp=WiFi.softAPIP().toString();
-	ValuesList.add(stmp);
-	//Web address = ip + port
-	KeysList.add(FPSTR(KEY_WEB_ADDRESS));
-	if (wifi_config.iweb_port!=80)
-		{
-		stmp+=":";
-		stmp+=intTostr(wifi_config.iweb_port);
-		}
-	ValuesList.add(stmp);
+	//IP+Web
+	GetIpWeb(KeysList, ValuesList);
 	//mode
-	if (wifi_get_opmode()==WIFI_STA )
-		{
-		KeysList.add(FPSTR(KEY_MODE));
-		ValuesList.add(FPSTR(VALUE_STA));
-		}
-	else
-		{
-		if (wifi_get_opmode()==WIFI_AP )
-			{
-				KeysList.add(FPSTR(KEY_MODE));
-				ValuesList.add(FPSTR(VALUE_AP));
-			}
-		else
-			{
-				KeysList.add(FPSTR(KEY_MODE));
-				ValuesList.add(FPSTR(VALUE_AP_STA));
-			}
-		}
-	//FW Version
-	KeysList.add(FPSTR(KEY_FW_VER));
-	ValuesList.add(FPSTR(VALUE_FW_VERSION));
-	//page title
-	KeysList.add(FPSTR(KEY_PAGE_TITLE));
-	ValuesList.add(FPSTR(VALUE_LOGIN));
-	//tpl file name with extension
-	KeysList.add(FPSTR(KEY_FILE_NAME));
-	ValuesList.add("login.tpl");
-	//tpl file name without extension
-	KeysList.add(FPSTR(KEY_SHORT_FILE_NAME));
-	ValuesList.add("login");
+	GetMode(KeysList, ValuesList);
+	//page title and filenames
+	SetPageProp(KeysList,ValuesList,FPSTR(VALUE_LOGIN),F("login"));	
 	//password
 	KeysList.add(FPSTR(KEY_PASSWORD));
 	ValuesList.add(sPassword);
@@ -2988,8 +2836,7 @@ else
 		ValuesList.add("");
 	}
 	//process the template file and provide list of variables
-	if(KeysList.size()==ValuesList.size())	//Sanity check
-		processTemplate("/login.tpl", KeysList , ValuesList);
+	processTemplate("/login.tpl", KeysList , ValuesList);
 	//need to clean to speed up memory recovery
 	KeysList.clear();
 	ValuesList.clear();
@@ -3001,53 +2848,18 @@ void handle_restart()
 		STORESTRINGS_CLASS KeysList ;
 		STORESTRINGS_CLASS ValuesList ;
 		String stmp;
-		KeysList.add(FPSTR(KEY_FREE_MEM));
-		ValuesList.add(intTostr(system_get_free_heap_size()));
-		//IP
-		stmp=FPSTR(KEY_IP);
-		KeysList.add(stmp);
-		if (wifi_get_opmode()==WIFI_STA ) stmp=WiFi.localIP().toString();
-		else stmp=WiFi.softAPIP().toString();
-		ValuesList.add(stmp);
-		//Web address = ip + port
-		KeysList.add(FPSTR(KEY_WEB_ADDRESS));
-		if (wifi_config.iweb_port!=80)
-			{
-			stmp+=":";
-			stmp+=intTostr(wifi_config.iweb_port);
-			}
-		ValuesList.add(stmp);
+
+		//Free Mem, put at the end to reflect situation
+		GetFreeMem(KeysList, ValuesList);
+		//IP+Web
+		GetIpWeb(KeysList, ValuesList);
 		//mode
-		if (wifi_get_opmode()==WIFI_STA )
-			{
-			KeysList.add(FPSTR(KEY_MODE));
-			ValuesList.add(FPSTR(VALUE_STA));
-			}
-		else
-			{
-			if (wifi_get_opmode()==WIFI_AP )
-				{
-					KeysList.add(FPSTR(KEY_MODE));
-					ValuesList.add(FPSTR(VALUE_AP));
-				}
-			else
-				{
-					KeysList.add(FPSTR(KEY_MODE));
-					ValuesList.add(FPSTR(VALUE_AP_STA));
-				}
-			}
-		//page title
-		KeysList.add(FPSTR(KEY_PAGE_TITLE));
-		ValuesList.add("Restarting...");
-		//tpl file name with extension
-		KeysList.add(FPSTR(KEY_FILE_NAME));
-		ValuesList.add("restart.tpl");
-		//tpl file name without extension
-		KeysList.add(FPSTR(KEY_SHORT_FILE_NAME));
-		ValuesList.add("restart");
+		GetMode(KeysList, ValuesList);  
+		//page title and filenames
+		SetPageProp(KeysList,ValuesList,F("Restarting..."),F("restart"));
+		
 		//process the template file and provide list of variables
-		if(KeysList.size()==ValuesList.size())	//Sanity check
-			processTemplate("/restart.tpl", KeysList , ValuesList);
+		processTemplate("/restart.tpl", KeysList , ValuesList);
 		//need to clean to speed up memory recovery
 		KeysList.clear();
 		ValuesList.clear();
@@ -3292,4 +3104,3 @@ bool WEBINTERFACE_CLASS::ResetAuthIP(IPAddress ip,const char * sessionID)
 	return done;
 }
 WEBINTERFACE_CLASS * web_interface;
-
