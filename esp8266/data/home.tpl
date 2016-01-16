@@ -2,8 +2,8 @@ $INCLUDE[header.inc]$
 <div class="panel">
 <div class="panel-heading">System</div>
 <div class="panel-body"><label>Chip ID: </label><label class="text-info">$CHIP_ID$</label><BR>
-<label>CPU Frequency: </label><label class="text-info">$CPU_FREQ$Hz</label><BR>
-<label>Free Memory: </label><label class="text-info">$FREE_MEM$ octets</label><BR>
+<label>CPU Frequency: </label><label class="text-info">$CPU_FREQ$ MHz</label><BR>
+<label>Free Memory: </label><label class="text-info">$FREE_MEM$ bytes</label><BR>
 <label>SDK Version: </label><label class="text-info">$SDK_VER$</label><BR>
 <DIV style ="$HOSTNAME_VISIBLE$"><label>Hostname: </label><label class="text-info">$HOSTNAME$</label><BR></DIV>
 <DIV style ="$MDNS_VISIBLE$;"><label>mDNS name: </label><label class="text-info">$MDNS_NAME$</label><BR></DIV>
@@ -23,7 +23,7 @@ $INCLUDE[header.inc]$
 <label>Visible: </label><label class="text-info">$AP_IS_VISIBLE$</label><BR>
 <label>Channel: </label><label class="text-info">$AP_CHANNEL$</label><BR>
 <label>Authentification: </label><label class="text-info">$AP_AUTH$</label><BR>
-<label>Maximum connections : </label><label class="text-info">$AP_MAX_CON$</label><BR>
+<label>Maximum connections: </label><label class="text-info">$AP_MAX_CON$</label><BR>
 <label>DHCP Server: </label><label class="text-info">$AP_DHCP_STATUS$</label><BR>
 <label>IP: </label><label class="text-info">$AP_IP$</label><BR>
 <label>Gateway: </label><label class="text-info">$AP_GW$</label><BR>
