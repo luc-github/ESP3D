@@ -198,6 +198,8 @@ const char KEY_PASSWORD [] PROGMEM = "$PASSWORD$";
 const char KEY_PASSWORD2 [] PROGMEM = "$PASSWORD2$";
 const char KEY_RETURN [] PROGMEM = "$RETURN$";
 const char VALUE_CHANGE_PASSWORD [] PROGMEM = "Change Password";
+const char MISSING_DATA [] PROGMEM = "Error: Missing data";
+const char EEPROM_NOWRITE [] PROGMEM = "Error: Cannot write to EEPROM";
 
 bool WEBINTERFACE_CLASS::isHostnameValid(const char * hostname)
 {  //limited size 
@@ -302,9 +304,10 @@ bool processTemplate(const char  * filename, STORESTRINGS_CLASS & KeysList ,  ST
 
 	LinkedList<File> myFileList  = LinkedList<File>();
 	String  buffer2send;
-	String bufferheader;
+  String bufferheader(F("HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: "));
 	int size_content=0;
 	bool header_sent=false;
+  
 	//one loop to calculate size + one loop to really send
 	//size_content is a mandatory element to avoid memory leak
 	for(int processing_step=0;processing_step<2;processing_step++)
@@ -315,7 +318,7 @@ bool processTemplate(const char  * filename, STORESTRINGS_CLASS & KeysList ,  ST
 		//if error display error on web page
 		if (!currentfile) 
 			{
-				buffer2send = String("Error opening : ") + filename;
+	  buffer2send = String(F("Error opening: ")) + filename;
 				web_interface->WebServer.send(200,"text/plain",buffer2send);
 				return false;
 			}
@@ -324,6 +327,7 @@ bool processTemplate(const char  * filename, STORESTRINGS_CLASS & KeysList ,  ST
 				 int b ;
 				String sLine;
 				bool bprocessing=true;
+	  
 				while (bprocessing) //read all bytes
 				{
 				b = currentfile.read(); //from current open file
@@ -394,7 +398,6 @@ bool processTemplate(const char  * filename, STORESTRINGS_CLASS & KeysList ,  ST
 													}
 												//now build back
 												sLine = beforelinetoprocess + tablepart + afterlinetoprocess;
-												
 											}
 										
 										pos_tag=sLine.indexOf("$AVAILABLE_AP[");
@@ -436,7 +439,6 @@ bool processTemplate(const char  * filename, STORESTRINGS_CLASS & KeysList ,  ST
 													}
 												//now build back
 												sLine = beforelinetoprocess + tablepart + afterlinetoprocess;
-												
 											}
 										
 										//add current line to buffer
@@ -483,6 +485,7 @@ bool processTemplate(const char  * filename, STORESTRINGS_CLASS & KeysList ,  ST
 					}
 				}
 			}
+      
 		//check if something is still in buffer and need to be send
 		if (buffer2send!=""){
 			//if we are doing size calculation
@@ -503,12 +506,12 @@ bool processTemplate(const char  * filename, STORESTRINGS_CLASS & KeysList ,  ST
     //if we end size calculation loop
 	if (processing_step==0)
 		{  //let's build the header with correct size'
-			bufferheader = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: "+String(size_content)+"\r\nConnection: close\r\nAccess-Control-Allow-Origin: *\r\n\r\n";
+	  bufferheader.concat(size_content);
+	  bufferheader.concat(F("\r\nConnection: close\r\nAccess-Control-Allow-Origin: *\r\n\r\n"));
 		}
 	}
 	return true;
 }
-
 // -----------------------------------------------------------------------------
 // Helper for FreeMem and Firmware
 // -----------------------------------------------------------------------------
@@ -723,6 +726,7 @@ void handle_web_interface_root()
 	//menu item
 	KeysList.add(FPSTR(KEY_MENU_HOME));
 	ValuesList.add(FPSTR(VALUE_ACTIVE));
+  
 	//Chip ID
 	KeysList.add(FPSTR(KEY_CHIP_ID));
 	ValuesList.add(intTostr(system_get_chip_id()));
@@ -748,6 +752,7 @@ void handle_web_interface_root()
 	KeysList.add(FPSTR(KEY_MDNS_VISIBLE));
 	ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
 	#endif
+
 	//SSDP Feature
 	#ifdef SSDP_FEATURE
 	KeysList.add(FPSTR(KEY_SSDP_STATUS));
@@ -760,6 +765,7 @@ void handle_web_interface_root()
 	KeysList.add(FPSTR(KEY_SSDP_VISIBLE));
 	ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
 	#endif
+
 	//Captive portal Feature
 	#ifdef CAPTIVE_PORTAL_FEATURE
 	if (wifi_get_opmode()==WIFI_AP)
@@ -782,6 +788,7 @@ void handle_web_interface_root()
 	KeysList.add(FPSTR(KEY_CAPTIVE_PORTAL_VISIBLE));
 	ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
 	#endif
+
 	//network	
 	KeysList.add(FPSTR(KEY_NET_PHY));
 	if (wifi_get_phy_mode()==PHY_MODE_11B) ValuesList.add(FPSTR(VALUE_11B));
@@ -824,7 +831,6 @@ void handle_web_interface_root()
 				//BSSID
 				stmp = "$MAC_CONNECTED["+String(client_counter)+"]$";
 				KeysList.add(stmp.c_str());
-				
 				ValuesList.add(wifi_config.mac2str(station->bssid));
 				//IP
 				stmp = "$IP_CONNECTED["+String(client_counter)+"]$";
@@ -1002,12 +1008,14 @@ void handle_web_interface_configSys()
 	const __FlashStringHelper  *smodemdisplaylist[]={FPSTR(VALUE_NONE),FPSTR(VALUE_LIGHT),FPSTR(VALUE_MODEM),FPSTR(VALUE_MODEM)};
 	STORESTRINGS_CLASS KeysList ;
 	STORESTRINGS_CLASS ValuesList ;
+
 	if (!web_interface->is_authenticated())
 	{
 		String header = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=CONFIGSYS\r\nCache-Control: no-cache\r\n\r\n";
 		web_interface->WebServer.sendContent(header);
 		return;
 	}
+
 	//Firmware and Free Mem, put at the end to reflect situation
 	GetFreeMem(KeysList, ValuesList);
 	//IP+Web
@@ -1033,21 +1041,21 @@ void handle_web_interface_configSys()
 			if (!(iweb_port>0 && iweb_port<65001))
 				{
 					msg_alert_error=true;
-					smsg+="Error : invalid port value for web port<BR>";
+	      smsg.concat(F("Error: invalid port value for web port<BR>"));
 					KeysList.add(FPSTR(KEY_WEB_PORT_STATUS));
 					ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 			    }
 			 if (!(idata_port>0 && idata_port<65001))
 				{
 					msg_alert_error=true;
-					smsg+="Error : invalid port value for data port<BR>";
+	      smsg.concat("Error: invalid port value for data port<BR>");
 					KeysList.add(FPSTR(KEY_DATA_PORT_STATUS));
 					ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 			    }
 			if (iweb_port== idata_port)
 				{
 					msg_alert_error=true;
-					smsg+="Error : web port and data port cannot be identical<BR>";
+	      smsg.concat("Error: web port and data port cannot be identical<BR>");
 					KeysList.add(FPSTR(KEY_WEB_PORT_STATUS));
 					ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 					KeysList.add(FPSTR(KEY_DATA_PORT_STATUS));
@@ -1056,14 +1064,14 @@ void handle_web_interface_configSys()
 			if (!(ibaud==9600 || ibaud==19200|| ibaud==38400|| ibaud==57600|| ibaud==115200|| ibaud==230400 || ibaud==250000)) 
 				{
 					msg_alert_error=true;
-					smsg+="Error : value for baud rate is not correct<BR>";
+	      smsg.concat(F("Error: value for baud rate is not correct<BR>"));
 					KeysList.add(FPSTR(KEY_BAUD_RATE_STATUS));
 					ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 			    }
 			if (!(bsleepmode==NONE_SLEEP_T ||bsleepmode==LIGHT_SLEEP_T ||bsleepmode==MODEM_SLEEP_T ))
 				{
 					msg_alert_error=true;
-					smsg+="Error : value for sleeping mode is not correct<BR>";
+	      smsg.concat(F("Error: value for sleeping mode is not correct<BR>"));
 					KeysList.add(FPSTR(KEY_SLEEP_MODE_STATUS));
 					ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 			    }
@@ -1071,7 +1079,7 @@ void handle_web_interface_configSys()
 	  else
 	   {
 		msg_alert_error=true;
-		smsg="Error : Missing data";
+	  smsg = FPSTR(MISSING_DATA);
 	   }
 	   //if no error apply the changes
 		if (msg_alert_error!=true)
@@ -1079,17 +1087,16 @@ void handle_web_interface_configSys()
 			 if(!CONFIG::write_buffer(EP_BAUD_RATE,(const byte *)&ibaud,INTEGER_LENGTH)||!CONFIG::write_buffer(EP_WEB_PORT,(const byte *)&iweb_port,INTEGER_LENGTH)||!CONFIG::write_buffer(EP_DATA_PORT,(const byte *)&idata_port,INTEGER_LENGTH)||!CONFIG::write_byte(EP_SLEEP_MODE,bsleepmode))
 				{
 					msg_alert_error=true;
-					smsg="Error : Cannot write to EEPROM";
+	      smsg = FPSTR(EEPROM_NOWRITE);
 				}
 			else
 				{
 					msg_alert_success=true;
 					wifi_config.iweb_port=iweb_port;
 					wifi_config.idata_port=idata_port;
-					smsg="Changes saved to EEPROM, restarting....";
+	      smsg = F("Changes saved to EEPROM, restarting....");
 				}
 			}
-		
   }
   else //no submit need to get data from EEPROM
 	{
@@ -1177,6 +1184,7 @@ void handle_password()
 		web_interface->WebServer.sendContent(header);
 		return;
 	}
+
 	//Firmware and Free Mem, put at the end to reflect situation
 	GetFreeMem(KeysList, ValuesList);
 	//IP+Web
@@ -1201,23 +1209,22 @@ void handle_password()
 		    if (!web_interface->isAdminPasswordValid(sPassword.c_str()) )
 				{
 				msg_alert_error=true;
-				smsg+="Error : Incorrect password<BR>";
+	      smsg.concat(F("Error: Incorrect password<BR>"));
 				KeysList.add(FPSTR(KEY_PASSWORD_STATUS));
 				ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				}
 			if (sPassword!=sPassword2)
 				{
 				msg_alert_error=true;
-				smsg+="Error : Passwords do not match<BR>";
+	      smsg.concat(F("Error: Passwords do not match<BR>"));
 				KeysList.add(FPSTR(KEY_PASSWORD_STATUS2));
 				ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				}
-			
 		}
       else
 	   {
 		msg_alert_error=true;
-		smsg="Error : Missing data";
+	  smsg = FPSTR(MISSING_DATA);
 	   }
 	  
 	   //if no error apply the change
@@ -1227,12 +1234,12 @@ void handle_password()
 		 if(!CONFIG::write_string(EP_ADMIN_PWD,sPassword.c_str()))
 			{
 				msg_alert_error=true;
-			    smsg="Error : Cannot write to EEPROM";
+	      smsg = FPSTR(EEPROM_NOWRITE);
 			}
 		else
 				{
 					msg_alert_success=true;
-					smsg="Changes saved to EEPROM";
+	      smsg = F("Changes saved to EEPROM");
 				}
 			}
 		}
@@ -1297,12 +1304,14 @@ void handle_web_interface_configAP()
 	const __FlashStringHelper  * iauthdisplaylist[] = {FPSTR(VALUE_NONE),FPSTR(VALUE_WPA),FPSTR(VALUE_WPA2),FPSTR(VALUE_WPAWPA2)};
 	STORESTRINGS_CLASS KeysList ;
 	STORESTRINGS_CLASS ValuesList ;
+  
 	if (!web_interface->is_authenticated())
 	{
 		String header = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=CONFIGAP\r\nCache-Control: no-cache\r\n\r\n";
 		web_interface->WebServer.sendContent(header);
 		return;
 	}
+
 	//Firmware and Free Mem, put at the end to reflect situation
 	GetFreeMem(KeysList, ValuesList);
 	//IP+Web
@@ -1329,7 +1338,7 @@ void handle_web_interface_configAP()
 		    if (!web_interface->isSSIDValid(sSSID.c_str()))
 				{
 				msg_alert_error=true;
-				smsg+="Error : Incorrect SSID<BR>";
+	      smsg.concat(F("Error: Incorrect SSID<BR>"));
 				KeysList.add(FPSTR(KEY_AP_SSID_STATUS));
 				ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				}
@@ -1338,7 +1347,7 @@ void handle_web_interface_configAP()
 		    if (!web_interface->isPasswordValid(sPassword.c_str()))
 				{
 				msg_alert_error=true;
-				smsg+="Error : Incorrect password<BR>";
+	      smsg.concat(F("Error: Incorrect password<BR>"));
 				KeysList.add(FPSTR(KEY_AP_PASSWORD_STATUS));
 				ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				}
@@ -1356,7 +1365,7 @@ void handle_web_interface_configAP()
 			if (!(phy_mode_buf==PHY_MODE_11B||phy_mode_buf==PHY_MODE_11G) )
 				 {
 					msg_alert_error=true;
-					smsg+="Error : Incorrect network<BR>";
+	      smsg.concat(F("Error: Incorrect network<BR>"));
 					KeysList.add(FPSTR(KEY_NETWORK_OPTION_LIST_STATUS));
 					ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				 }
@@ -1365,7 +1374,7 @@ void handle_web_interface_configAP()
 			if (channel_buf< 1|| channel_buf>11) 
 				 {
 					msg_alert_error=true;
-					smsg+="Error : Incorrect channel<BR>";
+	      smsg.concat("Error: Incorrect channel<BR>");
 					KeysList.add(FPSTR(KEY_CHANNEL_OPTION_LIST_STATUS));
 					ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				 }
@@ -1375,7 +1384,7 @@ void handle_web_interface_configAP()
 		auth_buf == AUTH_WPA2_PSK || auth_buf == AUTH_WPA_WPA2_PSK))
 				 {
 					msg_alert_error=true;
-					smsg+="Error : Incorrect authentification method<BR>";
+	      smsg.concat(F("Error: Incorrect authentification method<BR>"));
 					KeysList.add(FPSTR(KEY_AUTH_OPTION_LIST_STATUS));
 					ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				 }	
@@ -1394,7 +1403,7 @@ void handle_web_interface_configAP()
 			if (!web_interface->isIPValid(sIP.c_str()))
 				{
 				msg_alert_error=true;
-				smsg+="Error : Incorrect IP fortmat<BR>";
+	      smsg.concat(F("Error: Incorrect IP fortmat<BR>"));
 				KeysList.add(FPSTR(KEY_AP_IP_STATUS));
 				ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				}
@@ -1404,7 +1413,7 @@ void handle_web_interface_configAP()
 			if (!web_interface->isIPValid(sGW.c_str()))
 				{
 				msg_alert_error=true;
-				smsg+="Error : Incorrect gateway<BR>";
+	      smsg.concat(F("Error: Incorrect gateway<BR>"));
 				KeysList.add(FPSTR(KEY_AP_GW_STATUS));
 				ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				}
@@ -1413,7 +1422,7 @@ void handle_web_interface_configAP()
 			if (!web_interface->isIPValid(sMask.c_str()))
 				{
 				msg_alert_error=true;
-				smsg+="Error : Incorrect subnet<BR>";
+	      smsg.concat(F("Error: Incorrect subnet<BR>"));
 				KeysList.add(FPSTR(KEY_AP_SUBNET_STATUS));
 				ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				}   	  	    
@@ -1421,14 +1430,13 @@ void handle_web_interface_configAP()
       else
 	   {
 		msg_alert_error=true;
-		smsg="Error : Missing data";
+	  smsg = FPSTR(MISSING_DATA);
 	   }
 	  
 	   //if no error apply the change
 	   if (msg_alert_error==false)
 		{
 		//save
-		
 		 wifi_config.split_ip(sIP.c_str(),ip_sav);
 		 wifi_config.split_ip(sGW.c_str(),gw_sav);
 		 wifi_config.split_ip(sMask.c_str(),msk_sav);
@@ -1445,12 +1453,12 @@ void handle_web_interface_configAP()
 			(!CONFIG::write_buffer(EP_MASK_VALUE,msk_sav,IP_LENGTH)))
 			{
 				msg_alert_error=true;
-			    smsg="Error : Cannot write to EEPROM";
+	      smsg = FPSTR(EEPROM_NOWRITE);
 			}
 		else
 				{
 					msg_alert_success=true;
-					smsg="Changes saved to EEPROM, restarting....";
+	      smsg = F("Changes saved to EEPROM, restarting...");
 				}
 			}
 		}
@@ -1629,6 +1637,7 @@ void handle_web_interface_configSTA()
 	const __FlashStringHelper  * inetworkdisplaylist []={FPSTR(VALUE_11B),FPSTR(VALUE_11G),FPSTR(VALUE_11N),FPSTR(VALUE_11B)};
 	STORESTRINGS_CLASS KeysList ;
 	STORESTRINGS_CLASS ValuesList ;
+  
 	if (!web_interface->is_authenticated())
 	{
 		String header = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=CONFIGSTA\r\nCache-Control: no-cache\r\n\r\n";
@@ -1660,7 +1669,7 @@ void handle_web_interface_configSTA()
 		    if (!web_interface->isSSIDValid(sSSID.c_str()))
 				{
 				msg_alert_error=true;
-				smsg+="Error : Incorrect SSID<BR>";
+	      smsg.concat(F("Error: Incorrect SSID<BR>"));
 				KeysList.add(FPSTR(KEY_STA_SSID_STATUS));
 				ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				}
@@ -1670,7 +1679,7 @@ void handle_web_interface_configSTA()
 		    if (!web_interface->isPasswordValid(sPassword.c_str()))
 				{
 				msg_alert_error=true;
-				smsg+="Error : Incorrect password<BR>";
+	      smsg.concat(F("Error: Incorrect password<BR>"));
 				KeysList.add(FPSTR(KEY_STA_PASSWORD_STATUS));
 				ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				}
@@ -1680,7 +1689,7 @@ void handle_web_interface_configSTA()
 		    if (!web_interface->isHostnameValid(sHostname.c_str()))
 				{
 				msg_alert_error=true;
-				smsg+="Error : Incorrect hostname<BR>";
+	      smsg.concat(F("Error: Incorrect hostname<BR>"));
 				KeysList.add(FPSTR(KEY_HOSTNAME_STATUS));
 				ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				}
@@ -1690,7 +1699,7 @@ void handle_web_interface_configSTA()
 			if (!(phy_mode_buf==PHY_MODE_11B||phy_mode_buf==PHY_MODE_11G||phy_mode_buf==PHY_MODE_11N) )
 				 {
 					msg_alert_error=true;
-					smsg+="Error : Incorrect network<BR>";
+	      smsg.concat(F("Error: Incorrect network<BR>"));
 					KeysList.add(FPSTR(KEY_NETWORK_OPTION_LIST_STATUS));
 					ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				 }
@@ -1710,7 +1719,7 @@ void handle_web_interface_configSTA()
 			if (!web_interface->isIPValid(sIP.c_str()))
 				{
 				msg_alert_error=true;
-				smsg+="Error : Incorrect IP fortmat<BR>";
+	      smsg.concat(F("Error: Incorrect IP format<BR>"));
 				KeysList.add(FPSTR(KEY_STA_IP_STATUS));
 				ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				}
@@ -1720,7 +1729,7 @@ void handle_web_interface_configSTA()
 			if (!web_interface->isIPValid(sGW.c_str()))
 				{
 				msg_alert_error=true;
-				smsg+="Error : Incorrect gateway<BR>";
+	      smsg.concat(F("Error: Incorrect gateway<BR>"));
 				KeysList.add(FPSTR(KEY_STA_GW_STATUS));
 				ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				}
@@ -1729,7 +1738,7 @@ void handle_web_interface_configSTA()
 			if (!web_interface->isIPValid(sMask.c_str()))
 				{
 				msg_alert_error=true;
-				smsg+="Error : Incorrect subnet<BR>";
+	      smsg.concat(F("Error: Incorrect subnet<BR>"));
 				KeysList.add(FPSTR(KEY_STA_SUBNET_STATUS));
 				ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				}   	  	    
@@ -1737,9 +1746,8 @@ void handle_web_interface_configSTA()
      else
 	   {
 		msg_alert_error=true;
-		smsg="Error : Missing data";
+	  smsg = FPSTR(MISSING_DATA);
 	   }
-	   
 	   
 	   //no error ? then save
 	   if (msg_alert_error==false)
@@ -1759,16 +1767,16 @@ void handle_web_interface_configSTA()
 			(!CONFIG::write_buffer(EP_MASK_VALUE,msk_sav,IP_LENGTH)))
 			{
 				msg_alert_error=true;
-			    smsg="Error : Cannot write to EEPROM";
+	      smsg = FPSTR(EEPROM_NOWRITE);
 			}
 		else
 				{
 					msg_alert_success=true;
-					smsg="Changes saved to EEPROM, restarting....";
+	      smsg = F("Changes saved to EEPROM, restarting...");
 				}
 			}
 		}
-	else //no submit need to get data from EEPROM
+	else //no submit, need to get data from EEPROM
 	{
 	//ssid
 	if (!CONFIG::read_string(EP_SSID, sSSID , MAX_SSID_LENGTH) )sSSID=FPSTR(DEFAULT_SSID);
@@ -1937,6 +1945,7 @@ void handle_web_interface_printer()
 	bool msg_alert_success=false;
 	STORESTRINGS_CLASS KeysList ;
 	STORESTRINGS_CLASS ValuesList ;
+  
 	if (!web_interface->is_authenticated())
 	{
 		String header = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=PRINTER\r\nCache-Control: no-cache\r\n\r\n";
@@ -1976,8 +1985,8 @@ void handle_web_interface_printer()
 	ValuesList.add(intTostr(istatus));
 
 	 //Serial.println("M114");
-	Serial.println("M220");
-	Serial.println("M221");
+  Serial.println(F("M220"));
+  Serial.println(F("M221"));
     KeysList.add(FPSTR(KEY_SERVICE_PAGE));
 	ValuesList.add("");
 	
@@ -1998,12 +2007,14 @@ void handle_web_settings()
 	int ixy_feedrate,iz_feedrate,ie_feedrate;
 	STORESTRINGS_CLASS KeysList ;
 	STORESTRINGS_CLASS ValuesList ;
+  
 	if (!web_interface->is_authenticated())
 	{
 		String header = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=SETTINGS\r\nCache-Control: no-cache\r\n\r\n";
 		web_interface->WebServer.sendContent(header);
 		return;
 	}
+
 	//Firmware and Free Mem, put at the end to reflect situation
 	GetFreeMem(KeysList, ValuesList);
 	//IP+Web
@@ -2029,28 +2040,28 @@ void handle_web_settings()
 			if (!(irefresh_page>1 && irefresh_page<120))
 				{
 					msg_alert_error=true;
-					smsg+="Error : invalid value for refresh time<BR>";
+	      smsg.concat(F("Error: invalid value for refresh time<BR>"));
 					KeysList.add(FPSTR(KEY_REFRESH_PAGE_STATUS));
 					ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 			    }
 			 if (!(ixy_feedrate>0 && ixy_feedrate<9999))
 				{
 					msg_alert_error=true;
-					smsg+="Error : invalid value for XY axis feedrate<BR>";
+	      smsg.concat(F("Error: invalid value for XY axis feedrate<BR>"));
 					KeysList.add(FPSTR(KEY_XY_FEEDRATE_STATUS));
 					ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 			    }
 			 if (!(iz_feedrate>0 && iz_feedrate<9999))
 				{
 					msg_alert_error=true;
-					smsg+="Error : invalid value for Z axis feedrate<BR>";
+	      smsg.concat(F("Error: invalid value for Z axis feedrate<BR>"));
 					KeysList.add(FPSTR(KEY_Z_FEEDRATE_STATUS));
 					ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 			    }
 			if (!(ie_feedrate>0 && ie_feedrate<9999))
 				{
 					msg_alert_error=true;
-					smsg+="Error : invalid value for Extruder feedrate<BR>";
+	      smsg.concat(F("Error: invalid value for Extruder feedrate<BR>"));
 					KeysList.add(FPSTR(KEY_XY_FEEDRATE_STATUS));
 					ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 			    }
@@ -2058,7 +2069,7 @@ void handle_web_settings()
 	  else
 	   {
 		msg_alert_error=true;
-		smsg="Error : Missing data";
+	  smsg = FPSTR(MISSING_DATA);
 	   }
 	   //if no error apply the changes
 		if (msg_alert_error!=true)
@@ -2066,15 +2077,14 @@ void handle_web_settings()
 			 if(!CONFIG::write_buffer(EP_XY_FEEDRATE,(const byte *)&ixy_feedrate,INTEGER_LENGTH)||!CONFIG::write_buffer(EP_Z_FEEDRATE,(const byte *)&iz_feedrate,INTEGER_LENGTH)||!CONFIG::write_buffer(EP_E_FEEDRATE,(const byte *)&ie_feedrate,INTEGER_LENGTH)||!CONFIG::write_byte(EP_REFRESH_PAGE_TIME,irefresh_page))
 				{
 					msg_alert_error=true;
-					smsg="Error : Cannot write to EEPROM";
+	      smsg = FPSTR(EEPROM_NOWRITE);
 				}
 			else
 				{
 					msg_alert_success=true;
-					smsg="Changes saved to EEPROM";
+	      smsg = F("Changes saved to EEPROM");
 				}
 			}
-		
   }
   else //no submit need to get data from EEPROM
 	{
@@ -2129,15 +2139,18 @@ void handle_web_settings()
 
 void handle_web_interface_status()
 {
+	static const char NO_TEMP_LINE[] PROGMEM = "\"temperature\":\"0\",\"target\":\"0\",\"active\":\"0\"";
 	web_interface->is_authenticated();
 	Serial.println("M114");
 	int tagpos,tagpos2;
 	String buffer2send;
 	String value;
 	int temperature,target;
+  
 	//request temperature only if no feedback
 	if ((system_get_time()-web_interface->last_temp)>2000000)
-		Serial.println("M105");
+    Serial.println(F("M105"));
+
 	if ((system_get_time()-web_interface->last_temp)<3200000)
 		{
 		value="Connected";
@@ -2150,6 +2163,7 @@ void handle_web_interface_status()
 		{
 		value="Offline";
 		}
+
 	//start JSON answer
 	buffer2send="{";
 	//status color
@@ -2174,9 +2188,9 @@ void handle_web_interface_status()
 	value=web_interface->answer4M114.substring(tagpos+2,tagpos2);
 	buffer2send+="\"Zpos\":\""+value +"\",";
 	//heater
-	buffer2send+="\"heater\":[";
-	//extruder 1
-	buffer2send+="{\"name\":\"Extruder 1\",";
+  buffer2send.concat(F("\"heater\":["));
+  //Extruder 1
+  buffer2send.concat(F("{\"name\":\"Extruder 1\","));
 	int Tpos = web_interface->answer4M105.indexOf("T0:");
 	byte bshift=1;
 	if (Tpos==-1)
@@ -2189,15 +2203,16 @@ void handle_web_interface_status()
 	//have Extruder 1 ?
 	if(slashpos!=-1 && spacepos!=-1 )
 			{
-			buffer2send+="\"temperature\":\""+web_interface->answer4M105.substring(Tpos+2+bshift,slashpos)+"\",\"target\":\""+web_interface->answer4M105.substring(slashpos+2,spacepos)+"\",\"active\":\"1\"";
+      buffer2send += "\"temperature\":\""+web_interface->answer4M105.substring(Tpos+2+bshift,slashpos)+
+	"\",\"target\":\""+web_interface->answer4M105.substring(slashpos+2,spacepos)+"\",\"active\":\"1\"";
 			}
 	else{//no extruder temperature
-			buffer2send+="\"temperature\":\"0\",\"target\":\"0\",\"active\":\"0\"";
+    buffer2send.concat(FPSTR(NO_TEMP_LINE));
 			}
 	
 	buffer2send+="},";
 	//Extruder 2
-	buffer2send+="{\"name\":\"Extruder 2\",";
+  buffer2send.concat(F("{\"name\":\"Extruder 2\","));
 	Tpos = web_interface->answer4M105.indexOf("T1:");
 	if (Tpos>-1) //have extruder 2 ?
 		{
@@ -2205,19 +2220,20 @@ void handle_web_interface_status()
 		spacepos = web_interface->answer4M105.indexOf(" ",slashpos+2);
 		if(slashpos!=-1 && spacepos!=-1 )
 			{
-			buffer2send+="\"temperature\":\""+web_interface->answer4M105.substring(Tpos+3,slashpos)+"\",\"target\":\""+web_interface->answer4M105.substring(slashpos+2,spacepos)+"\",\"active\":\"1\"";
+	  buffer2send += "\"temperature\":\""+web_interface->answer4M105.substring(Tpos+3,slashpos)+
+	    "\",\"target\":\""+web_interface->answer4M105.substring(slashpos+2,spacepos)+"\",\"active\":\"1\"";
 			}
 		else{//no extruder temperature
-			buffer2send+="\"temperature\":\"0\",\"target\":\"0\",\"active\":\"0\"";
+	buffer2send.concat(FPSTR(NO_TEMP_LINE));
 			}
 		}	
 	else{//no extruder temperature
-			buffer2send+="\"temperature\":\"0\",\"target\":\"0\",\"active\":\"0\"";
+    buffer2send.concat(FPSTR(NO_TEMP_LINE));
 			}
 	buffer2send+="},";
 	
 	//Bed
-	buffer2send+="{\"name\":\"Bed\",";
+  buffer2send.concat(F("{\"name\":\"Bed\","));
 	Tpos = web_interface->answer4M105.indexOf("B:");
 	if (Tpos>-1)
 		{
@@ -2227,20 +2243,21 @@ void handle_web_interface_status()
 			{
 			temperature = (int)atof(web_interface->answer4M105.substring(Tpos+2,slashpos).c_str());
 			target = (int)atof(web_interface->answer4M105.substring(slashpos+2,spacepos).c_str());
-			buffer2send+="\"temperature\":\""+web_interface->answer4M105.substring(Tpos+2,slashpos)+"\",\"target\":\""+web_interface->answer4M105.substring(slashpos+2,spacepos)+"\",\"active\":\"1\"";
+	  buffer2send += "\"temperature\":\""+web_interface->answer4M105.substring(Tpos+2,slashpos)+
+	    "\",\"target\":\""+web_interface->answer4M105.substring(slashpos+2,spacepos)+"\",\"active\":\"1\"";
 			}
 		else{//no extruder temperature
-			buffer2send+="\"temperature\":\"0\",\"target\":\"0\",\"active\":\"0\"";
+	buffer2send.concat(FPSTR(NO_TEMP_LINE));
 			}
 		}	
 	else{//no extruder temperature
-			buffer2send+="\"temperature\":\"0\",\"target\":\"0\",\"active\":\"0\"";
+    buffer2send.concat(FPSTR(NO_TEMP_LINE));
 			}
 	buffer2send+="}";
 	buffer2send+="],";
 	
 	//information
-	buffer2send+="\"InformationMsg\":[";
+  buffer2send.concat(F("\"InformationMsg\":["));
 	for (int i=0;i<web_interface->info_msg.size();i++)
 	{
 		if (i>0)buffer2send+=",";
@@ -2250,7 +2267,7 @@ void handle_web_interface_status()
 	}
 	buffer2send+="],";
 	//Error
-	buffer2send+="\"ErrorMsg\":[";
+  buffer2send.concat(F("\"ErrorMsg\":["));
 	for (int i=0;i<web_interface->error_msg.size();i++)
 	{
 		if (i>0)buffer2send+=",";
@@ -2260,7 +2277,7 @@ void handle_web_interface_status()
 	}
 	buffer2send+="],";
 	//Status
-	buffer2send+="\"StatusMsg\":[";
+  buffer2send.concat(F("\"StatusMsg\":["));
 	for (int i=0;i<web_interface->status_msg.size();i++)
 	{
 		if (i>0)buffer2send+=",";
@@ -2328,7 +2345,7 @@ void WebUpdateUpload()
 {
 	HTTPUpload& upload = (web_interface->WebServer).upload();
 	if(upload.status == UPLOAD_FILE_START){
-	Serial.println("M117 Update Firmware");
+    Serial.println(F("M117 Update Firmware"));
 	web_interface->_upload_status= UPLOAD_STATUS_ONGOING;
 	WiFiUDP::stopAll();
 	uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
@@ -2370,6 +2387,7 @@ void handleFileList() {
 	}
 	String path = "/";
 	String status="Ok";
+
 	if(web_interface->WebServer.hasArg("action")) {
 		if(web_interface->WebServer.arg("action")=="delete" && web_interface->WebServer.hasArg("filename"))
 			{
@@ -2407,7 +2425,7 @@ void handleFileList() {
 	SPIFFS.info(info);
 	jsonfile+="\"total\":\"" + formatBytes(info.totalBytes) + "\",";
 	jsonfile+="\"used\":\"" + formatBytes(info.usedBytes) + "\",";
-	jsonfile+="\"occupation\":\"" ;
+  jsonfile.concat(F("\"occupation\":\""));
 	jsonfile+= intTostr(100*info.usedBytes/info.totalBytes);
 	jsonfile+="\"";
 	jsonfile+="}";
@@ -2444,6 +2462,7 @@ void handle_not_found()
 		web_interface->WebServer.sendContent(header);
 		return;
 	}
+  
   String path = web_interface->WebServer.uri();
   String contentType = getContentType(path);
   String pathWithGz = path + ".gz";
@@ -2538,7 +2557,7 @@ void handle_login()
       else
 	   {
 		msg_alert_error=true;
-		smsg="Error : Missing data";
+	  smsg = FPSTR(MISSING_DATA);
 	   }
 	  
 	   //if no error login is ok
@@ -2551,11 +2570,11 @@ void handle_login()
 		current_auth->last_time=millis();
 		if (web_interface->AddAuthIP(current_auth))
 		{
-		String header = "HTTP/1.1 301 OK\r\nSet-Cookie: ESPSESSIONID=";
+	      String header = F("HTTP/1.1 301 OK\r\nSet-Cookie: ESPSESSIONID=");
 		header+=current_auth->sessionID;
 		header+="\r\nLocation: /";
 		header+=sReturn;
-		header+="\r\nCache-Control: no-cache\r\n\r\n";
+	      header.concat(F("\r\nCache-Control: no-cache\r\n\r\n"));
 		web_interface->WebServer.sendContent(header);
 		return;
 		}
@@ -2563,7 +2582,7 @@ void handle_login()
 		{
 			delete current_auth;
 			msg_alert_error=true;
-			smsg="Error : Too many connections";
+	      smsg = F("Error: Too many connections");
 		}
 		#endif
 		}
@@ -2571,7 +2590,6 @@ void handle_login()
   
 	else //no submit need to get data from EEPROM
 	{
-	//password 
 	sPassword=String();
 	}
 	
@@ -2580,6 +2598,7 @@ void handle_login()
 	ValuesList.add(sReturn);
 	//Firmware and Free Mem, put at the end to reflect situation
 	GetFreeMem(KeysList, ValuesList);
+  
 	KeysList.add(FPSTR(KEY_DISCONNECT_VISIBILITY));
 	if (web_interface->is_authenticated())ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
 	else ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
@@ -2587,6 +2606,7 @@ void handle_login()
 	GetIpWeb(KeysList, ValuesList);
 	//mode
 	GetMode(KeysList, ValuesList);
+  
 	//page title and filenames
 	SetPageProp(KeysList,ValuesList,FPSTR(VALUE_LOGIN),F("login"));	
 	//password
@@ -2860,9 +2880,8 @@ bool WEBINTERFACE_CLASS::ResetAuthIP(IPAddress ip,const char * sessionID)
 			previous = current;
 			current=current->_next;
 		 }
-		 
-		
 	}
 	return done;
 }
+
 WEBINTERFACE_CLASS * web_interface;
