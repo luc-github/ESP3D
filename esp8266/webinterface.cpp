@@ -229,15 +229,12 @@ bool WEBINTERFACE_CLASS::isSSIDValid(const char * ssid)
 
 bool WEBINTERFACE_CLASS::isPasswordValid(const char * password)
 {
-	char c;
 	 //limited size 
 	if ((strlen(password)>MAX_PASSWORD_LENGTH)||  (strlen(password)<MIN_PASSWORD_LENGTH)) return false;
 	//no space allowed
 	for (int i=0;i < strlen(password);i++)
-		{
-			c= password[i];
-			if (c==' ') return false;
-		}
+    if (password[i] == ' ') return false;
+  
 	return true;
 }
 
@@ -474,7 +471,7 @@ bool processTemplate(const char  * filename, STORESTRINGS_CLASS & KeysList ,  ST
 				else //EOF is reached
 					{   //close current file
 						currentfile.close();
-						//if current file is not template file but incled one
+						//if current file is not template file but included one
 						if (myFileList.size()>0)
 							{  //get level +1 file description and continue
 								currentfile = myFileList.pop();
@@ -1138,32 +1135,10 @@ void handle_web_interface_configSys()
 	GetPorts(KeysList, ValuesList);
 
 	if (msg_alert_error)
-	{
-		KeysList.add(FPSTR(KEY_ERROR_MSG));
-		ValuesList.add(smsg);
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SERVICE_PAGE));
-		ValuesList.add("");
-	}
+    ProcessAlertError(KeysList, ValuesList, smsg);
 	else if (msg_alert_success)
 	{
-		KeysList.add(FPSTR(KEY_ERROR_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG));
-		ValuesList.add(smsg);
-		KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
+      ProcessAlertSuccess(KeysList, ValuesList, smsg);
 		KeysList.add(FPSTR(KEY_SERVICE_PAGE));
 		ValuesList.add(FPSTR(RESTARTCMD));
 		KeysList.add(FPSTR(KEY_BAUD_RATE_STATUS));
@@ -1178,20 +1153,7 @@ void handle_web_interface_configSys()
 	
 	else
 	
-	{
-		KeysList.add(FPSTR(KEY_ERROR_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SERVICE_PAGE));
-		ValuesList.add("");
-	}
+    ProcessNoAlert(KeysList, ValuesList);
 	
 	//process the template file and provide list of variables
 	processTemplate("/system.tpl", KeysList , ValuesList);
@@ -1202,7 +1164,7 @@ void handle_web_interface_configSys()
 
 void handle_password()
 {
-	String stmp,smsg;
+  String smsg;
 	String sPassword,sPassword2;
 	bool msg_alert_error=false;
 	bool msg_alert_success=false;
@@ -1289,32 +1251,10 @@ void handle_password()
 	ValuesList.add(sPassword2);
 
 if (msg_alert_error)
-	{
-		KeysList.add(FPSTR(KEY_ERROR_MSG));
-		ValuesList.add(smsg);
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SERVICE_PAGE));
-		ValuesList.add("");
-	}
+    ProcessAlertError(KeysList, ValuesList, smsg);
 	else if (msg_alert_success)
 	{
-		KeysList.add(FPSTR(KEY_ERROR_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG));
-		ValuesList.add(smsg);
-		KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
+      ProcessAlertSuccess(KeysList, ValuesList, smsg);
 		KeysList.add(FPSTR(KEY_SERVICE_PAGE));
 		ValuesList.add("");
 		//Add all green
@@ -1326,20 +1266,8 @@ if (msg_alert_error)
 	
 	else
 	
-	{
-		KeysList.add(FPSTR(KEY_ERROR_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SERVICE_PAGE));
-		ValuesList.add("");
-	}
+    ProcessNoAlert(KeysList,ValuesList);
+  
 	//process the template file and provide list of variables
 	processTemplate("/password.tpl", KeysList , ValuesList);
 	//need to clean to speed up memory recovery
@@ -1644,32 +1572,10 @@ void handle_web_interface_configAP()
 	ValuesList.add(sMask);
 
 if (msg_alert_error)
-	{
-		KeysList.add(FPSTR(KEY_ERROR_MSG));
-		ValuesList.add(smsg);
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SERVICE_PAGE));
-		ValuesList.add("");
-	}
+    ProcessAlertError(KeysList, ValuesList, smsg);
 	else if (msg_alert_success)
 	{
-		KeysList.add(FPSTR(KEY_ERROR_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG));
-		ValuesList.add(smsg);
-		KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
+      ProcessAlertSuccess(KeysList, ValuesList, smsg);
 		KeysList.add(FPSTR(KEY_SERVICE_PAGE));
 		ValuesList.add(FPSTR(RESTARTCMD));
 		//Add all green
@@ -1697,20 +1603,8 @@ if (msg_alert_error)
 	
 	else
 	
-	{
-		KeysList.add(FPSTR(KEY_ERROR_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SERVICE_PAGE));
-		ValuesList.add("");
-	}
+    ProcessNoAlert(KeysList,ValuesList);	
+
 	//process the template file and provide list of variables
 	processTemplate("/config_ap.tpl", KeysList , ValuesList);
 	//need to clean to speed up memory recovery
@@ -1971,7 +1865,7 @@ void handle_web_interface_configSTA()
 				stmp = "$AP_SSID["+String(i)+"]$";
 				KeysList.add(stmp);
 				ValuesList.add(WiFi.SSID(i).c_str());
-				//signal strenght
+				//signal strength
 				 stmp = "$AP_SIGNAL["+String(i)+"]$";
 				 KeysList.add(stmp);
 				 stmp = intTostr(100+WiFi.RSSI(i)) ;
@@ -2001,32 +1895,10 @@ void handle_web_interface_configSTA()
 		}
 
 if (msg_alert_error)
-	{
-		KeysList.add(FPSTR(KEY_ERROR_MSG));
-		ValuesList.add(smsg);
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SERVICE_PAGE));
-		ValuesList.add("");
-	}
+    ProcessAlertError(KeysList, ValuesList, smsg);
 	else if (msg_alert_success)
 	{
-		KeysList.add(FPSTR(KEY_ERROR_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG));
-		ValuesList.add(smsg);
-		KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
+      ProcessAlertSuccess(KeysList, ValuesList, smsg);
 		KeysList.add(FPSTR(KEY_SERVICE_PAGE));
 		ValuesList.add(FPSTR(RESTARTCMD));
 		//Add all green
@@ -2050,20 +1922,7 @@ if (msg_alert_error)
 	
 	else
 	
-	{
-		KeysList.add(FPSTR(KEY_ERROR_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SERVICE_PAGE));
-		ValuesList.add("");
-	}
+    ProcessNoAlert(KeysList,ValuesList);	
 	
 	//process the template file and provide list of variables
 	processTemplate("/config_sta.tpl", KeysList , ValuesList);
@@ -2074,7 +1933,6 @@ if (msg_alert_error)
 
 void handle_web_interface_printer()
 {
-	String stmp,smsg;
 	bool msg_alert_error=false;
 	bool msg_alert_success=false;
 	STORESTRINGS_CLASS KeysList ;
@@ -2131,7 +1989,7 @@ void handle_web_interface_printer()
 
 void handle_web_settings()
 {
-	String stmp,smsg;
+  String smsg;
 	int istatus;
 	byte bbuf;
 	bool msg_alert_error=false;
@@ -2240,32 +2098,10 @@ void handle_web_settings()
 	ValuesList.add(intTostr(ie_feedrate));
 	
 	if (msg_alert_error)
-	{
-		KeysList.add(FPSTR(KEY_ERROR_MSG));
-		ValuesList.add(smsg);
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SERVICE_PAGE));
-		ValuesList.add("");
-	}
+    ProcessAlertError(KeysList, ValuesList, smsg);
 	else if (msg_alert_success)
 	{
-		KeysList.add(FPSTR(KEY_ERROR_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG));
-		ValuesList.add(smsg);
-		KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
+      ProcessAlertSuccess(KeysList, ValuesList, smsg);
 		KeysList.add(FPSTR(KEY_SERVICE_PAGE));
 		ValuesList.add("");
 		KeysList.add(FPSTR(KEY_REFRESH_PAGE_STATUS));
@@ -2282,20 +2118,7 @@ void handle_web_settings()
 	
 	else
 	
-	{
-		KeysList.add(FPSTR(KEY_ERROR_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SERVICE_PAGE));
-		ValuesList.add("");
-	}
+    ProcessNoAlert(KeysList,ValuesList);
 	
 	//process the template file and provide list of variables
 	processTemplate("/settings.tpl", KeysList , ValuesList);
@@ -2626,7 +2449,7 @@ void handle_not_found()
   String pathWithGz = path + ".gz";
   if(SPIFFS.exists(pathWithGz) || SPIFFS.exists(path))
 	{
-		if(SPIFFS.exists(pathWithGz)) path += ".gz";
+      if(SPIFFS.exists(pathWithGz)) path = pathWithGz;
 		File file = SPIFFS.open(path, "r");
 		web_interface->WebServer.streamFile(file, contentType);
 		file.close();
@@ -2675,7 +2498,7 @@ else
 
 void handle_login()
 {
-	String stmp,smsg;
+  String smsg;
 	String sReturn;
 	String sPassword;
 	bool msg_alert_error=false;
@@ -2771,35 +2594,10 @@ void handle_login()
 	ValuesList.add(sPassword);
 
 if (msg_alert_error)
-	{
-		KeysList.add(FPSTR(KEY_ERROR_MSG));
-		ValuesList.add(smsg);
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SERVICE_PAGE));
-		ValuesList.add("");
-	}
+    ProcessAlertError(KeysList, ValuesList, smsg);
 else
-{
-		KeysList.add(FPSTR(KEY_ERROR_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SERVICE_PAGE));
-		ValuesList.add("");
-	}
+    ProcessNoAlert(KeysList,ValuesList);
+
 	//process the template file and provide list of variables
 	processTemplate("/login.tpl", KeysList , ValuesList);
 	//need to clean to speed up memory recovery
@@ -2812,7 +2610,6 @@ void handle_restart()
 		{
 		STORESTRINGS_CLASS KeysList ;
 		STORESTRINGS_CLASS ValuesList ;
-		String stmp;
 
 		//Free Mem, put at the end to reflect situation
 		GetFreeMem(KeysList, ValuesList);
