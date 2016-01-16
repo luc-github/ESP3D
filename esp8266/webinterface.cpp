@@ -261,6 +261,7 @@ bool WEBINTERFACE_CLASS::isIPValid(const char * IP)
 	int dotcount = 0;
 	bool previouswasdot=false;
 	char c;
+  
 	if (strlen(IP)>15 || strlen(IP)==0) return false;
 	//cannot start with .
 	if (IP[0]=='.')return false;
@@ -689,8 +690,7 @@ void handle_web_interface_root()
 	if (web_interface->is_authenticated())ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
 	else ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
 
-	//Firmware & Free Mem, put at the end to reflect situation
-	GetFreeMem(KeysList, ValuesList);
+
 	//IP+Web
 	GetIpWeb(KeysList, ValuesList);
 
@@ -984,6 +984,8 @@ void handle_web_interface_root()
 	//Service page / no need refresh on this page
 	KeysList.add(FPSTR(KEY_SERVICE_PAGE));
 	ValuesList.add("");
+ //Firmware & Free Mem, at the end to reflect situation
+  GetFreeMem(KeysList, ValuesList);
 
 	//process the template file and provide list of variables
 	processTemplate("/home.tpl", KeysList , ValuesList);
@@ -994,6 +996,8 @@ void handle_web_interface_root()
 
 void handle_web_interface_configSys()
 {
+  static const char NOT_AUTH_CS [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=CONFIGSYS\r\nCache-Control: no-cache\r\n\r\n";
+  
 	String stmp,smsg;
 	long lstatus;
 	int istatus;
@@ -1012,13 +1016,10 @@ void handle_web_interface_configSys()
 
 	if (!web_interface->is_authenticated())
 	{
-		String header = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=CONFIGSYS\r\nCache-Control: no-cache\r\n\r\n";
-		web_interface->WebServer.sendContent(header);
+      web_interface->WebServer.sendContent_P(NOT_AUTH_CS);
 		return;
 	}
 
-	//Firmware and Free Mem, put at the end to reflect situation
-	GetFreeMem(KeysList, ValuesList);
 	//IP+Web
 	GetIpWeb(KeysList, ValuesList);
 	//mode
@@ -1163,6 +1164,9 @@ void handle_web_interface_configSys()
 	
     ProcessNoAlert(KeysList, ValuesList);
 	
+  //Firmware and Free Mem, at the end to reflect situation
+  GetFreeMem(KeysList, ValuesList);
+  
 	//process the template file and provide list of variables
 	processTemplate("/system.tpl", KeysList , ValuesList);
 	//need to clean to speed up memory recovery
@@ -1172,6 +1176,8 @@ void handle_web_interface_configSys()
 
 void handle_password()
 {
+  static const char NOT_AUTH_PW [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=PASSWORD\r\nCache-Control: no-cache\r\n\r\n";
+  
   String smsg;
 	String sPassword,sPassword2;
 	bool msg_alert_error=false;
@@ -1179,15 +1185,13 @@ void handle_password()
    	int ipos;
 	STORESTRINGS_CLASS KeysList ;
 	STORESTRINGS_CLASS ValuesList ;
+  
 	if (!web_interface->is_authenticated())
 	{
-		String header = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=PASSWORD\r\nCache-Control: no-cache\r\n\r\n";
-		web_interface->WebServer.sendContent(header);
+	web_interface->WebServer.sendContent_P(NOT_AUTH_PW);
 		return;
 	}
 
-	//Firmware and Free Mem, put at the end to reflect situation
-	GetFreeMem(KeysList, ValuesList);
 	//IP+Web
 	GetIpWeb(KeysList, ValuesList);
 	//mode
@@ -1276,6 +1280,9 @@ if (msg_alert_error)
 	
     ProcessNoAlert(KeysList,ValuesList);
   
+  //Firmware and Free Mem, at the end to reflect situation
+  GetFreeMem(KeysList, ValuesList);
+    
 	//process the template file and provide list of variables
 	processTemplate("/password.tpl", KeysList , ValuesList);
 	//need to clean to speed up memory recovery
@@ -1286,6 +1293,8 @@ if (msg_alert_error)
 
 void handle_web_interface_configAP()
 {
+  static const char NOT_AUTH_AP [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=CONFIGAP\r\nCache-Control: no-cache\r\n\r\n";
+  
 	String stmp,smsg;
 	String sSSID,sPassword,sIP,sGW,sMask;
 	bool msg_alert_error=false;
@@ -1308,8 +1317,7 @@ void handle_web_interface_configAP()
   
 	if (!web_interface->is_authenticated())
 	{
-		String header = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=CONFIGAP\r\nCache-Control: no-cache\r\n\r\n";
-		web_interface->WebServer.sendContent(header);
+      web_interface->WebServer.sendContent_P(NOT_AUTH_AP);
 		return;
 	}
 
@@ -1614,6 +1622,8 @@ if (msg_alert_error)
 	
     ProcessNoAlert(KeysList,ValuesList);	
 
+  //Firmware and Free Mem, at the end to reflect situation
+  GetFreeMem(KeysList, ValuesList);
 	//process the template file and provide list of variables
 	processTemplate("/config_ap.tpl", KeysList , ValuesList);
 	//need to clean to speed up memory recovery
@@ -1623,6 +1633,8 @@ if (msg_alert_error)
 
 void handle_web_interface_configSTA()
 {
+  static const char NOT_AUTH_STA [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=CONFIGSTA\r\nCache-Control: no-cache\r\n\r\n";
+  
 	String stmp,smsg;
 	String sSSID,sPassword,sIP,sGW,sMask,sHostname;
 	bool msg_alert_error=false;
@@ -1641,13 +1653,10 @@ void handle_web_interface_configSTA()
   
 	if (!web_interface->is_authenticated())
 	{
-		String header = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=CONFIGSTA\r\nCache-Control: no-cache\r\n\r\n";
-		web_interface->WebServer.sendContent(header);
+      web_interface->WebServer.sendContent_P(NOT_AUTH_STA);
 		return;
 	}
 
-	//Firmware and Free Mem, put at the end to reflect situation
-	GetFreeMem(KeysList, ValuesList);
 	//IP+Web
 	GetIpWeb(KeysList, ValuesList);
 	//mode
@@ -1933,6 +1942,8 @@ if (msg_alert_error)
 	
     ProcessNoAlert(KeysList,ValuesList);	
 	
+  //Firmware and Free Mem, at the end to reflect situation
+  GetFreeMem(KeysList, ValuesList);
 	//process the template file and provide list of variables
 	processTemplate("/config_sta.tpl", KeysList , ValuesList);
 	//need to clean to speed up memory recovery
@@ -1942,6 +1953,8 @@ if (msg_alert_error)
 
 void handle_web_interface_printer()
 {
+  static const char NOT_AUTH_PRT [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=PRINTER\r\nCache-Control: no-cache\r\n\r\n";
+  
 	bool msg_alert_error=false;
 	bool msg_alert_success=false;
 	STORESTRINGS_CLASS KeysList ;
@@ -1949,13 +1962,10 @@ void handle_web_interface_printer()
   
 	if (!web_interface->is_authenticated())
 	{
-		String header = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=PRINTER\r\nCache-Control: no-cache\r\n\r\n";
-		web_interface->WebServer.sendContent(header);
+      web_interface->WebServer.sendContent_P(NOT_AUTH_PRT);
 		return;
 	}
 
-	//Firmware and Free Mem, put at the end to reflect situation
-	GetFreeMem(KeysList, ValuesList);
 	//IP+Web
 	GetIpWeb(KeysList, ValuesList);
 	//mode
@@ -1990,6 +2000,9 @@ void handle_web_interface_printer()
   Serial.println(F("M221"));
     KeysList.add(FPSTR(KEY_SERVICE_PAGE));
 	ValuesList.add("");
+
+  //Firmware and Free Mem, at the end to reflect situation
+  GetFreeMem(KeysList, ValuesList);
 	
 	processTemplate("/printer.tpl", KeysList , ValuesList);
 	//need to clean to speed up memory recovery
@@ -1999,6 +2012,8 @@ void handle_web_interface_printer()
 
 void handle_web_settings()
 {
+  static const char NOT_AUTH_SET [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=SETTINGS\r\nCache-Control: no-cache\r\n\r\n";
+  
   String smsg;
 	int istatus;
 	byte bbuf;
@@ -2011,13 +2026,10 @@ void handle_web_settings()
   
 	if (!web_interface->is_authenticated())
 	{
-		String header = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=SETTINGS\r\nCache-Control: no-cache\r\n\r\n";
-		web_interface->WebServer.sendContent(header);
+      web_interface->WebServer.sendContent_P(NOT_AUTH_SET);
 		return;
 	}
 
-	//Firmware and Free Mem, put at the end to reflect situation
-	GetFreeMem(KeysList, ValuesList);
 	//IP+Web
 	GetIpWeb(KeysList, ValuesList);
 	//mode
@@ -2131,6 +2143,9 @@ void handle_web_settings()
 	
     ProcessNoAlert(KeysList,ValuesList);
 	
+  //Firmware and Free Mem, at the end to reflect situation
+  GetFreeMem(KeysList, ValuesList);
+
 	//process the template file and provide list of variables
 	processTemplate("/settings.tpl", KeysList , ValuesList);
 	//need to clean to speed up memory recovery
@@ -2142,7 +2157,7 @@ void handle_web_interface_status()
 {
 	static const char NO_TEMP_LINE[] PROGMEM = "\"temperature\":\"0\",\"target\":\"0\",\"active\":\"0\"";
 	web_interface->is_authenticated();
-	Serial.println("M114");
+	Serial.println(F("M114"));
 	int tagpos,tagpos2;
 	String buffer2send;
 	String value;
@@ -2457,10 +2472,11 @@ void handleSDFileList() {
 //and handle not registred path
 void handle_not_found()
 {
+  static const char NOT_AUTH_NF [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /\r\nCache-Control: no-cache\r\n\r\n";
+  
   if (!web_interface->is_authenticated())
 	{
-		String header = "HTTP/1.1 301 OK\r\nLocation: /\r\nCache-Control: no-cache\r\n\r\n";
-		web_interface->WebServer.sendContent(header);
+      web_interface->WebServer.sendContent_P(NOT_AUTH_NF);
 		return;
 	}
   
@@ -2482,14 +2498,15 @@ else
 			STORESTRINGS_CLASS ValuesList ;
 			String stmp;
 
-	  //Free Mem
-	  GetFreeMem(KeysList, ValuesList);
 	  //IP+Web
 	  GetIpWeb(KeysList, ValuesList);
 			//mode
 	  GetMode(KeysList, ValuesList);
 	  //page title and filenames
 	  SetPageProp(KeysList,ValuesList,F("404 Page not found"),F("404"));
+
+    //Firmware and Free Mem, at the end to reflect situation
+    GetFreeMem(KeysList, ValuesList);
 	  
 			//process the template file and provide list of variables
 			processTemplate("/404.tpl", KeysList , ValuesList);
@@ -2518,6 +2535,8 @@ else
 
 void handle_login()
 {
+  static const char NOT_AUTH_LOG [] PROGMEM = "HTTP/1.1 301 OK\r\nSet-Cookie: ESPSESSIONID=0\r\nLocation: /LOGIN\r\nCache-Control: no-cache\r\n\r\n";
+  
   String smsg;
 	String sReturn;
 	String sPassword;
@@ -2527,8 +2546,7 @@ void handle_login()
 	STORESTRINGS_CLASS ValuesList ;
 	
 	if (web_interface->WebServer.hasArg("DISCONNECT")){
-    String header = "HTTP/1.1 301 OK\r\nSet-Cookie: ESPSESSIONID=0\r\nLocation: /LOGIN\r\nCache-Control: no-cache\r\n\r\n";
-    web_interface->WebServer.sendContent(header);
+    web_interface->WebServer.sendContent_P(NOT_AUTH_LOG);
     return;
   }
   
@@ -2546,10 +2564,11 @@ void handle_login()
 		    
 		    if (!CONFIG::read_string(EP_ADMIN_PWD, scurrentPassword , MAX_ADMIN_PASSWORD_LENGTH))
 		      scurrentPassword=FPSTR(DEFAULT_ADMIN);
+      
 		    if (strcmp(sPassword.c_str(),scurrentPassword.c_str())!=0)
 				{
 				msg_alert_error=true;
-				smsg+="Error : Incorrect password<BR>";
+	      smsg.concat(F("Error: Incorrect password<BR>"));
 				KeysList.add(FPSTR(KEY_PASSWORD_STATUS));
 				ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				}
@@ -2597,8 +2616,6 @@ void handle_login()
 	//Display values
 	KeysList.add(FPSTR(KEY_RETURN));
 	ValuesList.add(sReturn);
-	//Firmware and Free Mem, put at the end to reflect situation
-	GetFreeMem(KeysList, ValuesList);
   
 	KeysList.add(FPSTR(KEY_DISCONNECT_VISIBILITY));
 	if (web_interface->is_authenticated())ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
@@ -2619,6 +2636,9 @@ if (msg_alert_error)
 else
     ProcessNoAlert(KeysList,ValuesList);
 
+  //Firmware and Free Mem, at the end to reflect situation
+  GetFreeMem(KeysList, ValuesList);
+
 	//process the template file and provide list of variables
 	processTemplate("/login.tpl", KeysList , ValuesList);
 	//need to clean to speed up memory recovery
@@ -2632,14 +2652,15 @@ void handle_restart()
 		STORESTRINGS_CLASS KeysList ;
 		STORESTRINGS_CLASS ValuesList ;
 
-		//Free Mem, put at the end to reflect situation
-		GetFreeMem(KeysList, ValuesList);
 		//IP+Web
 		GetIpWeb(KeysList, ValuesList);
 		//mode
 		GetMode(KeysList, ValuesList);  
 		//page title and filenames
 		SetPageProp(KeysList,ValuesList,F("Restarting..."),F("restart"));
+
+      //Firmware and Free Mem, at the end to reflect situation
+      GetFreeMem(KeysList, ValuesList);
 		
 		//process the template file and provide list of variables
 		processTemplate("/restart.tpl", KeysList , ValuesList);
