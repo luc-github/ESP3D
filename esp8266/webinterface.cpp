@@ -60,7 +60,6 @@ const char VALUE_WEP[] PROGMEM = "WEP";
 const char VALUE_WPA[] PROGMEM = "WPA";
 const char VALUE_WPA2[] PROGMEM = "WPA2";
 const char VALUE_WPAWPA2[] PROGMEM = "WPA/WPA2";
-const char VALUE_MAX[] PROGMEM = "MAX";
 const char VALUE_STARTED[] PROGMEM = "Started";
 const char VALUE_STOPPED[] PROGMEM = "Stopped";
 const char VALUE_NO[] PROGMEM = "No";
@@ -878,8 +877,8 @@ void handle_web_interface_root()
 		else if (apconfig.authmode==AUTH_WEP)ValuesList.add(FPSTR(VALUE_WEP));
 		else if (apconfig.authmode==AUTH_WPA_PSK)ValuesList.add(FPSTR(VALUE_WPA));
 		else if (apconfig.authmode==AUTH_WPA2_PSK)ValuesList.add(FPSTR(VALUE_WPA2));
-		else if (apconfig.authmode==AUTH_WPA_WPA2_PSK)ValuesList.add(FPSTR(VALUE_WPAWPA2));
-		else ValuesList.add(FPSTR(VALUE_MAX)); //what is this one ? WPS ? Cannot find information
+      else ValuesList.add(FPSTR(VALUE_WPAWPA2));
+
 		//Max connections
 		KeysList.add(FPSTR(KEY_AP_MAX_CON));
 		ValuesList.add(intTostr(apconfig.max_connection));
@@ -1366,8 +1365,8 @@ void handle_web_interface_configAP()
 	int ipos;
 	int inetworkvaluelist []={PHY_MODE_11B,PHY_MODE_11G,-1};
 	const __FlashStringHelper  * inetworkdisplaylist []={FPSTR(VALUE_11B),FPSTR(VALUE_11G),FPSTR(VALUE_11B)};
-	int iauthvaluelist[]={	AUTH_OPEN,AUTH_WPA_PSK,AUTH_WPA2_PSK,AUTH_WPA_WPA2_PSK,AUTH_MAX,-1};
-	const __FlashStringHelper  * iauthdisplaylist []={FPSTR(VALUE_NONE),FPSTR(VALUE_WPA),FPSTR(VALUE_WPA2),FPSTR(VALUE_WPAWPA2),FPSTR(VALUE_MAX),FPSTR(VALUE_MAX)};
+	int iauthvaluelist[] = {AUTH_OPEN,AUTH_WPA_PSK,AUTH_WPA2_PSK,AUTH_WPA_WPA2_PSK,-1};
+	const __FlashStringHelper  * iauthdisplaylist[] = {FPSTR(VALUE_NONE),FPSTR(VALUE_WPA),FPSTR(VALUE_WPA2),FPSTR(VALUE_WPAWPA2)};
 	STORESTRINGS_CLASS KeysList ;
 	STORESTRINGS_CLASS ValuesList ;
 	if (!web_interface->is_authenticated())
@@ -1444,7 +1443,8 @@ void handle_web_interface_configAP()
 				 }
 			//authentification
 			auth_buf  = byte(web_interface->WebServer.arg("AUTHENTIFICATION").toInt());
-			if (!(auth_buf==AUTH_OPEN||auth_buf==AUTH_WEP||auth_buf==AUTH_WPA_PSK||auth_buf==AUTH_WPA2_PSK||auth_buf==AUTH_WPA_WPA2_PSK||auth_buf==AUTH_MAX) )
+	  if (!(auth_buf == AUTH_OPEN || auth_buf == AUTH_WEP || auth_buf == AUTH_WPA_PSK ||
+		auth_buf == AUTH_WPA2_PSK || auth_buf == AUTH_WPA_WPA2_PSK))
 				 {
 					msg_alert_error=true;
 					smsg+="Error : Incorrect authentification method<BR>";
