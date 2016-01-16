@@ -193,12 +193,10 @@ const char VALUE_SETTINGS [] PROGMEM = "Extra Settings";
 const char KEY_REFRESH_PAGE_STATUS [] PROGMEM = "$REFRESH_PAGE_STATUS$";
 const char KEY_DISCONNECT_VISIBILITY [] PROGMEM = "$DISCONNECT_VISIBILITY$";
 const char VALUE_LOGIN [] PROGMEM = "Login page";
-const char KEY_USER_STATUS [] PROGMEM = "$USER_STATUS$";
-const char KEY_USER_PASSWORD_STATUS [] PROGMEM = "$USER_PASSWORD_STATUS$";
-const char KEY_USER_PASSWORD_STATUS2 [] PROGMEM = "$USER_PASSWORD_STATUS2$";
-const char KEY_USER [] PROGMEM = "$USER$";
-const char KEY_USER_PASSWORD [] PROGMEM = "$USER_PASSWORD$";
-const char KEY_USER_PASSWORD2 [] PROGMEM = "$USER_PASSWORD2$";
+const char KEY_PASSWORD_STATUS [] PROGMEM = "$PASSWORD_STATUS$";
+const char KEY_PASSWORD_STATUS2 [] PROGMEM = "$PASSWORD_STATUS2$";
+const char KEY_PASSWORD [] PROGMEM = "$PASSWORD$";
+const char KEY_PASSWORD2 [] PROGMEM = "$PASSWORD2$";
 const char KEY_RETURN [] PROGMEM = "$RETURN$";
 const char VALUE_CHANGE_PASSWORD [] PROGMEM = "Change Password";
 
@@ -1191,14 +1189,14 @@ void handle_password()
 				{
 				msg_alert_error=true;
 				smsg+="Error : Incorrect password<BR>";
-				KeysList.add(FPSTR(KEY_USER_PASSWORD_STATUS));
+				KeysList.add(FPSTR(KEY_PASSWORD_STATUS));
 				ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				}
 			if (sPassword!=sPassword2)
 				{
 				msg_alert_error=true;
 				smsg+="Error : Passwords do not match<BR>";
-				KeysList.add(FPSTR(KEY_USER_PASSWORD_STATUS2));
+				KeysList.add(FPSTR(KEY_PASSWORD_STATUS2));
 				ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				}
 			
@@ -1234,9 +1232,9 @@ void handle_password()
 	}
 	//Display values
 	//password
-	KeysList.add(FPSTR(KEY_USER_PASSWORD));
+	KeysList.add(FPSTR(KEY_PASSWORD));
 	ValuesList.add(sPassword);
-	KeysList.add(FPSTR(KEY_USER_PASSWORD2));
+	KeysList.add(FPSTR(KEY_PASSWORD2));
 	ValuesList.add(sPassword2);
 
 if (msg_alert_error)
@@ -1269,9 +1267,9 @@ if (msg_alert_error)
 		KeysList.add(FPSTR(KEY_SERVICE_PAGE));
 		ValuesList.add("");
 		//Add all green
-		KeysList.add(FPSTR(KEY_USER_PASSWORD_STATUS));
+		KeysList.add(FPSTR(KEY_PASSWORD_STATUS));
 		ValuesList.add(FPSTR(VALUE_HAS_SUCCESS));
-		KeysList.add(FPSTR(KEY_USER_PASSWORD_STATUS2));
+		KeysList.add(FPSTR(KEY_PASSWORD_STATUS2));
 		ValuesList.add(FPSTR(VALUE_HAS_SUCCESS));
 	}
 	
@@ -2826,7 +2824,7 @@ void handle_login()
 {
 	String stmp,smsg;
 	String sReturn;
-	String sUser,sPassword;
+	String sPassword;
 	bool msg_alert_error=false;
 	bool msg_alert_success=false;
 	STORESTRINGS_CLASS KeysList ;
@@ -2843,28 +2841,20 @@ void handle_login()
   if (web_interface->WebServer.hasArg("return")) web_interface->urldecode(sReturn,web_interface->WebServer.arg("return").c_str());
   if (web_interface->WebServer.hasArg("SUBMIT"))
   {   //is there a correct list of values?
-	  if ( web_interface->WebServer.hasArg("PASSWORD")&& web_interface->WebServer.hasArg("USER"))
+	  if ( web_interface->WebServer.hasArg("PASSWORD"))
 		{	
-			//USER
-		    web_interface->urldecode(sUser,web_interface->WebServer.arg("USER").c_str());
 		    #ifdef AUTHENTICATION_FEATURE
-		    if (sUser!="admin")
-				{
-				msg_alert_error=true;
-				smsg+="Error : Incorrect User<BR>";
-				KeysList.add(FPSTR(KEY_USER_STATUS));
-				ValuesList.add(FPSTR(VALUE_HAS_ERROR));
-				}
 		    //Password
 		    web_interface->urldecode(sPassword,web_interface->WebServer.arg("PASSWORD").c_str());
 		    String scurrentPassword;
 		    
-		    if (!CONFIG::read_string(EP_ADMIN_PWD, scurrentPassword , MAX_ADMIN_PASSWORD_LENGTH) )scurrentPassword=FPSTR(DEFAULT_ADMIN);
+		    if (!CONFIG::read_string(EP_ADMIN_PWD, scurrentPassword , MAX_ADMIN_PASSWORD_LENGTH))
+		      scurrentPassword=FPSTR(DEFAULT_ADMIN);
 		    if (strcmp(sPassword.c_str(),scurrentPassword.c_str())!=0)
 				{
 				msg_alert_error=true;
 				smsg+="Error : Incorrect password<BR>";
-				KeysList.add(FPSTR(KEY_USER_PASSWORD_STATUS));
+				KeysList.add(FPSTR(KEY_PASSWORD_STATUS));
 				ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				}
 			#endif
@@ -2905,7 +2895,6 @@ void handle_login()
   
 	else //no submit need to get data from EEPROM
 	{
-	sUser=String();
 	//password 
 	sPassword=String();
 	}
@@ -2964,12 +2953,8 @@ void handle_login()
 	//tpl file name without extension
 	KeysList.add(FPSTR(KEY_SHORT_FILE_NAME));
 	ValuesList.add("login");
-    //User
-	KeysList.add(FPSTR(KEY_USER));
-	ValuesList.add(sUser);
-	
 	//password
-	KeysList.add(FPSTR(KEY_USER_PASSWORD));
+	KeysList.add(FPSTR(KEY_PASSWORD));
 	ValuesList.add(sPassword);
 
 if (msg_alert_error)
