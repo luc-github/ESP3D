@@ -28,7 +28,6 @@ script:
   - arduino --board esp8266com:esp8266:generic --save-prefs
   - arduino --get-pref sketchbook.path
   - build_sketch esp8266/esp8266.ino
-  - travis restart 59
     
 
 notifications:
