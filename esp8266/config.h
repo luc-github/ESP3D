@@ -20,7 +20,7 @@
 
 //comment to disable
 //MDNS_FEATURE: this feature allow  type the name defined
-//in web browser by default : http:\\esp8266.local and connect 
+//in web browser by default: http:\\esp8266.local and connect 
 #define MDNS_FEATURE
 
 //SSDD_FEATURE: this feature is a discovery protocol, supported on Windows out of the box
