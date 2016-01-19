@@ -72,6 +72,7 @@ byte WIFI_CONFIG::split_ip (const char * ptr,byte * part)
 		part[3]=0;
 		return 0;
 	}
+  
   char pstart [16];
   char * ptr2;
   strcpy(pstart,ptr);
@@ -122,6 +123,7 @@ void  WIFI_CONFIG::Safe_Setup()
 		dnsServer.stop();
 		delay(100);
 		#endif
+  
 		WiFi.disconnect();
 		//setup Soft AP
 		WiFi.mode(WIFI_AP);
@@ -146,6 +148,7 @@ bool WIFI_CONFIG::Setup()
   int wstatus;
    IPAddress currentIP;
   byte bflag=0;
+
   //set the sleep mode
   if (!CONFIG::read_byte(EP_SLEEP_MODE, &bflag ))
 	{
@@ -208,11 +211,19 @@ bool WIFI_CONFIG::Setup()
 		while (WiFi.status() != WL_CONNECTED && i<40) {
 		switch(WiFi.status())
 			{
-			  case 1:Serial.println(F("M117 No SSID found!"));
+	  case 1:
+	    Serial.print(FPSTR(M117_));
+	    Serial.println(F("No SSID found!"));
 					break;
-			  case 4:Serial.println(F("M117 No Connection!"));
+
+	  case 4:
+	    Serial.print(FPSTR(M117_));
+	    Serial.println(F("No Connection!"));
 					break;
-			   default: Serial.println(F("M117 Connecting..."));
+
+	  default:
+	    Serial.print(FPSTR(M117_));
+	    Serial.println(F("Connecting..."));
 					break;
 			}
 			delay(500);
@@ -221,6 +232,7 @@ bool WIFI_CONFIG::Setup()
 		if (WiFi.status() != WL_CONNECTED) return false;
 	    WiFi.hostname(hostname);
     }
+  
   //DHCP or Static IP ?
   if (!CONFIG::read_byte(EP_IP_MODE, &bflag )) return false;
   if (bflag==STATIC_IP_MODE)
@@ -242,7 +254,8 @@ bool WIFI_CONFIG::Setup()
     #ifdef MDNS_FEATURE
     // Set up mDNS responder:
 	if (!mdns.begin(hostname)) {
-	Serial.println(F("M117 Error with mDNS!"));
+    Serial.print(FPSTR(M117_));
+    Serial.println(F("Error with mDNS!"));
 	delay(1000);
 	}
     #endif
