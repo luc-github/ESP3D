@@ -12,7 +12,7 @@ $INCLUDE[header.inc]$
 </DIV>
 <div class="form-group $STA_SSID_STATUS$" ><label class="control-label"  for="CONFIG1">SSID: </label><br>
 <input type="text" class="form-control" id="CONFIG1" name="SSID" placeholder="SSID (8~32)" value="$STA_SSID$" max="32" style="width: auto;"></div>
-<div class="form-group $STA_PASSWORD_STATUS$"><label class="control-label"for="CONFIG2">Password :</label><br>
+<div class="form-group $STA_PASSWORD_STATUS$"><label class="control-label"for="CONFIG2">Password:</label><br>
 <input type="password" class="form-control" id="CONFIG2" name="PASSWORD" placeholder="Password (0~64)" max="64" value="$STA_PASSWORD$" style="width: auto;"></div>
 <div class="form-group $HOSTNAME_STATUS$" ><label class="control-label"  for="CONFIG7">Hostname: </label><br>
 <input type="text" class="form-control" id="CONFIG7" name="HOSTNAME" placeholder="Hostname (1~32)" value="$HOSTNAME$" max="32" style="width: auto;"></div>

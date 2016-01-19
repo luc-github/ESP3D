@@ -56,7 +56,7 @@ WiFiServer * data_server;
 WiFiClient serverClients[MAX_SRV_CLIENTS];
 
 void setup() {
-  // init :
+  // init:
    web_interface = NULL;
   data_server = NULL;
  // ESP.wdtDisable();
@@ -86,7 +86,7 @@ void setup() {
     //update EEPROM with default settings
     Serial.begin(9600);
     delay(2000);
-    Serial.println("M117 Reset requested");
+	Serial.println(F("M117 ESP EEPROM reset"));
     CONFIG::reset_config();
     delay(1000);
     //put some default value to a void some exception at first start
