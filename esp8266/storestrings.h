@@ -28,17 +28,18 @@ class STORESTRINGS_CLASS
   STORESTRINGS_CLASS (int maxsize = -1, int maxstringlength=-1);
   ~STORESTRINGS_CLASS ();
   bool add (const char * string);
-  bool add (String & string);
+  bool add (String & string) {return add(string.c_str());};
   bool add (const __FlashStringHelper *str);
   bool remove(int pos);
   const char * get(int pos);
   int get_index(const char * string);
   void clear();
-  int size();
+  int size() {return _charlist.size();};
   bool setsize(int size);
-  bool setlenght(int lenght);
-  int getsize();
-  int getlenght();
+  bool setlength(int len);
+  int getsize() {return _maxsize;};
+  int getlength() {return _maxstringlength;};
+
   private:
   int _maxsize;
   int _maxstringlength;

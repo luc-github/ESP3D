@@ -17,7 +17,7 @@
     This firmware is using the standard arduino IDE with module to support ESP8266:
     https://github.com/esp8266/Arduino from Bootmanager
 
-    Latest version of the code and documentation can be found here :
+    Latest version of the code and documentation can be found here:
     https://github.com/luc-github/ESP8266
     
     Main author: luc lebosse
@@ -136,18 +136,18 @@ void setup() {
 
 #ifdef SSDP_FEATURE
 	String stmp;
-	SSDP.setSchemaURL("description.xml");
+  SSDP.setSchemaURL(F("description.xml"));
     SSDP.setHTTPPort( wifi_config.iweb_port);
     if (!CONFIG::read_string(EP_HOSTNAME, stmp , MAX_HOSTNAME_LENGTH))stmp=wifi_config.get_default_hostname();
     SSDP.setName(stmp.c_str());
     stmp=String(system_get_chip_id());
     SSDP.setSerialNumber(stmp.c_str());
     SSDP.setURL("/");
-    SSDP.setModelName("ESP8266 01");
-    SSDP.setModelNumber("01");
-    SSDP.setModelURL("http://espressif.com/en/products/esp8266/");
-    SSDP.setManufacturer("Espressif Systems");
-    SSDP.setManufacturerURL("http://espressif.com");
+  SSDP.setModelName(F("ESP8266 01"));
+  SSDP.setModelNumber(F("01"));
+  SSDP.setModelURL(F("http://espressif.com/en/products/esp8266/"));
+  SSDP.setManufacturer(F("Espressif Systems"));
+  SSDP.setManufacturerURL(F("http://espressif.com"));
     SSDP.begin();
 #endif
 SPIFFS.begin();

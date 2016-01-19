@@ -64,10 +64,10 @@ class WEBINTERFACE_CLASS
   bool AddAuthIP(auth_ip * item);
   bool ResetAuthIP(IPAddress ip,const char * sessionID);
   uint8_t _upload_status;
+
   private:
   auth_ip * _head;
   uint8_t _nb_ip;
-  
 };
 
 extern WEBINTERFACE_CLASS * web_interface;

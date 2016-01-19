@@ -61,7 +61,6 @@ const char VALUE_WEP[] PROGMEM = "WEP";
 const char VALUE_WPA[] PROGMEM = "WPA";
 const char VALUE_WPA2[] PROGMEM = "WPA2";
 const char VALUE_WPAWPA2[] PROGMEM = "WPA/WPA2";
-const char VALUE_MAX[] PROGMEM = "MAX";
 const char VALUE_STARTED[] PROGMEM = "Started";
 const char VALUE_STOPPED[] PROGMEM = "Stopped";
 const char VALUE_NO[] PROGMEM = "No";
@@ -92,6 +91,7 @@ const char KEY_MENU_AP [] PROGMEM ="$MENU_AP$";
 const char KEY_MENU_STA [] PROGMEM ="$MENU_STA$";
 const char KEY_MENU_PRINTER [] PROGMEM ="$MENU_PRINTER$";
 const char KEY_MENU_SETTINGS [] PROGMEM ="$MENU_SETTINGS$";
+const char KEY_MENU_ADMIN [] PROGMEM ="$MENU_ADMIN$";
 const char KEY_FW_VER [] PROGMEM ="$FW_VER$";
 const char KEY_CHIP_ID [] PROGMEM ="$CHIP_ID$";
 const char KEY_CPU_FREQ [] PROGMEM ="$CPU_FREQ$";
@@ -194,14 +194,14 @@ const char VALUE_SETTINGS [] PROGMEM = "Extra Settings";
 const char KEY_REFRESH_PAGE_STATUS [] PROGMEM = "$REFRESH_PAGE_STATUS$";
 const char KEY_DISCONNECT_VISIBILITY [] PROGMEM = "$DISCONNECT_VISIBILITY$";
 const char VALUE_LOGIN [] PROGMEM = "Login page";
-const char KEY_USER_STATUS [] PROGMEM = "$USER_STATUS$";
-const char KEY_USER_PASSWORD_STATUS [] PROGMEM = "$USER_PASSWORD_STATUS$";
-const char KEY_USER_PASSWORD_STATUS2 [] PROGMEM = "$USER_PASSWORD_STATUS2$";
-const char KEY_USER [] PROGMEM = "$USER$";
-const char KEY_USER_PASSWORD [] PROGMEM = "$USER_PASSWORD$";
-const char KEY_USER_PASSWORD2 [] PROGMEM = "$USER_PASSWORD2$";
+const char KEY_PASSWORD_STATUS [] PROGMEM = "$PASSWORD_STATUS$";
+const char KEY_PASSWORD_STATUS2 [] PROGMEM = "$PASSWORD_STATUS2$";
+const char KEY_PASSWORD [] PROGMEM = "$PASSWORD$";
+const char KEY_PASSWORD2 [] PROGMEM = "$PASSWORD2$";
 const char KEY_RETURN [] PROGMEM = "$RETURN$";
 const char VALUE_CHANGE_PASSWORD [] PROGMEM = "Change Password";
+const char MISSING_DATA [] PROGMEM = "Error: Missing data";
+const char EEPROM_NOWRITE [] PROGMEM = "Error: Cannot write to EEPROM";
 
 bool WEBINTERFACE_CLASS::isHostnameValid(const char * hostname)
 {  //limited size 
@@ -233,15 +233,12 @@ bool WEBINTERFACE_CLASS::isSSIDValid(const char * ssid)
 
 bool WEBINTERFACE_CLASS::isPasswordValid(const char * password)
 {
-	char c;
 	 //limited size 
 	if ((strlen(password)>MAX_PASSWORD_LENGTH)||  (strlen(password)<MIN_PASSWORD_LENGTH)) return false;
 	//no space allowed
 	for (int i=0;i < strlen(password);i++)
-		{
-			c= password[i];
-			if (c==' ') return false;
-		}
+    if (password[i] == ' ') return false;
+  
 	return true;
 }
 
@@ -265,6 +262,7 @@ bool WEBINTERFACE_CLASS::isIPValid(const char * IP)
 	int dotcount = 0;
 	bool previouswasdot=false;
 	char c;
+  
 	if (strlen(IP)>15 || strlen(IP)==0) return false;
 	//cannot start with .
 	if (IP[0]=='.')return false;
@@ -301,14 +299,18 @@ sprintf(result,"%d",value);
 return result;
 }
 
-//TODO : should be in webserver class
+//TODO: should be in webserver class
 bool processTemplate(const char  * filename, STORESTRINGS_CLASS & KeysList ,  STORESTRINGS_CLASS & ValuesList )
 {
+	if(KeysList.size() != ValuesList.size())  //Sanity check  
+	return false;
+
 	LinkedList<File> myFileList  = LinkedList<File>();
 	String  buffer2send;
-	String bufferheader;
+  String bufferheader(F("HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: "));
 	int size_content=0;
 	bool header_sent=false;
+  
 	//one loop to calculate size + one loop to really send
 	//size_content is a mandatory element to avoid memory leak
 	for(int processing_step=0;processing_step<2;processing_step++)
@@ -319,7 +321,7 @@ bool processTemplate(const char  * filename, STORESTRINGS_CLASS & KeysList ,  ST
 		//if error display error on web page
 		if (!currentfile) 
 			{
-				buffer2send = String("Error opening : ") + filename;
+	  buffer2send = String(F("Error opening: ")) + filename;
 				web_interface->WebServer.send(200,"text/plain",buffer2send);
 				return false;
 			}
@@ -328,6 +330,7 @@ bool processTemplate(const char  * filename, STORESTRINGS_CLASS & KeysList ,  ST
 				 int b ;
 				String sLine;
 				bool bprocessing=true;
+	  
 				while (bprocessing) //read all bytes
 				{
 				b = currentfile.read(); //from current open file
@@ -350,7 +353,7 @@ bool processTemplate(const char  * filename, STORESTRINGS_CLASS & KeysList ,  ST
 										File includefile = SPIFFS.open(includefilename, "r");
 										 if (!includefile)  //if error display it on web page
 											{
-											buffer2send+= String("Error opening : ") + includefilename;
+											buffer2send+= String("Error opening: ") + includefilename;
 											}
 										else //if include is open lets read it, current open file is now include file
 											{
@@ -398,7 +401,6 @@ bool processTemplate(const char  * filename, STORESTRINGS_CLASS & KeysList ,  ST
 													}
 												//now build back
 												sLine = beforelinetoprocess + tablepart + afterlinetoprocess;
-												
 											}
 										
 										pos_tag=sLine.indexOf("$AVAILABLE_AP[");
@@ -440,7 +442,6 @@ bool processTemplate(const char  * filename, STORESTRINGS_CLASS & KeysList ,  ST
 													}
 												//now build back
 												sLine = beforelinetoprocess + tablepart + afterlinetoprocess;
-												
 											}
 										
 										//add current line to buffer
@@ -475,7 +476,7 @@ bool processTemplate(const char  * filename, STORESTRINGS_CLASS & KeysList ,  ST
 				else //EOF is reached
 					{   //close current file
 						currentfile.close();
-						//if current file is not template file but incled one
+						//if current file is not template file but included one
 						if (myFileList.size()>0)
 							{  //get level +1 file description and continue
 								currentfile = myFileList.pop();
@@ -487,6 +488,7 @@ bool processTemplate(const char  * filename, STORESTRINGS_CLASS & KeysList ,  ST
 					}
 				}
 			}
+      
 		//check if something is still in buffer and need to be send
 		if (buffer2send!=""){
 			//if we are doing size calculation
@@ -507,10 +509,169 @@ bool processTemplate(const char  * filename, STORESTRINGS_CLASS & KeysList ,  ST
     //if we end size calculation loop
 	if (processing_step==0)
 		{  //let's build the header with correct size'
-			bufferheader = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: "+String(size_content)+"\r\nConnection: close\r\nAccess-Control-Allow-Origin: *\r\n\r\n";
+	  bufferheader.concat(size_content);
+	  bufferheader.concat(F("\r\nConnection: close\r\nAccess-Control-Allow-Origin: *\r\n\r\n"));
 		}
 	}
 	return true;
+}
+// -----------------------------------------------------------------------------
+// Helper for FreeMem and Firmware
+// -----------------------------------------------------------------------------
+void GetFreeMem(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList)
+{
+  //FreeMem
+  KeysList.add(FPSTR(KEY_FREE_MEM));
+  ValuesList.add(intTostr(system_get_free_heap_size()));
+  //FW Version
+  KeysList.add(FPSTR(KEY_FW_VER));
+  ValuesList.add(FPSTR(VALUE_FW_VERSION));
+}
+// -----------------------------------------------------------------------------
+// Helper for IP+Web address
+// -----------------------------------------------------------------------------
+void GetIpWeb(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList)
+{
+  String stmp;
+  
+  KeysList.add(FPSTR(KEY_IP));
+  if (wifi_get_opmode() == WIFI_STA )
+    stmp = WiFi.localIP().toString();
+  else stmp = WiFi.softAPIP().toString();
+  ValuesList.add(stmp);
+
+  //Web address = ip + port
+  KeysList.add(FPSTR(KEY_WEB_ADDRESS));
+  if (wifi_config.iweb_port != 80)
+    {
+      stmp.concat(":");
+      stmp.concat(wifi_config.iweb_port);
+    }
+  ValuesList.add(stmp);
+}
+// -----------------------------------------------------------------------------
+// Helper for Wifi Mode
+// -----------------------------------------------------------------------------
+void GetMode(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList)
+{
+  if (wifi_get_opmode() == WIFI_STA )
+    {
+      KeysList.add(FPSTR(KEY_MODE));
+      ValuesList.add(FPSTR(VALUE_STA));
+    }
+  else
+    {
+      if (wifi_get_opmode() == WIFI_AP )
+	{
+	  KeysList.add(FPSTR(KEY_MODE));
+	  ValuesList.add(FPSTR(VALUE_AP));
+	}
+      else
+	{
+	  KeysList.add(FPSTR(KEY_MODE));
+	  ValuesList.add(FPSTR(VALUE_AP_STA));
+	}
+    }
+}
+// -----------------------------------------------------------------------------
+// Helper for Web ports
+// -----------------------------------------------------------------------------
+void GetPorts(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList)
+{
+  //Web port
+  KeysList.add(FPSTR(KEY_WEB_PORT));
+  ValuesList.add(intTostr(wifi_config.iweb_port));
+  //Data port
+  KeysList.add(FPSTR(KEY_DATA_PORT));
+  ValuesList.add(intTostr(wifi_config.idata_port));
+}
+// -----------------------------------------------------------------------------
+// Helper for Page properties
+// -----------------------------------------------------------------------------
+void SetPageProp(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList,
+		 const __FlashStringHelper *title, const __FlashStringHelper *filename)
+{
+  String fullFilename(filename);
+  fullFilename.concat(".tpl");
+
+  //page title
+  KeysList.add(FPSTR(KEY_PAGE_TITLE));
+  ValuesList.add(title);
+  //tpl file name with extension
+  KeysList.add(FPSTR(KEY_FILE_NAME));
+  ValuesList.add(fullFilename);
+  //tpl file name without extension
+  KeysList.add(FPSTR(KEY_SHORT_FILE_NAME));
+  ValuesList.add(filename);
+}
+
+// -----------------------------------------------------------------------------
+// Helper for DHCP (APP/STA)tus
+// -----------------------------------------------------------------------------
+void GetDHCPStatus(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList)
+{
+  KeysList.add(FPSTR(KEY_AP_DHCP_STATUS));
+  if (wifi_softap_dhcps_status() == DHCP_STARTED) ValuesList.add(FPSTR(VALUE_STARTED));
+  else ValuesList.add(FPSTR(VALUE_STOPPED));
+
+  KeysList.add(FPSTR(KEY_STA_DHCP_STATUS));
+  if (wifi_station_dhcpc_status()==DHCP_STARTED)ValuesList.add(FPSTR(VALUE_STARTED));
+  else ValuesList.add(FPSTR(VALUE_STOPPED));
+}
+
+// -----------------------------------------------------------------------------
+// Helper for Error Msg processing
+// -----------------------------------------------------------------------------
+void ProcessAlertError(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList, String & smsg)
+{
+  KeysList.add(FPSTR(KEY_ERROR_MSG));
+  ValuesList.add(smsg);
+  KeysList.add(FPSTR(KEY_SUCCESS_MSG));
+  ValuesList.add("");
+  KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
+  ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
+  KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
+  ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
+  KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
+  ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
+  KeysList.add(FPSTR(KEY_SERVICE_PAGE));
+  ValuesList.add("");
+}
+
+// -----------------------------------------------------------------------------
+// Helper for Success Msg processing
+// -----------------------------------------------------------------------------
+void ProcessAlertSuccess(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList, String & smsg)
+{
+  KeysList.add(FPSTR(KEY_ERROR_MSG));
+  ValuesList.add("");
+  KeysList.add(FPSTR(KEY_SUCCESS_MSG));
+  ValuesList.add(smsg);
+  KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
+  ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
+  KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
+  ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
+  KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
+  ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
+}
+
+// -----------------------------------------------------------------------------
+// Helper for No Msg processing
+// -----------------------------------------------------------------------------
+void ProcessNoAlert(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList)
+{
+  KeysList.add(FPSTR(KEY_ERROR_MSG));
+  ValuesList.add("");
+  KeysList.add(FPSTR(KEY_SUCCESS_MSG));
+  ValuesList.add("");
+  KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
+  ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
+  KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
+  ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
+  KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
+  ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
+  KeysList.add(FPSTR(KEY_SERVICE_PAGE));
+  ValuesList.add("");
 }
 
 //root insterface
@@ -525,26 +686,14 @@ void handle_web_interface_root()
 	struct softap_config apconfig;
 	struct ip_info info;
 	uint8_t mac [WL_MAC_ADDR_LENGTH];
+
 	KeysList.add(FPSTR(KEY_DISCONNECT_VISIBILITY));
 	if (web_interface->is_authenticated())ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
 	else ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-	//Free Mem, put at the end to reflect situation
-	KeysList.add(FPSTR(KEY_FREE_MEM));
-	ValuesList.add(intTostr(system_get_free_heap_size()));
-	//IP
-	stmp=FPSTR(KEY_IP);
-	KeysList.add(stmp);
-	if (wifi_get_opmode()==WIFI_STA ) stmp=WiFi.localIP().toString();
-	else stmp=WiFi.softAPIP().toString();
-	ValuesList.add(stmp);
-	//Web address = ip + port
-	KeysList.add(FPSTR(KEY_WEB_ADDRESS));
-	if (wifi_config.iweb_port!=80)
-		{
-		stmp+=":";
-		stmp+=intTostr(wifi_config.iweb_port);
-		}
-	ValuesList.add(stmp);
+
+	//IP+Web
+	GetIpWeb(KeysList, ValuesList);
+
 	//Hostname
 	if (wifi_get_opmode()==WIFI_STA )
 		{
@@ -572,30 +721,23 @@ void handle_web_interface_root()
 				ValuesList.add(FPSTR(VALUE_AP_STA));
 			}
 		}
-	//page title
-	KeysList.add(FPSTR(KEY_PAGE_TITLE));
-	ValuesList.add(FPSTR(VALUE_HOME));
-	//tpl file name with extension
-	KeysList.add(FPSTR(KEY_FILE_NAME));
-	ValuesList.add("home.tpl");
-	//tpl file name without extension
-	KeysList.add(FPSTR(KEY_SHORT_FILE_NAME));
-	ValuesList.add("home");
+
+	//page title and filenames
+	SetPageProp(KeysList,ValuesList,FPSTR(VALUE_HOME),F("home"));
 	//menu item
 	KeysList.add(FPSTR(KEY_MENU_HOME));
 	ValuesList.add(FPSTR(VALUE_ACTIVE));
-	//FW Version
-	KeysList.add(FPSTR(KEY_FW_VER));
-	ValuesList.add(FPSTR(VALUE_FW_VERSION));
+  
 	//Chip ID
 	KeysList.add(FPSTR(KEY_CHIP_ID));
-	ValuesList.add( intTostr(system_get_chip_id()));
+	ValuesList.add(intTostr(system_get_chip_id()));
 	//CPU Freq
 	KeysList.add(FPSTR(KEY_CPU_FREQ));
 	ValuesList.add(intTostr(system_get_cpu_freq()));
 	//SDK Version
 	KeysList.add(FPSTR(KEY_SDK_VER));
 	ValuesList.add(system_get_sdk_version());
+
 	//MDNS Feature
 	#ifdef MDNS_FEATURE
 	KeysList.add(FPSTR(KEY_MDNS_NAME));
@@ -611,6 +753,7 @@ void handle_web_interface_root()
 	KeysList.add(FPSTR(KEY_MDNS_VISIBLE));
 	ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
 	#endif
+
 	//SSDP Feature
 	#ifdef SSDP_FEATURE
 	KeysList.add(FPSTR(KEY_SSDP_STATUS));
@@ -623,6 +766,7 @@ void handle_web_interface_root()
 	KeysList.add(FPSTR(KEY_SSDP_VISIBLE));
 	ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
 	#endif
+
 	//Captive portal Feature
 	#ifdef CAPTIVE_PORTAL_FEATURE
 	if (wifi_get_opmode()==WIFI_AP)
@@ -645,6 +789,7 @@ void handle_web_interface_root()
 	KeysList.add(FPSTR(KEY_CAPTIVE_PORTAL_VISIBLE));
 	ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
 	#endif
+
 	//network	
 	KeysList.add(FPSTR(KEY_NET_PHY));
 	if (wifi_get_phy_mode()==PHY_MODE_11B) ValuesList.add(FPSTR(VALUE_11B));
@@ -658,15 +803,12 @@ void handle_web_interface_root()
 	//Boot version
 	KeysList.add(FPSTR(KEY_BOOT_VER));
 	ValuesList.add(intTostr(system_get_boot_version()));
-	//baud rate
+	//Baud rate
 	KeysList.add(FPSTR(KEY_BAUD_RATE));
 	ValuesList.add(intTostr(wifi_config.baud_rate));
-	//Web Port
-	KeysList.add(FPSTR(KEY_WEB_PORT));
-	ValuesList.add(intTostr(wifi_config.iweb_port));
-	//Web Port
-	KeysList.add(FPSTR(KEY_DATA_PORT));
-	ValuesList.add(intTostr(wifi_config.idata_port));
+	// Web and Data ports
+	GetPorts(KeysList, ValuesList);
+
 	//AP part
 	if (wifi_get_opmode()==WIFI_AP ||  wifi_get_opmode()==WIFI_AP_STA) 
 		{
@@ -690,7 +832,6 @@ void handle_web_interface_root()
 				//BSSID
 				stmp = "$MAC_CONNECTED["+String(client_counter)+"]$";
 				KeysList.add(stmp.c_str());
-				
 				ValuesList.add(wifi_config.mac2str(station->bssid));
 				//IP
 				stmp = "$IP_CONNECTED["+String(client_counter)+"]$";
@@ -727,7 +868,7 @@ void handle_web_interface_root()
 		//SSID
 		KeysList.add(FPSTR(KEY_AP_SSID));
 		ValuesList.add((char *)(apconfig.ssid));
-		//AP visibile or hidden
+		//AP visible or hidden
 		KeysList.add(FPSTR(KEY_AP_IS_VISIBLE));
 		if(apconfig.ssid_hidden==1)ValuesList.add(FPSTR(VALUE_NO));
 		else ValuesList.add(FPSTR(VALUE_YES));
@@ -740,8 +881,8 @@ void handle_web_interface_root()
 		else if (apconfig.authmode==AUTH_WEP)ValuesList.add(FPSTR(VALUE_WEP));
 		else if (apconfig.authmode==AUTH_WPA_PSK)ValuesList.add(FPSTR(VALUE_WPA));
 		else if (apconfig.authmode==AUTH_WPA2_PSK)ValuesList.add(FPSTR(VALUE_WPA2));
-		else if (apconfig.authmode==AUTH_WPA_WPA2_PSK)ValuesList.add(FPSTR(VALUE_WPAWPA2));
-		else ValuesList.add(FPSTR(VALUE_MAX)); //what is this one ? WPS ? Cannot find information
+      else ValuesList.add(FPSTR(VALUE_WPAWPA2));
+
 		//Max connections
 		KeysList.add(FPSTR(KEY_AP_MAX_CON));
 		ValuesList.add(intTostr(apconfig.max_connection));
@@ -751,7 +892,7 @@ void handle_web_interface_root()
 		//SSID
 		KeysList.add(FPSTR(KEY_AP_SSID));
 		ValuesList.add(FPSTR(VALUE_NOT_AVAILABLE));
-		//AP visibile or hidden
+		//AP visible or hidden
 		KeysList.add(FPSTR(KEY_AP_IS_VISIBLE));
 		ValuesList.add(FPSTR(VALUE_NOT_AVAILABLE));
 		//Channel
@@ -764,11 +905,10 @@ void handle_web_interface_root()
 		KeysList.add(FPSTR(KEY_AP_MAX_CON));
 		ValuesList.add(FPSTR(VALUE_NOT_AVAILABLE));
 		}
-	KeysList.add(FPSTR(KEY_AP_DHCP_STATUS));
-	if (wifi_softap_dhcps_status()==DHCP_STARTED)ValuesList.add(FPSTR(VALUE_STARTED));
-	else ValuesList.add(FPSTR(VALUE_STOPPED));
-	//IP/GW/MASK
-	if (wifi_get_ip_info(SOFTAP_IF,&info))
+		//DHCP Status
+		GetDHCPStatus(KeysList, ValuesList);
+		//IP/GW/MASK
+		if (wifi_get_ip_info(SOFTAP_IF,&info))
 		{
 			//IP address
 			KeysList.add(FPSTR(KEY_AP_IP));
@@ -831,9 +971,7 @@ void handle_web_interface_root()
 	else if  (istatus==STATION_IDLE) ValuesList.add(FPSTR(VALUE_IDLE));//should not happen
 	else ValuesList.add(FPSTR(VALUE_DISCONNECTED));
 	//DHCP Client status
-	KeysList.add(FPSTR(KEY_STA_DHCP_STATUS));
-	if (wifi_station_dhcpc_status()==DHCP_STARTED)ValuesList.add(FPSTR(VALUE_STARTED));
-	else ValuesList.add(FPSTR(VALUE_STOPPED));
+	GetDHCPStatus(KeysList, ValuesList);
 	//IP address
 	KeysList.add(FPSTR(KEY_STA_IP));
 	ValuesList.add(WiFi.localIP().toString().c_str());
@@ -843,13 +981,14 @@ void handle_web_interface_root()
 	//Sub Net Mask
 	KeysList.add(FPSTR(KEY_STA_SUBNET));
 	ValuesList.add(WiFi.subnetMask().toString().c_str());
-    //Service page / no need refresh on this page
-    KeysList.add(FPSTR(KEY_SERVICE_PAGE));
+	//Service page / no need refresh on this page
+	KeysList.add(FPSTR(KEY_SERVICE_PAGE));
 	ValuesList.add("");
+ //Firmware & Free Mem, at the end to reflect situation
+  GetFreeMem(KeysList, ValuesList);
 
 	//process the template file and provide list of variables
-	if(KeysList.size()==ValuesList.size())	//Sanity check
-		processTemplate("/home.tpl", KeysList , ValuesList);
+	processTemplate("/home.tpl", KeysList , ValuesList);
 	//need to clean to speed up memory recovery
 	KeysList.clear();
 	ValuesList.clear();
@@ -857,6 +996,8 @@ void handle_web_interface_root()
 
 void handle_web_interface_configSys()
 {
+  static const char NOT_AUTH_CS [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=CONFIGSYS\r\nCache-Control: no-cache\r\n\r\n";
+  
 	String stmp,smsg;
 	long lstatus;
 	int istatus;
@@ -872,60 +1013,19 @@ void handle_web_interface_configSys()
 	const __FlashStringHelper  *smodemdisplaylist[]={FPSTR(VALUE_NONE),FPSTR(VALUE_LIGHT),FPSTR(VALUE_MODEM),FPSTR(VALUE_MODEM)};
 	STORESTRINGS_CLASS KeysList ;
 	STORESTRINGS_CLASS ValuesList ;
+
 	if (!web_interface->is_authenticated())
 	{
-		String header = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=CONFIGSYS\r\nCache-Control: no-cache\r\n\r\n";
-		web_interface->WebServer.sendContent(header);
+      web_interface->WebServer.sendContent_P(NOT_AUTH_CS);
 		return;
 	}
-	//Free Mem, put at the end to reflect situation
-	KeysList.add(FPSTR(KEY_FREE_MEM));
-	ValuesList.add(intTostr(system_get_free_heap_size()));
-	//IP
-	stmp=FPSTR(KEY_IP);
-	KeysList.add(stmp);
-	if (wifi_get_opmode()==WIFI_STA ) stmp=WiFi.localIP().toString();
-	else stmp=WiFi.softAPIP().toString();
-	ValuesList.add(stmp);
-	//Web address = ip + port
-	KeysList.add(FPSTR(KEY_WEB_ADDRESS));
-	if (wifi_config.iweb_port!=80)
-		{
-		stmp+=":";
-		stmp+=intTostr(wifi_config.iweb_port);
-		}
-	ValuesList.add(stmp);
+
+	//IP+Web
+	GetIpWeb(KeysList, ValuesList);
 	//mode
-	if (wifi_get_opmode()==WIFI_STA )
-		{
-		KeysList.add(FPSTR(KEY_MODE));
-		ValuesList.add(FPSTR(VALUE_STA));
-		}
-	else
-		{
-		if (wifi_get_opmode()==WIFI_AP )
-			{
-				KeysList.add(FPSTR(KEY_MODE));
-				ValuesList.add(FPSTR(VALUE_AP));
-			}
-		else
-			{
-				KeysList.add(FPSTR(KEY_MODE));
-				ValuesList.add(FPSTR(VALUE_AP_STA));
-			}
-		}
-	//FW Version
-	KeysList.add(FPSTR(KEY_FW_VER));
-	ValuesList.add(FPSTR(VALUE_FW_VERSION));
-	//page title
-	KeysList.add(FPSTR(KEY_PAGE_TITLE));
-	ValuesList.add(FPSTR(VALUE_HOME));
-	//tpl file name with extension
-	KeysList.add(FPSTR(KEY_FILE_NAME));
-	ValuesList.add("system.tpl");
-	//tpl file name without extension
-	KeysList.add(FPSTR(KEY_SHORT_FILE_NAME));
-	ValuesList.add("system");
+	GetMode(KeysList, ValuesList);
+	//page title and filenames
+	SetPageProp(KeysList,ValuesList,FPSTR(VALUE_HOME),F("system"));
 	//menu item
 	KeysList.add(FPSTR(KEY_MENU_SYSTEM));
 	ValuesList.add(FPSTR(VALUE_ACTIVE));
@@ -943,21 +1043,21 @@ void handle_web_interface_configSys()
 			if (!(iweb_port>0 && iweb_port<65001))
 				{
 					msg_alert_error=true;
-					smsg+="Error : invalid port value for web port<BR>";
+	      smsg.concat(F("Error: invalid port value for web port<BR>"));
 					KeysList.add(FPSTR(KEY_WEB_PORT_STATUS));
 					ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 			    }
 			 if (!(idata_port>0 && idata_port<65001))
 				{
 					msg_alert_error=true;
-					smsg+="Error : invalid port value for data port<BR>";
+	      smsg.concat("Error: invalid port value for data port<BR>");
 					KeysList.add(FPSTR(KEY_DATA_PORT_STATUS));
 					ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 			    }
 			if (iweb_port== idata_port)
 				{
 					msg_alert_error=true;
-					smsg+="Error : web port and data port cannot be identical<BR>";
+	      smsg.concat("Error: web port and data port cannot be identical<BR>");
 					KeysList.add(FPSTR(KEY_WEB_PORT_STATUS));
 					ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 					KeysList.add(FPSTR(KEY_DATA_PORT_STATUS));
@@ -966,14 +1066,14 @@ void handle_web_interface_configSys()
 			if (!(ibaud==9600 || ibaud==19200|| ibaud==38400|| ibaud==57600|| ibaud==115200|| ibaud==230400 || ibaud==250000)) 
 				{
 					msg_alert_error=true;
-					smsg+="Error : value for baud rate is not correct<BR>";
+	      smsg.concat(F("Error: value for baud rate is not correct<BR>"));
 					KeysList.add(FPSTR(KEY_BAUD_RATE_STATUS));
 					ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 			    }
 			if (!(bsleepmode==NONE_SLEEP_T ||bsleepmode==LIGHT_SLEEP_T ||bsleepmode==MODEM_SLEEP_T ))
 				{
 					msg_alert_error=true;
-					smsg+="Error : value for sleeping mode is not correct<BR>";
+	      smsg.concat(F("Error: value for sleeping mode is not correct<BR>"));
 					KeysList.add(FPSTR(KEY_SLEEP_MODE_STATUS));
 					ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 			    }
@@ -981,7 +1081,7 @@ void handle_web_interface_configSys()
 	  else
 	   {
 		msg_alert_error=true;
-		smsg="Error : Missing data";
+	  smsg = FPSTR(MISSING_DATA);
 	   }
 	   //if no error apply the changes
 		if (msg_alert_error!=true)
@@ -989,17 +1089,16 @@ void handle_web_interface_configSys()
 			 if(!CONFIG::write_buffer(EP_BAUD_RATE,(const byte *)&ibaud,INTEGER_LENGTH)||!CONFIG::write_buffer(EP_WEB_PORT,(const byte *)&iweb_port,INTEGER_LENGTH)||!CONFIG::write_buffer(EP_DATA_PORT,(const byte *)&idata_port,INTEGER_LENGTH)||!CONFIG::write_byte(EP_SLEEP_MODE,bsleepmode))
 				{
 					msg_alert_error=true;
-					smsg="Error : Cannot write to EEPROM";
+	      smsg = FPSTR(EEPROM_NOWRITE);
 				}
 			else
 				{
 					msg_alert_success=true;
 					wifi_config.iweb_port=iweb_port;
 					wifi_config.idata_port=idata_port;
-					smsg="Changes saved to EEPROM, restarting....";
+	      smsg = F("Changes saved to EEPROM, restarting....");
 				}
 			}
-		
   }
   else //no submit need to get data from EEPROM
 	{
@@ -1041,40 +1140,14 @@ void handle_web_interface_configSys()
 	 KeysList.add(FPSTR(KEY_SLEEP_MODE_OPTIONS_LIST));
 	 ValuesList.add(stmp);
 	 
-	 //Web port
-	 KeysList.add(FPSTR(KEY_WEB_PORT));
-	 ValuesList.add(intTostr(iweb_port));
-	 
-	 //Data port
-	KeysList.add(FPSTR(KEY_DATA_PORT));
-	ValuesList.add(intTostr(idata_port));
+	// Web and Data ports
+	GetPorts(KeysList, ValuesList);
+
 	if (msg_alert_error)
-	{
-		KeysList.add(FPSTR(KEY_ERROR_MSG));
-		ValuesList.add(smsg);
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SERVICE_PAGE));
-		ValuesList.add("");
-	}
+    ProcessAlertError(KeysList, ValuesList, smsg);
 	else if (msg_alert_success)
 	{
-		KeysList.add(FPSTR(KEY_ERROR_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG));
-		ValuesList.add(smsg);
-		KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
+      ProcessAlertSuccess(KeysList, ValuesList, smsg);
 		KeysList.add(FPSTR(KEY_SERVICE_PAGE));
 		ValuesList.add(FPSTR(RESTARTCMD));
 		KeysList.add(FPSTR(KEY_BAUD_RATE_STATUS));
@@ -1089,24 +1162,13 @@ void handle_web_interface_configSys()
 	
 	else
 	
-	{
-		KeysList.add(FPSTR(KEY_ERROR_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SERVICE_PAGE));
-		ValuesList.add("");
-	}
+    ProcessNoAlert(KeysList, ValuesList);
 	
+  //Firmware and Free Mem, at the end to reflect situation
+  GetFreeMem(KeysList, ValuesList);
+  
 	//process the template file and provide list of variables
-	if(KeysList.size()==ValuesList.size())	//Sanity check
-		processTemplate("/system.tpl", KeysList , ValuesList);
+	processTemplate("/system.tpl", KeysList , ValuesList);
 	//need to clean to speed up memory recovery
 	KeysList.clear();
 	ValuesList.clear();
@@ -1114,72 +1176,33 @@ void handle_web_interface_configSys()
 
 void handle_password()
 {
-	String stmp,smsg;
+  static const char NOT_AUTH_PW [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=PASSWORD\r\nCache-Control: no-cache\r\n\r\n";
+  
+  String smsg;
 	String sPassword,sPassword2;
 	bool msg_alert_error=false;
 	bool msg_alert_success=false;
    	int ipos;
 	STORESTRINGS_CLASS KeysList ;
 	STORESTRINGS_CLASS ValuesList ;
+  
 	if (!web_interface->is_authenticated())
 	{
-		String header = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=PASSWORD\r\nCache-Control: no-cache\r\n\r\n";
-		web_interface->WebServer.sendContent(header);
+	web_interface->WebServer.sendContent_P(NOT_AUTH_PW);
 		return;
 	}
-	//Free Mem, put at the end to reflect situation
-	KeysList.add(FPSTR(KEY_FREE_MEM));
-	ValuesList.add(intTostr(system_get_free_heap_size()));
-	//IP
-	stmp=FPSTR(KEY_IP);
-	KeysList.add(stmp);
-	if (wifi_get_opmode()==WIFI_STA ) stmp=WiFi.localIP().toString();
-	else stmp=WiFi.softAPIP().toString();
-	ValuesList.add(stmp);
-	//Web address = ip + port
-	KeysList.add(FPSTR(KEY_WEB_ADDRESS));
-	if (wifi_config.iweb_port!=80)
-		{
-		stmp+=":";
-		stmp+=intTostr(wifi_config.iweb_port);
-		}
-	ValuesList.add(stmp);
+
+	//IP+Web
+	GetIpWeb(KeysList, ValuesList);
 	//mode
-	if (wifi_get_opmode()==WIFI_STA )
-		{
-		KeysList.add(FPSTR(KEY_MODE));
-		ValuesList.add(FPSTR(VALUE_STA));
-		}
-	else
-		{
-		if (wifi_get_opmode()==WIFI_AP )
-			{
-				KeysList.add(FPSTR(KEY_MODE));
-				ValuesList.add(FPSTR(VALUE_AP));
-			}
-		else
-			{
-				KeysList.add(FPSTR(KEY_MODE));
-				ValuesList.add(FPSTR(VALUE_AP_STA));
-			}
-		}
-	//FW Version
-	KeysList.add(FPSTR(KEY_FW_VER));
-	ValuesList.add(FPSTR(VALUE_FW_VERSION));
-	//page title
-	KeysList.add(FPSTR(KEY_PAGE_TITLE));
-	ValuesList.add(FPSTR(VALUE_CHANGE_PASSWORD));
-	//tpl file name with extension
-	KeysList.add(FPSTR(KEY_FILE_NAME));
-	ValuesList.add("password.tpl");
-	//tpl file name without extension
-	KeysList.add(FPSTR(KEY_SHORT_FILE_NAME));
-	ValuesList.add("password");
+	GetMode(KeysList, ValuesList);
+	//page title and filenames
+	SetPageProp(KeysList,ValuesList,FPSTR(VALUE_CHANGE_PASSWORD),F("password"));
 	//menu item
-	KeysList.add(FPSTR(KEY_MENU_AP));
+  KeysList.add(FPSTR(KEY_MENU_ADMIN));
 	ValuesList.add(FPSTR(VALUE_ACTIVE));
 
-  //check is it is a submission or a display
+  //check if it is a submission or a display
   smsg="";
   if (web_interface->WebServer.hasArg("SUBMIT"))
   {   //is there a correct list of values?
@@ -1191,23 +1214,22 @@ void handle_password()
 		    if (!web_interface->isAdminPasswordValid(sPassword.c_str()) )
 				{
 				msg_alert_error=true;
-				smsg+="Error : Incorrect password<BR>";
-				KeysList.add(FPSTR(KEY_USER_PASSWORD_STATUS));
+	      smsg.concat(F("Error: Incorrect password<BR>"));
+				KeysList.add(FPSTR(KEY_PASSWORD_STATUS));
 				ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				}
 			if (sPassword!=sPassword2)
 				{
 				msg_alert_error=true;
-				smsg+="Error : Passwords do not match<BR>";
-				KeysList.add(FPSTR(KEY_USER_PASSWORD_STATUS2));
+	      smsg.concat(F("Error: Passwords do not match<BR>"));
+				KeysList.add(FPSTR(KEY_PASSWORD_STATUS2));
 				ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				}
-			
 		}
       else
 	   {
 		msg_alert_error=true;
-		smsg="Error : Missing data";
+	  smsg = FPSTR(MISSING_DATA);
 	   }
 	  
 	   //if no error apply the change
@@ -1217,17 +1239,17 @@ void handle_password()
 		 if(!CONFIG::write_string(EP_ADMIN_PWD,sPassword.c_str()))
 			{
 				msg_alert_error=true;
-			    smsg="Error : Cannot write to EEPROM";
+	      smsg = FPSTR(EEPROM_NOWRITE);
 			}
 		else
 				{
 					msg_alert_success=true;
-					smsg="Changes saved to EEPROM";
+	      smsg = F("Changes saved to EEPROM");
 				}
 			}
 		}
   
-	else //no submit need to get data from EEPROM
+	else //no submit, need to get data from EEPROM
 	{
 	//password 
 	sPassword="";
@@ -1235,66 +1257,34 @@ void handle_password()
 	}
 	//Display values
 	//password
-	KeysList.add(FPSTR(KEY_USER_PASSWORD));
+	KeysList.add(FPSTR(KEY_PASSWORD));
 	ValuesList.add(sPassword);
-	KeysList.add(FPSTR(KEY_USER_PASSWORD2));
+	KeysList.add(FPSTR(KEY_PASSWORD2));
 	ValuesList.add(sPassword2);
 
 if (msg_alert_error)
-	{
-		KeysList.add(FPSTR(KEY_ERROR_MSG));
-		ValuesList.add(smsg);
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SERVICE_PAGE));
-		ValuesList.add("");
-	}
+    ProcessAlertError(KeysList, ValuesList, smsg);
 	else if (msg_alert_success)
 	{
-		KeysList.add(FPSTR(KEY_ERROR_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG));
-		ValuesList.add(smsg);
-		KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
+      ProcessAlertSuccess(KeysList, ValuesList, smsg);
 		KeysList.add(FPSTR(KEY_SERVICE_PAGE));
 		ValuesList.add("");
 		//Add all green
-		KeysList.add(FPSTR(KEY_USER_PASSWORD_STATUS));
+		KeysList.add(FPSTR(KEY_PASSWORD_STATUS));
 		ValuesList.add(FPSTR(VALUE_HAS_SUCCESS));
-		KeysList.add(FPSTR(KEY_USER_PASSWORD_STATUS2));
+		KeysList.add(FPSTR(KEY_PASSWORD_STATUS2));
 		ValuesList.add(FPSTR(VALUE_HAS_SUCCESS));
 	}
 	
 	else
 	
-	{
-		KeysList.add(FPSTR(KEY_ERROR_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SERVICE_PAGE));
-		ValuesList.add("");
-	}
+    ProcessNoAlert(KeysList,ValuesList);
+  
+  //Firmware and Free Mem, at the end to reflect situation
+  GetFreeMem(KeysList, ValuesList);
+    
 	//process the template file and provide list of variables
-	if(KeysList.size()==ValuesList.size())	//Sanity check
-		processTemplate("/password.tpl", KeysList , ValuesList);
+	processTemplate("/password.tpl", KeysList , ValuesList);
 	//need to clean to speed up memory recovery
 	KeysList.clear();
 	ValuesList.clear();
@@ -1303,6 +1293,8 @@ if (msg_alert_error)
 
 void handle_web_interface_configAP()
 {
+  static const char NOT_AUTH_AP [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=CONFIGAP\r\nCache-Control: no-cache\r\n\r\n";
+  
 	String stmp,smsg;
 	String sSSID,sPassword,sIP,sGW,sMask;
 	bool msg_alert_error=false;
@@ -1318,64 +1310,23 @@ void handle_web_interface_configAP()
 	int ipos;
 	int inetworkvaluelist []={PHY_MODE_11B,PHY_MODE_11G,-1};
 	const __FlashStringHelper  * inetworkdisplaylist []={FPSTR(VALUE_11B),FPSTR(VALUE_11G),FPSTR(VALUE_11B)};
-	int iauthvaluelist[]={	AUTH_OPEN,AUTH_WPA_PSK,AUTH_WPA2_PSK,AUTH_WPA_WPA2_PSK,AUTH_MAX,-1};
-	const __FlashStringHelper  * iauthdisplaylist []={FPSTR(VALUE_NONE),FPSTR(VALUE_WPA),FPSTR(VALUE_WPA2),FPSTR(VALUE_WPAWPA2),FPSTR(VALUE_MAX),FPSTR(VALUE_MAX)};
+	int iauthvaluelist[] = {AUTH_OPEN,AUTH_WPA_PSK,AUTH_WPA2_PSK,AUTH_WPA_WPA2_PSK,-1};
+	const __FlashStringHelper  * iauthdisplaylist[] = {FPSTR(VALUE_NONE),FPSTR(VALUE_WPA),FPSTR(VALUE_WPA2),FPSTR(VALUE_WPAWPA2)};
 	STORESTRINGS_CLASS KeysList ;
 	STORESTRINGS_CLASS ValuesList ;
+  
 	if (!web_interface->is_authenticated())
 	{
-		String header = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=CONFIGAP\r\nCache-Control: no-cache\r\n\r\n";
-		web_interface->WebServer.sendContent(header);
+      web_interface->WebServer.sendContent_P(NOT_AUTH_AP);
 		return;
 	}
-	//Free Mem, put at the end to reflect situation
-	KeysList.add(FPSTR(KEY_FREE_MEM));
-	ValuesList.add(intTostr(system_get_free_heap_size()));
-	//IP
-	stmp=FPSTR(KEY_IP);
-	KeysList.add(stmp);
-	if (wifi_get_opmode()==WIFI_STA ) stmp=WiFi.localIP().toString();
-	else stmp=WiFi.softAPIP().toString();
-	ValuesList.add(stmp);
-	//Web address = ip + port
-	KeysList.add(FPSTR(KEY_WEB_ADDRESS));
-	if (wifi_config.iweb_port!=80)
-		{
-		stmp+=":";
-		stmp+=intTostr(wifi_config.iweb_port);
-		}
-	ValuesList.add(stmp);
+
+	//IP+Web
+	GetIpWeb(KeysList, ValuesList);
 	//mode
-	if (wifi_get_opmode()==WIFI_STA )
-		{
-		KeysList.add(FPSTR(KEY_MODE));
-		ValuesList.add(FPSTR(VALUE_STA));
-		}
-	else
-		{
-		if (wifi_get_opmode()==WIFI_AP )
-			{
-				KeysList.add(FPSTR(KEY_MODE));
-				ValuesList.add(FPSTR(VALUE_AP));
-			}
-		else
-			{
-				KeysList.add(FPSTR(KEY_MODE));
-				ValuesList.add(FPSTR(VALUE_AP_STA));
-			}
-		}
-	//FW Version
-	KeysList.add(FPSTR(KEY_FW_VER));
-	ValuesList.add(FPSTR(VALUE_FW_VERSION));
-	//page title
-	KeysList.add(FPSTR(KEY_PAGE_TITLE));
-	ValuesList.add(FPSTR(VALUE_CONFIG_AP));
-	//tpl file name with extension
-	KeysList.add(FPSTR(KEY_FILE_NAME));
-	ValuesList.add("config_ap.tpl");
-	//tpl file name without extension
-	KeysList.add(FPSTR(KEY_SHORT_FILE_NAME));
-	ValuesList.add("config_ap");
+	GetMode(KeysList, ValuesList);
+	//page title and filenames
+	SetPageProp(KeysList,ValuesList,FPSTR(VALUE_CONFIG_AP),F("config_ap"));
 	//menu item
 	KeysList.add(FPSTR(KEY_MENU_AP));
 	ValuesList.add(FPSTR(VALUE_ACTIVE));
@@ -1394,7 +1345,7 @@ void handle_web_interface_configAP()
 		    if (!web_interface->isSSIDValid(sSSID.c_str()))
 				{
 				msg_alert_error=true;
-				smsg+="Error : Incorrect SSID<BR>";
+	      smsg.concat(F("Error: Incorrect SSID<BR>"));
 				KeysList.add(FPSTR(KEY_AP_SSID_STATUS));
 				ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				}
@@ -1403,7 +1354,7 @@ void handle_web_interface_configAP()
 		    if (!web_interface->isPasswordValid(sPassword.c_str()))
 				{
 				msg_alert_error=true;
-				smsg+="Error : Incorrect password<BR>";
+	      smsg.concat(F("Error: Incorrect password<BR>"));
 				KeysList.add(FPSTR(KEY_AP_PASSWORD_STATUS));
 				ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				}
@@ -1421,7 +1372,7 @@ void handle_web_interface_configAP()
 			if (!(phy_mode_buf==PHY_MODE_11B||phy_mode_buf==PHY_MODE_11G) )
 				 {
 					msg_alert_error=true;
-					smsg+="Error : Incorrect network<BR>";
+	      smsg.concat(F("Error: Incorrect network<BR>"));
 					KeysList.add(FPSTR(KEY_NETWORK_OPTION_LIST_STATUS));
 					ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				 }
@@ -1430,16 +1381,17 @@ void handle_web_interface_configAP()
 			if (channel_buf< 1|| channel_buf>11) 
 				 {
 					msg_alert_error=true;
-					smsg+="Error : Incorrect channel<BR>";
+	      smsg.concat("Error: Incorrect channel<BR>");
 					KeysList.add(FPSTR(KEY_CHANNEL_OPTION_LIST_STATUS));
 					ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				 }
 			//authentification
 			auth_buf  = byte(web_interface->WebServer.arg("AUTHENTIFICATION").toInt());
-			if (!(auth_buf==AUTH_OPEN||auth_buf==AUTH_WEP||auth_buf==AUTH_WPA_PSK||auth_buf==AUTH_WPA2_PSK||auth_buf==AUTH_WPA_WPA2_PSK||auth_buf==AUTH_MAX) )
+	  if (!(auth_buf == AUTH_OPEN || auth_buf == AUTH_WEP || auth_buf == AUTH_WPA_PSK ||
+		auth_buf == AUTH_WPA2_PSK || auth_buf == AUTH_WPA_WPA2_PSK))
 				 {
 					msg_alert_error=true;
-					smsg+="Error : Incorrect authentification method<BR>";
+	      smsg.concat(F("Error: Incorrect authentification method<BR>"));
 					KeysList.add(FPSTR(KEY_AUTH_OPTION_LIST_STATUS));
 					ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				 }	
@@ -1458,7 +1410,7 @@ void handle_web_interface_configAP()
 			if (!web_interface->isIPValid(sIP.c_str()))
 				{
 				msg_alert_error=true;
-				smsg+="Error : Incorrect IP fortmat<BR>";
+	      smsg.concat(F("Error: Incorrect IP fortmat<BR>"));
 				KeysList.add(FPSTR(KEY_AP_IP_STATUS));
 				ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				}
@@ -1468,7 +1420,7 @@ void handle_web_interface_configAP()
 			if (!web_interface->isIPValid(sGW.c_str()))
 				{
 				msg_alert_error=true;
-				smsg+="Error : Incorrect gateway<BR>";
+	      smsg.concat(F("Error: Incorrect gateway<BR>"));
 				KeysList.add(FPSTR(KEY_AP_GW_STATUS));
 				ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				}
@@ -1477,7 +1429,7 @@ void handle_web_interface_configAP()
 			if (!web_interface->isIPValid(sMask.c_str()))
 				{
 				msg_alert_error=true;
-				smsg+="Error : Incorrect subnet<BR>";
+	      smsg.concat(F("Error: Incorrect subnet<BR>"));
 				KeysList.add(FPSTR(KEY_AP_SUBNET_STATUS));
 				ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				}   	  	    
@@ -1485,14 +1437,13 @@ void handle_web_interface_configAP()
       else
 	   {
 		msg_alert_error=true;
-		smsg="Error : Missing data";
+	  smsg = FPSTR(MISSING_DATA);
 	   }
 	  
 	   //if no error apply the change
 	   if (msg_alert_error==false)
 		{
 		//save
-		
 		 wifi_config.split_ip(sIP.c_str(),ip_sav);
 		 wifi_config.split_ip(sGW.c_str(),gw_sav);
 		 wifi_config.split_ip(sMask.c_str(),msk_sav);
@@ -1509,12 +1460,12 @@ void handle_web_interface_configAP()
 			(!CONFIG::write_buffer(EP_MASK_VALUE,msk_sav,IP_LENGTH)))
 			{
 				msg_alert_error=true;
-			    smsg="Error : Cannot write to EEPROM";
+	      smsg = FPSTR(EEPROM_NOWRITE);
 			}
 		else
 				{
 					msg_alert_success=true;
-					smsg="Changes saved to EEPROM, restarting....";
+	      smsg = F("Changes saved to EEPROM, restarting...");
 				}
 			}
 		}
@@ -1636,32 +1587,10 @@ void handle_web_interface_configAP()
 	ValuesList.add(sMask);
 
 if (msg_alert_error)
-	{
-		KeysList.add(FPSTR(KEY_ERROR_MSG));
-		ValuesList.add(smsg);
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SERVICE_PAGE));
-		ValuesList.add("");
-	}
+    ProcessAlertError(KeysList, ValuesList, smsg);
 	else if (msg_alert_success)
 	{
-		KeysList.add(FPSTR(KEY_ERROR_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG));
-		ValuesList.add(smsg);
-		KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
+      ProcessAlertSuccess(KeysList, ValuesList, smsg);
 		KeysList.add(FPSTR(KEY_SERVICE_PAGE));
 		ValuesList.add(FPSTR(RESTARTCMD));
 		//Add all green
@@ -1689,23 +1618,12 @@ if (msg_alert_error)
 	
 	else
 	
-	{
-		KeysList.add(FPSTR(KEY_ERROR_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SERVICE_PAGE));
-		ValuesList.add("");
-	}
+    ProcessNoAlert(KeysList,ValuesList);	
+
+  //Firmware and Free Mem, at the end to reflect situation
+  GetFreeMem(KeysList, ValuesList);
 	//process the template file and provide list of variables
-	if(KeysList.size()==ValuesList.size())	//Sanity check
-		processTemplate("/config_ap.tpl", KeysList , ValuesList);
+	processTemplate("/config_ap.tpl", KeysList , ValuesList);
 	//need to clean to speed up memory recovery
 	KeysList.clear();
 	ValuesList.clear();
@@ -1713,6 +1631,8 @@ if (msg_alert_error)
 
 void handle_web_interface_configSTA()
 {
+  static const char NOT_AUTH_STA [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=CONFIGSTA\r\nCache-Control: no-cache\r\n\r\n";
+  
 	String stmp,smsg;
 	String sSSID,sPassword,sIP,sGW,sMask,sHostname;
 	bool msg_alert_error=false;
@@ -1728,61 +1648,19 @@ void handle_web_interface_configSTA()
 	const __FlashStringHelper  * inetworkdisplaylist []={FPSTR(VALUE_11B),FPSTR(VALUE_11G),FPSTR(VALUE_11N),FPSTR(VALUE_11B)};
 	STORESTRINGS_CLASS KeysList ;
 	STORESTRINGS_CLASS ValuesList ;
+  
 	if (!web_interface->is_authenticated())
 	{
-		String header = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=CONFIGSTA\r\nCache-Control: no-cache\r\n\r\n";
-		web_interface->WebServer.sendContent(header);
+      web_interface->WebServer.sendContent_P(NOT_AUTH_STA);
 		return;
 	}
-	//Free Mem, put at the end to reflect situation
-	KeysList.add(FPSTR(KEY_FREE_MEM));
-	ValuesList.add(intTostr(system_get_free_heap_size()));
-	//IP
-	stmp=FPSTR(KEY_IP);
-	KeysList.add(stmp);
-	if (wifi_get_opmode()==WIFI_STA ) stmp=WiFi.localIP().toString();
-	else stmp=WiFi.softAPIP().toString();
-	ValuesList.add(stmp);
-	//Web address = ip + port
-	KeysList.add(FPSTR(KEY_WEB_ADDRESS));
-	if (wifi_config.iweb_port!=80)
-		{
-		stmp+=":";
-		stmp+=intTostr(wifi_config.iweb_port);
-		}
-	ValuesList.add(stmp);
+
+	//IP+Web
+	GetIpWeb(KeysList, ValuesList);
 	//mode
-	if (wifi_get_opmode()==WIFI_STA )
-		{
-		KeysList.add(FPSTR(KEY_MODE));
-		ValuesList.add(FPSTR(VALUE_STA));
-		}
-	else
-		{
-		if (wifi_get_opmode()==WIFI_AP )
-			{
-				KeysList.add(FPSTR(KEY_MODE));
-				ValuesList.add(FPSTR(VALUE_AP));
-			}
-		else
-			{
-				KeysList.add(FPSTR(KEY_MODE));
-				ValuesList.add(FPSTR(VALUE_AP_STA));
-			}
-		}
-		
-	//FW Version
-	KeysList.add(FPSTR(KEY_FW_VER));
-	ValuesList.add(FPSTR(VALUE_FW_VERSION));
-	//page title
-	KeysList.add(FPSTR(KEY_PAGE_TITLE));
-	ValuesList.add(FPSTR(VALUE_CONFIG_STA));
-	//tpl file name with extension
-	KeysList.add(FPSTR(KEY_FILE_NAME));
-	ValuesList.add("config_sta.tpl");
-	//tpl file name without extension
-	KeysList.add(FPSTR(KEY_SHORT_FILE_NAME));
-	ValuesList.add("config_sta");
+	GetMode(KeysList, ValuesList);
+	//page title and filenames
+	SetPageProp(KeysList,ValuesList,FPSTR(VALUE_CONFIG_STA),F("config_sta"));
 	//menu item
 	KeysList.add(FPSTR(KEY_MENU_STA));
 	ValuesList.add(FPSTR(VALUE_ACTIVE));
@@ -1799,7 +1677,7 @@ void handle_web_interface_configSTA()
 		    if (!web_interface->isSSIDValid(sSSID.c_str()))
 				{
 				msg_alert_error=true;
-				smsg+="Error : Incorrect SSID<BR>";
+	      smsg.concat(F("Error: Incorrect SSID<BR>"));
 				KeysList.add(FPSTR(KEY_STA_SSID_STATUS));
 				ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				}
@@ -1809,7 +1687,7 @@ void handle_web_interface_configSTA()
 		    if (!web_interface->isPasswordValid(sPassword.c_str()))
 				{
 				msg_alert_error=true;
-				smsg+="Error : Incorrect password<BR>";
+	      smsg.concat(F("Error: Incorrect password<BR>"));
 				KeysList.add(FPSTR(KEY_STA_PASSWORD_STATUS));
 				ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				}
@@ -1819,7 +1697,7 @@ void handle_web_interface_configSTA()
 		    if (!web_interface->isHostnameValid(sHostname.c_str()))
 				{
 				msg_alert_error=true;
-				smsg+="Error : Incorrect hostname<BR>";
+	      smsg.concat(F("Error: Incorrect hostname<BR>"));
 				KeysList.add(FPSTR(KEY_HOSTNAME_STATUS));
 				ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				}
@@ -1829,7 +1707,7 @@ void handle_web_interface_configSTA()
 			if (!(phy_mode_buf==PHY_MODE_11B||phy_mode_buf==PHY_MODE_11G||phy_mode_buf==PHY_MODE_11N) )
 				 {
 					msg_alert_error=true;
-					smsg+="Error : Incorrect network<BR>";
+	      smsg.concat(F("Error: Incorrect network<BR>"));
 					KeysList.add(FPSTR(KEY_NETWORK_OPTION_LIST_STATUS));
 					ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				 }
@@ -1849,7 +1727,7 @@ void handle_web_interface_configSTA()
 			if (!web_interface->isIPValid(sIP.c_str()))
 				{
 				msg_alert_error=true;
-				smsg+="Error : Incorrect IP fortmat<BR>";
+	      smsg.concat(F("Error: Incorrect IP format<BR>"));
 				KeysList.add(FPSTR(KEY_STA_IP_STATUS));
 				ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				}
@@ -1859,7 +1737,7 @@ void handle_web_interface_configSTA()
 			if (!web_interface->isIPValid(sGW.c_str()))
 				{
 				msg_alert_error=true;
-				smsg+="Error : Incorrect gateway<BR>";
+	      smsg.concat(F("Error: Incorrect gateway<BR>"));
 				KeysList.add(FPSTR(KEY_STA_GW_STATUS));
 				ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				}
@@ -1868,7 +1746,7 @@ void handle_web_interface_configSTA()
 			if (!web_interface->isIPValid(sMask.c_str()))
 				{
 				msg_alert_error=true;
-				smsg+="Error : Incorrect subnet<BR>";
+	      smsg.concat(F("Error: Incorrect subnet<BR>"));
 				KeysList.add(FPSTR(KEY_STA_SUBNET_STATUS));
 				ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				}   	  	    
@@ -1876,9 +1754,8 @@ void handle_web_interface_configSTA()
      else
 	   {
 		msg_alert_error=true;
-		smsg="Error : Missing data";
+	  smsg = FPSTR(MISSING_DATA);
 	   }
-	   
 	   
 	   //no error ? then save
 	   if (msg_alert_error==false)
@@ -1898,16 +1775,16 @@ void handle_web_interface_configSTA()
 			(!CONFIG::write_buffer(EP_MASK_VALUE,msk_sav,IP_LENGTH)))
 			{
 				msg_alert_error=true;
-			    smsg="Error : Cannot write to EEPROM";
+	      smsg = FPSTR(EEPROM_NOWRITE);
 			}
 		else
 				{
 					msg_alert_success=true;
-					smsg="Changes saved to EEPROM, restarting....";
+	      smsg = F("Changes saved to EEPROM, restarting...");
 				}
 			}
 		}
-	else //no submit need to get data from EEPROM
+	else //no submit, need to get data from EEPROM
 	{
 	//ssid
 	if (!CONFIG::read_string(EP_SSID, sSSID , MAX_SSID_LENGTH) )sSSID=FPSTR(DEFAULT_SSID);
@@ -2004,7 +1881,7 @@ void handle_web_interface_configSTA()
 				stmp = "$AP_SSID["+String(i)+"]$";
 				KeysList.add(stmp);
 				ValuesList.add(WiFi.SSID(i).c_str());
-				//signal strenght
+				//signal strength
 				 stmp = "$AP_SIGNAL["+String(i)+"]$";
 				 KeysList.add(stmp);
 				 stmp = intTostr(100+WiFi.RSSI(i)) ;
@@ -2034,32 +1911,10 @@ void handle_web_interface_configSTA()
 		}
 
 if (msg_alert_error)
-	{
-		KeysList.add(FPSTR(KEY_ERROR_MSG));
-		ValuesList.add(smsg);
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SERVICE_PAGE));
-		ValuesList.add("");
-	}
+    ProcessAlertError(KeysList, ValuesList, smsg);
 	else if (msg_alert_success)
 	{
-		KeysList.add(FPSTR(KEY_ERROR_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG));
-		ValuesList.add(smsg);
-		KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
+      ProcessAlertSuccess(KeysList, ValuesList, smsg);
 		KeysList.add(FPSTR(KEY_SERVICE_PAGE));
 		ValuesList.add(FPSTR(RESTARTCMD));
 		//Add all green
@@ -2083,24 +1938,12 @@ if (msg_alert_error)
 	
 	else
 	
-	{
-		KeysList.add(FPSTR(KEY_ERROR_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SERVICE_PAGE));
-		ValuesList.add("");
-	}
+    ProcessNoAlert(KeysList,ValuesList);	
 	
+  //Firmware and Free Mem, at the end to reflect situation
+  GetFreeMem(KeysList, ValuesList);
 	//process the template file and provide list of variables
-	if(KeysList.size()==ValuesList.size())	//Sanity check
-		processTemplate("/config_sta.tpl", KeysList , ValuesList);
+	processTemplate("/config_sta.tpl", KeysList , ValuesList);
 	//need to clean to speed up memory recovery
 	KeysList.clear();
 	ValuesList.clear();
@@ -2108,65 +1951,25 @@ if (msg_alert_error)
 
 void handle_web_interface_printer()
 {
-	String stmp,smsg;
+  static const char NOT_AUTH_PRT [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=PRINTER\r\nCache-Control: no-cache\r\n\r\n";
+  
 	bool msg_alert_error=false;
 	bool msg_alert_success=false;
 	STORESTRINGS_CLASS KeysList ;
 	STORESTRINGS_CLASS ValuesList ;
+  
 	if (!web_interface->is_authenticated())
 	{
-		String header = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=PRINTER\r\nCache-Control: no-cache\r\n\r\n";
-		web_interface->WebServer.sendContent(header);
+      web_interface->WebServer.sendContent_P(NOT_AUTH_PRT);
 		return;
 	}
-	//Free Mem, put at the end to reflect situation
-	KeysList.add(FPSTR(KEY_FREE_MEM));
-	ValuesList.add(intTostr(system_get_free_heap_size()));
-	//IP
-	stmp=FPSTR(KEY_IP);
-	KeysList.add(stmp);
-	if (wifi_get_opmode()==WIFI_STA ) stmp=WiFi.localIP().toString();
-	else stmp=WiFi.softAPIP().toString();
-	ValuesList.add(stmp);
-	//Web address = ip + port
-	KeysList.add(FPSTR(KEY_WEB_ADDRESS));
-	if (wifi_config.iweb_port!=80)
-		{
-		stmp+=":";
-		stmp+=intTostr(wifi_config.iweb_port);
-		}
-	ValuesList.add(stmp);
+
+	//IP+Web
+	GetIpWeb(KeysList, ValuesList);
 	//mode
-	if (wifi_get_opmode()==WIFI_STA )
-		{
-		KeysList.add(FPSTR(KEY_MODE));
-		ValuesList.add(FPSTR(VALUE_STA));
-		}
-	else
-		{
-		if (wifi_get_opmode()==WIFI_AP )
-			{
-				KeysList.add(FPSTR(KEY_MODE));
-				ValuesList.add(FPSTR(VALUE_AP));
-			}
-		else
-			{
-				KeysList.add(FPSTR(KEY_MODE));
-				ValuesList.add(FPSTR(VALUE_AP_STA));
-			}
-		}
-	//FW Version
-	KeysList.add(FPSTR(KEY_FW_VER));
-	ValuesList.add(FPSTR(VALUE_FW_VERSION));
-	//page title
-	KeysList.add(FPSTR(KEY_PAGE_TITLE));
-	ValuesList.add(FPSTR(VALUE_PRINTER));
-	//tpl file name with extension
-	KeysList.add(FPSTR(KEY_FILE_NAME));
-	ValuesList.add("printer.tpl");
-	//tpl file name without extension
-	KeysList.add(FPSTR(KEY_SHORT_FILE_NAME));
-	ValuesList.add("printer");
+	GetMode(KeysList, ValuesList);		
+	//page title and filenames
+	SetPageProp(KeysList,ValuesList,FPSTR(VALUE_PRINTER),F("printer"));
 	//menu item
 	KeysList.add(FPSTR(KEY_MENU_PRINTER));
 	ValuesList.add(FPSTR(VALUE_ACTIVE));
@@ -2191,13 +1994,15 @@ void handle_web_interface_printer()
 	ValuesList.add(intTostr(istatus));
 
 	 //Serial.println("M114");
-	Serial.println("M220");
-	Serial.println("M221");
+  Serial.println(F("M220"));
+  Serial.println(F("M221"));
     KeysList.add(FPSTR(KEY_SERVICE_PAGE));
 	ValuesList.add("");
+
+  //Firmware and Free Mem, at the end to reflect situation
+  GetFreeMem(KeysList, ValuesList);
 	
-	if(KeysList.size()==ValuesList.size())	//Sanity check
-		processTemplate("/printer.tpl", KeysList , ValuesList);
+	processTemplate("/printer.tpl", KeysList , ValuesList);
 	//need to clean to speed up memory recovery
 	KeysList.clear();
 	ValuesList.clear();
@@ -2205,7 +2010,9 @@ void handle_web_interface_printer()
 
 void handle_web_settings()
 {
-	String stmp,smsg;
+  static const char NOT_AUTH_SET [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=SETTINGS\r\nCache-Control: no-cache\r\n\r\n";
+  
+  String smsg;
 	int istatus;
 	byte bbuf;
 	bool msg_alert_error=false;
@@ -2214,60 +2021,19 @@ void handle_web_settings()
 	int ixy_feedrate,iz_feedrate,ie_feedrate;
 	STORESTRINGS_CLASS KeysList ;
 	STORESTRINGS_CLASS ValuesList ;
+  
 	if (!web_interface->is_authenticated())
 	{
-		String header = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=SETTINGS\r\nCache-Control: no-cache\r\n\r\n";
-		web_interface->WebServer.sendContent(header);
+      web_interface->WebServer.sendContent_P(NOT_AUTH_SET);
 		return;
 	}
-	//Free Mem, put at the end to reflect situation
-	KeysList.add(FPSTR(KEY_FREE_MEM));
-	ValuesList.add(intTostr(system_get_free_heap_size()));
-	//IP
-	stmp=FPSTR(KEY_IP);
-	KeysList.add(stmp);
-	if (wifi_get_opmode()==WIFI_STA ) stmp=WiFi.localIP().toString();
-	else stmp=WiFi.softAPIP().toString();
-	ValuesList.add(stmp);
-	//Web address = ip + port
-	KeysList.add(FPSTR(KEY_WEB_ADDRESS));
-	if (wifi_config.iweb_port!=80)
-		{
-		stmp+=":";
-		stmp+=intTostr(wifi_config.iweb_port);
-		}
-	ValuesList.add(stmp);
+
+	//IP+Web
+	GetIpWeb(KeysList, ValuesList);
 	//mode
-	if (wifi_get_opmode()==WIFI_STA )
-		{
-		KeysList.add(FPSTR(KEY_MODE));
-		ValuesList.add(FPSTR(VALUE_STA));
-		}
-	else
-		{
-		if (wifi_get_opmode()==WIFI_AP )
-			{
-				KeysList.add(FPSTR(KEY_MODE));
-				ValuesList.add(FPSTR(VALUE_AP));
-			}
-		else
-			{
-				KeysList.add(FPSTR(KEY_MODE));
-				ValuesList.add(FPSTR(VALUE_AP_STA));
-			}
-		}
-	//FW Version
-	KeysList.add(FPSTR(KEY_FW_VER));
-	ValuesList.add(FPSTR(VALUE_FW_VERSION));
-	//page title
-	KeysList.add(FPSTR(KEY_PAGE_TITLE));
-	ValuesList.add(FPSTR(VALUE_SETTINGS));
-	//tpl file name with extension
-	KeysList.add(FPSTR(KEY_FILE_NAME));
-	ValuesList.add("settings.tpl");
-	//tpl file name without extension
-	KeysList.add(FPSTR(KEY_SHORT_FILE_NAME));
-	ValuesList.add("settings");
+	GetMode(KeysList, ValuesList);
+	//page title and filenames
+	SetPageProp(KeysList,ValuesList,FPSTR(VALUE_SETTINGS),F("settings"));
 	//menu item
 	KeysList.add(FPSTR(KEY_MENU_SETTINGS));
 	ValuesList.add(FPSTR(VALUE_ACTIVE));
@@ -2285,28 +2051,28 @@ void handle_web_settings()
 			if (!(irefresh_page>1 && irefresh_page<120))
 				{
 					msg_alert_error=true;
-					smsg+="Error : invalid value for refresh time<BR>";
+	      smsg.concat(F("Error: invalid value for refresh time<BR>"));
 					KeysList.add(FPSTR(KEY_REFRESH_PAGE_STATUS));
 					ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 			    }
 			 if (!(ixy_feedrate>0 && ixy_feedrate<9999))
 				{
 					msg_alert_error=true;
-					smsg+="Error : invalid value for XY axis feedrate<BR>";
+	      smsg.concat(F("Error: invalid value for XY axis feedrate<BR>"));
 					KeysList.add(FPSTR(KEY_XY_FEEDRATE_STATUS));
 					ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 			    }
 			 if (!(iz_feedrate>0 && iz_feedrate<9999))
 				{
 					msg_alert_error=true;
-					smsg+="Error : invalid value for Z axis feedrate<BR>";
+	      smsg.concat(F("Error: invalid value for Z axis feedrate<BR>"));
 					KeysList.add(FPSTR(KEY_Z_FEEDRATE_STATUS));
 					ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 			    }
 			if (!(ie_feedrate>0 && ie_feedrate<9999))
 				{
 					msg_alert_error=true;
-					smsg+="Error : invalid value for Extruder feedrate<BR>";
+	      smsg.concat(F("Error: invalid value for Extruder feedrate<BR>"));
 					KeysList.add(FPSTR(KEY_XY_FEEDRATE_STATUS));
 					ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 			    }
@@ -2314,7 +2080,7 @@ void handle_web_settings()
 	  else
 	   {
 		msg_alert_error=true;
-		smsg="Error : Missing data";
+	  smsg = FPSTR(MISSING_DATA);
 	   }
 	   //if no error apply the changes
 		if (msg_alert_error!=true)
@@ -2322,15 +2088,14 @@ void handle_web_settings()
 			 if(!CONFIG::write_buffer(EP_XY_FEEDRATE,(const byte *)&ixy_feedrate,INTEGER_LENGTH)||!CONFIG::write_buffer(EP_Z_FEEDRATE,(const byte *)&iz_feedrate,INTEGER_LENGTH)||!CONFIG::write_buffer(EP_E_FEEDRATE,(const byte *)&ie_feedrate,INTEGER_LENGTH)||!CONFIG::write_byte(EP_REFRESH_PAGE_TIME,irefresh_page))
 				{
 					msg_alert_error=true;
-					smsg="Error : Cannot write to EEPROM";
+	      smsg = FPSTR(EEPROM_NOWRITE);
 				}
 			else
 				{
 					msg_alert_success=true;
-					smsg="Changes saved to EEPROM";
+	      smsg = F("Changes saved to EEPROM");
 				}
 			}
-		
   }
   else //no submit need to get data from EEPROM
 	{
@@ -2354,32 +2119,10 @@ void handle_web_settings()
 	ValuesList.add(intTostr(ie_feedrate));
 	
 	if (msg_alert_error)
-	{
-		KeysList.add(FPSTR(KEY_ERROR_MSG));
-		ValuesList.add(smsg);
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SERVICE_PAGE));
-		ValuesList.add("");
-	}
+    ProcessAlertError(KeysList, ValuesList, smsg);
 	else if (msg_alert_success)
 	{
-		KeysList.add(FPSTR(KEY_ERROR_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG));
-		ValuesList.add(smsg);
-		KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
+      ProcessAlertSuccess(KeysList, ValuesList, smsg);
 		KeysList.add(FPSTR(KEY_SERVICE_PAGE));
 		ValuesList.add("");
 		KeysList.add(FPSTR(KEY_REFRESH_PAGE_STATUS));
@@ -2396,24 +2139,13 @@ void handle_web_settings()
 	
 	else
 	
-	{
-		KeysList.add(FPSTR(KEY_ERROR_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SERVICE_PAGE));
-		ValuesList.add("");
-	}
+    ProcessNoAlert(KeysList,ValuesList);
 	
+  //Firmware and Free Mem, at the end to reflect situation
+  GetFreeMem(KeysList, ValuesList);
+
 	//process the template file and provide list of variables
-	if(KeysList.size()==ValuesList.size())	//Sanity check
-		processTemplate("/settings.tpl", KeysList , ValuesList);
+	processTemplate("/settings.tpl", KeysList , ValuesList);
 	//need to clean to speed up memory recovery
 	KeysList.clear();
 	ValuesList.clear();
@@ -2421,15 +2153,18 @@ void handle_web_settings()
 
 void handle_web_interface_status()
 {
+	static const char NO_TEMP_LINE[] PROGMEM = "\"temperature\":\"0\",\"target\":\"0\",\"active\":\"0\"";
 	web_interface->is_authenticated();
-	Serial.println("M114");
+	Serial.println(F("M114"));
 	int tagpos,tagpos2;
 	String buffer2send;
 	String value;
 	int temperature,target;
+  
 	//request temperature only if no feedback
 	if ((system_get_time()-web_interface->last_temp)>2000000)
-		Serial.println("M105");
+    Serial.println(F("M105"));
+
 	if ((system_get_time()-web_interface->last_temp)<3200000)
 		{
 		value="Connected";
@@ -2442,6 +2177,7 @@ void handle_web_interface_status()
 		{
 		value="Offline";
 		}
+
 	//start JSON answer
 	buffer2send="{";
 	//status color
@@ -2466,9 +2202,9 @@ void handle_web_interface_status()
 	value=web_interface->answer4M114.substring(tagpos+2,tagpos2);
 	buffer2send+="\"Zpos\":\""+value +"\",";
 	//heater
-	buffer2send+="\"heater\":[";
-	//extruder 1
-	buffer2send+="{\"name\":\"Extruder 1\",";
+  buffer2send.concat(F("\"heater\":["));
+  //Extruder 1
+  buffer2send.concat(F("{\"name\":\"Extruder 1\","));
 	int Tpos = web_interface->answer4M105.indexOf("T0:");
 	byte bshift=1;
 	if (Tpos==-1)
@@ -2481,15 +2217,16 @@ void handle_web_interface_status()
 	//have Extruder 1 ?
 	if(slashpos!=-1 && spacepos!=-1 )
 			{
-			buffer2send+="\"temperature\":\""+web_interface->answer4M105.substring(Tpos+2+bshift,slashpos)+"\",\"target\":\""+web_interface->answer4M105.substring(slashpos+2,spacepos)+"\",\"active\":\"1\"";
+      buffer2send += "\"temperature\":\""+web_interface->answer4M105.substring(Tpos+2+bshift,slashpos)+
+	"\",\"target\":\""+web_interface->answer4M105.substring(slashpos+2,spacepos)+"\",\"active\":\"1\"";
 			}
 	else{//no extruder temperature
-			buffer2send+="\"temperature\":\"0\",\"target\":\"0\",\"active\":\"0\"";
+    buffer2send.concat(FPSTR(NO_TEMP_LINE));
 			}
 	
 	buffer2send+="},";
 	//Extruder 2
-	buffer2send+="{\"name\":\"Extruder 2\",";
+  buffer2send.concat(F("{\"name\":\"Extruder 2\","));
 	Tpos = web_interface->answer4M105.indexOf("T1:");
 	if (Tpos>-1) //have extruder 2 ?
 		{
@@ -2497,19 +2234,20 @@ void handle_web_interface_status()
 		spacepos = web_interface->answer4M105.indexOf(" ",slashpos+2);
 		if(slashpos!=-1 && spacepos!=-1 )
 			{
-			buffer2send+="\"temperature\":\""+web_interface->answer4M105.substring(Tpos+3,slashpos)+"\",\"target\":\""+web_interface->answer4M105.substring(slashpos+2,spacepos)+"\",\"active\":\"1\"";
+	  buffer2send += "\"temperature\":\""+web_interface->answer4M105.substring(Tpos+3,slashpos)+
+	    "\",\"target\":\""+web_interface->answer4M105.substring(slashpos+2,spacepos)+"\",\"active\":\"1\"";
 			}
 		else{//no extruder temperature
-			buffer2send+="\"temperature\":\"0\",\"target\":\"0\",\"active\":\"0\"";
+	buffer2send.concat(FPSTR(NO_TEMP_LINE));
 			}
 		}	
 	else{//no extruder temperature
-			buffer2send+="\"temperature\":\"0\",\"target\":\"0\",\"active\":\"0\"";
+    buffer2send.concat(FPSTR(NO_TEMP_LINE));
 			}
 	buffer2send+="},";
 	
 	//Bed
-	buffer2send+="{\"name\":\"Bed\",";
+  buffer2send.concat(F("{\"name\":\"Bed\","));
 	Tpos = web_interface->answer4M105.indexOf("B:");
 	if (Tpos>-1)
 		{
@@ -2519,20 +2257,21 @@ void handle_web_interface_status()
 			{
 			temperature = (int)atof(web_interface->answer4M105.substring(Tpos+2,slashpos).c_str());
 			target = (int)atof(web_interface->answer4M105.substring(slashpos+2,spacepos).c_str());
-			buffer2send+="\"temperature\":\""+web_interface->answer4M105.substring(Tpos+2,slashpos)+"\",\"target\":\""+web_interface->answer4M105.substring(slashpos+2,spacepos)+"\",\"active\":\"1\"";
+	  buffer2send += "\"temperature\":\""+web_interface->answer4M105.substring(Tpos+2,slashpos)+
+	    "\",\"target\":\""+web_interface->answer4M105.substring(slashpos+2,spacepos)+"\",\"active\":\"1\"";
 			}
 		else{//no extruder temperature
-			buffer2send+="\"temperature\":\"0\",\"target\":\"0\",\"active\":\"0\"";
+	buffer2send.concat(FPSTR(NO_TEMP_LINE));
 			}
 		}	
 	else{//no extruder temperature
-			buffer2send+="\"temperature\":\"0\",\"target\":\"0\",\"active\":\"0\"";
+    buffer2send.concat(FPSTR(NO_TEMP_LINE));
 			}
 	buffer2send+="}";
 	buffer2send+="],";
 	
 	//information
-	buffer2send+="\"InformationMsg\":[";
+  buffer2send.concat(F("\"InformationMsg\":["));
 	for (int i=0;i<web_interface->info_msg.size();i++)
 	{
 		if (i>0)buffer2send+=",";
@@ -2542,7 +2281,7 @@ void handle_web_interface_status()
 	}
 	buffer2send+="],";
 	//Error
-	buffer2send+="\"ErrorMsg\":[";
+  buffer2send.concat(F("\"ErrorMsg\":["));
 	for (int i=0;i<web_interface->error_msg.size();i++)
 	{
 		if (i>0)buffer2send+=",";
@@ -2552,7 +2291,7 @@ void handle_web_interface_status()
 	}
 	buffer2send+="],";
 	//Status
-	buffer2send+="\"StatusMsg\":[";
+  buffer2send.concat(F("\"StatusMsg\":["));
 	for (int i=0;i<web_interface->status_msg.size();i++)
 	{
 		if (i>0)buffer2send+=",";
@@ -2568,13 +2307,13 @@ void handle_web_interface_status()
 
 String formatBytes(size_t bytes){
   if (bytes < 1024){
-    return String(bytes)+"oct";
+    return String(bytes)+" B";
   } else if(bytes < (1024 * 1024)){
-    return String(bytes/1024.0)+"Ko";
+    return String(bytes/1024.0)+" KB";
   } else if(bytes < (1024 * 1024 * 1024)){
-    return String(bytes/1024.0/1024.0)+"Mo";
+    return String(bytes/1024.0/1024.0)+" MB";
   } else {
-    return String(bytes/1024.0/1024.0/1024.0)+"Go";
+    return String(bytes/1024.0/1024.0/1024.0)+" GB";
   }
 }
 
@@ -2620,7 +2359,7 @@ void WebUpdateUpload()
 {
 	HTTPUpload& upload = (web_interface->WebServer).upload();
 	if(upload.status == UPLOAD_FILE_START){
-	Serial.println("M117 Update Firmware");
+    Serial.println(F("M117 Update Firmware"));
 	web_interface->_upload_status= UPLOAD_STATUS_ONGOING;
 	WiFiUDP::stopAll();
 	uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
@@ -2662,6 +2401,7 @@ void handleFileList() {
 	}
 	String path = "/";
 	String status="Ok";
+
 	if(web_interface->WebServer.hasArg("action")) {
 		if(web_interface->WebServer.arg("action")=="delete" && web_interface->WebServer.hasArg("filename"))
 			{
@@ -2699,7 +2439,7 @@ void handleFileList() {
 	SPIFFS.info(info);
 	jsonfile+="\"total\":\"" + formatBytes(info.totalBytes) + "\",";
 	jsonfile+="\"used\":\"" + formatBytes(info.usedBytes) + "\",";
-	jsonfile+="\"occupation\":\"" ;
+  jsonfile.concat(F("\"occupation\":\""));
 	jsonfile+= intTostr(100*info.usedBytes/info.totalBytes);
 	jsonfile+="\"";
 	jsonfile+="}";
@@ -2730,18 +2470,20 @@ void handleSDFileList() {
 //and handle not registred path
 void handle_not_found()
 {
+  static const char NOT_AUTH_NF [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /\r\nCache-Control: no-cache\r\n\r\n";
+  
   if (!web_interface->is_authenticated())
 	{
-		String header = "HTTP/1.1 301 OK\r\nLocation: /\r\nCache-Control: no-cache\r\n\r\n";
-		web_interface->WebServer.sendContent(header);
+      web_interface->WebServer.sendContent_P(NOT_AUTH_NF);
 		return;
 	}
+  
   String path = web_interface->WebServer.uri();
   String contentType = getContentType(path);
   String pathWithGz = path + ".gz";
   if(SPIFFS.exists(pathWithGz) || SPIFFS.exists(path))
 	{
-		if(SPIFFS.exists(pathWithGz)) path += ".gz";
+      if(SPIFFS.exists(pathWithGz)) path = pathWithGz;
 		File file = SPIFFS.open(path, "r");
 		web_interface->WebServer.streamFile(file, contentType);
 		file.close();
@@ -2753,53 +2495,19 @@ else
 			STORESTRINGS_CLASS KeysList ;
 			STORESTRINGS_CLASS ValuesList ;
 			String stmp;
-			KeysList.add(FPSTR(KEY_FREE_MEM));
-			ValuesList.add(intTostr(system_get_free_heap_size()));
-			//IP
-			stmp=FPSTR(KEY_IP);
-			KeysList.add(stmp);
-			if (wifi_get_opmode()==WIFI_STA ) stmp=WiFi.localIP().toString();
-			else stmp=WiFi.softAPIP().toString();
-			ValuesList.add(stmp);
-			//Web address = ip + port
-			KeysList.add(FPSTR(KEY_WEB_ADDRESS));
-			if (wifi_config.iweb_port!=80)
-				{
-				stmp+=":";
-				stmp+=intTostr(wifi_config.iweb_port);
-				}
-			ValuesList.add(stmp);
+
+	  //IP+Web
+	  GetIpWeb(KeysList, ValuesList);
 			//mode
-			if (wifi_get_opmode()==WIFI_STA )
-				{
-				KeysList.add(FPSTR(KEY_MODE));
-				ValuesList.add(FPSTR(VALUE_STA));
-				}
-			else
-				{
-				if (wifi_get_opmode()==WIFI_AP )
-					{
-						KeysList.add(FPSTR(KEY_MODE));
-						ValuesList.add(FPSTR(VALUE_AP));
-					}
-				else
-					{
-						KeysList.add(FPSTR(KEY_MODE));
-						ValuesList.add(FPSTR(VALUE_AP_STA));
-					}
-				}
-			//page title
-			KeysList.add(FPSTR(KEY_PAGE_TITLE));
-			ValuesList.add("404 Page not found");
-			//tpl file name with extension
-			KeysList.add(FPSTR(KEY_FILE_NAME));
-			ValuesList.add("404.tpl");
-			//tpl file name without extension
-			KeysList.add(FPSTR(KEY_SHORT_FILE_NAME));
-			ValuesList.add("404");
+	  GetMode(KeysList, ValuesList);
+	  //page title and filenames
+	  SetPageProp(KeysList,ValuesList,F("404 Page not found"),F("404"));
+
+    //Firmware and Free Mem, at the end to reflect situation
+    GetFreeMem(KeysList, ValuesList);
+	  
 			//process the template file and provide list of variables
-			if(KeysList.size()==ValuesList.size())	//Sanity check
-				processTemplate("/404.tpl", KeysList , ValuesList);
+			processTemplate("/404.tpl", KeysList , ValuesList);
 			//need to clean to speed up memory recovery
 			KeysList.clear();
 			ValuesList.clear();
@@ -2825,17 +2533,18 @@ else
 
 void handle_login()
 {
-	String stmp,smsg;
+  static const char NOT_AUTH_LOG [] PROGMEM = "HTTP/1.1 301 OK\r\nSet-Cookie: ESPSESSIONID=0\r\nLocation: /LOGIN\r\nCache-Control: no-cache\r\n\r\n";
+  
+  String smsg;
 	String sReturn;
-	String sUser,sPassword;
+	String sPassword;
 	bool msg_alert_error=false;
 	bool msg_alert_success=false;
 	STORESTRINGS_CLASS KeysList ;
 	STORESTRINGS_CLASS ValuesList ;
 	
 	if (web_interface->WebServer.hasArg("DISCONNECT")){
-    String header = "HTTP/1.1 301 OK\r\nSet-Cookie: ESPSESSIONID=0\r\nLocation: /LOGIN\r\nCache-Control: no-cache\r\n\r\n";
-    web_interface->WebServer.sendContent(header);
+    web_interface->WebServer.sendContent_P(NOT_AUTH_LOG);
     return;
   }
   
@@ -2844,28 +2553,21 @@ void handle_login()
   if (web_interface->WebServer.hasArg("return")) web_interface->urldecode(sReturn,web_interface->WebServer.arg("return").c_str());
   if (web_interface->WebServer.hasArg("SUBMIT"))
   {   //is there a correct list of values?
-	  if ( web_interface->WebServer.hasArg("PASSWORD")&& web_interface->WebServer.hasArg("USER"))
+	  if ( web_interface->WebServer.hasArg("PASSWORD"))
 		{	
-			//USER
-		    web_interface->urldecode(sUser,web_interface->WebServer.arg("USER").c_str());
 		    #ifdef AUTHENTICATION_FEATURE
-		    if (sUser!="admin")
-				{
-				msg_alert_error=true;
-				smsg+="Error : Incorrect User<BR>";
-				KeysList.add(FPSTR(KEY_USER_STATUS));
-				ValuesList.add(FPSTR(VALUE_HAS_ERROR));
-				}
 		    //Password
 		    web_interface->urldecode(sPassword,web_interface->WebServer.arg("PASSWORD").c_str());
 		    String scurrentPassword;
 		    
-		    if (!CONFIG::read_string(EP_ADMIN_PWD, scurrentPassword , MAX_ADMIN_PASSWORD_LENGTH) )scurrentPassword=FPSTR(DEFAULT_ADMIN);
+		    if (!CONFIG::read_string(EP_ADMIN_PWD, scurrentPassword , MAX_ADMIN_PASSWORD_LENGTH))
+		      scurrentPassword=FPSTR(DEFAULT_ADMIN);
+      
 		    if (strcmp(sPassword.c_str(),scurrentPassword.c_str())!=0)
 				{
 				msg_alert_error=true;
-				smsg+="Error : Incorrect password<BR>";
-				KeysList.add(FPSTR(KEY_USER_PASSWORD_STATUS));
+	      smsg.concat(F("Error: Incorrect password<BR>"));
+				KeysList.add(FPSTR(KEY_PASSWORD_STATUS));
 				ValuesList.add(FPSTR(VALUE_HAS_ERROR));
 				}
 			#endif
@@ -2873,7 +2575,7 @@ void handle_login()
       else
 	   {
 		msg_alert_error=true;
-		smsg="Error : Missing data";
+	  smsg = FPSTR(MISSING_DATA);
 	   }
 	  
 	   //if no error login is ok
@@ -2886,11 +2588,11 @@ void handle_login()
 		current_auth->last_time=millis();
 		if (web_interface->AddAuthIP(current_auth))
 		{
-		String header = "HTTP/1.1 301 OK\r\nSet-Cookie: ESPSESSIONID=";
+	      String header = F("HTTP/1.1 301 OK\r\nSet-Cookie: ESPSESSIONID=");
 		header+=current_auth->sessionID;
 		header+="\r\nLocation: /";
 		header+=sReturn;
-		header+="\r\nCache-Control: no-cache\r\n\r\n";
+	      header.concat(F("\r\nCache-Control: no-cache\r\n\r\n"));
 		web_interface->WebServer.sendContent(header);
 		return;
 		}
@@ -2898,7 +2600,7 @@ void handle_login()
 		{
 			delete current_auth;
 			msg_alert_error=true;
-			smsg="Error : Too many connections";
+	      smsg = F("Error: Too many connections");
 		}
 		#endif
 		}
@@ -2906,106 +2608,37 @@ void handle_login()
   
 	else //no submit need to get data from EEPROM
 	{
-	sUser=String();
-	//password 
 	sPassword=String();
 	}
 	
 	//Display values
 	KeysList.add(FPSTR(KEY_RETURN));
 	ValuesList.add(sReturn);
-	//Free Mem, put at the end to reflect situation
-	KeysList.add(FPSTR(KEY_FREE_MEM));
-	ValuesList.add(intTostr(system_get_free_heap_size()));
+  
 	KeysList.add(FPSTR(KEY_DISCONNECT_VISIBILITY));
 	if (web_interface->is_authenticated())ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
 	else ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-	//IP
-	stmp=FPSTR(KEY_IP);
-	KeysList.add(stmp);
-	if (wifi_get_opmode()==WIFI_STA ) stmp=WiFi.localIP().toString();
-	else stmp=WiFi.softAPIP().toString();
-	ValuesList.add(stmp);
-	//Web address = ip + port
-	KeysList.add(FPSTR(KEY_WEB_ADDRESS));
-	if (wifi_config.iweb_port!=80)
-		{
-		stmp+=":";
-		stmp+=intTostr(wifi_config.iweb_port);
-		}
-	ValuesList.add(stmp);
+	//IP+Web
+	GetIpWeb(KeysList, ValuesList);
 	//mode
-	if (wifi_get_opmode()==WIFI_STA )
-		{
-		KeysList.add(FPSTR(KEY_MODE));
-		ValuesList.add(FPSTR(VALUE_STA));
-		}
-	else
-		{
-		if (wifi_get_opmode()==WIFI_AP )
-			{
-				KeysList.add(FPSTR(KEY_MODE));
-				ValuesList.add(FPSTR(VALUE_AP));
-			}
-		else
-			{
-				KeysList.add(FPSTR(KEY_MODE));
-				ValuesList.add(FPSTR(VALUE_AP_STA));
-			}
-		}
-	//FW Version
-	KeysList.add(FPSTR(KEY_FW_VER));
-	ValuesList.add(FPSTR(VALUE_FW_VERSION));
-	//page title
-	KeysList.add(FPSTR(KEY_PAGE_TITLE));
-	ValuesList.add(FPSTR(VALUE_LOGIN));
-	//tpl file name with extension
-	KeysList.add(FPSTR(KEY_FILE_NAME));
-	ValuesList.add("login.tpl");
-	//tpl file name without extension
-	KeysList.add(FPSTR(KEY_SHORT_FILE_NAME));
-	ValuesList.add("login");
-    //User
-	KeysList.add(FPSTR(KEY_USER));
-	ValuesList.add(sUser);
-	
+	GetMode(KeysList, ValuesList);
+  
+	//page title and filenames
+	SetPageProp(KeysList,ValuesList,FPSTR(VALUE_LOGIN),F("login"));	
 	//password
-	KeysList.add(FPSTR(KEY_USER_PASSWORD));
+	KeysList.add(FPSTR(KEY_PASSWORD));
 	ValuesList.add(sPassword);
 
 if (msg_alert_error)
-	{
-		KeysList.add(FPSTR(KEY_ERROR_MSG));
-		ValuesList.add(smsg);
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SERVICE_PAGE));
-		ValuesList.add("");
-	}
+    ProcessAlertError(KeysList, ValuesList, smsg);
 else
-{
-		KeysList.add(FPSTR(KEY_ERROR_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG));
-		ValuesList.add("");
-		KeysList.add(FPSTR(KEY_ERROR_MSG_VISIBILITY ));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUCCESS_MSG_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-		KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
-		ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-		KeysList.add(FPSTR(KEY_SERVICE_PAGE));
-		ValuesList.add("");
-	}
+    ProcessNoAlert(KeysList,ValuesList);
+
+  //Firmware and Free Mem, at the end to reflect situation
+  GetFreeMem(KeysList, ValuesList);
+
 	//process the template file and provide list of variables
-	if(KeysList.size()==ValuesList.size())	//Sanity check
-		processTemplate("/login.tpl", KeysList , ValuesList);
+	processTemplate("/login.tpl", KeysList , ValuesList);
 	//need to clean to speed up memory recovery
 	KeysList.clear();
 	ValuesList.clear();
@@ -3016,54 +2649,19 @@ void handle_restart()
 		{
 		STORESTRINGS_CLASS KeysList ;
 		STORESTRINGS_CLASS ValuesList ;
-		String stmp;
-		KeysList.add(FPSTR(KEY_FREE_MEM));
-		ValuesList.add(intTostr(system_get_free_heap_size()));
-		//IP
-		stmp=FPSTR(KEY_IP);
-		KeysList.add(stmp);
-		if (wifi_get_opmode()==WIFI_STA ) stmp=WiFi.localIP().toString();
-		else stmp=WiFi.softAPIP().toString();
-		ValuesList.add(stmp);
-		//Web address = ip + port
-		KeysList.add(FPSTR(KEY_WEB_ADDRESS));
-		if (wifi_config.iweb_port!=80)
-			{
-			stmp+=":";
-			stmp+=intTostr(wifi_config.iweb_port);
-			}
-		ValuesList.add(stmp);
+
+		//IP+Web
+		GetIpWeb(KeysList, ValuesList);
 		//mode
-		if (wifi_get_opmode()==WIFI_STA )
-			{
-			KeysList.add(FPSTR(KEY_MODE));
-			ValuesList.add(FPSTR(VALUE_STA));
-			}
-		else
-			{
-			if (wifi_get_opmode()==WIFI_AP )
-				{
-					KeysList.add(FPSTR(KEY_MODE));
-					ValuesList.add(FPSTR(VALUE_AP));
-				}
-			else
-				{
-					KeysList.add(FPSTR(KEY_MODE));
-					ValuesList.add(FPSTR(VALUE_AP_STA));
-				}
-			}
-		//page title
-		KeysList.add(FPSTR(KEY_PAGE_TITLE));
-		ValuesList.add("Restarting...");
-		//tpl file name with extension
-		KeysList.add(FPSTR(KEY_FILE_NAME));
-		ValuesList.add("restart.tpl");
-		//tpl file name without extension
-		KeysList.add(FPSTR(KEY_SHORT_FILE_NAME));
-		ValuesList.add("restart");
+		GetMode(KeysList, ValuesList);  
+		//page title and filenames
+		SetPageProp(KeysList,ValuesList,F("Restarting..."),F("restart"));
+
+      //Firmware and Free Mem, at the end to reflect situation
+      GetFreeMem(KeysList, ValuesList);
+		
 		//process the template file and provide list of variables
-		if(KeysList.size()==ValuesList.size())	//Sanity check
-			processTemplate("/restart.tpl", KeysList , ValuesList);
+		processTemplate("/restart.tpl", KeysList , ValuesList);
 		//need to clean to speed up memory recovery
 		KeysList.clear();
 		ValuesList.clear();
@@ -3190,12 +2788,12 @@ WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port):WebServer(port)
 	restartmodule=false;
 	//rolling list of 4entries with a maximum of 50 char for each entry
 	error_msg.setsize(4);
-	error_msg.setlenght(50);
+  error_msg.setlength(50);
 	info_msg.setsize(4);
-	info_msg.setlenght(50);
+  info_msg.setlength(50);
 	status_msg.setsize(4);
-	status_msg.setlenght(50);
-	fileslist.setlenght(30);//12 for filename + space + size
+  status_msg.setlength(50);
+  fileslist.setlength(30);//12 for filename + space + size
 	fileslist.setsize(70); // 70 files to limite to 2K
 	fsUploadFile=(fs::File)0;
 	_head=NULL;
@@ -3302,10 +2900,8 @@ bool WEBINTERFACE_CLASS::ResetAuthIP(IPAddress ip,const char * sessionID)
 			previous = current;
 			current=current->_next;
 		 }
-		 
-		
 	}
 	return done;
 }
-WEBINTERFACE_CLASS * web_interface;
 
+WEBINTERFACE_CLASS * web_interface;

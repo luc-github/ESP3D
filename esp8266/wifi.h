@@ -50,7 +50,6 @@ class WIFI_CONFIG
   const char * get_hostname();
   private:
   char _hostname[33];
-
 };
 
 extern WIFI_CONFIG wifi_config;
