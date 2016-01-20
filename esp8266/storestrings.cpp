@@ -39,19 +39,11 @@ bool STORESTRINGS_CLASS::setsize(int size)
 	_maxsize=size;
 	return true;
 }
-bool STORESTRINGS_CLASS::setlenght(int lenght)
+bool STORESTRINGS_CLASS::setlength(int len)
 {
-	if (lenght<4)return false;
-	_maxstringlength=lenght;
+  if (len < 4) return false;
+  _maxstringlength = len;
 	return true;
-}
-int STORESTRINGS_CLASS::getsize()
-{
-	return _maxsize;
-}
-int STORESTRINGS_CLASS::getlenght()
-{
-	return _maxstringlength;
 }
 
 //Clear list and content
@@ -63,11 +55,6 @@ void STORESTRINGS_CLASS::clear(){
 		//destroy it
 		delete str;
 	}
-}
-
-bool STORESTRINGS_CLASS::add (String & string)
-{
-	return add(string.c_str());
 }
 
 bool STORESTRINGS_CLASS::add (const __FlashStringHelper *str)
@@ -138,10 +125,4 @@ int STORESTRINGS_CLASS::get_index(const char * string)
 	//if not found return -1
 	return -1;
 }
-//Number of elements in list
-int STORESTRINGS_CLASS::size()
-{
-	return _charlist.size();
-}
-
 
