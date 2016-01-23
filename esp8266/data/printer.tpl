@@ -1,12 +1,6 @@
 $INCLUDE[header.inc]$
 <table><tr><td><table><tr><td><svg width="440" height="260" xmlns="http://www.w3.org/2000/svg" version="1.1"><defs><style type="text/css">
 <![CDATA[
-text {
-font-family:helvetica;
-stroke:black;
-stroke-width:1;
-fill:black;
-}
 text.home {
 font-weight:900;
 font-size:16;
@@ -82,8 +76,8 @@ fill:orange;
 <g id="Decoration" pointer-events="none" font-weight="900" font-size="11" fill-opacity=".6"><path class="std" d="M120,20 l17,17 h-10 v11 h-14 v-11 h-10 z" fill="SteelBlue"/><path class="std" d="M120,220 l17,-17 h-10 v-11 h-14 v11 h-10 z" fill="SteelBlue"/><path class="std" d="M20,120 l17,17 v-10 h11 v-14 h-11 v-10 z" fill="Khaki"/><path class="std" d="M220,120 l-17,-17 v10 h-11 v14 h11 v10 z" fill="Khaki"/><text x="113" y="37" > +Y </text><text x="113" y="212"> -Y </text><text x="27" y="124"> -X </text><text x="196" y="124"> +X </text></g></g>
 
 <g id="JogBar" transform="translate(250,0)"><desc>JogBar - Z jogging bar</desc>
-<g id="+Z" fill="#b0b0b0"><path class="std" d=" M5,0 h30 a5,5 0 0,1 5,5 v27 h-40 v-27 a5,5 0 0,1 5,-5 z"/><path class="std" d="M20,2 l17,17 h-10 v11 h-14 v-11 h-10 z" fill="DarkSeaGreen"/><text x="11" y="18" font-size="12"> +Z </text></g>
-<g id="-Z" fill="#b0b0b0"><path class="std" d=" M0,208 h40 v27 a5,5 0 0,1 -5,5 h-30 a5,5 0 0,1 -5,-5 z"/><path class="std" d="M20,238 l-17,-17 h10 v-11 h14 v11 h10 z" fill="DarkSeaGreen"/><text x="13" y="230" font-size="12"> -Z </text></g>
+<g id="+Z" fill="#b0b0b0"><path class="std" d=" M5,0 h30 a5,5 0 0,1 5,5 v27 h-40 v-27 a5,5 0 0,1 5,-5 z"/><path class="std" d="M20,2 l17,17 h-10 v11 h-14 v-11 h-10 z" fill="DarkSeaGreen"/><text stroke="black" x="11" y="18" font-size="12"> +Z </text></g>
+<g id="-Z" fill="#b0b0b0"><path class="std" d=" M0,208 h40 v27 a5,5 0 0,1 -5,5 h-30 a5,5 0 0,1 -5,-5 z"/><path class="std" d="M20,238 l-17,-17 h10 v-11 h14 v11 h10 z" fill="DarkSeaGreen"/><text stroke="black" x="13" y="230" font-size="12"> -Z </text></g>
 <g id="Z+10" fill="#d0d0d0" onmouseup="SendJogcommand('Z10',Zfeedrate)"><rect class="std" x="0" y="32" width="40" height="30"></rect><circle class="scl" cx="20" cy="47" r="13"/><text class="scl" x="9" y="53" font-size="18"> 10 </text></g>
 <g id="Z+1" fill="#e0e0e0" onmouseup="SendJogcommand('Z1',Zfeedrate)"><rect class="std" x="0" y="62" width="40" height="26"></rect><circle class="scl" cx="20" cy="75" r="11"/><text class="scl" x="15" y="81.5" font-size="18"> 1 </text></g>
 <g id="Z+0.1" fill="#f0f0f0" onmouseup="SendJogcommand('Z0.1',Zfeedrate)"><rect class="std" x="0" y="88" width="40" height="24"></rect><circle class="scl" cx="20" cy="100" r="9.5"/><text class="scl" x="13" y="103.5" font-size="10"> 0.1 </text></g>
@@ -93,8 +87,8 @@ fill:orange;
 </g>
 
 <g id="JogBarE0" transform="translate(320,0)" style="visibility:hidden"><desc>JogBar - E0 jogging bar</desc>
-<g id="+E0" fill="#b0b0b0"><path class="std" d=" M5,0 h30 a5,5 0 0,1 5,5 v27 h-40 v-27 a5,5 0 0,1 5,-5 z"/><path class="std" d="M20,2 l17,17 h-10 v11 h-14 v-11 h-10 z" fill="DarkSeaGreen"/><text x="11" y="18" font-size="12">+1</text></g>
-<g id="-E0" fill="#b0b0b0"><path class="std" d=" M0,208 h40 v27 a5,5 0 0,1 -5,5 h-30 a5,5 0 0,1 -5,-5 z"/><path class="std" d="M20,238 l-17,-17 h10 v-11 h14 v11 h10 z" fill="DarkSeaGreen"/><text x="13" y="230" font-size="12">-1</text></g>
+<g id="+E0" fill="#b0b0b0"><path class="std" d=" M5,0 h30 a5,5 0 0,1 5,5 v27 h-40 v-27 a5,5 0 0,1 5,-5 z"/><path class="std" d="M20,2 l17,17 h-10 v11 h-14 v-11 h-10 z" fill="DarkSeaGreen"/><text stroke="black" x="11" y="18" font-size="12"> +1 </text></g>
+<g id="-E0" fill="#b0b0b0"><path class="std" d=" M0,208 h40 v27 a5,5 0 0,1 -5,5 h-30 a5,5 0 0,1 -5,-5 z"/><path class="std" d="M20,238 l-17,-17 h10 v-11 h14 v11 h10 z" fill="DarkSeaGreen"/><text stroke="black" x="13" y="230" font-size="12"> -1 </text></g>
 <g id="E0+10" fill="#d0d0d0" onmouseup="SendJogcommand('E0+10',Efeedrate)"><rect class="std" x="0" y="32" width="40" height="30"></rect><circle class="scl" cx="20" cy="47" r="13"/><text class="scl" x="9" y="53" font-size="18"> 10 </text></g>
 <g id="E0+1" fill="#e0e0e0" onmouseup="SendJogcommand('E0+1',Efeedrate)"><rect class="std" x="0" y="62" width="40" height="26"></rect><circle class="scl" cx="20" cy="75" r="11"/><text class="scl" x="15" y="81.5" font-size="18"> 1 </text></g>
 <g id="E0+0.1" fill="#f0f0f0" onmouseup="SendJogcommand('E0+0.1',Efeedrate)"><rect class="std" x="0" y="88" width="40" height="24"></rect><circle class="scl" cx="20" cy="100" r="9.5"/><text class="scl" x="13" y="103.5" font-size="10"> 0.1 </text></g>
@@ -105,8 +99,8 @@ fill:orange;
 </g>
 
 <g id="JogBarE1" transform="translate(370,0)" style="visibility:hidden"><desc>JogBar - E1 jogging bar</desc>
-<g id="+E1" fill="#b0b0b0"><path class="std" d=" M5,0 h30 a5,5 0 0,1 5,5 v27 h-40 v-27 a5,5 0 0,1 5,-5 z"/><path class="std" d="M20,2 l17,17 h-10 v11 h-14 v-11 h-10 z" fill="DarkSeaGreen"/><text x="11" y="18" font-size="12"> +2 </text></g>
-<g id="-E1" fill="#b0b0b0"><path class="std" d=" M0,208 h40 v27 a5,5 0 0,1 -5,5 h-30 a5,5 0 0,1 -5,-5 z"/><path class="std" d="M20,238 l-17,-17 h10 v-11 h14 v11 h10 z" fill="DarkSeaGreen"/><text x="13" y="230" font-size="12"> -2 </text></g>
+<g id="+E1" fill="#b0b0b0"><path class="std" d=" M5,0 h30 a5,5 0 0,1 5,5 v27 h-40 v-27 a5,5 0 0,1 5,-5 z"/><path class="std" d="M20,2 l17,17 h-10 v11 h-14 v-11 h-10 z" fill="DarkSeaGreen"/><text stroke="black" x="11" y="18" font-size="12"> +2 </text></g>
+<g id="-E1" fill="#b0b0b0"><path class="std" d=" M0,208 h40 v27 a5,5 0 0,1 -5,5 h-30 a5,5 0 0,1 -5,-5 z"/><path class="std" d="M20,238 l-17,-17 h10 v-11 h14 v11 h10 z" fill="DarkSeaGreen"/><text stroke="black" x="13" y="230" font-size="12"> -2 </text></g>
 <g id="E1+10" fill="#d0d0d0" onmouseup="SendJogcommand('E1+10',Efeedrate)"><rect class="std" x="0" y="32" width="40" height="30"></rect><circle class="scl" cx="20" cy="47" r="13"/><text class="scl" x="9" y="53" font-size="18"> 10 </text></g>
 <g id="E1+1" fill="#e0e0e0" onmouseup="SendJogcommand('E1+1',Efeedrate)"><rect class="std" x="0" y="62" width="40" height="26"></rect><circle class="scl" cx="20" cy="75" r="11"/><text class="scl" x="15" y="81.5" font-size="18"> 1 </text></g>
 <g id="E1+0.1" fill="#f0f0f0" onmouseup="SendJogcommand('E1+0.1',Efeedrate)"><rect class="std" x="0" y="88" width="40" height="24"></rect><circle class="scl" cx="20" cy="100" r="9.5"/><text class="scl" x="13" y="103.5" font-size="10"> 0.1 </text></g>
@@ -120,40 +114,40 @@ fill:orange;
 <td class="btnimg" onclick="Sendcommand('M24');"><svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" stroke="black" stroke-width="2" fill="white" /><polygon points="15,10 30,20 15,30" fill:"white" stroke:"white" stroke-width:"1" /></svg></td>
 <td class="btnimg" onclick="Sendcommand('M25');"><svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" stroke="black" stroke-width="2" fill="white" /><rect x="10" y="10" width="7" height="20" rx="2" ry="2" style="fill:rgb(0,0,0);stroke-width:1;stroke:rgb(0,0,0)"/><rect x="23" y="10" width="7" height="20" rx="2" ry="2" style="fill:rgb(0,0,0);stroke-width:1;stroke:rgb(0,0,0)"/></svg></td>
 <td class="btnimg" onclick="Sendcommand('M50');"><svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" stroke="black" stroke-width="2" fill="white" /><rect x="10" y="10" width="20" height="20" rx="2" ry="2" style="fill:rgb(0,0,0);stroke-width:1;stroke:rgb(0,0,0)" /></svg></td>
-<td class="btnimg" onclick="getSDfiles();"><svg width="40" height="40" viewBox="0 0 40 40"><rect x="5" y="10" width="30" height="20" rx="2" ry="2" style="fill:rgb(0,0,0);stroke-width:1;stroke:rgb(0,0,0)" /><rect x="20" y="5" width="15" height="15" rx="2" ry="2" style="fill:rgb(0,0,0);stroke-width:1;stroke:rgb(0,0,0)" /><text x="10" y="25" font-family="Verdana" font-size="14" fill="white">SD</text></svg></td>
+<td class="btnimg" onclick="getSDfiles();"><svg width="40" height="40" viewBox="0 0 40 40"><rect x="5" y="10" width="30" height="20" rx="2" ry="2" style="fill:rgb(0,0,0);stroke-width:1;stroke:rgb(0,0,0)" /><rect x="20" y="5" width="15" height="15" rx="2" ry="2" style="fill:rgb(0,0,0);stroke-width:1;stroke:rgb(0,0,0)"/><text x="10" y="25" font-family="Verdana" font-size="14" fill="white">SD</text></svg></td>
 <td>&nbsp;&nbsp;</td><td id="SDLIST"></td></tr></table></td>
  
 </tr></table></td></tr><tr>
 <td style="padding:0px;"><div id="Extruder1" style="visibility:hidden;height:0px;"><table><tr>
-<td><label style="display:inline-block;width:50px;">E1:&nbsp;</label></td>
-<td id="data_extruder1" style="overflow:hidden;"></td>
+<td><label style="display:inline-block;width:100px;">Extruder 1:</label></td>
 <td>0<input id="rangeinput1" type="range" min=0 max=270 onchange="Updatenumber('1');">270</td>
 <td><input class="form-control" id="numberinput1" type="number" min=0 max=270 step=1 value=0 onchange="Updaterange('1');"></td>
-<td>&#176;C<input type="button" class="btn btn-primary" value="Set" onclick="SendValue('M104 T0 S','1');"></td>
+<td>&#176;C&nbsp;<input type="button" class="btn btn-primary" value="Set" onclick="SendValue('M104 T0 S','1');"></td>
+<td id="data_extruder1" style="overflow:hidden;"></td>
 </tr></table></div></td></tr>
  
 <tr><td style="padding:0px;"><div id="Extruder2" style="visibility:hidden;height:0px;"><table><tr>
-<td><label style="display:inline-block;width:50px;">E2:&nbsp;</label></td>
-<td id="data_extruder2" style="overflow:hidden;"></td>
+<td><label style="display:inline-block;width:100px;">Extruder 2:</label></td>
 <td>0<input id="rangeinput2" type="range" min=0 max=270 onchange="Updatenumber('2');">270</td>
 <td><input class="form-control" id="numberinput2" type="number" min=0 max=270 step=1 value=0 onchange="Updaterange('2');"></td>
-<td>&#176;C<input type="button" class="btn btn-primary" value="Set" onclick="SendValue('M104 T1 S','2');"></td>
+<td>&#176;C&nbsp;<input type="button" class="btn btn-primary" value="Set" onclick="SendValue('M104 T1 S','2');"></td>
+<td id="data_extruder2" style="overflow:hidden;"></td>
 </tr></table></div></td></tr>
 
 <tr><td style="padding:0px;"><div id="Bed" style="visibility:hidden;height:0px;"><table><tr>
-<td><label>Bed:</label></td>
-<td id="data_bed" style="overflow:hidden;"></td>
+<td><label style="display:inline-block;width:100px;">Bed:</label></td>
 <td>0<input id="rangeinputbed" type="range" min=0 max=130 onchange="Updatenumber('bed');">130</td>
 <td><input class="form-control" id="numberinputbed"type="number" min=0 max=270 step=1 value=0 onchange="Updaterange('bed');"></td>
-<td>&#176;C<input type="button" class="btn btn-primary" value="Set" onclick="SendValue( 'M140 S', 'bed');"></td>
+<td>&#176;C&nbsp;<input type="button" class="btn btn-primary" value="Set" onclick="SendValue( 'M140 S', 'bed');"></td>
+<td id="data_bed" style="overflow:hidden;"></td>
 </tr></table></div></td></tr>
  
 <tr><td id="speed"><table><tr>
 <td><label style="display:inline-block;width:50px;">Speed:</label></td>
-<td><label class="text-info" id="currentspeed"></label></td>
+<td><label class="text-info" id="currentspeed" style="display:inline-block;width:40px;"></label></td>
 <td>0<input id="rangeinputspeed" type="range" min=0 max=300 onchange="Updatenumber('speed');">300</td>
 <td><input class="form-control" id="numberinputspeed" type="number" size="3" min=0 max=300 step=1 value=0 onchange="Updaterange('speed');"></td>
-<td>%<input type="button" class="btn btn-primary" class="btn btn-primary" value="Set" onclick="SendValue( 'M220 S', 'speed');"></td>
+<td>%&nbsp;<input type="button" class="btn btn-primary" class="btn btn-primary" value="Set" onclick="SendValue('M220 S','speed');"></td>
 <td>&nbsp;&nbsp;</td>
 <td>Status:</td>
 <td id="status" align="center" valign="middle"><svg width="20" height="20"><circle cx="10" cy="10" r="8" stroke="black" stroke-width="2" fill="white"></circle></svg></td>
@@ -164,10 +158,10 @@ fill:orange;
  
 <tr><td id="flow"><table><tr>
 <td><label style="display:inline-block;width:50px;">Flow:</label></td>
-<td><label class="text-info" id="currentflow"></label></td>
+<td><label class="text-info" id="currentflow" style="display:inline-block;width:40px;"></label></td>
 <td>0<input id="rangeinputflow" type="range" min=0 max=300 onchange="Updatenumber('flow');">300</td>
 <td><input class="form-control" id="numberinputflow" size="3" type="number" min=0 max=300 step=1 value=0 onchange="Updaterange('flow');"></td>
-<td>%<input type="button" class="btn btn-primary" value="Set" onclick="SendValue('M221 S','flow');"></td>
+<td>%&nbsp;<input type="button" class="btn btn-primary" value="Set" onclick="SendValue('M221 S','flow');"></td>
 <td>&nbsp;&nbsp;</td>
 <td><label>X:</label></td>
 <td><label class="text-info" id="posx"></label>
@@ -256,7 +250,7 @@ var pulse=true;
 var initialization_done = false;
 var pos=0;
 function displaytemp(temperature, target,item,factor){
-var displaypicture = "<svg height=\"30px \" width=\"300px \" xmlns=\"http://wwww.w3.org/2000/svg\">\n<linearGradient id=\"gradient\">\n";
+var displaypicture = "<svg height=\"30px \" width=\"260px \" xmlns=\"http://wwww.w3.org/2000/svg\">\n<linearGradient id=\"gradient\">\n";
 var description = String (temperature) + "/";
 if (target>0)description += String (target);
 else description += "Off ";
