@@ -89,24 +89,24 @@ fill:orange;
 <g id="JogBarE0" transform="translate(320,0)" style="visibility:hidden"><desc>JogBar - E0 jogging bar</desc>
 <g id="+E0" fill="#b0b0b0"><path class="std" d=" M5,0 h30 a5,5 0 0,1 5,5 v27 h-40 v-27 a5,5 0 0,1 5,-5 z"/><path class="std" d="M20,2 l17,17 h-10 v11 h-14 v-11 h-10 z" fill="DarkSeaGreen"/><text stroke="black" x="11" y="18" font-size="12"> +1 </text></g>
 <g id="-E0" fill="#b0b0b0"><path class="std" d=" M0,208 h40 v27 a5,5 0 0,1 -5,5 h-30 a5,5 0 0,1 -5,-5 z"/><path class="std" d="M20,238 l-17,-17 h10 v-11 h14 v11 h10 z" fill="DarkSeaGreen"/><text stroke="black" x="13" y="230" font-size="12"> -1 </text></g>
-<g id="E0+10" fill="#d0d0d0" onmouseup="SendJogcommand('E0+10',Efeedrate)"><rect class="std" x="0" y="32" width="40" height="30"></rect><circle class="scl" cx="20" cy="47" r="13"/><text class="scl" x="9" y="53" font-size="18"> 10 </text></g>
-<g id="E0+1" fill="#e0e0e0" onmouseup="SendJogcommand('E0+1',Efeedrate)"><rect class="std" x="0" y="62" width="40" height="26"></rect><circle class="scl" cx="20" cy="75" r="11"/><text class="scl" x="15" y="81.5" font-size="18"> 1 </text></g>
-<g id="E0+0.1" fill="#f0f0f0" onmouseup="SendJogcommand('E0+0.1',Efeedrate)"><rect class="std" x="0" y="88" width="40" height="24"></rect><circle class="scl" cx="20" cy="100" r="9.5"/><text class="scl" x="13" y="103.5" font-size="10"> 0.1 </text></g>
-<g id="Z-10" fill="#d0d0d0" onmouseup="SendJogcommand('E0-10',Efeedrate)"><rect class="std" x="0" y="178" width="40" height="30"></rect></g>
-<g id="Z-1" fill="#e0e0e0" onmouseup="SendJogcommand('E0-1',Efeedrate)"><rect class="std" x="0" y="152" width="40" height="26"></rect></g>
-<g id="Z-0_1" fill="#f0f0f0" onmouseup="SendJogcommand('E0-0.1',Efeedrate)"><rect class="std" x="0" y="128" width="40" height="24"></rect></g>
+<g id="E0+10" fill="#d0d0d0" onmouseup="SendJogcommand('T0 E+10',Efeedrate)"><rect class="std" x="0" y="32" width="40" height="30"></rect><circle class="scl" cx="20" cy="47" r="13"/><text class="scl" x="9" y="53" font-size="18"> 10 </text></g>
+<g id="E0+1" fill="#e0e0e0" onmouseup="SendJogcommand('T0 E+1',Efeedrate)"><rect class="std" x="0" y="62" width="40" height="26"></rect><circle class="scl" cx="20" cy="75" r="11"/><text class="scl" x="15" y="81.5" font-size="18"> 1 </text></g>
+<g id="E0+0.1" fill="#f0f0f0" onmouseup="SendJogcommand('T0 E+0.1',Efeedrate)"><rect class="std" x="0" y="88" width="40" height="24"></rect><circle class="scl" cx="20" cy="100" r="9.5"/><text class="scl" x="13" y="103.5" font-size="10"> 0.1 </text></g>
+<g id="Z-10" fill="#d0d0d0" onmouseup="SendJogcommand('T0 E-10',Efeedrate)"><rect class="std" x="0" y="178" width="40" height="30"></rect></g>
+<g id="Z-1" fill="#e0e0e0" onmouseup="SendJogcommand('T0 E-1',Efeedrate)"><rect class="std" x="0" y="152" width="40" height="26"></rect></g>
+<g id="Z-0_1" fill="#f0f0f0" onmouseup="SendJogcommand('T0 E-0.1',Efeedrate)"><rect class="std" x="0" y="128" width="40" height="24"></rect></g>
 <g id="ZSpace" fill="#000000"><rect class="std" x="0" y="112" width="40" height="16"/></g>
 </g>
 
 <g id="JogBarE1" transform="translate(370,0)" style="visibility:hidden"><desc>JogBar - E1 jogging bar</desc>
 <g id="+E1" fill="#b0b0b0"><path class="std" d=" M5,0 h30 a5,5 0 0,1 5,5 v27 h-40 v-27 a5,5 0 0,1 5,-5 z"/><path class="std" d="M20,2 l17,17 h-10 v11 h-14 v-11 h-10 z" fill="DarkSeaGreen"/><text stroke="black" x="11" y="18" font-size="12"> +2 </text></g>
 <g id="-E1" fill="#b0b0b0"><path class="std" d=" M0,208 h40 v27 a5,5 0 0,1 -5,5 h-30 a5,5 0 0,1 -5,-5 z"/><path class="std" d="M20,238 l-17,-17 h10 v-11 h14 v11 h10 z" fill="DarkSeaGreen"/><text stroke="black" x="13" y="230" font-size="12"> -2 </text></g>
-<g id="E1+10" fill="#d0d0d0" onmouseup="SendJogcommand('E1+10',Efeedrate)"><rect class="std" x="0" y="32" width="40" height="30"></rect><circle class="scl" cx="20" cy="47" r="13"/><text class="scl" x="9" y="53" font-size="18"> 10 </text></g>
-<g id="E1+1" fill="#e0e0e0" onmouseup="SendJogcommand('E1+1',Efeedrate)"><rect class="std" x="0" y="62" width="40" height="26"></rect><circle class="scl" cx="20" cy="75" r="11"/><text class="scl" x="15" y="81.5" font-size="18"> 1 </text></g>
-<g id="E1+0.1" fill="#f0f0f0" onmouseup="SendJogcommand('E1+0.1',Efeedrate)"><rect class="std" x="0" y="88" width="40" height="24"></rect><circle class="scl" cx="20" cy="100" r="9.5"/><text class="scl" x="13" y="103.5" font-size="10"> 0.1 </text></g>
-<g id="E1-10" fill="#d0d0d0" onmouseup="SendJogcommand('E1-10',Efeedrate)"><rect class="std" x="0" y="178" width="40" height="30"></rect></g>
-<g id="E1-1" fill="#e0e0e0" onmouseup="SendJogcommand('E1-1',Efeedrate)"><rect class="std" x="0" y="152" width="40" height="26"></rect></g>
-<g id="E1-0_1" fill="#f0f0f0" onmouseup="SendJogcommand('E1-0.1',Efeedrate)"><rect class="std" x="0" y="128" width="40" height="24"></rect></g>
+<g id="E1+10" fill="#d0d0d0" onmouseup="SendJogcommand('T1 E+10',Efeedrate)"><rect class="std" x="0" y="32" width="40" height="30"></rect><circle class="scl" cx="20" cy="47" r="13"/><text class="scl" x="9" y="53" font-size="18"> 10 </text></g>
+<g id="E1+1" fill="#e0e0e0" onmouseup="SendJogcommand('T1 E+1',Efeedrate)"><rect class="std" x="0" y="62" width="40" height="26"></rect><circle class="scl" cx="20" cy="75" r="11"/><text class="scl" x="15" y="81.5" font-size="18"> 1 </text></g>
+<g id="E1+0.1" fill="#f0f0f0" onmouseup="SendJogcommand('T1 E+0.1',Efeedrate)"><rect class="std" x="0" y="88" width="40" height="24"></rect><circle class="scl" cx="20" cy="100" r="9.5"/><text class="scl" x="13" y="103.5" font-size="10"> 0.1 </text></g>
+<g id="E1-10" fill="#d0d0d0" onmouseup="SendJogcommand('T1 E-10',Efeedrate)"><rect class="std" x="0" y="178" width="40" height="30"></rect></g>
+<g id="E1-1" fill="#e0e0e0" onmouseup="SendJogcommand('T1 E-1',Efeedrate)"><rect class="std" x="0" y="152" width="40" height="26"></rect></g>
+<g id="E1-0_1" fill="#f0f0f0" onmouseup="SendJogcommand('T1 E-0.1',Efeedrate)"><rect class="std" x="0" y="128" width="40" height="24"></rect></g>
 <g id="ZSpace" fill="#000000"><rect class="std" x="0" y="112" width="40" height="16"/></g>
 </g></svg></td>
 
@@ -122,7 +122,7 @@ fill:orange;
 <td><label style="display:inline-block;width:100px;">Extruder 1:</label></td>
 <td>0<input id="rangeinput1" type="range" min=0 max=270 onchange="Updatenumber('1');">270</td>
 <td><input class="form-control" id="numberinput1" type="number" min=0 max=270 step=1 value=0 onchange="Updaterange('1');"></td>
-<td>&#176;C&nbsp;<input type="button" class="btn btn-primary" value="Set" onclick="SendValue('M104 T0 S','1');"></td>
+<td>&#176;C&nbsp;<input type="button" class="btn btn-primary" value="Set" onclick="SendValue('M104 S','1');"></td>
 <td id="data_extruder1" style="overflow:hidden;"></td>
 </tr></table></div></td></tr>
  
@@ -130,7 +130,7 @@ fill:orange;
 <td><label style="display:inline-block;width:100px;">Extruder 2:</label></td>
 <td>0<input id="rangeinput2" type="range" min=0 max=270 onchange="Updatenumber('2');">270</td>
 <td><input class="form-control" id="numberinput2" type="number" min=0 max=270 step=1 value=0 onchange="Updaterange('2');"></td>
-<td>&#176;C&nbsp;<input type="button" class="btn btn-primary" value="Set" onclick="SendValue('M104 T1 S','2');"></td>
+<td>&#176;C&nbsp;<input type="button" class="btn btn-primary" value="Set" onclick="SendValue('M884 S','2');"></td>
 <td id="data_extruder2" style="overflow:hidden;"></td>
 </tr></table></div></td></tr>
 
@@ -138,7 +138,7 @@ fill:orange;
 <td><label style="display:inline-block;width:100px;">Bed:</label></td>
 <td>0<input id="rangeinputbed" type="range" min=0 max=130 onchange="Updatenumber('bed');">130</td>
 <td><input class="form-control" id="numberinputbed"type="number" min=0 max=270 step=1 value=0 onchange="Updaterange('bed');"></td>
-<td>&#176;C&nbsp;<input type="button" class="btn btn-primary" value="Set" onclick="SendValue( 'M140 S', 'bed');"></td>
+<td>&#176;C&nbsp;<input type="button" class="btn btn-primary" value="Set" onclick="SendValue('M140 S','bed');"></td>
 <td id="data_bed" style="overflow:hidden;"></td>
 </tr></table></div></td></tr>
  
@@ -219,13 +219,13 @@ ms += new Date().getTime();
 while (new Date() < ms){}
 } 
 
-function SendJogcommand( cmd, feedrate){
+function SendJogcommand(cmd,feedrate){
 Sendcommand("G91 G1 "+cmd+" F"+feedrate);
 delay(100);
 Sendcommand("G90");
 }
-function SendValue( cmd, item){
-Sendcommand(cmd + document.getElementById("numberinput"+item).value);
+function SendValue(cmd,item){
+Sendcommand(cmd+document.getElementById("numberinput"+item).value);
 }
 function Sendcustomcommand(){
 var cmd = document.getElementById("cmd").value;
@@ -266,7 +266,7 @@ displaypicture+="\" y=\"4\" width=\"280\" height=\"21\" style=\"fill:url(#gradie
 displaypicture+=String(parseFloat(target)*factor+10);
 displaypicture+="\" y1=\"4\" x2=\"";
 displaypicture+=String(parseFloat(target)*factor+10);
-displaypicture+="\" y2=\"25\" style=\"stroke:rgb(255,255,255);stroke-width:1\" />\n<path d=\"M";
+displaypicture+="\" y2=\"25\" style=\"stroke:rgb(0,0,0);stroke-width:1\" />\n<path d=\"M";
 displaypicture+=String(parseFloat(temperature)*factor+5);
 displaypicture+=" 0 L";
 displaypicture+=String(parseFloat(temperature)*factor+15);
