@@ -3,7 +3,7 @@ body{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:14px;line
 .container{margin-right:auto;margin-left:auto;padding-left:15px;padding-right:15px;}
 table{border:0px;border-spacing:0;max-width:100%;}
 .table-bordered{ width:100%; border:1px solid #dddddd;margin-bottom:20px;}
-td{white-space:nowrap; padding:2mm;}
+td{white-space:nowrap; padding:1mm;}
 th{text-align:left;}
 .table>thead>tr>th,.table>tbody>tr>th,.table>thead>tr>td,.table>tbody>tr>td{padding:8px;line-height:1.42857143;vertical-align:top;border-top:1px solid #dddddd;}
 .table-bordered>thead>tr>th,.table-bordered>tbody>tr>th,.table-bordered>thead>tr>td,.table-bordered>tbody>tr>td{border:1px solid #dddddd;}

@@ -1,153 +1,221 @@
 $INCLUDE[header.inc]$
-<table>
-<tr><td style="padding:0px;"><div id="Extruder1" style="visibility:hidden;height:0px;"> 
-<table><tr><td><label>E1:&nbsp;</label></td>
-<td id="data_extruder1" style="overflow: hidden;"></td><td>0<input id="rangeinput1" type="range" min=0 max=270 onchange="Updatenumber('1');">270</td>
-<td><input class="form-control" id="numberinput1" type="number" min=0 max=270 step=1 value=0 onchange="Updaterange('1');"></td><td> &#176;C
-<td><input type="button" class="btn btn-primary" value="Set" onclick="SendValue( 'M104 T0 S', '1');"></td></tr></table></div></td></tr>
-<tr ><td style="padding:0px;"><div id="Extruder2" style="visibility:hidden;height:0px;">
-<table><tr><td><label>E2:&nbsp;</label></td>
-<td id="data_extruder2" style="overflow: hidden;"></td><td>0<input id="rangeinput2" type="range" min=0 max=270 onchange="Updatenumber('2');">270</td>
-<td><input class="form-control" id="numberinput2" type="number" min=0 max=270 step=1 value=0 onchange="Updaterange('2');"></td><td>&#176;C
-<input type="button" class="btn btn-primary" value="Set" onclick="SendValue( 'M104 T1 S', '2');">
-</td></tr></table></div></td></tr>
-<tr><td style="padding:0px;"><div id="Bed" style="visibility:hidden;height:0px;">
-<table><tr><td><label>Bed:</label></td>
-<td id="data_bed" style="overflow: hidden;"></td><td>0<input id="rangeinputbed" type="range" min=0 max=130 onchange="Updatenumber('bed');">130</td>
-<td><input class="form-control" id="numberinputbed"type="number" min=0 max=270 step=1 value=0 onchange="Updaterange('bed');"></td><td>&#176;C
-<input type="button" class="btn btn-primary" value="Set" onclick="SendValue( 'M140 S', 'bed');">
-</td></tr></table></div></td></tr>
+<table><tr><td><table><tr><td><svg width="440" height="260" xmlns="http://www.w3.org/2000/svg" version="1.1"><defs><style type="text/css">
+<![CDATA[
+text {
+font-family:helvetica;
+stroke:black;
+stroke-width:1;
+fill:black;
+}
+text.home {
+font-weight:900;
+font-size:16;
+pointer-events:none;
+}
+text.scl {
+stroke:white;
+fill:white;
+pointer-events:none;
+}
+circle.scl {
+fill:black;
+fill-opacity:0.5;
+stroke:red;
+stroke-width:3;
+filter:url(#f1);
+pointer-events:none;
+}
+path.home {
+stroke:black;
+}
+path.std {
+stroke:black;
+stroke-width:1;
+filter:url(#f1);
+}
+path.std:hover {
+fill:orange;
+}
+rect.std {
+stroke:black;
+stroke-width:1;
+filter:url(#f1);
+}
+rect.std:hover {
+fill:orange;
+}
+]]>
+</style><filter id="f1" x="-1" y="-1" width="300%" height="300%">
+<feOffset result="offOut" in="SourceAlpha" dx="3" dy="3"/>
+<feGaussianBlur result="blurOut" in="offOut" stdDeviation="4"/>
+<feBlend in="SourceGraphic" in2="blurOut" mode="normal"/></filter>
+<symbol id="HomeIcon" viewBox="0 0 20 18" pointer-events="none">
+<desc>HomeIcon - house</desc><path class="home" d="M3,18 v-8 l7,-6 l7,6 v8 h-5 v-6 h-4 v6 z" fill="black"/><path class="home" d="M0,10 l10-8.5 l10,8.5" stroke-width="1.5" fill="none"/><path class="home" d="M15,3 v2.8 l1,.8 v-3.6 z"/>
+</symbol>
+</defs>
+<g id="JogRose"><g id="HomeAll" onmouseup="Sendcommand('G28')"><path class="std" d="M10 182.5 h-10 v57.5 h57.5 v-10 a 125,125 0 0,1 -47.5 -47.5 Z" fill="#f0f0f0"></path>
+<use x="3" y="217" width="20" height="18" xlink:href="#HomeIcon"/></g>
+<g id="HomeX" onmouseup="Sendcommand('G28 X0')"><path class="std" d="M10 57.50 h-10 v-57.5 h57.5 v10 a 125,125 0 0,0 -47.5 47.5 Z" fill="Khaki"></path><use x="3" y="5" width="20" height="18" xlink:href="#HomeIcon"/><text x="25" y="20" class="home"> X </text></g>
+<g id="HomeY" onmouseup="Sendcommand('G28 Y0')"><path class="std" d="M230 57.50 h10 v-57.5 h-57.5 v10 a 125,125 0 0,1 47.5 47.5 z" fill="SteelBlue"></path><use x="217" y="5" width="20" height="18" xlink:href="#HomeIcon"/><text x="202" y="20" class="home"> Y </text></g>
+<g id="HomeZ" onmouseup="Sendcommand('G28 Z0')"><path class="std" d="M230 182.5 h10 v57.5 h-57.5 v-10 a 125,125 0 0,0 47.5 -47.5 z" fill="DarkSeaGreen"></path><use x="217" y="217" width="20" height="18" xlink:href="#HomeIcon"/><text x="202" y="232" class="home"> Z </text></g>
+
+<g id="Jog100" fill="#c0c0c0" class="std"><g id="Y+100" onmouseup="SendJogcommand('Y100',XYfeedrate)" transform="translate(120 120)"><path class="std" d="M-60 -67.07 L-75.93,-83 A112.5,112.5 0 0,1 75,-83 L60,-67.07 A90,90 0 0,0 -60.00,-67.07 z"></path></g>
+<g id="X+100" onmouseup="SendJogcommand('X100',XYfeedrate)" transform="translate(120 120)"><path class="std" d="M67.07,-60 L83,-75.93 A112.5,112.5 0 0,1 83,75.93 L67.07,60 A90,90 0 0,0 67.07,-60"></path></g>
+<g id="Y-100" onmouseup="SendJogcommand('Y-100',XYfeedrate)" transform="translate(120 120)"><path class="std" d="M-60,67.07 L-75.93,83 A112.5,112.5 0 0,0 75,83 L60,67.07 A90,90 0 0,1 -60.00,67.07 z"></path></g>
+<g id="X-100" onmouseup="SendJogcommand('X-100',XYfeedrate)" transform="translate(120 120)"><path class="std" d="M-67.07,-60 L-83,-75.93 A112.5,112.5 0 0,0 -83,75.93 L-67.07,60 A90,90 0 0,1 -67.07,-60 z"></path></g></g>
+<g id="Jog10" fill="#d0d0d0"><g id="Y+10" onmouseup="SendJogcommand('Y10',XYfeedrate)" transform="translate(120 120)"><path class="std" d="M-44.06 -51.13 L-60,-67.07 A90,90 0 0,1 60,-67 L44.06,-51.13 A67.5,67.5 0 0,0 -44.06,-51.13 z"></path></g>
+<g id="X+10" onmouseup="SendJogcommand('X10',XYfeedrate)" transform="translate(120 120)"><path class="std" d="M51.13 44.06 L67.07,60 A90,90 0 0,0 67.07,-60 L51.13,-44.06 A67.5,67.5 0 0,1 51.13,44.06 z"></path></g>
+<g id="Y-10" onmouseup="SendJogcommand('Y-10',XYfeedrate)" transform="translate(120 120)"><path class="std" d="M-44.06 51.13 L-60,67.07 A90,90 0 0,0 60,67 L44.06,51.13 A67.5,67.5 0 0,1 -44.06,51.13 z"></path></g>
+<g id="X-10" onmouseup="SendJogcommand('X-10',XYfeedrate)" transform="translate(120 120)"><path class="std" d="M-51.13 44.06 L-67.07,60 A90,90 0 0,1 -67.07,-60 L-51.13,-44.06 A67.5,67.5 0 0,0 -51.13,44.06 z"></path></g></g>
+<g id="Jog1" fill="#e0e0e0">
+<g id="Y+1" onmouseup="SendJogcommand('Y1',XYfeedrate)" transform="translate(120 120)"><path class="std" d="M-28.09 -35.16 L-44.06,-51.13 A67.5,67.5 0 0,1 44.06,-51.13 L28.09,-35.16 A45,45 0 0,0 -28.09,-35.16 z"></path></g>
+<g id="X+1" onmouseup="SendJogcommand('X1',XYfeedrate)" transform="translate(120 120)"><path class="std" d="M35.16 -28.09 L51.13,-44.06 A67.5,67.05 0 0,1 51.13,44.06 L35.16,28.09 A45,45 0 0,0 35.16,-28.09 z"></path></g>
+<g id="Y-1" onmouseup="SendJogcommand('Y-1',XYfeedrate)" transform="translate(120 120)"><path class="std" d="M-28.09 35.16 L-44.06,51.13 A67.5,67.5 0 0,0 44.06,51.13 L28.09,35.16 A45,45 0 0,1 -28.09,35.16 z"></path></g>
+<g id="X-1" onmouseup="SendJogcommand('X-1',XYfeedrate)" transform="translate(120 120)"><path class="std" d="M-35.16 -28.09 L-51.13,-44.06 A67.5,67.05 0 0,0 -51.13,44.06 L-35.16,28.09 A45,45 0 0,1 -35.16,-28.09 z"></path></g></g>
+<g id="Jog0_1" fill="#f0f0f0">
+<g id="Y+0.1" onmouseup="SendJogcommand('Y0.1',XYfeedrate)" transform="translate(120 120)"><path class="std" d="M-28.09 -35.16 A45,45 0 0,1 29.09,-35.16 L0,-7.07 z"></path></g>
+<g id="X+0_1" onmouseup="SendJogcommand('X0.1',XYfeedrate)" transform="translate(120 120)"><path class="std" d="M35.16 -28.09 A45,45 0 0,1 35.16,28.09 L7.07,0 z"></path></g>
+<g id="Y-0_1" onmouseup="SendJogcommand('Y-0.1',XYfeedrate)" transform="translate(120 120)"><path class="std" d="M-28.09 35.16 A45,45 0 0,0 29.09,35.16 L0,7.07 z"></path></g>
+<g id="X-0_1" onmouseup="SendJogcommand('X-0.1',XYfeedrate)" transform="translate(120 120)"><path class="std" d="M-35.16 -28.09 A45,45 0 0,0 -35.16,28.09 L-7.07,0 z"></path></g></g>
+<g id="RoseScale">
+<g><circle class="scl" cx="144" cy="96" r="9.5"/><circle class="scl" cx="159.5" cy="80.5" r="10.5"/><circle class="scl" cx="175" cy="65" r="12"/><circle class="scl" cx="195" cy="45" r="15"/><text class="scl" x="137" y="99" font-size="10"> 0.1 </text><text class="scl" x="155" y="85" font-size="14"> 1 </text><text class="scl" x="166" y="70" font-size="15"> 10 </text><text class="scl" x="182" y="50" font-size="15"> 100 </text></g></g>
+<g id="Decoration" pointer-events="none" font-weight="900" font-size="11" fill-opacity=".6"><path class="std" d="M120,20 l17,17 h-10 v11 h-14 v-11 h-10 z" fill="SteelBlue"/><path class="std" d="M120,220 l17,-17 h-10 v-11 h-14 v11 h-10 z" fill="SteelBlue"/><path class="std" d="M20,120 l17,17 v-10 h11 v-14 h-11 v-10 z" fill="Khaki"/><path class="std" d="M220,120 l-17,-17 v10 h-11 v14 h11 v10 z" fill="Khaki"/><text x="113" y="37" > +Y </text><text x="113" y="212"> -Y </text><text x="27" y="124"> -X </text><text x="196" y="124"> +X </text></g></g>
+
+<g id="JogBar" transform="translate(250,0)"><desc>JogBar - Z jogging bar</desc>
+<g id="+Z" fill="#b0b0b0"><path class="std" d=" M5,0 h30 a5,5 0 0,1 5,5 v27 h-40 v-27 a5,5 0 0,1 5,-5 z"/><path class="std" d="M20,2 l17,17 h-10 v11 h-14 v-11 h-10 z" fill="DarkSeaGreen"/><text x="11" y="18" font-size="12"> +Z </text></g>
+<g id="-Z" fill="#b0b0b0"><path class="std" d=" M0,208 h40 v27 a5,5 0 0,1 -5,5 h-30 a5,5 0 0,1 -5,-5 z"/><path class="std" d="M20,238 l-17,-17 h10 v-11 h14 v11 h10 z" fill="DarkSeaGreen"/><text x="13" y="230" font-size="12"> -Z </text></g>
+<g id="Z+10" fill="#d0d0d0" onmouseup="SendJogcommand('Z10',Zfeedrate)"><rect class="std" x="0" y="32" width="40" height="30"></rect><circle class="scl" cx="20" cy="47" r="13"/><text class="scl" x="9" y="53" font-size="18"> 10 </text></g>
+<g id="Z+1" fill="#e0e0e0" onmouseup="SendJogcommand('Z1',Zfeedrate)"><rect class="std" x="0" y="62" width="40" height="26"></rect><circle class="scl" cx="20" cy="75" r="11"/><text class="scl" x="15" y="81.5" font-size="18"> 1 </text></g>
+<g id="Z+0.1" fill="#f0f0f0" onmouseup="SendJogcommand('Z0.1',Zfeedrate)"><rect class="std" x="0" y="88" width="40" height="24"></rect><circle class="scl" cx="20" cy="100" r="9.5"/><text class="scl" x="13" y="103.5" font-size="10"> 0.1 </text></g>
+<g id="Z-10" fill="#d0d0d0" onmouseup="SendJogcommand('Z-10',Zfeedrate)"><rect class="std" x="0" y="178" width="40" height="30"></rect></g><g id="Z-1" fill="#e0e0e0" onmouseup="SendJogcommand('Z-1',Zfeedrate)"><rect class="std" x="0" y="152" width="40" height="26"></rect></g>
+<g id="Z-0_1" fill="#f0f0f0" onmouseup="SendJogcommand('Z-0.1',Zfeedrate)"><rect class="std" x="0" y="128" width="40" height="24"></rect></g>
+<g id="ZSpace" fill="#000000"><rect class="std" x="0" y="112" width="40" height="16"/></g>
+</g>
+
+<g id="JogBarE0" transform="translate(320,0)" style="visibility:hidden"><desc>JogBar - E0 jogging bar</desc>
+<g id="+E0" fill="#b0b0b0"><path class="std" d=" M5,0 h30 a5,5 0 0,1 5,5 v27 h-40 v-27 a5,5 0 0,1 5,-5 z"/><path class="std" d="M20,2 l17,17 h-10 v11 h-14 v-11 h-10 z" fill="DarkSeaGreen"/><text x="11" y="18" font-size="12">+1</text></g>
+<g id="-E0" fill="#b0b0b0"><path class="std" d=" M0,208 h40 v27 a5,5 0 0,1 -5,5 h-30 a5,5 0 0,1 -5,-5 z"/><path class="std" d="M20,238 l-17,-17 h10 v-11 h14 v11 h10 z" fill="DarkSeaGreen"/><text x="13" y="230" font-size="12">-1</text></g>
+<g id="E0+10" fill="#d0d0d0" onmouseup="SendJogcommand('E0+10',Efeedrate)"><rect class="std" x="0" y="32" width="40" height="30"></rect><circle class="scl" cx="20" cy="47" r="13"/><text class="scl" x="9" y="53" font-size="18"> 10 </text></g>
+<g id="E0+1" fill="#e0e0e0" onmouseup="SendJogcommand('E0+1',Efeedrate)"><rect class="std" x="0" y="62" width="40" height="26"></rect><circle class="scl" cx="20" cy="75" r="11"/><text class="scl" x="15" y="81.5" font-size="18"> 1 </text></g>
+<g id="E0+0.1" fill="#f0f0f0" onmouseup="SendJogcommand('E0+0.1',Efeedrate)"><rect class="std" x="0" y="88" width="40" height="24"></rect><circle class="scl" cx="20" cy="100" r="9.5"/><text class="scl" x="13" y="103.5" font-size="10"> 0.1 </text></g>
+<g id="Z-10" fill="#d0d0d0" onmouseup="SendJogcommand('E0-10',Efeedrate)"><rect class="std" x="0" y="178" width="40" height="30"></rect></g>
+<g id="Z-1" fill="#e0e0e0" onmouseup="SendJogcommand('E0-1',Efeedrate)"><rect class="std" x="0" y="152" width="40" height="26"></rect></g>
+<g id="Z-0_1" fill="#f0f0f0" onmouseup="SendJogcommand('E0-0.1',Efeedrate)"><rect class="std" x="0" y="128" width="40" height="24"></rect></g>
+<g id="ZSpace" fill="#000000"><rect class="std" x="0" y="112" width="40" height="16"/></g>
+</g>
+
+<g id="JogBarE1" transform="translate(370,0)" style="visibility:hidden"><desc>JogBar - E1 jogging bar</desc>
+<g id="+E1" fill="#b0b0b0"><path class="std" d=" M5,0 h30 a5,5 0 0,1 5,5 v27 h-40 v-27 a5,5 0 0,1 5,-5 z"/><path class="std" d="M20,2 l17,17 h-10 v11 h-14 v-11 h-10 z" fill="DarkSeaGreen"/><text x="11" y="18" font-size="12"> +2 </text></g>
+<g id="-E1" fill="#b0b0b0"><path class="std" d=" M0,208 h40 v27 a5,5 0 0,1 -5,5 h-30 a5,5 0 0,1 -5,-5 z"/><path class="std" d="M20,238 l-17,-17 h10 v-11 h14 v11 h10 z" fill="DarkSeaGreen"/><text x="13" y="230" font-size="12"> -2 </text></g>
+<g id="E1+10" fill="#d0d0d0" onmouseup="SendJogcommand('E1+10',Efeedrate)"><rect class="std" x="0" y="32" width="40" height="30"></rect><circle class="scl" cx="20" cy="47" r="13"/><text class="scl" x="9" y="53" font-size="18"> 10 </text></g>
+<g id="E1+1" fill="#e0e0e0" onmouseup="SendJogcommand('E1+1',Efeedrate)"><rect class="std" x="0" y="62" width="40" height="26"></rect><circle class="scl" cx="20" cy="75" r="11"/><text class="scl" x="15" y="81.5" font-size="18"> 1 </text></g>
+<g id="E1+0.1" fill="#f0f0f0" onmouseup="SendJogcommand('E1+0.1',Efeedrate)"><rect class="std" x="0" y="88" width="40" height="24"></rect><circle class="scl" cx="20" cy="100" r="9.5"/><text class="scl" x="13" y="103.5" font-size="10"> 0.1 </text></g>
+<g id="E1-10" fill="#d0d0d0" onmouseup="SendJogcommand('E1-10',Efeedrate)"><rect class="std" x="0" y="178" width="40" height="30"></rect></g>
+<g id="E1-1" fill="#e0e0e0" onmouseup="SendJogcommand('E1-1',Efeedrate)"><rect class="std" x="0" y="152" width="40" height="26"></rect></g>
+<g id="E1-0_1" fill="#f0f0f0" onmouseup="SendJogcommand('E1-0.1',Efeedrate)"><rect class="std" x="0" y="128" width="40" height="24"></rect></g>
+<g id="ZSpace" fill="#000000"><rect class="std" x="0" y="112" width="40" height="16"/></g>
+</g></svg></td>
+
+<td valign="top"><table><tr>
+<td class="btnimg" onclick="Sendcommand('M24');"><svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" stroke="black" stroke-width="2" fill="white" /><polygon points="15,10 30,20 15,30" fill:"white" stroke:"white" stroke-width:"1" /></svg></td>
+<td class="btnimg" onclick="Sendcommand('M25');"><svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" stroke="black" stroke-width="2" fill="white" /><rect x="10" y="10" width="7" height="20" rx="2" ry="2" style="fill:rgb(0,0,0);stroke-width:1;stroke:rgb(0,0,0)"/><rect x="23" y="10" width="7" height="20" rx="2" ry="2" style="fill:rgb(0,0,0);stroke-width:1;stroke:rgb(0,0,0)"/></svg></td>
+<td class="btnimg" onclick="Sendcommand('M50');"><svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" stroke="black" stroke-width="2" fill="white" /><rect x="10" y="10" width="20" height="20" rx="2" ry="2" style="fill:rgb(0,0,0);stroke-width:1;stroke:rgb(0,0,0)" /></svg></td>
+<td class="btnimg" onclick="getSDfiles();"><svg width="40" height="40" viewBox="0 0 40 40"><rect x="5" y="10" width="30" height="20" rx="2" ry="2" style="fill:rgb(0,0,0);stroke-width:1;stroke:rgb(0,0,0)" /><rect x="20" y="5" width="15" height="15" rx="2" ry="2" style="fill:rgb(0,0,0);stroke-width:1;stroke:rgb(0,0,0)" /><text x="10" y="25" font-family="Verdana" font-size="14" fill="white">SD</text></svg></td>
+<td>&nbsp;&nbsp;</td><td id="SDLIST"></td></tr></table></td>
+ 
+</tr></table></td></tr><tr>
+<td style="padding:0px;"><div id="Extruder1" style="visibility:hidden;height:0px;"><table><tr>
+<td><label style="display:inline-block;width:50px;">E1:&nbsp;</label></td>
+<td id="data_extruder1" style="overflow:hidden;"></td>
+<td>0<input id="rangeinput1" type="range" min=0 max=270 onchange="Updatenumber('1');">270</td>
+<td><input class="form-control" id="numberinput1" type="number" min=0 max=270 step=1 value=0 onchange="Updaterange('1');"></td>
+<td>&#176;C<input type="button" class="btn btn-primary" value="Set" onclick="SendValue('M104 T0 S','1');"></td>
+</tr></table></div></td></tr>
+ 
+<tr><td style="padding:0px;"><div id="Extruder2" style="visibility:hidden;height:0px;"><table><tr>
+<td><label style="display:inline-block;width:50px;">E2:&nbsp;</label></td>
+<td id="data_extruder2" style="overflow:hidden;"></td>
+<td>0<input id="rangeinput2" type="range" min=0 max=270 onchange="Updatenumber('2');">270</td>
+<td><input class="form-control" id="numberinput2" type="number" min=0 max=270 step=1 value=0 onchange="Updaterange('2');"></td>
+<td>&#176;C<input type="button" class="btn btn-primary" value="Set" onclick="SendValue('M104 T1 S','2');"></td>
+</tr></table></div></td></tr>
+
+<tr><td style="padding:0px;"><div id="Bed" style="visibility:hidden;height:0px;"><table><tr>
+<td><label>Bed:</label></td>
+<td id="data_bed" style="overflow:hidden;"></td>
+<td>0<input id="rangeinputbed" type="range" min=0 max=130 onchange="Updatenumber('bed');">130</td>
+<td><input class="form-control" id="numberinputbed"type="number" min=0 max=270 step=1 value=0 onchange="Updaterange('bed');"></td>
+<td>&#176;C<input type="button" class="btn btn-primary" value="Set" onclick="SendValue( 'M140 S', 'bed');"></td>
+</tr></table></div></td></tr>
+ 
 <tr><td id="speed"><table><tr>
-<td><label>Speed:</label></td><td><label class="text-info" id="currentspeed"></label></td>
+<td><label style="display:inline-block;width:50px;">Speed:</label></td>
+<td><label class="text-info" id="currentspeed"></label></td>
 <td>0<input id="rangeinputspeed" type="range" min=0 max=300 onchange="Updatenumber('speed');">300</td>
-<td><input class="form-control" id="numberinputspeed" type="number" size="3" min=0 max=300 step=1 value=0 onchange="Updaterange('speed');"></td><td>%
-<input type="button" class="btn btn-primary" class="btn btn-primary" value="Set" onclick="SendValue( 'M220 S', 'speed');"></td>
-<td>&nbsp;&nbsp;</td><td>Status:</td><td id="status" align="center" valign="middle">
-<svg width="20" height="20"><circle cx="10" cy="10" r="8" stroke="black" stroke-width="2" fill="white"></circle></svg></td>
-<td id="status-text" style="width:100px;"></td><td>&nbsp;&nbsp;</td><td class="btnimg" onclick="OnclickEmergency();">
-<svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" stroke="black" stroke-width="2" fill="red" />
-<circle cx="20" cy="20" r="10" stroke="black" stroke-width="4" fill="red" /><rect x="15" y="8" width="10" height="10" style="fill:red;stroke-width:1;stroke:red" />
-<rect x="18" y="6" rx="1" ry="1" width="4" height="14" style="fill:black;stroke-width:1;stroke:black" /></svg></td></tr></table></td></tr>
-<tr><td id="flow"><table><tr><td><label>Flow:</label></td><td><label  class="text-info" id="currentflow"></label></td>
-<td>0<input id="rangeinputflow" type="range" min=0 max=300 onchange="Updatenumber('flow');">300</td>
-<td><input class="form-control" id="numberinputflow" size="3" type="number" min=0 max=300 step=1 value=0 onchange="Updaterange('flow');"></td><td>%
-<input type="button" class="btn btn-primary" value="Set" onclick="SendValue( 'M221 S', 'flow');"></td><td>&nbsp;&nbsp;</td>
-<td><label>X:</label></td><td><label class="text-info" id="posx"></label></td><td>&nbsp;&nbsp;</td><td><label>Y:</label></td><td><label class="text-info" id="posy"></label></td><td>&nbsp;&nbsp;</td>
-<td><label>Z:</label></td><td><label class="text-info" id="posz" ></label></td></tr></table></td></tr>
-<tr><td><table width="100%"><tr><td width="auto"><label>Command:</label></td>
-<td width="100%"><input class="form-control" id="cmd" type="text" style="width: 100%;"></td>
-<td width="auto"><input type="button" class="btn btn-primary" value="Send" onclick="Sendcustomcommand();"></td></tr></table></td></tr>
-<tr><td><hr></td></tr><tr><td><table><tr><td><label>Info:</label><br>
-<center><table><tr><td><div class="btnimg" onclick="if(confirm('Clear Info log ?'))Sendcommand('[ESP999]INFO');">
-<svg height="20" width="20" viewBox="0 0 40 40" >";
-<circle cx="20" cy="20" r="17" stroke="black" stroke-width="1" fill="red" />
-<line x1="11" y1="11" x2="29" y2="29" style="stroke:white;stroke-width:6" />
-<line x1="29" y1="11" x2="11" y2="29" style="stroke:white;stroke-width:6" /></svg></div></td></tr></table></center>
-</td><td width=100% id="infomsg" class="text-info"></td></tr></table></tr>
-<tr><td><hr></td></tr><tr><td><table><tr><td><label>Error:</label><br>
-<center><table><tr><td><div class="btnimg" onclick="if(confirm('Clear Error log ?'))Sendcommand('[ESP999]ERROR');">
-<svg height="20" width="20" viewBox="0 0 40 40" >";
-<circle cx="20" cy="20" r="17" stroke="black" stroke-width="1" fill="red" />
-<line x1="11" y1="11" x2="29" y2="29" style="stroke:white;stroke-width:6" />
-<line x1="29" y1="11" x2="11" y2="29" style="stroke:white;stroke-width:6" /></svg></div></td></tr></table></center>
-</td><td width=100% id="errormsg" class="text-info"></td></tr></table></tr>
-<tr><td><hr></td></tr><tr><td><table><tr><td><label>Status:</label><br>
-<center><table><tr><td><div class="btnimg" onclick="if(confirm('Clear Status log ?'))Sendcommand('[ESP999]STATUS');">
-<svg height="20" width="20" viewBox="0 0 40 40" >";
-<circle cx="20" cy="20" r="17" stroke="black" stroke-width="1" fill="red" />
-<line x1="11" y1="11" x2="29" y2="29" style="stroke:white;stroke-width:6" />
-<line x1="29" y1="11" x2="11" y2="29" style="stroke:white;stroke-width:6" /></svg></div></td></tr></table></center>
-</td><td width=100% id="statusmsg" class="text-info"></td></tr></table></tr>
-<tr><td><hr></td></tr><tr><td><table><tr><td class="btnimg" onclick="Sendcommand('M24');">
-<svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" stroke="black" stroke-width="2" fill="white" /><polygon points="15,10 30,20 15,30" fill:"white" stroke:"white" stroke-width:"1" /></svg></td>
-<td class="btnimg" onclick="Sendcommand('M25');"><svg width="40" height="40" viewBox="0 0 40 40"> <circle cx="20" cy="20" r="18" stroke="black" stroke-width="2" fill="white" />
-<rect x="10" y="10" width="7" height="20" rx="2" ry="2" style="fill:rgb(0,0,0);stroke-width:1;stroke:rgb(0,0,0)" /> <rect x="23" y="10" width="7" height="20" rx="2" ry="2" style="fill:rgb(0,0,0);stroke-width:1;stroke:rgb(0,0,0)" /></svg></td>
-<td class="btnimg" onclick="Sendcommand('M50');"><svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" stroke="black" stroke-width="2" fill="white" />
-<rect x="10" y="10" width="20" height="20" rx="2" ry="2" style="fill:rgb(0,0,0);stroke-width:1;stroke:rgb(0,0,0)" /></svg></td>
-<td class="btnimg" onclick="getSDfiles();"><svg width="40" height="40" viewBox="0 0 40 40"><rect x="5" y="10" width="30" height="20" rx="2" ry="2" style="fill:rgb(0,0,0);stroke-width:1;stroke:rgb(0,0,0)" />
-<rect x="20" y="5" width="15" height="15" rx="2" ry="2" style="fill:rgb(0,0,0);stroke-width:1;stroke:rgb(0,0,0)" /><text x="10" y="25" font-family="Verdana" font-size="14" fill="white">SD</text></svg></td>
+<td><input class="form-control" id="numberinputspeed" type="number" size="3" min=0 max=300 step=1 value=0 onchange="Updaterange('speed');"></td>
+<td>%<input type="button" class="btn btn-primary" class="btn btn-primary" value="Set" onclick="SendValue( 'M220 S', 'speed');"></td>
 <td>&nbsp;&nbsp;</td>
-<td id="SDLIST"></td></tr></table></td></tr><tr><td><table><tr align="center" valign="middle"><td class="btnimg" onclick=" Sendcommand('G28 X');">
-<svg width="40" height="40" viewBox="0 0 40 40" ><polygon points="7,40 7,25 4,28 0,24 20,4 26,10 26,6 32,6 32,16 40,24 36,28 33,25 33,40" fill="black" stroke-width:"1" stroke:"black" />
-<line x1="25" y1="8" x2="33" y2="16" style="stroke:white;stroke-width:1" /><polyline points="4,28 20,12 36,28" style="fill:none;stroke:white;stroke-width:1" />
-<text x="15" y="35" font-family="Verdana" font-size="14" fill="white">X</text></svg></td><td>
-<table><tr><td class="btnimg" onclick="SendJogcommand( 'Y-10',XYfeedrate);"><svg width="40" height="20" viewBox="0 0 40 20">
-<polyline points="5,18 20,5 35,18" style="fill:none;stroke:blue;stroke-width:7"/><text x="13" y="20" font-family="Verdana" font-size="7" fill="black">-10</text></svg></td></tr>
-<tr><td class="btnimg" onclick="SendJogcommand( 'Y-1',XYfeedrate);"><svg width="40" height="20" viewBox="0 2 40 20">
-<polyline points="5,18 20,5 35,18" style="fill:none;stroke:blue;stroke-width:5"/><text x="15" y="20" font-family="Verdana" font-size="7" fill="black">-1</text></svg></td></tr>
-<tr><td class="btnimg" onclick="SendJogcommand( 'Y-0.1',XYfeedrate);"><svg width="40" height="20" viewBox="0 4 40 20">
-<polyline points="5,18 20,5 35,18" style="fill:none;stroke:blue;stroke-width:2"/><text x="12" y="20" font-family="Verdana" font-size="7" fill="black">-0.1</text></svg></td></tr></table></td>
-<td class="btnimg" onclick=" Sendcommand('G28 Y');"><svg width="40" height="40" viewBox="0 0 40 40">
-<polygon points="7,40 7,25 4,28 0,24 20,4 26,10 26,6 32,6 32,16 40,24 36,28 33,25 33,40" fill="blue" stroke-width:"1" stroke:"black" /><line x1="25" y1="8" x2="33" y2="16" style="stroke:white;stroke-width:1" />
-<polyline points="4,28 20,12 36,28" style="fill:none;stroke:white;stroke-width:1" /><text x="15" y="35" font-family="Verdana" font-size="14" fill="white">Y</text></svg></td>
-<td></td><td><table><tr><td class="btnimg" onclick="SendJogcommand( 'Z-10',Zfeedrate);"><svg width="40" height="20" viewBox="0 0 40 20">
-<polyline points="5,18 20,5 35,18" style="fill:none;stroke:green;stroke-width:7"/><text x="13" y="20" font-family="Verdana" font-size="7" fill="black">-10</text></svg></td></tr>
-<tr><td class="btnimg" onclick="SendJogcommand( 'Z-1',Zfeedrate);"><svg width="40" height="20" viewBox="0 2 40 20">
-<polyline points="5,18 20,5 35,18" style="fill:none;stroke:green;stroke-width:5"/><text x="15" y="20" font-family="Verdana" font-size="7" fill="black">-1</text></svg></td></tr>
-<tr><td class="btnimg" onclick="SendJogcommand( 'Z-0.1',Zfeedrate);"><svg width="40" height="20" viewBox="0 4 40 20"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:green;stroke-width:2"/>
-<text x="12" y="20" font-family="Verdana" font-size="7" fill="black">-0.1</text></svg></td></tr></table></td>
-<td></td><td id="JogExtruder1-1" style="visibility:hidden;"><table><tr><td class="btnimg" onclick="SendJogcommand( 'E0-50',Efeedrate);"><svg width="40" height="20" viewBox="0 0 40 20">
-<polyline points="5,18 20,5 35,18" style="fill:none;stroke:orange;stroke-width:7"/><text x="13" y="20" font-family="Verdana" font-size="7" fill="black">-50</text></svg></td></tr>
-<tr><td class="btnimg" onclick="SendJogcommand( 'E0-10',Efeedrate);"><svg width="40" height="20" viewBox="0 2 40 20"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:orange;stroke-width:5"/>
-<text x="14" y="20" font-family="Verdana" font-size="7" fill="black">-10</text></svg></td></tr>
-<tr><td class="btnimg" onclick="SendJogcommand( 'E0-1',Efeedrate);"><svg width="40" height="20" viewBox="0 4 40 20"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:orange;stroke-width:2"/>
-<text x="14" y="20" font-family="Verdana" font-size="7" fill="black">-1</text></svg></td></tr></table></td>
-<td></td><td id="JogExtruder2-1" style="visibility:hidden;"><table><tr><td class="btnimg" onclick="SendJogcommand( 'E1-50',Efeedrate);"><svg width="40" height="20" viewBox="0 0 40 20">
-<polyline points="5,18 20,5 35,18" style="fill:none;stroke:pink;stroke-width:7"/><text x="13" y="20" font-family="Verdana" font-size="7" fill="black">-50</text></svg></td></tr>
-<tr><td class="btnimg" onclick="SendJogcommand( 'E1-10',Efeedrate);"><svg width="40" height="20" viewBox="0 2 40 20"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:pink;stroke-width:5"/>
-<text x="14" y="20" font-family="Verdana" font-size="7" fill="black">-10</text></svg></td></tr>
-<tr><td class="btnimg" onclick="SendJogcommand( 'E1-1',Efeedrate);"><svg width="40" height="20" viewBox="0 4 40 20"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:pink;stroke-width:2"/>
-<text x="15" y="20" font-family="Verdana" font-size="7" fill="black">-1</text></svg></td></tr></table></td></tr>
-<tr align="center" valign="middle"><td><table><tr><td class="btnimg" onclick="SendJogcommand( 'X10',XYfeedrate);"><svg width="20" height="40" viewBox="12 -10 20 40">
-<polyline points="5,18 20,5 35,18" style="fill:none;stroke:black;stroke-width:7" transform="rotate(-90 20 10)"/><text x="22" y="13" font-family="Verdana" font-size="7" fill="black">10</text></svg></td>
-<td class="btnimg" onclick="SendJogcommand( 'X1',XYfeedrate);"><svg width="20" height="40" viewBox="10 -10 20 40"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:black;stroke-width:5" transform="rotate(-90 20 10)"/>
-<text x="21" y="13" font-family="Verdana" font-size="7" fill="black">1</text></svg></td>
-<td class="btnimg" onclick="SendJogcommand( 'X0.1',XYfeedrate);"><svg width="20" height="40" viewBox="14 -10 20 40">
-<polyline points="5,18 20,5 35,18" style="fill:none;stroke:black;stroke-width:2" transform="rotate(-90 20 10)"/><text x="19" y="13" font-family="Verdana" font-size="7" fill="black">0.1</text></svg></td></tr>
-</table></td><td></td><td><table><tr><td class="btnimg" onclick="SendJogcommand( 'X-0.1',XYfeedrate);"><svg width="20" height="40" viewBox="6 -10 20 40">
-<polyline points="5,18 20,5 35,18" style="fill:none;stroke:black;stroke-width:3" transform="rotate(90 20 10)"/><text x="7" y="12" font-family="Verdana" font-size="7" fill="black">-0.1</text></svg></td>
-<td class="btnimg" onclick="SendJogcommand( 'X-1',XYfeedrate);"><svg width="20" height="40" viewBox="8 -10 20 40"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:black;stroke-width:5" transform="rotate(90 20 10)"/>
-<text x="11" y="13" font-family="Verdana" font-size="7" fill="black">-1</text></svg></td><td class="btnimg" onclick="SendJogcommand( 'X-10',XYfeedrate);">
-<svg width="20" height="40" viewBox="8 -10 20 40"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:black;stroke-width:7" transform="rotate(90 20 10)"/>
-<text x="7" y="12" font-size="7" fill="black">-10</text></svg></td></tr></table></td>
-<td></td><td><svg width="20" height="20" viewBox="0 0 20 20"><text x="1" y="18" font-family="Verdana" font-size="22" fill="green">Z</text></svg></td>
-<td></td><td id="JogExtruder1-2" style="visibility:hidden;"><svg width="20" height="20" viewBox="0 0 20 20"><text x="1" y="18" font-family="Verdana" font-size="22" fill="orange">1</text></svg></td>
-<td></td><td id="JogExtruder2-2" style="visibility:hidden;"><svg width="20" height="20" viewBox="0 0 20 20"><text x="1" y="18" font-family="Verdana" font-size="22" fill="pink">2</text></svg></td></tr>
-<tr align="center" valign="middle"><td class="btnimg" onclick=" Sendcommand('G28');"><svg width="40" height="40" viewBox="0 0 40 40"><polygon points="7,40 7,25 4,28 0,24 20,4 26,10 26,6 32,6 32,16 40,24 36,28 33,25 33,40" fill="purple" stroke-width:"1" stroke:"black" />
-<line x1="25" y1="8" x2="33" y2="16" style="stroke:white;stroke-width:1" /><polyline points="4,28 20,12 36,28" style="fill:none;stroke:white;stroke-width:1" /></svg></td><td>
-<table><tr><td class="btnimg" onclick="SendJogcommand( 'Y0.1',XYfeedrate);"><svg width="40" height="20" viewBox="0 -4 40 20">
-<polyline points="5,18 20,5 35,18" style="fill:none;stroke:blue;stroke-width:3" transform="rotate(180 20 10)"/><text x="15" y="6" font-family="Verdana" font-size="7" fill="black">0.1</text></svg></td></tr>
-<tr><td class="btnimg" onclick="SendJogcommand( 'Y1',XYfeedrate);"><svg width="40" height="20" viewBox="0 -2 40 20"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:blue;stroke-width:5" transform="rotate(180 20 10)"/>
-<text x="17" y="7" font-family="Verdana" font-size="7" fill="black">1</text></svg></td></tr>
-<tr><td class="btnimg" onclick="SendJogcommand( 'Y10',XYfeedrate);"><svg width="40" height="20" viewBox="0 0 40 20"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:blue;stroke-width:7" transform="rotate(180 20 10)"/>
-<text x="15" y="6" font-family="Verdana" font-size="7" fill="black">10</text></svg></td></tr></table></td>
-<td class="btnimg" onclick=" Sendcommand('G28 Z');"><svg width="40" height="40" viewBox="0 0 40 40"><polygon points="7,40 7,25 4,28 0,24 20,4 26,10 26,6 32,6 32,16 40,24 36,28 33,25 33,40" fill="green" stroke-width:"1" stroke:"black" />
-<line x1="25" y1="8" x2="33" y2="16" style="stroke:white;stroke-width:1" /><polyline points="4,28 20,12 36,28" style="fill:none;stroke:white;stroke-width:1" /><text x="15" y="35" font-family="Verdana" font-size="14" fill="white">Z</text></svg></td>
-<td></td><td><table><tr><td class="btnimg" onclick="SendJogcommand( 'Z0.1',Zfeedrate);"><svg width="40" height="20" viewBox="0 -4 40 20">
-<polyline points="5,18 20,5 35,18" style="fill:none;stroke:green;stroke-width:3" transform="rotate(180 20 10)"/><text x="14" y="6" font-family="Verdana" font-size="7" fill="black">0.1</text></svg></td></tr>
-<tr><td class="btnimg" onclick="SendJogcommand( 'Z1',Zfeedrate);"><svg width="40" height="20" viewBox="0 -2 40 20"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:green;stroke-width:5" transform="rotate(180 20 10)"/>
-<text x="18" y="7" font-family="Verdana" font-size="7" fill="black">1</text></svg></td></tr>
-<tr><td class="btnimg" onclick="SendJogcommand( 'Z10',Zfeedrate);"><svg width="40" height="20" viewBox="0 0 40 20">
-<polyline points="5,18 20,5 35,18" style="fill:none;stroke:green;stroke-width:7" transform="rotate(180 20 10)"/><text x="15" y="6" font-family="Verdana" font-size="7" fill="black">10</text></svg></td></tr></table></td>
-<td></td><td id="JogExtruder1-3" style="visibility:hidden;"><table><tr><td class="btnimg" onclick="SendJogcommand( 'E0+1',Efeedrate);"><svg width="40" height="20" viewBox="0 -4 40 20">
-<polyline points="5,18 20,5 35,18" style="fill:none;stroke:orange;stroke-width:3" transform="rotate(180 20 10)"/><text x="18" y="6" font-family="Verdana" font-size="7" fill="black">1</text></svg></td></tr>
-<tr><td class="btnimg" onclick="SendJogcommand( 'E0+10',Efeedrate);"><svg width="40" height="20" viewBox="0 -2 40 20"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:orange;stroke-width:5" transform="rotate(180 20 10)"/>
-<text x="14" y="7" font-family="Verdana" font-size="7" fill="black">10</text></svg></td></tr>
-<tr><td class="btnimg" onclick="SendJogcommand( 'E0+50',Efeedrate);"><svg width="40" height="20" viewBox="0 0 40 20">
-<polyline points="5,18 20,5 35,18" style="fill:none;stroke:orange;stroke-width:7" transform="rotate(180 20 10)"/><text x="15" y="6" font-family="Verdana" font-size="7" fill="black">50</text></svg></td></tr></table></td>
-<td></td><td id="JogExtruder2-3" style="visibility:hidden;"><table><tr><td class="btnimg" onclick="SendJogcommand( 'E1+1',Efeedrate);"><svg width="40" height="20" viewBox="0 -4 40 20">
-<polyline points="5,18 20,5 35,18" style="fill:none;stroke:pink;stroke-width:3" transform="rotate(180 20 10)"/><text x="18" y="6" font-family="Verdana" font-size="7" fill="black">1</text></svg></td></tr>
-<tr><td class="btnimg" onclick="SendJogcommand( 'E1+10',Efeedrate);"><svg width="40" height="20" viewBox="0 -2 40 20"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:pink;stroke-width:5" transform="rotate(180 20 10)"/>
-<text x="14" y="7" font-family="Verdana" font-size="7" fill="black">10</text></svg></td></tr>
-<tr><td class="btnimg" onclick="SendJogcommand( 'E1+50',Efeedrate);"><svg width="40" height="20" viewBox="0 0 40 20" ><polyline points="5,18 20,5 35,18" style="fill:none;stroke:pink;stroke-width:7" transform="rotate(180 20 10)"/>
-<text x="15" y="6" font-family="Verdana" font-size="7" fill="black">50</text></svg></td></tr></table></td></tr></table></td></tr></table>
+<td>Status:</td>
+<td id="status" align="center" valign="middle"><svg width="20" height="20"><circle cx="10" cy="10" r="8" stroke="black" stroke-width="2" fill="white"></circle></svg></td>
+<td id="status-text" style="width:100px;"></td>
+<td>&nbsp;&nbsp;</td>
+<td class="btnimg" onclick="OnclickEmergency();"><svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" stroke="black" stroke-width="2" fill="red" /><circle cx="20" cy="20" r="10" stroke="black" stroke-width="4" fill="red" /><rect x="15" y="8" width="10" height="10" style="fill:red;stroke-width:1;stroke:red" /><rect x="18" y="6" rx="1" ry="1" width="4" height="14" style="fill:black;stroke-width:1;stroke:black" /></svg></td>
+</tr></table></td></tr>
+ 
+<tr><td id="flow"><table><tr>
+<td><label style="display:inline-block;width:50px;">Flow:</label></td>
+<td><label class="text-info" id="currentflow"></label></td>
+<td>0<input id="rangeinputflow" type="range" min=0 max=300 onchange="Updatenumber('flow');">300</td>
+<td><input class="form-control" id="numberinputflow" size="3" type="number" min=0 max=300 step=1 value=0 onchange="Updaterange('flow');"></td>
+<td>%<input type="button" class="btn btn-primary" value="Set" onclick="SendValue('M221 S','flow');"></td>
+<td>&nbsp;&nbsp;</td>
+<td><label>X:</label></td>
+<td><label class="text-info" id="posx"></label>
+</td><td>&nbsp;&nbsp;</td>
+<td><label>Y:</label></td>
+<td><label class="text-info" id="posy"></label></td>
+<td>&nbsp;&nbsp;</td>
+<td><label>Z:</label></td>
+<td><label class="text-info" id="posz" ></label></td>
+</tr></table></td></tr>
+ 
+<tr><td><table width="100%"><tr>
+<td width="auto"><label>Command:</label></td>
+<td width="100%"><input class="form-control" id="cmd" type="text" style="width:100%;"></td>
+<td width="auto"><input type="button" class="btn btn-primary" value="Send" onclick="Sendcustomcommand();"></td>
+</tr></table></td></tr>
+ 
+<tr><td><hr></td></tr>
+
+<tr><td><table><tr>
+<td><label>Info:</label><br><center><table><tr><td>
+<div class="btnimg" onclick="if(confirm('Clear Info log ?'))Sendcommand('[ESP999]INFO');"><svg height="20" width="20" viewBox="0 0 40 40" ><circle cx="20" cy="20" r="17" stroke="black" stroke-width="1" fill="red" /><line x1="11" y1="11" x2="29" y2="29" style="stroke:white;stroke-width:6" /><line x1="29" y1="11" x2="11" y2="29" style="stroke:white;stroke-width:6" /></svg></div></td></tr></table></center></td>
+<td width=100% id="infomsg" class="text-info"></td>
+</tr></table></tr>
+ 
+<tr><td><hr></td></tr>
+
+<tr><td><table><tr>
+<td><label>Error:</label><br><center><table><tr><td><div class="btnimg" onclick="if(confirm('Clear Error log ?'))Sendcommand('[ESP999]ERROR');"><svg height="20" width="20" viewBox="0 0 40 40" ><circle cx="20" cy="20" r="17" stroke="black" stroke-width="1" fill="red" /><line x1="11" y1="11" x2="29" y2="29" style="stroke:white;stroke-width:6" /><line x1="29" y1="11" x2="11" y2="29" style="stroke:white;stroke-width:6"/></svg></div></td></tr></table></center></td>
+<td width=100% id="errormsg" class="text-info"></td>
+</tr></table> </tr>
+
+<tr><td><hr></td></tr>
+
+<tr><td><table><tr>
+<td><label>Status:</label><br><center><table><tr><td><div class="btnimg" onclick="if(confirm('Clear Status log ?'))Sendcommand('[ESP999]STATUS');"><svg height="20" width="20" viewBox="0 0 40 40" ><circle cx="20" cy="20" r="17" stroke="black" stroke-width="1" fill="red" /><line x1="11" y1="11" x2="29" y2="29" style="stroke:white;stroke-width:6" /><line x1="29" y1="11" x2="11" y2="29" style="stroke:white;stroke-width:6" /></svg></div></td></tr></table></center></td>
+<td width=100% id="statusmsg" class="text-info"></td>
+</tr></table></tr>
+
+<tr><td><hr></td></tr></table>
+
 <script type="text/javascript">
 var XYfeedrate=$XY_FEEDRATE$;
 var Zfeedrate=$Z_FEEDRATE$;
 var Efeedrate=$E_FEEDRATE$;
 function Sendcommand(commandtxt){
 var xmlhttp = new XMLHttpRequest();
-var url = "http://$WEB_ADDRESS$/CMD?COM="+encodeURIComponent(commandtxt);;
+var url = "http://$WEB_ADDRESS$/CMD?COM="+encodeURIComponent(commandtxt);
 xmlhttp.open("POST", url, true);
 xmlhttp.send();
 }
@@ -158,9 +226,7 @@ while (new Date() < ms){}
 } 
 
 function SendJogcommand( cmd, feedrate){
-Sendcommand("G91");
-delay(100);
-Sendcommand("G1 "+cmd + " F"+feedrate);
+Sendcommand("G91 G1 "+cmd+" F"+feedrate);
 delay(100);
 Sendcommand("G90");
 }
@@ -245,31 +311,23 @@ var temp=0;
 if(jsonresponse.heater[0].active==1){
 document.getElementById("Extruder1").style.visibility="visible";
 document.getElementById("Extruder1").style.height="auto";
-document.getElementById("JogExtruder1-1").style.visibility="visible";
-document.getElementById("JogExtruder1-2").style.visibility="visible";
-document.getElementById("JogExtruder1-3").style.visibility="visible";
+document.getElementById("JogBarE0").style.visibility="visible";
 displaytemp(jsonresponse.heater[0].temperature, jsonresponse.heater[0].target,"data_extruder1",1.03);
 Updaterange('1');}
 else {
 document.getElementById("Extruder1").style.visibility="hidden";
 document.getElementById("Extruder1").style.height="0px";
-document.getElementById("JogExtruder1-1").style.visibility="hidden";
-document.getElementById("JogExtruder1-2").style.visibility="hidden";
-document.getElementById("JogExtruder1-3").style.visibility="hidden";}
+document.getElementById("JogBarE0").style.visibility="hidden";}
 if(jsonresponse.heater[1].active==1){
 document.getElementById("Extruder2").style.visibility="visible";
 document.getElementById("Extruder2").style.height="auto";
-document.getElementById("JogExtruder2-1").style.visibility="visible";
-document.getElementById("JogExtruder2-2").style.visibility="visible";
-document.getElementById("JogExtruder2-3").style.visibility="visible";
+document.getElementById("JogBarE1").style.visibility="visible";
 displaytemp(jsonresponse.heater[1].temperature, jsonresponse.heater[1].target,"data_extruder2",1.03);
 Updaterange('2');}
 else {
 document.getElementById("Extruder2").style.visibility="hidden";
 document.getElementById("Extruder2").style.height="0px";
-document.getElementById("JogExtruder2-1").style.visibility="hidden";
-document.getElementById("JogExtruder2-2").style.visibility="hidden";
-document.getElementById("JogExtruder2-3").style.visibility="hidden";}
+document.getElementById("JogBarE1").style.visibility="hidden";}
 if(jsonresponse.heater[2].active==1){
 document.getElementById("Bed").style.visibility="visible";
 document.getElementById("Bed").style.height="auto";
