@@ -86,10 +86,7 @@ bool STORESTRINGS_CLASS::add (const char * string){
 	if (need_resize)
 		{  //copy maximum length minus 3
 			strncpy(ptr,string,_maxstringlength-3);
-			//add dot to show string was cutted
-			strcat(ptr,"...");
-      //add null char
-      ptr[_maxstringlength]='\0';
+			strcpy(ptr+_maxstringlength-3,"...");
 		}
 	else
 		{ //copy as it is
@@ -120,7 +117,7 @@ int STORESTRINGS_CLASS::get_index(const char * string)
 {//parse the list until it is found
 	for (int p=0;p<_charlist.size();p++)
 		{
-			if (strcmp ( _charlist.get(p),  string)==0)return p;
+			if (strcmp ( _charlist.get(p),	string)==0)return p;
 		}
 	//if not found return -1
 	return -1;
