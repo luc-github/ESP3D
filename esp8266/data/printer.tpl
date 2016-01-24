@@ -89,9 +89,9 @@ fill:orange;
 <g id="JogBarE0" transform="translate(320,0)" style="visibility:hidden"><desc>JogBar - E0 jogging bar</desc>
 <g id="+E0" fill="#b0b0b0"><path class="std" d=" M5,0 h30 a5,5 0 0,1 5,5 v27 h-40 v-27 a5,5 0 0,1 5,-5 z"/><path class="std" d="M20,2 l17,17 h-10 v11 h-14 v-11 h-10 z" fill="DarkSeaGreen"/><text stroke="black" x="11" y="18" font-size="12"> +1 </text></g>
 <g id="-E0" fill="#b0b0b0"><path class="std" d=" M0,208 h40 v27 a5,5 0 0,1 -5,5 h-30 a5,5 0 0,1 -5,-5 z"/><path class="std" d="M20,238 l-17,-17 h10 v-11 h14 v11 h10 z" fill="DarkSeaGreen"/><text stroke="black" x="13" y="230" font-size="12"> -1 </text></g>
-<g id="E0+10" fill="#d0d0d0" onmouseup="SendJogcommand('T0 E+10',Efeedrate)"><rect class="std" x="0" y="32" width="40" height="30"></rect><circle class="scl" cx="20" cy="47" r="13"/><text class="scl" x="9" y="53" font-size="18"> 10 </text></g>
-<g id="E0+1" fill="#e0e0e0" onmouseup="SendJogcommand('T0 E+1',Efeedrate)"><rect class="std" x="0" y="62" width="40" height="26"></rect><circle class="scl" cx="20" cy="75" r="11"/><text class="scl" x="15" y="81.5" font-size="18"> 1 </text></g>
-<g id="E0+0.1" fill="#f0f0f0" onmouseup="SendJogcommand('T0 E+0.1',Efeedrate)"><rect class="std" x="0" y="88" width="40" height="24"></rect><circle class="scl" cx="20" cy="100" r="9.5"/><text class="scl" x="13" y="103.5" font-size="10"> 0.1 </text></g>
+<g id="E0+10" fill="#d0d0d0" onmouseup="SendJogcommand('T0 E10',Efeedrate)"><rect class="std" x="0" y="32" width="40" height="30"></rect><circle class="scl" cx="20" cy="47" r="13"/><text class="scl" x="9" y="53" font-size="18"> 10 </text></g>
+<g id="E0+1" fill="#e0e0e0" onmouseup="SendJogcommand('T0 E1',Efeedrate)"><rect class="std" x="0" y="62" width="40" height="26"></rect><circle class="scl" cx="20" cy="75" r="11"/><text class="scl" x="15" y="81.5" font-size="18"> 1 </text></g>
+<g id="E0+0.1" fill="#f0f0f0" onmouseup="SendJogcommand('T0 E0.1',Efeedrate)"><rect class="std" x="0" y="88" width="40" height="24"></rect><circle class="scl" cx="20" cy="100" r="9.5"/><text class="scl" x="13" y="103.5" font-size="10"> 0.1 </text></g>
 <g id="Z-10" fill="#d0d0d0" onmouseup="SendJogcommand('T0 E-10',Efeedrate)"><rect class="std" x="0" y="178" width="40" height="30"></rect></g>
 <g id="Z-1" fill="#e0e0e0" onmouseup="SendJogcommand('T0 E-1',Efeedrate)"><rect class="std" x="0" y="152" width="40" height="26"></rect></g>
 <g id="Z-0_1" fill="#f0f0f0" onmouseup="SendJogcommand('T0 E-0.1',Efeedrate)"><rect class="std" x="0" y="128" width="40" height="24"></rect></g>
@@ -101,9 +101,9 @@ fill:orange;
 <g id="JogBarE1" transform="translate(370,0)" style="visibility:hidden"><desc>JogBar - E1 jogging bar</desc>
 <g id="+E1" fill="#b0b0b0"><path class="std" d=" M5,0 h30 a5,5 0 0,1 5,5 v27 h-40 v-27 a5,5 0 0,1 5,-5 z"/><path class="std" d="M20,2 l17,17 h-10 v11 h-14 v-11 h-10 z" fill="DarkSeaGreen"/><text stroke="black" x="11" y="18" font-size="12"> +2 </text></g>
 <g id="-E1" fill="#b0b0b0"><path class="std" d=" M0,208 h40 v27 a5,5 0 0,1 -5,5 h-30 a5,5 0 0,1 -5,-5 z"/><path class="std" d="M20,238 l-17,-17 h10 v-11 h14 v11 h10 z" fill="DarkSeaGreen"/><text stroke="black" x="13" y="230" font-size="12"> -2 </text></g>
-<g id="E1+10" fill="#d0d0d0" onmouseup="SendJogcommand('T1 E+10',Efeedrate)"><rect class="std" x="0" y="32" width="40" height="30"></rect><circle class="scl" cx="20" cy="47" r="13"/><text class="scl" x="9" y="53" font-size="18"> 10 </text></g>
-<g id="E1+1" fill="#e0e0e0" onmouseup="SendJogcommand('T1 E+1',Efeedrate)"><rect class="std" x="0" y="62" width="40" height="26"></rect><circle class="scl" cx="20" cy="75" r="11"/><text class="scl" x="15" y="81.5" font-size="18"> 1 </text></g>
-<g id="E1+0.1" fill="#f0f0f0" onmouseup="SendJogcommand('T1 E+0.1',Efeedrate)"><rect class="std" x="0" y="88" width="40" height="24"></rect><circle class="scl" cx="20" cy="100" r="9.5"/><text class="scl" x="13" y="103.5" font-size="10"> 0.1 </text></g>
+<g id="E1+10" fill="#d0d0d0" onmouseup="SendJogcommand('T1 E10',Efeedrate)"><rect class="std" x="0" y="32" width="40" height="30"></rect><circle class="scl" cx="20" cy="47" r="13"/><text class="scl" x="9" y="53" font-size="18"> 10 </text></g>
+<g id="E1+1" fill="#e0e0e0" onmouseup="SendJogcommand('T1 E1',Efeedrate)"><rect class="std" x="0" y="62" width="40" height="26"></rect><circle class="scl" cx="20" cy="75" r="11"/><text class="scl" x="15" y="81.5" font-size="18"> 1 </text></g>
+<g id="E1+0.1" fill="#f0f0f0" onmouseup="SendJogcommand('T1 E0.1',Efeedrate)"><rect class="std" x="0" y="88" width="40" height="24"></rect><circle class="scl" cx="20" cy="100" r="9.5"/><text class="scl" x="13" y="103.5" font-size="10"> 0.1 </text></g>
 <g id="E1-10" fill="#d0d0d0" onmouseup="SendJogcommand('T1 E-10',Efeedrate)"><rect class="std" x="0" y="178" width="40" height="30"></rect></g>
 <g id="E1-1" fill="#e0e0e0" onmouseup="SendJogcommand('T1 E-1',Efeedrate)"><rect class="std" x="0" y="152" width="40" height="26"></rect></g>
 <g id="E1-0_1" fill="#f0f0f0" onmouseup="SendJogcommand('T1 E-0.1',Efeedrate)"><rect class="std" x="0" y="128" width="40" height="24"></rect></g>
@@ -247,41 +247,30 @@ Updaterange('bed');
 Updaterange('speed');
 Updaterange('flow');
 var pulse=true;
-var initialization_done = false;
+var initialization_done=false;
 var pos=0;
-function displaytemp(temperature, target,item,factor){
-var displaypicture = "<svg height=\"30px \" width=\"260px \" xmlns=\"http://wwww.w3.org/2000/svg\">\n<linearGradient id=\"gradient\">\n";
-var description = String (temperature) + "/";
-if (target>0)description += String (target);
-else description += "Off ";
-displaypicture+="<stop class=\"begin\" style=\"stop-color:green;\" offset=\"0%\"/>\n";
-displaypicture+="<stop class=\"middle\" style=\"stop-color:yellow;\" offset=\"100%\"/>\n</linearGradient>\n<linearGradient id=\"gradient2\">\n";
-displaypicture+="<stop class=\"middle\" style=\"stop-color:yellow;\" offset=\"0%\"/>\n<stop class=\"end\" style=\"stop-color:red;\" offset=\"100%\"/>\n";
-displaypicture+="</linearGradient>\n<rect x=\"10\" y=\"4\" width=\"";
-displaypicture+= String(Math.round( 24*factor ));
-displaypicture+="\" height=\"21\" style=\"fill:url(#gradient)\" />\n";
-displaypicture+="<rect x=\"";
-displaypicture+= String(10+Math.round( 24*factor ));
-displaypicture+="\" y=\"4\" width=\"280\" height=\"21\" style=\"fill:url(#gradient2)\" />\n<line x1=\"";
-displaypicture+=String(parseFloat(target)*factor+10);
-displaypicture+="\" y1=\"4\" x2=\"";
-displaypicture+=String(parseFloat(target)*factor+10);
-displaypicture+="\" y2=\"25\" style=\"stroke:rgb(0,0,0);stroke-width:1\" />\n<path d=\"M";
-displaypicture+=String(parseFloat(temperature)*factor+5);
-displaypicture+=" 0 L";
-displaypicture+=String(parseFloat(temperature)*factor+15);
-displaypicture+=" 0 L";
-displaypicture+=String(parseFloat(temperature)*factor+10);
-displaypicture+=" 8 Z\" stroke=\"white\" stroke-width=\"1\" />\n<path d=\"M";
-displaypicture+=String(parseFloat(temperature)*factor+5);
-displaypicture+=" 30 L";
-displaypicture+=String(parseFloat(temperature)*factor+15);
-displaypicture+=" 30 L";
-displaypicture+=String(parseFloat(temperature)*factor+10);
-displaypicture+=" 22 Z\" stroke=\"white\" stroke-width=\"1\"/>\n<text x=\"30\" y=\"19\" fill=\"black\" style=\"font-family: calibri; font-size:10pt;\">\n";
-displaypicture+=description;
-displaypicture+=" &#176;C</text>\n</svg>";
-document.getElementById(item).innerHTML=displaypicture;
+
+function displaytemp(temperature,target,item,factor){
+var tmp=parseFloat(temperature);
+var tar=parseFloat(target);
+var box="<svg height=\"30px\" width=\"260px\" xmlns=\"http://wwww.w3.org/2000/svg\"><linearGradient id=\"gradient\">\n";
+box+="<stop style=\"stop-color:green;\" offset=\"0\"/><stop style=\"stop-color:yellow;\" offset=\"0.2\"/>";
+box+="<stop style=\"stop-color:red;\" offset=\"1\"/></linearGradient>"
+box+="<rect x=\"10\" y=\"4\" width=\"";
+box+=String(260*factor)+"\" height=\"21\" style=\"fill:url(#gradient)\"/>";
+box+="<line x1=\""+String(tar*factor-10);
+box+="\" y1=\"4\" x2=\""+String(tar*factor-10);
+box+="\" y2=\"25\" style=\"stroke:rgb(0,0,0);stroke-width:1\"/>\n<path d=\"M";
+box+=String(tmp*factor-5)+" 0 L";
+box+=String(tmp*factor+5)+" 0 L";
+box+=String(tmp*factor)+" 8 Z\" stroke=\"white\" stroke-width=\"1\"/>\n<path d=\"M";
+box+=String(tmp*factor-5)+" 30 L";
+box+=String(tmp*factor+5)+" 30 L";
+box+=String(tmp*factor);
+box+=" 22 Z\" stroke=\"white\" stroke-width=\"1\"/>\n<text x=\"30\" y=\"19\" fill=\"black\" style=\"font-family:calibri;font-size:10pt;\">\n";
+box+=temperature+"/"+((tar>0)?target:"Off");
+box+=" &#176;C</text>\n</svg>";
+document.getElementById(item).innerHTML=box;
 }
 function displaystatus(status){
 var content ="<svg width=\"20\" height=\"20\"><circle cx=\"10\" cy=\"10\" r=\"8\" stroke=\"black\" stroke-width=\"2\" fill=\"";
@@ -306,7 +295,7 @@ if(jsonresponse.heater[0].active==1){
 document.getElementById("Extruder1").style.visibility="visible";
 document.getElementById("Extruder1").style.height="auto";
 document.getElementById("JogBarE0").style.visibility="visible";
-displaytemp(jsonresponse.heater[0].temperature, jsonresponse.heater[0].target,"data_extruder1",1.03);
+displaytemp(jsonresponse.heater[0].temperature,jsonresponse.heater[0].target,"data_extruder1",1.03);
 Updaterange('1');}
 else {
 document.getElementById("Extruder1").style.visibility="hidden";
@@ -431,7 +420,6 @@ document.getElementById("SDLIST").innerHTML=list2display;
 function getSDfiles(){
 document.getElementById("SDLIST").innerHTML="";
 Sendcommand("M20");
-delay(100);
 var xmlhttp = new XMLHttpRequest();
 var url = "http://$WEB_ADDRESS$/SDFILES";
 xmlhttp.onreadystatechange = function() {
@@ -439,8 +427,7 @@ if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
 var jsonresponse = JSON.parse(xmlhttp.responseText);
 refreshfilelist(jsonresponse);}
 }
-xmlhttp.open("GET", url, true);
-xmlhttp.send();
+setInterval(function(){xmlhttp.open("GET",url,true);xmlhttp.send();},1000);
 }
 setInterval(function(){getstatus();},$REFRESH_PAGE$);
 </script>
