@@ -1,20 +1,19 @@
 # ESP8266
 
-[![Join the chat at https://gitter.im/luc-github/ESP8266](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/luc-github/ESP8266?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-FW for ESP8266 used with 3D printer     
+FW for ESP8266 used with 3D printer running Smoothieware     
 
 Arduino ide 1.6.5 with latest master from ESP8266 : [![Build Status](https://travis-ci.org/luc-github/ESP8266.svg?branch=master)](https://travis-ci.org/luc-github/ESP8266)    
 
 ##Description      
 Thanks to @luc-github for bringing this idea to life on Repetier.
 
-Have a bridge configurable by web and optionally by printer (not yet implemented)  
-Have a front end to know what is the wifi status or know what is the print status (not yet implemented) - this part can be optional and removed by compilation directive if no need
+To have a bridge configurable by web and optionally by printer (not yet implemented)  
+To have a front end to know what is the wifi status or know what is the print status (not yet implemented) - this part can be optional and removed by compilation directive if no need
 
-Only aim is to make this compatible to with Smoothieware, as far as possible.
+The only aim is to make this compatible with Smoothieware, as far as possible.
 Many things in the Repetier version do not work yet with Smoothieware (marked as non-smooth below).
 
-For master to work, you have to use the 2.0.0 verion of https://github.com/esp8266/arduino (https://github.com/esp8266/Arduino#using-git-version-) and work under Windows (the 64 bits Linux version does not compile the firmware correctly).
+For master to work, you have to use the 2.0.0 version of https://github.com/esp8266/arduino (https://github.com/esp8266/Arduino#using-git-version-) and work under Windows (the 64 bits Linux version does not compile the firmware correctly).
 
 If you use an ESP with 512K flash like ESP01 please go here : https://github.com/treepleks/ESP8266/tree/ESP-512K-64KSPIFFS, it is dedicated to low memory device.      
 If you use an ESP with more than 512K flash, please use master.      
@@ -83,17 +82,18 @@ Access Point Configuration Page:
 <img src=https://raw.githubusercontent.com/treepleks/ESP8266/master/Page3.png><br>     
 Client Configuration Page:     
 <img src=https://raw.githubusercontent.com/treepleks/ESP8266/master/Page4.png><br>     
-Printer Status Page for 64K SPIFFS, due to limited space available no fancy:     
-<img src=https://raw.githubusercontent.com/treepleks/ESP8266/master/Page5-2.png><br>    
-Printer Status Page for more than 64K SPIFFS, fancy one:     
+Fancy Printer Status Page for more ESPmodules with more than 512K Flash:     
 <img src=https://raw.githubusercontent.com/treepleks/ESP8266/master/page5.png><br>     
+Dull Printer Status Page for 512K Flash modules:     
+<img src=https://raw.githubusercontent.com/treepleks/ESP8266/master/Page5-2.png><br>    
 Extra Settings Page, for web UI and for printer:     
 <img src=https://raw.githubusercontent.com/treepleks/ESP8266/master/Page6.png><br>     
 Change password Page:    
 <img src=https://raw.githubusercontent.com/treepleks/ESP8266/master/Page7.png><br>     
 Login Page:    
 <img src=https://raw.githubusercontent.com/treepleks/ESP8266/master/Page8.png><br>     
-the template files are stored on SPIFFS:    
+
+All template files are stored on SPIFFS:    
 <img src=https://raw.githubusercontent.com/treepleks/ESP8266/master/files.png><br>
 and uploaded using [IDE](http://arduino.esp8266.com/versions/1.6.5-1160-gef26c5f/doc/reference.html#file-system)    
 The list of keywords can be find here : https://github.com/treepleks/ESP8266/blob/master/keywords.txt     
