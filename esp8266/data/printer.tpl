@@ -114,9 +114,9 @@ fill:orange;
 <td class="btnimg" onclick="Sendcommand('M24');"><svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" stroke="black" stroke-width="2" fill="white" /><polygon points="15,10 30,20 15,30" fill:"white" stroke:"white" stroke-width:"1" /></svg></td>
 <td class="btnimg" onclick="Sendcommand('M25');"><svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" stroke="black" stroke-width="2" fill="white" /><rect x="10" y="10" width="7" height="20" rx="2" ry="2" style="fill:rgb(0,0,0);stroke-width:1;stroke:rgb(0,0,0)"/><rect x="23" y="10" width="7" height="20" rx="2" ry="2" style="fill:rgb(0,0,0);stroke-width:1;stroke:rgb(0,0,0)"/></svg></td>
 <td class="btnimg" onclick="Sendcommand('M50');"><svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" stroke="black" stroke-width="2" fill="white" /><rect x="10" y="10" width="20" height="20" rx="2" ry="2" style="fill:rgb(0,0,0);stroke-width:1;stroke:rgb(0,0,0)" /></svg></td>
-<td class="btnimg" onclick="getSDfiles();"><svg width="40" height="40" viewBox="0 0 40 40"><rect x="5" y="10" width="30" height="20" rx="2" ry="2" style="fill:rgb(0,0,0);stroke-width:1;stroke:rgb(0,0,0)" /><rect x="20" y="5" width="15" height="15" rx="2" ry="2" style="fill:rgb(0,0,0);stroke-width:1;stroke:rgb(0,0,0)"/><text x="10" y="25" font-family="Verdana" font-size="14" fill="white">SD</text></svg></td>
-<td>&nbsp;&nbsp;</td><td id="SDLIST"></td></tr></table></td>
- 
+<td class="btnimg" onclick="getSDfiles();"><svg width="40" height="40" viewBox="0 0 40 40"><rect x="5" y="10" width="30" height="20" rx="2" ry="2" style="fill:rgb(0,0,0);stroke-width:1;stroke:rgb(0,0,0)" /><rect x="20" y="5" width="15" height="15" rx="2" ry="2" style="fill:rgb(0,0,0);stroke-width:1;stroke:rgb(0,0,0)"/><text x="10" y="25" font-family="Verdana" font-size="14" fill="white">SD</text></svg></td></tr><tr>
+<td id="SDLIST" colspan="4"></td></tr></table></td>
+
 </tr></table></td></tr><tr>
 <td style="padding:0px;"><div id="Extruder1" style="visibility:hidden;height:0px;"><table><tr>
 <td><label style="display:inline-block;width:100px;">Extruder 1:</label></td>
@@ -402,35 +402,36 @@ function refreshfilelist(jsonresponse){
 var list2display="<table><tr><td><select class=\"form-control\"  id=\"sdfilelist\">";
 var content="";
 var i;
-for (i = 0; i < jsonresponse.length; i++){ 
+for(i=0;i<jsonresponse.length;i++){ 
 content =jsonresponse[i].entry;
-var tcontent=content.split(" ");
-if (tcontent.length==2){
+var tcontent=content.split(".");
+if(tcontent[tcontent.length-1]=="gcode"){
 list2display+="<OPTION value=\"";
-list2display+=tcontent[0];
+list2display+=content;
 list2display+="\">";
-list2display+=tcontent[0] ;
+list2display+=tcontent[0];
 list2display+="</OPTION>";}
 }
 list2display+="</select>";
-if ( jsonresponse.length>0){
+if (i>0){
 list2display+="</td><td>&#8667;</td><td>";
 list2display+="<div class=\"btnimg\" Onclick=\"printfile();\" ><svg width=\"40\" height=\"40\">";
 list2display+="<rect width=\"40\" height=\"40\" style=\"fill:black;\"/>";
-list2display+="<rect x=\"3\" y=\"3\" rx=\"5\" ry=\"5\" width=\"34\" height=\"34\"  style=\"fill:white;\"/>";
+list2display+="<rect x=\"3\" y=\"3\" rx=\"5\" ry=\"5\" width=\"34\" height=\"34\" style=\"fill:white;\"/>";
 list2display+="<line x1=\"0\" y1=\"15\" x2=\"15\" y2=\"15\" style=\"stroke:black;stroke-width:2\"/>";
 list2display+="<line x1=\"25\" y1=\"15\" x2=\"40\" y2=\"15\" style=\"stroke:black;stroke-width:2\"/>";
 list2display+="<polygon points=\"12,10 20,18 28,10\" style=\"fill:black;stroke-width:1\"/>";
 list2display+="<polyline points=\"20,18 25,25\" style=\"stroke:black;stroke-width:1\" />";
-list2display+="<text x=\"10\" y=\"35\" fill=\"black\">3D</text></svg></div>";}
-list2display+="</td></tr></table>";
+list2display+="<text x=\"10\" y=\"35\" fill=\"black\">3D</text></svg></div>";
+list2display+="</td></tr></table>";}
+else list2display="No .gcode file";
 document.getElementById("SDLIST").innerHTML=list2display;
 }
 
 function getSDfiles(){
 document.getElementById("SDLIST").innerHTML="";
 Sendcommand("M20");
-delay(1000);
+delay(100);
 var xmlhttp = new XMLHttpRequest();
 var url = "http://$WEB_ADDRESS$/SDFILES";
 xmlhttp.onreadystatechange = function() {
