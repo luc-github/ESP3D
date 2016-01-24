@@ -24,7 +24,6 @@ $INCLUDE[css.inc]$
     <rect  style="fill:black;stroke-width:4;stroke:black" width="20" height="15" x="10" y="17" />
     <circle style="fill:white" cx="20" cy="22" r="2.5"/>
     <polygon points="20,23 16,30 24,30" style="fill:white"/></svg></div></a></td>
-	<td>FW:  V$FW_VER$</td>
-	<td><a href="https://github.com/treepleks/ESP8266">Github</a></td>
+	<td>FW: V$FW_VER$</td>
 </tr>
 </table>
