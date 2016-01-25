@@ -86,10 +86,7 @@ bool STORESTRINGS_CLASS::add (const char * string){
 	if (need_resize)
 		{  //copy maximum length minus 3
 			strncpy(ptr,string,_maxstringlength-3);
-			//add nul char
-			ptr[_maxstringlength-3]='\0';
-			//add dot to show string was cutted
-			strcat(ptr,"...");
+			strcpy(ptr+_maxstringlength-3,"...");
 		}
 	else
 		{ //copy as it is
