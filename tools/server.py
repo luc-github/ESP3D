@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+#original file and idea come from https://github.com/j0hnlittle
 
 import SimpleHTTPServer, SocketServer
 import sys
@@ -9,6 +10,7 @@ import re
 #Replace this with a different path if you need to...
 base_path = os.path.join(os.getcwd(),"..","esp8266","data")
 tools_path = os.getcwd();
+server_port=8080
 
 class MyHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     def do_GET(self):
@@ -91,9 +93,13 @@ if __name__ == '__main__':
     print "="*60
     print "Serving files from:"
     print base_path
+    print "\ntags.json is located at:"
+    print tools_path
+    print "\nOpen your browser at http://localhost:" + str(server_port)
+    
     os.chdir(base_path)
     print "="*60
     handler = MyHandler
-    server = SocketServer.TCPServer(("",8080), handler)
+    server = SocketServer.TCPServer(("",server_port), handler)
     server.serve_forever()
 
