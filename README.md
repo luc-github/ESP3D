@@ -112,6 +112,10 @@ So UI is kind of separated from FW which allow easier modifications. For this a 
 Additionally 404.tpl (the page not found) and restart.tpl(restart page when applying changes) are not mandatory, a fail safe version is embeded if they are not present.     
 
 Currently, I tested on ESP01 using 64K SPIFFS ( please use data directory content accordingly due to space limitation) and NodeMCU 1.0 1M SPIFFS.     
+##Modifying and Testing tpl files
+To help to visualize tpl modifications a local tool has been created by [j0hnlittle](https://github.com/j0hnlittle) to avoid to upload everytime your tpl files just to see the results of your modifications   
+It is a python script (2.7+) located in tools directory, launch it: python server.py, then open browser: http://localhost:8080   
+It will display the web ui and allow some navigation
 
 ##Protocol for discovery   
 *mDNS : on Station mode only with bonjour installed on computer (done)  
