@@ -8,6 +8,7 @@ import re
 
 #Replace this with a different path if you need to...
 base_path = os.path.join(os.getcwd(),"..","esp8266","data")
+tools_path = os.getcwd();
 
 class MyHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     def do_GET(self):
@@ -53,7 +54,7 @@ class MyHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         fn = os.path.join(base_path,fn)
         data = open(fn).read()
 
-        fn_json = os.path.join(base_path,"tags.json")
+        fn_json = os.path.join(tools_path,"tags.json")
         if os.path.exists(fn_json):
             json_dic = json.loads(open(fn_json).read())
         else:

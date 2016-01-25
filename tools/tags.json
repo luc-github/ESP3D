@@ -1,4 +1,4 @@
 {
-    "WEB_ADDRESS":"localhost",
+    "WEB_ADDRESS":"localhost:8080",
     "PAGE_TITLE":"Testing things..."
 }
