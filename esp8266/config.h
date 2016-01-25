@@ -20,7 +20,7 @@
 
 //comment to disable
 //MDNS_FEATURE: this feature allow  type the name defined
-//in web browser by default: http:\\esp8266.local and connect 
+//in web browser by default: http:\\esp8266.local and connect
 #define MDNS_FEATURE
 
 //SSDD_FEATURE: this feature is a discovery protocol, supported on Windows out of the box
@@ -119,7 +119,7 @@ const char DEFAULT_ADMIN []  PROGMEM =	"admin";
 
 class CONFIG
 {
-  public:
+public:
     static bool read_string(int pos, char byte_buffer[], int size_max);
     static bool read_string(int pos, String & sbuffer, int size_max);
     static bool read_buffer(int pos, byte byte_buffer[], int size_buffer);

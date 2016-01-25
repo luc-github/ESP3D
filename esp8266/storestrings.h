@@ -1,8 +1,8 @@
-/* 
+/*
   storestrings.h - rolling storage class
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
- 
+
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
   License as published by the Free Software Foundation; either
@@ -24,26 +24,38 @@
 #include "LinkedList.h"
 class STORESTRINGS_CLASS
 {
-  public:
-  STORESTRINGS_CLASS (int maxsize = -1, int maxstringlength=-1);
-  ~STORESTRINGS_CLASS ();
-  bool add (const char * string);
-  inline bool add (String & string) {return add(string.c_str());};
-  bool add (const __FlashStringHelper *str);
-  bool remove(int pos);
-  const char * get(int pos);
-  int get_index(const char * string);
-  void clear();
-  inline int size() {return _charlist.size();};
-  bool setsize(int size);
-  bool setlength(int len);
-  inline int getsize() {return _maxsize;};
-  inline int getlength() {return _maxstringlength;};
+public:
+    STORESTRINGS_CLASS (int maxsize = -1, int maxstringlength=-1);
+    ~STORESTRINGS_CLASS ();
+    bool add (const char * string);
+    inline bool add (String & string)
+    {
+        return add(string.c_str());
+    };
+    bool add (const __FlashStringHelper *str);
+    bool remove(int pos);
+    const char * get(int pos);
+    int get_index(const char * string);
+    void clear();
+    inline int size()
+    {
+        return _charlist.size();
+    };
+    bool setsize(int size);
+    bool setlength(int len);
+    inline int getsize()
+    {
+        return _maxsize;
+    };
+    inline int getlength()
+    {
+        return _maxstringlength;
+    };
 
-  private:
-  int _maxsize;
-  int _maxstringlength;
-  LinkedList<char *> _charlist;
+private:
+    int _maxsize;
+    int _maxstringlength;
+    LinkedList<char *> _charlist;
 };
 
 #endif

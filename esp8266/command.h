@@ -1,8 +1,8 @@
-/* 
+/*
   command.h - esp8266 configuration class
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
- 
+
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
   License as published by the Free Software Foundation; either
@@ -24,14 +24,14 @@
 
 class COMMAND
 {
-  public:
-  static String buffer_serial;
-  static String buffer_tcp;
-  static void read_buffer_serial(uint8_t *b, size_t len);
-  static void read_buffer_serial(uint8_t b);
-  static void read_buffer_tcp(uint8_t b);
-  static void check_command(String buffer);
-  static void execute_command(int cmd,String cmd_params);
+public:
+    static String buffer_serial;
+    static String buffer_tcp;
+    static void read_buffer_serial(uint8_t *b, size_t len);
+    static void read_buffer_serial(uint8_t b);
+    static void read_buffer_tcp(uint8_t b);
+    static void check_command(String buffer);
+    static void execute_command(int cmd,String cmd_params);
 
 };
 
