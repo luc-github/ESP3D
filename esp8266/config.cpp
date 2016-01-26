@@ -436,4 +436,10 @@ void CONFIG::print_config()
 #else
     Serial.println(F("Disabled"));
 #endif
+    Serial.print(F("Web update: "));
+#ifdef WEB_UPDATE_FEATURE
+    Serial.println(F("Enabled"));
+#else
+    Serial.println(F("Disabled"));
+#endif
 }
