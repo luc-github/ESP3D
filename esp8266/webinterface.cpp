@@ -202,6 +202,8 @@ const char KEY_RETURN [] PROGMEM = "$RETURN$";
 const char VALUE_CHANGE_PASSWORD [] PROGMEM = "Change Password";
 const char MISSING_DATA [] PROGMEM = "Error: Missing data";
 const char EEPROM_NOWRITE [] PROGMEM = "Error: Cannot write to EEPROM";
+const char KEY_WEB_UPDATE [] PROGMEM = "$WEB_UPDATE_VISIBILITY$";
+
 
 bool WEBINTERFACE_CLASS::isHostnameValid(const char * hostname)
 {  //limited size 
@@ -1161,11 +1163,16 @@ void handle_web_interface_configSys()
 	}
 	
 	else
-	
-    ProcessNoAlert(KeysList, ValuesList);
-	
-  //Firmware and Free Mem, at the end to reflect situation
-  GetFreeMem(KeysList, ValuesList);
+	  ProcessNoAlert(KeysList, ValuesList);
+
+	KeysList.add(FPSTR(KEY_WEB_UPDATE));
+#ifdef WEB_UPDATE_FEATURE
+	ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
+#else
+	ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
+#endif	
+	//Firmware and Free Mem, at the end to reflect situation
+	GetFreeMem(KeysList, ValuesList);
   
 	//process the template file and provide list of variables
 	processTemplate("/system.tpl", KeysList , ValuesList);
@@ -2355,6 +2362,7 @@ void SPIFFSFileupload()
   else Serial.println("Cannot open file");
 }
 
+#ifdef WEB_UPDATE_FEATURE
 void WebUpdateUpload()
 {
 	HTTPUpload& upload = (web_interface->WebServer).upload();
@@ -2381,7 +2389,6 @@ void WebUpdateUpload()
 	yield();
 }
 
-
 void handleUpdate(){
 	web_interface->is_authenticated();
 	String jsonfile = "{\"status\":\"" ;
@@ -2393,6 +2400,7 @@ void handleUpdate(){
 	//if success restart
 	if (web_interface->_upload_status==UPLOAD_STATUS_SUCCESSFUL)web_interface->restartmodule=true;
 }
+#endif
 
 void handleFileList() {
 	if (!web_interface->is_authenticated())
@@ -2766,7 +2774,9 @@ WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port):WebServer(port)
 	WebServer.on("/PRINTER",HTTP_ANY, handle_web_interface_printer);
 	WebServer.on("/CMD",HTTP_ANY, handle_web_command);
 	WebServer.on("/RESTART",HTTP_GET, handle_restart);
+#ifdef WEB_UPDATE_FEATURE
 	WebServer.on("/UPDATE",HTTP_ANY, handleUpdate,WebUpdateUpload);
+#endif	
 	WebServer.on("/FILES", HTTP_ANY, handleFileList,SPIFFSFileupload);
 	WebServer.on("/SDFILES", HTTP_ANY, handleSDFileList);
 	WebServer.on("/LOGIN", HTTP_ANY, handle_login);

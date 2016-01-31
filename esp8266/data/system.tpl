@@ -38,7 +38,7 @@ $SUCCESS_MSG$
 </div>
 </div>
 </div>
-<div class="panel">
+<div class="panel" style="$WEB_UPDATE_VISIBILITY$">
 <div class="panel-heading">Firmware Update</div>
 <div class="panel-body">
 <table><tr>

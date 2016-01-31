@@ -184,61 +184,61 @@ void CONFIG::print_config()
   byte bbuf=0;
   int ibuf=0;
   if (CONFIG::read_byte(EP_WIFI_MODE, &bbuf ))
-	{
+    {
       Serial.print(F("Mode: "));
       if (byte(bbuf) == CLIENT_MODE) Serial.println(F("Station"));
       else if (byte(bbuf)==AP_MODE) Serial.println(F("Access Point"));
       else Serial.println("???");
-	}
+    }
   else Serial.println(F("Error reading mode"));
   
   if (CONFIG::read_string(EP_SSID, sbuf , MAX_SSID_LENGTH))
-  {
+    {
       Serial.print(F("SSID: "));
-  Serial.println(sbuf);
-  }
+      Serial.println(sbuf);
+    }
   else  Serial.println(F("Error reading SSID"));
   //if (CONFIG::read_string(EP_PASSWORD, sbuf , MAX_PASSWORD_LENGTH))Serial.println(sbuf);
   
   if (CONFIG::read_byte(EP_IP_MODE, &bbuf ))
-  {
+    {
       Serial.print(F("IP Mode: "));
       if (byte(bbuf)==STATIC_IP_MODE) Serial.println(F("Static"));
       else  if (byte(bbuf)==DHCP_MODE) Serial.println(F("DHCP"));
       else Serial.println(F("???"));
-  }
+    }
   else  Serial.println(F("Error reading IP mode"));
   
   if (CONFIG::read_buffer(EP_IP_VALUE,(byte *)sbuf , IP_LENGTH))
-  {
+    {
       Serial.print(F("IP: "));
-	Serial.println(wifi_config.ip2str((byte *)sbuf));
-	}
+      Serial.println(wifi_config.ip2str((byte *)sbuf));
+    }
   else Serial.println(F("Error reading IP"));
   
   if (CONFIG::read_buffer(EP_MASK_VALUE, (byte *)sbuf  , IP_LENGTH))
-  {
+    {
       Serial.print(F("Subnet: "));
-	Serial.println(wifi_config.ip2str((byte *)sbuf));
-   }
+      Serial.println(wifi_config.ip2str((byte *)sbuf));
+    }
   else Serial.println(F("Error reading subnet"));
   
   if (CONFIG::read_buffer(EP_GATEWAY_VALUE, (byte *)sbuf  , IP_LENGTH))
-  {
+    {
       Serial.print(F("Gateway: "));
-   Serial.println(wifi_config.ip2str((byte *)sbuf));
+      Serial.println(wifi_config.ip2str((byte *)sbuf));
     }
   else Serial.println(F("Error reading gateway"));
   
   if (CONFIG::read_buffer(EP_BAUD_RATE,  (byte *)&ibuf , INTEGER_LENGTH))
-  {
+    {
       Serial.print(F("Baud rate: "));
-  Serial.println(ibuf);
-  }
+      Serial.println(ibuf);
+    }
   else Serial.println(F("Error reading baud rate"));
   
   if (CONFIG::read_byte(EP_PHY_MODE, &bbuf ))
-  {
+    {
       Serial.print(F("Phy mode: "));
       if (byte(bbuf)==PHY_MODE_11B) Serial.println(F("11b"));
       else if (byte(bbuf)==PHY_MODE_11G) Serial.println(F("11g"));
@@ -248,24 +248,24 @@ void CONFIG::print_config()
   else Serial.println(F("Error reading phy mode"));
   
   if (CONFIG::read_byte(EP_SLEEP_MODE, &bbuf ))
-  {
+    {
       Serial.print(F("Sleep mode: "));
       if (byte(bbuf)==NONE_SLEEP_T) Serial.println(F("None"));
       else if (byte(bbuf)==LIGHT_SLEEP_T) Serial.println(F("Light"));
       else if (byte(bbuf)==MODEM_SLEEP_T) Serial.println(F("Modem"));
       else Serial.println(F("???"));
-  }
+    }
   else Serial.println(F("Error reading sleep mode"));
   
   if (CONFIG::read_byte(EP_CHANNEL, &bbuf ))
-  {
+    {
       Serial.print(F("Channel: "));
-	Serial.println(byte(bbuf));
-   }
+      Serial.println(byte(bbuf));
+    }
   else Serial.println(F("Error reading channel"));
   
   if (CONFIG::read_byte(EP_AUTH_TYPE, &bbuf ))
-  {
+    {
       Serial.print(F("Authentification: "));
       if (byte(bbuf)==AUTH_OPEN) Serial.println(F("None"));
       else if (byte(bbuf)==AUTH_WEP) Serial.println(F("WEP"));
@@ -273,83 +273,95 @@ void CONFIG::print_config()
       else if (byte(bbuf)==AUTH_WPA2_PSK) Serial.println(F("WPA2"));
       else if (byte(bbuf)==AUTH_WPA_WPA2_PSK) Serial.println(F("WPA/WPA2"));
       else Serial.println(F("???"));
-  }
+    }
   else Serial.println(F("Error reading authentification"));
   
   if (CONFIG::read_byte(EP_SSID_VISIBLE, &bbuf ))
-  {
+    {
       Serial.print(F("SSID visibility: "));
       if (bbuf==0) Serial.println(F("Hidden"));
       else if (bbuf==1) Serial.println(F("Visible"));
-	  else Serial.println(bbuf);
-      }
+      else Serial.println(bbuf);
+    }
   else Serial.println(F("Error reading SSID visibility"));
   
   if (CONFIG::read_buffer(EP_WEB_PORT,  (byte *)&ibuf , INTEGER_LENGTH))
-  {
+    {
       Serial.print(F("Web port: "));
-	  Serial.println(ibuf);
-       }
+      Serial.println(ibuf);
+    }
   else Serial.println(F("Error reading web port"));
   
   if (CONFIG::read_buffer(EP_DATA_PORT,  (byte *)&ibuf , INTEGER_LENGTH))
-  {
+    {
       Serial.print(F("Data port: "));
-	  Serial.println(ibuf);
-  }
+      Serial.println(ibuf);
+    }
   else Serial.println(F("Error reading data port"));
   
   if (CONFIG::read_byte(EP_REFRESH_PAGE_TIME, &bbuf ))
-  {
+    {
       Serial.print(F("Web page refresh time: "));
-	  Serial.println(byte(bbuf));
-	    }
+      Serial.println(byte(bbuf));
+    }
   else Serial.println(F("Error reading refresh page"));
   
   if (CONFIG::read_string(EP_HOSTNAME, sbuf , MAX_HOSTNAME_LENGTH))
-  {
+    {
       Serial.print(F("Hostname: "));
-	  Serial.println(sbuf);
-   }
+      Serial.println(sbuf);
+    }
   else Serial.println(F("Error reading hostname"));
   
   if (CONFIG::read_buffer(EP_XY_FEEDRATE,  (byte *)&ibuf , INTEGER_LENGTH))
-  {
+    {
       Serial.print(F("XY feed rate: "));
-   Serial.println(ibuf);
-     }
+      Serial.println(ibuf);
+    }
   else Serial.println(F("Error reading XY feed rate"));
   
   if (CONFIG::read_buffer(EP_Z_FEEDRATE,  (byte *)&ibuf , INTEGER_LENGTH))
-  {
+    {
       Serial.print(F("Z feed rate: "));
-   Serial.println(ibuf);
-  }
+      Serial.println(ibuf);
+    }
   else Serial.println(F("Error reading Z feed rate"));
   
   if (CONFIG::read_buffer(EP_E_FEEDRATE,  (byte *)&ibuf , INTEGER_LENGTH))
-  {
+    {
       Serial.print(F("E feed rate: "));
-    Serial.println(ibuf);
-      }
+      Serial.println(ibuf);
+    }
   else Serial.println(F("Error reading E feed rate"));
   
+  static const char FLASH_ENABLED[] PROGMEM = "Enabled";
+  static const char FLASH_DISABLED[] PROGMEM = "Disabled";
+  
   Serial.print(F("Captive portal: "));
- #ifdef CAPTIVE_PORTAL_FEATURE
-  Serial.println(F("Enabled"));
- #else
-  Serial.println(F("Disabled"));
+#ifdef CAPTIVE_PORTAL_FEATURE
+  Serial.println(FLASH_ENABLED);
+#else
+  Serial.println(FLASH_DISABLED);
 #endif
+  
   Serial.print(F("SSDP: "));
 #ifdef SSDP_FEATURE
-  Serial.println(F("Enabled"));
- #else
-  Serial.println(F("Disabled"));
+  Serial.println(FLASH_ENABLED);
+#else
+  Serial.println(FLASH_DISABLED);
 #endif
+  
   Serial.print(F("mDNS: "));
 #ifdef MDNS_FEATURE
-  Serial.println(F("Enabled"));
- #else
-  Serial.println(F("Disabled"));
+  Serial.println(FLASH_ENABLED);
+#else
+  Serial.println(FLASH_DISABLED);
+#endif
+  
+  Serial.print(F("Web update: "));
+#ifdef WEB_UPDATE_FEATURE
+  Serial.println(FLASH_ENABLED);
+#else
+  Serial.println(FLASH_ENABLED);
 #endif
 } 

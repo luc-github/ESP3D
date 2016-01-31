@@ -32,6 +32,9 @@
 //AUTHENTICATION_FEATURE: protect pages by login password
 #define AUTHENTICATION_FEATURE
 
+//WEB_UPDATE_FEATURE: allow to flash fw using web UI
+#define WEB_UPDATE_FEATURE
+
 #ifndef CONFIG_h
 #define CONFIG_h
 
