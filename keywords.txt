@@ -60,6 +60,7 @@ $STA_MAC$  : Mac address of Station
 $STA_SSID$ : SSID used by STA
 $STA_CHANNEL$ : Channel
 $STA_STATUS$ : Connection Status
+$STA_SIGNAL$ : Signal strength
 $STA_DHCP_STATUS$ : DHCP Client status
 $STA_IP$ : STA IP
 $STA_GW$ : STA Gateway

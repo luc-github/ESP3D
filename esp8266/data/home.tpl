@@ -43,6 +43,7 @@ $INCLUDE[header.inc]$
 <label>Connection to: </label><label class="text-info">$STA_SSID$</label><BR>
 <label>Channel: </label><label class="text-info">$STA_CHANNEL$</label><BR>
 <label>Status: </label><label class="text-info">$STA_STATUS$</label><BR>
+<label>Signal strength: </label><label class="text-info">$STA_SIGNAL$%</label><BR>
 <label>DHCP Client: </label><label class="text-info">$STA_DHCP_STATUS$</label><BR>
 <label>IP: </label><label class="text-info">$STA_IP$</label><BR>
 <label>Gateway: </label><label class="text-info">$STA_GW$</label><BR>

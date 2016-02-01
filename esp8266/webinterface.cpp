@@ -205,6 +205,7 @@ const char VALUE_CHANGE_PASSWORD [] PROGMEM = "Change Password";
 const char MISSING_DATA [] PROGMEM = "Error: Missing data";
 const char EEPROM_NOWRITE [] PROGMEM = "Error: Cannot write to EEPROM";
 const char KEY_WEB_UPDATE [] PROGMEM = "$WEB_UPDATE_VISIBILITY$";
+const char KEY_STA_SIGNAL [] PROGMEM = "$STA_SIGNAL$";
 
 bool WEBINTERFACE_CLASS::isHostnameValid(const char * hostname)
 {
@@ -994,6 +995,9 @@ void handle_web_interface_root()
     } else {
         ValuesList.add(FPSTR(VALUE_DISCONNECTED));
     }
+    //Signal strength
+    KeysList.add(FPSTR(KEY_STA_SIGNAL));
+    ValuesList.add(intTostr(100+WiFi.RSSI()));
     //DHCP Client status
     GetDHCPStatus(KeysList, ValuesList);
     //IP address
