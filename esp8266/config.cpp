@@ -339,29 +339,29 @@ void CONFIG::print_config()
   
   Serial.print(F("Captive portal: "));
 #ifdef CAPTIVE_PORTAL_FEATURE
-  Serial.println(FLASH_ENABLED);
+  Serial.println(FPSTR(FLASH_ENABLED));
 #else
-  Serial.println(FLASH_DISABLED);
+  Serial.println(FPSTR(FLASH_DISABLED));
 #endif
   
   Serial.print(F("SSDP: "));
 #ifdef SSDP_FEATURE
-  Serial.println(FLASH_ENABLED);
+  Serial.println(FPSTR(FLASH_ENABLED));
 #else
-  Serial.println(FLASH_DISABLED);
+  Serial.println(FPSTR(FLASH_DISABLED));
 #endif
   
   Serial.print(F("mDNS: "));
 #ifdef MDNS_FEATURE
-  Serial.println(FLASH_ENABLED);
+  Serial.println(FPSTR(FLASH_ENABLED));
 #else
-  Serial.println(FLASH_DISABLED);
+  Serial.println(FPSTR(FLASH_DISABLED));
 #endif
   
   Serial.print(F("Web update: "));
 #ifdef WEB_UPDATE_FEATURE
-  Serial.println(FLASH_ENABLED);
+  Serial.println(FPSTR(FLASH_ENABLED));
 #else
-  Serial.println(FLASH_ENABLED);
+  Serial.println(FPSTR(FLASH_ENABLED));
 #endif
 } 
