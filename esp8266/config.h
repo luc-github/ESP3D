@@ -35,6 +35,9 @@
 //WEB_UPDATE_FEATURE: allow to flash fw using web UI
 #define WEB_UPDATE_FEATURE
 
+//SERIAL_COMMAND_FEATURE: allow to send command by serial
+#define SERIAL_COMMAND_FEATURE
+
 #ifndef CONFIG_h
 #define CONFIG_h
 

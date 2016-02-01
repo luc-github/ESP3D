@@ -130,7 +130,6 @@ void COMMAND::execute_command(int cmd,String cmd_params)
 
 void COMMAND::check_command(String buffer)
 {
-    String ESP_Command;
     static bool bfileslist=false;
     static uint32_t start_list=0;
     if (!bfileslist) {
@@ -141,7 +140,6 @@ void COMMAND::check_command(String buffer)
             bfileslist=true;
             web_interface->fileslist.clear();
         }
-        int ESPpos = buffer.indexOf("[ESP");
         int Tpos = buffer.indexOf("T:");
         int Xpos = buffer.indexOf("X:");
         int Ypos = buffer.indexOf("Y:");
@@ -151,6 +149,9 @@ void COMMAND::check_command(String buffer)
         int Errorpos= buffer.indexOf("Error:");
         int Infopos= buffer.indexOf("Info:");
         int Statuspos= buffer.indexOf("Status:");
+#ifdef SERIAL_COMMAND_FEATURE
+        String ESP_Command;
+        int ESPpos = buffer.indexOf("[ESP");
         if (ESPpos>-1) {
             //is there the second part?
             int ESPpos2 = buffer.indexOf("]",ESPpos);
@@ -169,6 +170,7 @@ void COMMAND::check_command(String buffer)
                 //if not is not a valid [ESPXXX] command
             }
         }
+#endif
         //check for temperature
         if (Tpos>-1) {
             //look for valid temperature answer
