@@ -215,6 +215,7 @@ bool WIFI_CONFIG::Setup()
             return false;
         }
         wifi_set_phy_mode((phy_mode)bflag);
+        delay(500);
         byte i=0;
         //try to connect
         while (WiFi.status() != WL_CONNECTED && i<40) {

@@ -26,7 +26,7 @@ $SLEEP_MODE_OPTIONS_LIST$
 </select></div>
 <div class="form-group $WEB_PORT_STATUS$"><label class="control-label" for="CONFIG3">Web port:</label><br>
 <input type="number" class="form-control" id="CONFIG3" name="WEBPORT" min="1" max="65000" step="1" placeholder="1~65000" value="$WEB_PORT$" style="width: auto;"></div>
-<div class="form-group $DATA_PORT_STATUS$"><label class="control-label" for="CONFIG4">Data port:</label><br>
+<div class="form-group $DATA_PORT_STATUS$" style="$DATA_PORT_VISIBILITY$"><label class="control-label" for="CONFIG4">Data port:</label><br>
 <input type="number" class="form-control" id="CONFIG4" name="DATAPORT" min="1" max="65000" step="1" placeholder="1~65000" value="$DATA_PORT$" style="width: auto;"></div>
 <div class="alert alert-danger" role="alert" style="$ERROR_MSG_VISIBILITY$" >
 $ERROR_MSG$

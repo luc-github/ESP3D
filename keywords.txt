@@ -17,11 +17,11 @@ $CHIP_ID$ : Chip ID
 $CPU_FREQ$ : CPU Frequency
 $FREE_MEM$ : Free memory on heap
 $SDK_VER$ : SDK version
-$MDNS_VISIBLE$: set to hidden is no MDNS and visible if present
+$MDNS_VISIBLE$: set to hidden if no MDNS and visible if present
 $MDNS_NAME$ : mDNS name if enabled or "Not enabled" if not enabled
-$SSDP_VISIBLE$ : set to hidden is no MDNS and visible if present
+$SSDP_VISIBLE$ : set to hidden if no MDNS and visible if present
 $SSDP_STATUS$ : set to Enabled / Not enabled according compilation settings
-$CAPTIVE_PORTAL_VISIBLE$: set to hidden is no Captive portal and visible if present
+$CAPTIVE_PORTAL_VISIBLE$: set to hidden if no Captive portal and visible if present
 $CAPTIVE_PORTAL_STATUS$:  set to Enabled / Not enabled according compilation settings
 $NET_PHY$ : Network type (b/g/n)
 $SLEEP_MODE$ : Sleep Mode
@@ -29,6 +29,7 @@ $BOOT_VER$ : Boot version
 $BAUD_RATE$ : Baud rates for serial communication
 $WEB_PORT$ : Port for web access
 $DATA_PORT$ : Port for tcp ip connection
+$DATA_PORT_VISIBILITY$ : set to hidden if no enabled and visible if enabled
 
 $AP_STATUS_ENABLED$ : is Access Point enabled or disabled
 $AP_VISIBILITY$ : if  Access Point is enabled set visible, else set to hidden
@@ -72,6 +73,7 @@ $SLEEP_MODE_OPTIONS_LIST$ : Sleep mode list
 $POLLING_OPTIONS_LIST$ : Refresh delay list
 $WEB_PORT$ : Port for web access
 $DATA_PORT$ : Port for tcp ip connection
+$DATA_PORT_VISIBILITY$ : set to hidden if no enabled and visible if enabled
 $ERROR_MSG$ : Error message if any
 $SUCCESS_MSG$ : Success message announcing restart
 $ERROR_MSG_VISIBILITY$ : Show/Hide Error message

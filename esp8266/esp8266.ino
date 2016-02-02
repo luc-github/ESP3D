@@ -60,7 +60,7 @@ void setup()
     // init:
     web_interface = NULL;
     data_server = NULL;
-// ESP.wdtDisable();
+    WiFi.disconnect();
     system_update_cpu_freq(SYS_CPU_160MHZ);
     delay(8000);
     bool breset_config=false;
@@ -117,17 +117,20 @@ void setup()
         wifi_config.Safe_Setup();
     }
     delay(1000);
-    //start interfaces
+    //start web interface
     web_interface = new WEBINTERFACE_CLASS(wifi_config.iweb_port);
-    data_server = new WiFiServer (wifi_config.idata_port);
     //here the list of headers to be recorded
     const char * headerkeys[] = {"Cookie"} ;
     size_t headerkeyssize = sizeof(headerkeys)/sizeof(char*);
     //ask server to track these headers
     web_interface->WebServer.collectHeaders(headerkeys, headerkeyssize );
     web_interface->WebServer.begin();
+#ifdef TCP_IP_DATA_FEATURE
+    //start TCP/IP interface
+    data_server = new WiFiServer (wifi_config.idata_port);
     data_server->begin();
     data_server->setNoDelay(true);
+#endif
 
 #ifdef MDNS_FEATURE
     // Check for any mDNS queries and send responses
@@ -177,6 +180,7 @@ void loop()
     web_interface->WebServer.handleClient();
 //TODO use a method to handle serial also in class and call it instead of this one
     uint8_t i,data;
+#ifdef TCP_IP_DATA_FEATURE
     //check if there are any new clients
     if (data_server->hasClient()) {
         for(i = 0; i < MAX_SRV_CLIENTS; i++) {
@@ -206,19 +210,23 @@ void loop()
             }
         }
     }
+#endif
     //check UART for data
     if(Serial.available()) {
         size_t len = Serial.available();
         uint8_t sbuf[len];
         Serial.readBytes(sbuf, len);
+#ifdef TCP_IP_DATA_FEATURE
         //push UART data to all connected tcp clients
         for(i = 0; i < MAX_SRV_CLIENTS; i++) {
             if (serverClients[i] && serverClients[i].connected()) {
                 serverClients[i].write(sbuf, len);
                 delay(1);
             }
-            COMMAND::read_buffer_serial(sbuf, len);
         }
+#endif
+        //process data if any
+        COMMAND::read_buffer_serial(sbuf, len);
     }
     if (web_interface->restartmodule) {
         Serial.flush();

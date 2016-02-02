@@ -38,6 +38,9 @@
 //SERIAL_COMMAND_FEATURE: allow to send command by serial
 #define SERIAL_COMMAND_FEATURE
 
+//TCP_IP_DATA_FEATURE: allow to connect serial from TCP/IP
+#define TCP_IP_DATA_FEATURE
+
 #ifndef CONFIG_h
 #define CONFIG_h
 

@@ -375,14 +375,16 @@ void CONFIG::print_config()
     } else {
         Serial.println(F("Error reading web port"));
     }
-
+    Serial.print(F("Data port: "));
+#ifdef TCP_IP_DATA_FEATURE
     if (CONFIG::read_buffer(EP_DATA_PORT,  (byte *)&ibuf , INTEGER_LENGTH)) {
-        Serial.print(F("Data port: "));
         Serial.println(ibuf);
     } else {
         Serial.println(F("Error reading data port"));
     }
-
+#else
+    Serial.println(F("Disabled"));
+#endif
     if (CONFIG::read_byte(EP_REFRESH_PAGE_TIME, &bbuf )) {
         Serial.print(F("Web page refresh time: "));
         Serial.println(byte(bbuf));

@@ -206,6 +206,7 @@ const char MISSING_DATA [] PROGMEM = "Error: Missing data";
 const char EEPROM_NOWRITE [] PROGMEM = "Error: Cannot write to EEPROM";
 const char KEY_WEB_UPDATE [] PROGMEM = "$WEB_UPDATE_VISIBILITY$";
 const char KEY_STA_SIGNAL [] PROGMEM = "$STA_SIGNAL$";
+const char KEY_DATA_PORT_VISIBILITY [] PROGMEM = "$DATA_PORT_VISIBILITY$";
 
 bool WEBINTERFACE_CLASS::isHostnameValid(const char * hostname)
 {
@@ -594,7 +595,14 @@ void GetPorts(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList)
     ValuesList.add(intTostr(wifi_config.iweb_port));
     //Data port
     KeysList.add(FPSTR(KEY_DATA_PORT));
+    KeysList.add(FPSTR(KEY_DATA_PORT_VISIBILITY));
+#ifdef TCP_IP_DATA_FEATURE
     ValuesList.add(intTostr(wifi_config.idata_port));
+    ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
+#else
+    ValuesList.add(FPSTR(VALUE_NONE));
+    ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
+#endif
 }
 // -----------------------------------------------------------------------------
 // Helper for Page properties
@@ -1060,11 +1068,18 @@ void handle_web_interface_configSys()
     //check is it is a submission or a display
     if (web_interface->WebServer.hasArg("SUBMIT")) {
         //is there a correct list of values?
-        if (web_interface->WebServer.hasArg("BAUD_RATE") && web_interface->WebServer.hasArg("SLEEP_MODE")&& web_interface->WebServer.hasArg("DATAPORT")&& web_interface->WebServer.hasArg("WEBPORT")) {
+        if (web_interface->WebServer.hasArg("BAUD_RATE") 
+        && web_interface->WebServer.hasArg("SLEEP_MODE")
+ #ifdef TCP_IP_DATA_FEATURE
+        && web_interface->WebServer.hasArg("DATAPORT")
+ #endif
+        && web_interface->WebServer.hasArg("WEBPORT")) {
             //is each value correct ?
             ibaud  = web_interface->WebServer.arg("BAUD_RATE").toInt();
             iweb_port  = web_interface->WebServer.arg("WEBPORT").toInt();
+#ifdef TCP_IP_DATA_FEATURE
             idata_port  = web_interface->WebServer.arg("DATAPORT").toInt();
+#endif
             bsleepmode = web_interface->WebServer.arg("SLEEP_MODE").toInt();
 
             if (!(iweb_port>0 && iweb_port<65001)) {
@@ -1073,12 +1088,14 @@ void handle_web_interface_configSys()
                 KeysList.add(FPSTR(KEY_WEB_PORT_STATUS));
                 ValuesList.add(FPSTR(VALUE_HAS_ERROR));
             }
+#ifdef TCP_IP_DATA_FEATURE
             if (!(idata_port>0 && idata_port<65001)) {
                 msg_alert_error=true;
                 smsg.concat("Error: invalid port value for data port<BR>");
                 KeysList.add(FPSTR(KEY_DATA_PORT_STATUS));
                 ValuesList.add(FPSTR(VALUE_HAS_ERROR));
             }
+#endif
             if (iweb_port== idata_port) {
                 msg_alert_error=true;
                 smsg.concat("Error: web port and data port cannot be identical<BR>");
@@ -1105,12 +1122,19 @@ void handle_web_interface_configSys()
         }
         //if no error apply the changes
         if (msg_alert_error!=true) {
-            if(!CONFIG::write_buffer(EP_BAUD_RATE,(const byte *)&ibaud,INTEGER_LENGTH)||!CONFIG::write_buffer(EP_WEB_PORT,(const byte *)&iweb_port,INTEGER_LENGTH)||!CONFIG::write_buffer(EP_DATA_PORT,(const byte *)&idata_port,INTEGER_LENGTH)||!CONFIG::write_byte(EP_SLEEP_MODE,bsleepmode)) {
+            if(!CONFIG::write_buffer(EP_BAUD_RATE,(const byte *)&ibaud,INTEGER_LENGTH)
+            ||!CONFIG::write_buffer(EP_WEB_PORT,(const byte *)&iweb_port,INTEGER_LENGTH)
+#ifdef TCP_IP_DATA_FEATURE 
+            ||!CONFIG::write_buffer(EP_DATA_PORT,(const byte *)&idata_port,INTEGER_LENGTH)
+#endif
+            ||!CONFIG::write_byte(EP_SLEEP_MODE,bsleepmode)) {
                 msg_alert_error=true;
                 smsg = FPSTR(EEPROM_NOWRITE);
             } else {
                 msg_alert_success=true;
+#ifdef TCP_IP_DATA_FEATURE
                 wifi_config.iweb_port=iweb_port;
+#endif
                 wifi_config.idata_port=idata_port;
                 smsg = F("Changes saved to EEPROM, restarting....");
             }
@@ -1125,10 +1149,12 @@ void handle_web_interface_configSys()
         if (!CONFIG::read_buffer(EP_WEB_PORT,  (byte *)&iweb_port , INTEGER_LENGTH)) {
             iweb_port=DEFAULT_WEB_PORT;
         }
+        wifi_config.iweb_port=iweb_port;
         if (!CONFIG::read_buffer(EP_DATA_PORT,  (byte *)&idata_port , INTEGER_LENGTH)) {
             idata_port=DEFAULT_DATA_PORT;
         }
-    }
+        wifi_config.idata_port=idata_port;
+    };
     //Baud rate list
     istatus = 0;
     stmp="";
