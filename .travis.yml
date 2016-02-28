@@ -29,8 +29,7 @@ before_script:
   - head -11 ./platform.txt > pt.txt
   - echo 'runtime.tools.xtensa-lx106-elf-gcc.path={runtime.platform.path}/tools/xtensa-lx106-elf' >> pt.txt
   - echo 'runtime.tools.esptool.path={runtime.platform.path}/tools/esptool' >> pt.txt
-  - echo 'compiler.warning_flags=-w' >> pt.txt
-  - tail -105 ./platform.txt >> pt.txt
+  - tail -110 ./platform.txt >> pt.txt
   - rm -fr platform.txt
   - mv pt.txt platform.txt
   
