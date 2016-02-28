@@ -3,7 +3,8 @@
 [![Join the chat at https://gitter.im/luc-github/ESP8266](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/luc-github/ESP8266?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 FW for ESP8266 used with 3D printer     
 
-Arduino ide 1.6.5 with stable 2.0.0 from ESP8266 : [![Build Status](https://travis-ci.org/luc-github/ESP8266.svg?branch=master)](https://travis-ci.org/luc-github/ESP8266)    
+Arduino ide 1.6.5 with stable 2.1.0 from ESP8266 : [![Build Status](https://travis-ci.org/luc-github/ESP8266.svg?branch=master)](https://travis-ci.org/luc-github/ESP8266)    
+for Arduino ide 1.6.5 with stable 2.0.0 from ESP8266, please use https://github.com/luc-github/ESP8266/releases/tag/v0.5.1
 
 ##Description      
 Thanks to @disneysw for bringing this module idea    
@@ -17,8 +18,8 @@ Should be compatible with reprap printer (Marlin FW/Repetier FW)  as soon as you
 
 Current release listed here: https://github.com/luc-github/ESP8266/wiki
 
-Master is using 2.0.0 of https://github.com/esp8266/arduino 
-use http://arduino.esp8266.com/versions/2.0.0/package_esp8266com_index.json in arduino 1.6.5 IDE preferences
+Master is using 2.1.0 of https://github.com/esp8266/arduino 
+use http://arduino.esp8266.com/versions/2.1.0/package_esp8266com_index.json in arduino 1.6.5 IDE preferences
 
 If you use an ESP with 512K flash like ESP01 please go here : https://github.com/luc-github/ESP8266/tree/ESP-512K-64KSPIFFS, it is dedicated to low memory device.      
 If you use an ESP with more than 512K flash please use master.      
@@ -38,7 +39,7 @@ For Davinci Board:<BR>
 
 ##Development   
 Currently using [Arduino IDE 1.6.5](http://arduino.cc/en/Main/Software)  with the esp8266 module from board manager added from [github.com/esp8266/Arduino](https://github.com/esp8266/Arduino)    
-please use 2.0.0 relased version (http://arduino.esp8266.com/versions/2.0.0/package_esp8266com_index.json)     
+please use 2.1.0 relased version (http://arduino.esp8266.com/versions/2.1.0/package_esp8266com_index.json)     
 staging version (http://arduino.esp8266.com/staging/package_esp8266com_index.json) is not yet stable neither compatible with current master please check dev branch https://github.com/luc-github/ESP8266/tree/devt  
   
 Additionnaly:   
