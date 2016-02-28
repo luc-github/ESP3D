@@ -129,7 +129,7 @@ void setup()
     //start TCP/IP interface
     data_server = new WiFiServer (wifi_config.idata_port);
     data_server->begin();
-    data_server->setNoDelay(true);
+    //data_server->setNoDelay(true);
 #endif
 
 #ifdef MDNS_FEATURE

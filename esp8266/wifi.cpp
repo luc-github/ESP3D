@@ -158,7 +158,7 @@ bool WIFI_CONFIG::Setup()
     if (!CONFIG::read_byte(EP_SLEEP_MODE, &bflag )) {
         return false;
     }
-    wifi_set_sleep_type ((sleep_type)bflag);
+    wifi_set_sleep_type ((sleep_type_t)bflag);
     sleep_mode=bflag;
     //AP or client ?
     if (!CONFIG::read_byte(EP_WIFI_MODE, &bflag ) ||  !CONFIG::read_string(EP_SSID, sbuf , MAX_SSID_LENGTH) ||!CONFIG::read_string(EP_PASSWORD, pwd , MAX_PASSWORD_LENGTH)) {
@@ -178,7 +178,7 @@ bool WIFI_CONFIG::Setup()
         if (!CONFIG::read_byte(EP_PHY_MODE, &bflag )) {
             return false;
         }
-        wifi_set_phy_mode((phy_mode)bflag);
+        wifi_set_phy_mode((phy_mode_t)bflag);
         //get current config
         struct softap_config apconfig;
         wifi_softap_get_config(&apconfig);
@@ -214,7 +214,7 @@ bool WIFI_CONFIG::Setup()
         if (!CONFIG::read_byte(EP_PHY_MODE, &bflag )) {
             return false;
         }
-        wifi_set_phy_mode((phy_mode)bflag);
+        wifi_set_phy_mode((phy_mode_t)bflag);
         delay(500);
         byte i=0;
         //try to connect
