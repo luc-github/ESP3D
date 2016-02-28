@@ -25,7 +25,13 @@ before_script:
   - mv package_esp8266com_index.json esp8266/package/package_esp8266com_index.template.json
   - cd esp8266/tools
   - python get.py
-
+  - cd ..
+  - head -11 ./platform.txt > pt.txt
+  - echo 'runtime.tools.xtensa-lx106-elf-gcc.path={runtime.platform.path}/tools/xtensa-lx106-elf' >> pt.txt
+  - echo 'runtime.tools.esptool.path={runtime.platform.path}/tools/esptool' >> pt.txt
+  - tail -105 ./platform.txt >> pt.txt
+  - rm -fr platform.txt
+  - mv pt.txt platform.txt
   
 
 script:
