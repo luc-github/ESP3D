@@ -2,9 +2,12 @@
 
 [![Join the chat at https://gitter.im/luc-github/ESP8266](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/luc-github/ESP8266?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 FW for ESP8266 used with 3D printer     
-
+Development version:   
 Arduino ide 1.6.5 with stable 2.1.0 from ESP8266 : [![Build Status](https://travis-ci.org/luc-github/ESP8266.svg?branch=master)](https://travis-ci.org/luc-github/ESP8266)    
-for Arduino ide 1.6.5 with stable 2.0.0 from ESP8266, please use https://github.com/luc-github/ESP8266/releases/tag/v0.5.1
+Stable version:   
+Arduino ide 1.6.5 with stable 2.0.0 from ESP8266, please use https://github.com/luc-github/ESP8266/releases/tag/v0.5.1  
+
+Both version seems having instability if compiled/flashed under linux (https://github.com/luc-github/ESP8266/issues/64) - so consider to use windows to compile/flash until core is fixed.    
 
 ##Description      
 Thanks to @disneysw for bringing this module idea    
