@@ -5,7 +5,7 @@
 <BODY>
 <CENTER>Restarting, please wait....
 <BR>
-<PROGRESS name='prg' id='prg'>
+<PROGRESS name='prg' id='prg'></PROGRESS>
 </CENTER>
 <script>
 var i = 0;

@@ -46,8 +46,8 @@ extern "C" {
 #define UPLOAD_STATUS_SUCCESSFUL 3
 #define UPLOAD_STATUS_ONGOING 4
 
-const char PAGE_404 [] PROGMEM ="<HTML>\n<HEAD>\n<title>Redirecting...</title> \n</HEAD>\n<BODY>\n<CENTER>Unknown page - you will be redirected...\n<BR><BR>\nif not redirected, <a href='http://$WEB_ADDRESS$'>click here</a>\n<BR><BR>\n<PROGRESS name='prg' id='prg'>\n\n<script>\nvar i = 0; \nvar x = document.getElementById(\"prg\"); \nx.max=5; \nvar interval=setInterval(function(){\ni=i+1; \nvar x = document.getElementById(\"prg\"); \nx.value=i; \nif (i>5) \n{\nclearInterval(interval);\nwindow.location.href='/';\n}\n},1000);\n</script>\n</CENTER>\n</BODY>\n</HTML>\n\n";
-const char PAGE_RESTART [] PROGMEM ="<HTML>\n<HEAD>\n<title>Restarting...</title> \n</HEAD>\n<BODY>\n<CENTER>Restarting, please wait....\n<BR>\n<PROGRESS name='prg' id='prg'>\n</CENTER>\n<script>\nvar i = 0;\nvar interval; \nvar x = document.getElementById(\"prg\"); \nx.max=40; \ninterval = setInterval(function(){\ni=i+1; \nvar x = document.getElementById(\"prg\"); \nx.value=i; \nif (i>40) \n{\nclearInterval(interval);\nwindow.location.href='/';\n}\n},1000);\n</script>\n</BODY>\n</HTML>\n";
+const char PAGE_404 [] PROGMEM ="<HTML>\n<HEAD>\n<title>Redirecting...</title> \n</HEAD>\n<BODY>\n<CENTER>Unknown page - you will be redirected...\n<BR><BR>\nif not redirected, <a href='http://$WEB_ADDRESS$'>click here</a>\n<BR><BR>\n<PROGRESS name='prg' id='prg'></PROGRESS>\n\n<script>\nvar i = 0; \nvar x = document.getElementById(\"prg\"); \nx.max=5; \nvar interval=setInterval(function(){\ni=i+1; \nvar x = document.getElementById(\"prg\"); \nx.value=i; \nif (i>5) \n{\nclearInterval(interval);\nwindow.location.href='/';\n}\n},1000);\n</script>\n</CENTER>\n</BODY>\n</HTML>\n\n";
+const char PAGE_RESTART [] PROGMEM ="<HTML>\n<HEAD>\n<title>Restarting...</title> \n</HEAD>\n<BODY>\n<CENTER>Restarting, please wait....\n<BR>\n<PROGRESS name='prg' id='prg'></PROGRESS>\n</CENTER>\n<script>\nvar i = 0;\nvar interval; \nvar x = document.getElementById(\"prg\"); \nx.max=40; \ninterval = setInterval(function(){\ni=i+1; \nvar x = document.getElementById(\"prg\"); \nx.value=i; \nif (i>40) \n{\nclearInterval(interval);\nwindow.location.href='/';\n}\n},1000);\n</script>\n</BODY>\n</HTML>\n";
 const char RESTARTCMD [] PROGMEM ="<script>setTimeout(function(){window.location.href='/RESTART'},3000);</script>";
 const char VALUE_11B[] PROGMEM = "11b";
 const char VALUE_11N[] PROGMEM = "11n";
@@ -339,9 +339,10 @@ char * intTostr(int value)
 bool processTemplate(const char  * filename, STORESTRINGS_CLASS & KeysList ,  STORESTRINGS_CLASS & ValuesList )
 {
     if(KeysList.size() != ValuesList.size()) { //Sanity check
+		Serial.print("Error");
         return false;
     }
-
+    
     LinkedList<File> myFileList  = LinkedList<File>();
     String  buffer2send;
     String bufferheader(F("HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: "));
@@ -480,6 +481,7 @@ bool processTemplate(const char  * filename, STORESTRINGS_CLASS & KeysList ,  ST
                                         //send header with calculated size
                                         header_sent=true;
                                         web_interface->WebServer.sendContent(bufferheader);
+                                        
                                     }
                                     //send data
                                     web_interface->WebServer.sendContent(buffer2send);
@@ -521,6 +523,7 @@ bool processTemplate(const char  * filename, STORESTRINGS_CLASS & KeysList ,  ST
                 }
                 //send data
                 web_interface->WebServer.sendContent(buffer2send);
+                
             }
         }
         //if we end size calculation loop
@@ -702,6 +705,13 @@ void ProcessNoAlert(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesLi
 //root insterface
 void handle_web_interface_root()
 {
+	static const char HOME_PAGE [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /HOME\r\nCache-Control: no-cache\r\n\r\n";
+	web_interface->WebServer.sendContent_P(HOME_PAGE);
+}
+
+//root insterface
+void handle_web_interface_home()
+{
     String stmp;
     long lstatus;
     int istatus;
@@ -861,7 +871,7 @@ void handle_web_interface_root()
             //IP
             stmp = "$IP_CONNECTED["+String(client_counter)+"]$";
             KeysList.add(stmp.c_str());
-            ValuesList.add(wifi_config.ip2str((byte *)&station->ip));
+            ValuesList.add(IPAddress((const uint8_t *)&station->ip).toString().c_str());
             //increment counter
             client_counter++;
             //go next record
@@ -940,13 +950,13 @@ void handle_web_interface_root()
     if (wifi_get_ip_info(SOFTAP_IF,&info)) {
         //IP address
         KeysList.add(FPSTR(KEY_AP_IP));
-        ValuesList.add(wifi_config.ip2str(info.ip.addr));
+        ValuesList.add(IPAddress((const uint8_t *)&(info.ip.addr)).toString().c_str());
         //GW address
         KeysList.add(FPSTR(KEY_AP_GW));
-        ValuesList.add(wifi_config.ip2str(info.gw.addr));
+        ValuesList.add(IPAddress((const uint8_t *)&(info.gw.addr)).toString().c_str());
         //Sub Net Mask
         KeysList.add(FPSTR(KEY_AP_SUBNET));
-        ValuesList.add(wifi_config.ip2str(info.netmask.addr));
+        ValuesList.add(IPAddress((const uint8_t *)&(info.netmask.addr)).toString().c_str());
     } else {
         //IP address
         KeysList.add(FPSTR(KEY_AP_IP));
@@ -1022,7 +1032,6 @@ void handle_web_interface_root()
     ValuesList.add("");
     //Firmware & Free Mem, at the end to reflect situation
     GetFreeMem(KeysList, ValuesList);
-
     //process the template file and provide list of variables
     processTemplate("/home.tpl", KeysList , ValuesList);
     //need to clean to speed up memory recovery
@@ -1525,22 +1534,23 @@ void handle_web_interface_configAP()
         }
         //IP for static IP
         if (!CONFIG::read_buffer(EP_IP_VALUE,ip_sav , IP_LENGTH) ) {
-            sIP=wifi_config.ip2str((byte *)DEFAULT_IP_VALUE);
+            sIP=IPAddress((const uint8_t *)DEFAULT_IP_VALUE).toString();
+            
         } else {
-            sIP=wifi_config.ip2str(ip_sav);
+            sIP=IPAddress((const uint8_t *)ip_sav).toString();
         }
         //GW for static IP
         if (!CONFIG::read_buffer(EP_GATEWAY_VALUE,gw_sav , IP_LENGTH) ) {
-            sGW=wifi_config.ip2str((byte *)DEFAULT_GATEWAY_VALUE);
+            sGW=IPAddress((const uint8_t *)DEFAULT_GATEWAY_VALUE).toString();
         } else {
-            sGW=wifi_config.ip2str(gw_sav);
+            sGW=IPAddress((const uint8_t *)gw_sav).toString();
         }
 
         //Subnet for static IP
         if (!CONFIG::read_buffer(EP_MASK_VALUE,msk_sav , IP_LENGTH) ) {
-            sMask=wifi_config.ip2str((byte *)DEFAULT_MASK_VALUE);
+            sMask=IPAddress((const uint8_t *)DEFAULT_MASK_VALUE).toString();
         } else {
-            sMask=wifi_config.ip2str(msk_sav);
+            sMask=IPAddress((const uint8_t *)msk_sav).toString();
         }
     }
 
@@ -1839,21 +1849,21 @@ void handle_web_interface_configSTA()
         }
         //IP for static IP
         if (!CONFIG::read_buffer(EP_IP_VALUE,ip_sav , IP_LENGTH) ) {
-            sIP=wifi_config.ip2str((byte *)DEFAULT_IP_VALUE);
+            sIP=IPAddress((const uint8_t *)DEFAULT_IP_VALUE).toString();
         } else {
-            sIP=wifi_config.ip2str(ip_sav);
+            sIP=IPAddress((const uint8_t *)ip_sav).toString();
         }
         //GW for static IP
         if (!CONFIG::read_buffer(EP_GATEWAY_VALUE,gw_sav , IP_LENGTH) ) {
-            sGW=wifi_config.ip2str((byte *)DEFAULT_GATEWAY_VALUE);
+            sGW=IPAddress((const uint8_t *)DEFAULT_GATEWAY_VALUE).toString();
         } else {
-            sGW=wifi_config.ip2str(gw_sav);
+            sGW=IPAddress((const uint8_t *)gw_sav).toString();
         }
         //Subnet for static IP
         if (!CONFIG::read_buffer(EP_MASK_VALUE,msk_sav , IP_LENGTH) ) {
-            sMask=wifi_config.ip2str((byte *)DEFAULT_MASK_VALUE);
+            sMask=IPAddress((const uint8_t *)DEFAULT_MASK_VALUE).toString();
         } else {
-            sMask=wifi_config.ip2str(msk_sav);
+            sMask=IPAddress((const uint8_t *)msk_sav).toString();
         }
     }
     //Display values
@@ -2534,7 +2544,7 @@ void handleSDFileList()
 //and handle not registred path
 void handle_not_found()
 {
-    static const char NOT_AUTH_NF [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /\r\nCache-Control: no-cache\r\n\r\n";
+    static const char NOT_AUTH_NF [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /HOME\r\nCache-Control: no-cache\r\n\r\n";
 
     if (!web_interface->is_authenticated()) {
         web_interface->WebServer.sendContent_P(NOT_AUTH_NF);
@@ -2833,6 +2843,7 @@ WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port):WebServer(port)
 {
     //init what will handle "/"
     WebServer.on("/",HTTP_ANY, handle_web_interface_root);
+    WebServer.on("/HOME",HTTP_ANY, handle_web_interface_home);
     WebServer.on("/CONFIGSYS",HTTP_ANY, handle_web_interface_configSys);
     WebServer.on("/CONFIGAP",HTTP_ANY, handle_web_interface_configAP);
     WebServer.on("/CONFIGSTA",HTTP_ANY, handle_web_interface_configSTA);

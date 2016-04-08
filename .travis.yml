@@ -11,27 +11,15 @@ before_install:
 before_script:
   - "export DISPLAY=:99.0"
   - sleep 3 # give xvfb some time to start
-  - wget http://downloads.arduino.cc/arduino-1.6.5-linux64.tar.xz
-  - tar xf arduino-1.6.5-linux64.tar.xz
-  - mv arduino-1.6.5 $HOME/arduino_ide
+  - wget http://downloads.arduino.cc/arduino-1.6.8-linux64.tar.xz
+  - tar xf arduino-1.6.8-linux64.tar.xz
+  - mv arduino-1.6.8 $HOME/arduino_ide
   - cd $HOME/arduino_ide/hardware
   - mkdir esp8266com
   - cd esp8266com
-  - wget https://github.com/esp8266/Arduino/releases/download/2.1.0/esp8266-2.1.0.zip
-  - unzip esp8266-2.1.0.zip
-  - mv esp8266-2.1.0 esp8266
-  - wget http://arduino.esp8266.com/versions/2.1.0/package_esp8266com_index.json
-  - mkdir esp8266/package
-  - mv package_esp8266com_index.json esp8266/package/package_esp8266com_index.template.json
+  - git clone https://github.com/esp8266/Arduino.git esp8266
   - cd esp8266/tools
   - python get.py
-  - cd ..
-  - head -11 ./platform.txt > pt.txt
-  - echo 'runtime.tools.xtensa-lx106-elf-gcc.path={runtime.platform.path}/tools/xtensa-lx106-elf' >> pt.txt
-  - echo 'runtime.tools.esptool.path={runtime.platform.path}/tools/esptool' >> pt.txt
-  - tail -110 ./platform.txt >> pt.txt
-  - rm -fr platform.txt
-  - mv pt.txt platform.txt
   
 
 script:
@@ -41,7 +29,7 @@ script:
   - arduino --board esp8266com:esp8266:generic --save-prefs
   - arduino --get-pref sketchbook.path
   - build_sketch esp8266/esp8266.ino
-
+  
 notifications:
   email:
     on_success: change

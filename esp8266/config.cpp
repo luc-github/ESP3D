@@ -236,6 +236,7 @@ void CONFIG::print_config()
 {
     //use biggest size for buffer
     char sbuf[MAX_PASSWORD_LENGTH+1];
+    uint8_t ipbuf[4];
     byte bbuf=0;
     int ibuf=0;
     if (CONFIG::read_byte(EP_WIFI_MODE, &bbuf )) {
@@ -257,7 +258,6 @@ void CONFIG::print_config()
     } else {
         Serial.println(F("Error reading SSID"));
     }
-    //if (CONFIG::read_string(EP_PASSWORD, sbuf , MAX_PASSWORD_LENGTH))Serial.println(sbuf);
 
     if (CONFIG::read_byte(EP_IP_MODE, &bbuf )) {
         Serial.print(F("IP Mode: "));
@@ -272,23 +272,23 @@ void CONFIG::print_config()
         Serial.println(F("Error reading IP mode"));
     }
 
-    if (CONFIG::read_buffer(EP_IP_VALUE,(byte *)sbuf , IP_LENGTH)) {
+    if (CONFIG::read_buffer(EP_IP_VALUE,(byte *)ipbuf , IP_LENGTH)) {
         Serial.print(F("IP: "));
-        Serial.println(wifi_config.ip2str((byte *)sbuf));
+        Serial.println(IPAddress(ipbuf).toString());
     } else {
         Serial.println(F("Error reading IP"));
     }
 
-    if (CONFIG::read_buffer(EP_MASK_VALUE, (byte *)sbuf  , IP_LENGTH)) {
+    if (CONFIG::read_buffer(EP_MASK_VALUE, (byte *)ipbuf  , IP_LENGTH)) {
         Serial.print(F("Subnet: "));
-        Serial.println(wifi_config.ip2str((byte *)sbuf));
+        Serial.println(IPAddress(ipbuf).toString());
     } else {
         Serial.println(F("Error reading subnet"));
     }
 
-    if (CONFIG::read_buffer(EP_GATEWAY_VALUE, (byte *)sbuf  , IP_LENGTH)) {
+    if (CONFIG::read_buffer(EP_GATEWAY_VALUE, (byte *)ipbuf  , IP_LENGTH)) {
         Serial.print(F("Gateway: "));
-        Serial.println(wifi_config.ip2str((byte *)sbuf));
+        Serial.println(IPAddress(ipbuf).toString());
     } else {
         Serial.println(F("Error reading gateway"));
     }
@@ -440,6 +440,18 @@ void CONFIG::print_config()
 #endif
     Serial.print(F("Web update: "));
 #ifdef WEB_UPDATE_FEATURE
+    Serial.println(F("Enabled"));
+#else
+    Serial.println(F("Disabled"));
+#endif
+    Serial.print(F("Pin 2 Recovery: "));
+#ifdef RECOVERY_FEATURE
+    Serial.println(F("Enabled"));
+#else
+    Serial.println(F("Disabled"));
+#endif
+    Serial.print(F("Authentication: "));
+#ifdef AUTHENTICATION_FEATURE
     Serial.println(F("Enabled"));
 #else
     Serial.println(F("Disabled"));

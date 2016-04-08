@@ -7,7 +7,7 @@
 <BR><BR>
 if not redirected, <a href='http://$WEB_ADDRESS$'>click here</a>
 <BR><BR>
-<PROGRESS name='prg' id='prg'>
+<PROGRESS name='prg' id='prg'></PROGRESS>
 
 <script>
 var i = 0; 

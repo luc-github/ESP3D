@@ -27,7 +27,6 @@
 #ifndef ARDUINO_ARCH_ESP8266
 #error Oops!  Make sure you have 'ESP8266' compatible board selected from the 'Tools -> Boards' menu.
 #endif
-#include <SPI.h>
 #include <EEPROM.h>
 #include "config.h"
 #include "wifi.h"
@@ -47,9 +46,6 @@ DNSServer dnsServer;
 #ifdef SSDP_FEATURE
 #include <ESP8266SSDP.h>
 #endif
-extern "C" {
-#include "user_interface.h"
-}
 #include <FS.h>
 #define MAX_SRV_CLIENTS 1
 WiFiServer * data_server;
@@ -61,14 +57,16 @@ void setup()
     web_interface = NULL;
     data_server = NULL;
     WiFi.disconnect();
-    system_update_cpu_freq(SYS_CPU_160MHZ);
-    delay(8000);
+    WiFi.mode(WIFI_OFF);
     bool breset_config=false;
+#ifdef RECOVERY_FEATURE
+    delay(8000);
     //check if reset config is requested
     pinMode(RESET_CONFIG_PIN, INPUT);
     if (digitalRead(RESET_CONFIG_PIN)==0) {
         breset_config=true;    //if requested =>reset settings
     }
+#endif
     //default baud rate
     long baud_rate=0;
 
@@ -97,7 +95,7 @@ void setup()
         delay(1000);
         //put some default value to a void some exception at first start
         WiFi.mode(WIFI_AP);
-        wifi_set_phy_mode(PHY_MODE_11G);
+        WiFi.setPhyMode(WIFI_PHY_MODE_11G);
         Serial.flush();
         delay(500);
         Serial.swap();
@@ -124,6 +122,13 @@ void setup()
     size_t headerkeyssize = sizeof(headerkeys)/sizeof(char*);
     //ask server to track these headers
     web_interface->WebServer.collectHeaders(headerkeys, headerkeyssize );
+#ifdef CAPTIVE_PORTAL_FEATURE
+    if (WiFi.getMode()!=WIFI_STA ) {
+        // if DNSServer is started with "*" for domain name, it will reply with
+        // provided IP to all DNS request
+        dnsServer.start(DNS_PORT, "*", WiFi.softAPIP());
+    }
+#endif
     web_interface->WebServer.begin();
 #ifdef TCP_IP_DATA_FEATURE
     //start TCP/IP interface
@@ -137,15 +142,6 @@ void setup()
     wifi_config.mdns.addService("http", "tcp", wifi_config.iweb_port);
 #endif
 
-#ifdef CAPTIVE_PORTAL_FEATURE
-    if (wifi_get_opmode()!=WIFI_STA ) {
-        // if DNSServer is started with "*" for domain name, it will reply with
-        // provided IP to all DNS request
-        dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
-        dnsServer.start(DNS_PORT, "*", WiFi.softAPIP());
-    }
-#endif
-
 #ifdef SSDP_FEATURE
     String stmp;
     SSDP.setSchemaURL("description.xml");
@@ -154,7 +150,7 @@ void setup()
         stmp=wifi_config.get_default_hostname();
     }
     SSDP.setName(stmp.c_str());
-    stmp=String(system_get_chip_id());
+    stmp=String(ESP.getChipId());
     SSDP.setSerialNumber(stmp.c_str());
     SSDP.setURL("/");
     SSDP.setModelName("ESP8266 01");
@@ -172,12 +168,13 @@ void setup()
 void loop()
 {
 #ifdef CAPTIVE_PORTAL_FEATURE
-    if (wifi_get_opmode()!=WIFI_STA ) {
+    if (WiFi.getMode()!=WIFI_STA ) {
         dnsServer.processNextRequest();
     }
 #endif
 //web requests
     web_interface->WebServer.handleClient();
+
 //TODO use a method to handle serial also in class and call it instead of this one
     uint8_t i,data;
 #ifdef TCP_IP_DATA_FEATURE

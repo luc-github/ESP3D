@@ -25,14 +25,13 @@
 #ifdef MDNS_FEATURE
 #include <ESP8266mDNS.h>
 #endif
-extern "C" {
-#include "user_interface.h"
-}
 #ifdef CAPTIVE_PORTAL_FEATURE
 #include <DNSServer.h>
 extern DNSServer dnsServer;
 #endif
-
+extern "C" {
+#include "user_interface.h"
+}
 WIFI_CONFIG::WIFI_CONFIG()
 {
     iweb_port=DEFAULT_WEB_PORT;
@@ -65,8 +64,9 @@ const char * WIFI_CONFIG::get_default_hostname()
     return hostname;
 }
 
-//no strtok so this is simplified version
-//return number of part
+//helper to convert string to IP
+//do not use IPAddress.fromString() because lack of check point and error result 
+//return number of parts
 byte WIFI_CONFIG::split_ip (const char * ptr,byte * part)
 {
     if (strlen(ptr)>15 || strlen(ptr)< 7) {
@@ -112,16 +112,7 @@ char * WIFI_CONFIG::mac2str(uint8_t mac [WL_MAC_ADDR_LENGTH])
     return macstr;
 }
 
-//just simple helper to convert IP address to string
-char * WIFI_CONFIG::ip2str(IPAddress Ip )
-{
-    static char ipstr [16];
-    if (0>sprintf(ipstr, "%i.%i.%i.%i",Ip[0],Ip[1],Ip[2],Ip[3])) {
-        strcpy (ipstr, "0.0.0.0");
-    }
-    return ipstr;
-}
-
+//safe setup if no connection 
 void  WIFI_CONFIG::Safe_Setup()
 {
 #ifdef CAPTIVE_PORTAL_FEATURE
@@ -153,24 +144,52 @@ bool WIFI_CONFIG::Setup()
     int wstatus;
     IPAddress currentIP;
     byte bflag=0;
-
+    byte bmode=0;
+    //system_update_cpu_freq(SYS_CPU_160MHZ);
     //set the sleep mode
     if (!CONFIG::read_byte(EP_SLEEP_MODE, &bflag )) {
         return false;
     }
-    wifi_set_sleep_type ((sleep_type_t)bflag);
+    WiFi.setSleepMode ((WiFiSleepType_t)bflag);
     sleep_mode=bflag;
     //AP or client ?
-    if (!CONFIG::read_byte(EP_WIFI_MODE, &bflag ) ||  !CONFIG::read_string(EP_SSID, sbuf , MAX_SSID_LENGTH) ||!CONFIG::read_string(EP_PASSWORD, pwd , MAX_PASSWORD_LENGTH)) {
+    if (!CONFIG::read_byte(EP_WIFI_MODE, &bmode ) ||  !CONFIG::read_string(EP_SSID, sbuf , MAX_SSID_LENGTH) ||!CONFIG::read_string(EP_PASSWORD, pwd , MAX_PASSWORD_LENGTH)) {
         return false;
     }
     if (!CONFIG::read_string(EP_HOSTNAME, hostname , MAX_HOSTNAME_LENGTH)) {
         strcpy(hostname,get_default_hostname());
     }
-    //disconnect if connected
-    WiFi.disconnect();
+        //DHCP or Static IP ?
+    if (!CONFIG::read_byte(EP_IP_MODE, &bflag )) {
+        return false;
+    }
+     if (bflag==STATIC_IP_MODE) {
+        byte ip_buf[4];
+        //get the IP
+        if (!CONFIG::read_buffer(EP_IP_VALUE,ip_buf , IP_LENGTH)) {
+            return false;
+        }
+        IPAddress local_ip (ip_buf[0],ip_buf[1],ip_buf[2],ip_buf[3]);
+        //get the gateway
+        if (!CONFIG::read_buffer(EP_GATEWAY_VALUE,ip_buf , IP_LENGTH)) {
+            return false;
+        }
+        IPAddress gateway (ip_buf[0],ip_buf[1],ip_buf[2],ip_buf[3]);
+        //get the mask
+        if (!CONFIG::read_buffer(EP_MASK_VALUE,ip_buf , IP_LENGTH)) {
+            return false;
+        }
+        IPAddress subnet (ip_buf[0],ip_buf[1],ip_buf[2],ip_buf[3]);
+        //apply according active wifi mode
+        if (bmode==AP_MODE) {
+            WiFi.softAPConfig( local_ip,  gateway,  subnet);
+        } else {
+            WiFi.config( local_ip,  gateway,  subnet);
+        }
+    }
     //this is AP mode
-    if (bflag==AP_MODE) {
+    if (bmode==AP_MODE) {
+		WiFi.enableSTA(true);
         //setup Soft AP
         WiFi.mode(WIFI_AP);
         WiFi.softAP(sbuf, pwd);
@@ -178,7 +197,7 @@ bool WIFI_CONFIG::Setup()
         if (!CONFIG::read_byte(EP_PHY_MODE, &bflag )) {
             return false;
         }
-        wifi_set_phy_mode((phy_mode_t)bflag);
+        WiFi.setPhyMode((WiFiPhyMode_t)bflag);
         //get current config
         struct softap_config apconfig;
         wifi_softap_get_config(&apconfig);
@@ -206,6 +225,7 @@ bool WIFI_CONFIG::Setup()
             delay(1000);
         }
     } else {
+		WiFi.enableAP(false);
         //setup station mode
         WiFi.mode(WIFI_STA);
         WiFi.begin(sbuf, pwd);
@@ -214,7 +234,7 @@ bool WIFI_CONFIG::Setup()
         if (!CONFIG::read_byte(EP_PHY_MODE, &bflag )) {
             return false;
         }
-        wifi_set_phy_mode((phy_mode_t)bflag);
+        WiFi.setPhyMode((WiFiPhyMode_t)bflag);
         delay(500);
         byte i=0;
         //try to connect
@@ -244,34 +264,7 @@ bool WIFI_CONFIG::Setup()
         WiFi.hostname(hostname);
     }
 
-    //DHCP or Static IP ?
-    if (!CONFIG::read_byte(EP_IP_MODE, &bflag )) {
-        return false;
-    }
-    if (bflag==STATIC_IP_MODE) {
-        byte ip_buf[4];
-        //get the IP
-        if (!CONFIG::read_buffer(EP_IP_VALUE,ip_buf , IP_LENGTH)) {
-            return false;
-        }
-        IPAddress local_ip (ip_buf[0],ip_buf[1],ip_buf[2],ip_buf[3]);
-        //get the gateway
-        if (!CONFIG::read_buffer(EP_GATEWAY_VALUE,ip_buf , IP_LENGTH)) {
-            return false;
-        }
-        IPAddress gateway (ip_buf[0],ip_buf[1],ip_buf[2],ip_buf[3]);
-        //get the mask
-        if (!CONFIG::read_buffer(EP_MASK_VALUE,ip_buf , IP_LENGTH)) {
-            return false;
-        }
-        IPAddress subnet (ip_buf[0],ip_buf[1],ip_buf[2],ip_buf[3]);
-        //apply according active wifi mode
-        if (wifi_get_opmode()==WIFI_AP || wifi_get_opmode()==WIFI_AP_STA) {
-            WiFi.softAPConfig( local_ip,  gateway,  subnet);
-        } else {
-            WiFi.config( local_ip,  gateway,  subnet);
-        }
-    }
+
 #ifdef MDNS_FEATURE
     // Set up mDNS responder:
     if (!mdns.begin(hostname)) {
@@ -281,7 +274,7 @@ bool WIFI_CONFIG::Setup()
     }
 #endif
     //Get IP
-    if (wifi_get_opmode()==WIFI_STA) {
+    if (WiFi.getMode()==WIFI_STA) {
         currentIP=WiFi.localIP();
     } else {
         currentIP=WiFi.softAPIP();

@@ -10,7 +10,7 @@ $INCLUDE[css.inc]$
 <body>
 <div class="container"><table class="nav">
 <tr width=100%>
-	<td class="$MENU_HOME$"><a href="http://$WEB_ADDRESS$">Home</a></td>
+	<td class="$MENU_HOME$"><a href="http://$WEB_ADDRESS$/HOME">Home</a></td>
 	<td class="$MENU_SYSTEM$"><a href="http://$WEB_ADDRESS$/CONFIGSYS">System</a></td>
 	<td class="$MENU_AP$"><a href="http://$WEB_ADDRESS$/CONFIGAP">Access Point</a></td>
 	<td class="$MENU_STA$"><a href="http://$WEB_ADDRESS$/CONFIGSTA">Station</a></td>

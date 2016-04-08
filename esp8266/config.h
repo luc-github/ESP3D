@@ -21,7 +21,7 @@
 //comment to disable
 //MDNS_FEATURE: this feature allow  type the name defined
 //in web browser by default: http:\\esp8266.local and connect
-#define MDNS_FEATURE
+//#define MDNS_FEATURE
 
 //SSDD_FEATURE: this feature is a discovery protocol, supported on Windows out of the box
 #define SSDP_FEATURE
@@ -41,16 +41,16 @@
 //TCP_IP_DATA_FEATURE: allow to connect serial from TCP/IP
 #define TCP_IP_DATA_FEATURE
 
+//RECOVERY_FEATURE: allow to use GPIO2 pin as hardware reset for EEPROM, add 8s to boot time to let user to jump GPIO2 to GND
+#define RECOVERY_FEATURE
+
 #ifndef CONFIG_h
 #define CONFIG_h
 
 #include <Arduino.h>
 #include "wifi.h"
-extern "C" {
-#include "user_interface.h"
-}
 //version and sources location
-#define FW_VERSION "0.6.0"
+#define FW_VERSION "0.6.1"
 #define REPOSITORY "https://github.com/luc-github/ESP8266"
 
 
@@ -99,8 +99,8 @@ const byte DEFAULT_MASK_VALUE[]  =	        {255, 255, 255, 0};
 #define DEFAULT_GATEWAY_VALUE   	        DEFAULT_IP_VALUE
 const long DEFAULT_BAUD_RATE =			9600;
 const char M117_[] PROGMEM =		"M117 ";
-#define DEFAULT_PHY_MODE			PHY_MODE_11G
-#define DEFAULT_SLEEP_MODE			MODEM_SLEEP_T
+#define DEFAULT_PHY_MODE			WIFI_PHY_MODE_11G
+#define DEFAULT_SLEEP_MODE			WIFI_MODEM_SLEEP
 #define DEFAULT_CHANNEL				11
 #define DEFAULT_AUTH_TYPE			AUTH_WPA_PSK
 #define DEFAULT_SSID_VISIBLE			1
