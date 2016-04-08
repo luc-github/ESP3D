@@ -142,15 +142,11 @@ Connected to Davinci:
 The back cover:    
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/images/Davinci/backside.jpg><br>  
 The screen when connected to AP:    
-<img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/images/Davinci/screen.jpg><br>  
-The settings:     
-<img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/images/Davinci/Capture.PNG><br>  
+<img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/images/Davinci/screen.jpg><br>   
  
 ##Result of ESP12E on Due/RADDS 
  the rendering on screen when connection to AP is done:   
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/images/RADDS/screen.jpg><br> 
- The settings:     
-<img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/images/RADDS/Capture.PNG><br>  
 
 
 ##TODO   
