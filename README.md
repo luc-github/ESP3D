@@ -119,6 +119,7 @@ Please use [Arduino IDE 1.6.5](http://arduino.cc/en/Main/Software)  with the esp
 Please use [Arduino IDE 1.6.8](http://arduino.cc/en/Main/Software) and [git version of esp8266 module](http://esp8266.github.io/Arduino/versions/2.1.0/doc/installing.html#using-git-version)
 
 * To flash the module :   
+For better performance select CPU Frequency to be 160MHz instead of default 80MHz   
 Use IDE to upload directly  (latest version of board manager module generate one binary)     
 * To flash the html files present in data directory you need to use another tool, installation and usage is explained [here](https://github.com/esp8266/Arduino/blob/master/doc/filesystem.md#uploading-files-to-file-system)    
 Once flashed you also can use the web updater to flash new FW in System Configuration Page or go to settings to change html files 
