@@ -15,7 +15,7 @@ Arduino ide 1.6.8 with git from ESP8266 : [![Build Status](https://travis-ci.org
 [All releases](https://github.com/luc-github/ESP8266/wiki)
 
 :question:Any question ?[![Join the chat at https://gitter.im/luc-github/ESP8266](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/luc-github/ESP8266?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)   
-:exclamation:Any issue ? [submit ticket](https://github.com/luc-github/ESP8266/issues)    
+:exclamation:Any issue ? check [FAQ](https://github.com/luc-github/ESP8266/issues?utf8=%E2%9C%93&q=label%3AFAQ+) or [submit ticket](https://github.com/luc-github/ESP8266/issues)    
 
 :warning: All versions seem having instability if compiled/flashed under linux (https://github.com/luc-github/ESP8266/issues/64), so consider to use windows to compile/flash until core is fixed.    
 
