@@ -7,7 +7,8 @@ I currently use it with my personnal flavor of [repetier for Due based boards](h
 Please use ESP with at least 1M flash, for ESP with 512K there is limited version [here](https://github.com/luc-github/ESP8266/tree/ESP-512K-64KSPIFFS)
 
 <u>Stable version:</u>
-Arduino ide 1.6.5 with stable [2.0.0](http://arduino.esp8266.com/versions/2.1.0/package_esp8266com_index.json) from ESP8266, please use https://github.com/luc-github/ESP8266/releases/tag/v0.5.1  
+Arduino ide 1.6.5 with stable [2.0.0](http://arduino.esp8266.com/versions/2.0.0/package_esp8266com_index.json) from ESP8266, please use https://github.com/luc-github/ESP8266/releases/tag/v0.5.1 
+Arduino ide 1.6.8 with stable [2.2.0](http://arduino.esp8266.com/versions/2.2.0/package_esp8266com_index.json) from ESP8266, please use https://github.com/luc-github/ESP8266/releases/tag/v0.6.1   
 
 <u>Development version:</u>
 Arduino ide 1.6.8 with git from ESP8266 : [![Build Status](https://travis-ci.org/luc-github/ESP8266.svg?branch=master)](https://travis-ci.org/luc-github/ESP8266)    
@@ -113,10 +114,14 @@ Additionally 404.tpl (the page not found) and restart.tpl(restart page when appl
  
 ##Installation
 * For stable:
-Please use [Arduino IDE 1.6.5](http://arduino.cc/en/Main/Software)  with the esp8266 module from board manager use 2.0.0 stable version (not 2.1.0 it has bugs) by adding in your preferences http://arduino.esp8266.com/stable/package_esp8266com_index.json
+Please use [Arduino IDE 1.6.5](http://arduino.cc/en/Main/Software)  with the esp8266 module from board manager use 2.0.0 stable version by adding in your preferences http://arduino.esp8266.com/version/2.0.0/package_esp8266com_index.json
+with https://github.com/luc-github/ESP8266/releases/tag/v0.5.1
+or
+use [Arduino IDE 1.6.8](http://arduino.cc/en/Main/Software)  with the esp8266 module from board manager use 2.2.0 stable version by adding in your preferences http://arduino.esp8266.com/stable/package_esp8266com_index.json
+with https://github.com/luc-github/ESP8266/releases/tag/v0.6.1   
 
 * For development:
-Please use [Arduino IDE 1.6.8](http://arduino.cc/en/Main/Software) and [git version of esp8266 module](http://esp8266.github.io/Arduino/versions/2.1.0/doc/installing.html#using-git-version)
+Please use [Arduino IDE 1.6.8](http://arduino.cc/en/Main/Software) and [git version of esp8266 module](http://esp8266.github.io/Arduino/versions/2.2.0/doc/installing.html#using-git-version)
 
 * To flash the module :   
 For better performance select CPU Frequency to be 160MHz instead of default 80MHz   
