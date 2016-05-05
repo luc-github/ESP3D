@@ -301,12 +301,12 @@ void CONFIG::print_config()
     }
 
     if (CONFIG::read_byte(EP_PHY_MODE, &bbuf )) {
-        Serial.print(F("Phy mode: "));
-        if (byte(bbuf)==PHY_MODE_11B) {
+		Serial.print(F("Phy mode: "));
+        if (byte(bbuf)==WIFI_PHY_MODE_11B) {
             Serial.println(F("11b"));
-        } else if (byte(bbuf)==PHY_MODE_11G) {
+        } else if (byte(bbuf)==WIFI_PHY_MODE_11G) {
             Serial.println(F("11g"));
-        } else if (byte(bbuf)==PHY_MODE_11N) {
+        } else if (byte(bbuf)==WIFI_PHY_MODE_11N) {
             Serial.println(F("11n"));
         } else {
             Serial.println(F("???"));
@@ -317,11 +317,11 @@ void CONFIG::print_config()
 
     if (CONFIG::read_byte(EP_SLEEP_MODE, &bbuf )) {
         Serial.print(F("Sleep mode: "));
-        if (byte(bbuf)==NONE_SLEEP_T) {
+        if (byte(bbuf)==WIFI_NONE_SLEEP) {
             Serial.println(F("None"));
-        } else if (byte(bbuf)==LIGHT_SLEEP_T) {
+        } else if (byte(bbuf)==WIFI_LIGHT_SLEEP) {
             Serial.println(F("Light"));
-        } else if (byte(bbuf)==MODEM_SLEEP_T) {
+        } else if (byte(bbuf)==WIFI_MODEM_SLEEP) {
             Serial.println(F("Modem"));
         } else {
             Serial.println(F("???"));

@@ -821,18 +821,19 @@ void handle_web_interface_home()
 
     //network
     KeysList.add(FPSTR(KEY_NET_PHY));
-    if (wifi_get_phy_mode()==PHY_MODE_11B) {
+    if (WiFi.getPhyMode()==WIFI_PHY_MODE_11B) {
         ValuesList.add(FPSTR(VALUE_11B));
-    } else if (wifi_get_phy_mode()==PHY_MODE_11G) {
+    } else if (WiFi.getPhyMode()==WIFI_PHY_MODE_11G) {
         ValuesList.add(FPSTR(VALUE_11G));
     } else {
         ValuesList.add(FPSTR(VALUE_11N));
     }
     //sleep mode
+    Serial.println(WiFi.getSleepMode());
     KeysList.add(FPSTR(KEY_SLEEP_MODE));
-    if (wifi_get_sleep_type()==NONE_SLEEP_T) {
+    if (WiFi.getSleepMode()==WIFI_NONE_SLEEP) {
         ValuesList.add(FPSTR(VALUE_NONE));
-    } else if (wifi_get_sleep_type()==LIGHT_SLEEP_T) {
+    } else if (WiFi.getSleepMode()==WIFI_LIGHT_SLEEP) {
         ValuesList.add(FPSTR(VALUE_LIGHT));
     } else {
         ValuesList.add(FPSTR(VALUE_MODEM));
@@ -1054,7 +1055,7 @@ void handle_web_interface_configSys()
     bool msg_alert_error=false;
     bool msg_alert_success=false;
     long lbaudlist[] = {9600 ,19200,38400,57600,115200,230400,250000,-1};
-    int bmodemvaluelist[] = {NONE_SLEEP_T,LIGHT_SLEEP_T,MODEM_SLEEP_T, -1};
+    int bmodemvaluelist[] = {WIFI_NONE_SLEEP,WIFI_LIGHT_SLEEP,WIFI_MODEM_SLEEP, -1};
     const __FlashStringHelper  *smodemdisplaylist[]= {FPSTR(VALUE_NONE),FPSTR(VALUE_LIGHT),FPSTR(VALUE_MODEM),FPSTR(VALUE_MODEM)};
     STORESTRINGS_CLASS KeysList ;
     STORESTRINGS_CLASS ValuesList ;
@@ -1119,7 +1120,7 @@ void handle_web_interface_configSys()
                 KeysList.add(FPSTR(KEY_BAUD_RATE_STATUS));
                 ValuesList.add(FPSTR(VALUE_HAS_ERROR));
             }
-            if (!(bsleepmode==NONE_SLEEP_T ||bsleepmode==LIGHT_SLEEP_T ||bsleepmode==MODEM_SLEEP_T )) {
+            if (!(bsleepmode==WIFI_NONE_SLEEP ||bsleepmode==WIFI_LIGHT_SLEEP ||bsleepmode==WIFI_MODEM_SLEEP )) {
                 msg_alert_error=true;
                 smsg.concat(F("Error: value for sleeping mode is not correct<BR>"));
                 KeysList.add(FPSTR(KEY_SLEEP_MODE_STATUS));
@@ -1363,7 +1364,7 @@ void handle_web_interface_configAP()
     byte gw_sav[4];
     byte msk_sav[4];
     int ipos;
-    int inetworkvaluelist []= {PHY_MODE_11B,PHY_MODE_11G,-1};
+    int inetworkvaluelist []= {WIFI_PHY_MODE_11B,WIFI_PHY_MODE_11G,-1};
     const __FlashStringHelper  * inetworkdisplaylist []= {FPSTR(VALUE_11B),FPSTR(VALUE_11G),FPSTR(VALUE_11B)};
     int iauthvaluelist[] = {AUTH_OPEN,AUTH_WPA_PSK,AUTH_WPA2_PSK,AUTH_WPA_WPA2_PSK,-1};
     const __FlashStringHelper  * iauthdisplaylist[] = {FPSTR(VALUE_NONE),FPSTR(VALUE_WPA),FPSTR(VALUE_WPA2),FPSTR(VALUE_WPAWPA2)};
@@ -1417,7 +1418,7 @@ void handle_web_interface_configAP()
             }
             //phy mode
             phy_mode_buf  = byte(web_interface->WebServer.arg("NETWORK").toInt());
-            if (!(phy_mode_buf==PHY_MODE_11B||phy_mode_buf==PHY_MODE_11G) ) {
+            if (!(phy_mode_buf==WIFI_PHY_MODE_11B||phy_mode_buf==WIFI_PHY_MODE_11G) ) {
                 msg_alert_error=true;
                 smsg.concat(F("Error: Incorrect network<BR>"));
                 KeysList.add(FPSTR(KEY_NETWORK_OPTION_LIST_STATUS));
@@ -1705,7 +1706,7 @@ void handle_web_interface_configSTA()
     byte msk_sav[4];
     bool revertSTA=false;
     int ipos;
-    int inetworkvaluelist []= {PHY_MODE_11B,PHY_MODE_11G,PHY_MODE_11N,-1};
+    int inetworkvaluelist []= {WIFI_PHY_MODE_11B,WIFI_PHY_MODE_11G,WIFI_PHY_MODE_11N,-1};
     const __FlashStringHelper  * inetworkdisplaylist []= {FPSTR(VALUE_11B),FPSTR(VALUE_11G),FPSTR(VALUE_11N),FPSTR(VALUE_11B)};
     STORESTRINGS_CLASS KeysList ;
     STORESTRINGS_CLASS ValuesList ;
@@ -1760,7 +1761,7 @@ void handle_web_interface_configSTA()
 
             //phy mode
             phy_mode_buf  = byte(web_interface->WebServer.arg("NETWORK").toInt());
-            if (!(phy_mode_buf==PHY_MODE_11B||phy_mode_buf==PHY_MODE_11G||phy_mode_buf==PHY_MODE_11N) ) {
+            if (!(phy_mode_buf==WIFI_PHY_MODE_11B||phy_mode_buf==WIFI_PHY_MODE_11G||phy_mode_buf==WIFI_PHY_MODE_11N) ) {
                 msg_alert_error=true;
                 smsg.concat(F("Error: Incorrect network<BR>"));
                 KeysList.add(FPSTR(KEY_NETWORK_OPTION_LIST_STATUS));
