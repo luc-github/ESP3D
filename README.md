@@ -8,7 +8,7 @@ Please use ESP with at least 1M flash, for ESP with 512K there is limited versio
 
 <u>Stable version:</u>    
 Arduino ide 1.6.5 with stable [2.0.0](http://arduino.esp8266.com/versions/2.0.0/package_esp8266com_index.json) from ESP8266, please use https://github.com/luc-github/ESP8266/releases/tag/v0.5.1    
-Arduino ide 1.6.8 with stable [2.2.0](http://arduino.esp8266.com/versions/2.2.0/package_esp8266com_index.json) from ESP8266, please use https://github.com/luc-github/ESP8266/releases/tag/v0.6.1    
+Arduino ide 1.6.8 with stable [2.2.0](http://arduino.esp8266.com/versions/2.2.0/package_esp8266com_index.json) from ESP8266, please use https://github.com/luc-github/ESP8266/releases/tag/v0.6.2    
 
 <u>Development version:</u>    
 Arduino ide 1.6.8 with git from ESP8266 : [![Build Status](https://travis-ci.org/luc-github/ESP8266.svg?branch=master)](https://travis-ci.org/luc-github/ESP8266)    
