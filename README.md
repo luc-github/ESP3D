@@ -18,12 +18,11 @@ Arduino ide 1.6.8 with git from ESP8266 : [![Build Status](https://travis-ci.org
 :question:Any question ?[![Join the chat at https://gitter.im/luc-github/ESP8266](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/luc-github/ESP8266?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)   
 :exclamation:Any issue ? check [FAQ](https://github.com/luc-github/ESP8266/issues?utf8=%E2%9C%93&q=label%3AFAQ+) or [submit ticket](https://github.com/luc-github/ESP8266/issues)    
 
-:warning: All versions seem having instability if compiled/flashed under linux (https://github.com/luc-github/ESP8266/issues/64), so consider to use windows to compile/flash until core is fixed.    
 
 :+1:Thanks
 * to @disneysw for bringing this module idea
 * to @lkarlslund for suggestion about independant reset using GPIO2
-* to all contributors (treepleks, j0hnlittle, all feedbacks owners and donations)
+* to all contributors (treepleks, j0hnlittle, openhardwarecoza, all feedbacks owners and donations)
 
 Every support is welcome: [<img src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG_global.gif" border="0" alt="PayPal – The safer, easier way to pay online.">](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Y8FFE7NA4LJWQ)    
 Especially if need to buy new modules for testing.
