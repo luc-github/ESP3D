@@ -829,7 +829,6 @@ void handle_web_interface_home()
         ValuesList.add(FPSTR(VALUE_11N));
     }
     //sleep mode
-    Serial.println(WiFi.getSleepMode());
     KeysList.add(FPSTR(KEY_SLEEP_MODE));
     if (WiFi.getSleepMode()==WIFI_NONE_SLEEP) {
         ValuesList.add(FPSTR(VALUE_NONE));
