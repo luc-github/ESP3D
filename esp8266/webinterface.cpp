@@ -1567,7 +1567,7 @@ void handle_web_interface_configAP()
     //ssid visible ?
     KeysList.add(FPSTR(KEY_IS_SSID_VISIBLE));
     if (visible_buf==1) {
-        ValuesList.add(VALUE_CHECKED);
+        ValuesList.add(FPSTR(VALUE_CHECKED));
     } else {
         ValuesList.add("");
     }
@@ -1629,7 +1629,7 @@ void handle_web_interface_configAP()
     //static IP ?
     KeysList.add(FPSTR(KEY_IS_STATIC_IP));
     if (static_ip_buf==STATIC_IP_MODE) {
-        ValuesList.add(VALUE_CHECKED);
+        ValuesList.add(FPSTR(VALUE_CHECKED));
     } else {
         ValuesList.add("");
     }
@@ -1900,7 +1900,7 @@ void handle_web_interface_configSTA()
     //static IP ?
     KeysList.add(FPSTR(KEY_IS_STATIC_IP));
     if (static_ip_buf==STATIC_IP_MODE) {
-        ValuesList.add(VALUE_CHECKED);
+        ValuesList.add(FPSTR(VALUE_CHECKED));
     } else {
         ValuesList.add("");
     }
@@ -1960,11 +1960,11 @@ void handle_web_interface_configSTA()
             WiFi.mode(WIFI_AP);
         }
         KeysList.add(FPSTR(KEY_AP_SCAN_VISIBILITY));
-        ValuesList.add(VALUE_ITEM_VISIBLE);
+        ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
     } else {
         //no need to do a scan if we are going to restart
         KeysList.add(FPSTR(KEY_AP_SCAN_VISIBILITY));
-        ValuesList.add(VALUE_ITEM_HIDDEN);
+        ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
         KeysList.add(FPSTR(KEY_AVAILABLE_AP_NB_ITEMS));
         ValuesList.add(intTostr(0));
     }
