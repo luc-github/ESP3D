@@ -117,7 +117,7 @@ Please use [Arduino IDE 1.6.5](http://arduino.cc/en/Main/Software)  with the esp
 with https://github.com/luc-github/ESP8266/releases/tag/v0.5.1
 or
 use [Arduino IDE 1.6.8](http://arduino.cc/en/Main/Software)  with the esp8266 module from board manager use 2.2.0 stable version by adding in your preferences http://arduino.esp8266.com/stable/package_esp8266com_index.json
-with https://github.com/luc-github/ESP8266/releases/tag/v0.6.1   
+with https://github.com/luc-github/ESP8266/releases/tag/v0.6.2   
 
 * For development:
 Please use [Arduino IDE 1.6.8](http://arduino.cc/en/Main/Software) and [git version of esp8266 module](http://esp8266.github.io/Arduino/versions/2.2.0/doc/installing.html#using-git-version)
@@ -129,6 +129,20 @@ Use IDE to upload directly  (latest version of board manager module generate one
 Once flashed you also can use the web updater to flash new FW in System Configuration Page or go to settings to change html files 
 
 <H3>:warning:Do not flash Printer fw with ESP connected - it bring troubles, at least on DaVinci</H3>
+
+##Hardware connection
+
+* Use GPIO2 to ground to reset all settings in hard way - 2-6 sec after boot / not before!! Set GPIO2 to ground before boot change boot mode and go to special boot that do not reach FW. Currently boot take 10 sec - giving 8 seconds to connect GPIO2 to GND and do an hard recovery for settings   
+* Use GPIO0 to ground to be in update mode   
+
+For ESP01:   
+<img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/images/HW/Wires.png><br>
+
+For ESP12E:   
+<img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/images/HW/WiresESP12E.png><br>
+
+For Davinci Board:   
+<img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/images/Davinci/davinci.png><br>
 
 ##Contribution/customization
 To modifying and Testing tpl files a local tool has been created by [j0hnlittle](https://github.com/j0hnlittle) to avoid to upload everytime your tpl files just to see the results of your modifications. It is a python script (2.7+) located in tools directory, launch it: python server.py, then open browser: http://localhost:8080   
