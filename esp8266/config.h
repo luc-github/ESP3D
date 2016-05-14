@@ -18,6 +18,12 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+//definition
+#define REPETIER		0
+#define REPETIER4DV		1
+#define MARLIN			2
+#define SMOOTHIEWARE	3
+
 //comment to disable
 //MDNS_FEATURE: this feature allow  type the name defined
 //in web browser by default: http:\\esp8266.local and connect
@@ -43,6 +49,10 @@
 
 //RECOVERY_FEATURE: allow to use GPIO2 pin as hardware reset for EEPROM, add 8s to boot time to let user to jump GPIO2 to GND
 #define RECOVERY_FEATURE
+
+//FIRMWARE_TARGET: the targeted FW, can be REPETIER (Original Repetier)/ REPETIER4DV (Repetier for Davinci) / MARLIN (Marlin)/ SMOOTHIEWARE (Smoothieware)
+#define FIRMWARE_TARGET REPETIER4DV
+
 
 #ifndef CONFIG_h
 #define CONFIG_h

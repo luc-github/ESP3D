@@ -456,4 +456,18 @@ void CONFIG::print_config()
 #else
     Serial.println(F("Disabled"));
 #endif
+    Serial.print(F("Target Firmware: "));
+#if FIRMWARE_TARGET == REPETIER
+    Serial.println(F("Repetier"));
+#elif FIRMWARE_TARGET == REPETIER4DV
+    Serial.println(F("Repetier for DaVinci"));
+#elif FIRMWARE_TARGET == MALRLIN
+    Serial.println(F("Marlin"));
+#elif FIRMWARE_TARGET == SMOOTHIEWARE
+    Serial.println(F("Smoothieware"));
+#else
+    Serial.println(F("???"));
+#endif
+ 
+    
 }

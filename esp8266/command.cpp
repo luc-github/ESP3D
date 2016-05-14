@@ -131,6 +131,7 @@ void COMMAND::execute_command(int cmd,String cmd_params)
 void COMMAND::check_command(String buffer)
 {
     static bool bfileslist=false;
+    String buffer2;
     static uint32_t start_list=0;
     if (!bfileslist) {
         int filesstart = buffer.indexOf("Begin file list");
@@ -144,11 +145,20 @@ void COMMAND::check_command(String buffer)
         int Xpos = buffer.indexOf("X:");
         int Ypos = buffer.indexOf("Y:");
         int Zpos = buffer.indexOf("Z:");
-        int Speedpos = buffer.indexOf("SpeedMultiply:");
+#if FIRMWARE_TARGET == SMOOTHIEWARE
+        int Speedpos = buffer.indexOf("Speed factor at ");
+        int Flowpos = buffer.indexOf("Flow rate at ");
+        int Errorpos= buffer.indexOf("error:");
+        int Infopos= buffer.indexOf("info:");
+        int Statuspos= buffer.indexOf("warning:");
+#else
+		int Speedpos = buffer.indexOf("SpeedMultiply:");
         int Flowpos = buffer.indexOf("FlowMultiply:");
         int Errorpos= buffer.indexOf("Error:");
         int Infopos= buffer.indexOf("Info:");
         int Statuspos= buffer.indexOf("Status:");
+#endif
+
 #ifdef SERIAL_COMMAND_FEATURE
         String ESP_Command;
         int ESPpos = buffer.indexOf("[ESP");
@@ -188,11 +198,28 @@ void COMMAND::check_command(String buffer)
         }
         //Speed
         if (Speedpos>-1) {
-            web_interface->answer4M220=buffer.substring(Speedpos+14);
+			//get just the value
+			
+#if FIRMWARE_TARGET == SMOOTHIEWARE
+			buffer2 =buffer.substring(Speedpos+16);
+			int p2 = buffer2.indexOf(".");
+            web_interface->answer4M220=buffer2.substring(0,p2);
+#else
+			web_interface->answer4M220=buffer.substring(Speedpos+14);
+#endif
+            
         }
         //Flow
         if (Flowpos>-1) {
-            web_interface->answer4M221=buffer.substring(Flowpos+13);
+			//get just the value
+           
+#if FIRMWARE_TARGET == SMOOTHIEWARE
+			buffer2 =buffer.substring(Flowpos+13);
+			int p2 = buffer2.indexOf(".");
+            web_interface->answer4M221=buffer2.substring(0,p2);
+#else
+			web_interface->answer4M221=buffer.substring(Flowpos+13);
+#endif
         }
         //Error
         if (Errorpos>-1 && !(buffer.indexOf("Format error")!=-1 || buffer.indexOf("wait")==Errorpos+6) ) {
@@ -204,7 +231,11 @@ void COMMAND::check_command(String buffer)
         }
         //Status
         if (Statuspos>-1) {
-            (web_interface->status_msg).add(buffer.substring(Statuspos+7).c_str());
+#if FIRMWARE_TARGET == SMOOTHIEWARE
+            (web_interface->status_msg).add(buffer.substring(Statuspos+8).c_str());
+#else
+			(web_interface->status_msg).add(buffer.substring(Statuspos+7).c_str());
+#endif
         }
     } else {
         if ((system_get_time()-start_list)>30000000) { //timeout in case of problem
