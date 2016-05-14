@@ -144,6 +144,9 @@ For ESP12E:
 For Davinci Board:   
 <img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/images/Davinci/davinci.png><br>
 
+For RADDS Board:   
+<img src=https://raw.githubusercontent.com/luc-github/ESP8266/master/images/RADDS/RADDS.png><br>
+
 ##Contribution/customization
 To modifying and Testing tpl files a local tool has been created by [j0hnlittle](https://github.com/j0hnlittle) to avoid to upload everytime your tpl files just to see the results of your modifications. It is a python script (2.7+) located in tools directory, launch it: python server.py, then open browser: http://localhost:8080   
 It will display the web ui and allow some navigation   
