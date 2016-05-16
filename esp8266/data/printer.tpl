@@ -353,7 +353,7 @@ var i;
 for (i = 0; i < jsonresponse.length; i++){ 
 content =jsonresponse[i].entry;
 var tcontent=content.split(" ");
-if (tcontent.length==2){
+if ((tcontent.length==2) || (tcontent.length==1 && tcontent[0].indexOf("/")==-1)){
 list2display+="<OPTION value=\"";
 list2display+=tcontent[0];
 list2display+="\">";
