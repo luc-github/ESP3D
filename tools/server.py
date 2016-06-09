@@ -8,7 +8,7 @@ import json
 import re
 
 #Replace this with a different path if you need to...
-base_path = os.path.join(os.getcwd(),"..","esp8266","data")
+base_path = os.path.join(os.getcwd(),"..","esp3d","data")
 tools_path = os.getcwd();
 server_port=8080
 

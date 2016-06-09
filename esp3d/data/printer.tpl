@@ -1,4 +1,5 @@
 $INCLUDE[header.inc]$
+$INCLUDE[css2.inc]$
 <table>
 <tr><td style="padding:0px;"><div id="Extruder1" style="visibility:hidden;height:0px;"> 
 <table><tr><td><label>E1:&nbsp;</label></td>
@@ -67,7 +68,10 @@ $INCLUDE[header.inc]$
 <td class="btnimg" onclick="getSDfiles();"><svg width="40" height="40" viewBox="0 0 40 40"><rect x="5" y="10" width="30" height="20" rx="2" ry="2" style="fill:rgb(0,0,0);stroke-width:1;stroke:rgb(0,0,0)" />
 <rect x="20" y="5" width="15" height="15" rx="2" ry="2" style="fill:rgb(0,0,0);stroke-width:1;stroke:rgb(0,0,0)" /><text x="10" y="25" font-family="Verdana" font-size="14" fill="white">SD</text></svg></td>
 <td>&nbsp;&nbsp;</td>
-<td id="SDLIST"></td></tr></table></td></tr><tr><td><table><tr align="center" valign="middle"><td class="btnimg" onclick=" Sendcommand('G28 X');">
+<td id="SDLIST"></td></tr></table></td></tr>
+<tr><td><input type="file" id="file-select" name="myfiles[]" multiple />
+<input class="btn btn-primary" type="button" id="upload-button" onclick="Sendfile();" value="Upload"/>&nbsp;&nbsp;<progress style="visibility:hidden;" name='prg' id='prg'></progress></td></tr>
+<tr><td><table><tr align="center" valign="middle"><td class="btnimg" onclick=" Sendcommand('G28 X');">
 <svg width="40" height="40" viewBox="0 0 40 40" ><polygon points="7,40 7,25 4,28 0,24 20,4 26,10 26,6 32,6 32,16 40,24 36,28 33,25 33,40" fill="black" stroke-width:"1" stroke:"black" />
 <line x1="25" y1="8" x2="33" y2="16" style="stroke:white;stroke-width:1" /><polyline points="4,28 20,12 36,28" style="fill:none;stroke:white;stroke-width:1" />
 <text x="15" y="35" font-family="Verdana" font-size="14" fill="white">X</text></svg></td><td>
@@ -141,6 +145,7 @@ $INCLUDE[header.inc]$
 <text x="14" y="7" font-family="Verdana" font-size="7" fill="black">10</text></svg></td></tr>
 <tr><td class="btnimg" onclick="SendJogcommand( 'E1+50',Efeedrate);"><svg width="40" height="20" viewBox="0 0 40 20" ><polyline points="5,18 20,5 35,18" style="fill:none;stroke:pink;stroke-width:7" transform="rotate(180 20 10)"/>
 <text x="15" y="6" font-family="Verdana" font-size="7" fill="black">50</text></svg></td></tr></table></td></tr></table></td></tr></table>
+
 <script type="text/javascript">
 var XYfeedrate=$XY_FEEDRATE$;
 var Zfeedrate=$Z_FEEDRATE$;
@@ -380,7 +385,7 @@ document.getElementById("SDLIST").innerHTML="";
 Sendcommand("M20");
 delay(1000);
 var xmlhttp = new XMLHttpRequest();
-var url = "http://$WEB_ADDRESS$/SDFILES";
+var url = "/SDFILES";
 xmlhttp.onreadystatechange = function() {
 if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
 var jsonresponse = JSON.parse(xmlhttp.responseText);
@@ -389,6 +394,30 @@ refreshfilelist(jsonresponse);}
 xmlhttp.open("GET", url, true);
 xmlhttp.send();
 }
+
+function Sendfile(){
+var files = document.getElementById('file-select').files;
+if (files.length==0)return;
+document.getElementById('upload-button').value = "Uploading...";
+document.getElementById('prg').style.visibility = "visible";
+var formData = new FormData();
+for (var i = 0; i < files.length; i++) {
+var file = files[i];
+ formData.append('myfiles[]', file, "/"+file.name);}
+var xmlhttp = new XMLHttpRequest();
+xmlhttp.open('POST', '/SDFILES', true);
+xmlhttp.onload = function () {
+ if (xmlhttp.status === 200) {
+document.getElementById('upload-button').value = 'Upload';
+document.getElementById('prg').style.visibility = "hidden";
+document.getElementById('file-select').value="";
+var jsonresponse = JSON.parse(xmlhttp.responseText);
+refreshfilelist(jsonresponse);
+ } else alert('An error occurred!');
+}
+xmlhttp.send(formData);
+}
+
 setInterval(function(){getstatus();},$REFRESH_PAGE$);
 </script>
 $INCLUDE[footer.inc]$

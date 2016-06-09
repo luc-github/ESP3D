@@ -25,6 +25,6 @@ $INCLUDE[css.inc]$
     <circle style="fill:white" cx="20" cy="22" r="2.5"/>
     <polygon points="20,23 16,30 24,30" style="fill:white"/></svg></div></a></td>
 	<td>FW:  V$FW_VER$</td>
-	<td><a href="https://github.com/luc-github/ESP8266">Github</a></td>
+	<td><a href="https://github.com/luc-github/ESP3D">ESP3D</a></td>
 </tr>
 </table>

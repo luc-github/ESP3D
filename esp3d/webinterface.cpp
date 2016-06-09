@@ -2094,7 +2094,7 @@ void handle_web_settings()
         web_interface->WebServer.sendContent_P(NOT_AUTH_SET);
         return;
     }
-
+	web_interface->blockserial = false;
     //IP+Web
     GetIpWeb(KeysList, ValuesList);
     //mode
@@ -2409,19 +2409,63 @@ void SPIFFSFileupload()
     HTTPUpload& upload = (web_interface->WebServer).upload();
     if(upload.status == UPLOAD_FILE_START) {
         String filename = upload.filename;
+        Serial.println("M117 Start ESP upload");
         web_interface->fsUploadFile = SPIFFS.open(filename, "w");
         filename = String();
+        web_interface->_upload_status= UPLOAD_STATUS_ONGOING;
     } else if(upload.status == UPLOAD_FILE_WRITE) {
+		web_interface->_upload_status= UPLOAD_STATUS_ONGOING;
         if(web_interface->fsUploadFile) {
             web_interface->fsUploadFile.write(upload.buf, upload.currentSize);
         }
     } else if(upload.status == UPLOAD_FILE_END) {
+		web_interface->_upload_status=UPLOAD_STATUS_SUCCESSFUL;
+		Serial.println("M117 End ESP upload");
         if(web_interface->fsUploadFile) {
             web_interface->fsUploadFile.close();
         }
     } else {
-        Serial.println("Cannot open file");
+		web_interface->_upload_status=UPLOAD_STATUS_CANCELLED;
+        Serial.println("M117 Error ESP upload");
     }
+    delay(0);
+}
+
+void SDFileupload()
+{
+	static bool linewrote = false; 
+    HTTPUpload& upload = (web_interface->WebServer).upload();
+    if(upload.status == UPLOAD_FILE_START) {
+		(web_interface->blockserial) = true;
+		linewrote = false;
+		web_interface->_upload_status= UPLOAD_STATUS_ONGOING;
+		Serial.println("M117 Start SD upload");
+        String filename = "M28 " + upload.filename;
+        Serial.println(filename);
+        filename = String();
+    } else if(upload.status == UPLOAD_FILE_WRITE) {
+			web_interface->_upload_status= UPLOAD_STATUS_ONGOING;
+			if (linewrote == false){
+            Serial.write("M117 one line yes\n");
+            Serial.flush();
+            linewrote = true;
+            }
+            
+            //Serial.write(upload.buf, upload.currentSize);
+    } else if(upload.status == UPLOAD_FILE_END) {
+            web_interface->blockserial = false;
+            linewrote = false;
+            web_interface->_upload_status=UPLOAD_STATUS_SUCCESSFUL;
+			Serial.println("M29\n");
+			delay (500);
+			Serial.println("M117 SD upload done\n");
+    } else {
+		web_interface->_upload_status=UPLOAD_STATUS_CANCELLED;
+        Serial.println("M29\n");
+        delay (500);
+        Serial.println("M117 SD upload failed");
+    }
+    delay(0);
 }
 
 #ifdef WEB_UPDATE_FEATURE
@@ -2448,7 +2492,7 @@ void WebUpdateUpload()
         Update.end();
         web_interface->_upload_status=UPLOAD_STATUS_CANCELLED;
     }
-    yield();
+    delay(0);
 }
 
 void handleUpdate()
@@ -2526,6 +2570,15 @@ void handleSDFileList()
     if (!web_interface->is_authenticated()) {
         return;
     }
+     if(web_interface->WebServer.hasArg("action")) {
+        if(web_interface->WebServer.arg("action")=="delete" && web_interface->WebServer.hasArg("filename")) {
+            String filename;
+            web_interface->urldecode(filename,web_interface->WebServer.arg("filename").c_str());
+            filename = "M30 " + filename;
+            //TODO:need a MACRO or helper for this test
+            if((web_interface->blockserial) == false)Serial.println(filename);
+        }
+    }
     String jsonfile = "[";
     for (int i=0; i<web_interface->fileslist.size(); i++) {
         if (i>0) {
@@ -2538,6 +2591,7 @@ void handleSDFileList()
     jsonfile+="]";
     web_interface->WebServer.sendHeader("Cache-Control", "no-cache");
     web_interface->WebServer.send(200, "application/json", jsonfile);
+    web_interface->blockserial = false;
 }
 
 //do a redirect to avoid to many query
@@ -2767,8 +2821,6 @@ void handle_web_command()
         //decode command
         web_interface->urldecode(scmd,web_interface->WebServer.arg("COM").c_str());
         scmd.trim();
-        //send command to serial
-        Serial.println(scmd);
         //give an ack - we need to be polite, right ?
         web_interface->WebServer.send(200,"text/plain","Ok");
         //if it is for ESP module [ESPXXX]<parameter>
@@ -2791,6 +2843,11 @@ void handle_web_command()
                 //if not is not a valid [ESPXXX] command
             }
         }
+        else {
+			 //send command to serial as no need to transfer ESP command
+			 //to avoid any pollution if Uploading file to SDCard
+			 if ((web_interface->blockserial) == false)Serial.println(scmd);
+		}
     }
 }
 
@@ -2856,7 +2913,7 @@ WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port):WebServer(port)
     WebServer.on("/UPDATE",HTTP_ANY, handleUpdate,WebUpdateUpload);
 #endif
     WebServer.on("/FILES", HTTP_ANY, handleFileList,SPIFFSFileupload);
-    WebServer.on("/SDFILES", HTTP_ANY, handleSDFileList);
+    WebServer.on("/SDFILES", HTTP_ANY, handleSDFileList,SDFileupload);
     WebServer.on("/LOGIN", HTTP_ANY, handle_login);
     WebServer.on("/PASSWORD", HTTP_ANY, handle_password);
     //Captive portal Feature
@@ -2872,6 +2929,7 @@ WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port):WebServer(port)
     answer4M114="X:0.0 Y:0.0 Z:0.000";
     answer4M220="100";
     answer4M221="100";
+    blockserial = false;
     last_temp=system_get_time();
     restartmodule=false;
     //rolling list of 4entries with a maximum of 50 char for each entry

@@ -48,3 +48,5 @@ caption{padding-top:8px;padding-bottom:8px;color:#777777;text-align:left;}
 .btnimg:hover{background-color:#F0F0F0;border-color:#00FFFF;-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,0.075),0 0 6px #ce8483;box-shadow:inset 0 1px 1px rgba(0,0,0,0.075),0 0 6px #ce8483;}
 .btnroundimg {cursor:hand; border-radius:30px;}
 .btnroundimg:hover{background-color:#F0F0F0;-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,0.075),0 0 6px #ce8483;box-shadow:inset 0 1px 1px rgba(0,0,0,0.075),0 0 6px #ce8483;}
+.blacklink {color:#000000;}
+.blacklink:hover, .filelink:focus {color:#0094FF;}

@@ -11,13 +11,13 @@ before_install:
 before_script:
   - "export DISPLAY=:99.0"
   - sleep 3 # give xvfb some time to start
-  - wget http://downloads.arduino.cc/arduino-1.6.8-linux64.tar.xz
-  - tar xf arduino-1.6.8-linux64.tar.xz
-  - mv arduino-1.6.8 $HOME/arduino_ide
+  - wget http://downloads.arduino.cc/arduino-1.6.9-linux64.tar.xz
+  - tar xf arduino-1.6.9-linux64.tar.xz
+  - mv arduino-1.6.9 $HOME/arduino_ide
   - cd $HOME/arduino_ide/hardware
   - mkdir esp8266com
   - cd esp8266com
-  - git clone https://github.com/esp8266/Arduino.git esp8266
+  - git clone https://github.com/esp3d/Arduino.git esp8266
   - cd esp8266/tools
   - python get.py
   
@@ -28,7 +28,7 @@ script:
   - export PATH="$HOME/arduino_ide:$PATH"
   - arduino --board esp8266com:esp8266:generic --save-prefs
   - arduino --get-pref sketchbook.path
-  - build_sketch esp8266/esp8266.ino
+  - build_sketch esp3d/esp3d.ino
   
 notifications:
   email:

@@ -37,7 +37,8 @@ void COMMAND::execute_command(int cmd,String cmd_params)
     switch(cmd) {
         byte mode;
     case 800:
-        Serial.println("\nCommand received");
+        Serial.print("\nFW version:");
+        Serial.println(FW_VERSION);
         break;
     case 100:
         if(!CONFIG::write_string(EP_SSID,cmd_params.c_str())) {
@@ -133,13 +134,21 @@ void COMMAND::check_command(String buffer)
     static bool bfileslist=false;
     String buffer2;
     static uint32_t start_list=0;
+    //if SD list is not on going
     if (!bfileslist) {
+		//check if command is a start of SD File list
         int filesstart = buffer.indexOf("Begin file list");
+        //yes it is file list starting to be displayed
         if (filesstart>-1) {
-            Serial.print("Starting");
+			//init time out
             start_list=system_get_time();
+            //set file list started
             bfileslist=true;
+            //clear current list
             web_interface->fileslist.clear();
+            //block any new output to serial from ESP to avoid pollution
+            (web_interface->blockserial) = true;
+            return;
         }
         int Tpos = buffer.indexOf("T:");
         int Xpos = buffer.indexOf("X:");
@@ -237,16 +246,19 @@ void COMMAND::check_command(String buffer)
 			(web_interface->status_msg).add(buffer.substring(Statuspos+7).c_str());
 #endif
         }
-    } else {
+    } else { //listing file is on going
+		//check if we are too long 
         if ((system_get_time()-start_list)>30000000) { //timeout in case of problem
             bfileslist=false;
-            Serial.print("time out");
+            (web_interface->blockserial) = false; //release serial
         } else {
+			//check if this is the end
             if (buffer.indexOf("End file list")>-1) {
-                Serial.print("Ending");
                 bfileslist=false;
+                (web_interface->blockserial) = false; 
             } else {
-                Serial.print(buffer);
+                //Serial.print(buffer);
+                //add list to buffer
                 web_interface->fileslist.add(buffer);
             }
         }

@@ -62,6 +62,7 @@ public:
     char * create_session_ID();
     bool is_authenticated();
     bool AddAuthIP(auth_ip * item);
+    bool blockserial;
     bool ResetAuthIP(IPAddress ip,const char * sessionID);
     uint8_t _upload_status;
 

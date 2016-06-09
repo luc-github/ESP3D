@@ -195,18 +195,21 @@ void loop()
         serverClient.stop();
     }
     //check clients for data
-    for(i = 0; i < MAX_SRV_CLIENTS; i++) {
-        if (serverClients[i] && serverClients[i].connected()) {
-            if(serverClients[i].available()) {
-                //get data from the tcp client and push it to the UART
-                while(serverClients[i].available()) {
-                    data = serverClients[i].read();
-                    Serial.write(data);
-                    COMMAND::read_buffer_tcp(data);
-                }
-            }
-        }
-    }
+    //to avoid any pollution if Uploading file to SDCard
+    if ((web_interface->blockserial) == false){
+		for(i = 0; i < MAX_SRV_CLIENTS; i++) {
+			if (serverClients[i] && serverClients[i].connected()) {
+				if(serverClients[i].available()) {
+					//get data from the tcp client and push it to the UART
+					while(serverClients[i].available()) {
+						data = serverClients[i].read();
+						Serial.write(data);
+						COMMAND::read_buffer_tcp(data);
+					}
+				}
+			}
+		}
+	}
 #endif
     //check UART for data
     if(Serial.available()) {
