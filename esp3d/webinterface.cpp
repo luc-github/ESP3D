@@ -542,7 +542,7 @@ void GetFreeMem(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList)
 {
     //FreeMem
     KeysList.add(FPSTR(KEY_FREE_MEM));
-    ValuesList.add(intTostr(system_get_free_heap_size()));
+    ValuesList.add(intTostr(ESP.getFreeHeap()));
     //FW Version
     KeysList.add(FPSTR(KEY_FW_VER));
     ValuesList.add(FPSTR(VALUE_FW_VERSION));

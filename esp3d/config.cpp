@@ -24,6 +24,9 @@ extern "C" {
 #include "user_interface.h"
 }
 
+
+extern String formatBytes(size_t bytes);
+
 //read a string
 //a string is multibyte + \0, this is won't work if 1 char is multibyte like chinese char
 bool CONFIG::read_string(int pos, char byte_buffer[], int size_max)
@@ -422,6 +425,9 @@ void CONFIG::print_config()
     } else {
         Serial.println(F("Error reading E feed rate"));
     }
+    
+    Serial.print(F("Free memory: "));
+    Serial.println(formatBytes(ESP.getFreeHeap()));
 
     Serial.print(F("Captive portal: "));
 #ifdef CAPTIVE_PORTAL_FEATURE
