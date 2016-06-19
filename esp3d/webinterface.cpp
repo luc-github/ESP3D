@@ -2430,39 +2430,91 @@ void SPIFFSFileupload()
     }
     delay(0);
 }
-
+#define NB_RETRY 5
 void SDFileupload()
 {
-	static bool linewrote = false; 
+	static byte buffer_line[128]; //if need to resend
+	static int  buffer_size=0;
+	static bool com_error = false;
+	String response;
     HTTPUpload& upload = (web_interface->WebServer).upload();
     if(upload.status == UPLOAD_FILE_START) {
 		(web_interface->blockserial) = true;
-		linewrote = false;
+		buffer_size=0;
+		com_error = false;
 		web_interface->_upload_status= UPLOAD_STATUS_ONGOING;
 		Serial.println("M117 Start SD upload");
         String filename = "M28 " + upload.filename;
         Serial.println(filename);
         filename = String();
-    } else if(upload.status == UPLOAD_FILE_WRITE) {
+    } else if((upload.status == UPLOAD_FILE_WRITE) && (com_error == false)){//if com error no need to send more data to serial
 			web_interface->_upload_status= UPLOAD_STATUS_ONGOING;
-			if (linewrote == false){
-            Serial.write("M117 one line yes\n");
-            Serial.flush();
-            linewrote = true;
-            }
-            
-            //Serial.write(upload.buf, upload.currentSize);
+			//upload.buf, upload.currentSize
+			for (int pos = 0; pos < upload.currentSize;pos++) //parse full post data
+				{
+					Serial.write(upload.buf[pos]); //write char by char
+					buffer_line[buffer_size] = upload.buf[pos]; //copy current char to buffer if need to resend
+					buffer_size++;
+					if (upload.buf[pos] == '\n') //end of line
+						{
+							Serial.flush();//let's flush to wait the buffer is empty
+							//if resend use buffer
+							bool success = false;
+							//Question: do we need delay to get answer ?
+							//check NB_RETRY times if get no error when send line
+							for (int r = 0 ; r < NB_RETRY ; r++)
+								{
+								if(Serial.available()) { //look for answer
+									response = Serial.readString();
+									}
+								if (response.indexOf("resend") > -1){//we have error
+									//resend last line
+									Serial.write(buffer_line,buffer_size);
+									Serial.flush();
+									}
+								else {
+									//we got it exit retry and continue send 
+									success = true;
+									break; //for retry
+									}
+								}
+							if (!success){
+								//raise error
+								com_error = true;
+								}
+							//reset buffer for next command
+							buffer_size = 0;
+						}
+					if (buffer_size > 128) //raise error if overbuffer - command/line is not so big
+						{
+							//raise error
+							buffer_size = 0;
+							com_error = true;
+						}
+				}
     } else if(upload.status == UPLOAD_FILE_END) {
             web_interface->blockserial = false;
-            linewrote = false;
-            web_interface->_upload_status=UPLOAD_STATUS_SUCCESSFUL;
-			Serial.println("M29\n");
-			delay (500);
-			Serial.println("M117 SD upload done\n");
+            buffer_size=0;
+            Serial.println("M29\n");
+            Serial.flush();
+            if (com_error){
+				web_interface->_upload_status=UPLOAD_STATUS_CANCELLED;
+				Serial.println("M117 SD upload failed");
+				Serial.flush();
+				}
+			else
+				{
+				web_interface->_upload_status=UPLOAD_STATUS_SUCCESSFUL;
+				Serial.println("M117 SD upload done");
+				Serial.flush();
+				}
     } else {
+		com_error = true;
+		web_interface->blockserial = false;
 		web_interface->_upload_status=UPLOAD_STATUS_CANCELLED;
+		buffer_size=0;
         Serial.println("M29\n");
-        delay (500);
+        Serial.flush();
         Serial.println("M117 SD upload failed");
     }
     delay(0);
