@@ -34,7 +34,7 @@ $SUCCESS_MSG$
 <table><tr>
 <td><input type="file" id="file-select" name="myfiles[]" multiple /></td>
 <td><input class="btn btn-primary" type="button" id="upload-button" onclick="Sendfile();" value="Update"/></td>
-<td><progress style="visibility:hidden;" name='prg' id='prg'></progress></td>
+<td><progress style="visibility:hidden;" name='prg' id='prg' max='100'></progress></td>
 <td><div id='msg' style='visibility:hidden;'>Restarting, please wait....</div></td></tr></table>
 </div>
 
@@ -52,6 +52,18 @@ var file = files[i];
  formData.append('myfiles[]', file, "/"+file.name);}
 var xmlhttp = new XMLHttpRequest();
 xmlhttp.open('POST', '/UPDATE', true);
+//progress upload event
+xmlhttp.upload.addEventListener("progress", updateProgress, false);
+//progress function
+function updateProgress (oEvent) {
+  if (oEvent.lengthComputable) {
+    var percentComplete = (oEvent.loaded / oEvent.total)*100;
+    document.getElementById('prg').value=percentComplete;
+    document.getElementById('upload-button').value = "Uploading ..." + percentComplete.toFixed(0)+"%" ;
+  } else {
+    // Impossible because size is unknown
+  }
+}
 xmlhttp.onload = function () {
  if (xmlhttp.status === 200) {
 document.getElementById('upload-button').value = 'Upload';

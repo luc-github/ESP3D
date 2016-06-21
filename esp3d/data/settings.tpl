@@ -30,7 +30,7 @@ $SUCCESS_MSG$
 <div class="panel-heading">Filesystem</div>
 <div class="panel-body">
 <input type="file" id="file-select" name="myfiles[]" multiple />
-<input class="btn btn-primary" type="button" id="upload-button" onclick="Sendfile();" value="Upload"/>&nbsp;&nbsp;<progress style="visibility:hidden;" name='prg' id='prg'></progress>
+<input class="btn btn-primary" type="button" id="upload-button" onclick="Sendfile();" value="Upload"/>&nbsp;&nbsp;<progress style="visibility:hidden;" name='prg' id='prg' max='100'></progress>
 <br><br><div class="panel">
 <div class="panel-body">
 <table class="table table-striped" style="border:1px;solid #dddddd;margin-bottom:20px;" ><thead><tr><th>Name</th><th>size</th><th width='0%'></th><th width='100%'></th></tr></thead><tbody id="file_list"><tbody></table>
@@ -88,6 +88,19 @@ var file = files[i];
  formData.append('myfiles[]', file, "/"+file.name);}
 var xmlhttp = new XMLHttpRequest();
 xmlhttp.open('POST', '/FILES', true);
+//progress upload event
+xmlhttp.upload.addEventListener("progress", updateProgress, false);
+//progress function
+function updateProgress (oEvent) {
+  if (oEvent.lengthComputable) {
+    var percentComplete = (oEvent.loaded / oEvent.total)*100;
+    document.getElementById('prg').value=percentComplete;
+    document.getElementById('upload-button').value = "Uploading ..." + percentComplete.toFixed(0)+"%" ;
+  } else {
+    // Impossible because size is unknown
+  }
+}
+
 xmlhttp.onload = function () {
  if (xmlhttp.status === 200) {
 document.getElementById('upload-button').value = 'Upload';

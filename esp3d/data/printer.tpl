@@ -70,7 +70,7 @@ $INCLUDE[css2.inc]$
 <td>&nbsp;&nbsp;</td>
 <td id="SDLIST"></td></tr></table></td></tr>
 <tr><td><input type="file" id="file-select" name="myfiles[]" multiple />
-<input class="btn btn-primary" type="button" id="upload-button" onclick="Sendfile();" value="Upload"/>&nbsp;&nbsp;<progress style="visibility:hidden;" name='prg' id='prg'></progress></td></tr>
+<input class="btn btn-primary" type="button" id="upload-button" onclick="Sendfile();" value="Upload"/>&nbsp;&nbsp;<progress style="visibility:hidden;" name='prg' id='prg' max='100'></progress></td></tr>
 <tr><td><table><tr align="center" valign="middle"><td class="btnimg" onclick=" Sendcommand('G28 X');">
 <svg width="40" height="40" viewBox="0 0 40 40" ><polygon points="7,40 7,25 4,28 0,24 20,4 26,10 26,6 32,6 32,16 40,24 36,28 33,25 33,40" fill="black" stroke-width:"1" stroke:"black" />
 <line x1="25" y1="8" x2="33" y2="16" style="stroke:white;stroke-width:1" /><polyline points="4,28 20,12 36,28" style="fill:none;stroke:white;stroke-width:1" />
@@ -406,6 +406,18 @@ var file = files[i];
  formData.append('myfiles[]', file, "/"+file.name);}
 var xmlhttp = new XMLHttpRequest();
 xmlhttp.open('POST', '/SDFILES', true);
+//progress upload event
+xmlhttp.upload.addEventListener("progress", updateProgress, false);
+//progress function
+function updateProgress (oEvent) {
+  if (oEvent.lengthComputable) {
+    var percentComplete = (oEvent.loaded / oEvent.total)*100;
+    document.getElementById('prg').value=percentComplete;
+    document.getElementById('upload-button').value = "Uploading ..." + percentComplete.toFixed(0)+"%" ;
+  } else {
+    // Impossible because size is unknown
+  }
+}
 xmlhttp.onload = function () {
  if (xmlhttp.status === 200) {
 document.getElementById('upload-button').value = 'Upload';
