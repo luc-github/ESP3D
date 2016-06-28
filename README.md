@@ -123,6 +123,41 @@ with https://github.com/luc-github/ESP3D/releases/tag/v0.6.2
 Please use [Arduino IDE 1.6.8](http://arduino.cc/en/Main/Software) and [git version of esp8266 module](http://esp8266.github.io/Arduino/versions/2.2.0/doc/installing.html#using-git-version)
 
 * To flash the module :   
+You must define the targeted FW,  can be REPETIER (Original Repetier)/ REPETIER4DV (Repetier for Davinci) / MARLIN (Marlin)/ SMOOTHIEWARE (Smoothieware) in config.h and enable/disable any others features
+```
+//MDNS_FEATURE: this feature allow  type the name defined
+//in web browser by default: http:\\esp8266.local and connect
+//#define MDNS_FEATURE
+
+//SSDD_FEATURE: this feature is a discovery protocol, supported on Windows out of the box
+#define SSDP_FEATURE
+
+//CAPTIVE_PORTAL_FEATURE: In SoftAP redirect all unknow call to main page
+#define CAPTIVE_PORTAL_FEATURE
+
+//AUTHENTICATION_FEATURE: protect pages by login password
+#define AUTHENTICATION_FEATURE
+
+//WEB_UPDATE_FEATURE: allow to flash fw using web UI
+#define WEB_UPDATE_FEATURE
+
+//SERIAL_COMMAND_FEATURE: allow to send command by serial
+#define SERIAL_COMMAND_FEATURE
+
+//TCP_IP_DATA_FEATURE: allow to connect serial from TCP/IP
+#define TCP_IP_DATA_FEATURE
+
+//RECOVERY_FEATURE: allow to use GPIO2 pin as hardware reset for EEPROM, add 8s to boot time to let user to jump GPIO2 to GND
+#define RECOVERY_FEATURE
+
+//FIRMWARE_TARGET: the targeted FW, can be REPETIER (Original Repetier)/ REPETIER4DV (Repetier for Davinci) / MARLIN (Marlin)/ SMOOTHIEWARE (Smoothieware)
+#define FIRMWARE_TARGET REPETIER4DV
+
+//DEBUG Flag
+//#define DEBUG_ESP3D 
+```
+
+
 For better performance select CPU Frequency to be 160MHz instead of default 80MHz   
 Use IDE to upload directly  (latest version of board manager module generate one binary)     
 * To flash the html files present in data directory you need to use another tool, installation and usage is explained [here](https://github.com/esp8266/Arduino/blob/master/doc/filesystem.md#uploading-files-to-file-system)    
