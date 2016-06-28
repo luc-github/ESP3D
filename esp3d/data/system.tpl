@@ -32,7 +32,7 @@ $SUCCESS_MSG$
 <div class="panel-heading">Firmware Update</div>
 <div class="panel-body">
 <table><tr>
-<td><input type="file" id="file-select" name="myfiles[]" multiple /></td>
+<td><input type="file" id="file-select" name="myfiles[]" /></td>
 <td><input class="btn btn-primary" type="button" id="upload-button" onclick="Sendfile();" value="Update"/></td>
 <td><progress style="visibility:hidden;" name='prg' id='prg' max='100'></progress></td>
 <td><div id='msg' style='visibility:hidden;'>Restarting, please wait....</div></td></tr></table>
