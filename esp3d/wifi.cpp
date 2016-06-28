@@ -141,7 +141,7 @@ bool WIFI_CONFIG::Setup()
     char pwd[MAX_PASSWORD_LENGTH+1];
     char sbuf[MAX_SSID_LENGTH+1];
     char hostname [MAX_HOSTNAME_LENGTH+1];
-    int wstatus;
+    //int wstatus;
     IPAddress currentIP;
     byte bflag=0;
     byte bmode=0;
