@@ -161,6 +161,7 @@ void setup()
     SSDP.begin();
 #endif
     SPIFFS.begin();
+    LOG("Setup Done\n");
 }
 
 

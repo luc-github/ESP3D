@@ -713,9 +713,9 @@ void handle_web_interface_root()
 void handle_web_interface_home()
 {
     String stmp;
-    long lstatus;
+    //long lstatus;
     int istatus;
-    byte bbuf;
+    //byte bbuf;
     STORESTRINGS_CLASS KeysList ;
     STORESTRINGS_CLASS ValuesList ;
     struct softap_config apconfig;
@@ -1044,9 +1044,9 @@ void handle_web_interface_configSys()
     static const char NOT_AUTH_CS [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=CONFIGSYS\r\nCache-Control: no-cache\r\n\r\n";
 
     String stmp,smsg;
-    long lstatus;
+    //long lstatus;
     int istatus;
-    byte bbuf;
+    //byte bbuf;
     long ibaud=DEFAULT_BAUD_RATE;
     int iweb_port =DEFAULT_WEB_PORT;
     int idata_port =DEFAULT_DATA_PORT;
@@ -1247,7 +1247,7 @@ void handle_password()
     String sPassword,sPassword2;
     bool msg_alert_error=false;
     bool msg_alert_success=false;
-    int ipos;
+    //int ipos;
     STORESTRINGS_CLASS KeysList ;
     STORESTRINGS_CLASS ValuesList ;
 
@@ -2013,8 +2013,8 @@ void handle_web_interface_printer()
 {
     static const char NOT_AUTH_PRT [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=PRINTER\r\nCache-Control: no-cache\r\n\r\n";
 
-    bool msg_alert_error=false;
-    bool msg_alert_success=false;
+    //bool msg_alert_error=false;
+    //bool msg_alert_success=false;
     STORESTRINGS_CLASS KeysList ;
     STORESTRINGS_CLASS ValuesList ;
 
@@ -2081,8 +2081,8 @@ void handle_web_settings()
     static const char NOT_AUTH_SET [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=SETTINGS\r\nCache-Control: no-cache\r\n\r\n";
 
     String smsg;
-    int istatus;
-    byte bbuf;
+    //int istatus;
+    //byte bbuf;
     bool msg_alert_error=false;
     bool msg_alert_success=false;
     byte irefresh_page;
@@ -2221,7 +2221,7 @@ void handle_web_interface_status()
     int tagpos,tagpos2;
     String buffer2send;
     String value;
-    int temperature,target;
+    //int temperature,target;
 
     //request temperature only if no feedback
     if ((system_get_time()-web_interface->last_temp)>2000000) {
@@ -2304,8 +2304,8 @@ void handle_web_interface_status()
         slashpos = web_interface->answer4M105.indexOf(" /",Tpos);
         spacepos = web_interface->answer4M105.indexOf(" ",slashpos+2);
         if(slashpos!=-1 && spacepos!=-1 ) {
-            temperature = (int)atof(web_interface->answer4M105.substring(Tpos+2,slashpos).c_str());
-            target = (int)atof(web_interface->answer4M105.substring(slashpos+2,spacepos).c_str());
+            //temperature = (int)atof(web_interface->answer4M105.substring(Tpos+2,slashpos).c_str());
+            //target = (int)atof(web_interface->answer4M105.substring(slashpos+2,spacepos).c_str());
             buffer2send += "\"temperature\":\""+web_interface->answer4M105.substring(Tpos+2,slashpos)+
                            "\",\"target\":\""+web_interface->answer4M105.substring(slashpos+2,spacepos)+"\",\"active\":\"1\"";
         } else { //no extruder temperature
@@ -2431,93 +2431,263 @@ void SPIFFSFileupload()
     delay(0);
 }
 #define NB_RETRY 5
+#define MAX_RESEND_BUFFER 128 
+
 void SDFileupload()
 {
-	static byte buffer_line[128]; //if need to resend
-	static int  buffer_size=0;
+	static char buffer_line[MAX_RESEND_BUFFER]; //if need to resend
+	static char previous = 0;
+	static int  buffer_size;
 	static bool com_error = false;
+	static bool is_comment = false;
 	String response;
+	//upload can be long so better to reset time out
+	web_interface->is_authenticated();
     HTTPUpload& upload = (web_interface->WebServer).upload();
+    //upload start
     if(upload.status == UPLOAD_FILE_START) {
+		//need to lock serial out to avoid garbage in file
 		(web_interface->blockserial) = true;
+		//init flags
 		buffer_size=0;
 		com_error = false;
+		is_comment = false;
+		previous = 0;
 		web_interface->_upload_status= UPLOAD_STATUS_ONGOING;
-		Serial.println("M117 Start SD upload");
+		Serial.println("M117 Uploading...");
+	    LOG(String(upload.filename));
+	    LOG("\n");
+	    //command to pritnter to start print
         String filename = "M28 " + upload.filename;
         Serial.println(filename);
-        filename = String();
+        Serial.flush();
+        //now need to purge all serial data
+        //let's sleep 1s
+        delay(1000);
+		for (int retry=0;retry < 400; retry++) { //time out is  5x400ms = 2000ms
+			//if there is something in serial buffer
+			if(Serial.available()){
+				//get size of buffer
+				size_t len = Serial.available();
+				uint8_t sbuf[len+1];
+				//read buffer
+				Serial.readBytes(sbuf, len);
+				//convert buffer to zero end array
+				sbuf[len]='\0';
+				//use string because easier to handle
+				response = (const char*)sbuf;
+				//if there is a wait it means purge is done
+				if (response.indexOf("wait")>-1)break; 
+				}
+			delay(5);
+			}
+			//upload is on going with data coming by 2K blocks
     } else if((upload.status == UPLOAD_FILE_WRITE) && (com_error == false)){//if com error no need to send more data to serial
 			web_interface->_upload_status= UPLOAD_STATUS_ONGOING;
-			//upload.buf, upload.currentSize
 			for (int pos = 0; pos < upload.currentSize;pos++) //parse full post data
 				{
-					Serial.write(upload.buf[pos]); //write char by char
-					buffer_line[buffer_size] = upload.buf[pos]; //copy current char to buffer if need to resend
-					buffer_size++;
-					if (upload.buf[pos] == '\n') //end of line
+					if (buffer_size < MAX_RESEND_BUFFER-1) //raise error/handle if overbuffer - copy is space available
 						{
-							Serial.flush();//let's flush to wait the buffer is empty
-							//if resend use buffer
-							bool success = false;
-							//Question: do we need delay to get answer ?
-							//check NB_RETRY times if get no error when send line
-							for (int r = 0 ; r < NB_RETRY ; r++)
-								{
-								if(Serial.available()) { //look for answer
-									response = Serial.readString();
+							//remove/ignore every comment to save transfert time and avoid over buffer issues
+							if (upload.buf[pos] == ';'){
+								is_comment = true;
+								previous = ';';
+								}
+							if (!is_comment){
+								buffer_line[buffer_size] = upload.buf[pos]; //copy current char to buffer to send/resend
+								buffer_size++;
+								//convert buffer to zero end array
+								buffer_line[buffer_size] = '\0';
+								//check it is not an end line char and line is not empty
+								if (((buffer_line[0] == '\n') && (buffer_size==1)) ||((buffer_line[1] == '\n') && (buffer_line[0] == '\r') && (buffer_size==2)) || ((buffer_line[0] == ' ') && (buffer_size==1)) )
+									{
+								    //ignore empty line
+									buffer_size=0;
+									buffer_line[buffer_size] = '\0';
 									}
-								if (response.indexOf("resend") > -1){//we have error
-									//resend last line
-									Serial.write(buffer_line,buffer_size);
-									Serial.flush();
-									}
-								else {
-									//we got it exit retry and continue send 
-									success = true;
-									break; //for retry
+								//line is not empty so check if last char is an end line	
+								//if error no need to proceed
+								else if (((buffer_line[buffer_size-1] == '\n')) && (com_error == false)) //end of line and no error
+									{
+										//if resend use buffer
+										bool success = false;
+										
+										//check NB_RETRY times if get no error when send line
+										for (int r = 0 ; r < NB_RETRY ; r++)
+											{
+											response = "";
+											//print out line
+											Serial.print(buffer_line);
+											LOG(buffer_line);
+											//ensure buffer is empty before continuing
+											Serial.flush();
+											//wait for answer with time out
+											for (int retry=0;retry < 30; retry++) { //time out 30x5ms = 150ms  
+												//if there is serial data
+												if(Serial.available()){
+													//get size of available data
+													size_t len = Serial.available();
+													uint8_t sbuf[len+1];
+													//read serial buffer
+													Serial.readBytes(sbuf, len);
+													//convert buffer in zero end array
+													sbuf[len]='\0';
+													//use string because easier
+													response = (const char*)sbuf;
+													LOG("Retry:");
+													LOG(String(retry));
+													LOG("\n");
+													LOG(response);
+													//if buffer contain ok or wait - it means command is pass
+													if ((response.indexOf("wait")>-1)||(response.indexOf("ok")>-1)){
+														success = true;
+														break; 
+														}
+													//if buffer contain resend then need to resend 
+													if (response.indexOf("Resend") > -1){//if error
+														success = false;
+														break; 
+														}
+													}
+												delay(5);
+												}
+											//if command is pass no need to retry
+											if (success == true)break;
+											//purge extra serial if any
+											if(Serial.available()){
+													//get size of available data
+													size_t len = Serial.available();
+													uint8_t sbuf[len+1];
+													//read serial buffer
+													Serial.readBytes(sbuf, len);
+													//convert buffer in zero end array
+													sbuf[len]='\0';
+												}
+											}
+											//if even after the number of retry still have error - then we are in error
+											if (!success){
+												//raise error
+												LOG("Error detected\n");
+												LOG(response);
+												com_error = true;
+												}
+											//reset buffer for next command
+											buffer_size = 0;
+											buffer_line[buffer_size] = '\0';
 									}
 								}
-							if (!success){
-								//raise error
-								com_error = true;
+							else { //it is a comment
+								if (upload.buf[pos] == '\r'){ //store if CR
+									previous = '\r';
+									}
+								else if (upload.buf[pos] == '\n'){ //this is the end of the comment 
+									is_comment = false;
+									if (buffer_size > 0) {
+										if (previous == '\r') pos--;
+										pos--; //do a loop back and process as normal
+										}
+									previous = '\n';
+									}//if not just ignore and continue	
+									else previous = upload.buf[pos];
+								
 								}
-							//reset buffer for next command
-							buffer_size = 0;
 						}
-					if (buffer_size > 128) //raise error if overbuffer - command/line is not so big
+					else //raise error
 						{
-							//raise error
-							buffer_size = 0;
+							LOG("\nlong line detected\n");
+							LOG(buffer_line);
 							com_error = true;
 						}
 				}
     } else if(upload.status == UPLOAD_FILE_END) {
-            web_interface->blockserial = false;
+			if (buffer_size > 0){//if last part does not have '\n'
+				//print the line
+				Serial.print(buffer_line);
+				if (is_comment && (previous == '\r'))Serial.print("\r\n");
+				else Serial.print("\n");
+				Serial.flush();
+				//if resend use buffer
+				bool success = false;		
+				//check NB_RETRY times if get no error when send line
+				for (int r = 0 ; r < NB_RETRY ; r++)
+					{
+					response = "";
+					Serial.print(buffer_line);
+					Serial.flush();
+					//wait for answer with time out
+					for (int retry=0;retry < 20; retry++) { //time out
+						if(Serial.available()){
+							size_t len = Serial.available();
+							uint8_t sbuf[len+1];
+							Serial.readBytes(sbuf, len);
+							sbuf[len]='\0';
+							response = (const char*)sbuf;
+							if ((response.indexOf("wait")>-1)||(response.indexOf("ok")>-1)){
+								success = true;
+								break; 
+								}
+							if (response.indexOf("Resend") > -1){//if error
+								success = false;
+								break; 
+								}
+							}
+						delay(5);
+						}
+					if (success == true)break;
+					}
+					if (!success){
+						//raise error
+						LOG("Error detected 2\n");
+						LOG(response);
+						com_error = true;
+						}
+					//reset buffer for next command
+					buffer_size = 0;
+					buffer_line[buffer_size] = '\0';
+					
+				}
+			LOG("Upload finished ");
             buffer_size=0;
-            Serial.println("M29\n");
+            buffer_line[buffer_size] = '\0';
+            //send M29 command to close file on SD 
+            Serial.print("\r\nM29\r\n");
+            Serial.flush();
+            web_interface->blockserial = false;
+            delay(1000);//give time to FW
+            //resend M29 command to close file on SD as first command may be lost  
+            Serial.print("\r\nM29\r\n");
             Serial.flush();
             if (com_error){
+				LOG("with error\n");
 				web_interface->_upload_status=UPLOAD_STATUS_CANCELLED;
 				Serial.println("M117 SD upload failed");
 				Serial.flush();
 				}
 			else
 				{
+				LOG("with success\n");
 				web_interface->_upload_status=UPLOAD_STATUS_SUCCESSFUL;
 				Serial.println("M117 SD upload done");
 				Serial.flush();
 				}
-    } else {
+    } else { //UPLOAD_FILE_ABORTED
+		LOG("Error, Something happened\n");
 		com_error = true;
-		web_interface->blockserial = false;
 		web_interface->_upload_status=UPLOAD_STATUS_CANCELLED;
 		buffer_size=0;
-        Serial.println("M29\n");
+		buffer_line[buffer_size] = '\0';
+		//send M29 command to close file on SD 
+        Serial.print("\r\nM29\r\n");
+        Serial.flush();
+        web_interface->blockserial = false;
+        delay(1000);
+        //resend M29 command to close file on SD as first command may be lost  
+        Serial.print("\r\nM29\r\n");
         Serial.flush();
         Serial.println("M117 SD upload failed");
-    }
-    delay(0);
+        Serial.flush();
+		}
+	delay(0);
 }
 
 #ifdef WEB_UPDATE_FEATURE
@@ -2717,7 +2887,7 @@ void handle_login()
     String sReturn;
     String sUser,sPassword;
     bool msg_alert_error=false;
-    bool msg_alert_success=false;
+    //bool msg_alert_success=false;
     STORESTRINGS_CLASS KeysList ;
     STORESTRINGS_CLASS ValuesList ;
 
@@ -3069,7 +3239,7 @@ bool WEBINTERFACE_CLASS::ResetAuthIP(IPAddress ip,const char * sessionID)
     auth_ip * current = _head;
     auth_ip * previous = NULL;
     //get time
-    uint32_t now = millis();
+    //uint32_t now = millis();
     while (current) {
         if ((millis()-current->last_time)>400000) {
             //remove

@@ -53,6 +53,15 @@
 //FIRMWARE_TARGET: the targeted FW, can be REPETIER (Original Repetier)/ REPETIER4DV (Repetier for Davinci) / MARLIN (Marlin)/ SMOOTHIEWARE (Smoothieware)
 #define FIRMWARE_TARGET REPETIER4DV
 
+//DEBUG Flag
+//#define DEBUG_ESP3D 
+
+#ifdef DEBUG_ESP3D
+
+#define LOG(string) {File logfile = SPIFFS.open("/log.txt", "a+");logfile.print(string);logfile.close();}
+#else
+#define LOG(string) {}
+#endif
 
 #ifndef CONFIG_h
 #define CONFIG_h
@@ -60,7 +69,7 @@
 #include <Arduino.h>
 #include "wifi.h"
 //version and sources location
-#define FW_VERSION "0.7.5"
+#define FW_VERSION "0.7.51"
 #define REPOSITORY "https://github.com/luc-github/ESP8266"
 
 
