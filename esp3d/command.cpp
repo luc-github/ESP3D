@@ -269,7 +269,7 @@ void COMMAND::check_command(String buffer)
 //read a buffer in an array
 void COMMAND::read_buffer_serial(uint8_t *b, size_t len)
 {
-    for (long i; i< len; i++) {
+    for (long i = 0; i< len; i++) {
         read_buffer_serial(*b);
         *b++;
     }
