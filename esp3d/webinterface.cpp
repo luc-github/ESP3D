@@ -555,7 +555,7 @@ void GetIpWeb(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList)
     String stmp;
 
     KeysList.add(FPSTR(KEY_IP));
-    if (wifi_get_opmode() == WIFI_STA ) {
+    if (WiFi.getMode() == WIFI_STA ) {
         stmp = WiFi.localIP().toString();
     } else {
         stmp = WiFi.softAPIP().toString();
@@ -575,11 +575,11 @@ void GetIpWeb(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList)
 // -----------------------------------------------------------------------------
 void GetMode(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList)
 {
-    if (wifi_get_opmode() == WIFI_STA ) {
+    if (WiFi.getMode() == WIFI_STA ) {
         KeysList.add(FPSTR(KEY_MODE));
         ValuesList.add(FPSTR(VALUE_STA));
     } else {
-        if (wifi_get_opmode() == WIFI_AP ) {
+        if (WiFi.getMode() == WIFI_AP ) {
             KeysList.add(FPSTR(KEY_MODE));
             ValuesList.add(FPSTR(VALUE_AP));
         } else {
@@ -733,7 +733,7 @@ void handle_web_interface_home()
     GetIpWeb(KeysList, ValuesList);
 
     //Hostname
-    if (wifi_get_opmode()==WIFI_STA ) {
+    if (WiFi.getMode()==WIFI_STA ) {
         KeysList.add(FPSTR(KEY_MODE));
         ValuesList.add(FPSTR(VALUE_STA));
         KeysList.add(FPSTR(KEY_HOSTNAME));
@@ -745,7 +745,7 @@ void handle_web_interface_home()
         ValuesList.add(FPSTR(KEY_NOT_APPLICABLE_4_AP));
         KeysList.add(FPSTR(KEY_HOSTNAME_VISIBLE));
         ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-        if (wifi_get_opmode()==WIFI_AP ) {
+        if (WiFi.getMode()==WIFI_AP ) {
             KeysList.add(FPSTR(KEY_MODE));
             ValuesList.add(FPSTR(VALUE_AP));
         } else {
@@ -801,7 +801,7 @@ void handle_web_interface_home()
 
     //Captive portal Feature
 #ifdef CAPTIVE_PORTAL_FEATURE
-    if (wifi_get_opmode()==WIFI_AP) {
+    if (WiFi.getMode()==WIFI_AP) {
         KeysList.add(FPSTR(KEY_CAPTIVE_PORTAL_STATUS));
         ValuesList.add(FPSTR(VALUE_ENABLED));
         KeysList.add(FPSTR(KEY_CAPTIVE_PORTAL_VISIBLE));
@@ -847,7 +847,7 @@ void handle_web_interface_home()
     GetPorts(KeysList, ValuesList);
 
     //AP part
-    if (wifi_get_opmode()==WIFI_AP ||  wifi_get_opmode()==WIFI_AP_STA) {
+    if (WiFi.getMode()==WIFI_AP ||  WiFi.getMode()==WIFI_AP_STA) {
         int client_counter=0;
         struct station_info * station;
         //AP is enabled
@@ -969,7 +969,7 @@ void handle_web_interface_home()
         ValuesList.add(FPSTR(VALUE_NO_IP));
     }
     //STA part
-    if (wifi_get_opmode()==WIFI_STA ||  wifi_get_opmode()==WIFI_AP_STA) {
+    if (WiFi.getMode()==WIFI_STA ||  WiFi.getMode()==WIFI_AP_STA) {
         //STA is enabled
         KeysList.add(FPSTR(KEY_STA_STATUS_ENABLED));
         ValuesList.add(FPSTR(VALUE_ENABLED));
@@ -1920,7 +1920,7 @@ void handle_web_interface_configSTA()
     //do we need to do a scan and display it ?
     if (!msg_alert_success) {
         //if in AP mode switch to mixed mode to be able to scan
-        if (wifi_get_opmode()!=WIFI_STA ) {
+        if (WiFi.getMode()!=WIFI_STA ) {
             WiFi.mode(WIFI_AP_STA);
             revertSTA=true;
         }
@@ -2224,13 +2224,13 @@ void handle_web_interface_status()
     //int temperature,target;
 
     //request temperature only if no feedback
-    if ((system_get_time()-web_interface->last_temp)>2000000) {
+    if ((millis()-web_interface->last_temp)>120000) {
         Serial.println(F("M105"));
     }
 
-    if ((system_get_time()-web_interface->last_temp)<3200000) {
+    if ((millis()-web_interface->last_temp)<180000) {
         value="Connected";
-    } else if ((system_get_time()-web_interface->last_temp)<32000000) {
+    } else if ((millis()-web_interface->last_temp)<200000) {
         value="Busy";
     } else {
         value="Offline";
@@ -2792,25 +2792,33 @@ void handleSDFileList()
     if (!web_interface->is_authenticated()) {
         return;
     }
-     if(web_interface->WebServer.hasArg("action")) {
-        if(web_interface->WebServer.arg("action")=="delete" && web_interface->WebServer.hasArg("filename")) {
-            String filename;
-            web_interface->urldecode(filename,web_interface->WebServer.arg("filename").c_str());
-            filename = "M30 " + filename;
-            //TODO:need a MACRO or helper for this test
-            if((web_interface->blockserial) == false)Serial.println(filename);
-        }
-    }
-    String jsonfile = "[";
-    for (int i=0; i<web_interface->fileslist.size(); i++) {
-        if (i>0) {
-            jsonfile+=",";
-        }
-        jsonfile+="{\"entry\":\"";
-        jsonfile+=web_interface->fileslist.get(i);
-        jsonfile+="\"}";
-    }
-    jsonfile+="]";
+    String jsonfile = "{\"status\":\"" ;
+    //if action is processing do not build list
+     if ((web_interface->blockserial)){
+		 LOG("Wait, blocking\n");
+		 jsonfile+="processing\"}";
+		}
+	 else{
+		 jsonfile+="Ok\",\"file\":[";
+		 LOG("No Blocking \n");
+		 LOG("JSON File\n");
+		 LOG(String(web_interface->fileslist.size()));
+		 LOG(" entries\n");
+		for (int i=0; i<web_interface->fileslist.size(); i++) {
+			if (i>0) {
+				jsonfile+=",";
+			}
+			jsonfile+="{\"entry\":\"";
+			jsonfile+=web_interface->fileslist.get(i);
+			LOG(String(i+1));
+			LOG(web_interface->fileslist.get(i));
+			LOG("\n");
+			jsonfile+="\"}";
+			}
+		jsonfile+="]}";
+		LOG("JSON done\n");
+		}
+    
     web_interface->WebServer.sendHeader("Cache-Control", "no-cache");
     web_interface->WebServer.send(200, "application/json", jsonfile);
     web_interface->blockserial = false;
@@ -2862,7 +2870,7 @@ void handle_not_found()
             //if not template use default page
             contentType=FPSTR(PAGE_404);
             String stmp;
-            if (wifi_get_opmode()==WIFI_STA ) {
+            if (WiFi.getMode()==WIFI_STA ) {
                 stmp=WiFi.localIP().toString();
             } else {
                 stmp=WiFi.softAPIP().toString();
@@ -3152,7 +3160,7 @@ WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port):WebServer(port)
     answer4M220="100";
     answer4M221="100";
     blockserial = false;
-    last_temp=system_get_time();
+    last_temp = millis();
     restartmodule=false;
     //rolling list of 4entries with a maximum of 50 char for each entry
     error_msg.setsize(4);
@@ -3161,7 +3169,7 @@ WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port):WebServer(port)
     info_msg.setlength(50);
     status_msg.setsize(4);
     status_msg.setlength(50);
-    fileslist.setlength(30);//12 for filename + space + size
+    fileslist.setlength(100);//12 for filename + space + size
     fileslist.setsize(70); // 70 files to limite to 2K
     fsUploadFile=(fs::File)0;
     _head=NULL;

@@ -65,7 +65,7 @@ $INCLUDE[css2.inc]$
 <rect x="10" y="10" width="7" height="20" rx="2" ry="2" style="fill:rgb(0,0,0);stroke-width:1;stroke:rgb(0,0,0)" /> <rect x="23" y="10" width="7" height="20" rx="2" ry="2" style="fill:rgb(0,0,0);stroke-width:1;stroke:rgb(0,0,0)" /></svg></td>
 <td class="btnimg" onclick="Sendcommand('M50');"><svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" stroke="black" stroke-width="2" fill="white" />
 <rect x="10" y="10" width="20" height="20" rx="2" ry="2" style="fill:rgb(0,0,0);stroke-width:1;stroke:rgb(0,0,0)" /></svg></td>
-<td class="btnimg" onclick="getSDfiles();"><svg width="40" height="40" viewBox="0 0 40 40"><rect x="5" y="10" width="30" height="20" rx="2" ry="2" style="fill:rgb(0,0,0);stroke-width:1;stroke:rgb(0,0,0)" />
+<td class="btnimg" onclick="refreshSDfiles();"><svg width="40" height="40" viewBox="0 0 40 40"><rect x="5" y="10" width="30" height="20" rx="2" ry="2" style="fill:rgb(0,0,0);stroke-width:1;stroke:rgb(0,0,0)" />
 <rect x="20" y="5" width="15" height="15" rx="2" ry="2" style="fill:rgb(0,0,0);stroke-width:1;stroke:rgb(0,0,0)" /><text x="10" y="25" font-family="Verdana" font-size="14" fill="white">SD</text></svg></td>
 <td>&nbsp;&nbsp;</td>
 <td id="SDLIST"></td></tr></table></td></tr>
@@ -351,13 +351,21 @@ Sendcommand("M23 " + filename);
 delay(100);
 Sendcommand("M24");}
 }
-
+var retry = 0;
 function refreshfilelist(jsonresponse){
+
 var list2display="<table><tr><td><select class=\"form-control\"  id=\"sdfilelist\">";
 var content="";
 var i;
-for (i = 0; i < jsonresponse.length; i++){ 
-content =jsonresponse[i].entry;
+if (jsonresponse.status != "Ok"){
+	delay(1000);
+	retry = retry +1;
+	if (retry < 6) getSDfiles();
+	return;
+	}
+retry = 0;
+for (i = 0; i < jsonresponse.file.length; i++){ 
+content =jsonresponse.file[i].entry;
 var tcontent=content.split(" ");
 if ((tcontent.length==2) || (tcontent.length==1 && tcontent[0].indexOf("/")==-1)){
 list2display+="<OPTION value=\"";
@@ -381,10 +389,15 @@ list2display+="</td></tr></table>";
 document.getElementById("SDLIST").innerHTML=list2display;
 }
 
-function getSDfiles(){
+function refreshSDfiles(){
 document.getElementById("SDLIST").innerHTML="";
 Sendcommand("M20");
 delay(1000);
+retry = 0;
+getSDfiles();
+}
+
+function getSDfiles(){
 var xmlhttp = new XMLHttpRequest();
 var url = "/SDFILES";
 xmlhttp.onreadystatechange = function() {

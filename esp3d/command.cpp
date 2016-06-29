@@ -22,9 +22,6 @@
 #include "config.h"
 #include "wifi.h"
 #include "webinterface.h"
-extern "C" {
-#include "user_interface.h"
-}
 
 String COMMAND::buffer_serial;
 String COMMAND::buffer_tcp;
@@ -81,7 +78,7 @@ void COMMAND::execute_command(int cmd,String cmd_params)
         break;
     case 111: {
         String currentIP ;
-        if (wifi_get_opmode()==WIFI_STA) {
+        if (WiFi.getMode()==WIFI_STA) {
             currentIP=WiFi.localIP().toString();
         } else {
             currentIP=WiFi.softAPIP().toString();
@@ -141,7 +138,7 @@ void COMMAND::check_command(String buffer)
         //yes it is file list starting to be displayed
         if (filesstart>-1) {
 			//init time out
-            start_list=system_get_time();
+            start_list = millis();
             //set file list started
             bfileslist=true;
             //clear current list
@@ -198,7 +195,7 @@ void COMMAND::check_command(String buffer)
             //if match mask T:xxx.xx /xxx.xx
             if(spacepos-Tpos < 17) {
                 web_interface->answer4M105=buffer; //do not interprete just need when requested so store it
-                web_interface->last_temp=system_get_time();
+                web_interface->last_temp=millis();
             }
         }
         //Position of axis
@@ -248,18 +245,24 @@ void COMMAND::check_command(String buffer)
         }
     } else { //listing file is on going
 		//check if we are too long 
-        if ((system_get_time()-start_list)>30000000) { //timeout in case of problem
+        if ((millis()-start_list)>30000) { //timeout in case of problem
             bfileslist=false;
             (web_interface->blockserial) = false; //release serial
+            LOG("Time out\n");
         } else {
 			//check if this is the end
             if (buffer.indexOf("End file list")>-1) {
                 bfileslist=false;
                 (web_interface->blockserial) = false; 
+                LOG("End list\n");
             } else {
                 //Serial.print(buffer);
                 //add list to buffer
                 web_interface->fileslist.add(buffer);
+                LOG(String(web_interface->fileslist.size()));
+                LOG(":");
+                LOG(buffer);
+				LOG('\n');
             }
         }
 
@@ -315,7 +318,7 @@ void COMMAND::read_buffer_serial(uint8_t b)
         previous_was_char=false; //next call will reset the buffer
     }
 //this is not printable but end of command check if need to handle it
-    if (b==13 ||b==10) {
+    if (b==13) {
         //Minimum is something like M10 so 3 char
         if (buffer_serial.length()>3) {
             check_command(buffer_serial);
