@@ -56,9 +56,15 @@ content +=jsonresponse.files[i].name;
 content +="</div></a></TD><TD>";
 content +=jsonresponse.files[i].size;
 content +="</TD><TD width='0%'><div class=\"btnimg\" onclick=\"Delete('"+jsonresponse.files[i].name+"')\">";
-content +="<svg height=\"20\" width=\"20\" viewBox=\"0 0 40 40\" >";
-content +="<circle cx=\"20\" cy=\"20\" r=\"17\" stroke=\"black\" stroke-width=\"1\" fill=\"red\" />";
-content +="<line x1=\"11\" y1=\"11\" x2=\"29\" y2=\"29\" style=\"stroke:white;stroke-width:6\" /><line x1=\"29\" y1=\"11\" x2=\"11\" y2=\"29\" style=\"stroke:white;stroke-width:6\" /></svg> ";
+content +="<svg width='24' height='24' viewBox='0 0 128 128'>";
+content +="<rect x='52' y='12' rx='6' ry='6' width='25' height='7' style='fill:red;' />";
+content +="<rect x='52' y='16' width='25' height='2' style='fill:white;' />";
+content +="<rect x='30' y='18' rx='6' ry='6' width='67' height='100' style='fill:red;' />";
+content +="<rect x='20' y='18' rx='10' ry='10' width='87' height='14' style='fill:red;' />";
+content +="<rect x='20' y='29' width='87' height='3' style='fill:white;' />";
+content +="<rect x='40' y='43' rx='7' ry='7' width='7' height='63' style='fill:white;' />";
+content +="<rect x='60' y='43' rx='7' ry='7' width='7' height='63' style='fill:white;' />";
+content +="<rect x='80' y='43' rx='7' ry='7' width='7' height='63' style='fill:white;' /></svg>";
 content +="</div></TD><td></td></TR>";
 }
  document.getElementById('file_list').innerHTML=content;}
