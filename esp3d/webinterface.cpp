@@ -1272,8 +1272,8 @@ void handle_password()
         //is there a correct list of values?
         if (web_interface->WebServer.hasArg("PASSWORD") && web_interface->WebServer.hasArg("PASSWORD2")) {
             //Password
-            web_interface->urldecode(sPassword,web_interface->WebServer.arg("PASSWORD").c_str());
-            web_interface->urldecode(sPassword2,web_interface->WebServer.arg("PASSWORD2").c_str());
+            sPassword = web_interface->WebServer.urlDecode(web_interface->WebServer.arg("PASSWORD"));
+            sPassword2 = web_interface->WebServer.urlDecode(web_interface->WebServer.arg("PASSWORD2"));
             if (!web_interface->isAdminPasswordValid(sPassword.c_str()) ) {
                 msg_alert_error=true;
                 smsg.concat(F("Error: Incorrect password<BR>"));
@@ -1394,7 +1394,7 @@ void handle_web_interface_configAP()
                 && web_interface->WebServer.hasArg("GATEWAY")&& web_interface->WebServer.hasArg("SUBNET")
                 && web_interface->WebServer.hasArg("CHANNEL")) {
             //SSID
-            web_interface->urldecode(sSSID,web_interface->WebServer.arg("SSID").c_str());
+            sSSID = web_interface->WebServer.urlDecode(web_interface->WebServer.arg("SSID"));
             if (!web_interface->isSSIDValid(sSSID.c_str())) {
                 msg_alert_error=true;
                 smsg.concat(F("Error: Incorrect SSID<BR>"));
@@ -1402,7 +1402,7 @@ void handle_web_interface_configAP()
                 ValuesList.add(FPSTR(VALUE_HAS_ERROR));
             }
             //Password
-            web_interface->urldecode(sPassword,web_interface->WebServer.arg("PASSWORD").c_str());
+            sPassword = web_interface->WebServer.urlDecode(web_interface->WebServer.arg("PASSWORD"));
             if (!web_interface->isPasswordValid(sPassword.c_str())) {
                 msg_alert_error=true;
                 smsg.concat(F("Error: Incorrect password<BR>"));
@@ -1448,7 +1448,7 @@ void handle_web_interface_configAP()
             }
 
             //IP
-            web_interface->urldecode(sIP,web_interface->WebServer.arg("IP").c_str());
+            sIP = web_interface->WebServer.urlDecode(web_interface->WebServer.arg("IP"));
             if (!web_interface->isIPValid(sIP.c_str())) {
                 msg_alert_error=true;
                 smsg.concat(F("Error: Incorrect IP fortmat<BR>"));
@@ -1457,7 +1457,7 @@ void handle_web_interface_configAP()
             }
 
             //Gateway
-            web_interface->urldecode(sGW,web_interface->WebServer.arg("GATEWAY").c_str());
+            sGW = web_interface->WebServer.urlDecode(web_interface->WebServer.arg("GATEWAY"));
             if (!web_interface->isIPValid(sGW.c_str())) {
                 msg_alert_error=true;
                 smsg.concat(F("Error: Incorrect gateway<BR>"));
@@ -1465,7 +1465,7 @@ void handle_web_interface_configAP()
                 ValuesList.add(FPSTR(VALUE_HAS_ERROR));
             }
             //subnet
-            web_interface->urldecode(sMask,web_interface->WebServer.arg("SUBNET").c_str());
+            sMask = web_interface->WebServer.urlDecode(web_interface->WebServer.arg("SUBNET"));
             if (!web_interface->isIPValid(sMask.c_str())) {
                 msg_alert_error=true;
                 smsg.concat(F("Error: Incorrect subnet<BR>"));
@@ -1732,7 +1732,7 @@ void handle_web_interface_configSTA()
                 && web_interface->WebServer.hasArg("IP") && web_interface->WebServer.hasArg("GATEWAY")&& web_interface->WebServer.hasArg("SUBNET")
                 && web_interface->WebServer.hasArg("HOSTNAME")) {
             //SSID
-            web_interface->urldecode(sSSID,web_interface->WebServer.arg("SSID").c_str());
+            sSSID = web_interface->WebServer.urlDecode(web_interface->WebServer.arg("SSID"));
             if (!web_interface->isSSIDValid(sSSID.c_str())) {
                 msg_alert_error=true;
                 smsg.concat(F("Error: Incorrect SSID<BR>"));
@@ -1741,7 +1741,7 @@ void handle_web_interface_configSTA()
             }
 
             //Password
-            web_interface->urldecode(sPassword,web_interface->WebServer.arg("PASSWORD").c_str());
+            sPassword = web_interface->WebServer.urlDecode(web_interface->WebServer.arg("PASSWORD"));
             if (!web_interface->isPasswordValid(sPassword.c_str())) {
                 msg_alert_error=true;
                 smsg.concat(F("Error: Incorrect password<BR>"));
@@ -1750,7 +1750,7 @@ void handle_web_interface_configSTA()
             }
 
             //Hostname
-            web_interface->urldecode(sHostname,web_interface->WebServer.arg("HOSTNAME").c_str());
+            sHostname = web_interface->WebServer.urlDecode(web_interface->WebServer.arg("HOSTNAME"));
             if (!web_interface->isHostnameValid(sHostname.c_str())) {
                 msg_alert_error=true;
                 smsg.concat(F("Error: Incorrect hostname<BR>"));
@@ -1775,7 +1775,7 @@ void handle_web_interface_configSTA()
             }
 
             //IP
-            web_interface->urldecode(sIP,web_interface->WebServer.arg("IP").c_str());
+            sIP= web_interface->WebServer.urlDecode(web_interface->WebServer.arg("IP"));
             if (!web_interface->isIPValid(sIP.c_str())) {
                 msg_alert_error=true;
                 smsg.concat(F("Error: Incorrect IP format<BR>"));
@@ -1784,7 +1784,7 @@ void handle_web_interface_configSTA()
             }
 
             //Gateway
-            web_interface->urldecode(sGW,web_interface->WebServer.arg("GATEWAY").c_str());
+            sGW = web_interface->WebServer.urlDecode(web_interface->WebServer.arg("GATEWAY"));
             if (!web_interface->isIPValid(sGW.c_str())) {
                 msg_alert_error=true;
                 smsg.concat(F("Error: Incorrect gateway<BR>"));
@@ -1792,7 +1792,7 @@ void handle_web_interface_configSTA()
                 ValuesList.add(FPSTR(VALUE_HAS_ERROR));
             }
             //subnet
-            web_interface->urldecode(sMask,web_interface->WebServer.arg("SUBNET").c_str());
+            sMask = web_interface->WebServer.urlDecode(web_interface->WebServer.arg("SUBNET"));
             if (!web_interface->isIPValid(sMask.c_str())) {
                 msg_alert_error=true;
                 smsg.concat(F("Error: Incorrect subnet<BR>"));
@@ -2013,8 +2013,6 @@ void handle_web_interface_printer()
 {
     static const char NOT_AUTH_PRT [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=PRINTER\r\nCache-Control: no-cache\r\n\r\n";
 
-    //bool msg_alert_error=false;
-    //bool msg_alert_success=false;
     STORESTRINGS_CLASS KeysList ;
     STORESTRINGS_CLASS ValuesList ;
 
@@ -2744,7 +2742,7 @@ void handleFileList()
     if(web_interface->WebServer.hasArg("action")) {
         if(web_interface->WebServer.arg("action")=="delete" && web_interface->WebServer.hasArg("filename")) {
             String filename;
-            web_interface->urldecode(filename,web_interface->WebServer.arg("filename").c_str());
+            filename = web_interface->WebServer.urlDecode(web_interface->WebServer.arg("filename"));
             if(!SPIFFS.exists(filename)) {
                 status="Cannot delete, file not found!";
             } else {
@@ -2907,13 +2905,13 @@ void handle_login()
     //check is it is a submission or a display
     smsg="";
     if (web_interface->WebServer.hasArg("return")) {
-        web_interface->urldecode(sReturn,web_interface->WebServer.arg("return").c_str());
+        sReturn = web_interface->WebServer.urlDecode(web_interface->WebServer.arg("return"));
     }
     if (web_interface->WebServer.hasArg("SUBMIT")) {
         //is there a correct list of values?
         if ( web_interface->WebServer.hasArg("PASSWORD")&& web_interface->WebServer.hasArg("USER")) {
             //USER
-            web_interface->urldecode(sUser,web_interface->WebServer.arg("USER").c_str());
+            sUser = web_interface->WebServer.urlDecode(web_interface->WebServer.arg("USER"));
 #ifdef AUTHENTICATION_FEATURE
             if (sUser!="admin") {
                 msg_alert_error=true;
@@ -2922,7 +2920,7 @@ void handle_login()
                 ValuesList.add(FPSTR(VALUE_HAS_ERROR));
             }
             //Password
-            web_interface->urldecode(sPassword,web_interface->WebServer.arg("PASSWORD").c_str());
+            sPassword = web_interface->WebServer.urlDecode(web_interface->WebServer.arg("PASSWORD"));
             String scurrentPassword;
 
             if (!CONFIG::read_string(EP_ADMIN_PWD, scurrentPassword , MAX_ADMIN_PASSWORD_LENGTH)) {
@@ -3049,7 +3047,7 @@ void handle_web_command()
     if (web_interface->WebServer.hasArg("COM")) {
         String scmd;
         //decode command
-        web_interface->urldecode(scmd,web_interface->WebServer.arg("COM").c_str());
+        scmd = web_interface->WebServer.urlDecode(web_interface->WebServer.arg("COM"));
         scmd.trim();
         //give an ack - we need to be polite, right ?
         web_interface->WebServer.send(200,"text/plain","Ok");
@@ -3087,43 +3085,6 @@ void handle_SSDP()
     SSDP.schema(web_interface->WebServer.client());
 }
 #endif
-
-//URI Decoding function
-void   WEBINTERFACE_CLASS::urldecode( String & dst, const char *src)
-{
-    char a, b,c;
-    dst="";
-    while (*src) {
-        if ((*src == '%') &&
-                ((a = src[1]) && (b = src[2])) &&
-                (isxdigit(a) && isxdigit(b))) {
-            if (a >= 'a') {
-                a -= 'a'-'A';
-            }
-            if (a >= 'A') {
-                a -= ('A' - 10);
-            } else {
-                a -= '0';
-            }
-            if (b >= 'a') {
-                b -= 'a'-'A';
-            }
-            if (b >= 'A') {
-                b -= ('A' - 10);
-            } else {
-                b -= '0';
-            }
-            dst+= char(16*a+b);
-            src+=3;
-        } else {
-            c = *src++;
-            if(c=='+') {
-                c=' ';
-            }
-            dst+= char(c);
-        }
-    }
-}
 
 //constructor
 WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port):WebServer(port)

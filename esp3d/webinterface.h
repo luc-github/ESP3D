@@ -43,7 +43,6 @@ public:
     ~WEBINTERFACE_CLASS();
     ESP8266WebServer WebServer;
     File fsUploadFile;
-    void urldecode( String & dst, const char *src);
     bool isSSIDValid(const char * ssid);
     bool isPasswordValid(const char * password);
     bool isAdminPasswordValid(const char * password);
