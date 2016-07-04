@@ -345,194 +345,176 @@ bool processTemplate(const char  * filename, STORESTRINGS_CLASS & KeysList ,  ST
     
     LinkedList<File> myFileList  = LinkedList<File>();
     String  buffer2send;
-    String bufferheader(F("HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: "));
-    int size_content=0;
     bool header_sent=false;
 
-    //one loop to calculate size + one loop to really send
-    //size_content is a mandatory element to avoid memory leak
-    for(int processing_step=0; processing_step<2; processing_step++) {
-        buffer2send="";
-        //open template file
-        File currentfile = SPIFFS.open(filename, "r");
-        //if error display error on web page
-        if (!currentfile) {
-            buffer2send = String(F("Error opening: ")) + filename;
-            web_interface->WebServer.send(200,"text/plain",buffer2send);
-            return false;
-        } else { //template is open
-            int b ;
-            String sLine;
-            bool bprocessing=true;
+	buffer2send="";
+	//open template file
+	File currentfile = SPIFFS.open(filename, "r");
+	//if error display error on web page
+	if (!currentfile) {
+		buffer2send = String(F("Error opening: ")) + filename;
+		web_interface->WebServer.send(200,"text/plain",buffer2send);
+		return false;
+	} else { //template is open
+		int b ;
+		String sLine;
+		bool bprocessing=true;
 
-            while (bprocessing) { //read all bytes
-                b = currentfile.read(); //from current open file
-                if (b!=-1) { //if not EOF
-                    sLine+=char(b); //add to current line
-                    if (b=='\n') { //end of line is reached
-                        //change all variables by their values
-                        for (int k=0; k<KeysList.size(); k++) {
-                            sLine.replace(KeysList.get(k),ValuesList.get(k));
-                        }
-                        //is line an Include line ? no others command will be displayed
-                        //but they can be used to build file name like
-                        //$INCLUDE[$SHORT_FILENAME$-$MODE$.inc]$
-                        int pos_tag=sLine.indexOf("$INCLUDE[");
-                        if (pos_tag!=-1) { //if yes
-                            //extract include file name
-                            int pos_tag_end = sLine.indexOf("]$");
-                            String includefilename = "/"+sLine.substring( pos_tag+strlen("$INCLUDE["),pos_tag_end);
-                            //try to open include file
-                            File includefile = SPIFFS.open(includefilename, "r");
-                            if (!includefile) { //if error display it on web page
-                                buffer2send+= String("Error opening: ") + includefilename;
-                            } else { //if include is open lets read it, current open file is now include file
-                                myFileList.add(currentfile);
-                                currentfile=includefile;
-                            }
-                        } else { //if it is not include file
-                            //check if there is a table to display
-                            int pos_tag=sLine.indexOf("$CONNECTED_STATIONS[");
-                            if (pos_tag!=-1) { //if yes
-                                //extract line
-                                int pos_tag_end = sLine.indexOf("]$",pos_tag);
-                                int nb = -1;
-                                int ipos = -1;
-                                //part before repetitive section
-                                String beforelinetoprocess=sLine.substring( 0,pos_tag);
-                                //part after repetitive section
-                                String afterlinetoprocess=sLine.substring( pos_tag_end+2);
-                                //repetitive section itself
-                                String linetoprocess =sLine.substring( pos_tag+strlen("$CONNECTED_STATIONS["),pos_tag_end);
-                                String tablepart;
-                                //get how many items
-                                ipos=KeysList.get_index("$CONNECTED_STATIONS_NB_ITEMS$");
-                                if (ipos >-1) {
-                                    //get value
-                                    nb=atoi(ValuesList.get(ipos));
-                                    ipos=ipos-(nb*3);
-                                }
-                                //do a sanity check data are there
-                                String Last_IP_Key = "$IP_CONNECTED["+String(nb-1)+"]$";
-                                if (nb>0 && (KeysList.get_index("$ROW_NUMBER[0]$")==ipos) &&(Last_IP_Key==KeysList.get(ipos-1+(nb*3)))) {
-                                    for (int j=0; j<nb; j++) {
-                                        String tmppart=linetoprocess + "\n";
-                                        if (ipos+j>-1) {
-                                            tmppart.replace("$ROW_NUMBER$",ValuesList.get(ipos+0+(j*3)));
-                                            tmppart.replace("$MAC_CONNECTED$",ValuesList.get(ipos+1+(j*3)));
-                                            tmppart.replace("$IP_CONNECTED$",ValuesList.get(ipos+2+(j*3)));
-                                        }
-                                        tablepart +=tmppart;
-                                    }
-                                }
-                                //now build back
-                                sLine = beforelinetoprocess + tablepart + afterlinetoprocess;
-                            }
+		while (bprocessing) { //read all bytes
+			b = currentfile.read(); //from current open file
+			if (b!=-1) { //if not EOF
+				sLine+=char(b); //add to current line
+				if (b=='\n') { //end of line is reached
+					//change all variables by their values
+					for (int k=0; k<KeysList.size(); k++) {
+						sLine.replace(KeysList.get(k),ValuesList.get(k));
+					}
+					//is line an Include line ? no others command will be displayed
+					//but they can be used to build file name like
+					//$INCLUDE[$SHORT_FILENAME$-$MODE$.inc]$
+					int pos_tag=sLine.indexOf("$INCLUDE[");
+					if (pos_tag!=-1) { //if yes
+						//extract include file name
+						int pos_tag_end = sLine.indexOf("]$");
+						String includefilename = "/"+sLine.substring( pos_tag+strlen("$INCLUDE["),pos_tag_end);
+						//try to open include file
+						File includefile = SPIFFS.open(includefilename, "r");
+						if (!includefile) { //if error display it on web page
+							buffer2send+= String("Error opening: ") + includefilename;
+						} else { //if include is open lets read it, current open file is now include file
+							myFileList.add(currentfile);
+							currentfile=includefile;
+						}
+					} else { //if it is not include file
+						//check if there is a table to display
+						int pos_tag=sLine.indexOf("$CONNECTED_STATIONS[");
+						if (pos_tag!=-1) { //if yes
+							//extract line
+							int pos_tag_end = sLine.indexOf("]$",pos_tag);
+							int nb = -1;
+							int ipos = -1;
+							//part before repetitive section
+							String beforelinetoprocess=sLine.substring( 0,pos_tag);
+							//part after repetitive section
+							String afterlinetoprocess=sLine.substring( pos_tag_end+2);
+							//repetitive section itself
+							String linetoprocess =sLine.substring( pos_tag+strlen("$CONNECTED_STATIONS["),pos_tag_end);
+							String tablepart;
+							//get how many items
+							ipos=KeysList.get_index("$CONNECTED_STATIONS_NB_ITEMS$");
+							if (ipos >-1) {
+								//get value
+								nb=atoi(ValuesList.get(ipos));
+								ipos=ipos-(nb*3);
+							}
+							//do a sanity check data are there
+							String Last_IP_Key = "$IP_CONNECTED["+String(nb-1)+"]$";
+							if (nb>0 && (KeysList.get_index("$ROW_NUMBER[0]$")==ipos) &&(Last_IP_Key==KeysList.get(ipos-1+(nb*3)))) {
+								for (int j=0; j<nb; j++) {
+									String tmppart=linetoprocess + "\n";
+									if (ipos+j>-1) {
+										tmppart.replace("$ROW_NUMBER$",ValuesList.get(ipos+0+(j*3)));
+										tmppart.replace("$MAC_CONNECTED$",ValuesList.get(ipos+1+(j*3)));
+										tmppart.replace("$IP_CONNECTED$",ValuesList.get(ipos+2+(j*3)));
+									}
+									tablepart +=tmppart;
+								}
+							}
+							//now build back
+							sLine = beforelinetoprocess + tablepart + afterlinetoprocess;
+						}
 
-                            pos_tag=sLine.indexOf("$AVAILABLE_AP[");
-                            if (pos_tag!=-1) { //if yes
-                                //extract line
-                                int pos_tag_end = sLine.indexOf("]$",pos_tag);
-                                int nb = -1;
-                                int ipos = -1;
-                                //part before repetitive section
-                                String beforelinetoprocess=sLine.substring( 0,pos_tag);
-                                //part after repetitive section
-                                String afterlinetoprocess=sLine.substring( pos_tag_end+2);
-                                //repetitive section itself
-                                String linetoprocess =sLine.substring( pos_tag+strlen("$AVAILABLE_AP["),pos_tag_end);
-                                String tablepart;
-                                //get how many items
-                                ipos=KeysList.get_index("$AVAILABLE_AP_NB_ITEMS$");
-                                if (ipos >-1) {
-                                    //get value
-                                    nb=atoi(ValuesList.get(ipos));
-                                    ipos=ipos-(nb*4);
-                                }
-                                //do a sanity check data are there
-                                String Last_IP_Key = "$IS_PROTECTED["+String(nb-1)+"]$";
-                                if (nb>0 && (KeysList.get_index("$ROW_NUMBER[0]$")==ipos) &&(Last_IP_Key==KeysList.get(ipos-1+(nb*4)))) {
-                                    for (int j=0; j<nb; j++) {
-                                        String tmppart=linetoprocess + "\n";
-                                        if (ipos+j>-1) {
-                                            tmppart.replace("$ROW_NUMBER$",ValuesList.get(ipos+0+(j*4)));
-                                            tmppart.replace("$AP_SSID$",ValuesList.get(ipos+1+(j*4)));
-                                            tmppart.replace("$AP_SIGNAL$",ValuesList.get(ipos+2+(j*4)));
-                                            tmppart.replace("$IS_PROTECTED$",ValuesList.get(ipos+3+(j*4)));
-                                        }
-                                        tablepart +=tmppart;
-                                    }
-                                }
-                                //now build back
-                                sLine = beforelinetoprocess + tablepart + afterlinetoprocess;
-                            }
+						pos_tag=sLine.indexOf("$AVAILABLE_AP[");
+						if (pos_tag!=-1) { //if yes
+							//extract line
+							int pos_tag_end = sLine.indexOf("]$",pos_tag);
+							int nb = -1;
+							int ipos = -1;
+							//part before repetitive section
+							String beforelinetoprocess=sLine.substring( 0,pos_tag);
+							//part after repetitive section
+							String afterlinetoprocess=sLine.substring( pos_tag_end+2);
+							//repetitive section itself
+							String linetoprocess =sLine.substring( pos_tag+strlen("$AVAILABLE_AP["),pos_tag_end);
+							String tablepart;
+							//get how many items
+							ipos=KeysList.get_index("$AVAILABLE_AP_NB_ITEMS$");
+							if (ipos >-1) {
+								//get value
+								nb=atoi(ValuesList.get(ipos));
+								ipos=ipos-(nb*4);
+							}
+							//do a sanity check data are there
+							String Last_IP_Key = "$IS_PROTECTED["+String(nb-1)+"]$";
+							if (nb>0 && (KeysList.get_index("$ROW_NUMBER[0]$")==ipos) &&(Last_IP_Key==KeysList.get(ipos-1+(nb*4)))) {
+								for (int j=0; j<nb; j++) {
+									String tmppart=linetoprocess + "\n";
+									if (ipos+j>-1) {
+										tmppart.replace("$ROW_NUMBER$",ValuesList.get(ipos+0+(j*4)));
+										tmppart.replace("$AP_SSID$",ValuesList.get(ipos+1+(j*4)));
+										tmppart.replace("$AP_SIGNAL$",ValuesList.get(ipos+2+(j*4)));
+										tmppart.replace("$IS_PROTECTED$",ValuesList.get(ipos+3+(j*4)));
+									}
+									tablepart +=tmppart;
+								}
+							}
+							//now build back
+							sLine = beforelinetoprocess + tablepart + afterlinetoprocess;
+						}
 
-                            //add current line to buffer
-                            buffer2send+=sLine;
-                            //if buffer limit is reached
-                            if (buffer2send.length()>1200) {
-                                //if we are just doing size calculation
-                                if (processing_step==0) {
-                                    //add buffer size
-                                    size_content+=buffer2send.length();
-                                } else { //if no size calculation, send data
-                                    //if header is not send yet
-                                    if (!header_sent) {
-                                        //send header with calculated size
-                                        header_sent=true;
-                                        web_interface->WebServer.sendContent(bufferheader);
-                                        
-                                    }
-                                    //send data
-                                    web_interface->WebServer.sendContent(buffer2send);
-                                }
-                                //reset buffer
-                                buffer2send="";
-                            }
-                        }
-                        //reset line
-                        sLine="";
-                        //add a delay for safety for WDT
-                        delay(1);
-                    }
-                } else { //EOF is reached
-                    //close current file
-                    currentfile.close();
-                    //if current file is not template file but included one
-                    if (myFileList.size()>0) {
-                        //get level +1 file description and continue
-                        currentfile = myFileList.pop();
-                    } else {
-                        //we have done template parsing, let's stop reading
-                        bprocessing=false;
-                    }
-                }
-            }
-        }
-        //check if something is still in buffer and need to be send
-        if (buffer2send!="") {
-            //if we are doing size calculation
-            if (processing_step==0) {
-                //add buffer size
-                size_content+=buffer2send.length();
-            } else { //if no size calculation, send data
-                //if header is not send yet
-                if (!header_sent) {
-                    //send header with calculated size
-                    web_interface->WebServer.sendContent(bufferheader);
-                }
-                //send data
-                web_interface->WebServer.sendContent(buffer2send);
-                
-            }
-        }
-        //if we end size calculation loop
-        if (processing_step==0) {
-            //let's build the header with correct size'
-            bufferheader.concat(size_content);
-            bufferheader.concat(F("\r\nConnection: close\r\nAccess-Control-Allow-Origin: *\r\n\r\n"));
-        }
-    }
+						//add current line to buffer
+						buffer2send+=sLine;
+						//if buffer limit is reached
+						if (buffer2send.length()>1200) {
+							//if header is not send yet
+							if (!header_sent) {
+								//send header with calculated size
+								header_sent=true;
+								web_interface->WebServer.setContentLength(CONTENT_LENGTH_UNKNOWN);
+								web_interface->WebServer.send(200);
+								web_interface->WebServer.sendHeader("Content-Type","text/html");
+								web_interface->WebServer.sendHeader("Cache-Control","no-cache");
+							}
+							//send data
+							web_interface->WebServer.sendContent(buffer2send);
+							//reset buffer
+							buffer2send="";
+						}
+					}
+					//reset line
+					sLine="";
+					//add a delay for safety for WDT
+					delay(1);
+				}
+			} else { //EOF is reached
+				//close current file
+				currentfile.close();
+				//if current file is not template file but included one
+				if (myFileList.size()>0) {
+					//get level +1 file description and continue
+					currentfile = myFileList.pop();
+				} else {
+					//we have done template parsing, let's stop reading
+					bprocessing=false;
+				}
+			}
+		}
+	}
+	//check if something is still in buffer and need to be send
+	if (buffer2send!="") {
+		//if header is not send yet
+		if (!header_sent) {
+			//send header
+			web_interface->WebServer.setContentLength(CONTENT_LENGTH_UNKNOWN);
+			web_interface->WebServer.send(200);
+			web_interface->WebServer.sendHeader("Content-Type","text/html");
+			web_interface->WebServer.sendHeader("Cache-Control","no-cache");
+		}
+		//send data
+		web_interface->WebServer.sendContent(buffer2send);
+	}
+	//close line
+	web_interface->WebServer.sendContent("");
     return true;
 }
 // -----------------------------------------------------------------------------
