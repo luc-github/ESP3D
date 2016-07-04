@@ -548,13 +548,12 @@ void GeLogin(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList,leve
         if (auth_level == LEVEL_ADMIN) ValuesList.add(FPSTR(DEFAULT_ADMIN_LOGIN));
         else ValuesList.add(FPSTR(DEFAULT_USER_LOGIN));
     } else 
- #else
+#endif
     {
         ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
         KeysList.add(FPSTR(KEY_LOGIN_ID));
         ValuesList.add("");
     }
-#endif
 }
 
 // -----------------------------------------------------------------------------
