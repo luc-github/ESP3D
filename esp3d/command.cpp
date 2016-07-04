@@ -100,6 +100,7 @@ void COMMAND::execute_command(int cmd,String cmd_params)
             CONFIG::print_config();
         }
         break;
+#ifdef AUTHENTICATION_FEATURE
      case 555:
         {
          String sadminPassword;
@@ -117,6 +118,7 @@ void COMMAND::execute_command(int cmd,String cmd_params)
         else Serial.println("\nFailed");
         break;
         }
+#endif
     case 888:
         if (cmd_params=="RESTART") {
             Serial.print("\r");

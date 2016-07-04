@@ -540,16 +540,21 @@ void GetFreeMem(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList)
 void GeLogin(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList,level_authenticate_type auth_level)
 {
 	 KeysList.add(FPSTR(KEY_DISCONNECT_VISIBILITY));
+#ifdef AUTHENTICATION_FEATURE
+
     if (auth_level != LEVEL_GUEST) {
         ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
         KeysList.add(FPSTR(KEY_LOGIN_ID));
         if (auth_level == LEVEL_ADMIN) ValuesList.add(FPSTR(DEFAULT_ADMIN_LOGIN));
         else ValuesList.add(FPSTR(DEFAULT_USER_LOGIN));
-    } else {
+    } else 
+ #else
+    {
         ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
         KeysList.add(FPSTR(KEY_LOGIN_ID));
         ValuesList.add("");
     }
+#endif
 }
 
 // -----------------------------------------------------------------------------
@@ -1242,6 +1247,7 @@ void handle_web_interface_configSys()
     ValuesList.clear();
 }
 
+#ifdef AUTHENTICATION_FEATURE
 void handle_password()
 {
     static const char NOT_AUTH_PW [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=PASSWORD\r\nCache-Control: no-cache\r\n\r\n";
@@ -1351,7 +1357,7 @@ void handle_password()
     KeysList.clear();
     ValuesList.clear();
 }
-
+#endif
 
 void handle_web_interface_configAP()
 {
@@ -2904,6 +2910,7 @@ void handle_not_found()
     }
 }
 
+#ifdef AUTHENTICATION_FEATURE
 void handle_login()
 {
     static const char NOT_AUTH_LOG [] PROGMEM = "HTTP/1.1 301 OK\r\nSet-Cookie: ESPSESSIONID=0\r\nLocation: /LOGIN\r\nCache-Control: no-cache\r\n\r\n";
@@ -2931,7 +2938,6 @@ void handle_login()
         if ( web_interface->WebServer.hasArg("PASSWORD")&& web_interface->WebServer.hasArg("USER")) {
             //USER
             sUser = web_interface->WebServer.arg("USER");
-#ifdef AUTHENTICATION_FEATURE
             if ( !((sUser==FPSTR(DEFAULT_ADMIN_LOGIN)) || (sUser==FPSTR(DEFAULT_USER_LOGIN)))) {
                 msg_alert_error=true;
                 smsg.concat(F("Error : Incorrect User<BR>"));
@@ -2959,7 +2965,6 @@ void handle_login()
                 KeysList.add(FPSTR(KEY_USER_PASSWORD_STATUS));
                 ValuesList.add(FPSTR(VALUE_HAS_ERROR));
             }
-#endif
         } else {
             msg_alert_error=true;
             smsg = FPSTR(MISSING_DATA);
@@ -3034,7 +3039,7 @@ void handle_login()
     KeysList.clear();
     ValuesList.clear();
 }
-
+#endif
 void handle_restart()
 {
     if (SPIFFS.exists("/restart.tpl")) {
@@ -3131,8 +3136,10 @@ WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port):WebServer(port)
 #endif
     WebServer.on("/FILES", HTTP_ANY, handleFileList,SPIFFSFileupload);
     WebServer.on("/SDFILES", HTTP_ANY, handleSDFileList,SDFileupload);
+#ifdef AUTHENTICATION_FEATURE
     WebServer.on("/LOGIN", HTTP_ANY, handle_login);
     WebServer.on("/PASSWORD", HTTP_ANY, handle_password);
+#endif
     //Captive portal Feature
 #ifdef CAPTIVE_PORTAL_FEATURE
     WebServer.on("/generate_204",HTTP_ANY, handle_web_interface_root);
