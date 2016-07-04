@@ -100,6 +100,23 @@ void COMMAND::execute_command(int cmd,String cmd_params)
             CONFIG::print_config();
         }
         break;
+     case 555:
+        {
+         String sadminPassword;
+        if (!CONFIG::read_string(EP_ADMIN_PWD, sadminPassword , MAX_LOCAL_PASSWORD_LENGTH)) {
+            sadminPassword=FPSTR(DEFAULT_ADMIN_PWD);
+        }
+        if (cmd_params == sadminPassword.c_str()) {
+            if(CONFIG::write_string(EP_USER_PWD,FPSTR(DEFAULT_USER_PWD))) {
+                Serial.println("\nOk");
+            }
+            else {
+                Serial.println("\nFailed");
+            }
+        }
+        else Serial.println("\nFailed");
+        break;
+        }
     case 888:
         if (cmd_params=="RESTART") {
             Serial.print("\r");

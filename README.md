@@ -69,6 +69,9 @@ Web Page refresh: 3 secondes
 User: admin     
 Password: admin
 
+User:user
+Password: user
+
 These are the pages defined using template:    
 Home page :     
 <img src=https://raw.githubusercontent.com/luc-github/ESP3D/master/images/UI/Page1.png><br>
@@ -98,10 +101,11 @@ Because SPIFFS is flat filesystem, no directory management is necessary, so it i
 Additionally 404.tpl (the page not found) and restart.tpl(restart page when applying changes) are not mandatory, a fail safe version is embeded if they are not present.     
 
 ##Direct commands:    
-
+```
     -restart module from host/printer: [ESP888]RESTART      
     -Get IP (only printer see answer): [ESP111]M117     
-    -reset EEPROM and restart: [ESP444]RESET    
+    -reset EEPROM and restart: [ESP444]RESET   
+    -reset user password: [ESP555]<admin password>    
     -display EEPROM content: [ESP444]CONFIG    
     -go to safe mode without restart: [ESP444]SAFEMODE    
     -SSID: [ESP100]<SSID>    
@@ -110,7 +114,7 @@ Additionally 404.tpl (the page not found) and restart.tpl(restart page when appl
     -AP mode: [ESP103]AP   
     -IP Static: [ESP104]STATIC    
     -IP DHCP: [ESP104]DHCP    
- 
+ ```
 ##Installation
 * For stable:
 Please use [Arduino IDE 1.6.5](http://arduino.cc/en/Main/Software)  with the esp8266 module from board manager use 2.0.0 stable version by adding in your preferences http://arduino.esp8266.com/version/2.0.0/package_esp8266com_index.json

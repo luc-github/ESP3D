@@ -40,11 +40,14 @@ extern "C" {
 #endif
 
 #define MAX_AUTH_IP 10
-#define UPLOAD_STATUS_NONE	0
-#define UPLOAD_STATUS_FAILED 1
-#define UPLOAD_STATUS_CANCELLED 2
-#define UPLOAD_STATUS_SUCCESSFUL 3
-#define UPLOAD_STATUS_ONGOING 4
+
+typedef enum {
+  UPLOAD_STATUS_NONE = 0,
+  UPLOAD_STATUS_FAILED = 1,
+  UPLOAD_STATUS_CANCELLED = 2,
+  UPLOAD_STATUS_SUCCESSFUL = 3,
+  UPLOAD_STATUS_ONGOING  =4
+} upload_status_type;
 
 const char PAGE_404 [] PROGMEM ="<HTML>\n<HEAD>\n<title>Redirecting...</title> \n</HEAD>\n<BODY>\n<CENTER>Unknown page - you will be redirected...\n<BR><BR>\nif not redirected, <a href='http://$WEB_ADDRESS$'>click here</a>\n<BR><BR>\n<PROGRESS name='prg' id='prg'></PROGRESS>\n\n<script>\nvar i = 0; \nvar x = document.getElementById(\"prg\"); \nx.max=5; \nvar interval=setInterval(function(){\ni=i+1; \nvar x = document.getElementById(\"prg\"); \nx.value=i; \nif (i>5) \n{\nclearInterval(interval);\nwindow.location.href='/';\n}\n},1000);\n</script>\n</CENTER>\n</BODY>\n</HTML>\n\n";
 const char PAGE_RESTART [] PROGMEM ="<HTML>\n<HEAD>\n<title>Restarting...</title> \n</HEAD>\n<BODY>\n<CENTER>Restarting, please wait....\n<BR>\n<PROGRESS name='prg' id='prg'></PROGRESS>\n</CENTER>\n<script>\nvar i = 0;\nvar interval; \nvar x = document.getElementById(\"prg\"); \nx.max=40; \ninterval = setInterval(function(){\ni=i+1; \nvar x = document.getElementById(\"prg\"); \nx.value=i; \nif (i>40) \n{\nclearInterval(interval);\nwindow.location.href='/';\n}\n},1000);\n</script>\n</BODY>\n</HTML>\n";
@@ -207,6 +210,7 @@ const char EEPROM_NOWRITE [] PROGMEM = "Error: Cannot write to EEPROM";
 const char KEY_WEB_UPDATE [] PROGMEM = "$WEB_UPDATE_VISIBILITY$";
 const char KEY_STA_SIGNAL [] PROGMEM = "$STA_SIGNAL$";
 const char KEY_DATA_PORT_VISIBILITY [] PROGMEM = "$DATA_PORT_VISIBILITY$";
+const char KEY_LOGIN_ID [] PROGMEM = "$LOGIN_ID$";
 
 bool WEBINTERFACE_CLASS::isHostnameValid(const char * hostname)
 {
@@ -261,11 +265,11 @@ bool WEBINTERFACE_CLASS::isPasswordValid(const char * password)
     return true;
 }
 
-bool WEBINTERFACE_CLASS::isAdminPasswordValid(const char * password)
+bool WEBINTERFACE_CLASS::isLocalPasswordValid(const char * password)
 {
     char c;
     //limited size
-    if ((strlen(password)>MAX_ADMIN_PASSWORD_LENGTH)||  (strlen(password)<MIN_ADMIN_PASSWORD_LENGTH)) {
+    if ((strlen(password)>MAX_LOCAL_PASSWORD_LENGTH)||  (strlen(password)<MIN_LOCAL_PASSWORD_LENGTH)) {
         return false;
     }
     //no space allowed
@@ -529,6 +533,25 @@ void GetFreeMem(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList)
     KeysList.add(FPSTR(KEY_FW_VER));
     ValuesList.add(FPSTR(VALUE_FW_VERSION));
 }
+
+// -----------------------------------------------------------------------------
+// Helper for Login ID
+// -----------------------------------------------------------------------------
+void GeLogin(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList,level_authenticate_type auth_level)
+{
+	 KeysList.add(FPSTR(KEY_DISCONNECT_VISIBILITY));
+    if (auth_level != LEVEL_GUEST) {
+        ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
+        KeysList.add(FPSTR(KEY_LOGIN_ID));
+        if (auth_level == LEVEL_ADMIN) ValuesList.add(FPSTR(DEFAULT_ADMIN_LOGIN));
+        else ValuesList.add(FPSTR(DEFAULT_USER_LOGIN));
+    } else {
+        ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
+        KeysList.add(FPSTR(KEY_LOGIN_ID));
+        ValuesList.add("");
+    }
+}
+
 // -----------------------------------------------------------------------------
 // Helper for IP+Web address
 // -----------------------------------------------------------------------------
@@ -703,17 +726,13 @@ void handle_web_interface_home()
     struct softap_config apconfig;
     struct ip_info info;
     uint8_t mac [WL_MAC_ADDR_LENGTH];
-
-    KeysList.add(FPSTR(KEY_DISCONNECT_VISIBILITY));
-    if (web_interface->is_authenticated()) {
-        ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-    } else {
-        ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-    }
+    
+    //login 
+    GeLogin(KeysList, ValuesList,web_interface->is_authenticated());
 
     //IP+Web
     GetIpWeb(KeysList, ValuesList);
-
+    
     //Hostname
     if (WiFi.getMode()==WIFI_STA ) {
         KeysList.add(FPSTR(KEY_MODE));
@@ -1040,12 +1059,14 @@ void handle_web_interface_configSys()
     const __FlashStringHelper  *smodemdisplaylist[]= {FPSTR(VALUE_NONE),FPSTR(VALUE_LIGHT),FPSTR(VALUE_MODEM),FPSTR(VALUE_MODEM)};
     STORESTRINGS_CLASS KeysList ;
     STORESTRINGS_CLASS ValuesList ;
-
-    if (!web_interface->is_authenticated()) {
+ 
+    level_authenticate_type auth_level= web_interface->is_authenticated();
+    if (auth_level != LEVEL_ADMIN) {
         web_interface->WebServer.sendContent_P(NOT_AUTH_CS);
         return;
     }
-
+    //login
+    GeLogin(KeysList, ValuesList,auth_level);
     //IP+Web
     GetIpWeb(KeysList, ValuesList);
     //mode
@@ -1232,12 +1253,13 @@ void handle_password()
     //int ipos;
     STORESTRINGS_CLASS KeysList ;
     STORESTRINGS_CLASS ValuesList ;
-
-    if (!web_interface->is_authenticated()) {
+    level_authenticate_type auth_level= web_interface->is_authenticated();
+    if (auth_level == LEVEL_GUEST) {
         web_interface->WebServer.sendContent_P(NOT_AUTH_PW);
         return;
     }
-
+    //login
+    GeLogin(KeysList, ValuesList,auth_level);
     //IP+Web
     GetIpWeb(KeysList, ValuesList);
     //mode
@@ -1256,7 +1278,7 @@ void handle_password()
             //Password
             sPassword =web_interface->WebServer.arg("PASSWORD");
             sPassword2 = web_interface->WebServer.arg("PASSWORD2");
-            if (!web_interface->isAdminPasswordValid(sPassword.c_str()) ) {
+            if (!web_interface->isLocalPasswordValid(sPassword.c_str()) ) {
                 msg_alert_error=true;
                 smsg.concat(F("Error: Incorrect password<BR>"));
                 KeysList.add(FPSTR(KEY_USER_PASSWORD_STATUS));
@@ -1276,7 +1298,10 @@ void handle_password()
         //if no error apply the change
         if (msg_alert_error==false) {
             //save
-            if(!CONFIG::write_string(EP_ADMIN_PWD,sPassword.c_str())) {
+            bool res;
+            if (auth_level == LEVEL_ADMIN) res = CONFIG::write_string(EP_ADMIN_PWD,sPassword.c_str()) ;
+            else res = CONFIG::write_string(EP_USER_PWD,sPassword.c_str()) ;
+            if (!res) {
                 msg_alert_error=true;
                 smsg = FPSTR(EEPROM_NOWRITE);
             } else {
@@ -1352,11 +1377,13 @@ void handle_web_interface_configAP()
     STORESTRINGS_CLASS KeysList ;
     STORESTRINGS_CLASS ValuesList ;
 
-    if (!web_interface->is_authenticated()) {
+    level_authenticate_type auth_level= web_interface->is_authenticated();
+    if (auth_level != LEVEL_ADMIN) {
         web_interface->WebServer.sendContent_P(NOT_AUTH_AP);
         return;
     }
-
+    //login
+    GeLogin(KeysList, ValuesList,auth_level);
     //IP+Web
     GetIpWeb(KeysList, ValuesList);
     //mode
@@ -1692,11 +1719,13 @@ void handle_web_interface_configSTA()
     STORESTRINGS_CLASS KeysList ;
     STORESTRINGS_CLASS ValuesList ;
 
-    if (!web_interface->is_authenticated()) {
+    level_authenticate_type auth_level= web_interface->is_authenticated();
+    if (auth_level != LEVEL_ADMIN) {
         web_interface->WebServer.sendContent_P(NOT_AUTH_STA);
         return;
     }
-
+    //login
+    GeLogin(KeysList, ValuesList,auth_level);
     //IP+Web
     GetIpWeb(KeysList, ValuesList);
     //mode
@@ -1998,11 +2027,15 @@ void handle_web_interface_printer()
     STORESTRINGS_CLASS KeysList ;
     STORESTRINGS_CLASS ValuesList ;
 
-    if (!web_interface->is_authenticated()) {
+    level_authenticate_type auth_level= web_interface->is_authenticated();
+    if (auth_level == LEVEL_GUEST) {
         web_interface->WebServer.sendContent_P(NOT_AUTH_PRT);
         return;
     }
 
+    //login
+    GeLogin(KeysList, ValuesList,auth_level);
+    
     //IP+Web
     GetIpWeb(KeysList, ValuesList);
     //mode
@@ -2069,12 +2102,14 @@ void handle_web_settings()
     int ixy_feedrate,iz_feedrate,ie_feedrate;
     STORESTRINGS_CLASS KeysList ;
     STORESTRINGS_CLASS ValuesList ;
-
-    if (!web_interface->is_authenticated()) {
+    level_authenticate_type auth_level= web_interface->is_authenticated();
+    if (auth_level != LEVEL_ADMIN) {
         web_interface->WebServer.sendContent_P(NOT_AUTH_SET);
         return;
     }
 	web_interface->blockserial = false;
+	//login
+    GeLogin(KeysList, ValuesList,auth_level);
     //IP+Web
     GetIpWeb(KeysList, ValuesList);
     //mode
@@ -2196,6 +2231,7 @@ void handle_web_settings()
 void handle_web_interface_status()
 {
     static const char NO_TEMP_LINE[] PROGMEM = "\"temperature\":\"0\",\"target\":\"0\",\"active\":\"0\"";
+    //we do not care if need authentication - just reset counter
     web_interface->is_authenticated();
     Serial.println(F("M114"));
     int tagpos,tagpos2;
@@ -2699,6 +2735,7 @@ void WebUpdateUpload()
 
 void handleUpdate()
 {
+	//upload can be long so better to reset time out
     web_interface->is_authenticated();
     String jsonfile = "{\"status\":\"" ;
     jsonfile+=intTostr(web_interface->_upload_status);
@@ -2715,7 +2752,7 @@ void handleUpdate()
 
 void handleFileList()
 {
-    if (!web_interface->is_authenticated()) {
+    if (web_interface->is_authenticated() != LEVEL_ADMIN) {
         return;
     }
     String path = "/";
@@ -2769,7 +2806,7 @@ void handleFileList()
 
 void handleSDFileList()
 {
-    if (!web_interface->is_authenticated()) {
+    if (web_interface->is_authenticated() == LEVEL_GUEST) {
         return;
     }
     String jsonfile = "{\"status\":\"" ;
@@ -2810,7 +2847,7 @@ void handle_not_found()
 {
     static const char NOT_AUTH_NF [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /HOME\r\nCache-Control: no-cache\r\n\r\n";
 
-    if (!web_interface->is_authenticated()) {
+    if (web_interface->is_authenticated() == LEVEL_GUEST) {
         web_interface->WebServer.sendContent_P(NOT_AUTH_NF);
         return;
     }
@@ -2895,7 +2932,7 @@ void handle_login()
             //USER
             sUser = web_interface->WebServer.arg("USER");
 #ifdef AUTHENTICATION_FEATURE
-            if (sUser!="admin") {
+            if ( !((sUser==FPSTR(DEFAULT_ADMIN_LOGIN)) || (sUser==FPSTR(DEFAULT_USER_LOGIN)))) {
                 msg_alert_error=true;
                 smsg.concat(F("Error : Incorrect User<BR>"));
                 KeysList.add(FPSTR(KEY_USER_STATUS));
@@ -2903,13 +2940,20 @@ void handle_login()
             }
             //Password
             sPassword = web_interface->WebServer.arg("PASSWORD");
-            String scurrentPassword;
+            String sadminPassword;
 
-            if (!CONFIG::read_string(EP_ADMIN_PWD, scurrentPassword , MAX_ADMIN_PASSWORD_LENGTH)) {
-                scurrentPassword=FPSTR(DEFAULT_ADMIN);
+            if (!CONFIG::read_string(EP_ADMIN_PWD, sadminPassword , MAX_LOCAL_PASSWORD_LENGTH)) {
+                sadminPassword=FPSTR(DEFAULT_ADMIN_PWD);
             }
+            
+            String suserPassword;
 
-            if (strcmp(sPassword.c_str(),scurrentPassword.c_str())!=0) {
+            if (!CONFIG::read_string(EP_USER_PWD, suserPassword , MAX_LOCAL_PASSWORD_LENGTH)) {
+                suserPassword=FPSTR(DEFAULT_USER_PWD);
+            }
+           
+            if(!(((sUser==FPSTR(DEFAULT_ADMIN_LOGIN)) && (strcmp(sPassword.c_str(),sadminPassword.c_str())==0)) || 
+            ((sUser==FPSTR(DEFAULT_USER_LOGIN)) && (strcmp(sPassword.c_str(),suserPassword.c_str()) == 0)))) {
                 msg_alert_error=true;
                 smsg.concat(F("Error: Incorrect password<BR>"));
                 KeysList.add(FPSTR(KEY_USER_PASSWORD_STATUS));
@@ -2925,6 +2969,8 @@ void handle_login()
         if (msg_alert_error==false) {
 #ifdef AUTHENTICATION_FEATURE
             auth_ip * current_auth = new auth_ip;
+            if(sUser==FPSTR(DEFAULT_ADMIN_LOGIN))current_auth->level = LEVEL_ADMIN;
+            else current_auth->level = LEVEL_USER;
             current_auth->ip=web_interface->WebServer.client().remoteIP();
             strcpy(current_auth->sessionID,web_interface->create_session_ID());
             current_auth->last_time=millis();
@@ -2955,12 +3001,10 @@ void handle_login()
     KeysList.add(FPSTR(KEY_RETURN));
     ValuesList.add(sReturn);
 
-    KeysList.add(FPSTR(KEY_DISCONNECT_VISIBILITY));
-    if (web_interface->is_authenticated()) {
-        ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
-    } else {
-        ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
-    }
+    level_authenticate_type auth_level= web_interface->is_authenticated();
+    //login
+    GeLogin(KeysList, ValuesList,auth_level);
+    
     //IP+Web
     GetIpWeb(KeysList, ValuesList);
     //mode
@@ -3022,7 +3066,7 @@ void handle_restart()
 
 void handle_web_command()
 {
-    if (!web_interface->is_authenticated()) {
+    if (web_interface->is_authenticated() == LEVEL_GUEST) {
         return;
     }
     //check we have proper parameter
@@ -3152,7 +3196,7 @@ char * WEBINTERFACE_CLASS::create_session_ID()
     return sessionID;
 }
 //check authentification
-bool  WEBINTERFACE_CLASS::is_authenticated()
+level_authenticate_type  WEBINTERFACE_CLASS::is_authenticated()
 {
 #ifdef AUTHENTICATION_FEATURE
     if (WebServer.hasHeader("Cookie")) {
@@ -3166,9 +3210,9 @@ bool  WEBINTERFACE_CLASS::is_authenticated()
             return ResetAuthIP(ip,sessionID.c_str());
         }
     }
-    return false;
+    return LEVEL_GUEST;
 #else
-    return true;
+    return LEVEL_ADMIN;
 #endif
 }
 
@@ -3184,9 +3228,8 @@ bool WEBINTERFACE_CLASS::AddAuthIP(auth_ip * item)
     return true;
 }
 
-bool WEBINTERFACE_CLASS::ResetAuthIP(IPAddress ip,const char * sessionID)
+level_authenticate_type WEBINTERFACE_CLASS::ResetAuthIP(IPAddress ip,const char * sessionID)
 {
-    bool done=false;
     auth_ip * current = _head;
     auth_ip * previous = NULL;
     //get time
@@ -3210,14 +3253,14 @@ bool WEBINTERFACE_CLASS::ResetAuthIP(IPAddress ip,const char * sessionID)
                 if (strcmp(sessionID,current->sessionID)==0) {
                     //reset time
                     current->last_time=millis();
-                    return true;
+                    return current->level;
                 }
             }
             previous = current;
             current=current->_next;
         }
     }
-    return done;
+    return LEVEL_GUEST;
 }
 
 WEBINTERFACE_CLASS * web_interface;

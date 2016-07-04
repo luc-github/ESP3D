@@ -229,7 +229,10 @@ bool CONFIG::reset_config()
     if(!CONFIG::write_buffer(EP_E_FEEDRATE,(const byte *)&DEFAULT_E_FEEDRATE,INTEGER_LENGTH)) {
         return false;
     }
-    if(!CONFIG::write_string(EP_ADMIN_PWD,FPSTR(DEFAULT_ADMIN))) {
+    if(!CONFIG::write_string(EP_ADMIN_PWD,FPSTR(DEFAULT_ADMIN_PWD))) {
+        return false;
+    }
+    if(!CONFIG::write_string(EP_USER_PWD,FPSTR(DEFAULT_USER_PWD))) {
         return false;
     }
     return true;

@@ -20,8 +20,8 @@
 
 //definition
 #define REPETIER		0
-#define REPETIER4DV		1
-#define MARLIN			2
+#define REPETIER4DV	1
+#define MARLIN		2
 #define SMOOTHIEWARE	3
 
 //comment to disable
@@ -57,7 +57,6 @@
 //#define DEBUG_ESP3D 
 
 #ifdef DEBUG_ESP3D
-
 #define LOG(string) {File logfile = SPIFFS.open("/log.txt", "a+");logfile.print(string);logfile.close();}
 #else
 #define LOG(string) {}
@@ -69,7 +68,7 @@
 #include <Arduino.h>
 #include "wifi.h"
 //version and sources location
-#define FW_VERSION "0.7.52"
+#define FW_VERSION "0.7.7"
 #define REPOSITORY "https://github.com/luc-github/ESP8266"
 
 
@@ -90,7 +89,7 @@
 #define EP_IP_MODE			99   //1 byte = flag
 #define EP_IP_VALUE			100  //4  bytes xxx.xxx.xxx.xxx
 #define EP_MASK_VALUE			104  //4  bytes xxx.xxx.xxx.xxx
-#define EP_GATEWAY_VALUE		108  //4  bytes xxx.xxx.xxx.xxx
+#define EP_GATEWAY_VALUE			108  //4  bytes xxx.xxx.xxx.xxx
 #define EP_BAUD_RATE			112  //4  bytes = int
 #define EP_PHY_MODE			116  //1 byte = flag
 #define EP_SLEEP_MODE			117  //1 byte = flag
@@ -105,8 +104,9 @@
 #define EP_Z_FEEDRATE		    168//4  bytes = int
 #define EP_E_FEEDRATE		    172//4  bytes = int
 #define EP_ADMIN_PWD		    176//21  bytes 20+1 = string  ; warning does not support multibyte char like chinese
-
-
+#define EP_USER_PWD		    197//21  bytes 20+1 = string  ; warning does not support multibyte char like chinese
+//next available is 218
+//space left 256 - 218 = 38
 
 //default values
 #define DEFAULT_WIFI_MODE			AP_MODE
@@ -131,7 +131,11 @@ const int DEFAULT_DATA_PORT =			8888;
 const int  DEFAULT_XY_FEEDRATE=1000;
 const int  DEFAULT_Z_FEEDRATE	=100;
 const int  DEFAULT_E_FEEDRATE=400;
-const char DEFAULT_ADMIN []  PROGMEM =	"admin";
+const char DEFAULT_ADMIN_PWD []  PROGMEM =	"admin";
+const char DEFAULT_USER_PWD []  PROGMEM =	"user";
+const char DEFAULT_ADMIN_LOGIN []  PROGMEM =	"admin";
+const char DEFAULT_USER_LOGIN []  PROGMEM =	"user";
+
 
 //sizes
 #define EEPROM_SIZE				256 //max is 512
@@ -139,8 +143,8 @@ const char DEFAULT_ADMIN []  PROGMEM =	"admin";
 #define MIN_SSID_LENGTH				1
 #define MAX_PASSWORD_LENGTH 			64
 #define MIN_PASSWORD_LENGTH 			8
-#define MAX_ADMIN_PASSWORD_LENGTH 			16
-#define MIN_ADMIN_PASSWORD_LENGTH 			1
+#define MAX_LOCAL_PASSWORD_LENGTH 			16
+#define MIN_LOCAL_PASSWORD_LENGTH 			1
 #define IP_LENGTH 				4
 #define INTEGER_LENGTH 				4
 #define MAX_HOSTNAME_LENGTH		32

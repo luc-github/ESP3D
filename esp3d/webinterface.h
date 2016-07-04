@@ -29,8 +29,15 @@
 
 #define MAX_EXTRUDERS 4
 
+typedef enum {
+  LEVEL_GUEST = 0,
+  LEVEL_USER = 1,
+  LEVEL_ADMIN = 2
+} level_authenticate_type;
+
 struct auth_ip {
     IPAddress ip;
+    level_authenticate_type level;
     char sessionID[17];
     uint32_t last_time;
     auth_ip * _next;
@@ -45,7 +52,7 @@ public:
     File fsUploadFile;
     bool isSSIDValid(const char * ssid);
     bool isPasswordValid(const char * password);
-    bool isAdminPasswordValid(const char * password);
+    bool isLocalPasswordValid(const char * password);
     bool isHostnameValid(const char * hostname);
     bool isIPValid(const char * IP);
     String answer4M105;
@@ -59,10 +66,10 @@ public:
     STORESTRINGS_CLASS status_msg;
     bool restartmodule;
     char * create_session_ID();
-    bool is_authenticated();
+    level_authenticate_type is_authenticated();
     bool AddAuthIP(auth_ip * item);
     bool blockserial;
-    bool ResetAuthIP(IPAddress ip,const char * sessionID);
+    level_authenticate_type ResetAuthIP(IPAddress ip,const char * sessionID);
     uint8_t _upload_status;
 
 private:
