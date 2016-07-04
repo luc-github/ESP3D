@@ -69,7 +69,7 @@
 #include <Arduino.h>
 #include "wifi.h"
 //version and sources location
-#define FW_VERSION "0.7.51"
+#define FW_VERSION "0.7.52"
 #define REPOSITORY "https://github.com/luc-github/ESP8266"
 
 
