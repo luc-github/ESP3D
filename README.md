@@ -102,12 +102,13 @@ Additionally 404.tpl (the page not found) and restart.tpl(restart page when appl
 
 ##Direct commands:    
 ```
-    -restart module from host/printer: [ESP888]RESTART      
+    -Restart module from host/printer: [ESP888]RESTART      
+    -Send file line by line from SPIFFS: [ESP700]<file name>
     -Get IP (only printer see answer): [ESP111]M117     
-    -reset EEPROM and restart: [ESP444]RESET   
-    -reset user password: [ESP555]<admin password>    
-    -display EEPROM content: [ESP444]CONFIG    
-    -go to safe mode without restart: [ESP444]SAFEMODE    
+    -Reset EEPROM and restart: [ESP444]RESET   
+    -Deset user password: [ESP555]<admin password>    
+    -Display EEPROM content: [ESP444]CONFIG    
+    -Go to safe mode without restart: [ESP444]SAFEMODE    
     -SSID: [ESP100]<SSID>    
     -Password: [ESP101]<Password>   
     -Station mode: [ESP103]STA   

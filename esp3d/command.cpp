@@ -22,6 +22,7 @@
 #include "config.h"
 #include "wifi.h"
 #include "webinterface.h"
+#include <FS.h>
 
 String COMMAND::buffer_serial;
 String COMMAND::buffer_tcp;
@@ -119,6 +120,32 @@ void COMMAND::execute_command(int cmd,String cmd_params)
         break;
         }
 #endif
+    case 700: //read local file
+        {//be sure serial is locked
+        if ((web_interface->blockserial)) break;
+        cmd_params.trim() ;
+        if ((cmd_params.length() > 0) && (cmd_params[0] != '/')) cmd_params = "/" + cmd_params;
+        File currentfile = SPIFFS.open(cmd_params, "r");
+        if (currentfile) {//if file open success
+            //flush to be sure send buffer is empty
+            Serial.flush();
+            //read content
+            String currentline = currentfile.readString();
+            //until no line in file
+            while (currentline.length() >0)
+                {   //send line to serial
+                    Serial.println(currentline);
+                    //flush to be sure send buffer is empty
+                    delay(0);
+                    Serial.flush();
+                    currentline="";
+                    //read next line if any
+                    currentline = currentfile.readString();
+                }
+            currentfile.close()
+;            }
+        break;
+        }
     case 888:
         if (cmd_params=="RESTART") {
             Serial.print("\r");
