@@ -2431,7 +2431,7 @@ void SPIFFSFileupload()
     if(upload.status == UPLOAD_FILE_START) {
 		String filename;
 		if(web_interface->is_authenticated() == LEVEL_ADMIN) filename = upload.filename;
-		else filename = "/macro" + upload.filename;
+		else filename = "/user" + upload.filename;
         Serial.println("M117 Start ESP upload");
         web_interface->fsUploadFile = SPIFFS.open(filename, "w");
         filename = String();
@@ -2766,7 +2766,8 @@ void handleFileList()
     String path ;
     String status="Ok";
     if (auth_level == LEVEL_ADMIN) path = "/";
-    else path = "/macro";
+    else path = "/user";
+    if(web_interface->WebServer.hasArg("path"))path += web_interface->WebServer.hasArg("path");
     if(web_interface->WebServer.hasArg("action")) {
         if(web_interface->WebServer.arg("action")=="delete" && web_interface->WebServer.hasArg("filename")) {
             String filename;
