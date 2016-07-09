@@ -2108,7 +2108,7 @@ void handle_web_settings()
     STORESTRINGS_CLASS KeysList ;
     STORESTRINGS_CLASS ValuesList ;
     level_authenticate_type auth_level= web_interface->is_authenticated();
-    if (auth_level != LEVEL_ADMIN) {
+    if (auth_level == LEVEL_GUEST) {
         web_interface->WebServer.sendContent_P(NOT_AUTH_SET);
         return;
     }
@@ -2429,7 +2429,9 @@ void SPIFFSFileupload()
 {
     HTTPUpload& upload = (web_interface->WebServer).upload();
     if(upload.status == UPLOAD_FILE_START) {
-        String filename = upload.filename;
+		String filename;
+		if(web_interface->is_authenticated() == LEVEL_ADMIN) filename = upload.filename;
+		else filename = "/macro" + upload.filename;
         Serial.println("M117 Start ESP upload");
         web_interface->fsUploadFile = SPIFFS.open(filename, "w");
         filename = String();
@@ -2757,12 +2759,14 @@ void handleUpdate()
 
 void handleFileList()
 {
-    if (web_interface->is_authenticated() != LEVEL_ADMIN) {
+	level_authenticate_type auth_level = web_interface->is_authenticated();
+    if (auth_level == LEVEL_GUEST) {
         return;
     }
-    String path = "/";
+    String path ;
     String status="Ok";
-
+    if (auth_level == LEVEL_ADMIN) path = "/";
+    else path = "/macro";
     if(web_interface->WebServer.hasArg("action")) {
         if(web_interface->WebServer.arg("action")=="delete" && web_interface->WebServer.hasArg("filename")) {
             String filename;
