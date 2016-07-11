@@ -2764,42 +2764,157 @@ void handleFileList()
         return;
     }
     String path ;
-    String status="Ok";
+    String status = "Ok";
+    //be sure root is correct according authentication 
     if (auth_level == LEVEL_ADMIN) path = "/";
     else path = "/user";
-    if(web_interface->WebServer.hasArg("path"))path += web_interface->WebServer.hasArg("path");
+    //get current path
+    if(web_interface->WebServer.hasArg("path"))path += web_interface->WebServer.arg("path") ;
+    //to have a clean path
+    path.trim();
+    path.replace("//","/");
+    if (path[path.length()-1] !='/')path +="/";
+    //check if query need some action
     if(web_interface->WebServer.hasArg("action")) {
-        if(web_interface->WebServer.arg("action")=="delete" && web_interface->WebServer.hasArg("filename")) {
+        //delete a file
+        if(web_interface->WebServer.arg("action") == "delete" && web_interface->WebServer.hasArg("filename")) {
             String filename;
-            filename = web_interface->WebServer.arg("filename");
+            String shortname = web_interface->WebServer.arg("filename");
+            shortname.replace("/","");
+            filename = path + web_interface->WebServer.arg("filename");
+            filename.replace("//","/");
             if(!SPIFFS.exists(filename)) {
-                status="Cannot delete, file not found!";
+                status = shortname + F(" does not exists!");
             } else {
-                SPIFFS.remove(filename);
+               if (SPIFFS.remove(filename))  
+                {
+                status = shortname + F(" deleted");
+                //what happen if no "/." and no other subfiles ?
+                Dir dir = SPIFFS.openDir(path);
+                if (!dir.next())
+                    {   //keep directory alive even empty
+                        File r = SPIFFS.open(path+"/.","w");
+                        if (r)r.close();
+                    }
+                }
+               else {
+                        status = F("Cannot deleted ") ;
+                        status+=shortname ;
+                        }   
+            }
+        }
+        //delete a directory
+        if(web_interface->WebServer.arg("action") == "deletedir" && web_interface->WebServer.hasArg("filename")) {
+            String filename;
+            String shortname = web_interface->WebServer.arg("filename");
+            shortname.replace("/","");
+            filename = path + web_interface->WebServer.arg("filename");
+            filename += "/.";
+            filename.replace("//","/");
+            if (filename != "/")
+                    {
+                        bool delete_error = false;
+                        Dir dir = SPIFFS.openDir(path + shortname);
+                        {
+                            while (dir.next()) {
+                                 String fullpath = dir.fileName();
+                                 if (!SPIFFS.remove(dir.fileName())) {
+                                     delete_error = true;
+                                     status = F("Cannot deleted ") ;
+                                     status+=fullpath;
+                                    } 
+                            }
+                        } 
+                        if (!delete_error){
+                            status = shortname ;
+                            status+=" deleted";
+                        }
+                    }
+        }
+        //create a directory
+        if(web_interface->WebServer.arg("action")=="createdir" && web_interface->WebServer.hasArg("filename")) {
+            String filename;
+            filename = path + web_interface->WebServer.arg("filename") +"/.";
+            String shortname = web_interface->WebServer.arg("filename");
+            shortname.replace("/","");
+             filename.replace("//","/");
+            if(SPIFFS.exists(filename)) {
+                status = shortname + F(" already exists!");
+            } else {
+               File r = SPIFFS.open(filename,"w");
+               if (!r) {
+                        status = F("Cannot create ");
+                        status += shortname ;
+                        }
+               else {
+                        r.close();
+                        status = shortname + F(" created");
+                        }
             }
         }
     }
-    String jsonfile = "{\"path\":\"" + path + "\",";
+    String jsonfile = "{";
     Dir dir = SPIFFS.openDir(path);
     jsonfile+="\"files\":[";
     bool firstentry=true;
+    String subdirlist="";
     while (dir.next()) {
-        if (!firstentry) {
-            jsonfile+=",";
-        } else {
-            firstentry=false;
-        }
-        jsonfile+="{";
-        jsonfile+="\"name\":\"";
-        jsonfile+=dir.fileName();
-        jsonfile+="\",\"size\":\"";
-        File f = dir.openFile("r");
-        jsonfile+=formatBytes(f.size());
-        jsonfile+="\"";
-        jsonfile+="}";
-        f.close();
+         String filename = dir.fileName();
+         String size ="";
+         bool addtolist=true;
+         //remove path from name
+         filename = filename.substring(path.length(),filename.length());
+         //check if file or subfile
+         if (filename.indexOf("/")>-1) {
+            //Do not rely on "/." to define directory as SPIFFS upload won't create it but directly files
+            //and no need to overload SPIFFS if not necessary to create "/." if no need
+            //it will reduce SPIFFS available space so limit it to creation 
+            filename = filename.substring(0,filename.indexOf("/"));
+            String tag="*";
+            tag = filename + "*";
+            if (subdirlist.indexOf(tag)>-1) //already in list
+                {
+                    addtolist = false; //no need to add 
+                }
+            else
+                {
+                size = -1; //it is subfile so display only directory, size will be -1 to describe it is directory
+                if (subdirlist.length()==0)subdirlist+="*";
+                subdirlist += filename + "*"; //add to list
+                }
+            }
+        else 
+           {
+               //do not add "." file
+            if (filename!=".")
+                {   
+                File f = dir.openFile("r");
+                size = formatBytes(f.size());
+                f.close();
+                }
+            else 
+                {
+                addtolist = false;
+                }
+            }
+        if(addtolist)
+            {
+                if (!firstentry) {
+                    jsonfile+=",";
+                } else {
+                    firstentry=false;
+                }
+                jsonfile+="{";
+                jsonfile+="\"name\":\"";
+                jsonfile+=filename;
+                jsonfile+="\",\"size\":\"";
+                jsonfile+=size;
+                jsonfile+="\"";
+                jsonfile+="}";
+            }
     }
     jsonfile+="],";
+    jsonfile+="\"path\":\"" + path + "\",";
     jsonfile+="\"status\":\"" + status + "\",";
     FSInfo info;
     SPIFFS.info(info);
