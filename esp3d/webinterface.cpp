@@ -2245,13 +2245,13 @@ void handle_web_interface_status()
     //int temperature,target;
 
     //request temperature only if no feedback
-    if ((millis()-web_interface->last_temp)>120000) {
+    if ((millis()-web_interface->last_temp)>2000) {
         Serial.println(F("M105"));
     }
 
-    if ((millis()-web_interface->last_temp)<180000) {
+    if ((millis()-web_interface->last_temp)<30000) {
         value="Connected";
-    } else if ((millis()-web_interface->last_temp)<200000) {
+    } else if ((millis()-web_interface->last_temp)<60000) {
         value="Busy";
     } else {
         value="Offline";
@@ -3361,7 +3361,7 @@ level_authenticate_type WEBINTERFACE_CLASS::ResetAuthIP(IPAddress ip,const char 
     //get time
     //uint32_t now = millis();
     while (current) {
-        if ((millis()-current->last_time)>400000) {
+        if ((millis()-current->last_time)>180000) {
             //remove
             if (current==_head) {
                 _head=current->_next;
