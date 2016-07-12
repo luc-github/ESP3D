@@ -106,7 +106,7 @@ if (String(jsonresponse.files[i].size) != "-1")
     content +="<TR>";
     content +="<td><svg height='24' width='24' viewBox='0 0 24 24' >	<path d='M1,2 L1,21 L2,22 L16,22 L17,21 L17,6 L12,6 L12,1, L2,1 z' stroke='black' fill='white' />	<line x1='12' y1='1' x2='17' y2='6' stroke='black' stroke-width='1'/>";
     content +="<line x1='5' y1='10' x2='13' y2='10' stroke='black' stroke-width='1'/>	<line x1='5' y1='14' x2='13' y2='14' stroke='black' stroke-width='1'/>	<line x1='5' y1='18' x2='13' y2='18' stroke='black' stroke-width='1'/></svg></td>";
-    content +="<TD class='btnimg' style=\"padding:0px;\"><a blacklinkhref=\""+jsonresponse.path+jsonresponse.files[i].name+"\" target=_blank><div class=\"blacklink\">";
+    content +="<TD class='btnimg' style=\"padding:0px;\"><a href=\""+jsonresponse.path+jsonresponse.files[i].name+"\" target=_blank><div class=\"blacklink\">";
     content +=jsonresponse.files[i].name;
     content +="</div></a></TD><TD>";
     content +=jsonresponse.files[i].size;
