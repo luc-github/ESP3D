@@ -379,7 +379,7 @@ list2display+=tcontent[0] ;
 list2display+="</OPTION>";}
 }
 list2display+="</select>";
-if ( jsonresponse.length>0){
+if ( jsonresponse.file.length>0){
 list2display+="</td><td>&#8667;</td><td>";
 list2display+="<div class=\"btnimg\" Onclick=\"printfile();\" ><svg width=\"40\" height=\"40\">";
 list2display+="<rect width=\"40\" height=\"40\" style=\"fill:black;\"/>";
