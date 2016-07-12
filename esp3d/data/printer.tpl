@@ -154,7 +154,7 @@ var Efeedrate=$E_FEEDRATE$;
 function Sendcommand(commandtxt){
 var xmlhttp = new XMLHttpRequest();
 var url = "http://$WEB_ADDRESS$/CMD?COM="+encodeURIComponent(commandtxt);;
-xmlhttp.open("POST", url, true);
+xmlhttp.open("GET", url, true);
 xmlhttp.send();
 }
 
@@ -196,19 +196,22 @@ var pulse=true;
 var initialization_done = false;
 var pos=0;
 function displaytemp(temperature, target,item,factor){
-var displaypicture = "<svg height=\"30px \" width=\"300px \" xmlns=\"http://wwww.w3.org/2000/svg\">\n<linearGradient id=\"gradient\">\n";
+var displaypicture = "<svg  width='300' height='30'  viewBox='0 0 300 30'>\n";
 var description = String (temperature) + "/";
 if (target>0)description += String (target);
 else description += "Off ";
-displaypicture+="<stop class=\"begin\" style=\"stop-color:green;\" offset=\"0%\"/>\n";
-displaypicture+="<stop class=\"middle\" style=\"stop-color:yellow;\" offset=\"100%\"/>\n</linearGradient>\n<linearGradient id=\"gradient2\">\n";
-displaypicture+="<stop class=\"middle\" style=\"stop-color:yellow;\" offset=\"0%\"/>\n<stop class=\"end\" style=\"stop-color:red;\" offset=\"100%\"/>\n";
-displaypicture+="</linearGradient>\n<rect x=\"10\" y=\"4\" width=\"";
-displaypicture+= String(Math.round( 24*factor ));
-displaypicture+="\" height=\"21\" style=\"fill:url(#gradient)\" />\n";
-displaypicture+="<rect x=\"";
-displaypicture+= String(10+Math.round( 24*factor ));
-displaypicture+="\" y=\"4\" width=\"280\" height=\"21\" style=\"fill:url(#gradient2)\" />\n<line x1=\"";
+displaypicture+="<defs><linearGradient id='grad1' x1='0%' y1='0%' x2='100%' y2='0%'><stop offset='0%' style='stop-color:#0007FE;stop-opacity:1' />\n";
+displaypicture+="<stop offset='100%' style='stop-color:#00FAFE;stop-opacity:1' /></linearGradient>/n";
+displaypicture+="<linearGradient id='grad2' x1='0%' y1='0%' x2='100%' y2='0%'><stop offset='0%' style='stop-color:#00FAFE;stop-opacity:1' />\n";
+displaypicture+="<stop offset='100%' style='stop-color:#00FF00;stop-opacity:1' /></linearGradient>\n";
+displaypicture+="<linearGradient id='grad3' x1='0%' y1='0%' x2='100%' y2='0%'><stop offset='0%' style='stop-color:#00FF00;stop-opacity:1' />\n"
+displaypicture+="<stop offset='100%' style='stop-color:#FAFD00;stop-opacity:1' /></linearGradient>\n";
+displaypicture+="<linearGradient id='grad4' x1='0%' y1='0%' x2='100%' y2='0%'><stop offset='0%' style='stop-color:#FAFD00;stop-opacity:1' />\n";
+displaypicture+="<stop offset='100%' style='stop-color:#FE0700;stop-opacity:1' /></linearGradient></defs>\n";
+displaypicture+="<rect x='10' y='4' width='70' height='21' fill='url(#grad1)' /><rect x='80' y='4' width='70' height='21' fill='url(#grad2)' />\n";
+displaypicture+="<rect x='150' y='4' width='70' height='21' fill='url(#grad3)' /><rect x='220' y='4' width='70' height='21' fill='url(#grad4)' />\n";
+displaypicture+="<rect x='10' y='4' width='280' height='21' fill='none' stroke-width='1'  stroke='#C3BDB5' />\n";
+displaypicture+="<line x1=\"";
 displaypicture+=String(parseFloat(target)*factor+10);
 displaypicture+="\" y1=\"4\" x2=\"";
 displaypicture+=String(parseFloat(target)*factor+10);
@@ -226,7 +229,8 @@ displaypicture+=" 30 L";
 displaypicture+=String(parseFloat(temperature)*factor+10);
 displaypicture+=" 22 Z\" stroke=\"white\" stroke-width=\"1\"/>\n<text x=\"30\" y=\"19\" fill=\"black\" style=\"font-family: calibri; font-size:10pt;\">\n";
 displaypicture+=description;
-displaypicture+=" &#176;C</text>\n</svg>";
+displaypicture+=" &#176;C</text>\n";
+displaypicture+=" </svg>\n";
 document.getElementById(item).innerHTML=displaypicture;
 }
 function displaystatus(status){
