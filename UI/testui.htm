@@ -355,7 +355,7 @@ stroke-width:0.5;
 
 path.sign{
 pointer-events:none;
-fill:"black";
+fill:#000000;
 }
 
 path.mskjog{
@@ -381,24 +381,24 @@ fill:#0052E1;
 
 </defs>
 
-<g  id='homeall'  onmouseup="alert('all');" onmouseover="show_hide(maskall,0.5);" onmouseleave="show_hide(maskall,0);"  >
+<g  id='homeall'  onmouseup="alert('all');" onmouseover="show_hide(maskall,0.5);" onmouseout="show_hide(maskall,0);"  >
 <use  opacity=1 x="13" y="175" width="35" height="35" xlink:href="#homeIcon" />
 <use  id="maskall" opacity=0 x="13" y="175"  width="35" height="35" xlink:href="#homeIconmask" />
 </g>
 
-<g  id='homex'  onmouseup="alert('x');" onmouseover="show_hide(maskx,0.5);" onmouseleave="show_hide(maskx,0);"  >
+<g  id='homex'  onmouseup="alert('x');" onmouseover="show_hide(maskx,0.5);" onmouseout="show_hide(maskx,0);"  >
 <use  opacity=1 x="13" y="35" width="35" height="35" xlink:href="#homeIcon" />
 <use  id="maskx" opacity=0 x="13" y="35"  width="35" height="35" xlink:href="#homeIconmask" />
 <text x="27.5" y="60" class="home">X</text>
 </g>
 
-<g id='homey'  onmouseup="alert('y');" onmouseover="show_hide(masky,0.5);" onmouseleave="show_hide(masky,0);" >
+<g id='homey'  onmouseup="alert('y');" onmouseover="show_hide(masky,0.5);" onmouseout="show_hide(masky,0);" >
 <use  opacity=1 x="155" y="35"  width="35" height="35" xlink:href="#homeIcon" />
 <use  id="masky" opacity=0 x="155" y="35"   width="35" height="35" xlink:href="#homeIconmask" />
 <text x="169.5" y="60" class="home"> Y</text>
 </g>
 
-<g id='homez' onmouseup="alert('z');" onmouseover="show_hide(maskz,0.5);" onmouseleave="show_hide(maskz,0);" >
+<g id='homez' onmouseup="alert('z');" onmouseover="show_hide(maskz,0.5);" onmouseout="show_hide(maskz,0);" >
 <use  opacity=1 x="155" y="175"  width="35" height="35" xlink:href="#homeIcon" />
 <use  id="maskz" opacity=0 x="155" y="175"   width="35" height="35" xlink:href="#homeIconmask" />
 <text x="169.5" y="200" class="home"> Z</text>
@@ -407,40 +407,40 @@ fill:#0052E1;
 <g id="topxy">
 <path class="bg" d="M48,70 A 74,74 0 0,1 154,70 L126,98 A 35,35 0 0 0 76,98 z" filter="url(#shadow)" />
 <path class="bg" d="M48,70 A 74,74 0 0,1 154,70 L126,98 A 35,35 0 0 0 76,98 z" opacity='0.7' filter="url(#light)"/>
-<path onmouseup="alert(1);" onmouseover="settext_x('50',this);" onmouseleave="restore_x(this);" class="mskjog" d="M48,70 A 74,74 0 0,1 154,70 L126,98 A 35,35 0 0 0 76,98 z" />
-<path onmouseup="alert(2);" onmouseover="settext_x('10',this);" onmouseleave="restore_x(this);" class="mskjog" d="M55,77 A 64,64 0 0,1 147,77 L126,98 A 35,35 0 0 0 76,98 z" />
-<path onmouseup="alert(3);" onmouseover="settext_x('1',this);" onmouseleave="restore_x(this);" class="mskjog" d="M62,84 A 54,54 0 0,1 140,84 L126,98 A 35,35 0 0 0 76,98 z" />
-<path onmouseup="alert(4);" onmouseover="settext_x('0,1',this);" onmouseleave="restore_x(this);" class="mskjog" d="M69,91 A 44,44 0 0,1 133,91 L126,98 A 35,35 0 0 0 76,98 z"/>
+<path onmouseup="alert(1);" onmouseover="settext_x('50',this);" onmouseout="restore_x(this);" class="mskjog" d="M48,70 A 74,74 0 0,1 154,70 L126,98 A 35,35 0 0 0 76,98 z" />
+<path onmouseup="alert(2);" onmouseover="settext_x('10',this);" onmouseout="restore_x(this);" class="mskjog" d="M55,77 A 64,64 0 0,1 147,77 L126,98 A 35,35 0 0 0 76,98 z" />
+<path onmouseup="alert(3);" onmouseover="settext_x('1',this);" onmouseout="restore_x(this);" class="mskjog" d="M62,84 A 54,54 0 0,1 140,84 L126,98 A 35,35 0 0 0 76,98 z" />
+<path onmouseup="alert(4);" onmouseover="settext_x('0,1',this);" onmouseout="restore_x(this);" class="mskjog" d="M69,91 A 44,44 0 0,1 133,91 L126,98 A 35,35 0 0 0 76,98 z"/>
 <path class='sign' d="M101,58 L112,76 L90,76 z" />
 </g>
 
 <g id="rightxy"> 
 <path class="bg" d="M154,70 A 74,74 0 0,1 154,174 L126,146 A 35,35 0 0 0 126,98 z" filter="url(#shadow)"/>
 <path class="bg" d="M154,70 A 74,74 0 0,1 154,174 L126,146 A 35,35 0 0 0 126,98 z" opacity=0.7 filter="url(#light)"/>
-<path onmouseup="alert(13);" onmouseover="settext_x('50',this);" onmouseleave="restore_x(this);" class="mskjog" d="M154,70 A 74,74 0 0,1 154,174 L126,146 A 35,35 0 0 0 126,98 z"/>
-<path onmouseup="alert(14);" onmouseover="settext_x('10',this);" onmouseleave="restore_x(this);" class="mskjog" d="M147,77 A 64,64 0 0,1 147,167 L126,146 A 35,35 0 0 0 126,98 z"/>
-<path onmouseup="alert(15);" onmouseover="settext_x('1',this);" onmouseleave="restore_x(this);"  class="mskjog" d="M140,84 A 54,54 0 0,1 140,160 L126,146 A 35,35 0 0 0 126,98 z"/>
-<path onmouseup="alert(16);" onmouseover="settext_x('0,1',this);" onmouseleave="restore_x(this);"  class="mskjog" d="M133,91 A 44,44 0 0,1 133,153 L126,146 A 35,35 0 0 0 126,98 z"/>
+<path onmouseup="alert(13);" onmouseover="settext_x('50',this);" onmouseout="restore_x(this);" class="mskjog" d="M154,70 A 74,74 0 0,1 154,174 L126,146 A 35,35 0 0 0 126,98 z"/>
+<path onmouseup="alert(14);" onmouseover="settext_x('10',this);" onmouseout="restore_x(this);" class="mskjog" d="M147,77 A 64,64 0 0,1 147,167 L126,146 A 35,35 0 0 0 126,98 z"/>
+<path onmouseup="alert(15);" onmouseover="settext_x('1',this);" onmouseout="restore_x(this);"  class="mskjog" d="M140,84 A 54,54 0 0,1 140,160 L126,146 A 35,35 0 0 0 126,98 z"/>
+<path onmouseup="alert(16);" onmouseover="settext_x('0,1',this);" onmouseout="restore_x(this);"  class="mskjog" d="M133,91 A 44,44 0 0,1 133,153 L126,146 A 35,35 0 0 0 126,98 z"/>
 <path class='sign' d="M165,122 L148,112 L148,132 z" />
 </g>
 
 <g id="bottomxy"> 
 <path class="bg" d="M48,174 A 74,74 0 0,0 154,174 L126,146 A 35,35 0 0 1 76,146 z" filter="url(#shadow)"/>
 <path class="bg" d="M48,174 A 74,74 0 0,0 154,174 L126,146 A 35,35 0 0 1 76,146 z" opacity='0.7' filter="url(#light)"/>
-<path onmouseup="alert(8);" onmouseover="settext_x('-50',this);" onmouseleave="restore_x(this);" class="mskjog" d="M48,174 A 74,74 0 0,0 154,174 L126,146 A 35,35 0 0 1 76,146 z" />
-<path onmouseup="alert(7);" onmouseover="settext_x('-10',this);" onmouseleave="restore_x(this);" class="mskjog" d="M55,167 A 64,64 0 0,0 147,167 L126,146 A 35,35 0 0 1 76,146 z" />
-<path onmouseup="alert(6);" onmouseover="settext_x('-1',this);" onmouseleave="restore_x(this);" class="mskjog" d="M62,160 A 54,54 0 0,0 140,160 L126,146 A 35,35 0 0 1 76,146 z" />
-<path onmouseup="alert(5);" onmouseover="settext_x('-0,1',this);" onmouseleave="restore_x(this);" class="mskjog" d="M69,153 A 44,44 0 0,0 133,153 L126,146 A 35,35 0 0 1 76,146 z" />
+<path onmouseup="alert(8);" onmouseover="settext_x('-50',this);" onmouseout="restore_x(this);" class="mskjog" d="M48,174 A 74,74 0 0,0 154,174 L126,146 A 35,35 0 0 1 76,146 z" />
+<path onmouseup="alert(7);" onmouseover="settext_x('-10',this);" onmouseout="restore_x(this);" class="mskjog" d="M55,167 A 64,64 0 0,0 147,167 L126,146 A 35,35 0 0 1 76,146 z" />
+<path onmouseup="alert(6);" onmouseover="settext_x('-1',this);" onmouseout="restore_x(this);" class="mskjog" d="M62,160 A 54,54 0 0,0 140,160 L126,146 A 35,35 0 0 1 76,146 z" />
+<path onmouseup="alert(5);" onmouseover="settext_x('-0,1',this);" onmouseout="restore_x(this);" class="mskjog" d="M69,153 A 44,44 0 0,0 133,153 L126,146 A 35,35 0 0 1 76,146 z" />
 <path class='sign' d="M101,186 L112,168 L90,168 z" />
 </g>
 
 <g id="leftxy"> 
 <path class="bg" d="M48,174 A 74,74 0 0,1 48,70 L76,98 A 35,35 0 0 0 76,146 z"/>
 <path class="bg" d="M48,174 A 74,74 0 0,1 48,70 L76,98 A 35,35 0 0 0 76,146 z" opacity='0.7' filter="url(#light)"/>
-<path onmouseup="alert(9);" onmouseover="settext_x('-50',this);" onmouseleave="restore_x(this);" class="mskjog" d="M48,174 A 74,74 0 0,1 48,70 L76,98 A 35,35 0 0 0 76,146 z" />
-<path onmouseup="alert(10);" onmouseover="settext_x('-10',this);" onmouseleave="restore_x(this);" class="mskjog" d="M55,167 A 64,64 0 0,1 55,77 L76,98 A 35,35 0 0 0 76,146 z" />
-<path onmouseup="alert(11);" onmouseover="settext_x('-1',this);" onmouseleave="restore_x(this);" class="mskjog" d="M62,160 A 54,54 0 0,1 62,84 L76,98 A 35,35 0 0 0 76,146 z"  />
-<path onmouseup="alert(12);" onmouseover="settext_x('-0,1',this);" onmouseleave="restore_x(this);" class="mskjog" d="M69,153 A 44,44 0 0,1 69,91 L76,98 A 35,35 0 0 0 76,146 z" />
+<path onmouseup="alert(9);" onmouseover="settext_x('-50',this);" onmouseout="restore_x(this);" class="mskjog" d="M48,174 A 74,74 0 0,1 48,70 L76,98 A 35,35 0 0 0 76,146 z" />
+<path onmouseup="alert(10);" onmouseover="settext_x('-10',this);" onmouseout="restore_x(this);" class="mskjog" d="M55,167 A 64,64 0 0,1 55,77 L76,98 A 35,35 0 0 0 76,146 z" />
+<path onmouseup="alert(11);" onmouseover="settext_x('-1',this);" onmouseout="restore_x(this);" class="mskjog" d="M62,160 A 54,54 0 0,1 62,84 L76,98 A 35,35 0 0 0 76,146 z"  />
+<path onmouseup="alert(12);" onmouseover="settext_x('-0,1',this);" onmouseout="restore_x(this);" class="mskjog" d="M69,153 A 44,44 0 0,1 69,91 L76,98 A 35,35 0 0 0 76,146 z" />
 <path class='sign' d="M37,122 L54,112 L54,132 z" /></g>
 </g>
 
@@ -453,10 +453,10 @@ fill:#0052E1;
 <g id="topz">
 <path class="bg" d="M214,56 A 74,74 0 0,1 288,56 L268,92 A 35,35 0 0 0 234,92 z" filter="url(#shadow)"/>
 <path class="bg" d="M214,56 A 74,74 0 0,1 288,56 L268,92 A 35,35 0 0 0 234,92 z" opacity='0.7' filter="url(#light)"/>
-<path onmouseup="alert(17);" onmouseover="settext_z('10',this);" onmouseleave="restore_z(this);"  class="mskjog" d="M214,56 A 74,74 0 0,1 288,56 L268,92 A 35,35 0 0 0 234,92 z" />
-<path onmouseup="alert(18);" onmouseover="settext_z('1',this);" onmouseleave="restore_z(this);"  class="mskjog" d="M219,65 A 64,64 0 0,1 283,65 L268,92 A 35,35 0 0 0 234,92 z"  />
-<path onmouseup="alert(19);" onmouseover="settext_z('0,1',this);" onmouseleave="restore_z(this);"  class="mskjog" d="M224,74 A 54,54 0 0,1 278,74 L268,92 A 35,35 0 0 0 234,92 z" />
-<path onmouseup="alert(20);" onmouseover="settext_z('0,01',this);" onmouseleave="restore_z(this);"  class="mskjog" d="M229,83 A 44,44 0 0,1 273,83 L268,92 A 35,35 0 0 0 234,92 z" />
+<path onmouseup="alert(17);" onmouseover="settext_z('10',this);" onmouseout="restore_z(this);"  class="mskjog" d="M214,56 A 74,74 0 0,1 288,56 L268,92 A 35,35 0 0 0 234,92 z" />
+<path onmouseup="alert(18);" onmouseover="settext_z('1',this);" onmouseout="restore_z(this);"  class="mskjog" d="M219,65 A 64,64 0 0,1 283,65 L268,92 A 35,35 0 0 0 234,92 z"  />
+<path onmouseup="alert(19);" onmouseover="settext_z('0,1',this);" onmouseout="restore_z(this);"  class="mskjog" d="M224,74 A 54,54 0 0,1 278,74 L268,92 A 35,35 0 0 0 234,92 z" />
+<path onmouseup="alert(20);" onmouseover="settext_z('0,01',this);" onmouseout="restore_z(this);"  class="mskjog" d="M229,83 A 44,44 0 0,1 273,83 L268,92 A 35,35 0 0 0 234,92 z" />
 <path class='sign' d="M251,58 L262,76 L240,76 z" />
 </g>
 
@@ -469,20 +469,20 @@ fill:#0052E1;
 <g id="bottomz">
 <path class="bg" d="M214,188 A 75,75 0 0,0 288,188 L268,152 A 36,36 0 0 1 234,152 z" filter="url(#shadow)"/>
 <path class="bg" d="M214,188 A 75,75 0 0,0 288,188 L268,152 A 36,36 0 0 1 234,152 z" opacity='0.7' filter="url(#light)"/>
-<path onmouseup="alert(21);" onmouseover="settext_z('-10',this);" onmouseleave="restore_z(this);"   class="mskjog" d="M214,188 A 74,74 0 0,0 288,188 L268,152 A 35,35 0 0 1 234,152 z" />
-<path onmouseup="alert(22);" onmouseover="settext_z('-1',this);" onmouseleave="restore_z(this);"   class="mskjog" d="M219,179 A 64,64 0 0,0 283,179 L268,152 A 35,35 0 0 1 234,152 z" />
-<path onmouseup="alert(23);" onmouseover="settext_z('-0,1',this);" onmouseleave="restore_z(this);"   class="mskjog" d="M224,170 A 54,54 0 0,0 278,170 L268,152 A 35,35 0 0 1 234,152 z" />
-<path onmouseup="alert(24);" onmouseover="settext_z('-0,01',this);" onmouseleave="restore_z(this);"   class="mskjog" d="M229,161 A 44,44 0 0,0 273,161 L268,152 A 35,35 0 0 1 234,152 z" />
+<path onmouseup="alert(21);" onmouseover="settext_z('-10',this);" onmouseout="restore_z(this);"   class="mskjog" d="M214,188 A 74,74 0 0,0 288,188 L268,152 A 35,35 0 0 1 234,152 z" />
+<path onmouseup="alert(22);" onmouseover="settext_z('-1',this);" onmouseout="restore_z(this);"   class="mskjog" d="M219,179 A 64,64 0 0,0 283,179 L268,152 A 35,35 0 0 1 234,152 z" />
+<path onmouseup="alert(23);" onmouseover="settext_z('-0,1',this);" onmouseout="restore_z(this);"   class="mskjog" d="M224,170 A 54,54 0 0,0 278,170 L268,152 A 35,35 0 0 1 234,152 z" />
+<path onmouseup="alert(24);" onmouseover="settext_z('-0,01',this);" onmouseout="restore_z(this);"   class="mskjog" d="M229,161 A 44,44 0 0,0 273,161 L268,152 A 35,35 0 0 1 234,152 z" />
 <path class='sign' d="M251,186 L262,168 L240,168 z"/>
 </g>
 
 <g id="tope">
 <path class="bg" d="M317,56 A 74,74 0 0,1 391,56 L371,92 A 35,35 0 0 0 337,92 z" filter="url(#shadow)"/>
 <path class="bg" d="M317,56 A 74,74 0 0,1 391,56 L371,92 A 35,35 0 0 0 337,92 z" opacity='0.7' filter="url(#light)"/>
-<path onmouseup="alert(25);" onmouseover="settext_e('-100',this);" onmouseleave="restore_e(this);"  class="mskjog" d="M317,56 A 74,74 0 0,1 391,56 L371,92 A 35,35 0 0 0 337,92 z" />
-<path onmouseup="alert(26);" onmouseover="settext_e('-50',this);" onmouseleave="restore_e(this);"  class="mskjog" d="M322,65 A 64,64 0 0,1 385,65 L371,92 A 35,35 0 0 0 337,92 z"  />
-<path onmouseup="alert(27);" onmouseover="settext_e('-10',this);" onmouseleave="restore_e(this);"  class="mskjog" d="M327,74 A 54,54 0 0,1 381,74 L371,92 A 35,35 0 0 0 337,92 z" />
-<path onmouseup="alert(28);" onmouseover="settext_e('-1',this);" onmouseleave="restore_e(this);"  class="mskjog" d="M332,83 A 44,44 0 0,1 376,83 L371,92 A 35,35 0 0 0 337,92 z" />
+<path onmouseup="alert(25);" onmouseover="settext_e('-100',this);" onmouseout="restore_e(this);"  class="mskjog" d="M317,56 A 74,74 0 0,1 391,56 L371,92 A 35,35 0 0 0 337,92 z" />
+<path onmouseup="alert(26);" onmouseover="settext_e('-50',this);" onmouseout="restore_e(this);"  class="mskjog" d="M322,65 A 64,64 0 0,1 385,65 L371,92 A 35,35 0 0 0 337,92 z"  />
+<path onmouseup="alert(27);" onmouseover="settext_e('-10',this);" onmouseout="restore_e(this);"  class="mskjog" d="M327,74 A 54,54 0 0,1 381,74 L371,92 A 35,35 0 0 0 337,92 z" />
+<path onmouseup="alert(28);" onmouseover="settext_e('-1',this);" onmouseout="restore_e(this);"  class="mskjog" d="M332,83 A 44,44 0 0,1 376,83 L371,92 A 35,35 0 0 0 337,92 z" />
 <path class='sign' d="M354,58 L365,76 L343,76 z" />
 </g>
 
@@ -500,25 +500,25 @@ fill:#0052E1;
 <g id="bottome2">
 <path class="bg"d="M317,188 A 74,74 0 0,0 354,197 L354,156.5 A 35,35 0 0 1 337,152 z"  filter="url(#shadow)"/>
 <path class="bg" d="M317,188 A 74,74 0 0,0 354,197 L354,156.5 A 35,35 0 0 1 337,152 z"   opacity='0.7' filter="url(#light)" />
-<path onmouseup="alert(29);" onmouseover="settext_e('100',this);" onmouseleave="restore_e(this);" class="mskjog" d="M317,188 A 74,74 0 0,0 354,197 L354,156.5 A 35,35 0 0 1 337,152 z"/>
-<path onmouseup="alert(30);" onmouseover="settext_e('50',this);" onmouseleave="restore_e(this);"   class="mskjog" d="M322,179 A 64,64 0 0,0 354,187 L354,156.5 A 35,35 0 0 1 337,152 z" />
-<path onmouseup="alert(31);" onmouseover="settext_e('10',this);" onmouseleave="restore_e(this);"   class="mskjog" d="M327,170 A 54,54 0 0,0 354,177 L354,156.5 A 35,35 0 0 1 337,152 z"  />
-<path onmouseup="alert(32);" onmouseover="settext_e('1',this);" onmouseleave="restore_e(this);"   class="mskjog" d="M332,161 A 44,44 0 0,0 354,167 L354,156.5 A 35,35 0 0 1 337,152 z" />
+<path onmouseup="alert(29);" onmouseover="settext_e('100',this);" onmouseout="restore_e(this);" class="mskjog" d="M317,188 A 74,74 0 0,0 354,197 L354,156.5 A 35,35 0 0 1 337,152 z"/>
+<path onmouseup="alert(30);" onmouseover="settext_e('50',this);" onmouseout="restore_e(this);"   class="mskjog" d="M322,179 A 64,64 0 0,0 354,187 L354,156.5 A 35,35 0 0 1 337,152 z" />
+<path onmouseup="alert(31);" onmouseover="settext_e('10',this);" onmouseout="restore_e(this);"   class="mskjog" d="M327,170 A 54,54 0 0,0 354,177 L354,156.5 A 35,35 0 0 1 337,152 z"  />
+<path onmouseup="alert(32);" onmouseover="settext_e('1',this);" onmouseout="restore_e(this);"   class="mskjog" d="M332,161 A 44,44 0 0,0 354,167 L354,156.5 A 35,35 0 0 1 337,152 z" />
 <path class='sign' d="M337,171 L347,174 L339.5,182 z"/>
 </g>
 
 <g id="bottome1">
 <path class="bg" d="M354,197 A 74,74 0 0,0 391,188 L371,152 A 35,35 0 0 1 354,156.5 z"  filter="url(#shadow)"/>
 <path class="bg"  d="M354,197 A 74,74 0 0,0 391,188 L371,152 A 35,35 0 0 1 354,156.5 z" opacity='0.7' filter="url(#light)"  />
-<path onmouseup="alert(33);" onmouseover="settext_e('100',this);" onmouseleave="restore_e(this);" class="mskjog" d="M354,197 A 74,74 0 0,0 391,188 L371,152 A 35,35 0 0 1 354,156.5 z"/>
-<path onmouseup="alert(34);" onmouseover="settext_e('50',this);" onmouseleave="restore_e(this);" class="mskjog" d="M354,187 A 64,64 0 0,0 386,179 L371,152 A 35,35 0 0 1 354,156.5 z" />
-<path onmouseup="alert(35);" onmouseover="settext_e('10',this);" onmouseleave="restore_e(this);" class="mskjog" d="M354,177 A 54,54 0 0,0 381,170 L371,152 A 35,35 0 0 1 354,156.5 z" />
-<path onmouseup="alert(36);" onmouseover="settext_e('1',this);" onmouseleave="restore_e(this);" class="mskjog" d="M354,167 A 54,54 0 0,0 376,161 L371,152 A 35,35 0 0 1 354,156.5 z" />
+<path onmouseup="alert(33);" onmouseover="settext_e('100',this);" onmouseout="restore_e(this);" class="mskjog" d="M354,197 A 74,74 0 0,0 391,188 L371,152 A 35,35 0 0 1 354,156.5 z"/>
+<path onmouseup="alert(34);" onmouseover="settext_e('50',this);" onmouseout="restore_e(this);" class="mskjog" d="M354,187 A 64,64 0 0,0 386,179 L371,152 A 35,35 0 0 1 354,156.5 z" />
+<path onmouseup="alert(35);" onmouseover="settext_e('10',this);" onmouseout="restore_e(this);" class="mskjog" d="M354,177 A 54,54 0 0,0 381,170 L371,152 A 35,35 0 0 1 354,156.5 z" />
+<path onmouseup="alert(36);" onmouseover="settext_e('1',this);" onmouseout="restore_e(this);" class="mskjog" d="M354,167 A 54,54 0 0,0 376,161 L371,152 A 35,35 0 0 1 354,156.5 z" />
 <path class='sign' d="M361,170 L372,167 L369.5,178 z"/></g>
 <path class='sign'  d="M364,180 L375,177 L372,188 z"/></g>
 </g>
 
-<g id="poweroff" transform="translate(11,220)" onmouseup="alert('power');" onmouseover="changecolor(poweroff1,poweroff2,poweroff3,poweroff4,'#2F65FF');" onmouseleave="changecolor(poweroff1,poweroff2,poweroff3,poweroff4,'#608B98');">
+<g id="poweroff" transform="translate(11,220)" onmouseup="alert('power');" onmouseover="changecolor(poweroff1,poweroff2,poweroff3,poweroff4,'#2F65FF');" onmouseout="changecolor(poweroff1,poweroff2,poweroff3,poweroff4,'#608B98');">
 <circle cx='17' cy='18'  r='16' fill='white' />
 <path  id="poweroff1" class="bg" d="M8,6 A15 15 0 1 0 26,6 A 3,3 0 0 0 22,10 A 10,10 0 1 1 12,10 A 3,3 0 0 0 8,6z" filter="url(#shadow)"/>
 <path  id="poweroff2" class="bg" d="M8,6 A15 15 0 1 0 26,6 A 3,3 0 0 0 22,10 A 10,10 0 1 1 12,10 A 3,3 0 0 0 8,6z" opacity='0.7' filter="url(#light)"/>
@@ -526,7 +526,7 @@ fill:#0052E1;
 <path  id="poweroff4" class="bg" d="M14,2 A4,4 0 0 1 20,2 L20,15 A4,4 0 0 1 14,15z" opacity='0.7' filter="url(#light)" />
 </g>
 
-<g id="button_M" transform="translate(56,220)" onmouseup="alert('Button M');" onmouseover="changecolor(buttonM1,buttonM2,buttonM3,buttonM4,buttonM5,buttonM6,'#2F65FF');" onmouseleave="changecolor(buttonM1,buttonM2,buttonM3,buttonM4,buttonM5,buttonM6,'#608B98');">
+<g id="button_M" transform="translate(56,220)" onmouseup="alert('Button M');" onmouseover="changecolor(buttonM1,buttonM2,buttonM3,buttonM4,buttonM5,buttonM6,'#2F65FF');" onmouseout="changecolor(buttonM1,buttonM2,buttonM3,buttonM4,buttonM5,buttonM6,'#608B98');">
  <circle cx='17' cy='18'  r='16' fill='white' />
  <circle id="buttonM1" class='bg' cx="16" cy="16" r="15" filter="url(#shadow)"/>
  <circle id="buttonM2" class='bg' cx="16" cy="16" r="15" opacity='0.7' filter="url(#light)"/>
@@ -542,49 +542,49 @@ fill:#0052E1;
  <line x1="8" y1="25.5" x2="25.5" y2="8" stroke="#0D2F38" />
 </g>
 
-<g id="button_P" transform="translate(101,220)" onmouseup="alert('Button P');" onmouseover="changecolor(buttonP1,buttonP2,'#2F65FF');" onmouseleave="changecolor(buttonP1,buttonP2,'#608B98');">
+<g id="button_P" transform="translate(101,220)" onmouseup="alert('Button P');" onmouseover="changecolor(buttonP1,buttonP2,'#2F65FF');" onmouseout="changecolor(buttonP1,buttonP2,'#608B98');">
 <circle cx='17' cy='18'  r='16' fill='white' />
 <circle id="buttonP1" class='bg' cx="16" cy="16" r="15" filter="url(#shadow)"/>
 <circle id="buttonP2" class='bg' cx="16" cy="16" r="15" opacity='0.7' filter="url(#light)" />
 <text class="textbutton" x="16" y="26" filter="url(#emboss)">P</text>
 </g>
 
-<g id="button_1" transform="translate(146,220)" onmouseup="alert('Button 1');" onmouseover="changecolor(button11,button12,'#2F65FF');" onmouseleave="changecolor(button11,button12,'#608B98');">
+<g id="button_1" transform="translate(146,220)" onmouseup="alert('Button 1');" onmouseover="changecolor(button11,button12,'#2F65FF');" onmouseout="changecolor(button11,button12,'#608B98');">
 <circle cx='17' cy='18'  r='16' fill='white' />
 <circle id="button11" class='bg' cx="16" cy="16" r="15" filter="url(#shadow)"/>
 <circle id="button12" class='bg' cx="16" cy="16" r="15" opacity='0.7' filter="url(#light)" />
 <text class="textbutton" x="16" y="26" filter="url(#emboss)">1</text>
 </g>
 
-<g id="button_2" transform="translate(191,220)" onmouseup="alert('Button 2');" onmouseover="changecolor(button21,button22,'#2F65FF');" onmouseleave="changecolor(button21,button22,'#608B98');">
+<g id="button_2" transform="translate(191,220)" onmouseup="alert('Button 2');" onmouseover="changecolor(button21,button22,'#2F65FF');" onmouseout="changecolor(button21,button22,'#608B98');">
 <circle cx='17' cy='18'  r='16' fill='white' />
 <circle id="button21" class='bg' cx="16" cy="16" r="15" filter="url(#shadow)"/>
 <circle id="button22"class='bg' cx="16" cy="16" r="15" opacity='0.7' filter="url(#light)" />
 <text class="textbutton" x="16" y="26" filter="url(#emboss)">2</text>
 </g>
 
-<g id="button_3" transform="translate(236,220)" onmouseup="alert('Button 3');" onmouseover="changecolor(button31,button32,'#2F65FF');" onmouseleave="changecolor(button31,button32,'#608B98');">
+<g id="button_3" transform="translate(236,220)" onmouseup="alert('Button 3');" onmouseover="changecolor(button31,button32,'#2F65FF');" onmouseout="changecolor(button31,button32,'#608B98');">
 <circle cx='17' cy='18'  r='16' fill='white' />
 <circle id="button31" class='bg' cx="16" cy="16" r="15" filter="url(#shadow)"/>
 <circle id="button32" class='bg' cx="16" cy="16" r="15" opacity='0.7' filter="url(#light)" />
 <text class="textbutton" x="16" y="26" filter="url(#emboss)">3</text>
 </g>
 
-<g id="button_4" transform="translate(281,220)" onmouseup="alert('Button 4');" onmouseover="changecolor(button41,button42,'#2F65FF');" onmouseleave="changecolor(button41,button42,'#608B98');">
+<g id="button_4" transform="translate(281,220)" onmouseup="alert('Button 4');" onmouseover="changecolor(button41,button42,'#2F65FF');" onmouseout="changecolor(button41,button42,'#608B98');">
 <circle cx='17' cy='18'  r='16' fill='white' />
 <circle id="button41" class='bg' cx="16" cy="16" r="15" filter="url(#shadow)"/>
 <circle id="button42" class='bg' cx="16" cy="16" r="15" opacity='0.7' filter="url(#light)" />
 <text class="textbutton" x="16" y="26" filter="url(#emboss)">4</text>
 </g>
 
-<g id="button_5" transform="translate(326,220)" onmouseup="alert('Button 5');" onmouseover="changecolor(button51,button52,'#2F65FF');" onmouseleave="changecolor(button51,button52,'#608B98');">
+<g id="button_5" transform="translate(326,220)" onmouseup="alert('Button 5');" onmouseover="changecolor(button51,button52,'#2F65FF');" onmouseout="changecolor(button51,button52,'#608B98');">
 <circle cx='17' cy='18'  r='16' fill='white' />
 <circle id="button51" class='bg' cx="16" cy="16" r="15" filter="url(#shadow)"/>
 <circle  id="button52" class='bg' cx="16" cy="16" r="15" opacity='0.7' filter="url(#light)" />
 <text class="textbutton" x="16" y="26" filter="url(#emboss)">5</text>
 </g>
 
-<g id="button_Q" transform="translate(371,220)" onmouseup="alert('Button Q');" onmouseover="changecolor(buttonQ1,buttonQ2,'#2F65FF');" onmouseleave="changecolor(buttonQ1,buttonQ2,'#B93D3D');">
+<g id="button_Q" transform="translate(371,220)" onmouseup="alert('Button Q');" onmouseover="changecolor(buttonQ1,buttonQ2,'#2F65FF');" onmouseout="changecolor(buttonQ1,buttonQ2,'#B93D3D');">
 <circle cx='17' cy='18'  r='16' fill='white' />
 <circle id="buttonQ1" class='bg2' cx="16" cy="16" r="15" filter="url(#shadow)"/>
 <circle  id="buttonQ2" class='bg2' cx="16" cy="16" r="15" opacity='0.7' filter="url(#light)" />
