@@ -133,7 +133,7 @@ function movethumbat(thumbcursor, value){
 }
 
 document.addEventListener('mousemove', function(event) {
-    event.preventDefault();
+    //event.preventDefault();
     if (isDown) {
     movethumb(event.clientX);
     }
@@ -532,7 +532,7 @@ fill:#0052E1;
 <div id='thumbfeedrate' class='sliderthumb' render='feedraterender' customrange='rangefeedrate'>
     <svg width='8' height='20' viewbox='0 0 8 20'><path d='M 3.5,0 L7,5 L7,14 L3.5,19 L0,14 L0,5 z'  /></svg>
 </div>    
-</td><td width='auto'><input id='feedraterender' type="number" min='25' max='300' step='1' style="width: 4em;"></td></tr>
+</td><td width='auto'><input id='feedraterender' type='number' min='25' max='300' step='1' style='width: 4em;' onchange='movethumbat(thumbfeedrate, this.value);'/></td></tr>
 <tr style='margin-top: 50px'><td align='middle'>
 <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" version="1.1">
 <rect x='2' y='2' width='3' height='10' />
@@ -555,7 +555,7 @@ fill:#0052E1;
     </div>
 <div id='thumbflowrate' class='sliderthumb' render='flowraterender' customrange='rangeflowrate' ><svg width='8' height='20' viewbox='0 0 8 20'><path d='M 3.5,0 L7,5 L7,14 L3.5,19 L0,14 L0,5 z'  /></div>    
 
-</td><td width='auto'><input id='flowraterender' min='50' max='150' step='1' type='number' style='width: 4em;'></td></tr>
+</td><td width='auto'><input id='flowraterender'  min='50' max='150' step='1' type='number' style='width: 4em;' onchange='movethumbat(thumbflowrate, this.value);'></td></tr>
 <tr><td align='middle'>
 <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" version="1.1">
 <g id='fan' onmouseup="fan_on = fan_on===0?1:0; show_hide(red_fan,fan_on);" >
@@ -579,7 +579,7 @@ fill:#0052E1;
 <div id='thumbfanspeed' class='sliderthumb' render='fanspeedrender' customrange='rangefanspeed' >
     <svg width='8' height='20' viewbox='0 0 8 20'><path d='M 3.5,0 L7,5 L7,14 L3.5,19 L0,14 L0,5 z'  /></svg>
 </div>    
-</td><td width='auto'><input type="number" id='fanspeedrender' min='0' max='100' step='1' style="width: 4em;"></td></tr>
+</td><td width='auto'><input type='number' id='fanspeedrender' min='0' max='100' step='1' style='width: 4em;' onchange='movethumbat(thumbfanspeed, this.value);'></td></tr>
 <tr><td>
 <svg width="29" height="25" xmlns="http://www.w3.org/2000/svg" version="1.1">
 <g id='bed' onmouseup="bed_on = bed_on===0?1:0; show_hide(red_bed,bed_on);" >
@@ -618,7 +618,7 @@ fill:#0052E1;
 <div id='thumbbed' class='sliderthumb' render='bedrender' customrange='rangebed' >
     <svg width='8' height='24' viewbox='0 0 8 24'><path d='M 0,0 L3,5 L3,17 L0,22 L7,22 L4,17 L4,5 L7,0 z'  /></svg>
 </div> 
-</td><td width='auto'><input type="number" id='bedrender' max='150' min='130' step='1' style="width: 4em;"></td></tr>
+</td><td width='auto'><input type='number' id='bedrender' max='150' min='130' step='1' style='width: 4em;' onchange='movethumbat(thumbbed, this.value);'></td></tr>
 <tr><td>
 <svg width="26" height="26" xmlns="http://www.w3.org/2000/svg" version="1.1">
 <g id='Ext1' onmouseup="ext1_on = ext1_on===0?1:0; show_hide(red_ext1,ext1_on);" >
@@ -653,7 +653,7 @@ fill:#0052E1;
 </div>
 <div id='thumbext1' class='sliderthumb' render='ext1render' customrange='rangeext1' >
     <svg width='8' height='24' viewbox='0 0 8 24'><path d='M 0,0 L3,5 L3,17 L0,22 L7,22 L4,17 L4,5 L7,0 z'  /></svg></div> 
-</td><td width='auto'><input type="number" id='ext1render' min='0' max='300' step='1' style="width: 4em;"></td></tr>
+</td><td width='auto'><input type='number' id='ext1render' min='0' max='300' step='1' style='width: 4em;' onchange='movethumbat(thumbext1, this.value);'></td></tr>
 <tr><td>
 <svg width="26" height="26" xmlns="http://www.w3.org/2000/svg" version="1.1">
 <g id='Ext2' onmouseup="ext2_on = ext2_on===0?1:0; show_hide(red_ext2,ext2_on);" >
@@ -689,7 +689,7 @@ fill:#0052E1;
 </div>
 <div id='thumbext2' class='sliderthumb' render='ext2render' customrange='rangeext2' >
    <svg width='8' height='24' viewbox='0 0 8 24'><path d='M 0,0 L3,5 L3,17 L0,22 L7,22 L4,17 L4,5 L7,0 z'  /></svg> </div> 
-</td><td width='auto'><input type="number" id='ext2render' min='0' max='300' step='1' style="width: 4em;"></td></tr>
+</td><td width='auto'><input type='number' id='ext2render' min='0' max='300' step='1' style='width: 4em;' onchange='movethumbat(thumbext2, this.value);'></td></tr>
 </table>
 </div>
 <script>
