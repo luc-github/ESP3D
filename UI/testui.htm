@@ -16,6 +16,9 @@ cursor : pointer;
     -ms-user-select: none;
     user-select: none;
 }
+.hotspot{
+cursor:pointer;
+}
 </style>
 </HEAD>
 <BODY>
@@ -570,7 +573,7 @@ fill:#0052E1;
 </td><td width='auto'><input id='flowraterender'  min='50' max='150' step='1' type='number' style='width: 4em;' onchange='movethumbat(thumbflowrate, this.value);'></td></tr>
 <tr><td align='middle'>
 <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" version="1.1">
-<g id='fan' onmouseup="fan_on = fan_on===0?1:0; show_hide(red_fan,fan_on);" >
+<g id='fan' onmouseup="fan_on = fan_on===0?1:0; show_hide(red_fan,fan_on);"  class='hotspot'>
 <rect x='0' y='0' width='24' height='24' fill='#FFFFFF'/>
 <path d="M10,11 L10,10 L6,10 A 7,5 0 0 1 7,1 L8,1 A 3,2.5 0 0 1 9,5 L9,9 L10,9 L10,10 L12,10 L12,6 A 5,7 0 0 1 21,7 L21,8 A 2.5,3 0 0 1 17,9 L13,9 L13,10 L12,10 L12,12 L16,12 A 7,5 0 0 1 15,21 L14,21 A 3,2.5 0 0 1 13,17 L13,13 L12,13 L12,12 L10,12 L10,16 A 5,7 0 0 1 1,15 L1,14 A 2.5,3 0 0 1 5,13 L9,13 L9,12 10,12 z" />
 <polygon id='red_fan' points="19,0 21,2 2,21 0,19" fill="#FF0000" stroke="#FFFFFF" opacity='0'/>
@@ -594,7 +597,7 @@ fill:#0052E1;
 </td><td width='auto'><input type='number' id='fanspeedrender' min='0' max='100' step='1' style='width: 4em;' onchange='movethumbat(thumbfanspeed, this.value);'></td></tr>
 <tr><td>
 <svg width="29" height="25" xmlns="http://www.w3.org/2000/svg" version="1.1">
-<g id='bed' onmouseup="bed_on = bed_on===0?1:0; show_hide(red_bed,bed_on);" >
+<g id='bed' onmouseup="bed_on = bed_on===0?1:0; show_hide(red_bed,bed_on);" class='hotspot' >
 <rect x='0' y='0' width='24' height='24' fill='#FFFFFF'/>
 <polygon points="5,0 24,0 28,19 1,19" fill="none" stroke="#000000" stroke-width='2'/>
  <line x1="11" y1="0" x2="10" y2="19" stroke="#000000" stroke-width='2' />
@@ -633,7 +636,7 @@ fill:#0052E1;
 </td><td width='auto'><input type='number' id='bedrender' max='150' min='130' step='1' style='width: 4em;' onchange='movethumbat(thumbbed, this.value);'></td></tr>
 <tr><td>
 <svg width="26" height="26" xmlns="http://www.w3.org/2000/svg" version="1.1">
-<g id='Ext1' onmouseup="ext1_on = ext1_on===0?1:0; show_hide(red_ext1,ext1_on);" >
+<g id='Ext1' onmouseup="ext1_on = ext1_on===0?1:0; show_hide(red_ext1,ext1_on);" class='hotspot' >
 <rect x='0' y='0' width='24' height='24' fill='#FFFFFF'/>
 <path d="M1,0 L8,0 L8,15 L4.5,21 L1,15 z" />
 <text x="10" y="15.5" class="slide">1</text>
@@ -668,7 +671,7 @@ fill:#0052E1;
 </td><td width='auto'><input type='number' id='ext1render' min='0' max='300' step='1' style='width: 4em;' onchange='movethumbat(thumbext1, this.value);'></td></tr>
 <tr><td>
 <svg width="26" height="26" xmlns="http://www.w3.org/2000/svg" version="1.1">
-<g id='Ext2' onmouseup="ext2_on = ext2_on===0?1:0; show_hide(red_ext2,ext2_on);" >
+<g id='Ext2' onmouseup="ext2_on = ext2_on===0?1:0; show_hide(red_ext2,ext2_on);" class='hotspot'>
 <rect x='0' y='0' width='24' height='24' fill='#FFFFFF'/>
 <path d="M1,0 L8,0 L8,15 L4.5,21 L1,15 z" />
 <text x="10" y="15.5" class="slide">2</text>
