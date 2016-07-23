@@ -1,6 +1,6 @@
 <HTML>
 <HEAD>
-<style>
+<style type="text/css">
 .sliderthumb{
 position : absolute;
 cursor : pointer;
@@ -19,6 +19,77 @@ cursor : pointer;
 .hotspot{
 cursor:pointer;
 }
+text.centerjog {
+font-weight:600;
+text-anchor:middle;
+font-size:26;
+font-family:sans-serif;
+pointer-events:none;
+}
+text.home {
+font-weight:800;
+text-anchor:middle;
+font-size:14;
+font-family:sans-serif;
+pointer-events:none;
+}
+
+text.positionbar {
+font-weight:600;
+text-anchor:middle;
+font-size:16;
+font-family:sans-serif;
+pointer-events:none;
+}
+text.textbutton {
+font-weight:400;
+text-anchor:middle;
+font-size:26;
+font-family:sans-serif;
+fill:#FFFFFF; 
+filter:url(#emboss);
+pointer-events:none;
+}
+path.msk {
+fill:#0052E1;
+}
+circle.bg2 {
+stroke:#0D2F38;
+fill:#B93D3D;
+pointer-events:none;
+stroke-width:0.5;
+}
+circle.bg ,
+path.bg {
+stroke:#0D2F38;
+fill:#608B98;
+pointer-events:none;
+stroke-width:0.5;
+}
+rect.bg
+ {
+stroke:#0D2F38;
+fill:#608B98;
+pointer-events:none;
+stroke-width:1;
+}
+rect.bgpositionbar
+ {
+stroke:#0D2F38;
+fill:#BCCED3;
+pointer-events:none;
+stroke-width:1;
+}
+path.sign{
+pointer-events:none;
+fill:#000000;
+}
+
+path.mskjog{
+opacity:0; 
+fill:#0052E1;
+}
+
 </style>
 </HEAD>
 <BODY>
@@ -189,15 +260,14 @@ function initrange( element)
 }
  
 </script>
-<svg width="440" height="260" xmlns="http://www.w3.org/2000/svg" version="1.1">
+
 <defs>
-  
-  	<filter id="light" >
+<filter id="light" >
   <feGaussianBlur in="SourceAlpha"
     stdDeviation="2"
     result="out1" />
    <feSpecularLighting in="out1"
-    surfaceScale="12"
+    surfaceScale="8"
     specularConstant="2"
     specularExponent="12"
     result="out3">
@@ -221,78 +291,26 @@ function initrange( element)
     operator="over" />
   </filter>
   
-  <filter id="emboss" width="200%" height="200%">
-  <feMorphology in='SourceAlpha' operator='dilate' radius='0.5' result='out1'/>
-  <feGaussianBlur in="SourceGraphic"
-    stdDeviation="0.50"
-    result="out2" />
-   <feOffset in="out2"
-    dx="0.5" dy="0.5"
-    result="out3" />
-   <feComposite in="out3" in2="out1" 
-    operator="over" result="out4"/>
-  <feMorphology in='SourceGraphic' operator='erode' radius='0.2' result='out5'/>
-  <feComposite in="out4" in2="out5" 
-    operator="over" result="out6"/>
-  </filter>
-<style type="text/css">
-<![CDATA[
-text.centerjog {
-font-weight:600;
-text-anchor:middle;
-font-size:26;
-font-family:sans-serif;
-pointer-events:none;
-}
-text.home {
-font-weight:800;
-text-anchor:middle;
-font-size:14;
-font-family:sans-serif;
-pointer-events:none;
-}
+      <filter id="emboss" x0="-50%" y0="-50%" width="200%" height="200%">
+			<feMorphology in="SourceAlpha" operator="dilate" radius="1"/>
+			<feGaussianBlur stdDeviation="1" result="blur"/>
 
-text.textbutton {
-font-weight:400;
-text-anchor:middle;
-font-size:26;
-font-family:sans-serif;
-fill:#FFFFFF; 
-filter:url(#emboss);
-pointer-events:none;
-}
-path.msk {
-fill:#0052E1;
-}
-circle.bg2 {
-stroke:#0D2F38;
-fill:#B93D3D;
-pointer-events:none;
-stroke-width:0.5;
-}
+			<feOffset dy="0.2" dx="0.2"/>
+			<feComposite in2="SourceAlpha" operator="arithmetic"
+					k2="1" k3="-1" result="hlDiff"/>
+			<feFlood flood-color="white" flood-opacity=".7"/>
+			<feComposite in2="hlDiff" operator="in"/>
+			<feComposite in2="SourceGraphic" operator="over" result="withGlow"/>
 
-circle.bg ,
-path.bg {
-stroke:#0D2F38;
-fill:#608B98;
-pointer-events:none;
-stroke-width:0.5;
-}
-
-path.sign{
-pointer-events:none;
-fill:#000000;
-}
-
-path.mskjog{
-opacity:0; 
-fill:#0052E1;
-}
-
-]]>
-</style>
+			<feOffset in="blur" dy="-0.2" dx="-0.2"/>
+			<feComposite in2="SourceAlpha" operator="arithmetic"
+					k2="1" k3="-1" result="shadowDiff"/>
+			<feFlood flood-color="black" flood-opacity="1"/>
+			<feComposite in2="shadowDiff" operator="in"/>
+			<feComposite in2="withGlow" operator="over"/>
+		</filter>
 </defs>
-
+<g id="Jog"   transform="translate(0,-30)">
 <g id="homeall"   transform="translate(10,175)" onmouseup="alert('all');" onmouseover="changecolor(ha1,ha2,ha3,ha4,'#2F65FF');" onmouseout="changecolor(ha1,ha2,ha3,ha4,'#608B98');">
   <circle cx='17' cy='17' r='18' fill='white' />
   <path class="bg" id="ha1" d="M1,15 L14,2 L16,1 L18,1 L20,2 L23,5 L23,2 L24,1 L27,1 L28,2 L28,10 L33,15 L30,18 L19,7 L15,7 L4,18 z"  filter="url(#shadow)"/>
@@ -365,7 +383,7 @@ fill:#0052E1;
 <path onmouseup="alert(10);" onmouseover="settext_x('-10',this);" onmouseout="restore_x(this);" class="mskjog" d="M55,167 A 64,64 0 0,1 55,77 L76,98 A 35,35 0 0 0 76,146 z" />
 <path onmouseup="alert(11);" onmouseover="settext_x('-1',this);" onmouseout="restore_x(this);" class="mskjog" d="M62,160 A 54,54 0 0,1 62,84 L76,98 A 35,35 0 0 0 76,146 z" />
 <path onmouseup="alert(12);" onmouseover="settext_x('-0,1',this);" onmouseout="restore_x(this);" class="mskjog" d="M69,153 A 44,44 0 0,1 69,91 L76,98 A 35,35 0 0 0 76,146 z" />
-<path class='sign' d="M37,122 L54,112 L54,132 z" /></g>
+<path class='sign' d="M37,122 L54,112 L54,132 z" />
 </g>
 
 <g id=''centerxy">
@@ -438,8 +456,8 @@ fill:#0052E1;
 <path onmouseup="alert(34);" onmouseover="settext_e('50',this);" onmouseout="restore_e(this);" class="mskjog" d="M354,187 A 64,64 0 0,0 386,179 L371,152 A 35,35 0 0 1 354,156.5 z" />
 <path onmouseup="alert(35);" onmouseover="settext_e('10',this);" onmouseout="restore_e(this);" class="mskjog" d="M354,177 A 54,54 0 0,0 381,170 L371,152 A 35,35 0 0 1 354,156.5 z" />
 <path onmouseup="alert(36);" onmouseover="settext_e('1',this);" onmouseout="restore_e(this);" class="mskjog" d="M354,167 A 54,54 0 0,0 376,161 L371,152 A 35,35 0 0 1 354,156.5 z" />
-<path class='sign' d="M361,170 L372,167 L369.5,178 z"/></g>
-<path class='sign' d="M364,180 L375,177 L372,188 z"/></g>
+<path class='sign' d="M361,170 L372,167 L369.5,178 z"/>
+<path class='sign' d="M364,180 L375,177 L372,188 z"/>
 </g>
 
 <g id="poweroff" transform="translate(11,220)" onmouseup="alert('power');" onmouseover="changecolor(poweroff1,poweroff2,poweroff3,poweroff4,'#2F65FF');" onmouseout="changecolor(poweroff1,poweroff2,poweroff3,poweroff4,'#608B98');">
@@ -513,6 +531,8 @@ fill:#0052E1;
 <circle id="buttonQ1" class='bg2' cx="16" cy="16" r="15" filter="url(#shadow)"/>
 <circle id="buttonQ2" class='bg2' cx="16" cy="16" r="15" opacity='0.7' filter="url(#light)" />
 <text class="textbutton" x="16" y="26" filter="url(#emboss)">?</text>
+</g>
+
 </g>
 </svg>
 
