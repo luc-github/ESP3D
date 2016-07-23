@@ -41,6 +41,16 @@ font-size:16;
 font-family:sans-serif;
 pointer-events:none;
 }
+
+text.textpositionbar {
+font-weight:400;
+text-anchor:end;
+font-size:12;
+font-family:sans-serif;
+pointer-events:none;
+fill:#FF0000; 
+}
+
 text.textbutton {
 font-weight:400;
 text-anchor:middle;
@@ -75,7 +85,7 @@ stroke-width:1;
 }
 rect.bgpositionbar
  {
-stroke:#0D2F38;
+stroke:#707070;
 fill:#BCCED3;
 pointer-events:none;
 stroke-width:1;
@@ -260,7 +270,64 @@ function initrange( element)
 }
  
 </script>
+<svg width="440" height="30" xmlns="http://www.w3.org/2000/svg" version="1.1" >
+<defs>
+    <filter id="light" >
+  <feGaussianBlur in="SourceAlpha"
+    stdDeviation="2"
+    result="out1" />
+   <feSpecularLighting in="out1"
+    surfaceScale="8"
+    specularConstant="2"
+    specularExponent="12"
+    result="out3">
+    <feDistantLight azimuth="225" elevation="5" />
+   </feSpecularLighting>
+   <feComposite operator="in" in="out3" in2="SourceAlpha" result="out4"/>
+   <feMerge>
+  <feMergeNode in="SourceGraphic" />
+  <feMergeNode in="out4"/>
+  </feMerge>
+  </filter>
+<filter id="shadow" width="200%" height="200%">
+   <feGaussianBlur in="SourceAlpha"
+    stdDeviation="2"
+    result="out1" />
+  <feOffset in="out1"
+    dx="2" dy="2"
+    result="out2" />
+  <feComposite in="SourceGraphic" in2="out2"
+    operator="over" />
+  </filter>
+  </defs>
+<g id="posxtext">
+<rect class="bg" x="0" y="0" width="107"  height="27" filter="url(#shadow)"/>
+<rect class="bg" x="0" y="0" width="107"  height="27" opacity="0.7" filter="url(#light)"/>
+<text x="13" y="19.5" class="positionbar">X</text>
+<rect class="bgpositionbar" x="25" y="5.5" width="72"  height="17" />
+<text id="posx" x="95" y="19" class="textpositionbar">0.00</text>
+</g>
+<g id="posytext">
+<rect class="bg" x="107" y="0" width="107"  height="27" filter="url(#shadow)"/>
+<rect class="bg" x="107" y="0" width="107"  height="27" opacity="0.7" filter="url(#light)"/>
+<text x="120" y="19.5" class="positionbar">Y</text>
+<rect class="bgpositionbar" x="132" y="5.5" width="72"  height="17" />
+<text id="posy" x="202" y="19" class="textpositionbar">100.00</text>
+</g>
+<g id="posztext">
+<rect class="bg" x="214" y="0" width="107"  height="27" filter="url(#shadow)"/>
+<rect class="bg" x="214" y="0" width="107"  height="27" opacity="0.7" filter="url(#light)"/>
+<text x="227" y="19.5" class="positionbar">Z</text>
+<rect class="bgpositionbar" x="239" y="5.5" width="72"  height="17" />
+<text id="posz" x="309" y="19" class="textpositionbar">0.00</text>
+</g>
 
+<g id="posextruderlist">
+<rect class="bg" x="321" y="0" width="107"  height="27" filter="url(#shadow)"/>
+<rect class="bg" x="321" y="0" width="107"  height="27" opacity="0.7" filter="url(#light)"/>
+</g>
+</svg>
+<br>
 <svg width="440" height="230" xmlns="http://www.w3.org/2000/svg" version="1.1" viewbox="0 0 440 230">
 <defs>
 <filter id="light" >
