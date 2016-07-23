@@ -8,6 +8,14 @@ cursor : pointer;
 .sliderrange{
 cursor : pointer;
  }
+ body{
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
 </style>
 </HEAD>
 <BODY>
@@ -18,6 +26,7 @@ cursor : pointer;
  }  
  
  function changecolor(){
+if (isDown)return;
  var len = arguments.length;
  if(len <2) return;
  var color = arguments[len-1];
@@ -37,6 +46,7 @@ cursor : pointer;
  show_hide(e,0);
  }  
  function settext_e(text,e){
+ if (isDown)return;
  show_hide(extruder,0);
  centeretext.textContent=text;
  show_hide(centeretext,1);
@@ -48,11 +58,13 @@ cursor : pointer;
  
  
  function settext_x(text,e){
+ if (isDown)return;
  centerxytext.textContent=text;
   show_hide(e,0.5)
  }
  
  function settext_z(text,e){
+ if (isDown)return;
  centerztext.textContent=text;
   show_hide(e,0.5);
  }
