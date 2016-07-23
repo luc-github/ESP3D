@@ -8,6 +8,10 @@ cursor : pointer;
 .sliderrange{
 cursor : pointer;
  }
+ .extlist{
+position : absolute;
+cursor : pointer;
+ }
  body{
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -270,6 +274,7 @@ function initrange( element)
 }
  
 </script>
+<div id="positionbar">
 <svg width="440" height="30" xmlns="http://www.w3.org/2000/svg" version="1.1" >
 <defs>
     <filter id="light" >
@@ -327,7 +332,15 @@ function initrange( element)
 <rect class="bg" x="321" y="0" width="107"  height="27" opacity="0.7" filter="url(#light)"/>
 </g>
 </svg>
+</div>
+<div id="extruderlist" class="extlist">
+<select id="activeextruder">
+  <option value="0" selected>Extruder 1</option>
+  <option value="1">Extruder 2</option>
+</select>
+</div>
 <br>
+<div id="jogPanel">
 <svg width="440" height="230" xmlns="http://www.w3.org/2000/svg" version="1.1" viewbox="0 0 440 230">
 <defs>
 <filter id="light" >
@@ -603,7 +616,7 @@ function initrange( element)
 
 </g>
 </svg>
-
+</div>
 <br>
 <div style='margin-left: 0cm;' >
 <table style='border-spacing: 5px'>
@@ -808,6 +821,10 @@ initrange( rangeext1);
 initthumb( thumbext1);
 initrange( rangeext2);
 initthumb(thumbext2);
+extruderlist.style.left=342;
+var rb = positionbar.getBoundingClientRect();
+var re = extruderlist.getBoundingClientRect();
+extruderlist.style.top = rb.top + (( (rb.bottom-rb.top) - (re.bottom-re.top))/2);
 </script>
 </BODY>
 </HTML>
