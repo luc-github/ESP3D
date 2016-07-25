@@ -124,6 +124,16 @@ if (isDown)return;
   }
  }  
  
+function changestroke(){
+if (isDown)return;
+ var len = arguments.length;
+ if(len <2) return;
+ var color = arguments[len-1];
+ for(var i=0; i< len-1; i++)
+  {
+    arguments[i].style.stroke=color;
+  }
+ }  
  function restore_z(e){
  centerztext.textContent='Z';
  show_hide(e,0);
@@ -674,9 +684,9 @@ function initrange( element)
 </td><td width='auto'><input id='flowraterender'  min='50' max='150' step='1' type='number' style='width: 4em;' onchange='movethumbat(thumbflowrate, this.value);'></td></tr>
 <tr><td align='middle'>
 <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" version="1.1">
-<g id='fan' onmouseup="fan_on = fan_on===0?1:0; show_hide(red_fan,fan_on);"  class='hotspot'>
+<g id='fan' onmouseup="fan_on = fan_on===0?1:0; show_hide(red_fan,fan_on);"  class='hotspot' onmouseover="changecolor(f1,'#0052E1');" onmouseout="changecolor(f1,'#000000');">
 <rect x='0' y='0' width='24' height='24' fill='#FFFFFF'/>
-<path d="M10,11 L10,10 L6,10 A 7,5 0 0 1 7,1 L8,1 A 3,2.5 0 0 1 9,5 L9,9 L10,9 L10,10 L12,10 L12,6 A 5,7 0 0 1 21,7 L21,8 A 2.5,3 0 0 1 17,9 L13,9 L13,10 L12,10 L12,12 L16,12 A 7,5 0 0 1 15,21 L14,21 A 3,2.5 0 0 1 13,17 L13,13 L12,13 L12,12 L10,12 L10,16 A 5,7 0 0 1 1,15 L1,14 A 2.5,3 0 0 1 5,13 L9,13 L9,12 10,12 z" />
+<path id='f1' d="M10,11 L10,10 L6,10 A 7,5 0 0 1 7,1 L8,1 A 3,2.5 0 0 1 9,5 L9,9 L10,9 L10,10 L12,10 L12,6 A 5,7 0 0 1 21,7 L21,8 A 2.5,3 0 0 1 17,9 L13,9 L13,10 L12,10 L12,12 L16,12 A 7,5 0 0 1 15,21 L14,21 A 3,2.5 0 0 1 13,17 L13,13 L12,13 L12,12 L10,12 L10,16 A 5,7 0 0 1 1,15 L1,14 A 2.5,3 0 0 1 5,13 L9,13 L9,12 10,12 z" />
 <polygon id='red_fan' points="19,0 21,2 2,21 0,19" fill="#FF0000" stroke="#FFFFFF" opacity='0'/>
 </g>
 </svg>
@@ -698,13 +708,13 @@ function initrange( element)
 </td><td width='auto'><input type='number' id='fanspeedrender' min='0' max='100' step='1' style='width: 4em;' onchange='movethumbat(thumbfanspeed, this.value);'></td></tr>
 <tr><td>
 <svg width="29" height="25" xmlns="http://www.w3.org/2000/svg" version="1.1">
-<g id='bed' onmouseup="bed_on = bed_on===0?1:0; show_hide(red_bed,bed_on);" class='hotspot' >
+<g id='bed' onmouseup="bed_on = bed_on===0?1:0; show_hide(red_bed,bed_on);" class='hotspot' onmouseover="changestroke(b1,b2,b3,b4,b5,'#0052E1'); " onmouseout="changestroke(b1,b2,b3,b4,b5,'#000000');">
 <rect x='0' y='0' width='24' height='24' fill='#FFFFFF'/>
-<polygon points="5,0 24,0 28,19 1,19" fill="none" stroke="#000000" stroke-width='2'/>
- <line x1="11" y1="0" x2="10" y2="19" stroke="#000000" stroke-width='2' />
- <line x1="18" y1="0" x2="19" y2="19" stroke="#000000" stroke-width='2' />
- <line x1="3" y1="13" x2="26" y2="13" stroke="#000000" stroke-width='2' />
- <line x1="4" y1="6" x2="25" y2="6" stroke="#000000" stroke-width='2' />
+<polygon id='b1' points="5,0 24,0 28,19 1,19" fill="none" stroke="#000000" stroke-width='2'/>
+ <line id='b2' x1="11" y1="0" x2="10" y2="19" stroke="#000000" stroke-width='2' />
+ <line id='b3' x1="18" y1="0" x2="19" y2="19" stroke="#000000" stroke-width='2' />
+ <line id='b4' x1="3" y1="13" x2="26" y2="13" stroke="#000000" stroke-width='2' />
+ <line id='b5' x1="4" y1="6" x2="25" y2="6" stroke="#000000" stroke-width='2' />
 <polygon id='red_bed' points="21,0 23,2 4,21 2,19" fill="#FF0000" stroke="#FFFFFF" opacity='0'/>
 </g>
 </svg>
@@ -737,10 +747,10 @@ function initrange( element)
 </td><td width='auto'><input type='number' id='bedrender' max='150' min='130' step='1' style='width: 4em;' onchange='movethumbat(thumbbed, this.value);'></td></tr>
 <tr><td>
 <svg width="26" height="26" xmlns="http://www.w3.org/2000/svg" version="1.1">
-<g id='Ext1' onmouseup="ext1_on = ext1_on===0?1:0; show_hide(red_ext1,ext1_on);" class='hotspot' >
+<g id='Ext1' onmouseup="ext1_on = ext1_on===0?1:0; show_hide(red_ext1,ext1_on);" class='hotspot'  onmouseover="changecolor(e11,e12,'#0052E1');" onmouseout="changecolor(e11,e12,'#000000');">
 <rect x='0' y='0' width='24' height='24' fill='#FFFFFF'/>
-<path d="M1,0 L8,0 L8,15 L4.5,21 L1,15 z" />
-<text x="10" y="15.5" class="slide">1</text>
+<path id='e11'  d="M1,0 L8,0 L8,15 L4.5,21 L1,15 z" />
+<text id='e12' x="10" y="15.5" class="slide">1</text>
 <polygon id='red_ext1' points="21,0 23,2 4,21 2,19" fill="#FF0000" stroke="#FFFFFF" opacity='0'/>
 </g>
 </svg>
@@ -772,10 +782,10 @@ function initrange( element)
 </td><td width='auto'><input type='number' id='ext1render' min='0' max='300' step='1' style='width: 4em;' onchange='movethumbat(thumbext1, this.value);'></td></tr>
 <tr><td>
 <svg width="26" height="26" xmlns="http://www.w3.org/2000/svg" version="1.1">
-<g id='Ext2' onmouseup="ext2_on = ext2_on===0?1:0; show_hide(red_ext2,ext2_on);" class='hotspot'>
+<g id='Ext2' onmouseup="ext2_on = ext2_on===0?1:0; show_hide(red_ext2,ext2_on);" class='hotspot'  onmouseover="changecolor(e21,e22,'#0052E1');" onmouseout="changecolor(e21,e22,'#000000');">
 <rect x='0' y='0' width='24' height='24' fill='#FFFFFF'/>
-<path d="M1,0 L8,0 L8,15 L4.5,21 L1,15 z" />
-<text x="10" y="15.5" class="slide">2</text>
+<path id='e21' d="M1,0 L8,0 L8,15 L4.5,21 L1,15 z" />
+<text  id='e22'  x="10" y="15.5" class="slide">2</text>
 <polygon id='red_ext2' points="21,0 23,2 4,21 2,19" fill="#FF0000" stroke="#FFFFFF" opacity='0'/>
 </g>
 </svg>
