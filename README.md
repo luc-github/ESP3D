@@ -106,7 +106,7 @@ Additionally 404.tpl (the page not found) and restart.tpl(restart page when appl
     -Send file line by line from SPIFFS: [ESP700]<file name>
     -Get IP (only printer see answer): [ESP111]M117     
     -Reset EEPROM and restart: [ESP444]RESET   
-    -Deset user password: [ESP555]<admin password>    
+    -Reset user password: [ESP555]<admin password>    
     -Display EEPROM content: [ESP444]CONFIG    
     -Go to safe mode without restart: [ESP444]SAFEMODE    
     -SSID: [ESP100]<SSID>    
