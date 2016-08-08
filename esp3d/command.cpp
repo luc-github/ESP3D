@@ -52,8 +52,14 @@ void COMMAND::execute_command(int cmd,String cmd_params)
             Serial.println("\nOk");
         }
         break;
+    case 102:
+        if(!CONFIG::write_string(EP_HOSTNAME,cmd_params.c_str())) {
+            Serial.println("\nError");
+        } else {
+            Serial.println("\nOk");
+        }
+        break;   
     case 103:
-
         if (cmd_params=="STA") {
             mode = CLIENT_MODE;
         } else {
@@ -87,6 +93,17 @@ void COMMAND::execute_command(int cmd,String cmd_params)
         Serial.print("\n\r");
         Serial.print(cmd_params);
         Serial.println(currentIP);
+        Serial.print("\r\n");
+    }
+    break;
+    case 112: {
+        String shost ;
+         if (!CONFIG::read_string(EP_HOSTNAME, shost , MAX_HOSTNAME_LENGTH)) {
+            shost=wifi_config.get_default_hostname();
+            }
+        Serial.print("\n\r");
+        Serial.print(cmd_params);
+        Serial.println(shost);
         Serial.print("\r\n");
     }
     break;

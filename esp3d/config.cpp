@@ -118,9 +118,25 @@ bool CONFIG::write_string(int pos, const __FlashStringHelper *str)
 bool CONFIG::write_string(int pos, const char * byte_buffer)
 {
     int size_buffer;
+    int maxsize = EEPROM_SIZE;
     size_buffer= strlen(byte_buffer);
     //check if parameters are acceptable
-    if (size_buffer==0 ||  pos+size_buffer+1 > EEPROM_SIZE || byte_buffer== NULL) {
+    switch (pos)
+    {
+        case EP_SSID:
+            maxsize = MAX_SSID_LENGTH;
+            break;
+          case EP_PASSWORD:
+            maxsize = MAX_PASSWORD_LENGTH;
+            break;
+         case EP_HOSTNAME:
+            maxsize = MAX_HOSTNAME_LENGTH;
+            break;
+        default:
+            maxsize = EEPROM_SIZE;
+            break;
+    }
+    if (size_buffer==0 ||  pos+size_buffer+1 > EEPROM_SIZE || size_buffer > maxsize  || byte_buffer== NULL) {
         return false;
     }
     //copy the value(s)
@@ -444,6 +460,12 @@ void CONFIG::print_config()
 #else
     Serial.println(F("Disabled"));
 #endif
+    Serial.print(F("NetBios: "));
+#ifdef NETBIOS_FEATURE
+    Serial.println(F("Enabled"));
+#else
+    Serial.println(F("Disabled"));
+#endif
     Serial.print(F("mDNS: "));
 #ifdef MDNS_FEATURE
     Serial.println(F("Enabled"));
@@ -480,6 +502,17 @@ void CONFIG::print_config()
 #else
     Serial.println(F("???"));
 #endif
- 
+#ifdef DEBUG_ESP3D
+    Serial.print(F("Debug Enabled :"));
+#ifdef DEBUG_OUTPUT_SPIFFS
+    Serial.println(F("SPIFFS"));
+#endif
+#ifdef DEBUG_OUTPUT_SD
+    Serial.println(F("SD"));
+#endif
+#ifdef DEBUG_OUTPUT_SERIAL
+    Serial.println(F("serial"));
+#endif
+#endif 
     
 }
