@@ -158,6 +158,7 @@ void setup()
     SSDP.setModelURL("http://espressif.com/en/products/esp8266/");
     SSDP.setManufacturer("Espressif Systems");
     SSDP.setManufacturerURL("http://espressif.com");
+    SSDP.setDeviceType("upnp:rootdevice");
     SSDP.begin();
 #endif
     SPIFFS.begin();
