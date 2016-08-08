@@ -32,6 +32,9 @@
 //SSDD_FEATURE: this feature is a discovery protocol, supported on Windows out of the box
 #define SSDP_FEATURE
 
+//NETBIOS_FEATURE: this feature is a discovery protocol, supported on Windows out of the box
+#define NETBIOS_FEATURE
+
 //CAPTIVE_PORTAL_FEATURE: In SoftAP redirect all unknow call to main page
 #define CAPTIVE_PORTAL_FEATURE
 

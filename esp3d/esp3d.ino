@@ -46,6 +46,9 @@ DNSServer dnsServer;
 #ifdef SSDP_FEATURE
 #include <ESP8266SSDP.h>
 #endif
+#ifdef NETBIOS_FEATURE
+#include <ESP8266NetBIOS.h>
+#endif
 #include <FS.h>
 #define MAX_SRV_CLIENTS 1
 WiFiServer * data_server;
@@ -141,15 +144,17 @@ void setup()
     // Check for any mDNS queries and send responses
     wifi_config.mdns.addService("http", "tcp", wifi_config.iweb_port);
 #endif
-
+#if defined(SSDP_FEATURE) || defined(NETBIOS_FEATURE)
+String shost;
+ if (!CONFIG::read_string(EP_HOSTNAME, shost , MAX_HOSTNAME_LENGTH)) {
+        shost=wifi_config.get_default_hostname();
+    }
+#endif
 #ifdef SSDP_FEATURE
     String stmp;
     SSDP.setSchemaURL("description.xml");
     SSDP.setHTTPPort( wifi_config.iweb_port);
-    if (!CONFIG::read_string(EP_HOSTNAME, stmp , MAX_HOSTNAME_LENGTH)) {
-        stmp=wifi_config.get_default_hostname();
-    }
-    SSDP.setName(stmp.c_str());
+    SSDP.setName(shost.c_str());
     stmp=String(ESP.getChipId());
     SSDP.setSerialNumber(stmp.c_str());
     SSDP.setURL("/");
@@ -162,6 +167,9 @@ void setup()
     SSDP.begin();
 #endif
     SPIFFS.begin();
+#ifdef NETBIOS_FEATURE
+    NBNS.begin(shost.c_str());
+#endif
     LOG("Setup Done\n");
 }
 
