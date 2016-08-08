@@ -1020,7 +1020,7 @@ void handle_web_interface_home()
     }
     //Signal strength
     KeysList.add(FPSTR(KEY_STA_SIGNAL));
-    ValuesList.add(intTostr(100+WiFi.RSSI()));
+    ValuesList.add(intTostr(wifi_config.getSignal(WiFi.RSSI())));
     //DHCP Client status
     GetDHCPStatus(KeysList, ValuesList);
     //IP address
@@ -1955,7 +1955,7 @@ void handle_web_interface_configSTA()
             //signal strength
             stmp = "$AP_SIGNAL["+String(i)+"]$";
             KeysList.add(stmp);
-            stmp = intTostr(100+WiFi.RSSI(i)) ;
+            stmp = intTostr(wifi_config.getSignal(WiFi.RSSI(i))) ;
             stmp += "%";
             ValuesList.add(stmp);
             //is protected

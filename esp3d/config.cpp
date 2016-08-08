@@ -266,7 +266,7 @@ void CONFIG::print_config()
         if (byte(bbuf) == CLIENT_MODE) {
             Serial.println(F("Station"));
             Serial.print(F("Signal: "));
-            Serial.print(100+WiFi.RSSI());
+            Serial.print(wifi_config.getSignal(WiFi.RSSI()));
             Serial.println(F("%"));
         } else if (byte(bbuf)==AP_MODE) {
             Serial.println(F("Access Point"));

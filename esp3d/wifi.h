@@ -41,6 +41,7 @@ public:
     int idata_port;
     long baud_rate;
     int sleep_mode;
+    int32_t getSignal(int32_t RSSI);
     bool Setup();
     void Safe_Setup();
     char * mac2str(uint8_t mac [WL_MAC_ADDR_LENGTH]);
