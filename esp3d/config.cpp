@@ -25,7 +25,146 @@ extern "C" {
 }
 
 
-extern String formatBytes(size_t bytes);
+
+
+bool CONFIG::isHostnameValid(const char * hostname)
+{
+    //limited size
+    char c;
+    if (strlen(hostname)>MAX_HOSTNAME_LENGTH || strlen(hostname) < 1) {
+        return false;
+    }
+    //only letter and digit
+    for (int i=0; i < strlen(hostname); i++) {
+        c = hostname[i];
+        if (!(isdigit(c) || isalpha(c) || c=='_')) {
+            return false;
+        }
+        if (c==' ') {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool CONFIG::isSSIDValid(const char * ssid)
+{
+    //limited size
+    char c;
+    if (strlen(ssid)>MAX_SSID_LENGTH || strlen(ssid)<MIN_SSID_LENGTH) {
+        return false;
+    }
+    //only letter and digit
+    for (int i=0; i < strlen(ssid); i++) {
+        c = ssid[i];
+        //if (!(isdigit(c) || isalpha(c))) return false;
+        if (c==' ') {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool CONFIG::isPasswordValid(const char * password)
+{
+    //limited size
+    if ((strlen(password)>MAX_PASSWORD_LENGTH)||  (strlen(password)<MIN_PASSWORD_LENGTH)) {
+        return false;
+    }
+    //no space allowed
+    for (int i=0; i < strlen(password); i++)
+        if (password[i] == ' ') {
+            return false;
+        }
+
+    return true;
+}
+
+bool CONFIG::isLocalPasswordValid(const char * password)
+{
+    char c;
+    //limited size
+    if ((strlen(password)>MAX_LOCAL_PASSWORD_LENGTH)||  (strlen(password)<MIN_LOCAL_PASSWORD_LENGTH)) {
+        return false;
+    }
+    //no space allowed
+    for (int i=0; i < strlen(password); i++) {
+        c= password[i];
+        if (c==' ') {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool CONFIG::isIPValid(const char * IP)
+{
+    //limited size
+    int internalcount=0;
+    int dotcount = 0;
+    bool previouswasdot=false;
+    char c;
+
+    if (strlen(IP)>15 || strlen(IP)==0) {
+        return false;
+    }
+    //cannot start with .
+    if (IP[0]=='.') {
+        return false;
+    }
+    //only letter and digit
+    for (int i=0; i < strlen(IP); i++) {
+        c = IP[i];
+        if (isdigit(c)) {
+            //only 3 digit at once
+            internalcount++;
+            previouswasdot=false;
+            if (internalcount>3) {
+                return false;
+            }
+        } else if(c=='.') {
+            //cannot have 2 dots side by side
+            if (previouswasdot) {
+                return false;
+            }
+            previouswasdot=true;
+            internalcount=0;
+            dotcount++;
+        }//if not a dot neither a digit it is wrong
+        else {
+            return false;
+        }
+    }
+    //if not 3 dots then it is wrong
+    if (dotcount!=3) {
+        return false;
+    }
+    //cannot have the last dot as last char
+    if (IP[strlen(IP)-1]=='.') {
+        return false;
+    }
+    return true;
+}
+
+char * CONFIG::intTostr(int value)
+{
+    static char result [12];
+    sprintf(result,"%d",value);
+    return result;
+}
+
+String CONFIG::formatBytes(size_t bytes)
+{
+    if (bytes < 1024) {
+        return String(bytes)+" B";
+    } else if(bytes < (1024 * 1024)) {
+        return String(bytes/1024.0)+" KB";
+    } else if(bytes < (1024 * 1024 * 1024)) {
+        return String(bytes/1024.0/1024.0)+" MB";
+    } else {
+        return String(bytes/1024.0/1024.0/1024.0)+" GB";
+    }
+}
 
 //read a string
 //a string is multibyte + \0, this is won't work if 1 char is multibyte like chinese char
@@ -502,6 +641,7 @@ void CONFIG::print_config()
 #else
     Serial.println(F("???"));
 #endif
+  Serial.print(F("SD Card support: "));
 #ifdef DEBUG_ESP3D
     Serial.print(F("Debug Enabled :"));
 #ifdef DEBUG_OUTPUT_SPIFFS
@@ -513,6 +653,5 @@ void CONFIG::print_config()
 #ifdef DEBUG_OUTPUT_SERIAL
     Serial.println(F("serial"));
 #endif
-#endif 
-    
+#endif
 }

@@ -35,10 +35,12 @@ void COMMAND::execute_command(int cmd,String cmd_params)
     switch(cmd) {
         byte mode;
     case 800:
+        Serial.print(cmd_params);
         Serial.print("\nFW version:");
         Serial.println(FW_VERSION);
         break;
     case 100:
+        if (!CONFIG::isSSIDValid(cmd_params.c_str()))Serial.println("\nError");
         if(!CONFIG::write_string(EP_SSID,cmd_params.c_str())) {
             Serial.println("\nError");
         } else {
@@ -52,7 +54,8 @@ void COMMAND::execute_command(int cmd,String cmd_params)
             Serial.println("\nOk");
         }
         break;
-    case 102:
+     case 102:
+        if (!CONFIG::isHostnameValid(cmd_params.c_str()))Serial.println("\nError");
         if(!CONFIG::write_string(EP_HOSTNAME,cmd_params.c_str())) {
             Serial.println("\nError");
         } else {
@@ -60,6 +63,7 @@ void COMMAND::execute_command(int cmd,String cmd_params)
         }
         break;   
     case 103:
+
         if (cmd_params=="STA") {
             mode = CLIENT_MODE;
         } else {
@@ -142,7 +146,7 @@ void COMMAND::execute_command(int cmd,String cmd_params)
         if ((web_interface->blockserial)) break;
         cmd_params.trim() ;
         if ((cmd_params.length() > 0) && (cmd_params[0] != '/')) cmd_params = "/" + cmd_params;
-        File currentfile = SPIFFS.open(cmd_params, "r");
+        FSFILE currentfile = SPIFFS.open(cmd_params, "r");
         if (currentfile) {//if file open success
             //flush to be sure send buffer is empty
             Serial.flush();
@@ -172,16 +176,31 @@ void COMMAND::execute_command(int cmd,String cmd_params)
         }
         break;
     case 999:
+#ifdef ERROR_MSG_FEATURE
         if (cmd_params=="ERROR") {
             web_interface->error_msg.clear();
-        } else if (cmd_params=="INFO") {
+        } 
+#endif
+#ifdef INFO_MSG_FEATURE
+        if (cmd_params=="INFO") {
             web_interface->info_msg.clear();
-        } else if (cmd_params=="STATUS") {
+        } 
+#endif
+#ifdef STATUS_MSG_FEATURE
+        if (cmd_params=="STATUS") {
             web_interface->status_msg.clear();
-        } else if (cmd_params=="ALL") {
+        }
+#endif       
+        if (cmd_params=="ALL") {
+#ifdef ERROR_MSG_FEATURE
             web_interface->error_msg.clear();
+#endif
+#ifdef STATUS_MSG_FEATURE
             web_interface->status_msg.clear();
+#endif
+#ifdef INFO_MSG_FEATURE
             web_interface->info_msg.clear();
+#endif
         }
         break;
         //default:
@@ -191,8 +210,8 @@ void COMMAND::execute_command(int cmd,String cmd_params)
 
 void COMMAND::check_command(String buffer)
 {
-    static bool bfileslist=false;
     String buffer2;
+    static bool bfileslist=false;    
     static uint32_t start_list=0;
     //if SD list is not on going
     if (!bfileslist) {
@@ -210,22 +229,46 @@ void COMMAND::check_command(String buffer)
             (web_interface->blockserial) = true;
             return;
         }
+#ifdef TEMP_MONITORING_FEATURE
         int Tpos = buffer.indexOf("T:");
+#endif
+#ifdef POS_MONITORING_FEATURE
         int Xpos = buffer.indexOf("X:");
         int Ypos = buffer.indexOf("Y:");
         int Zpos = buffer.indexOf("Z:");
+#endif
 #if FIRMWARE_TARGET == SMOOTHIEWARE
+#ifdef SPEED_MONITORING_FEATURE
         int Speedpos = buffer.indexOf("Speed factor at ");
+#endif
+#ifdef FLOW_MONITORING_FEATURE
         int Flowpos = buffer.indexOf("Flow rate at ");
+#endif
+#ifdef ERROR_MSG_FEATURE
         int Errorpos= buffer.indexOf("error:");
+#endif
+#ifdef INFO_MSG_FEATURE
         int Infopos= buffer.indexOf("info:");
+#endif
+#ifdef STATUS_MSG_FEATURE
         int Statuspos= buffer.indexOf("warning:");
+#endif
 #else
+#ifdef SPEED_MONITORING_FEATURE
 		int Speedpos = buffer.indexOf("SpeedMultiply:");
+#endif
+#ifdef FLOW_MONITORING_FEATURE
         int Flowpos = buffer.indexOf("FlowMultiply:");
+#endif
+#ifdef ERROR_MSG_FEATURE
         int Errorpos= buffer.indexOf("Error:");
+#endif
+#ifdef INFO_MSG_FEATURE
         int Infopos= buffer.indexOf("Info:");
+#endif
+#ifdef STATUS_MSG_FEATURE
         int Statuspos= buffer.indexOf("Status:");
+#endif
 #endif
 
 #ifdef SERIAL_COMMAND_FEATURE
@@ -250,6 +293,7 @@ void COMMAND::check_command(String buffer)
             }
         }
 #endif
+#ifdef TEMP_MONITORING_FEATURE
         //check for temperature
         if (Tpos>-1) {
             //look for valid temperature answer
@@ -261,14 +305,17 @@ void COMMAND::check_command(String buffer)
                 web_interface->last_temp=millis();
             }
         }
+#endif
+#ifdef POS_MONITORING_FEATURE
         //Position of axis
         if (Xpos>-1 && Ypos>-1 && Zpos>-1) {
             web_interface->answer4M114=buffer;
         }
+#endif
+#ifdef SPEED_MONITORING_FEATURE
         //Speed
         if (Speedpos>-1) {
 			//get just the value
-			
 #if FIRMWARE_TARGET == SMOOTHIEWARE
 			buffer2 =buffer.substring(Speedpos+16);
 			int p2 = buffer2.indexOf(".");
@@ -276,12 +323,12 @@ void COMMAND::check_command(String buffer)
 #else
 			web_interface->answer4M220=buffer.substring(Speedpos+14);
 #endif
-            
         }
+#endif
+#ifdef FLOW_MONITORING_FEATURE
         //Flow
         if (Flowpos>-1) {
 			//get just the value
-           
 #if FIRMWARE_TARGET == SMOOTHIEWARE
 			buffer2 =buffer.substring(Flowpos+13);
 			int p2 = buffer2.indexOf(".");
@@ -290,14 +337,20 @@ void COMMAND::check_command(String buffer)
 			web_interface->answer4M221=buffer.substring(Flowpos+13);
 #endif
         }
+#endif
+#ifdef ERROR_MSG_FEATURE
         //Error
         if (Errorpos>-1 && !(buffer.indexOf("Format error")!=-1 || buffer.indexOf("wait")==Errorpos+6) ) {
             (web_interface->error_msg).add(buffer.substring(Errorpos+6).c_str());
         }
+#endif
+#ifdef INFO_MSG_FEATURE
         //Info
         if (Infopos>-1) {
             (web_interface->info_msg).add(buffer.substring(Infopos+5).c_str());
         }
+#endif
+#ifdef STATUS_MSG_FEATURE
         //Status
         if (Statuspos>-1) {
 #if FIRMWARE_TARGET == SMOOTHIEWARE
@@ -306,6 +359,7 @@ void COMMAND::check_command(String buffer)
 			(web_interface->status_msg).add(buffer.substring(Statuspos+7).c_str());
 #endif
         }
+#endif
     } else { //listing file is on going
 		//check if we are too long 
         if ((millis()-start_list)>30000) { //timeout in case of problem
@@ -328,7 +382,6 @@ void COMMAND::check_command(String buffer)
 				LOG('\n');
             }
         }
-
     }
 }
 

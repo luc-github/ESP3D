@@ -11,4 +11,17 @@ background-image:none;border:1px solid transparent;white-space:nowrap;padding:6p
 .filelink {color:#000000;}
 .filelink:hover, .filelink:focus {color:#0094FF;}
 .panel-footer{padding:10px 15px;color:#31708f;background-color:#f5f5f5;border-color:#dddddd;border-top:1px solid #dddddd;}
+.loader {
+    border: 4px solid #f3f3f3; /* Light grey */
+    border-top: 4px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 12px;
+    height: 12px;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
 </STYLE>

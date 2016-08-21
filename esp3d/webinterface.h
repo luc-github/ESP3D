@@ -49,27 +49,51 @@ public:
     WEBINTERFACE_CLASS (int port = 80);
     ~WEBINTERFACE_CLASS();
     ESP8266WebServer WebServer;
-    File fsUploadFile;
-    bool isSSIDValid(const char * ssid);
-    bool isPasswordValid(const char * password);
-    bool isLocalPasswordValid(const char * password);
-    bool isHostnameValid(const char * hostname);
-    bool isIPValid(const char * IP);
+    FSFILE fsUploadFile;
+#ifdef TEMP_MONITORING_FEATURE
     String answer4M105;
+     uint32_t last_temp;
+#endif
+#ifdef POS_MONITORING_FEATURE
     String answer4M114;
+#endif
+#ifdef SPEED_MONITORING_FEATURE
     String answer4M220;
+#endif
+#ifdef FLOW_MONITORING_FEATURE
     String answer4M221;
+#endif
     STORESTRINGS_CLASS fileslist;
-    uint32_t last_temp;
+#ifdef ERROR_MSG_FEATURE
     STORESTRINGS_CLASS error_msg;
+#endif
+#ifdef INFO_MSG_FEATURE
     STORESTRINGS_CLASS info_msg;
+#endif
+#ifdef STATUS_MSG_FEATURE
     STORESTRINGS_CLASS status_msg;
+#endif
     bool restartmodule;
-    char * create_session_ID();
+    bool processTemplate(const char  * filename, STORESTRINGS_CLASS & KeysList ,  STORESTRINGS_CLASS & ValuesList );
+    void GetFreeMem(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList);
+    void GeLogin(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList,level_authenticate_type auth_level);
+    void GetIpWeb(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList);
+    void GetMode(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList);
+    void GetPorts(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList);
+    void SetPageProp(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList,
+                 const __FlashStringHelper *title, const __FlashStringHelper *filename);
+    void GetDHCPStatus(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList);
+    void ProcessAlertError(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList, String & smsg);
+    void ProcessAlertSuccess(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList, String & smsg);
+    void ProcessNoAlert(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList);
+    String getContentType(String filename);
     level_authenticate_type is_authenticated();
     bool AddAuthIP(auth_ip * item);
     bool blockserial;
-    level_authenticate_type ResetAuthIP(IPAddress ip,const char * sessionID);
+#ifdef AUTHENTICATION_FEATURE
+    level_authenticate_type ResetAuthIP(IPAddress ip,const char * sessionID);    
+    char * create_session_ID();
+#endif
     uint8_t _upload_status;
 
 private:

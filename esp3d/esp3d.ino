@@ -18,7 +18,7 @@
     https://github.com/esp8266/Arduino from Bootmanager
 
     Latest version of the code and documentation can be found here :
-    https://github.com/luc-github/ESP8266
+    https://github.com/luc-github/ESP3D
 
     Main author: luc lebosse
 
@@ -49,7 +49,6 @@ DNSServer dnsServer;
 #ifdef NETBIOS_FEATURE
 #include <ESP8266NetBIOS.h>
 #endif
-#include <FS.h>
 #define MAX_SRV_CLIENTS 1
 WiFiServer * data_server;
 WiFiClient serverClients[MAX_SRV_CLIENTS];
@@ -57,11 +56,15 @@ WiFiClient serverClients[MAX_SRV_CLIENTS];
 void setup()
 {
     // init:
+#ifdef DEBUG_ESP3D
+    Serial.begin(DEFAULT_BAUD_RATE);
+    delay(2000);
+    LOG("Debug Serial set\n")
+#endif
     web_interface = NULL;
     data_server = NULL;
     WiFi.disconnect();
-    WiFi.mode(WIFI_OFF);
-    bool breset_config=false;
+    bool breset_config=false; 
 #ifdef RECOVERY_FEATURE
     delay(8000);
     //check if reset config is requested
@@ -87,11 +90,11 @@ void setup()
         breset_config=true;    //cannot access to config settings=> reset settings
     }
 
-
+    SPIFFS.begin();  
     //reset is requested
     if(breset_config) {
         //update EEPROM with default settings
-        Serial.begin(9600);
+        Serial.begin(DEFAULT_BAUD_RATE);
         delay(2000);
         Serial.println(F("M117 ESP EEPROM reset"));
         CONFIG::reset_config();
@@ -112,6 +115,7 @@ void setup()
     //setup serial
     Serial.begin(baud_rate);
     delay(1000);
+    LOG("Serial Set\n");
     wifi_config.baud_rate=baud_rate;
     //setup wifi according settings
     if (!wifi_config.Setup()) {
@@ -137,7 +141,7 @@ void setup()
     //start TCP/IP interface
     data_server = new WiFiServer (wifi_config.idata_port);
     data_server->begin();
-    //data_server->setNoDelay(true);
+    data_server->setNoDelay(true);
 #endif
 
 #ifdef MDNS_FEATURE
@@ -166,7 +170,6 @@ String shost;
     SSDP.setDeviceType("upnp:rootdevice");
     SSDP.begin();
 #endif
-    SPIFFS.begin();
 #ifdef NETBIOS_FEATURE
     NBNS.begin(shost.c_str());
 #endif
