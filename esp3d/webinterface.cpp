@@ -27,9 +27,6 @@
 #include <WiFiUdp.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
-extern "C" {
-#include "user_interface.h"
-}
 #include "LinkedList.h"
 #include "storestrings.h"
 #include "command.h"
@@ -210,8 +207,9 @@ const char KEY_WEB_UPDATE [] PROGMEM = "$WEB_UPDATE_VISIBILITY$";
 const char KEY_STA_SIGNAL [] PROGMEM = "$STA_SIGNAL$";
 const char KEY_DATA_PORT_VISIBILITY [] PROGMEM = "$DATA_PORT_VISIBILITY$";
 const char KEY_LOGIN_ID [] PROGMEM = "$LOGIN_ID$";
+const char KEY_IS_DEFAULT_MODE [] PROGMEM = "$IS_DEFAULT_MODE$";
 
-//TODO: should be in webserver class
+
 bool WEBINTERFACE_CLASS::processTemplate(const char  * filename, STORESTRINGS_CLASS & KeysList ,  STORESTRINGS_CLASS & ValuesList )
 {
     if(KeysList.size() != ValuesList.size()) { //Sanity check
@@ -745,7 +743,7 @@ void handle_web_interface_home()
             //BSSID
             stmp = "$MAC_CONNECTED["+String(client_counter)+"]$";
             KeysList.add(stmp.c_str());
-            ValuesList.add(wifi_config.mac2str(station->bssid));
+            ValuesList.add(CONFIG::mac2str(station->bssid));
             //IP
             stmp = "$IP_CONNECTED["+String(client_counter)+"]$";
             KeysList.add(stmp.c_str());
@@ -772,7 +770,7 @@ void handle_web_interface_home()
     }
     //AP mac address
     KeysList.add(FPSTR(KEY_AP_MAC));
-    ValuesList.add(wifi_config.mac2str(WiFi.softAPmacAddress(mac)));
+    ValuesList.add(CONFIG::mac2str(WiFi.softAPmacAddress(mac)));
     //AP configuration
     if (wifi_softap_get_config(&apconfig)) {
         //SSID
@@ -864,7 +862,7 @@ void handle_web_interface_home()
     }
     //STA mac address
     KeysList.add(FPSTR(KEY_STA_MAC));
-    ValuesList.add(wifi_config.mac2str(WiFi.macAddress(mac)));
+    ValuesList.add(CONFIG::mac2str(WiFi.macAddress(mac)));
     //SSID used by STA
     KeysList.add(FPSTR(KEY_STA_SSID));
     if (WiFi.SSID().length()==0) {
@@ -1240,6 +1238,7 @@ void handle_web_interface_configAP()
     bool msg_alert_error=false;
     bool msg_alert_success=false;
     byte visible_buf;
+    byte default_mode;
     byte static_ip_buf;
     byte auth_buf;
     byte channel_buf;
@@ -1302,6 +1301,15 @@ void handle_web_interface_configAP()
             } else {
                 visible_buf=0;
             }
+            
+             //Default mode ?
+            if (web_interface->WebServer.hasArg("DEFAULT_MODE") ) {
+                default_mode=AP_MODE;
+                LOG("Set AP Mode\n")
+            } else {
+                default_mode=CLIENT_MODE;
+                LOG("Set Station mode\n")
+            }
             //phy mode
             phy_mode_buf  = byte(web_interface->WebServer.arg("NETWORK").toInt());
             if (!(phy_mode_buf==WIFI_PHY_MODE_11B||phy_mode_buf==WIFI_PHY_MODE_11G) ) {
@@ -1330,8 +1338,10 @@ void handle_web_interface_configAP()
             //Static IP ?
             if (web_interface->WebServer.hasArg("STATIC_IP") ) {
                 static_ip_buf=STATIC_IP_MODE;
+                LOG("Set Static\n")
             } else {
                 static_ip_buf=DHCP_MODE;
+                LOG("Set DHCP\n")
             }
 
             //IP
@@ -1367,20 +1377,20 @@ void handle_web_interface_configAP()
         //if no error apply the change
         if (msg_alert_error==false) {
             //save
-            wifi_config.split_ip(sIP.c_str(),ip_sav);
-            wifi_config.split_ip(sGW.c_str(),gw_sav);
-            wifi_config.split_ip(sMask.c_str(),msk_sav);
-            if((!CONFIG::write_byte(EP_WIFI_MODE,AP_MODE))||
-                    (!CONFIG::write_string(EP_SSID,sSSID.c_str()))||
-                    (!CONFIG::write_string(EP_PASSWORD,sPassword.c_str()))||
+            CONFIG::split_ip(sIP.c_str(),ip_sav);
+            CONFIG::split_ip(sGW.c_str(),gw_sav);
+            CONFIG::split_ip(sMask.c_str(),msk_sav);
+            if((!CONFIG::write_byte(EP_WIFI_MODE,default_mode))||
+                    (!CONFIG::write_string(EP_AP_SSID,sSSID.c_str()))||
+                    (!CONFIG::write_string(EP_AP_PASSWORD,sPassword.c_str()))||
                     (!CONFIG::write_byte(EP_SSID_VISIBLE,visible_buf))||
-                    (!CONFIG::write_byte(EP_PHY_MODE,phy_mode_buf))||
+                    (!CONFIG::write_byte(EP_AP_PHY_MODE,phy_mode_buf))||
                     (!CONFIG::write_byte(EP_CHANNEL,channel_buf)) ||
                     (!CONFIG::write_byte(EP_AUTH_TYPE,auth_buf)) ||
-                    (!CONFIG::write_byte(EP_IP_MODE,static_ip_buf)) ||
-                    (!CONFIG::write_buffer(EP_IP_VALUE,ip_sav,IP_LENGTH))||
-                    (!CONFIG::write_buffer(EP_GATEWAY_VALUE,gw_sav,IP_LENGTH))||
-                    (!CONFIG::write_buffer(EP_MASK_VALUE,msk_sav,IP_LENGTH))) {
+                    (!CONFIG::write_byte(EP_AP_IP_MODE,static_ip_buf)) ||
+                    (!CONFIG::write_buffer(EP_AP_IP_VALUE,ip_sav,IP_LENGTH))||
+                    (!CONFIG::write_buffer(EP_AP_GATEWAY_VALUE,gw_sav,IP_LENGTH))||
+                    (!CONFIG::write_buffer(EP_AP_MASK_VALUE,msk_sav,IP_LENGTH))) {
                 msg_alert_error=true;
                 smsg = FPSTR(EEPROM_NOWRITE);
             } else {
@@ -1392,19 +1402,19 @@ void handle_web_interface_configAP()
 
     else { //no submit need to get data from EEPROM
         //ssid
-        if (!CONFIG::read_string(EP_SSID, sSSID , MAX_SSID_LENGTH) ) {
-            sSSID=FPSTR(DEFAULT_SSID);
+        if (!CONFIG::read_string(EP_AP_SSID, sSSID , MAX_SSID_LENGTH) ) {
+            sSSID=FPSTR(DEFAULT_AP_SSID);
         }
         //password
-        if (!CONFIG::read_string(EP_PASSWORD, sPassword , MAX_PASSWORD_LENGTH) ) {
-            sPassword=FPSTR(DEFAULT_PASSWORD);
+        if (!CONFIG::read_string(EP_AP_PASSWORD, sPassword , MAX_PASSWORD_LENGTH) ) {
+            sPassword=FPSTR(DEFAULT_AP_PASSWORD);
         }
         //ssid visible ?
         if (!CONFIG::read_byte(EP_SSID_VISIBLE, &visible_buf )) {
             visible_buf=DEFAULT_SSID_VISIBLE;
         }
         //phy mode
-        if (!CONFIG::read_byte(EP_PHY_MODE, &phy_mode_buf )) {
+        if (!CONFIG::read_byte(EP_AP_PHY_MODE, &phy_mode_buf )) {
             phy_mode_buf=DEFAULT_PHY_MODE;
         }
         //authentification
@@ -1415,26 +1425,30 @@ void handle_web_interface_configAP()
         if (!CONFIG::read_byte(EP_CHANNEL, &channel_buf )) {
             channel_buf=DEFAULT_CHANNEL;
         }
+        //Default mode ?
+        if (!CONFIG::read_byte(EP_WIFI_MODE, &default_mode )) {
+            default_mode=AP_MODE;
+        }
         //static IP ?
-        if (!CONFIG::read_byte(EP_IP_MODE, &static_ip_buf )) {
-            static_ip_buf=DEFAULT_IP_MODE;
+        if (!CONFIG::read_byte(EP_AP_IP_MODE, &static_ip_buf )) {
+            static_ip_buf=DEFAULT_AP_IP_MODE;
         }
         //IP for static IP
-        if (!CONFIG::read_buffer(EP_IP_VALUE,ip_sav , IP_LENGTH) ) {
+        if (!CONFIG::read_buffer(EP_AP_IP_VALUE,ip_sav , IP_LENGTH) ) {
             sIP=IPAddress((const uint8_t *)DEFAULT_IP_VALUE).toString();
             
         } else {
             sIP=IPAddress((const uint8_t *)ip_sav).toString();
         }
         //GW for static IP
-        if (!CONFIG::read_buffer(EP_GATEWAY_VALUE,gw_sav , IP_LENGTH) ) {
+        if (!CONFIG::read_buffer(EP_AP_GATEWAY_VALUE,gw_sav , IP_LENGTH) ) {
             sGW=IPAddress((const uint8_t *)DEFAULT_GATEWAY_VALUE).toString();
         } else {
             sGW=IPAddress((const uint8_t *)gw_sav).toString();
         }
 
         //Subnet for static IP
-        if (!CONFIG::read_buffer(EP_MASK_VALUE,msk_sav , IP_LENGTH) ) {
+        if (!CONFIG::read_buffer(EP_AP_MASK_VALUE,msk_sav , IP_LENGTH) ) {
             sMask=IPAddress((const uint8_t *)DEFAULT_MASK_VALUE).toString();
         } else {
             sMask=IPAddress((const uint8_t *)msk_sav).toString();
@@ -1458,7 +1472,13 @@ void handle_web_interface_configAP()
     } else {
         ValuesList.add("");
     }
-
+    //Default mode ?
+    KeysList.add(FPSTR(KEY_IS_DEFAULT_MODE));
+    if (   default_mode==AP_MODE) {
+        ValuesList.add(FPSTR(VALUE_CHECKED));
+    } else {
+        ValuesList.add("");
+    }
     //network
     ipos = 0;
     stmp="";
@@ -1585,6 +1605,7 @@ void handle_web_interface_configSTA()
     String sSSID,sPassword,sIP,sGW,sMask,sHostname;
     bool msg_alert_error=false;
     bool msg_alert_success=false;
+    byte default_mode;
     byte static_ip_buf;
     byte phy_mode_buf;
     byte ip_sav[4];
@@ -1655,7 +1676,14 @@ void handle_web_interface_configSTA()
                 KeysList.add(FPSTR(KEY_NETWORK_OPTION_LIST_STATUS));
                 ValuesList.add(FPSTR(VALUE_HAS_ERROR));
             }
-
+            //Default mode ?
+            if (web_interface->WebServer.hasArg("DEFAULT_MODE") ) {
+                default_mode=CLIENT_MODE;
+                LOG("Set STA mode\n")
+            } else {
+                default_mode=AP_MODE;
+                LOG("Set AP mode\n")
+            }
             //Static IP ?
             if (web_interface->WebServer.hasArg("STATIC_IP") ) {
                 static_ip_buf=STATIC_IP_MODE;
@@ -1696,18 +1724,18 @@ void handle_web_interface_configSTA()
         //no error ? then save
         if (msg_alert_error==false) {
             //save
-            wifi_config.split_ip(sIP.c_str(),ip_sav);
-            wifi_config.split_ip(sGW.c_str(),gw_sav);
-            wifi_config.split_ip(sMask.c_str(),msk_sav);
-            if((!CONFIG::write_byte(EP_WIFI_MODE,CLIENT_MODE))||
-                    (!CONFIG::write_string(EP_SSID,sSSID.c_str()))||
-                    (!CONFIG::write_string(EP_PASSWORD,sPassword.c_str()))||
+            CONFIG::split_ip(sIP.c_str(),ip_sav);
+            CONFIG::split_ip(sGW.c_str(),gw_sav);
+            CONFIG::split_ip(sMask.c_str(),msk_sav);
+            if((!CONFIG::write_byte(EP_WIFI_MODE,default_mode))||
+                    (!CONFIG::write_string(EP_STA_SSID,sSSID.c_str()))||
+                    (!CONFIG::write_string(EP_STA_PASSWORD,sPassword.c_str()))||
                     (!CONFIG::write_string(EP_HOSTNAME,sHostname.c_str()))||
-                    (!CONFIG::write_byte(EP_PHY_MODE,phy_mode_buf))||
-                    (!CONFIG::write_byte(EP_IP_MODE,static_ip_buf)) ||
-                    (!CONFIG::write_buffer(EP_IP_VALUE,ip_sav,IP_LENGTH))||
-                    (!CONFIG::write_buffer(EP_GATEWAY_VALUE,gw_sav,IP_LENGTH))||
-                    (!CONFIG::write_buffer(EP_MASK_VALUE,msk_sav,IP_LENGTH))) {
+                    (!CONFIG::write_byte(EP_STA_PHY_MODE,phy_mode_buf))||
+                    (!CONFIG::write_byte(EP_STA_IP_MODE,static_ip_buf)) ||
+                    (!CONFIG::write_buffer(EP_STA_IP_VALUE,ip_sav,IP_LENGTH))||
+                    (!CONFIG::write_buffer(EP_STA_GATEWAY_VALUE,gw_sav,IP_LENGTH))||
+                    (!CONFIG::write_buffer(EP_STA_MASK_VALUE,msk_sav,IP_LENGTH))) {
                 msg_alert_error=true;
                 smsg = FPSTR(EEPROM_NOWRITE);
             } else {
@@ -1717,39 +1745,43 @@ void handle_web_interface_configSTA()
         }
     } else { //no submit, need to get data from EEPROM
         //ssid
-        if (!CONFIG::read_string(EP_SSID, sSSID , MAX_SSID_LENGTH) ) {
-            sSSID=FPSTR(DEFAULT_SSID);
+        if (!CONFIG::read_string(EP_STA_SSID, sSSID , MAX_SSID_LENGTH) ) {
+            sSSID=FPSTR(DEFAULT_STA_SSID);
         }
         //password
-        if (!CONFIG::read_string(EP_PASSWORD, sPassword , MAX_PASSWORD_LENGTH) ) {
-            sPassword=FPSTR(DEFAULT_PASSWORD);
+        if (!CONFIG::read_string(EP_STA_PASSWORD, sPassword , MAX_PASSWORD_LENGTH) ) {
+            sPassword=FPSTR(DEFAULT_STA_PASSWORD);
         }
         //hostname
         if (!CONFIG::read_string(EP_HOSTNAME, sHostname , MAX_HOSTNAME_LENGTH) ) {
             sHostname=wifi_config.get_default_hostname();
         }
+         //Default mode ?
+        if (!CONFIG::read_byte(EP_WIFI_MODE, &default_mode )) {
+            default_mode=AP_MODE;
+        }
         //phy mode
-        if (!CONFIG::read_byte(EP_PHY_MODE, &phy_mode_buf )) {
+        if (!CONFIG::read_byte(EP_STA_PHY_MODE, &phy_mode_buf )) {
             phy_mode_buf=DEFAULT_PHY_MODE;
         }
         //static IP ?
-        if (!CONFIG::read_byte(EP_IP_MODE, &static_ip_buf )) {
-            static_ip_buf=DEFAULT_IP_MODE;
+        if (!CONFIG::read_byte(EP_STA_IP_MODE, &static_ip_buf )) {
+            static_ip_buf=DEFAULT_STA_IP_MODE;
         }
         //IP for static IP
-        if (!CONFIG::read_buffer(EP_IP_VALUE,ip_sav , IP_LENGTH) ) {
+        if (!CONFIG::read_buffer(EP_STA_IP_VALUE,ip_sav , IP_LENGTH) ) {
             sIP=IPAddress((const uint8_t *)DEFAULT_IP_VALUE).toString();
         } else {
             sIP=IPAddress((const uint8_t *)ip_sav).toString();
         }
         //GW for static IP
-        if (!CONFIG::read_buffer(EP_GATEWAY_VALUE,gw_sav , IP_LENGTH) ) {
+        if (!CONFIG::read_buffer(EP_STA_GATEWAY_VALUE,gw_sav , IP_LENGTH) ) {
             sGW=IPAddress((const uint8_t *)DEFAULT_GATEWAY_VALUE).toString();
         } else {
             sGW=IPAddress((const uint8_t *)gw_sav).toString();
         }
         //Subnet for static IP
-        if (!CONFIG::read_buffer(EP_MASK_VALUE,msk_sav , IP_LENGTH) ) {
+        if (!CONFIG::read_buffer(EP_STA_MASK_VALUE,msk_sav , IP_LENGTH) ) {
             sMask=IPAddress((const uint8_t *)DEFAULT_MASK_VALUE).toString();
         } else {
             sMask=IPAddress((const uint8_t *)msk_sav).toString();
@@ -1767,7 +1799,15 @@ void handle_web_interface_configSTA()
     //hostname
     KeysList.add(FPSTR(KEY_HOSTNAME));
     ValuesList.add(sHostname);
-
+    
+     //Default mode ?
+    KeysList.add(FPSTR(KEY_IS_DEFAULT_MODE));
+    if (   default_mode==CLIENT_MODE) {
+        ValuesList.add(FPSTR(VALUE_CHECKED));
+    } else {
+        ValuesList.add("");
+    }
+    
     //network
     ipos = 0;
     stmp="";
@@ -2613,6 +2653,8 @@ void SDFileupload()
 #ifdef WEB_UPDATE_FEATURE
 void WebUpdateUpload()
 {
+    static size_t last_upload_update;
+    static uint32_t maxSketchSpace ;
     //only admin can update FW
     if(web_interface->is_authenticated() != LEVEL_ADMIN) 
             {
@@ -2629,16 +2671,25 @@ void WebUpdateUpload()
         Serial.println(F("M117 Update Firmware"));
         web_interface->_upload_status= UPLOAD_STATUS_ONGOING;
         WiFiUDP::stopAll();
-        uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+        maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+        last_upload_update = 0;
         if(!Update.begin(maxSketchSpace)) { //start with max available size
             web_interface->_upload_status=UPLOAD_STATUS_CANCELLED;
         }
+        else Serial.println(F("M117 Update 0%"));
     //Upload write
     //**************
     } else if(upload.status == UPLOAD_FILE_WRITE) {
         //check if no error
         if (web_interface->_upload_status == UPLOAD_STATUS_ONGOING)
             {
+                //we do not know the total file size yet but we know the available space so let's use it
+            if ( ((100 * upload.totalSize) / maxSketchSpace) !=last_upload_update){
+                             last_upload_update = (100 * upload.totalSize) / maxSketchSpace;
+                             Serial.print(F("M117 Update "));
+                             Serial.print(last_upload_update);
+                             Serial.println(F("%"));
+                         }
             if(Update.write(upload.buf, upload.currentSize) != upload.currentSize) 
                 {
                     web_interface->_upload_status=UPLOAD_STATUS_CANCELLED;
@@ -2649,7 +2700,7 @@ void WebUpdateUpload()
     } else if(upload.status == UPLOAD_FILE_END) {
         if(Update.end(true)) { //true to set the size to the current progress
             //Now Reboot
-            Serial.println(F("M117 Update Done"));
+            Serial.println(F("M117 Update 100%"));
             web_interface->_upload_status=UPLOAD_STATUS_SUCCESSFUL;
         }
     } else if(upload.status == UPLOAD_FILE_ABORTED) {
@@ -2917,12 +2968,14 @@ void handleSDFileList()
     }
     
     String jsonfile = "{" ;
-    //if action is processing do not build list
+#ifndef DIRECT_SDCARD_FEATURE
+    //if action is processing do not build list, but no need Serial for Direct SDCard Support
      if ((web_interface->blockserial)){
 		 LOG("Wait, blocking\n");
 		 jsonfile+="\"status\":\"processing\",\"mode\":\"serial\"}";
 		}
 	 else
+#endif
         {
 		 jsonfile+="\"files\":[";
 		 LOG("No Blocking \n");
@@ -3349,8 +3402,10 @@ WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port):WebServer(port)
     status_msg.setsize(4);
     status_msg.setlength(50);
 #endif
+#ifndef DIRECT_SDCARD_FEATURE
     fileslist.setlength(100);//12 for filename + space + size
     fileslist.setsize(70); // 70 files to limite to 2K
+#endif
     fsUploadFile=(FSFILE)0;
     _head=NULL;
     _nb_ip=0;
@@ -3368,7 +3423,9 @@ WEBINTERFACE_CLASS::~WEBINTERFACE_CLASS()
 #ifdef STATUS_MSG_FEATURE
     status_msg.clear();
 #endif
+#ifndef DIRECT_SDCARD_FEATURE
     fileslist.clear();
+#endif
     while (_head) {
         auth_ip * current = _head;
         _head=_head->_next;

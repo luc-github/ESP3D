@@ -42,10 +42,8 @@ public:
     long baud_rate;
     int sleep_mode;
     int32_t getSignal(int32_t RSSI);
-    bool Setup();
+    bool Setup(bool force_ap = false);
     void Safe_Setup();
-    char * mac2str(uint8_t mac [WL_MAC_ADDR_LENGTH]);
-    byte split_ip (const char * ptr,byte * part);
     const char * get_default_hostname();
     const char * get_hostname();
 private:

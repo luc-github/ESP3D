@@ -1,7 +1,7 @@
 $INCLUDE[header.inc]$
 $INCLUDE[css2.inc]$
 <div class="panel">
-<div class="panel-heading"><table><tr><td><div class="btnimg" onclick="control_expanded = expand_collapse(control_expanded,'pin_control','control')" id="pin_control">&#9660;</div></td><td>Control</td></tr></table></div>
+<div class="panel-heading" ><div class="btnimg" style="float:left;" onclick="control_expanded = expand_collapse(control_expanded,'pin_control','control')" id="pin_control">&#9660;</div>&nbsp;&nbsp;Control</div>
 <div class="panel-body" id="control">   
 <table>
     <tr><td style="padding:0px;">
@@ -40,9 +40,20 @@ $INCLUDE[css2.inc]$
                 <td>0<input id="rangeinputspeed" type="range" min=0 max=300 onchange="Updatenumber('speed');">300</td>
                 <td><input class="form-control" id="numberinputspeed" type="number" size="3" min=0 max=300 step=1 value=0 onchange="Updaterange('speed');"></td><td>%
                 <input type="button" class="btn btn-primary" class="btn btn-primary" value="Set" onclick="SendValue( 'M220 S', 'speed');"></td>
-                <td>&nbsp;&nbsp;</td><td>Status:</td><td id="status" align="center" valign="middle">
-                <svg width="20" height="20"><circle cx="10" cy="10" r="8" stroke="black" stroke-width="2" fill="white"></circle></svg></td>
-                <td id="status-text" style="width:100px;"></td><td>&nbsp;&nbsp;</td><td class="btnimg" onclick="OnclickEmergency();">
+                <td>&nbsp;&nbsp;</td>
+                <td colspan=3>
+                    <div id="autostatus">
+                        <table>
+                            <tr>
+                                <td>Status:</td>
+                                <td id="status" align="center" valign="middle"><svg width="20" height="20"><circle cx="10" cy="10" r="8" stroke="black" stroke-width="2" fill="white"></circle></svg></td>
+                                <td id="status-text" style="width:100px;"></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div id="manualstatus"><input type="button" class="btn btn-primary" value="Refresh" onclick="getstatus();" ></div>
+                </td>
+                <td>&nbsp;&nbsp;</td><td class="btnimg" onclick="OnclickEmergency();">
                 <svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" stroke="black" stroke-width="2" fill="red" />
                 <circle cx="20" cy="20" r="10" stroke="black" stroke-width="4" fill="red" /><rect x="15" y="8" width="10" height="10" style="fill:red;stroke-width:1;stroke:red" />
                 <rect x="18" y="6" rx="1" ry="1" width="4" height="14" style="fill:black;stroke-width:1;stroke:black" /></svg></td>
@@ -67,7 +78,7 @@ $INCLUDE[css2.inc]$
 </div>
 
 <div class="panel">
-<div class="panel-heading"><table><tr><td><div class="btnimg" onclick="command_expanded = expand_collapse(command_expanded,'pin_command','command')" id="pin_command">&#9660;</div></td><td>Command</td></tr></table></div>
+<div class="panel-heading"><div class="btnimg" style="float:left;" onclick="command_expanded = expand_collapse(command_expanded,'pin_command','command')" id="pin_command">&#9660;</div>&nbsp;&nbsp;Command</div>
 <div class="panel-body" id="command">   
 <table width="100%"><tr>
 <td width="100%"><input class="form-control" id="cmd" type="text" style="width: 100%;"></td>
@@ -76,7 +87,7 @@ $INCLUDE[css2.inc]$
 </div>
 
 <div class="panel">
-<div class="panel-heading"><table><tr><td><div class="btnimg" onclick="information_expanded = expand_collapse(information_expanded,'pin_information','information')" id="pin_information">&#9660;</div></td><td>Information</td></tr></table></div>
+<div class="panel-heading"><div class="btnimg" style="float:left;" onclick="information_expanded = expand_collapse(information_expanded,'pin_information','information')" id="pin_information">&#9660;</div>&nbsp;&nbsp;Information</div>
 <div class="panel-body" id="information">   
 <table><tr><td>
 <center><table><tr><td><div class="btnimg" onclick="if(confirm('Clear Info log ?'))Sendcommand('[ESP999]INFO');">
@@ -88,7 +99,7 @@ $INCLUDE[css2.inc]$
 </div>
 </div>
 <div class="panel">
-<div class="panel-heading"><table><tr><td><div class="btnimg" onclick="error_expanded = expand_collapse(error_expanded,'pin_error','error')" id="pin_error">&#9660;</div></td><td>Error</td></tr></table></div>
+<div class="panel-heading"><div class="btnimg" style="float:left;" onclick="error_expanded = expand_collapse(error_expanded,'pin_error','error')" id="pin_error">&#9660;</div>&nbsp;&nbsp;Error</div>
 <div class="panel-body" id="error">       
 <table><tr><td>
 <center><table><tr><td><div class="btnimg" onclick="if(confirm('Clear Error log ?'))Sendcommand('[ESP999]ERROR');">
@@ -100,7 +111,7 @@ $INCLUDE[css2.inc]$
 </div>
 </div>
 <div class="panel">
-<div class="panel-heading"><table><tr><td><div class="btnimg" onclick="status_expanded = expand_collapse(status_expanded,'pin_status','statusdisplay')" id="pin_status">&#9660;</div></td><td>Status</td></tr></table></div>
+<div class="panel-heading"><div class="btnimg" style="float:left;" onclick="status_expanded = expand_collapse(status_expanded,'pin_status','statusdisplay')" id="pin_status">&#9660;</div>&nbsp;&nbsp;Status</div>
 <div class="panel-body" id="statusdisplay">   
 <table><tr><td>
 <center><table><tr><td><div class="btnimg" onclick="if(confirm('Clear Status log ?'))Sendcommand('[ESP999]STATUS');">
@@ -112,7 +123,7 @@ $INCLUDE[css2.inc]$
 </div>
 </div>
 <div class="panel">
-<div class="panel-heading"><table><tr><td><div class="btnimg" onclick="printcommands_expanded = expand_collapse(printcommands_expanded,'pin_printcommands','printcommands')" id="pin_printcommands">&#9660;</div></td><td>Print</td></tr></table></div>
+<div class="panel-heading"><div class="btnimg" style="float:left;" onclick="printcommands_expanded = expand_collapse(printcommands_expanded,'pin_printcommands','printcommands')" id="pin_printcommands">&#9660;</div>&nbsp;&nbsp;Print</div>
 <div class="panel-body" id="printcommands">
     <table>
         <tr>
@@ -129,7 +140,7 @@ $INCLUDE[css2.inc]$
 </div>
 </div>
 <div class="panel">
-<div class="panel-heading"><table><tr><td><div class="btnimg" onclick="jog_expanded = expand_collapse(jog_expanded,'pin_jog','jogcommands')" id="pin_jog">&#9660;</div></td><td>Jog</td></tr></table></div>
+<div class="panel-heading"><div class="btnimg" style="float:left;" onclick="jog_expanded = expand_collapse(jog_expanded,'pin_jog','jogcommands')" id="pin_jog">&#9660;</div>&nbsp;&nbsp;Jog</div>
 <div class="panel-body" id="jogcommands">
 <table>
     <tr align="center" valign="middle">
@@ -329,7 +340,7 @@ $INCLUDE[css2.inc]$
 </div>
 </div>
 <div class="panel">
-<div class="panel-heading"><table><tr><td><div class="btnimg" onclick="filemanager_expanded = expand_collapse(filemanager_expanded,'pin_filemanager','filemanager')" id="pin_filemanager">&#9660;</div></td><td>SD Files</td></tr></table></div>
+<div class="panel-heading"><div class="btnimg" style="float:left;" onclick="filemanager_expanded = expand_collapse(filemanager_expanded,'pin_filemanager','filemanager')" id="pin_filemanager">&#9660;</div>&nbsp;&nbsp;SD Files</div>
 <div class="panel-body" id="filemanager">
 <input type="file" id="file-select" name="myfiles[]" multiple/>
 <input class="btn btn-primary" type="button" id="upload-button" onclick="Sendfile();" value="Upload"/>&nbsp;&nbsp;<progress style="visibility:hidden;" name='prg' id='prg' max='100'></progress>
@@ -821,7 +832,13 @@ xmlhttp.send(formData);
 
 window.onload = function() {
 refreshSDfiles();
-if ($REFRESH_PAGE$)setInterval(function(){getstatus();},$REFRESH_PAGE$);
+if ($REFRESH_PAGE$){
+    setInterval(function(){getstatus();},$REFRESH_PAGE$);
+    document.getElementById('manualstatus').style.display = "none";
+}
+else {
+    document.getElementById('autostatus').style.display = "none";
+}
 }
 
 function printfile(filename){

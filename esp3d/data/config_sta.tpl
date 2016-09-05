@@ -10,6 +10,7 @@ $INCLUDE[header.inc]$
 <tbody>$AVAILABLE_AP[<tr><th>#$ROW_NUMBER$</th><td style="cursor:hand;" onclick="document.getElementById('CONFIG1').value='$AP_SSID$';">$AP_SSID$</td><td>$AP_SIGNAL$</td><td>$IS_PROTECTED$</td></tr>]$</tbody>
 </table>
 </DIV>
+<div class="checkbox"><label class="control-label"><input type="checkbox" name="DEFAULT_MODE" $IS_DEFAULT_MODE$>Default Mode</label></div><br>
 <div class="form-group $STA_SSID_STATUS$" ><label class="control-label"  for="CONFIG1">SSID: </label><br>
 <input type="text" class="form-control" id="CONFIG1" name="SSID" placeholder="SSID (8~32)" value="$STA_SSID$" max="32" style="width: auto;"></div>
 <div class="form-group $STA_PASSWORD_STATUS$"><label class="control-label"for="CONFIG2">Password:</label><br>

@@ -25,6 +25,17 @@ extern "C" {
 }
 
 
+ void CONFIG::esp_restart(){
+    LOG("Restarting\n")
+    Serial.flush();
+    delay(500);
+    Serial.swap();
+    delay(100);
+    ESP.restart();
+    while (1) {
+        delay(1);
+    };
+}
 
 
 bool CONFIG::isHostnameValid(const char * hostname)
@@ -166,12 +177,62 @@ String CONFIG::formatBytes(size_t bytes)
     }
 }
 
+//helper to convert string to IP
+//do not use IPAddress.fromString() because lack of check point and error result 
+//return number of parts
+byte CONFIG::split_ip (const char * ptr,byte * part)
+{
+    if (strlen(ptr)>15 || strlen(ptr)< 7) {
+        part[0]=0;
+        part[1]=0;
+        part[2]=0;
+        part[3]=0;
+        return 0;
+    }
+
+    char pstart [16];
+    char * ptr2;
+    strcpy(pstart,ptr);
+    ptr2 = pstart;
+    byte i = strlen(pstart);
+    byte pos = 0;
+    for (byte j=0; j<i; j++) {
+        if (pstart[j]=='.') {
+            if (pos==4) {
+                part[0]=0;
+                part[1]=0;
+                part[2]=0;
+                part[3]=0;
+                return 0;
+            }
+            pstart[j]=0x0;
+            part[pos]=atoi(ptr2);
+            pos++;
+            ptr2 = &pstart[j+1];
+        }
+    }
+    part[pos]=atoi(ptr2);
+    return pos+1;
+}
+
+//just simple helper to convert mac address to string
+char * CONFIG::mac2str(uint8_t mac [WL_MAC_ADDR_LENGTH])
+{
+    static char macstr [18];
+    if (0>sprintf(macstr,"%02X:%02X:%02X:%02X:%02X:%02X",mac[0],mac[1],mac[2],mac[3],mac[4],mac[5])) {
+        strcpy (macstr, "00:00:00:00:00:00");
+    }
+    return macstr;
+}
+
+
 //read a string
 //a string is multibyte + \0, this is won't work if 1 char is multibyte like chinese char
 bool CONFIG::read_string(int pos, char byte_buffer[], int size_max)
 {
     //check if parameters are acceptable
     if (size_max==0 ||  pos+size_max+1 > EEPROM_SIZE || byte_buffer== NULL) {
+        LOG("Error read string\n")
         return false;
     }
     EEPROM.begin(EEPROM_SIZE);
@@ -198,6 +259,7 @@ bool CONFIG::read_string(int pos, String & sbuffer, int size_max)
 {
     //check if parameters are acceptable
     if (size_max==0 ||  pos+size_max+1 > EEPROM_SIZE ) {
+        LOG("Error read string\n")
         return false;
     }
     byte b = 13; // non zero for the while loop below
@@ -221,6 +283,7 @@ bool CONFIG::read_buffer(int pos, byte byte_buffer[], int size_buffer)
 {
     //check if parameters are acceptable
     if (size_buffer==0 ||  pos+size_buffer > EEPROM_SIZE || byte_buffer== NULL) {
+        LOG("Error read buffer\n")
         return false;
     }
     int i=0;
@@ -239,6 +302,7 @@ bool CONFIG::read_byte(int pos, byte * value)
 {
     //check if parameters are acceptable
     if (pos+1 > EEPROM_SIZE) {
+        LOG("Error read byte\n")
         return false;
     }
     EEPROM.begin(EEPROM_SIZE);
@@ -262,10 +326,16 @@ bool CONFIG::write_string(int pos, const char * byte_buffer)
     //check if parameters are acceptable
     switch (pos)
     {
-        case EP_SSID:
+        case EP_ADMIN_PWD:
+        case EP_USER_PWD:
+            maxsize = MAX_LOCAL_PASSWORD_LENGTH;
+            break;
+        case EP_AP_SSID:
+        case EP_STA_SSID:
             maxsize = MAX_SSID_LENGTH;
             break;
-          case EP_PASSWORD:
+          case EP_AP_PASSWORD:
+          case EP_STA_PASSWORD:
             maxsize = MAX_PASSWORD_LENGTH;
             break;
          case EP_HOSTNAME:
@@ -276,6 +346,7 @@ bool CONFIG::write_string(int pos, const char * byte_buffer)
             break;
     }
     if (size_buffer==0 ||  pos+size_buffer+1 > EEPROM_SIZE || size_buffer > maxsize  || byte_buffer== NULL) {
+        LOG("Error write string\n")
         return false;
     }
     //copy the value(s)
@@ -296,6 +367,7 @@ bool CONFIG::write_buffer(int pos, const byte * byte_buffer, int size_buffer)
 {
     //check if parameters are acceptable
     if (size_buffer==0 ||  pos+size_buffer > EEPROM_SIZE || byte_buffer== NULL) {
+        LOG("Error write buffer\n")
         return false;
     }
     EEPROM.begin(EEPROM_SIZE);
@@ -313,6 +385,7 @@ bool CONFIG::write_byte(int pos, const byte value)
 {
     //check if parameters are acceptable
     if (pos+1 > EEPROM_SIZE) {
+        LOG("Error write byte\n")
         return false;
     }
     EEPROM.begin(EEPROM_SIZE);
@@ -327,28 +400,49 @@ bool CONFIG::reset_config()
     if(!CONFIG::write_byte(EP_WIFI_MODE,DEFAULT_WIFI_MODE)) {
         return false;
     }
-    if(!CONFIG::write_string(EP_SSID,FPSTR(DEFAULT_SSID))) {
-        return false;
-    }
-    if(!CONFIG::write_string(EP_PASSWORD,FPSTR(DEFAULT_PASSWORD))) {
-        return false;
-    }
-    if(!CONFIG::write_byte(EP_IP_MODE,DEFAULT_IP_MODE)) {
-        return false;
-    }
-    if(!CONFIG::write_buffer(EP_IP_VALUE,DEFAULT_IP_VALUE,IP_LENGTH)) {
-        return false;
-    }
-    if(!CONFIG::write_buffer(EP_MASK_VALUE,DEFAULT_MASK_VALUE,IP_LENGTH)) {
-        return false;
-    }
-    if(!CONFIG::write_buffer(EP_GATEWAY_VALUE,DEFAULT_GATEWAY_VALUE,IP_LENGTH)) {
-        return false;
-    }
     if(!CONFIG::write_buffer(EP_BAUD_RATE,(const byte *)&DEFAULT_BAUD_RATE,INTEGER_LENGTH)) {
         return false;
     }
-    if(!CONFIG::write_byte(EP_PHY_MODE,DEFAULT_PHY_MODE)) {
+    if(!CONFIG::write_string(EP_AP_SSID,FPSTR(DEFAULT_AP_SSID))) {
+        return false;
+    }
+    if(!CONFIG::write_string(EP_AP_PASSWORD,FPSTR(DEFAULT_AP_PASSWORD))) {
+        return false;
+    }
+    if(!CONFIG::write_string(EP_STA_SSID,FPSTR(DEFAULT_STA_SSID))) {
+        return false;
+    }
+    if(!CONFIG::write_string(EP_STA_PASSWORD,FPSTR(DEFAULT_STA_PASSWORD))) {
+        return false;
+    }
+    if(!CONFIG::write_byte(EP_AP_IP_MODE,DEFAULT_AP_IP_MODE)) {
+        return false;
+    }
+    if(!CONFIG::write_byte(EP_STA_IP_MODE,DEFAULT_STA_IP_MODE)) {
+        return false;
+    }
+    if(!CONFIG::write_buffer(EP_STA_IP_VALUE,DEFAULT_IP_VALUE,IP_LENGTH)) {
+        return false;
+    }
+    if(!CONFIG::write_buffer(EP_STA_MASK_VALUE,DEFAULT_MASK_VALUE,IP_LENGTH)) {
+        return false;
+    }
+    if(!CONFIG::write_buffer(EP_STA_GATEWAY_VALUE,DEFAULT_GATEWAY_VALUE,IP_LENGTH)) {
+        return false;
+    }
+        if(!CONFIG::write_byte(EP_STA_PHY_MODE,DEFAULT_PHY_MODE)) {
+        return false;
+    }
+    if(!CONFIG::write_buffer(EP_AP_IP_VALUE,DEFAULT_IP_VALUE,IP_LENGTH)) {
+        return false;
+    }
+    if(!CONFIG::write_buffer(EP_AP_MASK_VALUE,DEFAULT_MASK_VALUE,IP_LENGTH)) {
+        return false;
+    }
+    if(!CONFIG::write_buffer(EP_AP_GATEWAY_VALUE,DEFAULT_GATEWAY_VALUE,IP_LENGTH)) {
+        return false;
+    }
+    if(!CONFIG::write_byte(EP_AP_PHY_MODE,DEFAULT_PHY_MODE)) {
         return false;
     }
     if(!CONFIG::write_byte(EP_SLEEP_MODE,DEFAULT_SLEEP_MODE)) {
@@ -400,6 +494,32 @@ void CONFIG::print_config()
     uint8_t ipbuf[4];
     byte bbuf=0;
     int ibuf=0;
+    if (CONFIG::read_buffer(EP_BAUD_RATE,  (byte *)&ibuf , INTEGER_LENGTH)) {
+        Serial.print(F("Baud rate: "));
+        Serial.println(ibuf);
+    } else {
+        Serial.println(F("Error reading baud rate"));
+    }
+    if (CONFIG::read_byte(EP_SLEEP_MODE, &bbuf )) {
+        Serial.print(F("Sleep mode: "));
+        if (byte(bbuf)==WIFI_NONE_SLEEP) {
+            Serial.println(F("None"));
+        } else if (byte(bbuf)==WIFI_LIGHT_SLEEP) {
+            Serial.println(F("Light"));
+        } else if (byte(bbuf)==WIFI_MODEM_SLEEP) {
+            Serial.println(F("Modem"));
+        } else {
+            Serial.println(F("???"));
+        }
+    } else {
+        Serial.println(F("Error reading sleep mode"));
+    }
+    if (CONFIG::read_string(EP_HOSTNAME, sbuf , MAX_HOSTNAME_LENGTH)) {
+        Serial.print(F("Hostname: "));
+        Serial.println(sbuf);
+    } else {
+        Serial.println(F("Error reading hostname"));
+    }
     if (CONFIG::read_byte(EP_WIFI_MODE, &bbuf )) {
         Serial.print(F("Mode: "));
         if (byte(bbuf) == CLIENT_MODE) {
@@ -416,17 +536,37 @@ void CONFIG::print_config()
         Serial.println(F("Error reading mode"));
     }
 
-    if (CONFIG::read_string(EP_SSID, sbuf , MAX_SSID_LENGTH)) {
-        Serial.print(F("SSID: "));
+    if (CONFIG::read_string(EP_STA_SSID, sbuf , MAX_SSID_LENGTH)) {
+        Serial.print(F("Client SSID: "));
         Serial.println(sbuf);
     } else {
         Serial.println(F("Error reading SSID"));
     }
-
-    if (CONFIG::read_byte(EP_IP_MODE, &bbuf )) {
-        Serial.print(F("IP Mode: "));
+        
+    if (CONFIG::read_byte(EP_STA_IP_MODE, &bbuf )) {
+        Serial.print(F("STA IP Mode: "));
         if (byte(bbuf)==STATIC_IP_MODE) {
             Serial.println(F("Static"));
+            if (CONFIG::read_buffer(EP_STA_IP_VALUE,(byte *)ipbuf , IP_LENGTH)) {
+                Serial.print(F("IP: "));
+                Serial.println(IPAddress(ipbuf).toString());
+            } else {
+                Serial.println(F("Error reading IP"));
+            }
+
+            if (CONFIG::read_buffer(EP_STA_MASK_VALUE, (byte *)ipbuf  , IP_LENGTH)) {
+                Serial.print(F("Subnet: "));
+                Serial.println(IPAddress(ipbuf).toString());
+            } else {
+                Serial.println(F("Error reading subnet"));
+            }
+
+            if (CONFIG::read_buffer(EP_STA_GATEWAY_VALUE, (byte *)ipbuf  , IP_LENGTH)) {
+                Serial.print(F("Gateway: "));
+                Serial.println(IPAddress(ipbuf).toString());
+            } else {
+                Serial.println(F("Error reading gateway"));
+            }
         } else  if (byte(bbuf)==DHCP_MODE) {
             Serial.println(F("DHCP"));
         } else {
@@ -435,37 +575,9 @@ void CONFIG::print_config()
     } else {
         Serial.println(F("Error reading IP mode"));
     }
-
-    if (CONFIG::read_buffer(EP_IP_VALUE,(byte *)ipbuf , IP_LENGTH)) {
-        Serial.print(F("IP: "));
-        Serial.println(IPAddress(ipbuf).toString());
-    } else {
-        Serial.println(F("Error reading IP"));
-    }
-
-    if (CONFIG::read_buffer(EP_MASK_VALUE, (byte *)ipbuf  , IP_LENGTH)) {
-        Serial.print(F("Subnet: "));
-        Serial.println(IPAddress(ipbuf).toString());
-    } else {
-        Serial.println(F("Error reading subnet"));
-    }
-
-    if (CONFIG::read_buffer(EP_GATEWAY_VALUE, (byte *)ipbuf  , IP_LENGTH)) {
-        Serial.print(F("Gateway: "));
-        Serial.println(IPAddress(ipbuf).toString());
-    } else {
-        Serial.println(F("Error reading gateway"));
-    }
-
-    if (CONFIG::read_buffer(EP_BAUD_RATE,  (byte *)&ibuf , INTEGER_LENGTH)) {
-        Serial.print(F("Baud rate: "));
-        Serial.println(ibuf);
-    } else {
-        Serial.println(F("Error reading baud rate"));
-    }
-
-    if (CONFIG::read_byte(EP_PHY_MODE, &bbuf )) {
-		Serial.print(F("Phy mode: "));
+    
+    if (CONFIG::read_byte(EP_STA_PHY_MODE, &bbuf )) {
+		Serial.print(F("STA Phy mode: "));
         if (byte(bbuf)==WIFI_PHY_MODE_11B) {
             Serial.println(F("11b"));
         } else if (byte(bbuf)==WIFI_PHY_MODE_11G) {
@@ -478,20 +590,61 @@ void CONFIG::print_config()
     } else {
         Serial.println(F("Error reading phy mode"));
     }
+    
+    if (CONFIG::read_string(EP_AP_SSID, sbuf , MAX_SSID_LENGTH)) {
+        Serial.print(F("AP SSID: "));
+        Serial.println(sbuf);
+    } else {
+        Serial.println(F("Error reading SSID"));
+    }
 
-    if (CONFIG::read_byte(EP_SLEEP_MODE, &bbuf )) {
-        Serial.print(F("Sleep mode: "));
-        if (byte(bbuf)==WIFI_NONE_SLEEP) {
-            Serial.println(F("None"));
-        } else if (byte(bbuf)==WIFI_LIGHT_SLEEP) {
-            Serial.println(F("Light"));
-        } else if (byte(bbuf)==WIFI_MODEM_SLEEP) {
-            Serial.println(F("Modem"));
+    if (CONFIG::read_byte(EP_AP_IP_MODE, &bbuf )) {
+        Serial.print(F("AP IP Mode: "));
+        if (byte(bbuf)==STATIC_IP_MODE) {
+            Serial.println(F("Static"));
+                        if (CONFIG::read_buffer(EP_AP_IP_VALUE,(byte *)ipbuf , IP_LENGTH)) {
+                Serial.print(F("IP: "));
+                Serial.println(IPAddress(ipbuf).toString());
+            } else {
+                Serial.println(F("Error reading IP"));
+            }
+
+            if (CONFIG::read_buffer(EP_AP_MASK_VALUE, (byte *)ipbuf  , IP_LENGTH)) {
+                Serial.print(F("Subnet: "));
+                Serial.println(IPAddress(ipbuf).toString());
+            } else {
+                Serial.println(F("Error reading subnet"));
+            }
+
+            if (CONFIG::read_buffer(EP_AP_GATEWAY_VALUE, (byte *)ipbuf  , IP_LENGTH)) {
+                Serial.print(F("Gateway: "));
+                Serial.println(IPAddress(ipbuf).toString());
+            } else {
+                Serial.println(F("Error reading gateway"));
+            }
+        } else  if (byte(bbuf)==DHCP_MODE) {
+            Serial.println(F("DHCP"));
+        } else {
+            Serial.println(intTostr(bbuf));
+            Serial.println(F("???"));
+        }
+    } else {
+        Serial.println(F("Error reading IP mode"));
+    }
+
+    if (CONFIG::read_byte(EP_AP_PHY_MODE, &bbuf )) {
+		Serial.print(F("AP Phy mode: "));
+        if (byte(bbuf)==WIFI_PHY_MODE_11B) {
+            Serial.println(F("11b"));
+        } else if (byte(bbuf)==WIFI_PHY_MODE_11G) {
+            Serial.println(F("11g"));
+        } else if (byte(bbuf)==WIFI_PHY_MODE_11N) {
+            Serial.println(F("11n"));
         } else {
             Serial.println(F("???"));
         }
     } else {
-        Serial.println(F("Error reading sleep mode"));
+        Serial.println(F("Error reading phy mode"));
     }
 
     if (CONFIG::read_byte(EP_CHANNEL, &bbuf )) {
@@ -554,13 +707,6 @@ void CONFIG::print_config()
         Serial.println(byte(bbuf));
     } else {
         Serial.println(F("Error reading refresh page"));
-    }
-
-    if (CONFIG::read_string(EP_HOSTNAME, sbuf , MAX_HOSTNAME_LENGTH)) {
-        Serial.print(F("Hostname: "));
-        Serial.println(sbuf);
-    } else {
-        Serial.println(F("Error reading hostname"));
     }
 
     if (CONFIG::read_buffer(EP_XY_FEEDRATE,  (byte *)&ibuf , INTEGER_LENGTH)) {
@@ -642,6 +788,11 @@ void CONFIG::print_config()
     Serial.println(F("???"));
 #endif
   Serial.print(F("SD Card support: "));
+#ifdef SDCARD_FEATURE
+    Serial.println(F("Enabled"));
+#else
+    Serial.println(F("Disabled"));
+#endif
 #ifdef DEBUG_ESP3D
     Serial.print(F("Debug Enabled :"));
 #ifdef DEBUG_OUTPUT_SPIFFS

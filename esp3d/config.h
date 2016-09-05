@@ -25,6 +25,9 @@
 #define MARLINKIMBRA		3
 #define SMOOTHIEWARE	4
 
+//FIRMWARE_TARGET: the targeted FW, can be REPETIER (Original Repetier)/ REPETIER4DV (Repetier for Davinci) / MARLIN (Marlin)/ SMOOTHIEWARE (Smoothieware)
+#define FIRMWARE_TARGET SMOOTHIEWARE
+
 //comment to disable
 //MDNS_FEATURE: this feature allow  type the name defined
 //in web browser by default: http:\\esp8266.local and connect
@@ -34,7 +37,7 @@
 #define SSDP_FEATURE
 
 //NETBIOS_FEATURE: this feature is a discovery protocol, supported on Windows out of the box
-//#define NETBIOS_FEATURE
+#define NETBIOS_FEATURE
 
 //CAPTIVE_PORTAL_FEATURE: In SoftAP redirect all unknow call to main page
 #define CAPTIVE_PORTAL_FEATURE
@@ -77,35 +80,51 @@
 //FLOW_MONITORING_FEATURE : catch the specific answer and store it to variable
 #define FLOW_MONITORING_FEATURE
 
-//FIRMWARE_TARGET: the targeted FW, can be REPETIER (Original Repetier)/ REPETIER4DV (Repetier for Davinci) / MARLIN (Marlin)/ SMOOTHIEWARE (Smoothieware)
-#define FIRMWARE_TARGET REPETIER4DV
 
-//DEBUG Flag
+//DEBUG Flag do not do this when connected to printer !!!
 //#define DEBUG_ESP3D 
 //#define DEBUG_OUTPUT_SPIFFS
+//#define DEBUG_OUTPUT_SD
 #define DEBUG_OUTPUT_SERIAL
 
 #ifdef DEBUG_ESP3D
 #ifdef DEBUG_OUTPUT_SPIFFS
     #define LOG(string) {FSFILE logfile = SPIFFS.open("/log.txt", "a+");logfile.print(string);logfile.close();}
 #else
+#ifdef SDCARD_FEATURE
+    #ifdef DEBUG_OUTPUT_SD
+        #define LOG(string) {if(CONFIG::hasSD()){LOCKSD() File logfile = SD.open("/log.txt", "a+");logfile.print(string);logfile.close();RELEASESD()}}
+    #else
+        #define LOG(string) {Serial.print(string);}
+    #endif
+#else
     #define LOG(string) {Serial.print(string);}
+#endif
 #endif
 #else
 #define LOG(string) {}
 #endif
 
+#ifdef SDCARD_FEATURE
+#define FSFILE fs::File
+#define FSDIR fs::Dir
+#define FSINFO fs::FSInfo
+#else
 #define FSFILE File
 #define FSDIR fs::Dir
 #define FSINFO FSInfo
+#endif 
 
 #ifndef CONFIG_h
 #define CONFIG_h
 
 #include <Arduino.h>
+extern "C" {
+#include "user_interface.h"
+}
 #include "wifi.h"
 //version and sources location
-#define FW_VERSION "0.8.0"
+#define FW_VERSION "0.8.50"
 #define REPOSITORY "https://github.com/luc-github/ESP3D"
 
 
@@ -118,14 +137,14 @@
 //position in EEPROM
 //AP mode = 1; Station client mode = 2
 #define EP_WIFI_MODE			0    //1 byte = flag
-#define EP_SSID				1    //33 bytes 32+1 = string  ; warning does not support multibyte char like chinese
-#define EP_PASSWORD			34   //65 bytes 64 +1 = string ;warning does not support multibyte char like chinese
-#define EP_IP_MODE			99   //1 byte = flag
-#define EP_IP_VALUE			100  //4  bytes xxx.xxx.xxx.xxx
-#define EP_MASK_VALUE			104  //4  bytes xxx.xxx.xxx.xxx
-#define EP_GATEWAY_VALUE			108  //4  bytes xxx.xxx.xxx.xxx
+#define EP_STA_SSID				1    //33 bytes 32+1 = string  ; warning does not support multibyte char like chinese
+#define EP_STA_PASSWORD			34   //65 bytes 64 +1 = string ;warning does not support multibyte char like chinese
+#define EP_STA_IP_MODE			99   //1 byte = flag
+#define EP_STA_IP_VALUE			100  //4  bytes xxx.xxx.xxx.xxx
+#define EP_STA_MASK_VALUE			104  //4  bytes xxx.xxx.xxx.xxx
+#define EP_STA_GATEWAY_VALUE			108  //4  bytes xxx.xxx.xxx.xxx
 #define EP_BAUD_RATE			112  //4  bytes = int
-#define EP_PHY_MODE			116  //1 byte = flag
+#define EP_STA_PHY_MODE			116  //1 byte = flag
 #define EP_SLEEP_MODE			117  //1 byte = flag
 #define EP_CHANNEL			118 //1 byte = flag
 #define EP_AUTH_TYPE			119 //1 byte = flag
@@ -139,14 +158,24 @@
 #define EP_E_FEEDRATE		    172//4  bytes = int
 #define EP_ADMIN_PWD		    176//21  bytes 20+1 = string  ; warning does not support multibyte char like chinese
 #define EP_USER_PWD		    197//21  bytes 20+1 = string  ; warning does not support multibyte char like chinese
-//next available is 218
-//space left 256 - 218 = 38
+#define EP_AP_SSID				218    //33 bytes 32+1 = string  ; warning does not support multibyte char like chinese
+#define EP_AP_PASSWORD			251   //65 bytes 64 +1 = string ;warning does not support multibyte char like chinese
+#define EP_AP_IP_VALUE			316  //4  bytes xxx.xxx.xxx.xxx
+#define EP_AP_MASK_VALUE			320  //4  bytes xxx.xxx.xxx.xxx
+#define EP_AP_GATEWAY_VALUE			324  //4  bytes xxx.xxx.xxx.xxx
+#define EP_AP_IP_MODE			329   //1 byte = flag
+#define EP_AP_PHY_MODE			182  //1 byte = flag
+//next available is 330
+//space left 512 - 330 = 18
 
 //default values
 #define DEFAULT_WIFI_MODE			AP_MODE
-const char DEFAULT_SSID []  PROGMEM =		"ESP8266";
-const char DEFAULT_PASSWORD [] PROGMEM =	"12345678";
-#define DEFAULT_IP_MODE				STATIC_IP_MODE
+const char DEFAULT_AP_SSID []  PROGMEM =		"ESP8266";
+const char DEFAULT_AP_PASSWORD [] PROGMEM =	"12345678";
+const char DEFAULT_STA_SSID []  PROGMEM =		"ESP8266";
+const char DEFAULT_STA_PASSWORD [] PROGMEM =	"12345678";
+const byte DEFAULT_STA_IP_MODE  = 				DHCP_MODE;
+const byte DEFAULT_AP_IP_MODE = 				STATIC_IP_MODE;
 const byte DEFAULT_IP_VALUE[]   =	        {192, 168, 0, 1};
 const byte DEFAULT_MASK_VALUE[]  =	        {255, 255, 255, 0};
 #define DEFAULT_GATEWAY_VALUE   	        DEFAULT_IP_VALUE
@@ -172,7 +201,7 @@ const char DEFAULT_USER_LOGIN []  PROGMEM =	"user";
 
 
 //sizes
-#define EEPROM_SIZE				256 //max is 512
+#define EEPROM_SIZE				512 //max is 512
 #define MAX_SSID_LENGTH				32
 #define MIN_SSID_LENGTH				1
 #define MAX_PASSWORD_LENGTH 			64
@@ -182,6 +211,7 @@ const char DEFAULT_USER_LOGIN []  PROGMEM =	"user";
 #define IP_LENGTH 				4
 #define INTEGER_LENGTH 				4
 #define MAX_HOSTNAME_LENGTH		32
+#define WL_MAC_ADDR_LENGTH 6
 
 class CONFIG
 {
@@ -203,6 +233,10 @@ public:
     static bool isIPValid(const char * IP);
     static char * intTostr(int value);
     static String formatBytes(size_t bytes);
+    static char * mac2str(uint8_t mac [WL_MAC_ADDR_LENGTH]);
+    static byte split_ip (const char * ptr,byte * part);
+    static void esp_restart();
+    static void flashfromSD(const char * Filename, int flashtype);
 };
 
 #endif

@@ -22,6 +22,11 @@
 #include "config.h"
 #include "wifi.h"
 #include "webinterface.h"
+#ifdef SDCARD_FEATURE
+#ifndef FS_NO_GLOBALS
+#define FS_NO_GLOBALS
+#endif
+#endif
 #include <FS.h>
 
 String COMMAND::buffer_serial;
@@ -41,14 +46,14 @@ void COMMAND::execute_command(int cmd,String cmd_params)
         break;
     case 100:
         if (!CONFIG::isSSIDValid(cmd_params.c_str()))Serial.println("\nError");
-        if(!CONFIG::write_string(EP_SSID,cmd_params.c_str())) {
+        if(!CONFIG::write_string(EP_STA_SSID,cmd_params.c_str())) {
             Serial.println("\nError");
         } else {
             Serial.println("\nOk");
         }
         break;
     case 101:
-        if(!CONFIG::write_string(EP_PASSWORD,cmd_params.c_str())) {
+        if(!CONFIG::write_string(EP_STA_PASSWORD,cmd_params.c_str())) {
             Serial.println("\nError");
         } else {
             Serial.println("\nOk");
@@ -81,7 +86,34 @@ void COMMAND::execute_command(int cmd,String cmd_params)
         } else {
             mode=DHCP_MODE;
         }
-        if(!CONFIG::write_byte(EP_IP_MODE,mode)) {
+        if(!CONFIG::write_byte(EP_STA_IP_MODE,mode)) {
+            Serial.println("\nError");
+        } else {
+            Serial.println("\nOk");
+        }
+        break;
+    case 105:
+        if (!CONFIG::isSSIDValid(cmd_params.c_str()))Serial.println("\nError");
+        if(!CONFIG::write_string(EP_AP_SSID,cmd_params.c_str())) {
+            Serial.println("\nError");
+        } else {
+            Serial.println("\nOk");
+        }
+        break;
+    case 106:
+        if(!CONFIG::write_string(EP_AP_PASSWORD,cmd_params.c_str())) {
+            Serial.println("\nError");
+        } else {
+            Serial.println("\nOk");
+        }
+        break;
+    case 107:
+        if (cmd_params=="STATIC") {
+            mode = STATIC_IP_MODE;
+        } else {
+            mode=DHCP_MODE;
+        }
+        if(!CONFIG::write_byte(EP_AP_IP_MODE,mode)) {
             Serial.println("\nError");
         } else {
             Serial.println("\nOk");
@@ -211,6 +243,8 @@ void COMMAND::execute_command(int cmd,String cmd_params)
 void COMMAND::check_command(String buffer)
 {
     String buffer2;
+//if direct access to SDCard no need to handle the M20 command answer
+#ifndef DIRECT_SDCARD_FEATURE
     static bool bfileslist=false;    
     static uint32_t start_list=0;
     //if SD list is not on going
@@ -229,6 +263,7 @@ void COMMAND::check_command(String buffer)
             (web_interface->blockserial) = true;
             return;
         }
+#endif
 #ifdef TEMP_MONITORING_FEATURE
         int Tpos = buffer.indexOf("T:");
 #endif
@@ -360,6 +395,7 @@ void COMMAND::check_command(String buffer)
 #endif
         }
 #endif
+#ifndef DIRECT_SDCARD_FEATURE
     } else { //listing file is on going
 		//check if we are too long 
         if ((millis()-start_list)>30000) { //timeout in case of problem
@@ -383,6 +419,7 @@ void COMMAND::check_command(String buffer)
             }
         }
     }
+#endif
 }
 
 //read a buffer in an array

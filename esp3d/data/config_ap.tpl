@@ -3,6 +3,7 @@ $INCLUDE[header.inc]$
 <div class="panel-heading">Access Point</div>
 <div class="panel-body">
 <form method="POST">
+<div class="checkbox"><label class="control-label"><input type="checkbox" name="DEFAULT_MODE" $IS_DEFAULT_MODE$>Default Mode</label></div><br>
 <div class="form-group $AP_SSID_STATUS$">
 <label class="control-label" for="CONFIG1">SSID: </label><br>
 <input type="text" class="form-control" id="CONFIG1" name="SSID" placeholder="SSID (8~32)" max="32"  value="$AP_SSID$" style="width: auto;"></div>

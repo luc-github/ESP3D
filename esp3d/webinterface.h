@@ -24,6 +24,11 @@
 #include <WiFiClient.h>
 #include <WiFiServer.h>
 #include <ESP8266WebServer.h>
+#ifdef SDCARD_FEATURE
+#ifndef FS_NO_GLOBALS
+#define FS_NO_GLOBALS
+#endif
+#endif
 #include <FS.h>
 #include "storestrings.h"
 
@@ -63,7 +68,9 @@ public:
 #ifdef FLOW_MONITORING_FEATURE
     String answer4M221;
 #endif
+#ifndef DIRECT_SDCARD_FEATURE
     STORESTRINGS_CLASS fileslist;
+#endif
 #ifdef ERROR_MSG_FEATURE
     STORESTRINGS_CLASS error_msg;
 #endif
