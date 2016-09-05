@@ -1,5 +1,5 @@
 /*
-  command.h - esp8266 configuration class
+  command.h - ESP3D configuration class
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 

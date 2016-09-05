@@ -1,5 +1,5 @@
 /*
-  CONFIG.CPP- esp8266 configuration class
+  config.cpp- ESP3D configuration class
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 

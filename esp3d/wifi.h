@@ -1,5 +1,5 @@
 /*
-  wifi.h - esp8266 configuration class
+  wifi.h - ESP3D configuration class
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
