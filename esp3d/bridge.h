@@ -1,4 +1,5 @@
 /*
+  bridge.h - esp3d bridge serial/tcp class
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
