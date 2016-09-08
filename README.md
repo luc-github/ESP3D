@@ -1,4 +1,5 @@
-# ESP3D
+# ESP3D[![Code Climate](https://codeclimate.com/github/luc-github/ESP3D/badges/gpa.svg)](https://codeclimate.com/github/luc-github/ESP3D)
+
 Firmware for ESP8266 used with 3D printer using [arduino core version](https://github.com/esp8266/Arduino)   
 This firmware allows not only to have a cheap bridge between Wifi and serial, but also to have a web UI to configure wifi, to monitor 3D printer and even control it, and to make things easy,
 UI is fully customizable without reflashing FW.
