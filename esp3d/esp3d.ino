@@ -1,12 +1,12 @@
 /*
-    This file is part of ESP8266 Firmware for 3D printer.
+    This file is part of ESP3D Firmware for 3D printer.
 
-    ESP8266 Firmware for 3D printer is free software: you can redistribute it and/or modify
+    ESP3D Firmware for 3D printer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    ESP8266 Firmware for 3D printer is distributed in the hope that it will be useful,
+    ESP3D Firmware for 3D printer is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
@@ -30,6 +30,7 @@
 #include <EEPROM.h>
 #include "config.h"
 #include "wifi.h"
+#include "bridge.h"
 #include "webinterface.h"
 #include "command.h"
 #include <ESP8266WiFi.h>
@@ -49,16 +50,15 @@ DNSServer dnsServer;
 #ifdef NETBIOS_FEATURE
 #include <ESP8266NetBIOS.h>
 #endif
-#define MAX_SRV_CLIENTS 1
-WiFiServer * data_server;
-WiFiClient serverClients[MAX_SRV_CLIENTS];
 
 void setup()
 {
     bool breset_config=false; 
     long baud_rate=0;    
     web_interface = NULL;
+#ifdef TCP_IP_DATA_FEATURE
     data_server = NULL;
+#endif
     // init:
 #ifdef DEBUG_ESP3D
     Serial.begin(DEFAULT_BAUD_RATE);
@@ -197,60 +197,10 @@ void loop()
 #endif
 //web requests
     web_interface->WebServer.handleClient();
-
-//TODO use a method to handle serial also in class and call it instead of this one
-    uint8_t i,data;
 #ifdef TCP_IP_DATA_FEATURE
-    //check if there are any new clients
-    if (data_server->hasClient()) {
-        for(i = 0; i < MAX_SRV_CLIENTS; i++) {
-            //find free/disconnected spot
-            if (!serverClients[i] || !serverClients[i].connected()) {
-                if(serverClients[i]) {
-                    serverClients[i].stop();
-                }
-                serverClients[i] = data_server->available();
-                continue;
-            }
-        }
-        //no free/disconnected spot so reject
-        WiFiClient serverClient = data_server->available();
-        serverClient.stop();
-    }
-    //check clients for data
-    //to avoid any pollution if Uploading file to SDCard
-    if ((web_interface->blockserial) == false){
-		for(i = 0; i < MAX_SRV_CLIENTS; i++) {
-			if (serverClients[i] && serverClients[i].connected()) {
-				if(serverClients[i].available()) {
-					//get data from the tcp client and push it to the UART
-					while(serverClients[i].available()) {
-						data = serverClients[i].read();
-						Serial.write(data);
-						COMMAND::read_buffer_tcp(data);
-					}
-				}
-			}
-		}
-	}
+     BRIDGE::processFromTCP2Serial();
 #endif
-    //check UART for data
-    if(Serial.available()) {
-        size_t len = Serial.available();
-        uint8_t sbuf[len];
-        Serial.readBytes(sbuf, len);
-#ifdef TCP_IP_DATA_FEATURE
-        //push UART data to all connected tcp clients
-        for(i = 0; i < MAX_SRV_CLIENTS; i++) {
-            if (serverClients[i] && serverClients[i].connected()) {
-                serverClients[i].write(sbuf, len);
-                delay(1);
-            }
-        }
-#endif
-        //process data if any
-        COMMAND::read_buffer_serial(sbuf, len);
-    }
+    BRIDGE::processFromSerial2TCP();
     if (web_interface->restartmodule) {
        CONFIG::esp_restart();
     }

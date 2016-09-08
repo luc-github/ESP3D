@@ -1,5 +1,5 @@
 /*
-  webinterface.cpp - esp8266 configuration class
+  webinterface.cpp - ESP3D configuration class
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -30,6 +30,7 @@
 #include "LinkedList.h"
 #include "storestrings.h"
 #include "command.h"
+#include "bridge.h"
 
 #ifdef SSDP_FEATURE
 #include <ESP8266SSDP.h>
@@ -3087,7 +3088,8 @@ void handle_not_found()
     } else page_not_found = true;
     
     if (page_not_found )
-     {
+     { 
+         LOG("Page not found it \n")
         if (SPIFFS.exists("/404.tpl")) {
             STORESTRINGS_CLASS KeysList ;
             STORESTRINGS_CLASS ValuesList ;
@@ -3536,7 +3538,10 @@ String WEBINTERFACE_CLASS::getContentType(String filename)
         return "image/png";
     } else if(filename.endsWith(".gif")) {
         return "image/gif";
-    } else if(filename.endsWith(".jpg")) {
+    } else if(filename.endsWith(".jpeg")) {
+        return "image/jpeg";
+    } 
+    else if(filename.endsWith(".jpg")) {
         return "image/jpeg";
     } else if(filename.endsWith(".ico")) {
         return "image/x-icon";

@@ -1,5 +1,5 @@
 /*
-  CONFIG.H - esp8266 configuration class
+  config.h - ESP3D configuration class
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -27,6 +27,9 @@
 
 //FIRMWARE_TARGET: the targeted FW, can be REPETIER (Original Repetier)/ REPETIER4DV (Repetier for Davinci) / MARLIN (Marlin)/ SMOOTHIEWARE (Smoothieware)
 #define FIRMWARE_TARGET SMOOTHIEWARE
+
+//number of clients allowed to use data port at once
+#define MAX_SRV_CLIENTS 1
 
 //comment to disable
 //MDNS_FEATURE: this feature allow  type the name defined
@@ -85,7 +88,9 @@
 //#define DEBUG_ESP3D 
 //#define DEBUG_OUTPUT_SPIFFS
 //#define DEBUG_OUTPUT_SD
-#define DEBUG_OUTPUT_SERIAL
+//#define DEBUG_OUTPUT_SERIAL
+
+#include <FS.h>
 
 #ifdef DEBUG_ESP3D
 #ifdef DEBUG_OUTPUT_SPIFFS
@@ -114,6 +119,11 @@
 #define FSDIR fs::Dir
 #define FSINFO FSInfo
 #endif 
+
+#ifndef TCP_IP_DATA_FEATURE 
+#undef MAX_SRV_CLIENTS
+#define MAX_SRV_CLIENTS 0
+#endif
 
 #ifndef CONFIG_h
 #define CONFIG_h
