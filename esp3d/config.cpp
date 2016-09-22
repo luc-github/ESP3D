@@ -270,7 +270,7 @@ bool CONFIG::read_string(int pos, String & sbuffer, int size_max)
     //read until max size is reached or \0 is found
     while (i < size_max && b != 0) {
         b = EEPROM.read(pos+i);
-        sbuffer+=char(b);
+        if (b!=0)sbuffer+=char(b);
         i++;
     }
     EEPROM.end();
