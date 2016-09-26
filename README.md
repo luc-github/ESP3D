@@ -103,19 +103,72 @@ Additionally 404.tpl (the page not found) and restart.tpl(restart page when appl
 
 ##Direct commands:    
 ```
-    -Restart module from host/printer: [ESP888]RESTART      
-    -Send file line by line from SPIFFS: [ESP700]<file name>
-    -Get IP (only printer see answer): [ESP111]M117     
-    -Reset EEPROM and restart: [ESP444]RESET   
-    -Reset user password: [ESP555]<admin password>    
-    -Display EEPROM content: [ESP444]CONFIG    
-    -Go to safe mode without restart: [ESP444]SAFEMODE    
-    -SSID: [ESP100]<SSID>    
-    -Password: [ESP101]<Password>   
-    -Station mode: [ESP103]STA   
-    -AP mode: [ESP103]AP   
-    -IP Static: [ESP104]STATIC    
-    -IP DHCP: [ESP104]DHCP    
+* Change STA SSID    
+[ESP100]<SSID>   
+if authentication is on, need admin password   
+[ESP100]<SSID>pwd=<admin password>   
+
+* Change STA Password    
+[ESP101]<Password>   
+if authentication is on, need admin password   
+[ESP101]<Password>pwd=<admin password>   
+
+* Change Hostname   
+[ESP102]<hostname>   
+if authentication is on, need admin password   
+[ESP102]<hostname>pwd=<admin password>   
+
+* Change Wifi mode (STA/AP)   
+[ESP103]<mode>   
+if authentication is on, need admin password   
+[ESP103]<mode>pwd=<admin password>   
+
+* Change STA IP mode (DHCP/STATIC)   
+[ESP104]<mode>   
+if authentication is on, need admin password   
+[ESP104]<mode>pwd=<admin password>   
+
+* Change AP SSID   
+[ESP105]<SSID>   
+if authentication is on, need admin password   
+[ESP105]<SSID>pwd=<admin password>   
+
+* Change AP Password   
+[ESP106]<Password>  
+if authentication is on, need admin password  
+[ESP106]<Password>pwd=<admin password>   
+
+* Change AP IP mode (DHCP/STATIC)   
+[ESP107]<mode>   
+if authentication is on, need admin password   
+[ESP107]<mode>pwd=<admin password>   
+
+* Get current IP  
+[ESP111]<header answer>  
+
+* Get hostname   
+[ESP112]<header answer>   
+
+* Get/Set ESP mode   
+cmd can be RESET, SAFEMODE, CONFIG, RESTART   
+[ESP444]<cmd>   
+if authentication is on, need admin password for RESET, RESTART and SAFEMODE   
+[ESP444]<cmd>pwd=<admin password>   
+
+* Change / Reset user password   
+[ESP555]<password>pwd=<admin password>   
+if no password set it use default one   
+
+* Read SPIFFS file and send each line to serial   
+[ESP700]<filename>   
+
+* Get fw version    
+[ESP800]<header answer>   
+
+* Clear status/error/info list   
+cmd can be ALL, ERROR, INFO, STATUS   
+[ESP999]<cmd>   
+ 
  ```
 ##Installation
 * For stable:

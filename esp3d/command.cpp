@@ -32,93 +32,221 @@
 String COMMAND::buffer_serial;
 String COMMAND::buffer_tcp;
 
+#define ERROR_CMD_MSG F("\nM117 Cmd Error")
+#define INCORRECT_CMD_MSG F("\nM117 Incorrect Cmd")
+#define OK_CMD_MSG F("\nM117 Cmd Ok")
 
+String COMMAND::get_param(String & cmd_params, const char * id, bool withspace)
+{
+    static String parameter;
+    String sid=id;
+    int start;
+    int end = -1;
+    parameter = "";
+    //if no id it means it is first part of cmd
+    if (strlen(id) == 0) start = 0;
+    //else find id position
+    else start = cmd_params.indexOf(id);
+    //if no id found and not first part leave
+    if (start == -1 ) return parameter;
+    //password and SSID can have space so handle it
+    //if no space expected use space as delimiter
+    if (!withspace)end = cmd_params.indexOf(" ",start);
+    //if space expected only one parameter but additional password may be present
+    else if (sid!="pwd=")end = cmd_params.indexOf("pwd=",start);
+    //if no end found - take all
+    if (end == -1) end = cmd_params.length();
+    //extract parameter
+    parameter = cmd_params.substring(start+strlen(id),end);
+    //be sure no extra space
+    parameter.trim();
+    return parameter;
+}
+#ifdef AUTHENTICATION_FEATURE
+bool COMMAND::isadmin(String & cmd_params)
+{
+    String adminpassword;
+    String sadminPassword;
+    if (!CONFIG::read_string(EP_ADMIN_PWD, sadminPassword , MAX_LOCAL_PASSWORD_LENGTH)) {
+        LOG("ERROR getting admin\n")
+        sadminPassword=FPSTR(DEFAULT_ADMIN_PWD);
+        }
+    adminpassword = get_param(cmd_params,"pwd=", true);
+    if (!sadminPassword.equals(adminpassword)) {
+            LOG("Not allowed \n")
+            return false;
+            }
+    else return true;
+}
+#endif
 void COMMAND::execute_command(int cmd,String cmd_params)
 {
     //manage parameters
-
+    byte mode = 254;
+    String parameter;
     switch(cmd) {
-        byte mode;
-    case 800:
-        Serial.print(cmd_params);
-        Serial.print("\nFW version:");
-        Serial.println(FW_VERSION);
-        break;
+    //STA SSID 
+    //[ESP100]<SSID>[pwd=<admin password>]
     case 100:
-        if (!CONFIG::isSSIDValid(cmd_params.c_str()))Serial.println("\nError");
-        if(!CONFIG::write_string(EP_STA_SSID,cmd_params.c_str())) {
-            Serial.println("\nError");
+        parameter = get_param(cmd_params,"", true);
+        if (!CONFIG::isSSIDValid(parameter.c_str()))Serial.println(INCORRECT_CMD_MSG);
+#ifdef AUTHENTICATION_FEATURE
+        if (!isadmin(cmd_params)) {
+            Serial.println(INCORRECT_CMD_MSG);
+            }
+        else
+#endif        
+        if(!CONFIG::write_string(EP_STA_SSID,parameter.c_str())) {
+            Serial.println(ERROR_CMD_MSG);
         } else {
-            Serial.println("\nOk");
+            Serial.println(OK_CMD_MSG);
         }
         break;
+    //STA Password 
+    //[ESP101]<Password>[pwd=<admin password>]
     case 101:
-        if(!CONFIG::write_string(EP_STA_PASSWORD,cmd_params.c_str())) {
-            Serial.println("\nError");
+        parameter = get_param(cmd_params,"", true);
+        if (!CONFIG::isPasswordValid(parameter.c_str()))Serial.println(INCORRECT_CMD_MSG);
+#ifdef AUTHENTICATION_FEATURE
+        if (!isadmin(cmd_params)) {
+            Serial.println(INCORRECT_CMD_MSG);
+            }
+        else
+#endif        
+        if(!CONFIG::write_string(EP_STA_PASSWORD,parameter.c_str())) {
+            Serial.println(ERROR_CMD_MSG);
         } else {
-            Serial.println("\nOk");
+            Serial.println(OK_CMD_MSG);
         }
         break;
+     //Hostname 
+     //[ESP102]<hostname>[pwd=<admin password>]
      case 102:
-        if (!CONFIG::isHostnameValid(cmd_params.c_str()))Serial.println("\nError");
-        if(!CONFIG::write_string(EP_HOSTNAME,cmd_params.c_str())) {
-            Serial.println("\nError");
+        parameter = get_param(cmd_params,"", true);
+        if (!CONFIG::isHostnameValid(parameter.c_str()))Serial.println(INCORRECT_CMD_MSG);
+#ifdef AUTHENTICATION_FEATURE
+        if (!isadmin(cmd_params)) {
+            Serial.println(INCORRECT_CMD_MSG);
+            }
+        else
+#endif 
+        if(!CONFIG::write_string(EP_HOSTNAME,parameter.c_str())) {
+            Serial.println(ERROR_CMD_MSG);
         } else {
-            Serial.println("\nOk");
+            Serial.println(OK_CMD_MSG);
         }
         break;   
+    //Wifi mode (STA/AP) 
+    //[ESP103]<mode>[pwd=<admin password>]
     case 103:
-
-        if (cmd_params=="STA") {
+        parameter = get_param(cmd_params,"", true);
+        if (parameter == "STA") {
             mode = CLIENT_MODE;
+        } else if (parameter == "AP") {
+            mode = AP_MODE;
         } else {
-            mode=AP_MODE;
+            Serial.println(INCORRECT_CMD_MSG);
         }
-        if(!CONFIG::write_byte(EP_WIFI_MODE,mode)) {
-            Serial.println("\nError");
-        } else {
-            Serial.println("\nOk");
+        if ((mode == CLIENT_MODE) || (mode == AP_MODE)){
+#ifdef AUTHENTICATION_FEATURE
+            if (!isadmin(cmd_params)) {
+                Serial.println(INCORRECT_CMD_MSG);
+            }
+            else
+#endif 
+            if(!CONFIG::write_byte(EP_WIFI_MODE,mode)) {
+                Serial.println(ERROR_CMD_MSG);
+            } else {
+                Serial.println(OK_CMD_MSG);
+            }
         }
         break;
+    //STA IP mode (DHCP/STATIC) 
+    //[ESP104]<mode>[pwd=<admin password>]
     case 104:
-        if (cmd_params=="STATIC") {
+        parameter = get_param(cmd_params,"", true);
+        if (parameter == "STATIC") {
             mode = STATIC_IP_MODE;
-        } else {
-            mode=DHCP_MODE;
+        } else if (parameter == "DHCP") {
+            mode = DHCP_MODE;
+        } else{
+            Serial.println(INCORRECT_CMD_MSG);
         }
-        if(!CONFIG::write_byte(EP_STA_IP_MODE,mode)) {
-            Serial.println("\nError");
-        } else {
-            Serial.println("\nOk");
+        if ((mode == STATIC_IP_MODE) || (mode == DHCP_MODE)){
+#ifdef AUTHENTICATION_FEATURE
+            if (!isadmin(cmd_params)) {
+                Serial.println(INCORRECT_CMD_MSG);
+            }
+            else
+#endif 
+            if(!CONFIG::write_byte(EP_STA_IP_MODE,mode)) {
+                Serial.println(ERROR_CMD_MSG);
+            } else {
+                Serial.println(OK_CMD_MSG);
+            }
         }
         break;
+    //AP SSID 
+    //[ESP105]<SSID>[pwd=<admin password>]
     case 105:
-        if (!CONFIG::isSSIDValid(cmd_params.c_str()))Serial.println("\nError");
-        if(!CONFIG::write_string(EP_AP_SSID,cmd_params.c_str())) {
-            Serial.println("\nError");
+        parameter = get_param(cmd_params,"", true);
+        if (!CONFIG::isSSIDValid(parameter.c_str()))Serial.println(INCORRECT_CMD_MSG);
+#ifdef AUTHENTICATION_FEATURE
+        if (!isadmin(cmd_params)) {
+            Serial.println(INCORRECT_CMD_MSG);
+            }
+        else
+#endif        
+        if(!CONFIG::write_string(EP_AP_SSID,parameter.c_str())) {
+            Serial.println(ERROR_CMD_MSG);
         } else {
-            Serial.println("\nOk");
+            Serial.println(OK_CMD_MSG);
         }
         break;
+    //AP Password 
+    //[ESP106]<Password>[pwd=<admin password>]
     case 106:
-        if(!CONFIG::write_string(EP_AP_PASSWORD,cmd_params.c_str())) {
-            Serial.println("\nError");
+        parameter = get_param(cmd_params,"", true);
+        if (!CONFIG::isPasswordValid(parameter.c_str()))Serial.println(INCORRECT_CMD_MSG);
+#ifdef AUTHENTICATION_FEATURE
+        if (!isadmin(cmd_params)) {
+            Serial.println(INCORRECT_CMD_MSG);
+            }
+        else
+#endif        
+        if(!CONFIG::write_string(EP_AP_PASSWORD,parameter.c_str())) {
+            Serial.println(ERROR_CMD_MSG);
         } else {
-            Serial.println("\nOk");
+            Serial.println(OK_CMD_MSG);
         }
         break;
+    //AP IP mode (DHCP/STATIC) 
+    //[ESP107]<mode>[pwd=<admin password>]
     case 107:
-        if (cmd_params=="STATIC") {
+        parameter = get_param(cmd_params,"", true);
+        if (parameter == "STATIC") {
             mode = STATIC_IP_MODE;
-        } else {
-            mode=DHCP_MODE;
+        } else if (parameter == "DHCP") {
+            mode = DHCP_MODE;
+        } else{
+            Serial.println(INCORRECT_CMD_MSG);
         }
-        if(!CONFIG::write_byte(EP_AP_IP_MODE,mode)) {
-            Serial.println("\nError");
-        } else {
-            Serial.println("\nOk");
+        if ((mode == STATIC_IP_MODE) || (mode == DHCP_MODE)){
+#ifdef AUTHENTICATION_FEATURE
+            if (!isadmin(cmd_params)) {
+                Serial.println(INCORRECT_CMD_MSG);
+            }
+            else
+#endif 
+            if(!CONFIG::write_byte(EP_AP_IP_MODE,mode)) {
+                Serial.println(ERROR_CMD_MSG);
+            } else {
+                Serial.println(OK_CMD_MSG);
+            }
         }
         break;
+    //Get current IP
+    //[ESP111]<header answer>
     case 111: {
         String currentIP ;
         if (WiFi.getMode()==WIFI_STA) {
@@ -132,6 +260,8 @@ void COMMAND::execute_command(int cmd,String cmd_params)
         Serial.print("\r\n");
     }
     break;
+    //Get hostname
+    //[ESP112]<header answer>
     case 112: {
         String shost ;
          if (!CONFIG::read_string(EP_HOSTNAME, shost , MAX_HOSTNAME_LENGTH)) {
@@ -143,36 +273,63 @@ void COMMAND::execute_command(int cmd,String cmd_params)
         Serial.print("\r\n");
     }
     break;
+    //Get/Set ESP mode
+    //cmd is RESET, SAFEMODE, CONFIG, RESTART
+    //[ESP444]<cmd>pwd=<admin password>
     case 444:
-        if (cmd_params=="RESET") {
-            CONFIG::reset_config();
-        }
-        if (cmd_params=="SAFEMODE") {
-            wifi_config.Safe_Setup();
-        }
-        if (cmd_params=="CONFIG") {
+		parameter = get_param(cmd_params,"", true);
+#ifdef AUTHENTICATION_FEATURE
+        if (!isadmin(cmd_params)) {
+            Serial.println(INCORRECT_CMD_MSG);
+            }
+        else
+#endif  
+		{
+			if (parameter=="RESET") {
+				CONFIG::reset_config();
+			}
+			if (parameter=="SAFEMODE") {
+				wifi_config.Safe_Setup();
+			}
+			if (parameter=="RESTART") {
+				CONFIG::esp_restart();
+			}
+		}
+        if (parameter=="CONFIG") {
             CONFIG::print_config();
         }
         break;
 #ifdef AUTHENTICATION_FEATURE
+     //Change / Reset user password
+     //[ESP555]<password>pwd=<admin password>
      case 555:
         {
-         String sadminPassword;
-        if (!CONFIG::read_string(EP_ADMIN_PWD, sadminPassword , MAX_LOCAL_PASSWORD_LENGTH)) {
-            sadminPassword=FPSTR(DEFAULT_ADMIN_PWD);
-        }
-        if (cmd_params == sadminPassword.c_str()) {
-            if(CONFIG::write_string(EP_USER_PWD,FPSTR(DEFAULT_USER_PWD))) {
-                Serial.println("\nOk");
+        if (isadmin(cmd_params)) {
+            parameter = get_param(cmd_params,"", true);
+            if (parameter.length() == 0){
+                if(CONFIG::write_string(EP_USER_PWD,FPSTR(DEFAULT_USER_PWD))) {
+                    Serial.println(OK_CMD_MSG);
+                }
+                else {
+                    Serial.println(ERROR_CMD_MSG);
+                }
+            } else {
+                if (CONFIG::isLocalPasswordValid(parameter.c_str())){
+                    if(CONFIG::write_string(EP_USER_PWD,parameter.c_str())) {
+                    Serial.println(OK_CMD_MSG);
+                }
+                else {
+                    Serial.println(ERROR_CMD_MSG);
+                }
+                }
+                else Serial.println(INCORRECT_CMD_MSG);
             }
-            else {
-                Serial.println("\nFailed");
-            }
         }
-        else Serial.println("\nFailed");
+        else Serial.println(INCORRECT_CMD_MSG);
         break;
         }
 #endif
+    //[ESP700]<filename>
     case 700: //read local file
         {//be sure serial is locked
         if ((web_interface->blockserial)) break;
@@ -195,19 +352,21 @@ void COMMAND::execute_command(int cmd,String cmd_params)
                     //read next line if any
                     currentline = currentfile.readString();
                 }
-            currentfile.close()
-;            }
+            currentfile.close();
+            }
         break;
         }
-    case 888:
-        if (cmd_params=="RESTART") {
-            Serial.print("\r");
-            Serial.print(cmd_params);
-            web_interface->restartmodule=true;
-            Serial.print("\r\n");
-        }
+    //get fw version
+    //[ESP800]<header answer>
+    case 800:
+        Serial.print(cmd_params);
+        Serial.print("\nFW version:");
+        Serial.println(FW_VERSION);
         break;
+    //clear status/error/info list
+    //[ESP999]<cmd>
     case 999:
+        cmd_params.trim();
 #ifdef ERROR_MSG_FEATURE
         if (cmd_params=="ERROR") {
             web_interface->error_msg.clear();
@@ -249,11 +408,11 @@ void COMMAND::check_command(String buffer)
     static uint32_t start_list=0;
     //if SD list is not on going
     if (!bfileslist) {
-		//check if command is a start of SD File list
+        //check if command is a start of SD File list
         int filesstart = buffer.indexOf("Begin file list");
         //yes it is file list starting to be displayed
         if (filesstart>-1) {
-			//init time out
+            //init time out
             start_list = millis();
             //set file list started
             bfileslist=true;
@@ -290,7 +449,7 @@ void COMMAND::check_command(String buffer)
 #endif
 #else
 #ifdef SPEED_MONITORING_FEATURE
-		int Speedpos = buffer.indexOf("SpeedMultiply:");
+        int Speedpos = buffer.indexOf("SpeedMultiply:");
 #endif
 #ifdef FLOW_MONITORING_FEATURE
         int Flowpos = buffer.indexOf("FlowMultiply:");
@@ -350,26 +509,26 @@ void COMMAND::check_command(String buffer)
 #ifdef SPEED_MONITORING_FEATURE
         //Speed
         if (Speedpos>-1) {
-			//get just the value
+            //get just the value
 #if FIRMWARE_TARGET == SMOOTHIEWARE
-			buffer2 =buffer.substring(Speedpos+16);
-			int p2 = buffer2.indexOf(".");
+            buffer2 =buffer.substring(Speedpos+16);
+            int p2 = buffer2.indexOf(".");
             web_interface->answer4M220=buffer2.substring(0,p2);
 #else
-			web_interface->answer4M220=buffer.substring(Speedpos+14);
+            web_interface->answer4M220=buffer.substring(Speedpos+14);
 #endif
         }
 #endif
 #ifdef FLOW_MONITORING_FEATURE
         //Flow
         if (Flowpos>-1) {
-			//get just the value
+            //get just the value
 #if FIRMWARE_TARGET == SMOOTHIEWARE
-			buffer2 =buffer.substring(Flowpos+13);
-			int p2 = buffer2.indexOf(".");
+            buffer2 =buffer.substring(Flowpos+13);
+            int p2 = buffer2.indexOf(".");
             web_interface->answer4M221=buffer2.substring(0,p2);
 #else
-			web_interface->answer4M221=buffer.substring(Flowpos+13);
+            web_interface->answer4M221=buffer.substring(Flowpos+13);
 #endif
         }
 #endif
@@ -391,19 +550,19 @@ void COMMAND::check_command(String buffer)
 #if FIRMWARE_TARGET == SMOOTHIEWARE
             (web_interface->status_msg).add(buffer.substring(Statuspos+8).c_str());
 #else
-			(web_interface->status_msg).add(buffer.substring(Statuspos+7).c_str());
+            (web_interface->status_msg).add(buffer.substring(Statuspos+7).c_str());
 #endif
         }
 #endif
 #ifndef DIRECT_SDCARD_FEATURE
     } else { //listing file is on going
-		//check if we are too long 
+        //check if we are too long 
         if ((millis()-start_list)>30000) { //timeout in case of problem
             bfileslist=false;
             (web_interface->blockserial) = false; //release serial
             LOG("Time out\n");
         } else {
-			//check if this is the end
+            //check if this is the end
             if (buffer.indexOf("End file list")>-1) {
                 bfileslist=false;
                 (web_interface->blockserial) = false; 
@@ -415,7 +574,7 @@ void COMMAND::check_command(String buffer)
                 LOG(String(web_interface->fileslist.size()));
                 LOG(":");
                 LOG(buffer);
-				LOG('\n');
+                LOG('\n');
             }
         }
     }
@@ -435,19 +594,26 @@ void COMMAND::read_buffer_serial(uint8_t *b, size_t len)
 void COMMAND::read_buffer_tcp(uint8_t b)
 {
     static bool previous_was_char=false;
+    static bool iscomment=false;
 //to ensure it is continuous string, no char separated by binaries
     if (!previous_was_char) {
         buffer_tcp="";
+        iscomment = false;
     }
+//is comment ?
+if (char(b) == ';') iscomment = true;
 //it is a char so add it to buffer
     if (isPrintable(b)) {
         previous_was_char=true;
-        buffer_tcp+=char(b);
+        //add char if not a comment
+        if (!iscomment)buffer_tcp+=char(b);
     } else {
         previous_was_char=false; //next call will reset the buffer
     }
 //this is not printable but end of command check if need to handle it
     if (b==13 ||b==10) {
+		//reset comment flag
+		iscomment = false;
         //Minimum is something like M10 so 3 char
         if (buffer_tcp.length()>3) {
             check_command(buffer_tcp);
@@ -459,19 +625,25 @@ void COMMAND::read_buffer_tcp(uint8_t b)
 void COMMAND::read_buffer_serial(uint8_t b)
 {
     static bool previous_was_char=false;
+    static bool iscomment=false;
 //to ensure it is continuous string, no char separated by binaries
     if (!previous_was_char) {
         buffer_serial="";
+        iscomment = false;
     }
+//is comment ?
+if (char(b) == ';') iscomment = true;
 //it is a char so add it to buffer
     if (isPrintable(b)) {
         previous_was_char=true;
-        buffer_serial+=char(b);
+        if (!iscomment)buffer_serial+=char(b);
     } else {
         previous_was_char=false; //next call will reset the buffer
     }
 //this is not printable but end of command check if need to handle it
     if (b==13) {
+		//reset comment flag
+		iscomment = false;
         //Minimum is something like M10 so 3 char
         if (buffer_serial.length()>3) {
             check_command(buffer_serial);

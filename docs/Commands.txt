@@ -1,0 +1,66 @@
+* Change STA SSID 
+[ESP100]<SSID>
+if authentication is on, need admin password
+[ESP100]<SSID>pwd=<admin password>
+
+* Change STA Password 
+[ESP101]<Password>
+if authentication is on, need admin password
+[ESP101]<Password>pwd=<admin password>
+
+* Change Hostname 
+[ESP102]<hostname>
+if authentication is on, need admin password
+[ESP102]<hostname>pwd=<admin password>
+
+* Change Wifi mode (STA/AP) 
+[ESP103]<mode>
+if authentication is on, need admin password
+[ESP103]<mode>pwd=<admin password>
+
+* Change STA IP mode (DHCP/STATIC) 
+[ESP104]<mode>
+if authentication is on, need admin password
+[ESP104]<mode>pwd=<admin password>
+
+* Change AP SSID 
+[ESP105]<SSID>
+if authentication is on, need admin password
+[ESP105]<SSID>pwd=<admin password>
+
+* Change AP Password 
+[ESP106]<Password>
+if authentication is on, need admin password
+[ESP106]<Password>pwd=<admin password>
+
+* Change AP IP mode (DHCP/STATIC) 
+[ESP107]<mode>
+if authentication is on, need admin password
+[ESP107]<mode>pwd=<admin password>
+
+* Get current IP
+[ESP111]<header answer>
+
+* Get hostname
+[ESP112]<header answer>
+
+* Get/Set ESP mode
+cmd can be RESET, SAFEMODE, CONFIG, RESTART
+[ESP444]<cmd>
+if authentication is on, need admin password for RESET, RESTART and SAFEMODE
+[ESP444]<cmd>pwd=<admin password>
+
+* Change / Reset user password
+[ESP555]<password>pwd=<admin password>
+if no password set it use default one
+
+* Read SPIFFS file and send each line to serial
+[ESP700]<filename>
+
+* Get fw version
+[ESP800]<header answer>
+
+* Clear status/error/info list
+cmd can be ALL, ERROR, INFO, STATUS 
+[ESP999]<cmd>
+

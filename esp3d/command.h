@@ -32,6 +32,8 @@ public:
     static void read_buffer_tcp(uint8_t b);
     static void check_command(String buffer);
     static void execute_command(int cmd,String cmd_params);
+    static String get_param(String & cmd_params, const char * id, bool withspace = false);
+    static bool isadmin(String & cmd_params);
 
 };
 

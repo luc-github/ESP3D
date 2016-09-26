@@ -40,13 +40,13 @@
 #define SSDP_FEATURE
 
 //NETBIOS_FEATURE: this feature is a discovery protocol, supported on Windows out of the box
-#define NETBIOS_FEATURE
+//#define NETBIOS_FEATURE
 
 //CAPTIVE_PORTAL_FEATURE: In SoftAP redirect all unknow call to main page
 #define CAPTIVE_PORTAL_FEATURE
 
 //AUTHENTICATION_FEATURE: protect pages by login password
-//#define AUTHENTICATION_FEATURE
+#define AUTHENTICATION_FEATURE
 
 //WEB_UPDATE_FEATURE: allow to flash fw using web UI
 #define WEB_UPDATE_FEATURE
@@ -85,10 +85,10 @@
 
 
 //DEBUG Flag do not do this when connected to printer !!!
-//#define DEBUG_ESP3D 
+#define DEBUG_ESP3D 
 //#define DEBUG_OUTPUT_SPIFFS
 //#define DEBUG_OUTPUT_SD
-//#define DEBUG_OUTPUT_SERIAL
+#define DEBUG_OUTPUT_SERIAL
 
 #include <FS.h>
 
