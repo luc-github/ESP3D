@@ -85,10 +85,10 @@
 
 
 //DEBUG Flag do not do this when connected to printer !!!
-#define DEBUG_ESP3D 
+//#define DEBUG_ESP3D 
 //#define DEBUG_OUTPUT_SPIFFS
 //#define DEBUG_OUTPUT_SD
-#define DEBUG_OUTPUT_SERIAL
+//#define DEBUG_OUTPUT_SERIAL
 
 #include <FS.h>
 
