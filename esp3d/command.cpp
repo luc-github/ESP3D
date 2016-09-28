@@ -273,6 +273,54 @@ void COMMAND::execute_command(int cmd,String cmd_params)
         Serial.print("\r\n");
     }
     break;
+
+#ifdef DIRECT_PIN_FEATURE
+	//Get/Set pin value
+	//[ESP201]P<pin> V<value>
+    case 201: {
+		//check if have pin
+        parameter = get_param(cmd_params,"P", true);
+        LOG(parameter)
+        LOG("\n")
+        if (parameter == "")
+			{
+				Serial.println(INCORRECT_CMD_MSG);
+			}
+		else{
+			int pin = parameter.toInt();
+			//check pin is valid and not serial used pins
+			if ((pin >= 0) && (pin <= 16) && !((pin == 1) || (pin == 3)))
+				{
+					//check if is set or get
+					parameter = get_param(cmd_params,"V", true);
+					//it is a get
+					if (parameter == "")
+						{   //GPIO16 is different than
+							if (pin <16) pinMode(pin, INPUT_PULLUP);
+							else pinMode(pin, INPUT_PULLDOWN_16);
+							delay(10);
+							int value =	 digitalRead(pin);
+							Serial.println(String(value));
+						}
+					else{
+						//it is a set
+						int value = parameter.toInt();
+						//verify it is a 0 or a 1
+						if ((value == 0) || (value == 1))
+							{
+								 pinMode(pin, OUTPUT);
+								 delay(10);
+								 digitalWrite(pin, (value == 0)?LOW:HIGH);
+							}
+						else Serial.println(INCORRECT_CMD_MSG);
+						}
+				}
+			else Serial.println(INCORRECT_CMD_MSG);
+			}
+		}
+		break;
+#endif
+
     //Get/Set ESP mode
     //cmd is RESET, SAFEMODE, CONFIG, RESTART
     //[ESP444]<cmd>pwd=<admin password>

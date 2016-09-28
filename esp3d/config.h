@@ -65,6 +65,9 @@
 #define RESET_CONFIG_PIN 2
 #endif
 
+//DIRECT_PIN_FEATURE: allow to access pin using ESP201 command
+#define DIRECT_PIN_FEATURE
+
 //INFO_MSG_FEATURE: catch the Info msg and filter it to specific table
 #define INFO_MSG_FEATURE
 

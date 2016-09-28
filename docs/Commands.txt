@@ -44,6 +44,14 @@ if authentication is on, need admin password
 * Get hostname
 [ESP112]<header answer>
 
+
+
+*Get/Set pin value
+[ESP201]P<pin> V<value>
+if no V<value> get P<pin> value
+if V<value> 0/1 set INPUT_PULLUP value, but for GPIO16 INPUT_PULLDOWN_16
+GPIO1 and GPIO3 cannot be used as they are used for serial
+
 * Get/Set ESP mode
 cmd can be RESET, SAFEMODE, CONFIG, RESTART
 [ESP444]<cmd>
