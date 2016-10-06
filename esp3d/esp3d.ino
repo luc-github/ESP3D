@@ -35,7 +35,7 @@
 #include "command.h"
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
-#include <ESP8266WebServer.h>
+//#include <ESP8266WebServer.h>
 #ifdef MDNS_FEATURE
 #include <ESP8266mDNS.h>
 #endif
@@ -134,11 +134,7 @@ void setup()
     delay(1000);
     //start web interface
     web_interface = new WEBINTERFACE_CLASS(wifi_config.iweb_port);
-    //here the list of headers to be recorded
-    const char * headerkeys[] = {"Cookie"} ;
-    size_t headerkeyssize = sizeof(headerkeys)/sizeof(char*);
-    //ask server to track these headers
-    web_interface->WebServer.collectHeaders(headerkeys, headerkeyssize );
+
 #ifdef CAPTIVE_PORTAL_FEATURE
     if (WiFi.getMode()!=WIFI_STA ) {
         // if DNSServer is started with "*" for domain name, it will reply with
@@ -195,8 +191,6 @@ void loop()
         dnsServer.processNextRequest();
     }
 #endif
-//web requests
-    web_interface->WebServer.handleClient();
 #ifdef TCP_IP_DATA_FEATURE
      BRIDGE::processFromTCP2Serial();
 #endif

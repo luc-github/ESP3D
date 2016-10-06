@@ -28,37 +28,36 @@
 //FIRMWARE_TARGET: the targeted FW, can be REPETIER (Original Repetier)/ REPETIER4DV (Repetier for Davinci) / MARLIN (Marlin)/ SMOOTHIEWARE (Smoothieware)
 #define FIRMWARE_TARGET SMOOTHIEWARE
 
-//number of clients allowed to use data port at once
-#define MAX_SRV_CLIENTS 1
+
 
 //comment to disable
 //MDNS_FEATURE: this feature allow  type the name defined
 //in web browser by default: http:\\esp8266.local and connect
-#define MDNS_FEATURE
+//#define MDNS_FEATURE
 
 //SSDD_FEATURE: this feature is a discovery protocol, supported on Windows out of the box
-#define SSDP_FEATURE
+//#define SSDP_FEATURE
 
 //NETBIOS_FEATURE: this feature is a discovery protocol, supported on Windows out of the box
 //#define NETBIOS_FEATURE
 
 //CAPTIVE_PORTAL_FEATURE: In SoftAP redirect all unknow call to main page
-#define CAPTIVE_PORTAL_FEATURE
+//#define CAPTIVE_PORTAL_FEATURE
 
 //AUTHENTICATION_FEATURE: protect pages by login password
-#define AUTHENTICATION_FEATURE
+//#define AUTHENTICATION_FEATURE
 
 //WEB_UPDATE_FEATURE: allow to flash fw using web UI
-#define WEB_UPDATE_FEATURE
+//#define WEB_UPDATE_FEATURE
 
 //SERIAL_COMMAND_FEATURE: allow to send command by serial
 #define SERIAL_COMMAND_FEATURE
 
 //TCP_IP_DATA_FEATURE: allow to connect serial from TCP/IP
-#define TCP_IP_DATA_FEATURE
+//#define TCP_IP_DATA_FEATURE
 
 //RECOVERY_FEATURE: allow to use GPIO2 pin as hardware reset for EEPROM, add 8s to boot time to let user to jump GPIO2 to GND
-#define RECOVERY_FEATURE
+//#define RECOVERY_FEATURE
 
 #ifdef RECOVERY_FEATURE
 //pin used to reset setting
@@ -123,9 +122,8 @@
 #define FSINFO FSInfo
 #endif 
 
-#ifndef TCP_IP_DATA_FEATURE 
-#undef MAX_SRV_CLIENTS
-#define MAX_SRV_CLIENTS 0
+#ifdef TCP_IP_DATA_FEATURE 
+#define MAX_SRV_CLIENTS 1
 #endif
 
 #ifndef CONFIG_h

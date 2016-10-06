@@ -18,17 +18,17 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include <pgmspace.h>
+//#include <pgmspace.h>
 #include "config.h"
 #include "webinterface.h"
 #include "wifi.h"
-#include <WiFiClient.h>
-#include <WiFiServer.h>
-#include <WiFiUdp.h>
-#include <ESP8266WiFi.h>
-#include <ESP8266WebServer.h>
+//#include <WiFiClient.h>
+//#include <WiFiServer.h>
+//#include <WiFiUdp.h>
+//#include <ESP8266WiFi.h>
+//#include <ESP8266WebServer.h>
 #include "LinkedList.h"
-#include "storestrings.h"
+//#include "storestrings.h"
 #include "command.h"
 #include "bridge.h"
 
@@ -46,7 +46,7 @@ typedef enum {
   UPLOAD_STATUS_ONGOING  =4
 } upload_status_type;
 
-const char PAGE_404 [] PROGMEM ="<HTML>\n<HEAD>\n<title>Redirecting...</title> \n</HEAD>\n<BODY>\n<CENTER>Unknown page - you will be redirected...\n<BR><BR>\nif not redirected, <a href='http://$WEB_ADDRESS$'>click here</a>\n<BR><BR>\n<PROGRESS name='prg' id='prg'></PROGRESS>\n\n<script>\nvar i = 0; \nvar x = document.getElementById(\"prg\"); \nx.max=5; \nvar interval=setInterval(function(){\ni=i+1; \nvar x = document.getElementById(\"prg\"); \nx.value=i; \nif (i>5) \n{\nclearInterval(interval);\nwindow.location.href='/';\n}\n},1000);\n</script>\n</CENTER>\n</BODY>\n</HTML>\n\n";
+/*const char PAGE_404 [] PROGMEM ="<HTML>\n<HEAD>\n<title>Redirecting...</title> \n</HEAD>\n<BODY>\n<CENTER>Unknown page - you will be redirected...\n<BR><BR>\nif not redirected, <a href='http://$WEB_ADDRESS$'>click here</a>\n<BR><BR>\n<PROGRESS name='prg' id='prg'></PROGRESS>\n\n<script>\nvar i = 0; \nvar x = document.getElementById(\"prg\"); \nx.max=5; \nvar interval=setInterval(function(){\ni=i+1; \nvar x = document.getElementById(\"prg\"); \nx.value=i; \nif (i>5) \n{\nclearInterval(interval);\nwindow.location.href='/';\n}\n},1000);\n</script>\n</CENTER>\n</BODY>\n</HTML>\n\n";
 const char PAGE_RESTART [] PROGMEM ="<HTML>\n<HEAD>\n<title>Restarting...</title> \n</HEAD>\n<BODY>\n<CENTER>Restarting, please wait....\n<BR>\n<PROGRESS name='prg' id='prg'></PROGRESS>\n</CENTER>\n<script>\nvar i = 0;\nvar interval; \nvar x = document.getElementById(\"prg\"); \nx.max=40; \ninterval = setInterval(function(){\ni=i+1; \nvar x = document.getElementById(\"prg\"); \nx.value=i; \nif (i>40) \n{\nclearInterval(interval);\nwindow.location.href='/';\n}\n},1000);\n</script>\n</BODY>\n</HTML>\n";
 const char RESTARTCMD [] PROGMEM ="<script>setTimeout(function(){window.location.href='/RESTART'},3000);</script>";
 const char VALUE_11B[] PROGMEM = "11b";
@@ -209,8 +209,9 @@ const char KEY_STA_SIGNAL [] PROGMEM = "$STA_SIGNAL$";
 const char KEY_DATA_PORT_VISIBILITY [] PROGMEM = "$DATA_PORT_VISIBILITY$";
 const char KEY_LOGIN_ID [] PROGMEM = "$LOGIN_ID$";
 const char KEY_IS_DEFAULT_MODE [] PROGMEM = "$IS_DEFAULT_MODE$";
+*/
 
-
+/*
 bool WEBINTERFACE_CLASS::processTemplate(const char  * filename, STORESTRINGS_CLASS & KeysList ,  STORESTRINGS_CLASS & ValuesList )
 {
     if(KeysList.size() != ValuesList.size()) { //Sanity check
@@ -391,12 +392,12 @@ bool WEBINTERFACE_CLASS::processTemplate(const char  * filename, STORESTRINGS_CL
 	//close line
 	web_interface->WebServer.sendContent("");
     return true;
-}
+}*/
 
 // -----------------------------------------------------------------------------
 // Helper for FreeMem and Firmware
 // -----------------------------------------------------------------------------
-void WEBINTERFACE_CLASS::GetFreeMem(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList)
+/*void WEBINTERFACE_CLASS::GetFreeMem(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList)
 {
     //FreeMem
     KeysList.add(FPSTR(KEY_FREE_MEM));
@@ -405,11 +406,12 @@ void WEBINTERFACE_CLASS::GetFreeMem(STORESTRINGS_CLASS & KeysList, STORESTRINGS_
     KeysList.add(FPSTR(KEY_FW_VER));
     ValuesList.add(FPSTR(VALUE_FW_VERSION));
 }
+*/
 
 // -----------------------------------------------------------------------------
 // Helper for Login ID
 // -----------------------------------------------------------------------------
-void WEBINTERFACE_CLASS::GeLogin(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList,level_authenticate_type auth_level)
+/*void WEBINTERFACE_CLASS::GeLogin(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList,level_authenticate_type auth_level)
 {
 	 KeysList.add(FPSTR(KEY_DISCONNECT_VISIBILITY));
 #ifdef AUTHENTICATION_FEATURE
@@ -427,11 +429,11 @@ void WEBINTERFACE_CLASS::GeLogin(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLA
         ValuesList.add("");
     }
 }
-
+*/
 // -----------------------------------------------------------------------------
 // Helper for IP+Web address
 // -----------------------------------------------------------------------------
-void WEBINTERFACE_CLASS::GetIpWeb(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList)
+/*void WEBINTERFACE_CLASS::GetIpWeb(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList)
 {
     String stmp;
 
@@ -451,10 +453,11 @@ void WEBINTERFACE_CLASS::GetIpWeb(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CL
     }
     ValuesList.add(stmp);
 }
+*/
 // -----------------------------------------------------------------------------
 // Helper for Wifi Mode
 // -----------------------------------------------------------------------------
-void WEBINTERFACE_CLASS::GetMode(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList)
+/*void WEBINTERFACE_CLASS::GetMode(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList)
 {
     if (WiFi.getMode() == WIFI_STA ) {
         KeysList.add(FPSTR(KEY_MODE));
@@ -469,10 +472,11 @@ void WEBINTERFACE_CLASS::GetMode(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLA
         }
     }
 }
+*/
 // -----------------------------------------------------------------------------
 // Helper for Web ports
 // -----------------------------------------------------------------------------
-void WEBINTERFACE_CLASS::GetPorts(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList)
+/*void WEBINTERFACE_CLASS::GetPorts(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList)
 {
     //Web port
     KeysList.add(FPSTR(KEY_WEB_PORT));
@@ -488,10 +492,11 @@ void WEBINTERFACE_CLASS::GetPorts(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CL
     ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
 #endif
 }
+*/
 // -----------------------------------------------------------------------------
 // Helper for Page properties
 // -----------------------------------------------------------------------------
-void WEBINTERFACE_CLASS::SetPageProp(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList,
+/*void WEBINTERFACE_CLASS::SetPageProp(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList,
                  const __FlashStringHelper *title, const __FlashStringHelper *filename)
 {
     String fullFilename(filename);
@@ -507,11 +512,11 @@ void WEBINTERFACE_CLASS::SetPageProp(STORESTRINGS_CLASS & KeysList, STORESTRINGS
     KeysList.add(FPSTR(KEY_SHORT_FILE_NAME));
     ValuesList.add(filename);
 }
-
+*/
 // -----------------------------------------------------------------------------
 // Helper for DHCP (APP/STA)tus
 // -----------------------------------------------------------------------------
-void WEBINTERFACE_CLASS::GetDHCPStatus(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList)
+/*void WEBINTERFACE_CLASS::GetDHCPStatus(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList)
 {
     KeysList.add(FPSTR(KEY_AP_DHCP_STATUS));
     if (wifi_softap_dhcps_status() == DHCP_STARTED) {
@@ -527,11 +532,11 @@ void WEBINTERFACE_CLASS::GetDHCPStatus(STORESTRINGS_CLASS & KeysList, STORESTRIN
         ValuesList.add(FPSTR(VALUE_STOPPED));
     }
 }
-
+*/
 // -----------------------------------------------------------------------------
 // Helper for Error Msg processing
 // -----------------------------------------------------------------------------
-void WEBINTERFACE_CLASS::ProcessAlertError(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList, String & smsg)
+/*void WEBINTERFACE_CLASS::ProcessAlertError(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList, String & smsg)
 {
     KeysList.add(FPSTR(KEY_ERROR_MSG));
     ValuesList.add(smsg);
@@ -546,11 +551,11 @@ void WEBINTERFACE_CLASS::ProcessAlertError(STORESTRINGS_CLASS & KeysList, STORES
     KeysList.add(FPSTR(KEY_SERVICE_PAGE));
     ValuesList.add("");
 }
-
+*/
 // -----------------------------------------------------------------------------
 // Helper for Success Msg processing
 // -----------------------------------------------------------------------------
-void WEBINTERFACE_CLASS::ProcessAlertSuccess(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList, String & smsg)
+/*void WEBINTERFACE_CLASS::ProcessAlertSuccess(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList, String & smsg)
 {
     KeysList.add(FPSTR(KEY_ERROR_MSG));
     ValuesList.add("");
@@ -563,11 +568,11 @@ void WEBINTERFACE_CLASS::ProcessAlertSuccess(STORESTRINGS_CLASS & KeysList, STOR
     KeysList.add(FPSTR(KEY_SUBMIT_BUTTON_VISIBILITY));
     ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
 }
-
+*/
 // -----------------------------------------------------------------------------
 // Helper for No Msg processing
 // -----------------------------------------------------------------------------
-void WEBINTERFACE_CLASS::ProcessNoAlert(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList)
+/*void WEBINTERFACE_CLASS::ProcessNoAlert(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList)
 {
     KeysList.add(FPSTR(KEY_ERROR_MSG));
     ValuesList.add("");
@@ -582,16 +587,16 @@ void WEBINTERFACE_CLASS::ProcessNoAlert(STORESTRINGS_CLASS & KeysList, STORESTRI
     KeysList.add(FPSTR(KEY_SERVICE_PAGE));
     ValuesList.add("");
 }
-
+*/
 //root insterface
-void handle_web_interface_root()
+/*void handle_web_interface_root()
 {
 	static const char HOME_PAGE [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /HOME\r\nCache-Control: no-cache\r\n\r\n";
 	web_interface->WebServer.sendContent_P(HOME_PAGE);
-}
+}*/
 
 //root insterface
-void handle_web_interface_home()
+/*void handle_web_interface_home()
 {
     String stmp;
     //long lstatus;
@@ -915,8 +920,8 @@ void handle_web_interface_home()
     KeysList.clear();
     ValuesList.clear();
 }
-
-void handle_web_interface_configSys()
+*/
+/*void handle_web_interface_configSys()
 {
     static const char NOT_AUTH_CS [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=CONFIGSYS\r\nCache-Control: no-cache\r\n\r\n";
 
@@ -1117,9 +1122,9 @@ void handle_web_interface_configSys()
     KeysList.clear();
     ValuesList.clear();
 }
-
+*/
 #ifdef AUTHENTICATION_FEATURE
-void handle_password()
+/*void handle_password()
 {
     static const char NOT_AUTH_PW [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=PASSWORD\r\nCache-Control: no-cache\r\n\r\n";
 
@@ -1228,9 +1233,10 @@ void handle_password()
     KeysList.clear();
     ValuesList.clear();
 }
+*/
 #endif
 
-void handle_web_interface_configAP()
+/*void handle_web_interface_configAP()
 {
     static const char NOT_AUTH_AP [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=CONFIGAP\r\nCache-Control: no-cache\r\n\r\n";
 
@@ -1597,8 +1603,9 @@ void handle_web_interface_configAP()
     KeysList.clear();
     ValuesList.clear();
 }
+*/
 
-void handle_web_interface_configSTA()
+/*void handle_web_interface_configSTA()
 {
     static const char NOT_AUTH_STA [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=CONFIGSTA\r\nCache-Control: no-cache\r\n\r\n";
 
@@ -1938,8 +1945,9 @@ void handle_web_interface_configSTA()
     KeysList.clear();
     ValuesList.clear();
 }
+*/
 
-void handle_web_interface_printer()
+/*void handle_web_interface_printer()
 {
     static const char NOT_AUTH_PRT [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=PRINTER\r\nCache-Control: no-cache\r\n\r\n";
 
@@ -2007,8 +2015,9 @@ void handle_web_interface_printer()
     KeysList.clear();
     ValuesList.clear();
 }
+*/
 
-void handle_web_settings()
+/*void handle_web_settings()
 {
     static const char NOT_AUTH_SET [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /LOGIN?return=SETTINGS\r\nCache-Control: no-cache\r\n\r\n";
 
@@ -2146,8 +2155,9 @@ void handle_web_settings()
     KeysList.clear();
     ValuesList.clear();
 }
+*/
 
-void handle_web_interface_status()
+/*void handle_web_interface_status()
 {
     static const char NO_TEMP_LINE[] PROGMEM = "\"temperature\":\"0\",\"target\":\"0\",\"active\":\"0\"";
     //we do not care if need authentication - just reset counter
@@ -2304,8 +2314,8 @@ void handle_web_interface_status()
     web_interface->WebServer.sendHeader("Cache-Control", "no-cache");
     web_interface->WebServer.send(200, "application/json",buffer2send);
 }
-
-
+*/
+/*
 void SPIFFSFileupload()
 {
     //get authentication status
@@ -2377,7 +2387,9 @@ void SPIFFSFileupload()
     }
     delay(0);
 }
+*/
 
+/*
 #define NB_RETRY 5
 #define MAX_RESEND_BUFFER 128 
 
@@ -2650,7 +2662,8 @@ void SDFileupload()
         Serial.flush();
 		}
 }
-
+*/
+/*
 #ifdef WEB_UPDATE_FEATURE
 void WebUpdateUpload()
 {
@@ -2728,7 +2741,8 @@ void handleUpdate()
     }
 }
 #endif
-
+*/
+/*
 void handleFileList()
 {
 	level_authenticate_type auth_level = web_interface->is_authenticated();
@@ -2900,7 +2914,8 @@ void handleFileList()
     web_interface->WebServer.sendHeader("Cache-Control", "no-cache");
     web_interface->WebServer.send(200, "application/json", jsonfile);
 }
-
+*/
+/*
 void handleSDFileList()
 {
     char tmp[255];
@@ -3056,12 +3071,12 @@ void handleSDFileList()
     web_interface->WebServer.send(200, "application/json", jsonfile);
     web_interface->blockserial = false;
 }
-
-//do a redirect to avoid to many query
-//and handle not registred path
-void handle_not_found()
+*/
+//Handle not registred path
+void handle_not_found(AsyncWebServerRequest *request)
 {
-    static const char NOT_AUTH_NF [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /HOME\r\nCache-Control: no-cache\r\n\r\n";
+    request->send(404);
+    /*static const char NOT_AUTH_NF [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /HOME\r\nCache-Control: no-cache\r\n\r\n";
 
     if (web_interface->is_authenticated() == LEVEL_GUEST) {
         web_interface->WebServer.sendContent_P(NOT_AUTH_NF);
@@ -3128,11 +3143,12 @@ void handle_not_found()
             contentType.replace(KEY_IP,stmp);
             web_interface->WebServer.send(200,"text/html",contentType);
         }
-    }
+    }*/
 }
 
+
 #ifdef AUTHENTICATION_FEATURE
-void handle_login()
+/*void handle_login()
 {
     static const char NOT_AUTH_LOG [] PROGMEM = "HTTP/1.1 301 OK\r\nSet-Cookie: ESPSESSIONID=0\r\nLocation: /LOGIN\r\nCache-Control: no-cache\r\n\r\n";
 
@@ -3260,8 +3276,10 @@ void handle_login()
     KeysList.clear();
     ValuesList.clear();
 }
+*/
 #endif
-void handle_restart()
+
+/*void handle_restart()
 {
      static const char NOT_AUTH_NF [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /HOME\r\nCache-Control: no-cache\r\n\r\n";
 
@@ -3295,7 +3313,8 @@ void handle_restart()
     }
     web_interface->restartmodule=true;
 }
-
+*/
+/*
 void handle_web_command()
 {
     if (web_interface->is_authenticated() == LEVEL_GUEST) {
@@ -3336,46 +3355,50 @@ void handle_web_command()
 		}
     }
 }
-
+*/
+/*
 #ifdef SSDP_FEATURE
 void handle_SSDP()
 {
     SSDP.schema(web_interface->WebServer.client());
 }
 #endif
-
+*/
 //constructor
 WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port):WebServer(port)
 {
     //init what will handle "/"
-    WebServer.on("/",HTTP_ANY, handle_web_interface_root);
-    WebServer.on("/HOME",HTTP_ANY, handle_web_interface_home);
-    WebServer.on("/CONFIGSYS",HTTP_ANY, handle_web_interface_configSys);
-    WebServer.on("/CONFIGAP",HTTP_ANY, handle_web_interface_configAP);
-    WebServer.on("/CONFIGSTA",HTTP_ANY, handle_web_interface_configSTA);
-    WebServer.on("/STATUS",HTTP_ANY, handle_web_interface_status);
-    WebServer.on("/SETTINGS",HTTP_ANY, handle_web_settings);
-    WebServer.on("/PRINTER",HTTP_ANY, handle_web_interface_printer);
-    WebServer.on("/CMD",HTTP_ANY, handle_web_command);
-    WebServer.on("/RESTART",HTTP_GET, handle_restart);
+    WebServer.serveStatic("/", SPIFFS, "/").setDefaultFile("index.htm");
+    //Page not found handle
+    WebServer.onNotFound( handle_not_found);
+    //WebServer.on("/",HTTP_ANY, handle_web_interface_root);
+    //WebServer.on("/HOME",HTTP_ANY, handle_web_interface_home);
+    //WebServer.on("/CONFIGSYS",HTTP_ANY, handle_web_interface_configSys);
+    //WebServer.on("/CONFIGAP",HTTP_ANY, handle_web_interface_configAP);
+    //WebServer.on("/CONFIGSTA",HTTP_ANY, handle_web_interface_configSTA);
+    //WebServer.on("/STATUS",HTTP_ANY, handle_web_interface_status);
+    //WebServer.on("/SETTINGS",HTTP_ANY, handle_web_settings);
+    //WebServer.on("/PRINTER",HTTP_ANY, handle_web_interface_printer);
+    //WebServer.on("/CMD",HTTP_ANY, handle_web_command);
+    //WebServer.on("/RESTART",HTTP_GET, handle_restart);
 #ifdef WEB_UPDATE_FEATURE
-    WebServer.on("/UPDATE",HTTP_ANY, handleUpdate,WebUpdateUpload);
+    //WebServer.on("/UPDATE",HTTP_ANY, handleUpdate,WebUpdateUpload);
 #endif
-    WebServer.on("/FILES", HTTP_ANY, handleFileList,SPIFFSFileupload);
-    WebServer.on("/SDFILES", HTTP_ANY, handleSDFileList,SDFileupload);
+    //WebServer.on("/FILES", HTTP_ANY, handleFileList,SPIFFSFileupload);
+    //WebServer.on("/SDFILES", HTTP_ANY, handleSDFileList,SDFileupload);
 #ifdef AUTHENTICATION_FEATURE
-    WebServer.on("/LOGIN", HTTP_ANY, handle_login);
-    WebServer.on("/PASSWORD", HTTP_ANY, handle_password);
+    //WebServer.on("/LOGIN", HTTP_ANY, handle_login);
+    //WebServer.on("/PASSWORD", HTTP_ANY, handle_password);
 #endif
     //Captive portal Feature
 #ifdef CAPTIVE_PORTAL_FEATURE
-    WebServer.on("/generate_204",HTTP_ANY, handle_web_interface_root);
-    WebServer.on("/fwlink",HTTP_ANY, handle_web_interface_root);
+   // WebServer.on("/generate_204",HTTP_ANY, handle_web_interface_root);
+   // WebServer.on("/fwlink",HTTP_ANY, handle_web_interface_root);
 #endif
 #ifdef SSDP_FEATURE
-    WebServer.on("/description.xml", HTTP_GET, handle_SSDP);
+    //WebServer.on("/description.xml", HTTP_GET, handle_SSDP);
 #endif
-    WebServer.onNotFound( handle_not_found);
+
 #ifdef TEMP_MONITORING_FEATURE
     answer4M105="T:0 /0 ";
     last_temp = millis();
@@ -3435,7 +3458,7 @@ WEBINTERFACE_CLASS::~WEBINTERFACE_CLASS()
     }
     _nb_ip=0;
 }
-//check authentification
+/*//check authentification
 level_authenticate_type  WEBINTERFACE_CLASS::is_authenticated()
 {
 #ifdef AUTHENTICATION_FEATURE
@@ -3454,8 +3477,9 @@ level_authenticate_type  WEBINTERFACE_CLASS::is_authenticated()
 #else
     return LEVEL_ADMIN;
 #endif
-}
-
+}*/
+#ifdef AUTHENTICATION_FEATURE
+/*
 //add the information in the linked list if possible
 bool WEBINTERFACE_CLASS::AddAuthIP(auth_ip * item)
 {
@@ -3467,8 +3491,8 @@ bool WEBINTERFACE_CLASS::AddAuthIP(auth_ip * item)
     _nb_ip++;
     return true;
 }
-
-#ifdef AUTHENTICATION_FEATURE
+*/
+/*
 //Session ID based on IP and time using 16 char
 char * WEBINTERFACE_CLASS::create_session_ID()
 {
@@ -3487,7 +3511,8 @@ char * WEBINTERFACE_CLASS::create_session_ID()
     }
     return sessionID;
 }
-
+*/
+/*
 level_authenticate_type WEBINTERFACE_CLASS::ResetAuthIP(IPAddress ip,const char * sessionID)
 {
     auth_ip * current = _head;
@@ -3522,6 +3547,7 @@ level_authenticate_type WEBINTERFACE_CLASS::ResetAuthIP(IPAddress ip,const char 
     }
     return LEVEL_GUEST;
 }
+*/
 #endif
 
 String WEBINTERFACE_CLASS::getContentType(String filename)
@@ -3540,8 +3566,7 @@ String WEBINTERFACE_CLASS::getContentType(String filename)
         return "image/gif";
     } else if(filename.endsWith(".jpeg")) {
         return "image/jpeg";
-    } 
-    else if(filename.endsWith(".jpg")) {
+    } else if(filename.endsWith(".jpg")) {
         return "image/jpeg";
     } else if(filename.endsWith(".ico")) {
         return "image/x-icon";
