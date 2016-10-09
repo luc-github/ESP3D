@@ -33,7 +33,7 @@ protected:
     ListNode<T> *lastNodeGot;
     int lastIndexGot;
     // isCached should be set to FALSE
-    // everytime the list suffer changes
+    // every time the list suffer changes
     bool isCached;
 
     ListNode<T>* getNode(int index);
@@ -124,7 +124,7 @@ LinkedList<T>::~LinkedList()
 }
 
 /*
-	Actualy "logic" coding
+	Actually "logic" coding
 */
 
 template<typename T>
@@ -135,7 +135,7 @@ ListNode<T>* LinkedList<T>::getNode(int index)
     ListNode<T>* current = root;
 
     // Check if the node trying to get is
-    // immediatly AFTER the previous got one
+    // immediately AFTER the previous got one
     if(isCached && lastIndexGot <= index) {
         _pos = lastIndexGot;
         current = lastNodeGot;
