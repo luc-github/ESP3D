@@ -2343,7 +2343,7 @@ void SPIFFSFileupload()
     //Upload write
     //**************
     } else if(upload.status == UPLOAD_FILE_WRITE) 
-        {    //check if file is availble and no error
+        {    //check if file is available and no error
             if(web_interface->fsUploadFile && web_interface->_upload_status == UPLOAD_STATUS_ONGOING) 
                 {
                     //no error so write post date
