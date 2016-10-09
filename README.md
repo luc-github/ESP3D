@@ -67,11 +67,10 @@ Baud rate: 9600
 Web port:80   
 Data port: 8888     
 Web Page refresh: 3 secondes    
-User: admin     
-Password: admin
-
-User:user
-Password: user
+User: admin   
+Password: admin   
+User:user   
+Password: user   
 
 These are the pages defined using template:    
 Home page :     
