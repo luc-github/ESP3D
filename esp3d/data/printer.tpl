@@ -2,10 +2,10 @@ $INCLUDE[header.inc]$
 $INCLUDE[css2.inc]$
 <div class="panel">
 <div class="panel-heading" ><div class="btnimg" style="float:left;" onclick="control_expanded = expand_collapse(control_expanded,'pin_control','control')" id="pin_control">&#9660;</div>&nbsp;&nbsp;Control</div>
-<div class="panel-body" id="control">   
+<div class="panel-body" id="control">
 <table>
     <tr><td style="padding:0px;">
-        <div id="Extruder1" style="visibility:hidden;height:0px;"> 
+        <div id="Extruder1" style="visibility:hidden;height:0px;">
             <table><tr><td><label>E1:&nbsp;</label></td>
                 <td id="data_extruder1" style="overflow: hidden;"></td><td>0<input id="rangeinput1" type="range" min=0 max=270 onchange="Updatenumber('1');">270</td>
                 <td><input class="form-control" id="numberinput1" type="number" min=0 max=270 step=1 value=0 onchange="Updaterange('1');"></td><td> &#176;C
@@ -79,7 +79,7 @@ $INCLUDE[css2.inc]$
 
 <div class="panel">
 <div class="panel-heading"><div class="btnimg" style="float:left;" onclick="command_expanded = expand_collapse(command_expanded,'pin_command','command')" id="pin_command">&#9660;</div>&nbsp;&nbsp;Command</div>
-<div class="panel-body" id="command">   
+<div class="panel-body" id="command">
 <table width="100%"><tr>
 <td width="100%"><input class="form-control" id="cmd" type="text" style="width: 100%;"></td>
 <td width="auto"><input type="button" class="btn btn-primary" value="Send" onclick="Sendcustomcommand();"></td></tr></table>
@@ -88,7 +88,7 @@ $INCLUDE[css2.inc]$
 
 <div class="panel">
 <div class="panel-heading"><div class="btnimg" style="float:left;" onclick="information_expanded = expand_collapse(information_expanded,'pin_information','information')" id="pin_information">&#9660;</div>&nbsp;&nbsp;Information</div>
-<div class="panel-body" id="information">   
+<div class="panel-body" id="information">
 <table><tr><td>
 <center><table><tr><td><div class="btnimg" onclick="if(confirm('Clear Info log ?'))Sendcommand('[ESP999]INFO');">
 <svg height="20" width="20" viewBox="0 0 40 40" >";
@@ -100,7 +100,7 @@ $INCLUDE[css2.inc]$
 </div>
 <div class="panel">
 <div class="panel-heading"><div class="btnimg" style="float:left;" onclick="error_expanded = expand_collapse(error_expanded,'pin_error','error')" id="pin_error">&#9660;</div>&nbsp;&nbsp;Error</div>
-<div class="panel-body" id="error">       
+<div class="panel-body" id="error">
 <table><tr><td>
 <center><table><tr><td><div class="btnimg" onclick="if(confirm('Clear Error log ?'))Sendcommand('[ESP999]ERROR');">
 <svg height="20" width="20" viewBox="0 0 40 40" >";
@@ -112,7 +112,7 @@ $INCLUDE[css2.inc]$
 </div>
 <div class="panel">
 <div class="panel-heading"><div class="btnimg" style="float:left;" onclick="status_expanded = expand_collapse(status_expanded,'pin_status','statusdisplay')" id="pin_status">&#9660;</div>&nbsp;&nbsp;Status</div>
-<div class="panel-body" id="statusdisplay">   
+<div class="panel-body" id="statusdisplay">
 <table><tr><td>
 <center><table><tr><td><div class="btnimg" onclick="if(confirm('Clear Status log ?'))Sendcommand('[ESP999]STATUS');">
 <svg height="20" width="20" viewBox="0 0 40 40" >";
@@ -371,14 +371,14 @@ var printcommands_expanded = true;
 var jog_expanded = true;
 function expand_collapse(flag, targetpin,targetdiv){
     if (flag) {
-            document.getElementById(targetpin).innerHTML = '&#9658;'; 
+            document.getElementById(targetpin).innerHTML = '&#9658;';
             document.getElementById(targetdiv).style.display = 'none';
             return false;
         } else {
-            document.getElementById(targetpin).innerHTML = '&#9660;'; 
+            document.getElementById(targetpin).innerHTML = '&#9660;';
              document.getElementById(targetdiv).style.display = 'block';
             return true;
-        } 
+        }
 }
 var XYfeedrate=$XY_FEEDRATE$;
 var Zfeedrate=$Z_FEEDRATE$;
@@ -393,7 +393,7 @@ xmlhttp.send();
 function delay(ms) {
 ms += new Date().getTime();
 while (new Date() < ms){}
-} 
+}
 
 function SendJogcommand( cmd, feedrate){
 Sendcommand("G91");
@@ -527,20 +527,20 @@ document.getElementById("posy").innerHTML=jsonresponse.Ypos;
 document.getElementById("posz").innerHTML=jsonresponse.Zpos;
 displaystatus(jsonresponse.status);
 var content="";
-for (i = 0; i < jsonresponse.InformationMsg.length; i++) { 
+for (i = 0; i < jsonresponse.InformationMsg.length; i++) {
 if (i==jsonresponse.InformationMsg.length-1)content +="<li style='list-style-type: disc;'><b>" +jsonresponse.InformationMsg[i].line+ "</b>";
 else content +="<li style='list-style-type: circle;'>"+jsonresponse.InformationMsg[i].line;
 content += "</li>";}
 document.getElementById("infomsg").innerHTML=content;
 content="";
-for (i = 0; i < jsonresponse.ErrorMsg.length; i++){ 
+for (i = 0; i < jsonresponse.ErrorMsg.length; i++){
 if (i==jsonresponse.ErrorMsg.length-1)content +="<li style='list-style-type: disc;'><b>" +jsonresponse.ErrorMsg[i].line+ "</b>";
 else content +="<li style='list-style-type: circle;'>"+jsonresponse.ErrorMsg[i].line;
 content +="</li>";}
 document.getElementById("errormsg").innerHTML=content;
 content="";
-for (i = 0; i < jsonresponse.StatusMsg.length; i++) 
-{ 
+for (i = 0; i < jsonresponse.StatusMsg.length; i++)
+{
 if (i==jsonresponse.StatusMsg.length-1)content +="<li style='list-style-type: disc;'><b>" +jsonresponse.StatusMsg[i].line+ "</b>";
 else content +="<li style='list-style-type: circle;'>"+jsonresponse.StatusMsg[i].line;
 content +="</li>";
@@ -585,7 +585,7 @@ xmlhttp.send();
 }
 }
 
-var currentpath = "/"; 
+var currentpath = "/";
 function navbar(){
     var content="<table><tr>";
     var tlist = currentpath.split("/");
@@ -741,7 +741,7 @@ if (String(jsonresponse.files[i].size) == "-1")
         content +="<TD width='0%'><div class=\"btnimg\" onclick=\"Deletedir('"+jsonresponse.files[i].name+"','line"+linenumber+"')\">";
         content +=trash_icon();
         content +="</div></TD>";
-        }      
+        }
     content +="<td></td><td></td></TR>";
     linenumber++;
     }
@@ -749,7 +749,7 @@ if (String(jsonresponse.files[i].size) == "-1")
 }
  document.getElementById('file_list').innerHTML=content;
  document.getElementById('path').innerHTML=navbar();}
- 
+
 function Delete(filename,icon){
 if (confirm("Confirm deletion of file: " + filename)) {
     document.getElementById(icon).innerHTML =  "<div id=\"loader\" class=\"loader\"></div>";
@@ -757,10 +757,10 @@ if (confirm("Confirm deletion of file: " + filename)) {
         {
             Sendcommand("M30 " + filename);
             refreshSDfiles();
-        } 
+        }
     else{
     SendFileCommand("delete",filename);
-        }   
+        }
     }
 }
 function Deletedir(filename,icon){

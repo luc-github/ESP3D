@@ -47,7 +47,7 @@ $SUCCESS_MSG$
 </div>
 </div>
 <script>
-var currentpath = "/"; 
+var currentpath = "/";
 function navbar(){
     var content="<table><tr>";
     var tlist = currentpath.split("/");

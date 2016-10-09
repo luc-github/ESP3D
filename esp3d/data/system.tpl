@@ -85,14 +85,14 @@ if (jsonresponse.status=='2')alert('Update canceled!');
 else if (jsonresponse.status=='3')
 {
 	var i = 0;
-	var interval; 
-	var x = document.getElementById("prg"); 
-	x.max=40; 
+	var interval;
+	var x = document.getElementById("prg");
+	x.max=40;
 	interval = setInterval(function(){
-		i=i+1; 
-		var x = document.getElementById("prg"); 
-		x.value=i; 
-		if (i>40) 
+		i=i+1;
+		var x = document.getElementById("prg");
+		x.value=i;
+		if (i>40)
 			{
 			clearInterval(interval);
 			location.reload();
