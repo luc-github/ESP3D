@@ -53,8 +53,8 @@ DNSServer dnsServer;
 
 void setup()
 {
-    bool breset_config=false; 
-    long baud_rate=0;    
+    bool breset_config=false;
+    long baud_rate=0;
     web_interface = NULL;
 #ifdef TCP_IP_DATA_FEATURE
     data_server = NULL;
@@ -91,14 +91,14 @@ void setup()
         breset_config=true;    //cannot access to config settings=> reset settings
         LOG("Error no EEPROM access\n")
     }
-    
+
     //reset is requested
     if(breset_config) {
         //update EEPROM with default settings
         Serial.begin(DEFAULT_BAUD_RATE);
         delay(2000);
         Serial.println(F("M117 ESP EEPROM reset"));
-#ifdef DEBUG_ESP3D 
+#ifdef DEBUG_ESP3D
         CONFIG::print_config();
         delay(1000);
 #endif
@@ -109,7 +109,7 @@ void setup()
         WiFi.setPhyMode(WIFI_PHY_MODE_11G);
         CONFIG::esp_restart();
     }
-#if defined(DEBUG_ESP3D) && defined(DEBUG_OUTPUT_SERIAL) 
+#if defined(DEBUG_ESP3D) && defined(DEBUG_OUTPUT_SERIAL)
     LOG("\n");
     delay(500);
     Serial.flush();
@@ -120,16 +120,16 @@ void setup()
     LOG("Serial Set\n");
     wifi_config.baud_rate=baud_rate;
     //Update is done if any so should be Ok
-    SPIFFS.begin();  
-    
+    SPIFFS.begin();
+
     //setup wifi according settings
     if (!wifi_config.Setup()) {
         Serial.println(F("M117 Safe mode 1"));
         //try again in AP mode
-        if (!wifi_config.Setup(true)){
+        if (!wifi_config.Setup(true)) {
             Serial.println(F("M117 Safe mode 2"));
             wifi_config.Safe_Setup();
-            }
+        }
     }
     delay(1000);
     //start web interface
@@ -159,8 +159,8 @@ void setup()
     wifi_config.mdns.addService("http", "tcp", wifi_config.iweb_port);
 #endif
 #if defined(SSDP_FEATURE) || defined(NETBIOS_FEATURE)
-String shost;
- if (!CONFIG::read_string(EP_HOSTNAME, shost , MAX_HOSTNAME_LENGTH)) {
+    String shost;
+    if (!CONFIG::read_string(EP_HOSTNAME, shost , MAX_HOSTNAME_LENGTH)) {
         shost=wifi_config.get_default_hostname();
     }
 #endif
@@ -198,10 +198,10 @@ void loop()
 //web requests
     web_interface->WebServer.handleClient();
 #ifdef TCP_IP_DATA_FEATURE
-     BRIDGE::processFromTCP2Serial();
+    BRIDGE::processFromTCP2Serial();
 #endif
     BRIDGE::processFromSerial2TCP();
     if (web_interface->restartmodule) {
-       CONFIG::esp_restart();
+        CONFIG::esp_restart();
     }
 }

@@ -31,7 +31,7 @@ class BRIDGE
 {
 public:
     static bool processFromSerial2TCP();
- #ifdef TCP_IP_DATA_FEATURE
+#ifdef TCP_IP_DATA_FEATURE
     static void processFromTCP2Serial();
 #endif
 };

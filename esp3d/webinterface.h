@@ -35,9 +35,9 @@
 #define MAX_EXTRUDERS 4
 
 typedef enum {
-  LEVEL_GUEST = 0,
-  LEVEL_USER = 1,
-  LEVEL_ADMIN = 2
+    LEVEL_GUEST = 0,
+    LEVEL_USER = 1,
+    LEVEL_ADMIN = 2
 } level_authenticate_type;
 
 struct auth_ip {
@@ -57,7 +57,7 @@ public:
     FSFILE fsUploadFile;
 #ifdef TEMP_MONITORING_FEATURE
     String answer4M105;
-     uint32_t last_temp;
+    uint32_t last_temp;
 #endif
 #ifdef POS_MONITORING_FEATURE
     String answer4M114;
@@ -88,7 +88,7 @@ public:
     void GetMode(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList);
     void GetPorts(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList);
     void SetPageProp(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList,
-                 const __FlashStringHelper *title, const __FlashStringHelper *filename);
+                     const __FlashStringHelper *title, const __FlashStringHelper *filename);
     void GetDHCPStatus(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList);
     void ProcessAlertError(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList, String & smsg);
     void ProcessAlertSuccess(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList, String & smsg);
@@ -98,7 +98,7 @@ public:
     bool AddAuthIP(auth_ip * item);
     bool blockserial;
 #ifdef AUTHENTICATION_FEATURE
-    level_authenticate_type ResetAuthIP(IPAddress ip,const char * sessionID);    
+    level_authenticate_type ResetAuthIP(IPAddress ip,const char * sessionID);
     char * create_session_ID();
 #endif
     uint8_t _upload_status;
