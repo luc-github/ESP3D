@@ -1,6 +1,6 @@
 [COMMON]
 $INCLUDE[<filename>] : only one per line and alone, others will be ignored
-$IP$ : current active ip 
+$IP$ : current active ip
 $WEB_ADDRESS$: current active ip , if port is not 80 it will add port like xxx.xxx.xxxx.xxx:XX
 $MENU_HOME$/$MENU_SYSTEM$/$MENU_AP$/$MENU_STA$/$MENU_PRINTER$/$MENU_SETTINGS$: to highlight menu of active page (css use class active for active menu)
 $SERVICE_PAGE$ : to add extra code like redirection or anything not managed by page
