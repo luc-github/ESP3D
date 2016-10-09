@@ -39,11 +39,11 @@
 #define MAX_AUTH_IP 10
 
 typedef enum {
-  UPLOAD_STATUS_NONE = 0,
-  UPLOAD_STATUS_FAILED = 1,
-  UPLOAD_STATUS_CANCELLED = 2,
-  UPLOAD_STATUS_SUCCESSFUL = 3,
-  UPLOAD_STATUS_ONGOING  =4
+    UPLOAD_STATUS_NONE = 0,
+    UPLOAD_STATUS_FAILED = 1,
+    UPLOAD_STATUS_CANCELLED = 2,
+    UPLOAD_STATUS_SUCCESSFUL = 3,
+    UPLOAD_STATUS_ONGOING  =4
 } upload_status_type;
 
 /*const char PAGE_404 [] PROGMEM ="<HTML>\n<HEAD>\n<title>Redirecting...</title> \n</HEAD>\n<BODY>\n<CENTER>Unknown page - you will be redirected...\n<BR><BR>\nif not redirected, <a href='http://$WEB_ADDRESS$'>click here</a>\n<BR><BR>\n<PROGRESS name='prg' id='prg'></PROGRESS>\n\n<script>\nvar i = 0; \nvar x = document.getElementById(\"prg\"); \nx.max=5; \nvar interval=setInterval(function(){\ni=i+1; \nvar x = document.getElementById(\"prg\"); \nx.value=i; \nif (i>5) \n{\nclearInterval(interval);\nwindow.location.href='/';\n}\n},1000);\n</script>\n</CENTER>\n</BODY>\n</HTML>\n\n";
@@ -218,7 +218,7 @@ bool WEBINTERFACE_CLASS::processTemplate(const char  * filename, STORESTRINGS_CL
 		Serial.print("Error");
         return false;
     }
-    
+
     LinkedList<FSFILE> myFileList  = LinkedList<FSFILE>();
     String  buffer2send;
     bool header_sent=false;
@@ -421,7 +421,7 @@ bool WEBINTERFACE_CLASS::processTemplate(const char  * filename, STORESTRINGS_CL
         KeysList.add(FPSTR(KEY_LOGIN_ID));
         if (auth_level == LEVEL_ADMIN) ValuesList.add(FPSTR(DEFAULT_ADMIN_LOGIN));
         else ValuesList.add(FPSTR(DEFAULT_USER_LOGIN));
-    } else 
+    } else
 #endif
     {
         ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
@@ -607,13 +607,13 @@ bool WEBINTERFACE_CLASS::processTemplate(const char  * filename, STORESTRINGS_CL
     struct softap_config apconfig;
     struct ip_info info;
     uint8_t mac [WL_MAC_ADDR_LENGTH];
-    
-    //login 
+
+    //login
     web_interface->GeLogin(KeysList, ValuesList,web_interface->is_authenticated());
 
     //IP+Web
     web_interface->GetIpWeb(KeysList, ValuesList);
-    
+
     //Hostname
     if (WiFi.getMode()==WIFI_STA ) {
         KeysList.add(FPSTR(KEY_MODE));
@@ -940,7 +940,7 @@ bool WEBINTERFACE_CLASS::processTemplate(const char  * filename, STORESTRINGS_CL
     const __FlashStringHelper  *smodemdisplaylist[]= {FPSTR(VALUE_NONE),FPSTR(VALUE_LIGHT),FPSTR(VALUE_MODEM),FPSTR(VALUE_MODEM)};
     STORESTRINGS_CLASS KeysList ;
     STORESTRINGS_CLASS ValuesList ;
- 
+
     level_authenticate_type auth_level= web_interface->is_authenticated();
     if (auth_level != LEVEL_ADMIN) {
         web_interface->WebServer.sendContent_P(NOT_AUTH_CS);
@@ -961,7 +961,7 @@ bool WEBINTERFACE_CLASS::processTemplate(const char  * filename, STORESTRINGS_CL
     //check is it is a submission or a display
     if (web_interface->WebServer.hasArg("SUBMIT")) {
         //is there a correct list of values?
-        if (web_interface->WebServer.hasArg("BAUD_RATE") 
+        if (web_interface->WebServer.hasArg("BAUD_RATE")
         && web_interface->WebServer.hasArg("SLEEP_MODE")
  #ifdef TCP_IP_DATA_FEATURE
         && web_interface->WebServer.hasArg("DATAPORT")
@@ -1017,7 +1017,7 @@ bool WEBINTERFACE_CLASS::processTemplate(const char  * filename, STORESTRINGS_CL
         if (msg_alert_error!=true) {
             if(!CONFIG::write_buffer(EP_BAUD_RATE,(const byte *)&ibaud,INTEGER_LENGTH)
             ||!CONFIG::write_buffer(EP_WEB_PORT,(const byte *)&iweb_port,INTEGER_LENGTH)
-#ifdef TCP_IP_DATA_FEATURE 
+#ifdef TCP_IP_DATA_FEATURE
             ||!CONFIG::write_buffer(EP_DATA_PORT,(const byte *)&idata_port,INTEGER_LENGTH)
 #endif
             ||!CONFIG::write_byte(EP_SLEEP_MODE,bsleepmode)) {
@@ -1308,7 +1308,7 @@ bool WEBINTERFACE_CLASS::processTemplate(const char  * filename, STORESTRINGS_CL
             } else {
                 visible_buf=0;
             }
-            
+
              //Default mode ?
             if (web_interface->WebServer.hasArg("DEFAULT_MODE") ) {
                 default_mode=AP_MODE;
@@ -1443,7 +1443,7 @@ bool WEBINTERFACE_CLASS::processTemplate(const char  * filename, STORESTRINGS_CL
         //IP for static IP
         if (!CONFIG::read_buffer(EP_AP_IP_VALUE,ip_sav , IP_LENGTH) ) {
             sIP=IPAddress((const uint8_t *)DEFAULT_IP_VALUE).toString();
-            
+
         } else {
             sIP=IPAddress((const uint8_t *)ip_sav).toString();
         }
@@ -1807,7 +1807,7 @@ bool WEBINTERFACE_CLASS::processTemplate(const char  * filename, STORESTRINGS_CL
     //hostname
     KeysList.add(FPSTR(KEY_HOSTNAME));
     ValuesList.add(sHostname);
-    
+
      //Default mode ?
     KeysList.add(FPSTR(KEY_IS_DEFAULT_MODE));
     if (   default_mode==CLIENT_MODE) {
@@ -1815,7 +1815,7 @@ bool WEBINTERFACE_CLASS::processTemplate(const char  * filename, STORESTRINGS_CL
     } else {
         ValuesList.add("");
     }
-    
+
     //network
     ipos = 0;
     stmp="";
@@ -1962,7 +1962,7 @@ bool WEBINTERFACE_CLASS::processTemplate(const char  * filename, STORESTRINGS_CL
 
     //login
     web_interface->GeLogin(KeysList, ValuesList,auth_level);
-    
+
     //IP+Web
     web_interface->GetIpWeb(KeysList, ValuesList);
     //mode
@@ -2265,7 +2265,7 @@ bool WEBINTERFACE_CLASS::processTemplate(const char  * filename, STORESTRINGS_CL
         buffer2send+="{\"line\":\"";
         buffer2send+=web_interface->info_msg.get(i);
         buffer2send+="\"}";
-    }    
+    }
     buffer2send+="],";
 #endif
 #ifdef ERROR_MSG_FEATURE
@@ -2352,9 +2352,9 @@ void SPIFFSFileupload()
             }
     //Upload write
     //**************
-    } else if(upload.status == UPLOAD_FILE_WRITE) 
+    } else if(upload.status == UPLOAD_FILE_WRITE)
         {    //check if file is availble and no error
-            if(web_interface->fsUploadFile && web_interface->_upload_status == UPLOAD_STATUS_ONGOING) 
+            if(web_interface->fsUploadFile && web_interface->_upload_status == UPLOAD_STATUS_ONGOING)
                 {
                     //no error so write post date
                     web_interface->fsUploadFile.write(upload.buf, upload.currentSize);
@@ -2369,7 +2369,7 @@ void SPIFFSFileupload()
     } else if(upload.status == UPLOAD_FILE_END) {
 		Serial.println("M117 End ESP upload");
         //check if file is still open
-        if(web_interface->fsUploadFile) 
+        if(web_interface->fsUploadFile)
             {   //close it
                 web_interface->fsUploadFile.close();
                 web_interface->_upload_status=UPLOAD_STATUS_SUCCESSFUL;
@@ -2391,7 +2391,7 @@ void SPIFFSFileupload()
 
 /*
 #define NB_RETRY 5
-#define MAX_RESEND_BUFFER 128 
+#define MAX_RESEND_BUFFER 128
 
 void SDFileupload()
 {
@@ -2402,7 +2402,7 @@ void SDFileupload()
 	static bool is_comment = false;
 	String response;
     //Guest cannot upload - only admin and user
-     if(web_interface->is_authenticated() == LEVEL_GUEST) 
+     if(web_interface->is_authenticated() == LEVEL_GUEST)
             {
                 web_interface->_upload_status=UPLOAD_STATUS_CANCELLED;
                 Serial.println("M117 SD upload failed");
@@ -2445,7 +2445,7 @@ void SDFileupload()
 				//use string because easier to handle
 				response = (const char*)sbuf;
 				//if there is a wait it means purge is done
-				if (response.indexOf("wait")>-1)break; 
+				if (response.indexOf("wait")>-1)break;
 				}
 			delay(5);
 			}
@@ -2475,13 +2475,13 @@ void SDFileupload()
 									buffer_size=0;
 									buffer_line[buffer_size] = '\0';
 									}
-								//line is not empty so check if last char is an end line	
+								//line is not empty so check if last char is an end line
 								//if error no need to proceed
 								else if (((buffer_line[buffer_size-1] == '\n')) && (com_error == false)) //end of line and no error
 									{
 										//if resend use buffer
 										bool success = false;
-										
+
 										//check NB_RETRY times if get no error when send line
 										for (int r = 0 ; r < NB_RETRY ; r++)
 											{
@@ -2492,7 +2492,7 @@ void SDFileupload()
 											//ensure buffer is empty before continuing
 											Serial.flush();
 											//wait for answer with time out
-											for (int retry=0;retry < 30; retry++) { //time out 30x5ms = 150ms  
+											for (int retry=0;retry < 30; retry++) { //time out 30x5ms = 150ms
 												//if there is serial data
 												if(Serial.available()){
 													//get size of available data
@@ -2511,12 +2511,12 @@ void SDFileupload()
 													//if buffer contain ok or wait - it means command is pass
 													if ((response.indexOf("wait")>-1)||(response.indexOf("ok")>-1)){
 														success = true;
-														break; 
+														break;
 														}
-													//if buffer contain resend then need to resend 
+													//if buffer contain resend then need to resend
 													if (response.indexOf("Resend") > -1){//if error
 														success = false;
-														break; 
+														break;
 														}
 													}
 												delay(5);
@@ -2550,16 +2550,16 @@ void SDFileupload()
 								if (upload.buf[pos] == '\r'){ //store if CR
 									previous = '\r';
 									}
-								else if (upload.buf[pos] == '\n'){ //this is the end of the comment 
+								else if (upload.buf[pos] == '\n'){ //this is the end of the comment
 									is_comment = false;
 									if (buffer_size > 0) {
 										if (previous == '\r') pos--;
 										pos--; //do a loop back and process as normal
 										}
 									previous = '\n';
-									}//if not just ignore and continue	
+									}//if not just ignore and continue
 									else previous = upload.buf[pos];
-								
+
 								}
 						}
 					else //raise error
@@ -2579,7 +2579,7 @@ void SDFileupload()
 				else Serial.print("\n");
 				Serial.flush();
 				//if resend use buffer
-				bool success = false;		
+				bool success = false;
 				//check NB_RETRY times if get no error when send line
 				for (int r = 0 ; r < NB_RETRY ; r++)
 					{
@@ -2596,11 +2596,11 @@ void SDFileupload()
 							response = (const char*)sbuf;
 							if ((response.indexOf("wait")>-1)||(response.indexOf("ok")>-1)){
 								success = true;
-								break; 
+								break;
 								}
 							if (response.indexOf("Resend") > -1){//if error
 								success = false;
-								break; 
+								break;
 								}
 							}
 						delay(5);
@@ -2616,17 +2616,17 @@ void SDFileupload()
 					//reset buffer for next command
 					buffer_size = 0;
 					buffer_line[buffer_size] = '\0';
-					
+
 				}
 			LOG("Upload finished ");
             buffer_size=0;
             buffer_line[buffer_size] = '\0';
-            //send M29 command to close file on SD 
+            //send M29 command to close file on SD
             Serial.print("\r\nM29\r\n");
             Serial.flush();
             web_interface->blockserial = false;
             delay(1000);//give time to FW
-            //resend M29 command to close file on SD as first command may be lost  
+            //resend M29 command to close file on SD as first command may be lost
             Serial.print("\r\nM29\r\n");
             Serial.flush();
             if (com_error){
@@ -2650,12 +2650,12 @@ void SDFileupload()
 		web_interface->_upload_status=UPLOAD_STATUS_CANCELLED;
 		buffer_size=0;
 		buffer_line[buffer_size] = '\0';
-		//send M29 command to close file on SD 
+		//send M29 command to close file on SD
         Serial.print("\r\nM29\r\n");
         Serial.flush();
         web_interface->blockserial = false;
         delay(1000);
-        //resend M29 command to close file on SD as first command may be lost  
+        //resend M29 command to close file on SD as first command may be lost
         Serial.print("\r\nM29\r\n");
         Serial.flush();
         Serial.println("M117 SD upload failed");
@@ -2670,7 +2670,7 @@ void WebUpdateUpload()
     static size_t last_upload_update;
     static uint32_t maxSketchSpace ;
     //only admin can update FW
-    if(web_interface->is_authenticated() != LEVEL_ADMIN) 
+    if(web_interface->is_authenticated() != LEVEL_ADMIN)
             {
                 web_interface->_upload_status=UPLOAD_STATUS_CANCELLED;
                 Serial.println("M117 Update failed");
@@ -2704,7 +2704,7 @@ void WebUpdateUpload()
                              Serial.print(last_upload_update);
                              Serial.println(F("%"));
                          }
-            if(Update.write(upload.buf, upload.currentSize) != upload.currentSize) 
+            if(Update.write(upload.buf, upload.currentSize) != upload.currentSize)
                 {
                     web_interface->_upload_status=UPLOAD_STATUS_CANCELLED;
                 }
@@ -2751,7 +2751,7 @@ void handleFileList()
     }
     String path ;
     String status = "Ok";
-    //be sure root is correct according authentication 
+    //be sure root is correct according authentication
     if (auth_level == LEVEL_ADMIN) path = "/";
     else path = "/user";
     //get current path
@@ -2772,7 +2772,7 @@ void handleFileList()
             if(!SPIFFS.exists(filename)) {
                 status = shortname + F(" does not exists!");
             } else {
-               if (SPIFFS.remove(filename))  
+               if (SPIFFS.remove(filename))
                 {
                 status = shortname + F(" deleted");
                 //what happen if no "/." and no other subfiles ?
@@ -2786,7 +2786,7 @@ void handleFileList()
                else {
                         status = F("Cannot deleted ") ;
                         status+=shortname ;
-                        }   
+                        }
             }
         }
         //delete a directory
@@ -2808,9 +2808,9 @@ void handleFileList()
                                      delete_error = true;
                                      status = F("Cannot deleted ") ;
                                      status+=fullpath;
-                                    } 
+                                    }
                             }
-                        } 
+                        }
                         if (!delete_error){
                             status = shortname ;
                             status+=" deleted";
@@ -2854,13 +2854,13 @@ void handleFileList()
          if (filename.indexOf("/")>-1) {
             //Do not rely on "/." to define directory as SPIFFS upload won't create it but directly files
             //and no need to overload SPIFFS if not necessary to create "/." if no need
-            //it will reduce SPIFFS available space so limit it to creation 
+            //it will reduce SPIFFS available space so limit it to creation
             filename = filename.substring(0,filename.indexOf("/"));
             String tag="*";
             tag = filename + "*";
             if (subdirlist.indexOf(tag)>-1) //already in list
                 {
-                    addtolist = false; //no need to add 
+                    addtolist = false; //no need to add
                 }
             else
                 {
@@ -2869,16 +2869,16 @@ void handleFileList()
                 subdirlist += filename + "*"; //add to list
                 }
             }
-        else 
+        else
            {
                //do not add "." file
             if (filename!=".")
-                {   
+                {
                 FSFILE f = dir.openFile("r");
                 size = CONFIG::formatBytes(f.size());
                 f.close();
                 }
-            else 
+            else
                 {
                 addtolist = false;
                 }
@@ -2982,7 +2982,7 @@ void handleSDFileList()
             LOG("\n")
         }
     }
-    
+
     String jsonfile = "{" ;
 #ifndef DIRECT_SDCARD_FEATURE
     //if action is processing do not build list, but no need Serial for Direct SDCard Support
@@ -3007,7 +3007,7 @@ void handleSDFileList()
            sname = web_interface->fileslist.get(i);
 #if FIRMWARE_TARGET == REPETIER4DV || FIRMWARE_TARGET == REPETIER
             //check if directory or file
-             if (sname[0] == '/' || sname[sname.length()-1]=='/') 
+             if (sname[0] == '/' || sname[sname.length()-1]=='/')
                 {
                     jsonfile+=sname;
                     jsonfile+="\",\"size\":\"";
@@ -3022,7 +3022,7 @@ void handleSDFileList()
                     int posspace = sname.indexOf(" ");
                     String ssize;
                     if (posspace !=-1)
-                        {                    
+                        {
                             ssize = sname.substring(posspace+1);
                             sname = sname.substring(0,posspace);
                         }
@@ -3040,12 +3040,12 @@ void handleSDFileList()
             jsonfile+="\",\"size\":\"";
             LOG(String(i+1));
 			LOG(sname);
-            if (sname[0] == '/' || sname[sname.length()-1]=='/') 
+            if (sname[0] == '/' || sname[sname.length()-1]=='/')
                 {
                     jsonfile+="-1";
                     LOG(" -1");
                 }
-            else 
+            else
                 {//nothing to add
                     jsonfile+="";
                 }
@@ -3101,9 +3101,9 @@ void handle_not_found(AsyncWebServerRequest *request)
         file.close();
         return;
     } else page_not_found = true;
-    
+
     if (page_not_found )
-     { 
+     {
          LOG("Page not found it \n")
         if (SPIFFS.exists("/404.tpl")) {
             STORESTRINGS_CLASS KeysList ;
@@ -3188,14 +3188,14 @@ void handle_not_found(AsyncWebServerRequest *request)
             if (!CONFIG::read_string(EP_ADMIN_PWD, sadminPassword , MAX_LOCAL_PASSWORD_LENGTH)) {
                 sadminPassword=FPSTR(DEFAULT_ADMIN_PWD);
             }
-            
+
             String suserPassword;
 
             if (!CONFIG::read_string(EP_USER_PWD, suserPassword , MAX_LOCAL_PASSWORD_LENGTH)) {
                 suserPassword=FPSTR(DEFAULT_USER_PWD);
             }
-           
-            if(!(((sUser==FPSTR(DEFAULT_ADMIN_LOGIN)) && (strcmp(sPassword.c_str(),sadminPassword.c_str())==0)) || 
+
+            if(!(((sUser==FPSTR(DEFAULT_ADMIN_LOGIN)) && (strcmp(sPassword.c_str(),sadminPassword.c_str())==0)) ||
             ((sUser==FPSTR(DEFAULT_USER_LOGIN)) && (strcmp(sPassword.c_str(),suserPassword.c_str()) == 0)))) {
                 msg_alert_error=true;
                 smsg.concat(F("Error: Incorrect password<BR>"));
@@ -3246,7 +3246,7 @@ void handle_not_found(AsyncWebServerRequest *request)
     level_authenticate_type auth_level= web_interface->is_authenticated();
     //login
     web_interface->GeLogin(KeysList, ValuesList,auth_level);
-    
+
     //IP+Web
     web_interface->GetIpWeb(KeysList, ValuesList);
     //mode
@@ -3392,8 +3392,8 @@ WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port):WebServer(port)
 #endif
     //Captive portal Feature
 #ifdef CAPTIVE_PORTAL_FEATURE
-   // WebServer.on("/generate_204",HTTP_ANY, handle_web_interface_root);
-   // WebServer.on("/fwlink",HTTP_ANY, handle_web_interface_root);
+    // WebServer.on("/generate_204",HTTP_ANY, handle_web_interface_root);
+    // WebServer.on("/fwlink",HTTP_ANY, handle_web_interface_root);
 #endif
 #ifdef SSDP_FEATURE
     //WebServer.on("/description.xml", HTTP_GET, handle_SSDP);

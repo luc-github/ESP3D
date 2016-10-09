@@ -27,9 +27,10 @@ WiFiServer * data_server;
 WiFiClient serverClients[MAX_SRV_CLIENTS];
 #endif
 
- bool BRIDGE::processFromSerial2TCP(){
-     uint8_t i;
-      //check UART for data
+bool BRIDGE::processFromSerial2TCP()
+{
+    uint8_t i;
+    //check UART for data
     if(Serial.available()) {
         size_t len = Serial.available();
         uint8_t sbuf[len];
@@ -46,12 +47,14 @@ WiFiClient serverClients[MAX_SRV_CLIENTS];
         //process data if any
         COMMAND::read_buffer_serial(sbuf, len);
         return true;
+    } else {
+        return false;
     }
-    else return false;
- }
- #ifdef TCP_IP_DATA_FEATURE
- void BRIDGE::processFromTCP2Serial(){
-     uint8_t i,data;
+}
+#ifdef TCP_IP_DATA_FEATURE
+void BRIDGE::processFromTCP2Serial()
+{
+    uint8_t i,data;
     //check if there are any new clients
     if (data_server->hasClient()) {
         for(i = 0; i < MAX_SRV_CLIENTS; i++) {
@@ -70,19 +73,19 @@ WiFiClient serverClients[MAX_SRV_CLIENTS];
     }
     //check clients for data
     //to avoid any pollution if Uploading file to SDCard
-    if ((web_interface->blockserial) == false){
-		for(i = 0; i < MAX_SRV_CLIENTS; i++) {
-			if (serverClients[i] && serverClients[i].connected()) {
-				if(serverClients[i].available()) {
-					//get data from the tcp client and push it to the UART
-					while(serverClients[i].available()) {
-						data = serverClients[i].read();
-						Serial.write(data);
-						COMMAND::read_buffer_tcp(data);
-					}
-				}
-			}
-		}
-	}
- }
+    if ((web_interface->blockserial) == false) {
+        for(i = 0; i < MAX_SRV_CLIENTS; i++) {
+            if (serverClients[i] && serverClients[i].connected()) {
+                if(serverClients[i].available()) {
+                    //get data from the tcp client and push it to the UART
+                    while(serverClients[i].available()) {
+                        data = serverClients[i].read();
+                        Serial.write(data);
+                        COMMAND::read_buffer_tcp(data);
+                    }
+                }
+            }
+        }
+    }
+}
 #endif

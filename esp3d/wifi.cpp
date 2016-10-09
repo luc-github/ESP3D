@@ -43,8 +43,12 @@ WIFI_CONFIG::WIFI_CONFIG()
 
 int32_t WIFI_CONFIG::getSignal(int32_t RSSI)
 {
-    if (RSSI <= -100) return 0;
-    if (RSSI >= -50) return 100;
+    if (RSSI <= -100) {
+        return 0;
+    }
+    if (RSSI >= -50) {
+        return 100;
+    }
     return (2* (RSSI+100));
 }
 
@@ -71,7 +75,7 @@ const char * WIFI_CONFIG::get_default_hostname()
     return hostname;
 }
 
-//safe setup if no connection 
+//safe setup if no connection
 void  WIFI_CONFIG::Safe_Setup()
 {
 #ifdef CAPTIVE_PORTAL_FEATURE
@@ -114,8 +118,7 @@ bool WIFI_CONFIG::Setup(bool force_ap)
     sleep_mode=bflag;
     if (force_ap) {
         bmode = AP_MODE;
-    }
-    else {
+    } else {
         //AP or client ?
         if (!CONFIG::read_byte(EP_WIFI_MODE, &bmode ) ) {
             LOG("Error read wifi mode\n")
@@ -128,8 +131,12 @@ bool WIFI_CONFIG::Setup(bool force_ap)
     //this is AP mode
     if (bmode==AP_MODE) {
         LOG("Set AP mode\n")
-        if(!CONFIG::read_string(EP_AP_SSID, sbuf , MAX_SSID_LENGTH))return false;
-        if(!CONFIG::read_string(EP_AP_PASSWORD, pwd , MAX_PASSWORD_LENGTH))return false;
+        if(!CONFIG::read_string(EP_AP_SSID, sbuf , MAX_SSID_LENGTH)) {
+            return false;
+        }
+        if(!CONFIG::read_string(EP_AP_PASSWORD, pwd , MAX_PASSWORD_LENGTH)) {
+            return false;
+        }
         Serial.print(FPSTR(M117_));
         Serial.print(F("SSID "));
         Serial.println(sbuf);
@@ -158,7 +165,7 @@ bool WIFI_CONFIG::Setup(bool force_ap)
             LOG("\nGW value:")
             //get the gateway
             if (!CONFIG::read_buffer(EP_AP_GATEWAY_VALUE,ip_buf , IP_LENGTH)) {
-                 LOG("Error\n")
+                LOG("Error\n")
                 return false;
             }
             IPAddress gateway (ip_buf[0],ip_buf[1],ip_buf[2],ip_buf[3]);
@@ -166,7 +173,7 @@ bool WIFI_CONFIG::Setup(bool force_ap)
             LOG("\nMask value:")
             //get the mask
             if (!CONFIG::read_buffer(EP_AP_MASK_VALUE,ip_buf , IP_LENGTH)) {
-                 LOG("Error Mask value\n")
+                LOG("Error Mask value\n")
                 return false;
             }
             IPAddress subnet (ip_buf[0],ip_buf[1],ip_buf[2],ip_buf[3]);
@@ -178,7 +185,7 @@ bool WIFI_CONFIG::Setup(bool force_ap)
             delay(100);
         }
         LOG("Disable STA\n")
-		WiFi.enableSTA(false);
+        WiFi.enableSTA(false);
         delay(100);
         LOG("Set AP\n")
         //setup Soft AP
@@ -222,8 +229,12 @@ bool WIFI_CONFIG::Setup(bool force_ap)
         }
     } else {
         LOG("Set STA mode\n")
-        if(!CONFIG::read_string(EP_STA_SSID, sbuf , MAX_SSID_LENGTH))return false;
-        if(!CONFIG::read_string(EP_STA_PASSWORD, pwd , MAX_PASSWORD_LENGTH))return false;
+        if(!CONFIG::read_string(EP_STA_SSID, sbuf , MAX_SSID_LENGTH)) {
+            return false;
+        }
+        if(!CONFIG::read_string(EP_STA_PASSWORD, pwd , MAX_PASSWORD_LENGTH)) {
+            return false;
+        }
         Serial.print(FPSTR(M117_));
         Serial.print(F("SSID "));
         Serial.println(sbuf);
@@ -233,7 +244,7 @@ bool WIFI_CONFIG::Setup(bool force_ap)
         if (!CONFIG::read_byte(EP_STA_IP_MODE, &bflag )) {
             return false;
         }
-         if (bflag==STATIC_IP_MODE) {
+        if (bflag==STATIC_IP_MODE) {
             byte ip_buf[4];
             //get the IP
             if (!CONFIG::read_buffer(EP_STA_IP_VALUE,ip_buf , IP_LENGTH)) {
@@ -253,7 +264,7 @@ bool WIFI_CONFIG::Setup(bool force_ap)
             //apply according active wifi mode
             WiFi.config( local_ip,  gateway,  subnet);
         }
-		WiFi.enableAP(false);
+        WiFi.enableAP(false);
         delay(100);
         //setup station mode
         WiFi.mode(WIFI_STA);

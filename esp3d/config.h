@@ -87,7 +87,7 @@
 
 
 //DEBUG Flag do not do this when connected to printer !!!
-//#define DEBUG_ESP3D 
+//#define DEBUG_ESP3D
 //#define DEBUG_OUTPUT_SPIFFS
 //#define DEBUG_OUTPUT_SD
 //#define DEBUG_OUTPUT_SERIAL
@@ -96,16 +96,16 @@
 
 #ifdef DEBUG_ESP3D
 #ifdef DEBUG_OUTPUT_SPIFFS
-    #define LOG(string) {FSFILE logfile = SPIFFS.open("/log.txt", "a+");logfile.print(string);logfile.close();}
+#define LOG(string) {FSFILE logfile = SPIFFS.open("/log.txt", "a+");logfile.print(string);logfile.close();}
 #else
 #ifdef SDCARD_FEATURE
-    #ifdef DEBUG_OUTPUT_SD
-        #define LOG(string) {if(CONFIG::hasSD()){LOCKSD() File logfile = SD.open("/log.txt", "a+");logfile.print(string);logfile.close();RELEASESD()}}
-    #else
-        #define LOG(string) {Serial.print(string);}
-    #endif
+#ifdef DEBUG_OUTPUT_SD
+#define LOG(string) {if(CONFIG::hasSD()){LOCKSD() File logfile = SD.open("/log.txt", "a+");logfile.print(string);logfile.close();RELEASESD()}}
 #else
-    #define LOG(string) {Serial.print(string);}
+#define LOG(string) {Serial.print(string);}
+#endif
+#else
+#define LOG(string) {Serial.print(string);}
 #endif
 #endif
 #else
@@ -120,9 +120,9 @@
 #define FSFILE File
 #define FSDIR fs::Dir
 #define FSINFO FSInfo
-#endif 
+#endif
 
-#ifdef TCP_IP_DATA_FEATURE 
+#ifdef TCP_IP_DATA_FEATURE
 #define MAX_SRV_CLIENTS 1
 #endif
 

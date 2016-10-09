@@ -25,7 +25,8 @@ extern "C" {
 }
 
 
- void CONFIG::esp_restart(){
+void CONFIG::esp_restart()
+{
     LOG("Restarting\n")
     Serial.flush();
     delay(500);
@@ -178,7 +179,7 @@ String CONFIG::formatBytes(size_t bytes)
 }
 
 //helper to convert string to IP
-//do not use IPAddress.fromString() because lack of check point and error result 
+//do not use IPAddress.fromString() because lack of check point and error result
 //return number of parts
 byte CONFIG::split_ip (const char * ptr,byte * part)
 {
@@ -270,7 +271,9 @@ bool CONFIG::read_string(int pos, String & sbuffer, int size_max)
     //read until max size is reached or \0 is found
     while (i < size_max && b != 0) {
         b = EEPROM.read(pos+i);
-        if (b!=0)sbuffer+=char(b);
+        if (b!=0) {
+            sbuffer+=char(b);
+        }
         i++;
     }
     EEPROM.end();
@@ -324,26 +327,25 @@ bool CONFIG::write_string(int pos, const char * byte_buffer)
     int maxsize = EEPROM_SIZE;
     size_buffer= strlen(byte_buffer);
     //check if parameters are acceptable
-    switch (pos)
-    {
-        case EP_ADMIN_PWD:
-        case EP_USER_PWD:
-            maxsize = MAX_LOCAL_PASSWORD_LENGTH;
-            break;
-        case EP_AP_SSID:
-        case EP_STA_SSID:
-            maxsize = MAX_SSID_LENGTH;
-            break;
-          case EP_AP_PASSWORD:
-          case EP_STA_PASSWORD:
-            maxsize = MAX_PASSWORD_LENGTH;
-            break;
-         case EP_HOSTNAME:
-            maxsize = MAX_HOSTNAME_LENGTH;
-            break;
-        default:
-            maxsize = EEPROM_SIZE;
-            break;
+    switch (pos) {
+    case EP_ADMIN_PWD:
+    case EP_USER_PWD:
+        maxsize = MAX_LOCAL_PASSWORD_LENGTH;
+        break;
+    case EP_AP_SSID:
+    case EP_STA_SSID:
+        maxsize = MAX_SSID_LENGTH;
+        break;
+    case EP_AP_PASSWORD:
+    case EP_STA_PASSWORD:
+        maxsize = MAX_PASSWORD_LENGTH;
+        break;
+    case EP_HOSTNAME:
+        maxsize = MAX_HOSTNAME_LENGTH;
+        break;
+    default:
+        maxsize = EEPROM_SIZE;
+        break;
     }
     if (size_buffer==0 ||  pos+size_buffer+1 > EEPROM_SIZE || size_buffer > maxsize  || byte_buffer== NULL) {
         LOG("Error write string\n")
@@ -430,7 +432,7 @@ bool CONFIG::reset_config()
     if(!CONFIG::write_buffer(EP_STA_GATEWAY_VALUE,DEFAULT_GATEWAY_VALUE,IP_LENGTH)) {
         return false;
     }
-        if(!CONFIG::write_byte(EP_STA_PHY_MODE,DEFAULT_PHY_MODE)) {
+    if(!CONFIG::write_byte(EP_STA_PHY_MODE,DEFAULT_PHY_MODE)) {
         return false;
     }
     if(!CONFIG::write_buffer(EP_AP_IP_VALUE,DEFAULT_IP_VALUE,IP_LENGTH)) {
@@ -542,7 +544,7 @@ void CONFIG::print_config()
     } else {
         Serial.println(F("Error reading SSID"));
     }
-        
+
     if (CONFIG::read_byte(EP_STA_IP_MODE, &bbuf )) {
         Serial.print(F("STA IP Mode: "));
         if (byte(bbuf)==STATIC_IP_MODE) {
@@ -575,9 +577,9 @@ void CONFIG::print_config()
     } else {
         Serial.println(F("Error reading IP mode"));
     }
-    
+
     if (CONFIG::read_byte(EP_STA_PHY_MODE, &bbuf )) {
-		Serial.print(F("STA Phy mode: "));
+        Serial.print(F("STA Phy mode: "));
         if (byte(bbuf)==WIFI_PHY_MODE_11B) {
             Serial.println(F("11b"));
         } else if (byte(bbuf)==WIFI_PHY_MODE_11G) {
@@ -590,7 +592,7 @@ void CONFIG::print_config()
     } else {
         Serial.println(F("Error reading phy mode"));
     }
-    
+
     if (CONFIG::read_string(EP_AP_SSID, sbuf , MAX_SSID_LENGTH)) {
         Serial.print(F("AP SSID: "));
         Serial.println(sbuf);
@@ -602,7 +604,7 @@ void CONFIG::print_config()
         Serial.print(F("AP IP Mode: "));
         if (byte(bbuf)==STATIC_IP_MODE) {
             Serial.println(F("Static"));
-                        if (CONFIG::read_buffer(EP_AP_IP_VALUE,(byte *)ipbuf , IP_LENGTH)) {
+            if (CONFIG::read_buffer(EP_AP_IP_VALUE,(byte *)ipbuf , IP_LENGTH)) {
                 Serial.print(F("IP: "));
                 Serial.println(IPAddress(ipbuf).toString());
             } else {
@@ -633,7 +635,7 @@ void CONFIG::print_config()
     }
 
     if (CONFIG::read_byte(EP_AP_PHY_MODE, &bbuf )) {
-		Serial.print(F("AP Phy mode: "));
+        Serial.print(F("AP Phy mode: "));
         if (byte(bbuf)==WIFI_PHY_MODE_11B) {
             Serial.println(F("11b"));
         } else if (byte(bbuf)==WIFI_PHY_MODE_11G) {
@@ -729,7 +731,7 @@ void CONFIG::print_config()
     } else {
         Serial.println(F("Error reading E feed rate"));
     }
-    
+
     Serial.print(F("Free memory: "));
     Serial.println(formatBytes(ESP.getFreeHeap()));
 
@@ -787,7 +789,7 @@ void CONFIG::print_config()
 #else
     Serial.println(F("???"));
 #endif
-  Serial.print(F("SD Card support: "));
+    Serial.print(F("SD Card support: "));
 #ifdef SDCARD_FEATURE
     Serial.println(F("Enabled"));
 #else
