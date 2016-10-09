@@ -53,8 +53,8 @@ DNSServer dnsServer;
 
 void setup()
 {
-    bool breset_config=false; 
-    long baud_rate=0;    
+    bool breset_config=false;
+    long baud_rate=0;
     web_interface = NULL;
 #ifdef TCP_IP_DATA_FEATURE
     data_server = NULL;
@@ -91,14 +91,14 @@ void setup()
         breset_config=true;    //cannot access to config settings=> reset settings
         LOG("Error no EEPROM access\n")
     }
-    
+
     //reset is requested
     if(breset_config) {
         //update EEPROM with default settings
         Serial.begin(DEFAULT_BAUD_RATE);
         delay(2000);
         Serial.println(F("M117 ESP EEPROM reset"));
-#ifdef DEBUG_ESP3D 
+#ifdef DEBUG_ESP3D
         CONFIG::print_config();
         delay(1000);
 #endif
@@ -109,7 +109,7 @@ void setup()
         WiFi.setPhyMode(WIFI_PHY_MODE_11G);
         CONFIG::esp_restart();
     }
-#if defined(DEBUG_ESP3D) && defined(DEBUG_OUTPUT_SERIAL) 
+#if defined(DEBUG_ESP3D) && defined(DEBUG_OUTPUT_SERIAL)
     LOG("\n");
     delay(500);
     Serial.flush();
@@ -120,8 +120,8 @@ void setup()
     LOG("Serial Set\n");
     wifi_config.baud_rate=baud_rate;
     //Update is done if any so should be Ok
-    SPIFFS.begin();  
-    
+    SPIFFS.begin();
+
     //setup wifi according settings
     if (!wifi_config.Setup()) {
         Serial.println(F("M117 Safe mode 1"));

@@ -71,7 +71,7 @@ const char * WIFI_CONFIG::get_default_hostname()
     return hostname;
 }
 
-//safe setup if no connection 
+//safe setup if no connection
 void  WIFI_CONFIG::Safe_Setup()
 {
 #ifdef CAPTIVE_PORTAL_FEATURE

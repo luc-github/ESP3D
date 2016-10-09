@@ -85,7 +85,7 @@ void COMMAND::execute_command(int cmd,String cmd_params)
     byte mode = 254;
     String parameter;
     switch(cmd) {
-    //STA SSID 
+    //STA SSID
     //[ESP100]<SSID>[pwd=<admin password>]
     case 100:
         parameter = get_param(cmd_params,"", true);
@@ -95,14 +95,14 @@ void COMMAND::execute_command(int cmd,String cmd_params)
             Serial.println(INCORRECT_CMD_MSG);
             }
         else
-#endif        
+#endif
         if(!CONFIG::write_string(EP_STA_SSID,parameter.c_str())) {
             Serial.println(ERROR_CMD_MSG);
         } else {
             Serial.println(OK_CMD_MSG);
         }
         break;
-    //STA Password 
+    //STA Password
     //[ESP101]<Password>[pwd=<admin password>]
     case 101:
         parameter = get_param(cmd_params,"", true);
@@ -112,14 +112,14 @@ void COMMAND::execute_command(int cmd,String cmd_params)
             Serial.println(INCORRECT_CMD_MSG);
             }
         else
-#endif        
+#endif
         if(!CONFIG::write_string(EP_STA_PASSWORD,parameter.c_str())) {
             Serial.println(ERROR_CMD_MSG);
         } else {
             Serial.println(OK_CMD_MSG);
         }
         break;
-     //Hostname 
+     //Hostname
      //[ESP102]<hostname>[pwd=<admin password>]
      case 102:
         parameter = get_param(cmd_params,"", true);
@@ -129,14 +129,14 @@ void COMMAND::execute_command(int cmd,String cmd_params)
             Serial.println(INCORRECT_CMD_MSG);
             }
         else
-#endif 
+#endif
         if(!CONFIG::write_string(EP_HOSTNAME,parameter.c_str())) {
             Serial.println(ERROR_CMD_MSG);
         } else {
             Serial.println(OK_CMD_MSG);
         }
-        break;   
-    //Wifi mode (STA/AP) 
+        break;
+    //Wifi mode (STA/AP)
     //[ESP103]<mode>[pwd=<admin password>]
     case 103:
         parameter = get_param(cmd_params,"", true);
@@ -153,7 +153,7 @@ void COMMAND::execute_command(int cmd,String cmd_params)
                 Serial.println(INCORRECT_CMD_MSG);
             }
             else
-#endif 
+#endif
             if(!CONFIG::write_byte(EP_WIFI_MODE,mode)) {
                 Serial.println(ERROR_CMD_MSG);
             } else {
@@ -161,7 +161,7 @@ void COMMAND::execute_command(int cmd,String cmd_params)
             }
         }
         break;
-    //STA IP mode (DHCP/STATIC) 
+    //STA IP mode (DHCP/STATIC)
     //[ESP104]<mode>[pwd=<admin password>]
     case 104:
         parameter = get_param(cmd_params,"", true);
@@ -178,7 +178,7 @@ void COMMAND::execute_command(int cmd,String cmd_params)
                 Serial.println(INCORRECT_CMD_MSG);
             }
             else
-#endif 
+#endif
             if(!CONFIG::write_byte(EP_STA_IP_MODE,mode)) {
                 Serial.println(ERROR_CMD_MSG);
             } else {
@@ -186,7 +186,7 @@ void COMMAND::execute_command(int cmd,String cmd_params)
             }
         }
         break;
-    //AP SSID 
+    //AP SSID
     //[ESP105]<SSID>[pwd=<admin password>]
     case 105:
         parameter = get_param(cmd_params,"", true);
@@ -196,14 +196,14 @@ void COMMAND::execute_command(int cmd,String cmd_params)
             Serial.println(INCORRECT_CMD_MSG);
             }
         else
-#endif        
+#endif
         if(!CONFIG::write_string(EP_AP_SSID,parameter.c_str())) {
             Serial.println(ERROR_CMD_MSG);
         } else {
             Serial.println(OK_CMD_MSG);
         }
         break;
-    //AP Password 
+    //AP Password
     //[ESP106]<Password>[pwd=<admin password>]
     case 106:
         parameter = get_param(cmd_params,"", true);
@@ -213,14 +213,14 @@ void COMMAND::execute_command(int cmd,String cmd_params)
             Serial.println(INCORRECT_CMD_MSG);
             }
         else
-#endif        
+#endif
         if(!CONFIG::write_string(EP_AP_PASSWORD,parameter.c_str())) {
             Serial.println(ERROR_CMD_MSG);
         } else {
             Serial.println(OK_CMD_MSG);
         }
         break;
-    //AP IP mode (DHCP/STATIC) 
+    //AP IP mode (DHCP/STATIC)
     //[ESP107]<mode>[pwd=<admin password>]
     case 107:
         parameter = get_param(cmd_params,"", true);
@@ -237,7 +237,7 @@ void COMMAND::execute_command(int cmd,String cmd_params)
                 Serial.println(INCORRECT_CMD_MSG);
             }
             else
-#endif 
+#endif
             if(!CONFIG::write_byte(EP_AP_IP_MODE,mode)) {
                 Serial.println(ERROR_CMD_MSG);
             } else {
@@ -331,7 +331,7 @@ void COMMAND::execute_command(int cmd,String cmd_params)
             Serial.println(INCORRECT_CMD_MSG);
             }
         else
-#endif  
+#endif
 		{
 			if (parameter=="RESET") {
 				CONFIG::reset_config();
@@ -418,18 +418,18 @@ void COMMAND::execute_command(int cmd,String cmd_params)
 #ifdef ERROR_MSG_FEATURE
         if (cmd_params=="ERROR") {
             web_interface->error_msg.clear();
-        } 
+        }
 #endif
 #ifdef INFO_MSG_FEATURE
         if (cmd_params=="INFO") {
             web_interface->info_msg.clear();
-        } 
+        }
 #endif
 #ifdef STATUS_MSG_FEATURE
         if (cmd_params=="STATUS") {
             web_interface->status_msg.clear();
         }
-#endif       
+#endif
         if (cmd_params=="ALL") {
 #ifdef ERROR_MSG_FEATURE
             web_interface->error_msg.clear();
@@ -452,7 +452,7 @@ void COMMAND::check_command(String buffer)
     String buffer2;
 //if direct access to SDCard no need to handle the M20 command answer
 #ifndef DIRECT_SDCARD_FEATURE
-    static bool bfileslist=false;    
+    static bool bfileslist=false;
     static uint32_t start_list=0;
     //if SD list is not on going
     if (!bfileslist) {
@@ -604,7 +604,7 @@ void COMMAND::check_command(String buffer)
 #endif
 #ifndef DIRECT_SDCARD_FEATURE
     } else { //listing file is on going
-        //check if we are too long 
+        //check if we are too long
         if ((millis()-start_list)>30000) { //timeout in case of problem
             bfileslist=false;
             (web_interface->blockserial) = false; //release serial
@@ -613,7 +613,7 @@ void COMMAND::check_command(String buffer)
             //check if this is the end
             if (buffer.indexOf("End file list")>-1) {
                 bfileslist=false;
-                (web_interface->blockserial) = false; 
+                (web_interface->blockserial) = false;
                 LOG("End list\n");
             } else {
                 //Serial.print(buffer);

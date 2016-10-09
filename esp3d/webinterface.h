@@ -98,7 +98,7 @@ public:
     bool AddAuthIP(auth_ip * item);
     bool blockserial;
 #ifdef AUTHENTICATION_FEATURE
-    level_authenticate_type ResetAuthIP(IPAddress ip,const char * sessionID);    
+    level_authenticate_type ResetAuthIP(IPAddress ip,const char * sessionID);
     char * create_session_ID();
 #endif
     uint8_t _upload_status;
