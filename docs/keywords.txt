@@ -1,6 +1,6 @@
 [COMMON]
 $INCLUDE[<filename>] : only one per line and alone, others will be ignored
-$IP$ : current active ip 
+$IP$ : current active ip
 $WEB_ADDRESS$: current active ip , if port is not 80 it will add port like xxx.xxx.xxxx.xxx:XX
 $MENU_HOME$/$MENU_SYSTEM$/$MENU_AP$/$MENU_STA$/$MENU_PRINTER$/$MENU_SETTINGS$: to highlight menu of active page (css use class active for active menu)
 $SERVICE_PAGE$ : to add extra code like redirection or anything not managed by page
@@ -22,7 +22,7 @@ $MDNS_NAME$ : mDNS name if enabled or "Not enabled" if not enabled
 $SSDP_VISIBLE$ : set to hidden if no MDNS and visible if present
 $SSDP_STATUS$ : set to Enabled / Not enabled according compilation settings
 $CAPTIVE_PORTAL_VISIBLE$: set to hidden if no Captive portal and visible if present
-$CAPTIVE_PORTAL_STATUS$:  set to Enabled / Not enabled according compilation settings
+$CAPTIVE_PORTAL_STATUS$: set to Enabled / Not enabled according compilation settings
 $NET_PHY$ : Network type (b/g/n)
 $SLEEP_MODE$ : Sleep Mode
 $BOOT_VER$ : Boot version
@@ -32,7 +32,7 @@ $DATA_PORT$ : Port for tcp ip connection
 $DATA_PORT_VISIBILITY$ : set to hidden if no enabled and visible if enabled
 
 $AP_STATUS_ENABLED$ : is Access Point enabled or disabled
-$AP_VISIBILITY$ : if  Access Point is enabled set visible, else set to hidden
+$AP_VISIBILITY$ : if Access Point is enabled set visible, else set to hidden
 $AP_MAC$ : Mac address of AP
 $AP_SSID$ : SSID of AP
 $AP_IS_VISIBLE$ : Is AP visible
@@ -56,8 +56,8 @@ $CONNECTED_STATIONS_NB_ITEMS$ : number of item for connected stations list
 	$IP_CONNECTED[$CONNECTED_STATIONS_NB_ITEMS$ -1]$
 
 $STA_STATUS_ENABLED$ : is Station enabled or disabled
-$STA_VISIBILITY$  : if  Station is enabled set visible, else set to hidden
-$STA_MAC$  : Mac address of Station
+$STA_VISIBILITY$ : if Station is enabled set visible, else set to hidden
+$STA_MAC$ : Mac address of Station
 $STA_SSID$ : SSID used by STA
 $STA_CHANNEL$ : Channel
 $STA_STATUS$ : Connection Status
@@ -145,6 +145,6 @@ $XY_FEEDRATE$ : XY axis feedrate
 $Z_FEEDRATE$ : Z axis feedrate
 $E_FEEDRATE$ : Extruder feedrate
 $REFRESH_PAGE_STATUS$ : change to has-error if issue, or has-success if ok
-$XY_FEEDRATE_STATUS$  : change to has-error if issue, or has-success if ok
+$XY_FEEDRATE_STATUS$ : change to has-error if issue, or has-success if ok
 $Z_FEEDRATE_STATUS$ : change to has-error if issue, or has-success if ok
-$E_FEEDRATE_STATUS$  : change to has-error if issue, or has-success if ok
+$E_FEEDRATE_STATUS$ : change to has-error if issue, or has-success if ok
