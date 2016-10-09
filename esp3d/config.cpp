@@ -178,7 +178,7 @@ String CONFIG::formatBytes(size_t bytes)
 }
 
 //helper to convert string to IP
-//do not use IPAddress.fromString() because lack of check point and error result 
+//do not use IPAddress.fromString() because lack of check point and error result
 //return number of parts
 byte CONFIG::split_ip (const char * ptr,byte * part)
 {
@@ -542,7 +542,7 @@ void CONFIG::print_config()
     } else {
         Serial.println(F("Error reading SSID"));
     }
-        
+
     if (CONFIG::read_byte(EP_STA_IP_MODE, &bbuf )) {
         Serial.print(F("STA IP Mode: "));
         if (byte(bbuf)==STATIC_IP_MODE) {
@@ -575,7 +575,7 @@ void CONFIG::print_config()
     } else {
         Serial.println(F("Error reading IP mode"));
     }
-    
+
     if (CONFIG::read_byte(EP_STA_PHY_MODE, &bbuf )) {
 		Serial.print(F("STA Phy mode: "));
         if (byte(bbuf)==WIFI_PHY_MODE_11B) {
@@ -590,7 +590,7 @@ void CONFIG::print_config()
     } else {
         Serial.println(F("Error reading phy mode"));
     }
-    
+
     if (CONFIG::read_string(EP_AP_SSID, sbuf , MAX_SSID_LENGTH)) {
         Serial.print(F("AP SSID: "));
         Serial.println(sbuf);
@@ -729,7 +729,7 @@ void CONFIG::print_config()
     } else {
         Serial.println(F("Error reading E feed rate"));
     }
-    
+
     Serial.print(F("Free memory: "));
     Serial.println(formatBytes(ESP.getFreeHeap()));
 

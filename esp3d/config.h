@@ -88,7 +88,7 @@
 
 
 //DEBUG Flag do not do this when connected to printer !!!
-//#define DEBUG_ESP3D 
+//#define DEBUG_ESP3D
 //#define DEBUG_OUTPUT_SPIFFS
 //#define DEBUG_OUTPUT_SD
 //#define DEBUG_OUTPUT_SERIAL
@@ -121,9 +121,9 @@
 #define FSFILE File
 #define FSDIR fs::Dir
 #define FSINFO FSInfo
-#endif 
+#endif
 
-#ifndef TCP_IP_DATA_FEATURE 
+#ifndef TCP_IP_DATA_FEATURE
 #undef MAX_SRV_CLIENTS
 #define MAX_SRV_CLIENTS 0
 #endif
