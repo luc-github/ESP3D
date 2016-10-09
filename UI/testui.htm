@@ -52,7 +52,7 @@ text-anchor:end;
 font-size:12;
 font-family:sans-serif;
 pointer-events:none;
-fill:#FF0000; 
+fill:#FF0000;
 }
 
 text.textbutton {
@@ -60,7 +60,7 @@ font-weight:400;
 text-anchor:middle;
 font-size:26;
 font-family:sans-serif;
-fill:#FFFFFF; 
+fill:#FFFFFF;
 filter:url(#emboss);
 pointer-events:none;
 }
@@ -100,7 +100,7 @@ fill:#000000;
 }
 
 path.mskjog{
-opacity:0; 
+opacity:0;
 fill:#0052E1;
 }
 
@@ -111,8 +111,8 @@ fill:#0052E1;
  function restore_x(e){
  centerxytext.textContent='X/Y';
  show_hide(e,0)
- }  
- 
+ }
+
  function changecolor(){
 if (isDown)return;
  var len = arguments.length;
@@ -122,8 +122,8 @@ if (isDown)return;
   {
     arguments[i].style.fill=color;
   }
- }  
- 
+ }
+
 function changestroke(){
 if (isDown)return;
  var len = arguments.length;
@@ -133,16 +133,16 @@ if (isDown)return;
   {
     arguments[i].style.stroke=color;
   }
- }  
+ }
  function restore_z(e){
  centerztext.textContent='Z';
  show_hide(e,0);
- }  
+ }
  function restore_e(e){
  show_hide(extruder,1);
  show_hide(centeretext,0);
  show_hide(e,0);
- }  
+ }
  function settext_e(text,e){
  if (isDown)return;
  show_hide(extruder,0);
@@ -153,14 +153,14 @@ if (isDown)return;
  function show_hide(e,show){
   e.style.opacity=show;
  }
- 
- 
+
+
  function settext_x(text,e){
  if (isDown)return;
  centerxytext.textContent=text;
   show_hide(e,0.5)
  }
- 
+
  function settext_z(text,e){
  if (isDown)return;
  centerztext.textContent=text;
@@ -170,7 +170,7 @@ if (isDown)return;
  var bed_on = 0;
  var ext1_on = 0;
  var ext2_on = 0;
- 
+
  //range functions
  var offset = 0;
 var isDown = false;
@@ -180,7 +180,7 @@ document.addEventListener('mouseup', function() {
     isDown = false;
 }, true);
 
-//position is based on screen position value 
+//position is based on screen position value
 function movethumb(pos)
 {
     var p = pos + offset;
@@ -208,11 +208,11 @@ function movethumb(pos)
     active_control.style.left = p+ 'px';
     if (active_control.hasAttribute('render')){
     value = (((p-minpos) * (maxvalue-minvalue))/((maxpos-minpos)- (r2.right-r2.left)))
-    document.getElementById(active_control.getAttribute('render')).value = Math.round(value + minvalue) ;     
-     }  
+    document.getElementById(active_control.getAttribute('render')).value = Math.round(value + minvalue) ;
+     }
 }
 
-//position is based on range value 
+//position is based on range value
 function movethumbat(thumbcursor, value){
     var minvalue =0;
     var maxvalue = 100;
@@ -238,7 +238,7 @@ function movethumbat(thumbcursor, value){
     pos = ((value-minvalue)*((maxpos-minpos)-(r2.right-r2.left))/(maxvalue-minvalue))+minpos;
     thumbcursor.style.left = pos+ 'px';
     if (thumbcursor.hasAttribute('render')){
-    document.getElementById(thumbcursor.getAttribute('render')).value =value; 
+    document.getElementById(thumbcursor.getAttribute('render')).value =value;
     }
 }
 
@@ -251,10 +251,10 @@ document.addEventListener('mousemove', function(event) {
 
 function rangeclicked(event,element)
 {
-  
+
     if (element.hasAttribute('customthumb')){
-        active_control = document.getElementById(element.getAttribute('customthumb'));   
-        offset = 0;  
+        active_control = document.getElementById(element.getAttribute('customthumb'));
+        offset = 0;
         movethumb(event.clientX);
         }
 }
@@ -282,7 +282,7 @@ function initrange( element)
     element.innerHTML = element.getAttribute('bgimage');
     }
 }
- 
+
 </script>
 <div id="positionbar">
 <svg width="440" height="30" xmlns="http://www.w3.org/2000/svg" version="1.1" >
@@ -370,7 +370,7 @@ function initrange( element)
   <feMergeNode in="out4"/>
   </feMerge>
   </filter>
-  
+
   <filter id="shadow" width="200%" height="200%">
    <feGaussianBlur in="SourceAlpha"
     stdDeviation="2"
@@ -381,7 +381,7 @@ function initrange( element)
   <feComposite in="SourceGraphic" in2="out2"
     operator="over" />
   </filter>
-  
+
       <filter id="emboss" x0="-50%" y0="-50%" width="200%" height="200%">
 			<feMorphology in="SourceAlpha" operator="dilate" radius="1"/>
 			<feGaussianBlur stdDeviation="1" result="blur"/>
@@ -447,7 +447,7 @@ function initrange( element)
 <path class='sign' d="M101,58 L112,76 L90,76 z" />
 </g>
 
-<g id="rightxy"> 
+<g id="rightxy">
 <path class="bg" d="M154,70 A 74,74 0 0,1 154,174 L126,146 A 35,35 0 0 0 126,98 z" filter="url(#shadow)"/>
 <path class="bg" d="M154,70 A 74,74 0 0,1 154,174 L126,146 A 35,35 0 0 0 126,98 z" opacity=0.7 filter="url(#light)"/>
 <path onmouseup="alert(13);" onmouseover="settext_x('50',this);" onmouseout="restore_x(this);" class="mskjog" d="M154,70 A 74,74 0 0,1 154,174 L126,146 A 35,35 0 0 0 126,98 z"/>
@@ -457,7 +457,7 @@ function initrange( element)
 <path class='sign' d="M165,122 L148,112 L148,132 z" />
 </g>
 
-<g id="bottomxy"> 
+<g id="bottomxy">
 <path class="bg" d="M48,174 A 74,74 0 0,0 154,174 L126,146 A 35,35 0 0 1 76,146 z" filter="url(#shadow)"/>
 <path class="bg" d="M48,174 A 74,74 0 0,0 154,174 L126,146 A 35,35 0 0 1 76,146 z" opacity='0.7' filter="url(#light)"/>
 <path onmouseup="alert(8);" onmouseover="settext_x('-50',this);" onmouseout="restore_x(this);" class="mskjog" d="M48,174 A 74,74 0 0,0 154,174 L126,146 A 35,35 0 0 1 76,146 z" />
@@ -467,7 +467,7 @@ function initrange( element)
 <path class='sign' d="M101,186 L112,168 L90,168 z" />
 </g>
 
-<g id="leftxy"> 
+<g id="leftxy">
 <path class="bg" d="M48,174 A 74,74 0 0,1 48,70 L76,98 A 35,35 0 0 0 76,146 z"/>
 <path class="bg" d="M48,174 A 74,74 0 0,1 48,70 L76,98 A 35,35 0 0 0 76,146 z" opacity='0.7' filter="url(#light)"/>
 <path onmouseup="alert(9);" onmouseover="settext_x('-50',this);" onmouseout="restore_x(this);" class="mskjog" d="M48,174 A 74,74 0 0,1 48,70 L76,98 A 35,35 0 0 0 76,146 z" />
@@ -566,9 +566,9 @@ function initrange( element)
  <circle cx="16" cy="16" r="12" fill="white" stroke="#0D2F38"/>
  <path id="buttonM3" class="bg" d="M5,15 L9,15 L9,12 L11,10 L24,10 L25,11 L25,21 L24,22 L11,22 L9,20 L9,17 L5,17 z" />
  <path id="buttonM4" class="bg" d="M5,15 L9,15 L9,12 L11,10 L24,10 L25,11 L25,21 L24,22 L11,22 L9,20 L9,17 L5,17 z" opacity='0.7' filter="url(#light)"/>
- <rect x="13" y="13" width="10" height="1" fill="white" stroke="none"/> 
- <rect x="12" y="16" width="11" height="1" fill="white" stroke="none"/> 
- <rect x="13" y="19" width="10" height="1" fill="white" stroke="none"/> 
+ <rect x="13" y="13" width="10" height="1" fill="white" stroke="none"/>
+ <rect x="12" y="16" width="11" height="1" fill="white" stroke="none"/>
+ <rect x="13" y="19" width="10" height="1" fill="white" stroke="none"/>
  <path id="buttonM5" d="M24,4 L4,24 L7,27 L27,7 z" fill="#608B98" stroke="none" />
  <path id="buttonM6" d="M24,4 L4,24 L7,27 L27,7 z" fill="#608B98" stroke="none" opacity='0.7' filter="url(#light)"/>
  <line x1="22" y1="6" x2="6" y2="22" stroke="#0D2F38" />
@@ -657,7 +657,7 @@ function initrange( element)
     </div>
 <div id='thumbfeedrate' class='sliderthumb' render='feedraterender' customrange='rangefeedrate'>
     <svg width='8' height='20' viewbox='0 0 8 20'><path d='M 3.5,0 L7,5 L7,14 L3.5,19 L0,14 L0,5 z'  /></svg>
-</div>    
+</div>
 </td><td width='auto'><input id='feedraterender' type='number' min='25' max='300' step='1' style='width: 4em;' onchange='movethumbat(thumbfeedrate, this.value);'/></td></tr>
 <tr style='margin-top: 50px'><td align='middle'>
 <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" version="1.1">
@@ -679,7 +679,7 @@ function initrange( element)
     <text x='13' y='14' style='font-weight:600;font-size:10;font-family:sans-serif;fill:#000000; pointer-events:none;'>Flowrate</text>
     </svg>
     </div>
-<div id='thumbflowrate' class='sliderthumb' render='flowraterender' customrange='rangeflowrate' ><svg width='8' height='20' viewbox='0 0 8 20'><path d='M 3.5,0 L7,5 L7,14 L3.5,19 L0,14 L0,5 z'  /></div>    
+<div id='thumbflowrate' class='sliderthumb' render='flowraterender' customrange='rangeflowrate' ><svg width='8' height='20' viewbox='0 0 8 20'><path d='M 3.5,0 L7,5 L7,14 L3.5,19 L0,14 L0,5 z'  /></div>
 
 </td><td width='auto'><input id='flowraterender'  min='50' max='150' step='1' type='number' style='width: 4em;' onchange='movethumbat(thumbflowrate, this.value);'></td></tr>
 <tr><td align='middle'>
@@ -704,7 +704,7 @@ function initrange( element)
     </div>
 <div id='thumbfanspeed' class='sliderthumb' render='fanspeedrender' customrange='rangefanspeed' >
     <svg width='8' height='20' viewbox='0 0 8 20'><path d='M 3.5,0 L7,5 L7,14 L3.5,19 L0,14 L0,5 z'  /></svg>
-</div>    
+</div>
 </td><td width='auto'><input type='number' id='fanspeedrender' min='0' max='100' step='1' style='width: 4em;' onchange='movethumbat(thumbfanspeed, this.value);'></td></tr>
 <tr><td>
 <svg width="29" height="25" xmlns="http://www.w3.org/2000/svg" version="1.1">
@@ -743,7 +743,7 @@ function initrange( element)
 </div>
 <div id='thumbbed' class='sliderthumb' render='bedrender' customrange='rangebed' >
     <svg width='8' height='24' viewbox='0 0 8 24'><path d='M 0,0 L3,5 L3,17 L0,22 L7,22 L4,17 L4,5 L7,0 z'  /></svg>
-</div> 
+</div>
 </td><td width='auto'><input type='number' id='bedrender' max='150' min='130' step='1' style='width: 4em;' onchange='movethumbat(thumbbed, this.value);'></td></tr>
 <tr><td>
 <svg width="26" height="26" xmlns="http://www.w3.org/2000/svg" version="1.1">
@@ -778,7 +778,7 @@ function initrange( element)
 </svg>
 </div>
 <div id='thumbext1' class='sliderthumb' render='ext1render' customrange='rangeext1' >
-    <svg width='8' height='24' viewbox='0 0 8 24'><path d='M 0,0 L3,5 L3,17 L0,22 L7,22 L4,17 L4,5 L7,0 z'  /></svg></div> 
+    <svg width='8' height='24' viewbox='0 0 8 24'><path d='M 0,0 L3,5 L3,17 L0,22 L7,22 L4,17 L4,5 L7,0 z'  /></svg></div>
 </td><td width='auto'><input type='number' id='ext1render' min='0' max='300' step='1' style='width: 4em;' onchange='movethumbat(thumbext1, this.value);'></td></tr>
 <tr><td>
 <svg width="26" height="26" xmlns="http://www.w3.org/2000/svg" version="1.1">
@@ -814,7 +814,7 @@ function initrange( element)
 </svg>
 </div>
 <div id='thumbext2' class='sliderthumb' render='ext2render' customrange='rangeext2' >
-   <svg width='8' height='24' viewbox='0 0 8 24'><path d='M 0,0 L3,5 L3,17 L0,22 L7,22 L4,17 L4,5 L7,0 z'  /></svg> </div> 
+   <svg width='8' height='24' viewbox='0 0 8 24'><path d='M 0,0 L3,5 L3,17 L0,22 L7,22 L4,17 L4,5 L7,0 z'  /></svg> </div>
 </td><td width='auto'><input type='number' id='ext2render' min='0' max='300' step='1' style='width: 4em;' onchange='movethumbat(thumbext2, this.value);'></td></tr>
 </table>
 </div>
