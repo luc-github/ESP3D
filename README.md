@@ -22,7 +22,7 @@ Arduino ide 1.6.9 with git from ESP8266 : [![Build Status](https://travis-ci.org
 
 :+1:Thanks
 * to @disneysw for bringing this module idea
-* to @lkarlslund for suggestion about independant reset using GPIO2
+* to @lkarlslund for suggestion about independent reset using GPIO2
 * to all contributors (treepleks, j0hnlittle, openhardwarecoza, TRoager, all feedbacks owners and donations)
 
 Every support is welcome: [<img src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG_global.gif" border="0" alt="PayPal – The safer, easier way to pay online.">](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Y8FFE7NA4LJWQ)    
@@ -98,7 +98,7 @@ Any files on SPIFFS can be called on web interface without having the path hard 
 So UI is kind of separated from FW which allow easier modifications. For this a light file manager is available in extra settings page, it allows to upload/download/delete files. 
 Because SPIFFS is flat filesystem, no directory management is necessary, so it is very simple.
 
-Additionally 404.tpl (the page not found) and restart.tpl(restart page when applying changes) are not mandatory, a fail safe version is embeded if they are not present.     
+Additionally 404.tpl (the page not found) and restart.tpl(restart page when applying changes) are not mandatory, a fail safe version is embedded if they are not present.     
 
 ##Direct commands:    
 ```
@@ -241,7 +241,7 @@ For RADDS Board:
 <img src=https://raw.githubusercontent.com/luc-github/ESP3D/master/images/RADDS/RADDS.png><br>
 
 ##Contribution/customization
-To modifying and Testing tpl files a local tool has been created by [j0hnlittle](https://github.com/j0hnlittle) to avoid to upload everytime your tpl files just to see the results of your modifications. It is a python script (2.7+) located in tools directory, launch it: python server.py, then open browser: http://localhost:8080   
+To modifying and Testing tpl files a local tool has been created by [j0hnlittle](https://github.com/j0hnlittle) to avoid to upload every time your tpl files just to see the results of your modifications. It is a python script (2.7+) located in tools directory, launch it: python server.py, then open browser: http://localhost:8080   
 It will display the web ui and allow some navigation   
 
 To style the code before pushing PR please use [astyle --style=otbs *.h *.cpp *.ino](http://astyle.sourceforge.net/)
