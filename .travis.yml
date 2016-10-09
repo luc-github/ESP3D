@@ -20,6 +20,8 @@ before_script:
   - git clone https://github.com/esp8266/Arduino.git esp8266
   - cd esp8266/tools
   - python get.py
+  - mv $TRAVIS_BUILD_DIR/libraries/ESPAsyncTCP $HOME/arduino_ide/libraries/
+  - mv $TRAVIS_BUILD_DIR/libraries/ESPAsyncWebServer $HOME/arduino_ide/libraries/
   
 
 script:
