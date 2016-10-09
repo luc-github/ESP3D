@@ -7,7 +7,7 @@
 position : absolute;
 cursor : pointer;
  }
- 
+
 .sliderrange{
 cursor : pointer;
  }
@@ -21,7 +21,7 @@ document.addEventListener('mouseup', function() {
     isDown = false;
 }, true);
 
-//position is based on screen position value 
+//position is based on screen position value
 function movethumb(pos)
 {
     var p = pos + offset;
@@ -49,12 +49,12 @@ function movethumb(pos)
     active_control.style.left = p+ 'px';
     if (active_control.hasAttribute('render')){
     value = (((p-minpos) * (maxvalue-minvalue))/((maxpos-minpos)- (r2.right-r2.left)))
-    document.getElementById(active_control.getAttribute('render')).value = Math.round(value + minvalue) ;     
+    document.getElementById(active_control.getAttribute('render')).value = Math.round(value + minvalue) ;
     active_control.style.cursor='pointer';
-     }  
+     }
 }
 
-//position is based on range value 
+//position is based on range value
 function movethumbat(thumbcursor, value){
     var minvalue =0;
     var maxvalue = 100;
@@ -80,7 +80,7 @@ function movethumbat(thumbcursor, value){
     pos = ((value-minvalue)*((maxpos-minpos)-(r2.right-r2.left))/(maxvalue-minvalue))+minpos;
     thumbcursor.style.left = pos+ 'px';
     if (thumbcursor.hasAttribute('render')){
-    document.getElementById(thumbcursor.getAttribute('render')).value =value; 
+    document.getElementById(thumbcursor.getAttribute('render')).value =value;
     }
 }
 
@@ -93,10 +93,10 @@ document.addEventListener('mousemove', function(event) {
 
 function rangeclicked(event,element)
 {
-  
+
     if (element.hasAttribute('customthumb')){
-        active_control = document.getElementById(element.getAttribute('customthumb'));   
-        offset = 0;  
+        active_control = document.getElementById(element.getAttribute('customthumb'));
+        offset = 0;
         movethumb(event.clientX);
         }
 }
@@ -124,9 +124,9 @@ function initrange( element)
     element.innerHTML = element.getAttribute('bgimage');
     }
 }
- 
- 
- 
+
+
+
 </script>
 <table border=1>
 <tr>
