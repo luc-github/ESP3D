@@ -32,7 +32,7 @@ function checkpassword()
 		haserror=true;
 		hassuccess=false;
 	}
-	
+
 	if (password1.length>16)
 	{
 		msg+="Password too long<br>";
@@ -40,7 +40,7 @@ function checkpassword()
 		haserror=true;
 		hassuccess=false;
 	}
-	
+
 	if (password2.length<1)
 	{
 		msg+="Confirmation Password too short<br>";
@@ -48,7 +48,7 @@ function checkpassword()
 		haserror=true;
 		hassuccess=false;
 	}
-	
+
 	if (password2.length>16)
 	{
 		msg+="Confirmation Password too long<br>";
@@ -56,7 +56,7 @@ function checkpassword()
 		haserror=true;
 		hassuccess=false;
 	}
-	
+
 	if (password2!=password1)
 	{
 		msg+="Passwords do not matches<br>";

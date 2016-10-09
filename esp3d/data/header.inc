@@ -19,7 +19,7 @@ $INCLUDE[css.inc]$
 	<td width=100%>&nbsp;</td>
 	<td class="$MENU_ADMIN$"><a href="/PASSWORD" style="$DISCONNECT_VISIBILITY$">$LOGIN_ID$</a></td>
 	<td style="padding:0px;"><a href="/LOGIN?DISCONNECT=YES"><div class="btnroundimg" style="$DISCONNECT_VISIBILITY$"><svg width="30" height="30" viewBox="0 0 40 40">
-	<circle style="fill:white"  cx="20"  cy="20"  r="20"/> 
+	<circle style="fill:white"  cx="20"  cy="20"  r="20"/>
 	<circle style="fill:white;stroke:black;stroke-width:4" cx="20" cy="15" r="10"/>
     <rect  style="fill:black;stroke-width:4;stroke:black" width="20" height="15" x="10" y="17" />
     <circle style="fill:white" cx="20" cy="22" r="2.5"/>
