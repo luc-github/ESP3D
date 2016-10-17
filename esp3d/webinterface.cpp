@@ -22,6 +22,8 @@
 #include "config.h"
 #include "webinterface.h"
 #include "wifi.h"
+#include "SPIFFSFiles.h"
+#include "login.h"
 //#include <WiFiClient.h>
 //#include <WiFiServer.h>
 //#include <WiFiUdp.h>
@@ -3075,7 +3077,25 @@ void handleSDFileList()
 //Handle not registred path
 void handle_not_found(AsyncWebServerRequest *request)
 {
-    request->send(404);
+    LOG("Request: ")
+    LOG(request->url())
+    LOG("\nFile not found\n")
+    static FSFILE pnf_file;
+    String path = HTML404PAGE;
+    String pathWithGz = path + ".gz";
+    if(SPIFFS.exists(pathWithGz) || SPIFFS.exists(path)) {
+        if(SPIFFS.exists(pathWithGz)) {
+            path = pathWithGz;
+        }
+        if (pnf_file) pnf_file.close();
+        pnf_file = SPIFFS.open(path, "r");
+         if (!pnf_file) {
+            request->send(404);
+            }
+        //not sure if it is good that 404 page has 200 code instead of 404
+        else request->send(pnf_file, path, CONFIG::getContentType(HTML404PAGE));
+    } else request->send(404);
+    
     /*static const char NOT_AUTH_NF [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /HOME\r\nCache-Control: no-cache\r\n\r\n";
 
     if (web_interface->is_authenticated() == LEVEL_GUEST) {
@@ -3368,9 +3388,15 @@ void handle_SSDP()
 WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port):WebServer(port)
 {
     //init what will handle "/"
-    WebServer.serveStatic("/", SPIFFS, "/").setDefaultFile("index.htm");
+    WebServer.serveStatic("/", SPIFFS, WEBROOT).setDefaultFile("index.htm");
     //Page not found handle
     WebServer.onNotFound( handle_not_found);
+    //SPIFFS
+    WebServer.addHandler(new SPIFFSFiles());
+    //login dialog box
+#ifdef AUTHENTICATION_FEATURE 
+    WebServer.addHandler(new LoginPage());
+#endif
     //WebServer.on("/",HTTP_ANY, handle_web_interface_root);
     //WebServer.on("/HOME",HTTP_ANY, handle_web_interface_home);
     //WebServer.on("/CONFIGSYS",HTTP_ANY, handle_web_interface_configSys);
@@ -3549,44 +3575,6 @@ level_authenticate_type WEBINTERFACE_CLASS::ResetAuthIP(IPAddress ip,const char 
 }
 */
 #endif
-
-String WEBINTERFACE_CLASS::getContentType(String filename)
-{
-    if(filename.endsWith(".htm")) {
-        return "text/html";
-    } else if(filename.endsWith(".html")) {
-        return "text/html";
-    } else if(filename.endsWith(".css")) {
-        return "text/css";
-    } else if(filename.endsWith(".js")) {
-        return "application/javascript";
-    } else if(filename.endsWith(".png")) {
-        return "image/png";
-    } else if(filename.endsWith(".gif")) {
-        return "image/gif";
-    } else if(filename.endsWith(".jpeg")) {
-        return "image/jpeg";
-    } else if(filename.endsWith(".jpg")) {
-        return "image/jpeg";
-    } else if(filename.endsWith(".ico")) {
-        return "image/x-icon";
-    } else if(filename.endsWith(".xml")) {
-        return "text/xml";
-    } else if(filename.endsWith(".pdf")) {
-        return "application/x-pdf";
-    } else if(filename.endsWith(".zip")) {
-        return "application/x-zip";
-    } else if(filename.endsWith(".gz")) {
-        return "application/x-gzip";
-    } else if(filename.endsWith(".tpl")) {
-        return "text/plain";
-    } else if(filename.endsWith(".inc")) {
-        return "text/plain";
-    } else if(filename.endsWith(".txt")) {
-        return "text/plain";
-    }
-    return "application/octet-stream";
-}
 
 
 WEBINTERFACE_CLASS * web_interface;

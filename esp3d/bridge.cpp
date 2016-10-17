@@ -40,7 +40,7 @@ bool BRIDGE::processFromSerial2TCP()
         for(i = 0; i < MAX_SRV_CLIENTS; i++) {
             if (serverClients[i] && serverClients[i].connected()) {
                 serverClients[i].write(sbuf, len);
-                delay(1);
+                //delay(1);
             }
         }
 #endif

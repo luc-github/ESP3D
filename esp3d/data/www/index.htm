@@ -1,0 +1,238 @@
+<html lang="en">
+<head>
+  <title>ESP3D Files</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/bootstrap.min.css">
+  <script src="/jquery.min.js"></script>
+  <script src="/bootstrap.min.js"></script>
+</head>
+<body>
+<style>
+input[type="file"]::-webkit-file-upload-button{display:inline-block;margin-bottom:0;font-weight:normal;text-align:center;vertical-align:middle;-ms-touch-action:manipulation;  touch-action:manipulation;cursor:pointer;
+background-image:none;border:1px solid transparent;white-space:nowrap;padding:6px 12px;font-size:14px;line-height:1.42857143;border-radius:4px;
+* -webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;  color: #ffffff;background-color: #5bc0de;border-color: #46b8da;}
+input[type="file"]::-webkit-file-upload-button:focus{display:inline-block;margin-bottom:0;font-weight:normal;text-align:center;vertical-align:middle;-ms-touch-action:manipulation;  touch-action:manipulation;cursor:pointer;
+background-image:none;border:1px solid transparent;white-space:nowrap;padding:6px 12px;font-size:14px;line-height:1.42857143;border-radius:4px;
+* -webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none; color: #ffffff;background-color: #31b0d5;border-color: #1b6d85;}
+input[type="file"]::-webkit-file-upload-button:hover{display:inline-block;margin-bottom:0;font-weight:normal;text-align:center;vertical-align:middle;-ms-touch-action:manipulation;  touch-action:manipulation;cursor:pointer;
+background-image:none;border:1px solid transparent;white-space:nowrap;padding:6px 12px;font-size:14px;line-height:1.42857143;border-radius:4px;
+* -webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none; color: #ffffff;background-color: #31b0d5;border-color: #269abc;}
+.filelink {border:1px solid transparent; padding:5px 5px 5px 5px}
+.filelink:hover {cursor:pointer;border:1px solid #00FFFF;border-radius:4px;-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,0.075),0 0 6px #ce8483;box-shadow:inset 0 1px 1px rgba(0,0,0,0.075),0 0 6px #ce8483;}
+.panel-footer{padding:10px 15px;color:#31708f;background-color:#f5f5f5;border-color:#dddddd;border-top:1px solid #dddddd;}
+.loader {
+    border: 4px solid #f3f3f3; /* Light grey */
+    border-top: 4px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 12px;
+    height: 12px;
+    animation: spin 2s linear infinite;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
+<div id="mainpage" class="container" style="visibility:hidden">
+<center><h1>ESP3D</h1></center>
+<div class="panel panel-default">
+<div class="panel-heading">Flash Filesystem</div>
+<div class="panel-body">
+<form class="form-inline">
+<div class="form-group">
+<input type="file"  id="file-select" name="myfiles[]" multiple />
+</div>
+<div class="form-group">
+<input class="btn btn-primary" type="button" id="upload-button" onclick="Sendfile();" value="Upload"/>&nbsp;&nbsp;<progress style="visibility:hidden;" name='prg' id='prg' max='100'></progress>
+</div>
+<br><br><div class="panel">
+<div class="panel-body">
+<table><tr><td width="0%" data-toggle='tooltip' data-placement='left' title='Create directory' style='cursor:pointer' onclick="Createdir()"><div class='filelink'><svg width="40" height="40" viewBox="0 0 40 40"><rect x="5" y="10" width="30" height="20" rx="2" ry="2" fill="#31b0d5" />
+ <rect x="20" y="5" width="15" height="15" rx="2" ry="2" fill="#31b0d5" /><text x="15" y="25" font-size="18"  font-weight="800"  fill="white">+</text></svg>
+</div></td><td><div id="loader" class="loader"></div></td><td width="100%"><div id="path" class="info" >&nbsp</div>
+ </td>
+ </tr></table>
+<table class="table table-striped" style="border:1px;solid #dddddd;margin-bottom:20px;" ><thead><tr><th width='0%'>Type</th><th>Name</th><th>Size</th><th width='0%'></th><th width='100%'></th></tr></thead><tbody id="file_list"><tbody></table>
+</div>
+<div class="panel-footer " id="status"></div>
+</div>
+</div>
+</div>
+<script>
+var currentpath = "/"; 
+function navbar(){
+    var content="<table><tr>";
+    var tlist = currentpath.split("/");
+    var path="/";
+    var nb = 1;
+    content+="<td style='cursor:pointer' onclick=\"currentpath='/'; SendCommand('list','all');\"><div class='filelink'>&nbsp;/&nbsp;</div></td>";
+    while (nb < (tlist.length-1))
+        {
+            path+=tlist[nb] + "/";
+            content+="<td style='cursor:pointer' onclick=\"currentpath='"+path+"'; SendCommand('list','all');\"><div class='filelink'>&nbsp;"+tlist[nb] +"&nbsp;</div></td><td>/</td>";
+            nb++;
+        }
+        content+="</tr></table>";
+    return content;
+}
+function trash_icon(){
+    var content ="<svg width='24' height='24' viewBox='0 0 128 128'>";
+    content +="<rect x='52' y='12' rx='6' ry='6' width='25' height='7' style='fill:red;' />";
+    content +="<rect x='52' y='16' width='25' height='2' style='fill:white;' />";
+    content +="<rect x='30' y='18' rx='6' ry='6' width='67' height='100' style='fill:red;' />";
+    content +="<rect x='20' y='18' rx='10' ry='10' width='87' height='14' style='fill:red;' />";
+    content +="<rect x='20' y='29' width='87' height='3' style='fill:white;' />";
+    content +="<rect x='40' y='43' rx='7' ry='7' width='7' height='63' style='fill:white;' />";
+    content +="<rect x='60' y='43' rx='7' ry='7' width='7' height='63' style='fill:white;' />";
+    content +="<rect x='80' y='43' rx='7' ry='7' width='7' height='63' style='fill:white;' /></svg>";
+    return content;
+}
+function back_icon(){
+  var content ="<svg width='24' height='24' viewBox='0 0 24 24'><path d='M7,3 L2,8 L7,13 L7,10 L17,10 L18,11 L18,15 L17,16 L10,16 L9,17 L9,19 L10,20 L20,20 L22,18 L22,8 L20,6 L7,6 z' stroke='black' fill='white' /></svg>";
+  return content;
+}
+function select_dir(directoryname){
+    SendCommand('select',directoryname);
+}
+function compareStrings(a, b) {
+  // case-insensitive comparison
+  a = a.toLowerCase();
+  b = b.toLowerCase();
+  return (a < b) ? -1 : (a > b) ? 1 : 0;
+}
+function dispatchfilestatus(jsonresponse)
+{
+var content ="";
+content ="&nbsp;&nbsp;Status: "+jsonresponse.status;
+content +="&nbsp;&nbsp;|&nbsp;&nbsp;Total space: "+jsonresponse.total;
+content +="&nbsp;&nbsp;|&nbsp;&nbsp;Used space: "+jsonresponse.used;
+content +="&nbsp;&nbsp;|&nbsp;&nbsp;Occupation: ";
+content +="<meter min='0' max='100' high='90' value='"+jsonresponse.occupation +"'></meter>&nbsp;"+jsonresponse.occupation +"%";
+document.getElementById('status').innerHTML=content;
+content ="";
+if (jsonresponse.path)currentpath = jsonresponse.path;
+if (currentpath!="/")
+    {
+     var pos = currentpath.lastIndexOf("/",currentpath.length-2)
+     var previouspath = currentpath.slice(0,pos+1);
+     content +="<tr style='cursor:pointer;' onclick=\"currentpath='"+previouspath+"'; SendCommand('list','all');\"><td ><div class='filelink'>"+back_icon()+"</div></td><td><div class='filelink'> Up..</div></td><td colspan=3></td></tr>";
+    }
+jsonresponse.files.sort(function(a, b) {
+    return compareStrings(a.name, b.name);
+});
+for (var i=0;i <jsonresponse.files.length;i++){
+//first display files
+if (String(jsonresponse.files[i].size) != "-1")
+    {
+    content +="<TR>";
+    content +="<td style='vertical-align:middle'><svg height='24' width='24' viewBox='0 0 24 24' >	<path d='M1,2 L1,21 L2,22 L16,22 L17,21 L17,6 L12,6 L12,1  L2,1 z' stroke='black' fill='white' /><line x1='12' y1='1' x2='17' y2='6' stroke='black' stroke-width='1'/>";
+    content +="<line x1='5' y1='10' x2='13' y2='10' stroke='black' stroke-width='1'/>	<line x1='5' y1='14' x2='13' y2='14' stroke='black' stroke-width='1'/>	<line x1='5' y1='18' x2='13' y2='18' stroke='black' stroke-width='1'/></svg></td>";
+    content +="<TD><div class='filelink'><a style='text-decoration:none' href=\"files?action=download&path="+encodeURI(jsonresponse.path)+"&filename="+encodeURI(jsonresponse.files[i].name)+"\" target=_blank>";
+    content +=jsonresponse.files[i].name;
+    content +="</a></div></TD><TD nowrap style='vertical-align:middle'>";
+    content +=jsonresponse.files[i].size;
+    content +="</TD><TD width='0%' data-toggle='tooltip' data-placement='right' title='Delete file!' style='cursor:pointer' onclick=\"Delete('"+jsonresponse.files[i].name+"')\"><div class='filelink'>";
+    content +=trash_icon();
+    content +="</div></TD><td></td></TR>";
+    }
+}
+//then display directories
+for (var i=0;i <jsonresponse.files.length;i++){
+if (String(jsonresponse.files[i].size) == "-1")
+    {
+    content +="<TR>";
+    content+="<td style='vertical-align:middle'><svg height='24' width='24' viewBox='0 0 24 24' ><path d='M19,11 L19,8 L18,7 L8,7 L8,5 L7,4 L2,4 L1,5 L1,22 L19,22 L20,21 L23,11 L5,11 L2,21 L1,22' stroke='black' fill='white' /></svg></td>";
+    content +="<TD style='cursor:pointer' onclick=\"select_dir('" + jsonresponse.files[i].name+"');\"><div class='filelink'>";
+    content +=jsonresponse.files[i].name;
+    content +="</div></TD><TD>";
+    content +="</TD><TD width='0%' style='cursor:pointer' data-toggle='tooltip' data-placement='top' title='Delete directory!' onclick=\"Deletedir('"+jsonresponse.files[i].name+"')\"><div class='filelink'>";
+    content +=trash_icon();
+    content +="</div></TD><td></td></TR>";
+    }
+}
+
+ document.getElementById('file_list').innerHTML=content;
+ document.getElementById('path').innerHTML=navbar();}
+function Delete(filename){
+if (confirm("Confirm deletion of file: " + filename))SendCommand("delete",filename);
+}
+function Deletedir(filename){
+if (confirm("Confirm deletion of directory: " + filename))SendCommand("deletedir",filename);
+}
+function Createdir(){
+var filename = prompt("Please enter directory name", "");
+if (filename != null) {
+   SendCommand("createdir",filename.trim());
+    }
+}
+function SendCommand(action,filename){
+var xmlhttp = new XMLHttpRequest();
+var url = "/files?action="+action;
+url += "&filename="+encodeURI(filename);
+url += "&path="+encodeURI(currentpath);
+document.getElementById('loader').style.visibility="visible";
+xmlhttp.onreadystatechange = function() {
+if ( xmlhttp.status == 401){
+    document.getElementById('mainpage').style.visibility="hidden";
+    document.getElementById('loader').style.visibility="hidden";
+    window.location.replace("/login?return="+window.location.pathname);
+    }
+if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+var jsonresponse = JSON.parse(xmlhttp.responseText);
+document.getElementById('loader').style.visibility="hidden";
+document.getElementById('mainpage').style.visibility="visible";
+dispatchfilestatus(jsonresponse);}
+}
+xmlhttp.open("GET", url, true);
+xmlhttp.send();
+}
+function Sendfile(){
+var files = document.getElementById('file-select').files;
+if (files.length==0)return;
+document.getElementById('upload-button').value = "Uploading...";
+document.getElementById('prg').style.visibility = "visible";
+var formData = new FormData();
+formData.append('path',currentpath);
+for (var i = 0; i < files.length; i++) {
+var file = files[i];
+ formData.append('myfiles[]', file, currentpath+file.name);}
+var xmlhttp = new XMLHttpRequest();
+xmlhttp.open('POST', '/files', true);
+//progress upload event
+xmlhttp.upload.addEventListener("progress", updateProgress, false);
+//progress function
+function updateProgress (oEvent) {
+  if (oEvent.lengthComputable) {
+    var percentComplete = (oEvent.loaded / oEvent.total)*100;
+    document.getElementById('prg').value=percentComplete;
+    document.getElementById('upload-button').value = "Uploading ..." + percentComplete.toFixed(0)+"%" ;
+  } else {
+    // Impossible because size is unknown
+  }
+}
+
+xmlhttp.onload = function () {
+ if (xmlhttp.status === 200) {
+document.getElementById('upload-button').value = 'Upload';
+document.getElementById('prg').style.visibility = "hidden";
+document.getElementById('file-select').value="";
+var jsonresponse = JSON.parse(xmlhttp.responseText);
+dispatchfilestatus(jsonresponse);
+ } else alert('An error occurred!');
+}
+xmlhttp.send(formData);
+}
+//window.location.replace("http://stackoverflow.com");
+$(document).ready(function(){
+    $('[data-toggle="tooltip"]').tooltip();
+    SendCommand('list','all');
+});
+
+</script>
+<hr><br>
+<div class="panel">
+<center><table><tr><td><a href='https://github.com/luc-github/ESP3D'>ESP3D powered</a></td><td>-</td><td><a class='blacklink' href='http://www.gnu.org/licenses/gpl-2.0.html'>GPL licensed</a></td></center></div>
+
+</body>
+</html>

@@ -94,7 +94,6 @@ public:
     //void ProcessAlertError(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList, String & smsg);
     //void ProcessAlertSuccess(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList, String & smsg);
     //void ProcessNoAlert(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList);
-    String getContentType(String filename);
     //level_authenticate_type is_authenticated();
     bool blockserial;
 #ifdef AUTHENTICATION_FEATURE
