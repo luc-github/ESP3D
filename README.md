@@ -16,8 +16,8 @@ Arduino ide 1.6.9 with git from ESP8266 : [![Build Status](https://travis-ci.org
 
 [All releases](https://github.com/luc-github/ESP3D/wiki)
 
-:question:Any question ?[![Join the chat at https://gitter.im/luc-github/ESP3D](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/luc-github/ESP3D?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)   
-:exclamation:Any issue ? check [FAQ](https://github.com/luc-github/ESP3D/issues?utf8=%E2%9C%93&q=label%3AFAQ+) or [submit ticket](https://github.com/luc-github/ESP3D/issues)    
+:question:Any question ? check [Wiki](https://github.com/luc-github/ESP3D/wiki/Install-Instructions) or [![Join the chat at https://gitter.im/luc-github/ESP3D](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/luc-github/ESP3D?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)   
+:exclamation:Any issue ? check [Wiki](https://github.com/luc-github/ESP3D/wiki/Install-Instructions) and [FAQ](https://github.com/luc-github/ESP3D/issues?utf8=%E2%9C%93&q=label%3AFAQ+) or [submit ticket](https://github.com/luc-github/ESP3D/issues)    
 
 
 :+1:Thanks
