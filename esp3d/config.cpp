@@ -27,7 +27,7 @@ extern "C" {
 
 void CONFIG::esp_restart()
 {
-    LOG("Restarting\n")
+    LOG("Restarting\r\n")
     Serial.flush();
     delay(500);
     Serial.swap();
@@ -233,7 +233,7 @@ bool CONFIG::read_string(int pos, char byte_buffer[], int size_max)
 {
     //check if parameters are acceptable
     if (size_max==0 ||  pos+size_max+1 > EEPROM_SIZE || byte_buffer== NULL) {
-        LOG("Error read string\n")
+        LOG("Error read string\r\n")
         return false;
     }
     EEPROM.begin(EEPROM_SIZE);
@@ -260,7 +260,7 @@ bool CONFIG::read_string(int pos, String & sbuffer, int size_max)
 {
     //check if parameters are acceptable
     if (size_max==0 ||  pos+size_max+1 > EEPROM_SIZE ) {
-        LOG("Error read string\n")
+        LOG("Error read string\r\n")
         return false;
     }
     byte b = 13; // non zero for the while loop below
@@ -286,7 +286,7 @@ bool CONFIG::read_buffer(int pos, byte byte_buffer[], int size_buffer)
 {
     //check if parameters are acceptable
     if (size_buffer==0 ||  pos+size_buffer > EEPROM_SIZE || byte_buffer== NULL) {
-        LOG("Error read buffer\n")
+        LOG("Error read buffer\r\n")
         return false;
     }
     int i=0;
@@ -305,7 +305,7 @@ bool CONFIG::read_byte(int pos, byte * value)
 {
     //check if parameters are acceptable
     if (pos+1 > EEPROM_SIZE) {
-        LOG("Error read byte\n")
+        LOG("Error read byte\r\n")
         return false;
     }
     EEPROM.begin(EEPROM_SIZE);
@@ -348,7 +348,7 @@ bool CONFIG::write_string(int pos, const char * byte_buffer)
         break;
     }
     if (size_buffer==0 ||  pos+size_buffer+1 > EEPROM_SIZE || size_buffer > maxsize  || byte_buffer== NULL) {
-        LOG("Error write string\n")
+        LOG("Error write string\r\n")
         return false;
     }
     //copy the value(s)
@@ -369,7 +369,7 @@ bool CONFIG::write_buffer(int pos, const byte * byte_buffer, int size_buffer)
 {
     //check if parameters are acceptable
     if (size_buffer==0 ||  pos+size_buffer > EEPROM_SIZE || byte_buffer== NULL) {
-        LOG("Error write buffer\n")
+        LOG("Error write buffer\r\n")
         return false;
     }
     EEPROM.begin(EEPROM_SIZE);
@@ -387,7 +387,7 @@ bool CONFIG::write_byte(int pos, const byte value)
 {
     //check if parameters are acceptable
     if (pos+1 > EEPROM_SIZE) {
-        LOG("Error write byte\n")
+        LOG("Error write byte\r\n")
         return false;
     }
     EEPROM.begin(EEPROM_SIZE);
@@ -805,6 +805,9 @@ void CONFIG::print_config()
 #endif
 #ifdef DEBUG_OUTPUT_SERIAL
     Serial.println(F("serial"));
+#endif
+#ifdef DEBUG_OUTPUT_TCP
+    Serial.println(F("TCP"));
 #endif
 #endif
 }

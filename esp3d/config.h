@@ -26,7 +26,7 @@
 #define SMOOTHIEWARE	4
 
 //FIRMWARE_TARGET: the targeted FW, can be REPETIER (Original Repetier)/ REPETIER4DV (Repetier for Davinci) / MARLIN (Marlin)/ SMOOTHIEWARE (Smoothieware)
-#define FIRMWARE_TARGET SMOOTHIEWARE
+#define FIRMWARE_TARGET REPETIER
 
 //number of clients allowed to use data port at once
 #define MAX_SRV_CLIENTS 1
@@ -58,7 +58,7 @@
 #define TCP_IP_DATA_FEATURE
 
 //RECOVERY_FEATURE: allow to use GPIO2 pin as hardware reset for EEPROM, add 8s to boot time to let user to jump GPIO2 to GND
-#define RECOVERY_FEATURE
+//#define RECOVERY_FEATURE
 
 #ifdef RECOVERY_FEATURE
 //pin used to reset setting
@@ -92,22 +92,28 @@
 //#define DEBUG_OUTPUT_SPIFFS
 //#define DEBUG_OUTPUT_SD
 //#define DEBUG_OUTPUT_SERIAL
+//#define DEBUG_OUTPUT_TCP
 
-#include <FS.h>
+//store performance result in storestring variable : info_msg / status_msg
+//#define DEBUG_PERFORMANCE
+#define DEBUG_PERF_VARIABLE  (web_interface->info_msg)
 
 #ifdef DEBUG_ESP3D
 #ifdef DEBUG_OUTPUT_SPIFFS
-#define LOG(string) {FSFILE logfile = SPIFFS.open("/log.txt", "a+");logfile.print(string);logfile.close();}
-#else
-#ifdef SDCARD_FEATURE
-#ifdef DEBUG_OUTPUT_SD
-#define LOG(string) {if(CONFIG::hasSD()){LOCKSD() File logfile = SD.open("/log.txt", "a+");logfile.print(string);logfile.close();RELEASESD()}}
-#else
-#define LOG(string) {Serial.print(string);}
+    /*#ifdef SDCARD_FEATURE
+    #ifndef FS_NO_GLOBALS
+    #define FS_NO_GLOBALS
+    #endif
+    #endif
+    #include <FS.h>*/
+    #define LOG(string) {FSFILE logfile = SPIFFS.open("/log.txt", "a+");logfile.print(string);logfile.close();}
 #endif
-#else
-#define LOG(string) {Serial.print(string);}
+#ifdef DEBUG_OUTPUT_SERIAL
+        #define LOG(string) {Serial.print(string);}
 #endif
+#ifdef DEBUG_OUTPUT_TCP
+        #include "bridge.h"
+        #define LOG(string) {BRIDGE::send2TCP(string);}
 #endif
 #else
 #define LOG(string) {}
@@ -137,7 +143,7 @@ extern "C" {
 }
 #include "wifi.h"
 //version and sources location
-#define FW_VERSION "0.8.50"
+#define FW_VERSION "0.9.70"
 #define REPOSITORY "https://github.com/luc-github/ESP3D"
 
 

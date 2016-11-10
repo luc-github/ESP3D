@@ -83,6 +83,7 @@ $INCLUDE[css2.inc]$
 <table width="100%"><tr>
 <td width="100%"><input class="form-control" id="cmd" type="text" style="width: 100%;"></td>
 <td width="auto"><input type="button" class="btn btn-primary" value="Send" onclick="Sendcustomcommand();"></td></tr></table>
+<textarea style="overflow: scroll;width: 100%" rows="10" id="logwindow" readonly></textarea>
 </div>
 </div>
 
@@ -383,9 +384,19 @@ function expand_collapse(flag, targetpin,targetdiv){
 var XYfeedrate=$XY_FEEDRATE$;
 var Zfeedrate=$Z_FEEDRATE$;
 var Efeedrate=$E_FEEDRATE$;
-function Sendcommand(commandtxt){
+
+function Sendcommand(commandtxt, showresult=false){
 var xmlhttp = new XMLHttpRequest();
-var url = "http://$WEB_ADDRESS$/CMD?COM="+encodeURIComponent(commandtxt);;
+var url = "/command?plain="+encodeURIComponent(commandtxt);;
+if (showresult){
+    xmlhttp.onreadystatechange = function() {
+     if (xmlhttp.readyState == 4 && xmlhttp.status === 200) {
+      var textarea = document.getElementById("logwindow");
+      textarea.innerHTML =  textarea.innerHTML + xmlhttp.responseText;
+      textarea.scrollTop = textarea.scrollHeight;
+     } 
+    }
+}
 xmlhttp.open("GET", url, true);
 xmlhttp.send();
 }
@@ -407,7 +418,7 @@ Sendcommand(cmd + document.getElementById("numberinput"+item).value);
 }
 function Sendcustomcommand(){
 var cmd = document.getElementById("cmd").value;
-if (cmd.trim().length > 0) Sendcommand(cmd);
+if (cmd.trim().length > 0) Sendcommand(cmd,true);
 document.getElementById("cmd").value="";
 }
 function OnclickEmergency(){
@@ -847,11 +858,5 @@ Sendcommand("M23 " + currentpath + filename);
 delay(100);
 Sendcommand("M24");}
 }
-
-
-
-
-
-
 </script>
 $INCLUDE[footer.inc]$

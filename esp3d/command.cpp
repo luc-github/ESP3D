@@ -80,12 +80,12 @@ bool COMMAND::isadmin(String & cmd_params)
     String adminpassword;
     String sadminPassword;
     if (!CONFIG::read_string(EP_ADMIN_PWD, sadminPassword , MAX_LOCAL_PASSWORD_LENGTH)) {
-        LOG("ERROR getting admin\n")
+        LOG("ERROR getting admin\r\n")
         sadminPassword=FPSTR(DEFAULT_ADMIN_PWD);
     }
     adminpassword = get_param(cmd_params,"pwd=", true);
     if (!sadminPassword.equals(adminpassword)) {
-        LOG("Not allowed \n")
+        LOG("Not allowed\r\n")
         return false;
     } else {
         return true;
@@ -97,6 +97,7 @@ void COMMAND::execute_command(int cmd,String cmd_params)
     //manage parameters
     byte mode = 254;
     String parameter;
+    LOG("Execute Command\r\n")
     switch(cmd) {
     //STA SSID
     //[ESP100]<SSID>[pwd=<admin password>]
@@ -273,6 +274,9 @@ void COMMAND::execute_command(int cmd,String cmd_params)
         Serial.print(cmd_params);
         Serial.println(currentIP);
         Serial.print("\r\n");
+        LOG(cmd_params)
+        LOG(currentIP)
+        LOG("\r\n")
     }
     break;
     //Get hostname
@@ -286,6 +290,9 @@ void COMMAND::execute_command(int cmd,String cmd_params)
         Serial.print(cmd_params);
         Serial.println(shost);
         Serial.print("\r\n");
+        LOG(cmd_params)
+        LOG(shost)
+        LOG("\r\n")
     }
     break;
 
@@ -297,7 +304,7 @@ void COMMAND::execute_command(int cmd,String cmd_params)
         parameter = get_param(cmd_params,"P", false);
         LOG("Pin:")
         LOG(parameter)
-        LOG("\n")
+        LOG("\r\n")
         if (parameter == "") {
             Serial.println(INCORRECT_CMD_MSG);
         } else {
@@ -308,21 +315,26 @@ void COMMAND::execute_command(int cmd,String cmd_params)
                 parameter = get_param(cmd_params,"V", false);
                 //it is a get
                 if (parameter == "") {
-                    parameter = get_param(cmd_params,"PULLUP=", false);
-                    if (parameter == "YES"){
-                        //GPIO16 is different than others
-                        if (pin <16) {
-                            LOG("Set as input pull up\n")
-                            pinMode(pin, INPUT_PULLUP);
-                        } else {
-                            LOG("Set as input pull down 16\n")
-                            pinMode(pin, INPUT_PULLDOWN_16);
+                    //this is to not set pin mode
+                    parameter = get_param(cmd_params,"RAW=", false);
+                    if (parameter !="YES")
+                        {
+                        parameter = get_param(cmd_params,"PULLUP=", false);
+                        if (parameter == "YES"){
+                            //GPIO16 is different than others
+                            if (pin <16) {
+                                LOG("Set as input pull up\r\n")
+                                pinMode(pin, INPUT_PULLUP);
+                            } else {
+                                LOG("Set as input pull down 16\r\n")
+                                pinMode(pin, INPUT_PULLDOWN_16);
+                            }
+                        }else {
+                            LOG("Set as input\r\n")
+                            pinMode(pin, INPUT);
+                            }
+                        delay(100);
                         }
-                    }else {
-                        LOG("Set as input\n")
-                        pinMode(pin, INPUT);
-                        }
-                    delay(100);
                     int value = digitalRead(pin);
                     LOG("Read:");
                     Serial.println(String(value));
@@ -335,7 +347,7 @@ void COMMAND::execute_command(int cmd,String cmd_params)
                         delay(10);
                         LOG("Set:")
                         LOG(String((value == 0)?LOW:HIGH))
-                        LOG("\n")
+                        LOG("\r\n")
                         digitalWrite(pin, (value == 0)?LOW:HIGH);
                     } else {
                         Serial.println(INCORRECT_CMD_MSG);
@@ -477,9 +489,12 @@ void COMMAND::execute_command(int cmd,String cmd_params)
     }
 }
 
-void COMMAND::check_command(String buffer)
+void COMMAND::check_command(String buffer, bool handlelockserial)
 {
     String buffer2;
+    LOG("Check Command:")
+    LOG(buffer)
+     LOG("\r\n")
 //if direct access to SDCard no need to handle the M20 command answer
 #ifndef DIRECT_SDCARD_FEATURE
     static bool bfileslist=false;
@@ -487,9 +502,11 @@ void COMMAND::check_command(String buffer)
     //if SD list is not on going
     if (!bfileslist) {
         //check if command is a start of SD File list
-        int filesstart = buffer.indexOf("Begin file list");
+        LOG("No File list ongoing\r\n")
+        int filesstart = buffer.indexOf("egin file list");
         //yes it is file list starting to be displayed
         if (filesstart>-1) {
+            LOG("Found start File list\r\n")
             //init time out
             start_list = millis();
             //set file list started
@@ -497,7 +514,7 @@ void COMMAND::check_command(String buffer)
             //clear current list
             web_interface->fileslist.clear();
             //block any new output to serial from ESP to avoid pollution
-            (web_interface->blockserial) = true;
+            if (handlelockserial)(web_interface->blockserial) = true;
             return;
         }
 #endif
@@ -634,17 +651,19 @@ void COMMAND::check_command(String buffer)
 #endif
 #ifndef DIRECT_SDCARD_FEATURE
     } else { //listing file is on going
+        LOG("File list is ongoing\r\n")
         //check if we are too long
         if ((millis()-start_list)>30000) { //timeout in case of problem
             bfileslist=false;
-            (web_interface->blockserial) = false; //release serial
-            LOG("Time out\n");
+            if(handlelockserial)(web_interface->blockserial) = false; //release serial
+            LOG("Time out\r\n");
         } else {
             //check if this is the end
-            if (buffer.indexOf("End file list")>-1) {
+            if (buffer.indexOf("nd file list")>-1) {
+                LOG("End File list detected\r\n")
                 bfileslist=false;
-                (web_interface->blockserial) = false;
-                LOG("End list\n");
+                if(handlelockserial)(web_interface->blockserial) = false;
+                LOG("End list\r\n");
             } else {
                 //Serial.print(buffer);
                 //add list to buffer
@@ -652,7 +671,7 @@ void COMMAND::check_command(String buffer)
                 LOG(String(web_interface->fileslist.size()));
                 LOG(":");
                 LOG(buffer);
-                LOG('\n');
+                LOG("\r\n");
             }
         }
     }

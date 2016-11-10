@@ -18,11 +18,10 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "config.h"
-
 #ifndef BRIDGE_H
 #define BRIDGE_H
-
+#include <WiFiServer.h>
+#include "config.h"
 #ifdef TCP_IP_DATA_FEATURE
 extern WiFiServer * data_server;
 #endif
@@ -33,7 +32,9 @@ public:
     static bool processFromSerial2TCP();
 #ifdef TCP_IP_DATA_FEATURE
     static void processFromTCP2Serial();
+    static void send2TCP(const __FlashStringHelper *data);
+    static void send2TCP(String data);
+    static void send2TCP(const char * data);
 #endif
 };
-
 #endif

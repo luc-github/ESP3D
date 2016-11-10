@@ -63,7 +63,7 @@ void setup()
 #ifdef DEBUG_ESP3D
     Serial.begin(DEFAULT_BAUD_RATE);
     delay(2000);
-    LOG("\nDebug Serial set\n")
+    LOG("\r\nDebug Serial set\r\n")
 #endif
     //WiFi.disconnect();
     WiFi.mode(WIFI_OFF);
@@ -79,17 +79,17 @@ void setup()
     if ( CONFIG::read_buffer(EP_BAUD_RATE,  (byte *)&baud_rate , INTEGER_LENGTH)&&CONFIG::read_buffer(EP_WEB_PORT,  (byte *)&(wifi_config.iweb_port) , INTEGER_LENGTH)&&CONFIG::read_buffer(EP_DATA_PORT,  (byte *)&(wifi_config.idata_port) , INTEGER_LENGTH)) {
         //check if baud value is one of allowed ones
         if ( ! (baud_rate==9600 || baud_rate==19200 ||baud_rate==38400 ||baud_rate==57600 ||baud_rate==115200 ||baud_rate==230400 ||baud_rate==250000) ) {
-            LOG("Error for EEPROM baud rate\n")
+            LOG("Error for EEPROM baud rate\r\n")
             breset_config=true;    //baud rate is incorrect =>reset settings
         }
         if (wifi_config.iweb_port<1 ||wifi_config.iweb_port>65001 || wifi_config.idata_port <1 || wifi_config.idata_port >65001) {
             breset_config=true;    //out of range =>reset settings
-            LOG("Error for EEPROM port values\n")
+            LOG("Error for EEPROM port values\r\n")
         }
 
     } else {
         breset_config=true;    //cannot access to config settings=> reset settings
-        LOG("Error no EEPROM access\n")
+        LOG("Error no EEPROM access\r\n")
     }
 
     //reset is requested
@@ -110,14 +110,14 @@ void setup()
         CONFIG::esp_restart();
     }
 #if defined(DEBUG_ESP3D) && defined(DEBUG_OUTPUT_SERIAL)
-    LOG("\n");
+    LOG("\r\n");
     delay(500);
     Serial.flush();
 #endif
     //setup serial
     Serial.begin(baud_rate);
     delay(1000);
-    LOG("Serial Set\n");
+    LOG("Serial Set\r\n");
     wifi_config.baud_rate=baud_rate;
     //Update is done if any so should be Ok
     SPIFFS.begin();
@@ -183,7 +183,7 @@ void setup()
 #ifdef NETBIOS_FEATURE
     NBNS.begin(shost.c_str());
 #endif
-    LOG("Setup Done\n");
+    LOG("Setup Done\r\n");
 }
 
 

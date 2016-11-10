@@ -27,6 +27,29 @@ WiFiServer * data_server;
 WiFiClient serverClients[MAX_SRV_CLIENTS];
 #endif
 
+#ifdef TCP_IP_DATA_FEATURE
+void BRIDGE::send2TCP(const __FlashStringHelper *data){
+    String tmp = data;
+    BRIDGE::send2TCP(tmp.c_str());
+}
+void BRIDGE::send2TCP(String data){
+    BRIDGE::send2TCP(data.c_str());
+}
+void BRIDGE::send2TCP(const char * data)
+{
+    for(uint8_t i = 0; i < MAX_SRV_CLIENTS; i++) {
+            if (serverClients[i] && serverClients[i].connected()) {
+                serverClients[i].write(data, strlen(data));
+                delay(0);
+            }
+        }
+}
+#endif
+
+void debug_esp(String st){
+    BRIDGE::send2TCP(st);
+}
+
 bool BRIDGE::processFromSerial2TCP()
 {
     uint8_t i;
@@ -40,7 +63,7 @@ bool BRIDGE::processFromSerial2TCP()
         for(i = 0; i < MAX_SRV_CLIENTS; i++) {
             if (serverClients[i] && serverClients[i].connected()) {
                 serverClients[i].write(sbuf, len);
-                delay(1);
+                delay(0);
             }
         }
 #endif
