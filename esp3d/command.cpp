@@ -712,7 +712,7 @@ void COMMAND::read_buffer_tcp(uint8_t b)
         previous_was_char=false; //next call will reset the buffer
     }
 //this is not printable but end of command check if need to handle it
-    if (b==13 ||b==10) {
+    if (b==13 || b==10) {
         //reset comment flag
         iscomment = false;
         //Minimum is something like M10 so 3 char
@@ -746,7 +746,7 @@ void COMMAND::read_buffer_serial(uint8_t b)
         previous_was_char=false; //next call will reset the buffer
     }
 //this is not printable but end of command check if need to handle it
-    if (b==13) {
+    if (b==13 || b==10) {
         //reset comment flag
         iscomment = false;
         //Minimum is something like M10 so 3 char
