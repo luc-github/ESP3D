@@ -2707,7 +2707,11 @@ void WebUpdateUpload()
         if(!Update.begin(maxSketchSpace)) { //start with max available size
             web_interface->_upload_status=UPLOAD_STATUS_CANCELLED;
         } else {
+#if (( FIRMWARE_TARGET == REPETIER4DV) || (FIRMWARE_TARGET == REPETIER))
+            Serial.println(F("M117 Update 0%%"));
+#else
             Serial.println(F("M117 Update 0%"));
+#endif
         }
         //Upload write
         //**************
@@ -2719,7 +2723,11 @@ void WebUpdateUpload()
                 last_upload_update = (100 * upload.totalSize) / maxSketchSpace;
                 Serial.print(F("M117 Update "));
                 Serial.print(last_upload_update);
+#if (( FIRMWARE_TARGET == REPETIER4DV) || (FIRMWARE_TARGET == REPETIER))
+                Serial.println(F("%%"));
+#else
                 Serial.println(F("%"));
+#endif
             }
             if(Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
                 web_interface->_upload_status=UPLOAD_STATUS_CANCELLED;
@@ -2730,7 +2738,11 @@ void WebUpdateUpload()
     } else if(upload.status == UPLOAD_FILE_END) {
         if(Update.end(true)) { //true to set the size to the current progress
             //Now Reboot
+#if (( FIRMWARE_TARGET == REPETIER4DV) || (FIRMWARE_TARGET == REPETIER))
+            Serial.println(F("M117 Update 100%%"));
+#else
             Serial.println(F("M117 Update 100%"));
+#endif
             web_interface->_upload_status=UPLOAD_STATUS_SUCCESSFUL;
         }
     } else if(upload.status == UPLOAD_FILE_ABORTED) {
@@ -3392,6 +3404,7 @@ void handle_web_command(){
                 //block every query
                 web_interface->blockserial = true;
                 LOG("Block Serial\r\n")
+#if (PURGE_SERIAL == 1)
                  //empty the serial buffer and incoming data
                 LOG("Start PurgeSerial\r\n")
                 while(Serial.available()){
@@ -3399,18 +3412,21 @@ void handle_web_command(){
                     delay(1);
                     }
                 LOG("End PurgeSerial\r\n")
+#endif
                 web_interface->WebServer.setContentLength(CONTENT_LENGTH_UNKNOWN);
                 web_interface->WebServer.send(200);
                 web_interface->WebServer.sendHeader("Content-Type","text/plain");
                 web_interface->WebServer.sendHeader("Cache-Control","no-cache");
                 //send command
                 LOG(String(cmd.length()))
+#if (PURGE_SERIAL == 1)
                 LOG("Start PurgeSerial\r\n")
                 while(Serial.available()){
                     BRIDGE::processFromSerial2TCP();
                     delay(1);
                     }
                 LOG("End PurgeSerial\r\n")
+#endif
                 LOG("Send Command\r\n")
                 Serial.println(cmd);
                 count = 0;
@@ -3439,7 +3455,7 @@ void handle_web_command(){
                             //get line
                             current_line = current_buffer.substring(0,current_buffer.indexOf("\n"));
                            //if line is command acck - just exit so save the time out period
-                            if ((current_line.indexOf("ok" ) == 0) &&  (current_line.length() == 2))
+                            if ((current_line == "ok") || (current_line == "wait"))
                                 { 
                                     count = MAX_TRY;
                                     LOG("Found ok\r\n")
@@ -3450,8 +3466,13 @@ void handle_web_command(){
                             LOG("\r\n")
                             //check command 
                             COMMAND::check_command(current_line,false);
-                            buffer2send +=current_line;
-                            buffer2send +="\n";
+#if ((FIRMWARE_TARGET == REPETIER) || (FIRMWARE_TARGET == REPETIER4DV))
+                        if ((current_line != "ok 0"))
+#endif 
+                            {
+                                buffer2send +=current_line;
+                                buffer2send +="\n";
+                            }
                             if (buffer2send.length() > 1200) {
                                 web_interface->WebServer.sendContent(buffer2send);
                                 buffer2send = "";
@@ -3471,12 +3492,14 @@ void handle_web_command(){
                             }
                 if (!datasent)web_interface->WebServer.sendContent(" \r\n");
                 web_interface->WebServer.sendContent("");
+#if (PURGE_SERIAL == 1)
                 LOG("Start PurgeSerial\r\n")
                 while(Serial.available()){
                     BRIDGE::processFromSerial2TCP();
                     delay(1);
                     }
                 LOG("End PurgeSerial\r\n")
+#endif
                 web_interface->blockserial = false;
                 LOG("Release Serial\r\n")
                 }

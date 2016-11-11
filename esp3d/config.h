@@ -26,7 +26,12 @@
 #define SMOOTHIEWARE	4
 
 //FIRMWARE_TARGET: the targeted FW, can be REPETIER (Original Repetier)/ REPETIER4DV (Repetier for Davinci) / MARLIN (Marlin)/ SMOOTHIEWARE (Smoothieware)
-#define FIRMWARE_TARGET REPETIER
+#define FIRMWARE_TARGET REPETIER4DV
+
+//Depending of your printer FW configuration you may have a permanent wait identifier
+//sent when printer is idle that can cause trouble
+//uncomment and set value to overload default setting
+//#define PURGE_SERIAL 1
 
 //number of clients allowed to use data port at once
 #define MAX_SRV_CLIENTS 1
@@ -46,7 +51,7 @@
 #define CAPTIVE_PORTAL_FEATURE
 
 //AUTHENTICATION_FEATURE: protect pages by login password
-#define AUTHENTICATION_FEATURE
+//#define AUTHENTICATION_FEATURE
 
 //WEB_UPDATE_FEATURE: allow to flash fw using web UI
 #define WEB_UPDATE_FEATURE
@@ -86,6 +91,14 @@
 //FLOW_MONITORING_FEATURE : catch the specific answer and store it to variable
 #define FLOW_MONITORING_FEATURE
 
+//default seting for purge serial define
+#ifndef PURGE_SERIAL
+#if ((FIRMWARE_TARGET == REPETIER) || (FIRMWARE_TARGET == REPETIER4DV))
+#define PURGE_SERIAL 0
+#else
+#define PURGE_SERIAL 1
+#endif
+#endif
 
 //DEBUG Flag do not do this when connected to printer !!!
 //#define DEBUG_ESP3D
