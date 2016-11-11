@@ -3352,7 +3352,7 @@ void handle_web_command(){
             LOG("\r\n")
         }
 #endif
-    String cmd;
+    String cmd = "";
     int count ;
     if (web_interface->WebServer.hasArg("plain") || web_interface->WebServer.hasArg("commandText")){
          if (web_interface->WebServer.hasArg("plain")) cmd = web_interface->WebServer.arg("plain");
@@ -3480,6 +3480,7 @@ void handle_web_command(){
                 web_interface->blockserial = false;
                 LOG("Release Serial\r\n")
                 }
+                else web_interface->WebServer.send(200,"text/plain","Serial is busy, retry later!");
         }
 }
 
