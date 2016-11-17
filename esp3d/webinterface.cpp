@@ -3467,7 +3467,7 @@ void handle_web_command(){
                             //check command 
                             COMMAND::check_command(current_line,false);
 #if ((FIRMWARE_TARGET == REPETIER) || (FIRMWARE_TARGET == REPETIER4DV))
-                        if ((current_line != "ok 0"))
+                        if (!current_line.startsWith( "ok "))
 #endif 
                             {
                                 buffer2send +=current_line;
