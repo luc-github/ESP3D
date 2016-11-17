@@ -100,6 +100,8 @@
 #endif
 #endif
 
+//Serial rx buffer size is 256 but can be extended
+#define SERIAL_RX_BUFFER_SIZE 512
 //DEBUG Flag do not do this when connected to printer !!!
 //#define DEBUG_ESP3D
 //#define DEBUG_OUTPUT_SPIFFS

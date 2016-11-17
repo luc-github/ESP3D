@@ -96,6 +96,7 @@ void setup()
     if(breset_config) {
         //update EEPROM with default settings
         Serial.begin(DEFAULT_BAUD_RATE);
+        Serial.setRxBufferSize(SERIAL_RX_BUFFER_SIZE);
         delay(2000);
         Serial.println(F("M117 ESP EEPROM reset"));
 #ifdef DEBUG_ESP3D
@@ -116,6 +117,7 @@ void setup()
 #endif
     //setup serial
     Serial.begin(baud_rate);
+    Serial.setRxBufferSize(SERIAL_RX_BUFFER_SIZE);
     delay(1000);
     LOG("Serial Set\r\n");
     wifi_config.baud_rate=baud_rate;
