@@ -2326,12 +2326,12 @@ void SPIFFSFileupload()
         Serial.println("M117 Error ESP upload");
         return;
     }
+    static String filename;
     //get current file ID
     HTTPUpload& upload = (web_interface->WebServer).upload();
     //Upload start
     //**************
     if(upload.status == UPLOAD_FILE_START) {
-        String filename;
         //according User or Admin the root is different as user is isolate to /user when admin has full access
         if(auth_level == LEVEL_ADMIN) {
             filename = upload.filename;
@@ -2359,7 +2359,7 @@ void SPIFFSFileupload()
             //no error so write post date
             web_interface->fsUploadFile.write(upload.buf, upload.currentSize);
         } else {
-            //we have a proble set flag UPLOAD_STATUS_CANCELLED
+            //we have a problem set flag UPLOAD_STATUS_CANCELLED
             web_interface->_upload_status=UPLOAD_STATUS_CANCELLED;
             Serial.println("M117 Error ESP write");
         }
@@ -2373,14 +2373,16 @@ void SPIFFSFileupload()
             web_interface->fsUploadFile.close();
             web_interface->_upload_status=UPLOAD_STATUS_SUCCESSFUL;
         } else {
-            //we have a proble set flag UPLOAD_STATUS_CANCELLED
+            //we have a problem set flag UPLOAD_STATUS_CANCELLED
             web_interface->_upload_status=UPLOAD_STATUS_CANCELLED;
+            SPIFFS.remove(filename);
             Serial.println("M117 Error ESP close");
         }
         //Upload cancelled
         //**************
     } else {
         web_interface->_upload_status=UPLOAD_STATUS_CANCELLED;
+        SPIFFS.remove(filename);
         Serial.println("M117 Error ESP upload");
     }
     delay(0);
@@ -2396,6 +2398,7 @@ void SDFileupload()
     static int  buffer_size;
     static bool com_error = false;
     static bool is_comment = false;
+    static String filename;
     String response;
     //Guest cannot upload - only admin and user
     if(web_interface->is_authenticated() == LEVEL_GUEST) {
@@ -2434,6 +2437,7 @@ static size_t filesize;
         String filename = "M28 " + upload.filename;
         Serial.println(filename);
         Serial.flush();
+        filename = upload.filename;
         //now need to purge all serial data
         //let's sleep 1s
         delay(1000);
@@ -2653,6 +2657,8 @@ static size_t filesize;
         if (com_error) {
             LOG("with error\r\n");
             web_interface->_upload_status=UPLOAD_STATUS_CANCELLED;
+            filename = "M30 " + filename;
+            Serial.println(filename);
             Serial.println("M117 SD upload failed");
             Serial.flush();
         } else {
@@ -2677,6 +2683,8 @@ static size_t filesize;
         //resend M29 command to close file on SD as first command may be lost
         Serial.print("\r\nM29\r\n");
         Serial.flush();
+        filename = "M30 " + filename;
+        Serial.println(filename);
         Serial.println("M117 SD upload failed");
         Serial.flush();
     }
@@ -2766,7 +2774,7 @@ void handleUpdate()
     //if success restart
     if (web_interface->_upload_status==UPLOAD_STATUS_SUCCESSFUL) {
         web_interface->restartmodule=true;
-    }
+    } else web_interface->_upload_status=UPLOAD_STATUS_NONE;
 }
 #endif
 
@@ -2774,10 +2782,12 @@ void handleFileList()
 {
     level_authenticate_type auth_level = web_interface->is_authenticated();
     if (auth_level == LEVEL_GUEST) {
+        web_interface->_upload_status=UPLOAD_STATUS_NONE;
         return;
     }
     String path ;
     String status = "Ok";
+    if ((web_interface->_upload_status == UPLOAD_STATUS_FAILED) || (web_interface->_upload_status == UPLOAD_STATUS_CANCELLED)) status = "Upload failed";
     //be sure root is correct according authentication
     if (auth_level == LEVEL_ADMIN) {
         path = "/";
@@ -2938,17 +2948,20 @@ void handleFileList()
     path = "";
     web_interface->WebServer.sendHeader("Cache-Control", "no-cache");
     web_interface->WebServer.send(200, "application/json", jsonfile);
+    web_interface->_upload_status=UPLOAD_STATUS_NONE;
 }
 
 void handleSDFileList()
 {
     char tmp[255];
     if (web_interface->is_authenticated() == LEVEL_GUEST) {
+        web_interface->_upload_status=UPLOAD_STATUS_NONE;
         return;
     }
     LOG("List SD FILES\r\n")
     String path="/";
     String sstatus="Ok";
+    if ((web_interface->_upload_status == UPLOAD_STATUS_FAILED) || (web_interface->_upload_status == UPLOAD_STATUS_CANCELLED)) sstatus = "Upload failed";
     uint32_t totalspace = 0;
     uint32_t usedspace = 0;
     //get current path
@@ -3091,6 +3104,7 @@ void handleSDFileList()
     web_interface->WebServer.sendHeader("Cache-Control", "no-cache");
     web_interface->WebServer.send(200, "application/json", jsonfile);
     web_interface->blockserial = false;
+    web_interface->_upload_status=UPLOAD_STATUS_NONE;
 }
 
 //do a redirect to avoid to many query
