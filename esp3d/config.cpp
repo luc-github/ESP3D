@@ -70,9 +70,9 @@ bool CONFIG::isSSIDValid(const char * ssid)
     for (int i=0; i < strlen(ssid); i++) {
         c = ssid[i];
         //if (!(isdigit(c) || isalpha(c))) return false;
-        if (c==' ') {
-            return false;
-        }
+        //if (c==' ') {
+       //     return false;
+       //}
     }
     return true;
 }
