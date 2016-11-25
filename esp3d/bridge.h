@@ -29,11 +29,20 @@ extern WiFiServer * data_server;
 class BRIDGE
 {
 public:
+    static bool header_sent;
+    static String buffer_web;
     static bool processFromSerial2TCP();
+    static void print (const __FlashStringHelper *data, tpipe output);
+    static void print (String & data, tpipe output);
+    static void print (const char * data, tpipe output);
+    static void println (const __FlashStringHelper *data, tpipe output);
+    static void println (String & data, tpipe output);
+    static void println (const char * data, tpipe output);
+    static void flush (tpipe output);
 #ifdef TCP_IP_DATA_FEATURE
     static void processFromTCP2Serial();
     static void send2TCP(const __FlashStringHelper *data);
-    static void send2TCP(String data);
+    static void send2TCP(String & data);
     static void send2TCP(const char * data);
 #endif
 };

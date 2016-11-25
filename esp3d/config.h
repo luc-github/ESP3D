@@ -20,10 +20,10 @@
 
 //definition
 #define REPETIER		0
-#define REPETIER4DV	1
+#define REPETIER4DV	    1
 #define MARLIN		2
 #define MARLINKIMBRA		3
-#define SMOOTHIEWARE	4
+#define SMOOTHIEWARE	    4
 
 //FIRMWARE_TARGET: the targeted FW, can be REPETIER (Original Repetier)/ REPETIER4DV (Repetier for Davinci) / MARLIN (Marlin)/ SMOOTHIEWARE (Smoothieware)
 #define FIRMWARE_TARGET REPETIER4DV
@@ -102,6 +102,7 @@
 
 //Serial rx buffer size is 256 but can be extended
 #define SERIAL_RX_BUFFER_SIZE 512
+
 //DEBUG Flag do not do this when connected to printer !!!
 //#define DEBUG_ESP3D
 //#define DEBUG_OUTPUT_SPIFFS
@@ -158,9 +159,18 @@ extern "C" {
 }
 #include "wifi.h"
 //version and sources location
-#define FW_VERSION "0.9.71"
+#define FW_VERSION "0.9.72"
 #define REPOSITORY "https://github.com/luc-github/ESP3D"
 
+typedef enum {
+    NO_PIPE = 0, 
+    SERIAL_PIPE = 2, 
+    SERIAL1_PIPE = 3,
+#ifdef TCP_IP_DATA_FEATURE
+    TCP_PIPE = 4, 
+#endif
+    WEB_PIPE = 5
+    } tpipe;  
 
 //flags
 #define AP_MODE			1
@@ -259,7 +269,7 @@ public:
     static bool write_buffer(int pos, const byte * byte_buffer, int size_buffer);
     static bool write_byte(int pos, const byte value);
     static bool reset_config();
-    static void print_config();
+    static void print_config(tpipe output);
     static bool isHostnameValid(const char * hostname);
     static bool isSSIDValid(const char * ssid);
     static bool isPasswordValid(const char * password);

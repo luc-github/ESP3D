@@ -32,9 +32,9 @@
 String COMMAND::buffer_serial;
 String COMMAND::buffer_tcp;
 
-#define ERROR_CMD_MSG F("\nM117 Cmd Error")
-#define INCORRECT_CMD_MSG F("\nM117 Incorrect Cmd")
-#define OK_CMD_MSG F("\nM117 Cmd Ok")
+#define ERROR_CMD_MSG F("M117 Cmd Error")
+#define INCORRECT_CMD_MSG F("M117 Incorrect Cmd")
+#define OK_CMD_MSG F("M117 Cmd Ok")
 
 String COMMAND::get_param(String & cmd_params, const char * id, bool withspace)
 {
@@ -92,7 +92,7 @@ bool COMMAND::isadmin(String & cmd_params)
     }
 }
 #endif
-void COMMAND::execute_command(int cmd,String cmd_params)
+void COMMAND::execute_command(int cmd,String cmd_params, tpipe output)
 {
     //manage parameters
     byte mode = 254;
@@ -104,17 +104,17 @@ void COMMAND::execute_command(int cmd,String cmd_params)
     case 100:
         parameter = get_param(cmd_params,"", true);
         if (!CONFIG::isSSIDValid(parameter.c_str())) {
-            Serial.println(INCORRECT_CMD_MSG);
+            BRIDGE::println(INCORRECT_CMD_MSG, output);
         }
 #ifdef AUTHENTICATION_FEATURE
         if (!isadmin(cmd_params)) {
-            Serial.println(INCORRECT_CMD_MSG);
+            BRIDGE::println(INCORRECT_CMD_MSG, output);
         } else
 #endif
             if(!CONFIG::write_string(EP_STA_SSID,parameter.c_str())) {
-                Serial.println(ERROR_CMD_MSG);
+                BRIDGE::println(ERROR_CMD_MSG, output);
             } else {
-                Serial.println(OK_CMD_MSG);
+                BRIDGE::println(OK_CMD_MSG, output);
             }
         break;
     //STA Password
@@ -122,17 +122,17 @@ void COMMAND::execute_command(int cmd,String cmd_params)
     case 101:
         parameter = get_param(cmd_params,"", true);
         if (!CONFIG::isPasswordValid(parameter.c_str())) {
-            Serial.println(INCORRECT_CMD_MSG);
+            BRIDGE::println(INCORRECT_CMD_MSG, output);
         }
 #ifdef AUTHENTICATION_FEATURE
         if (!isadmin(cmd_params)) {
-            Serial.println(INCORRECT_CMD_MSG);
+            BRIDGE::println(INCORRECT_CMD_MSG, output);
         } else
 #endif
             if(!CONFIG::write_string(EP_STA_PASSWORD,parameter.c_str())) {
-                Serial.println(ERROR_CMD_MSG);
+                BRIDGE::println(ERROR_CMD_MSG, output);
             } else {
-                Serial.println(OK_CMD_MSG);
+                BRIDGE::println(OK_CMD_MSG, output);
             }
         break;
     //Hostname
@@ -140,17 +140,17 @@ void COMMAND::execute_command(int cmd,String cmd_params)
     case 102:
         parameter = get_param(cmd_params,"", true);
         if (!CONFIG::isHostnameValid(parameter.c_str())) {
-            Serial.println(INCORRECT_CMD_MSG);
+            BRIDGE::println(INCORRECT_CMD_MSG, output);
         }
 #ifdef AUTHENTICATION_FEATURE
         if (!isadmin(cmd_params)) {
-            Serial.println(INCORRECT_CMD_MSG);
+            BRIDGE::println(INCORRECT_CMD_MSG, output);
         } else
 #endif
             if(!CONFIG::write_string(EP_HOSTNAME,parameter.c_str())) {
-                Serial.println(ERROR_CMD_MSG);
+                BRIDGE::println(ERROR_CMD_MSG, output);
             } else {
-                Serial.println(OK_CMD_MSG);
+                BRIDGE::println(OK_CMD_MSG, output);
             }
         break;
     //Wifi mode (STA/AP)
@@ -162,18 +162,18 @@ void COMMAND::execute_command(int cmd,String cmd_params)
         } else if (parameter == "AP") {
             mode = AP_MODE;
         } else {
-            Serial.println(INCORRECT_CMD_MSG);
+            BRIDGE::println(INCORRECT_CMD_MSG, output);
         }
         if ((mode == CLIENT_MODE) || (mode == AP_MODE)) {
 #ifdef AUTHENTICATION_FEATURE
             if (!isadmin(cmd_params)) {
-                Serial.println(INCORRECT_CMD_MSG);
+                BRIDGE::println(INCORRECT_CMD_MSG, output);
             } else
 #endif
                 if(!CONFIG::write_byte(EP_WIFI_MODE,mode)) {
-                    Serial.println(ERROR_CMD_MSG);
+                    BRIDGE::println(ERROR_CMD_MSG, output);
                 } else {
-                    Serial.println(OK_CMD_MSG);
+                    BRIDGE::println(OK_CMD_MSG, output);
                 }
         }
         break;
@@ -186,18 +186,18 @@ void COMMAND::execute_command(int cmd,String cmd_params)
         } else if (parameter == "DHCP") {
             mode = DHCP_MODE;
         } else {
-            Serial.println(INCORRECT_CMD_MSG);
+            BRIDGE::println(INCORRECT_CMD_MSG, output);
         }
         if ((mode == STATIC_IP_MODE) || (mode == DHCP_MODE)) {
 #ifdef AUTHENTICATION_FEATURE
             if (!isadmin(cmd_params)) {
-                Serial.println(INCORRECT_CMD_MSG);
+                BRIDGE::println(INCORRECT_CMD_MSG, output);
             } else
 #endif
                 if(!CONFIG::write_byte(EP_STA_IP_MODE,mode)) {
-                    Serial.println(ERROR_CMD_MSG);
+                    BRIDGE::println(ERROR_CMD_MSG, output);
                 } else {
-                    Serial.println(OK_CMD_MSG);
+                    BRIDGE::println(OK_CMD_MSG, output);
                 }
         }
         break;
@@ -206,17 +206,17 @@ void COMMAND::execute_command(int cmd,String cmd_params)
     case 105:
         parameter = get_param(cmd_params,"", true);
         if (!CONFIG::isSSIDValid(parameter.c_str())) {
-            Serial.println(INCORRECT_CMD_MSG);
+            BRIDGE::println(INCORRECT_CMD_MSG, output);
         }
 #ifdef AUTHENTICATION_FEATURE
         if (!isadmin(cmd_params)) {
-            Serial.println(INCORRECT_CMD_MSG);
+            BRIDGE::println(INCORRECT_CMD_MSG, output);
         } else
 #endif
             if(!CONFIG::write_string(EP_AP_SSID,parameter.c_str())) {
-                Serial.println(ERROR_CMD_MSG);
+                BRIDGE::println(ERROR_CMD_MSG, output);
             } else {
-                Serial.println(OK_CMD_MSG);
+                BRIDGE::println(OK_CMD_MSG, output);
             }
         break;
     //AP Password
@@ -224,17 +224,17 @@ void COMMAND::execute_command(int cmd,String cmd_params)
     case 106:
         parameter = get_param(cmd_params,"", true);
         if (!CONFIG::isPasswordValid(parameter.c_str())) {
-            Serial.println(INCORRECT_CMD_MSG);
+            BRIDGE::println(INCORRECT_CMD_MSG, output);
         }
 #ifdef AUTHENTICATION_FEATURE
         if (!isadmin(cmd_params)) {
-            Serial.println(INCORRECT_CMD_MSG);
+            BRIDGE::println(INCORRECT_CMD_MSG, output);
         } else
 #endif
             if(!CONFIG::write_string(EP_AP_PASSWORD,parameter.c_str())) {
-                Serial.println(ERROR_CMD_MSG);
+                BRIDGE::println(ERROR_CMD_MSG, output);
             } else {
-                Serial.println(OK_CMD_MSG);
+                BRIDGE::println(OK_CMD_MSG, output);
             }
         break;
     //AP IP mode (DHCP/STATIC)
@@ -246,18 +246,18 @@ void COMMAND::execute_command(int cmd,String cmd_params)
         } else if (parameter == "DHCP") {
             mode = DHCP_MODE;
         } else {
-            Serial.println(INCORRECT_CMD_MSG);
+            BRIDGE::println(INCORRECT_CMD_MSG, output);
         }
         if ((mode == STATIC_IP_MODE) || (mode == DHCP_MODE)) {
 #ifdef AUTHENTICATION_FEATURE
             if (!isadmin(cmd_params)) {
-                Serial.println(INCORRECT_CMD_MSG);
+                BRIDGE::println(INCORRECT_CMD_MSG, output);
             } else
 #endif
                 if(!CONFIG::write_byte(EP_AP_IP_MODE,mode)) {
-                    Serial.println(ERROR_CMD_MSG);
+                    BRIDGE::println(ERROR_CMD_MSG, output);
                 } else {
-                    Serial.println(OK_CMD_MSG);
+                    BRIDGE::println(OK_CMD_MSG, output);
                 }
         }
         break;
@@ -270,10 +270,8 @@ void COMMAND::execute_command(int cmd,String cmd_params)
         } else {
             currentIP=WiFi.softAPIP().toString();
         }
-        Serial.print("\n\r");
-        Serial.print(cmd_params);
-        Serial.println(currentIP);
-        Serial.print("\r\n");
+        BRIDGE::print(cmd_params, output);
+        BRIDGE::println(currentIP, output);
         LOG(cmd_params)
         LOG(currentIP)
         LOG("\r\n")
@@ -286,10 +284,8 @@ void COMMAND::execute_command(int cmd,String cmd_params)
         if (!CONFIG::read_string(EP_HOSTNAME, shost , MAX_HOSTNAME_LENGTH)) {
             shost=wifi_config.get_default_hostname();
         }
-        Serial.print("\n\r");
-        Serial.print(cmd_params);
-        Serial.println(shost);
-        Serial.print("\r\n");
+        BRIDGE::print(cmd_params, output);
+        BRIDGE::println(shost, output);
         LOG(cmd_params)
         LOG(shost)
         LOG("\r\n")
@@ -306,7 +302,7 @@ void COMMAND::execute_command(int cmd,String cmd_params)
         LOG(parameter)
         LOG("\r\n")
         if (parameter == "") {
-            Serial.println(INCORRECT_CMD_MSG);
+            BRIDGE::println(INCORRECT_CMD_MSG, output);
         } else {
             int pin = parameter.toInt();
             //check pin is valid and not serial used pins
@@ -337,7 +333,7 @@ void COMMAND::execute_command(int cmd,String cmd_params)
                         }
                     int value = digitalRead(pin);
                     LOG("Read:");
-                    Serial.println(String(value));
+                    BRIDGE::println(String(value).c_str(), output);
                 } else {
                     //it is a set
                     int value = parameter.toInt();
@@ -350,11 +346,11 @@ void COMMAND::execute_command(int cmd,String cmd_params)
                         LOG("\r\n")
                         digitalWrite(pin, (value == 0)?LOW:HIGH);
                     } else {
-                        Serial.println(INCORRECT_CMD_MSG);
+                        BRIDGE::println(INCORRECT_CMD_MSG, output);
                     }
                 }
             } else {
-                Serial.println(INCORRECT_CMD_MSG);
+                BRIDGE::println(INCORRECT_CMD_MSG, output);
             }
         }
     }
@@ -368,7 +364,7 @@ void COMMAND::execute_command(int cmd,String cmd_params)
         parameter = get_param(cmd_params,"", true);
 #ifdef AUTHENTICATION_FEATURE
         if (!isadmin(cmd_params)) {
-            Serial.println(INCORRECT_CMD_MSG);
+            BRIDGE::println(INCORRECT_CMD_MSG, output);
         } else
 #endif
         {
@@ -383,7 +379,7 @@ void COMMAND::execute_command(int cmd,String cmd_params)
             }
         }
         if (parameter=="CONFIG") {
-            CONFIG::print_config();
+            CONFIG::print_config(output);
         }
         break;
 #ifdef AUTHENTICATION_FEATURE
@@ -394,23 +390,23 @@ void COMMAND::execute_command(int cmd,String cmd_params)
             parameter = get_param(cmd_params,"", true);
             if (parameter.length() == 0) {
                 if(CONFIG::write_string(EP_USER_PWD,FPSTR(DEFAULT_USER_PWD))) {
-                    Serial.println(OK_CMD_MSG);
+                    BRIDGE::println(OK_CMD_MSG, output);
                 } else {
-                    Serial.println(ERROR_CMD_MSG);
+                    BRIDGE::println(ERROR_CMD_MSG, output);
                 }
             } else {
                 if (CONFIG::isLocalPasswordValid(parameter.c_str())) {
                     if(CONFIG::write_string(EP_USER_PWD,parameter.c_str())) {
-                        Serial.println(OK_CMD_MSG);
+                        BRIDGE::println(OK_CMD_MSG, output);
                     } else {
-                        Serial.println(ERROR_CMD_MSG);
+                        BRIDGE::println(ERROR_CMD_MSG, output);
                     }
                 } else {
-                    Serial.println(INCORRECT_CMD_MSG);
+                    BRIDGE::println(INCORRECT_CMD_MSG, output);
                 }
             }
         } else {
-            Serial.println(INCORRECT_CMD_MSG);
+            BRIDGE::println(INCORRECT_CMD_MSG, output);
         }
         break;
     }
@@ -449,9 +445,9 @@ void COMMAND::execute_command(int cmd,String cmd_params)
     //get fw version
     //[ESP800]<header answer>
     case 800:
-        Serial.print(cmd_params);
-        Serial.print("\nFW version:");
-        Serial.println(FW_VERSION);
+        BRIDGE::print(cmd_params, output);
+        BRIDGE::print("FW version:", output);
+        BRIDGE::println(FW_VERSION, output);
         break;
     //clear status/error/info list
     //[ESP999]<cmd>
@@ -485,16 +481,15 @@ void COMMAND::execute_command(int cmd,String cmd_params)
         }
         break;
         //default:
-
     }
 }
 
-void COMMAND::check_command(String buffer, bool handlelockserial)
+void COMMAND::check_command(String buffer, tpipe output, bool handlelockserial)
 {
     String buffer2;
     LOG("Check Command:")
     LOG(buffer)
-     LOG("\r\n")
+    LOG("\r\n")
 //if direct access to SDCard no need to handle the M20 command answer
 #ifndef DIRECT_SDCARD_FEATURE
     static bool bfileslist=false;
@@ -576,7 +571,7 @@ void COMMAND::check_command(String buffer, bool handlelockserial)
                 }
                 //if command is a valid number then execute command
                 if(cmd_part1.toInt()!=0) {
-                    execute_command(cmd_part1.toInt(),cmd_part2);
+                    execute_command(cmd_part1.toInt(),cmd_part2,output);
                 }
                 //if not is not a valid [ESPXXX] command
             }
@@ -717,7 +712,7 @@ void COMMAND::read_buffer_tcp(uint8_t b)
         iscomment = false;
         //Minimum is something like M10 so 3 char
         if (buffer_tcp.length()>3) {
-            check_command(buffer_tcp);
+            check_command(buffer_tcp, TCP_PIPE);
         }
     }
 }
@@ -751,7 +746,7 @@ void COMMAND::read_buffer_serial(uint8_t b)
         iscomment = false;
         //Minimum is something like M10 so 3 char
         if (buffer_serial.length()>3) {
-            check_command(buffer_serial);
+            check_command(buffer_serial, SERIAL_PIPE);
         }
     }
 }

@@ -21,6 +21,7 @@
 #ifndef COMMAND_h
 #define COMMAND_h
 #include <Arduino.h>
+#include "bridge.h"
 
 class COMMAND
 {
@@ -30,8 +31,8 @@ public:
     static void read_buffer_serial(uint8_t *b, size_t len);
     static void read_buffer_serial(uint8_t b);
     static void read_buffer_tcp(uint8_t b);
-    static void check_command(String buffer,bool handlelockserial = true);
-    static void execute_command(int cmd,String cmd_params);
+    static void check_command(String buffer, tpipe output, bool handlelockserial = true);
+    static void execute_command(int cmd,String cmd_params, tpipe output);
     static String get_param(String & cmd_params, const char * id, bool withspace = false);
     static bool isadmin(String & cmd_params);
 

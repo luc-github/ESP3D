@@ -3407,7 +3407,8 @@ void handle_web_command(){
                 }
                 //if command is a valid number then execute command
                 if(cmd_part1.toInt()!=0) {
-                    COMMAND::execute_command(cmd_part1.toInt(),cmd_part2);
+                    COMMAND::execute_command(cmd_part1.toInt(),cmd_part2,WEB_PIPE);
+                    BRIDGE::flush(WEB_PIPE);
                 }
                 //if not is not a valid [ESPXXX] command
             }
@@ -3479,7 +3480,7 @@ void handle_web_command(){
                             LOG(current_line)
                             LOG("\r\n")
                             //check command 
-                            COMMAND::check_command(current_line,false);
+                            COMMAND::check_command(current_line, NO_PIPE, false);
 #if ((FIRMWARE_TARGET == REPETIER) || (FIRMWARE_TARGET == REPETIER4DV))
                         if (!current_line.startsWith( "ok "))
 #endif 
