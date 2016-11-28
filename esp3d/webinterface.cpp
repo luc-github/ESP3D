@@ -348,7 +348,7 @@ bool WEBINTERFACE_CLASS::processTemplate(const char  * filename, STORESTRINGS_CL
                                 //send header with calculated size
                                 header_sent=true;
                                 web_interface->WebServer.setContentLength(CONTENT_LENGTH_UNKNOWN);
-                                web_interface->WebServer.sendHeader("Content-Type","text/html");
+                                web_interface->WebServer.sendHeader("Content-Type","text/html",true);
                                 web_interface->WebServer.sendHeader("Cache-Control","no-cache");
                                 web_interface->WebServer.send(200);
                             }
@@ -383,9 +383,9 @@ bool WEBINTERFACE_CLASS::processTemplate(const char  * filename, STORESTRINGS_CL
         if (!header_sent) {
             //send header
             web_interface->WebServer.setContentLength(CONTENT_LENGTH_UNKNOWN);
-            web_interface->WebServer.send(200);
-            web_interface->WebServer.sendHeader("Content-Type","text/html");
+            web_interface->WebServer.sendHeader("Content-Type","text/html",true);            
             web_interface->WebServer.sendHeader("Cache-Control","no-cache");
+            web_interface->WebServer.send(200);
         }
         //send data
         web_interface->WebServer.sendContent(buffer2send);
@@ -3429,9 +3429,9 @@ void handle_web_command(){
                 LOG("End PurgeSerial\r\n")
 #endif
                 web_interface->WebServer.setContentLength(CONTENT_LENGTH_UNKNOWN);
+                web_interface->WebServer.sendHeader("Content-Type","text/plain",true);
+                web_interface->WebServer.sendHeader("Cache-Control","no-cache");                
                 web_interface->WebServer.send(200);
-                web_interface->WebServer.sendHeader("Content-Type","text/plain");
-                web_interface->WebServer.sendHeader("Cache-Control","no-cache");
                 //send command
                 LOG(String(cmd.length()))
 #if (PURGE_SERIAL == 1)
