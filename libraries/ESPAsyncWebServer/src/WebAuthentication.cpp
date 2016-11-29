@@ -84,7 +84,7 @@ static String genRandomMD5(){
   return res;
 }
 
-static String stringMD5(String in){
+static String stringMD5(const String& in){
   char * out = (char*)malloc(33);
   if(out == NULL || !getMD5((uint8_t*)(in.c_str()), in.length(), out))
     return "";
@@ -132,7 +132,7 @@ bool checkDigestAuthentication(const char * header, const char * method, const c
   }
 
   String myHeader = String(header);
-  int nextBreak = myHeader.indexOf(", ");
+  int nextBreak = myHeader.indexOf(",");
   if(nextBreak < 0){
     //os_printf("AUTH FAIL: no variables\n");
     return false;
@@ -150,8 +150,9 @@ bool checkDigestAuthentication(const char * header, const char * method, const c
   myHeader += ", ";
   do {
     String avLine = myHeader.substring(0, nextBreak);
-    myHeader = myHeader.substring(nextBreak+2);
-    nextBreak = myHeader.indexOf(", ");
+    avLine.trim();
+    myHeader = myHeader.substring(nextBreak+1);
+    nextBreak = myHeader.indexOf(",");
 
     int eqSign = avLine.indexOf("=");
     if(eqSign < 0){
