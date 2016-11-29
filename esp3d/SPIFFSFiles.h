@@ -27,9 +27,9 @@ private:
     bool _authenticated;
 public:
     SPIFFSFiles();
-    bool canHandle(AsyncWebServerRequest *request);
-    void handleRequest(AsyncWebServerRequest *request);
-    void handleUpload(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final);
+    virtual bool canHandle(AsyncWebServerRequest *request) override final;
+    virtual void handleRequest(AsyncWebServerRequest *request) override final;
+    virtual void handleUpload(AsyncWebServerRequest *request, const String & filename, size_t index, uint8_t *data, size_t len, bool final) override final;
 };
 
 #endif

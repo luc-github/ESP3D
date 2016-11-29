@@ -63,6 +63,7 @@ bool SPIFFSFiles::canHandle(AsyncWebServerRequest *request)
             }
         return true;
         } else if(request->method() == HTTP_POST) {
+            LOG("/files accept this request")
             return true;
         }
     }
@@ -89,7 +90,7 @@ void SPIFFSFiles::handleRequest(AsyncWebServerRequest *request)
         //return request->requestAuthentication();
         }
 #endif
-      _authenticated = true;
+    _authenticated = true;
     LOG("Enter handle for /files\npath=")
     String status = "Ok";
     String path = "" ;
@@ -321,20 +322,24 @@ void SPIFFSFiles::handleRequest(AsyncWebServerRequest *request)
     LOG("Exit handle\n")
 }
 
-void SPIFFSFiles::handleUpload(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final)
+void SPIFFSFiles::handleUpload(AsyncWebServerRequest *request, const String & filename, size_t index, uint8_t *data, size_t len, bool final)
 {
     LOG("Uploading: ")
     LOG(filename)
     LOG("\n")
-    if (filename[0] != '/')
+    String upload_filename = filename;
+    if (upload_filename[0] != '/')
         {
-            filename = "/" + filename;
+            upload_filename = "/" + filename;
             LOG ("Fix :")
-            LOG(filename)
+            LOG(upload_filename)
             LOG ("\n")
         }
    
     if(!index) {
+        LOG("Upload start: ")
+        LOG("filename")
+        LOG("\n")
 #ifdef AUTHENTICATION_FEATURE
     String sadminPassword;
    // String suserid = FPSTR(DEFAULT_USER_LOGIN);
@@ -347,12 +352,12 @@ void SPIFFSFiles::handleUpload(AsyncWebServerRequest *request, String filename, 
 #endif
         {
             _authenticated = true;
-            LOG(filename)
-            if (SPIFFS.exists(filename)) {
-                SPIFFS.remove(filename);
+            LOG(upload_filename)
+            if (SPIFFS.exists(upload_filename)) {
+                SPIFFS.remove(upload_filename);
             }
             if (request->_tempFile)request->_tempFile.close();
-            request->_tempFile = SPIFFS.open(filename, "w");
+            request->_tempFile = SPIFFS.open(upload_filename, "w");
             if(!request->_tempFile) {LOG("Error")}
         }
     }
