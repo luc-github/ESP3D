@@ -21,7 +21,7 @@
 #ifndef STORESTRINGS_h
 #define STORESTRINGS_h
 #include <ESP8266WiFi.h>
-#include "LinkedList.h"
+#include "GenLinkedList.h"
 class STORESTRINGS_CLASS
 {
 public:
@@ -55,7 +55,7 @@ public:
 private:
     int _maxsize;
     int _maxstringlength;
-    LinkedList<char *> _charlist;
+    GenLinkedList<char *> _charlist;
 };
 
 #endif

@@ -1,5 +1,5 @@
 /*
-	LinkedList.h - V1.1 - Generic LinkedList implementation
+	GenLinkedList.h - V1.1 - Generic LinkedList implementation
 	Works better with FIFO, because LIFO will need to
 	search the entire List to find the last one;
 
@@ -8,11 +8,12 @@
 	Created by Ivan Seidel Gomes, March, 2013.
 	Released into the public domain.
 	Changelog: 2015/10/05: [Luc] Change false to NULL for pointers
+             : 2016/11/29: [Luc] Change class name to GenLinkedList to avoid conflict 
 */
 
 
-#ifndef LinkedList_h
-#define LinkedList_h
+#ifndef GenLinkedList_h
+#define GenLinkedList_h
 
 template<class T>
 struct ListNode {
@@ -21,7 +22,7 @@ struct ListNode {
 };
 
 template <typename T>
-class LinkedList
+class GenLinkedList
 {
 
 protected:
@@ -33,32 +34,32 @@ protected:
     ListNode<T> *lastNodeGot;
     int lastIndexGot;
     // isCached should be set to FALSE
-    // everytime the list suffer changes
+    // every time the list suffer changes
     bool isCached;
 
     ListNode<T>* getNode(int index);
 
 public:
-    LinkedList();
-    ~LinkedList();
+    GenLinkedList();
+    ~GenLinkedList();
 
     /*
-    	Returns current size of LinkedList
+    	Returns current size of GenLinkedList
     */
     virtual int size();
     /*
     	Adds a T object in the specified index;
-    	Unlink and link the LinkedList correcly;
+    	Unlink and link the GenLinkedList correcly;
     	Increment _size
     */
     virtual bool add(int index, T);
     /*
-    	Adds a T object in the end of the LinkedList;
+    	Adds a T object in the end of the GenLinkedList;
     	Increment _size;
     */
     virtual bool add(T);
     /*
-    	Adds a T object in the start of the LinkedList;
+    	Adds a T object in the start of the GenLinkedList;
     	Increment _size;
     */
     virtual bool unshift(T);
@@ -95,9 +96,9 @@ public:
 
 };
 
-// Initialize LinkedList with false values
+// Initialize GenLinkedList with false values
 template<typename T>
-LinkedList<T>::LinkedList()
+GenLinkedList<T>::GenLinkedList()
 {
     root=NULL;
     last=NULL;
@@ -110,7 +111,7 @@ LinkedList<T>::LinkedList()
 
 // Clear Nodes and free Memory
 template<typename T>
-LinkedList<T>::~LinkedList()
+GenLinkedList<T>::~GenLinkedList()
 {
     ListNode<T>* tmp;
     while(root!=NULL) {
@@ -124,18 +125,18 @@ LinkedList<T>::~LinkedList()
 }
 
 /*
-	Actualy "logic" coding
+	Actually "logic" coding
 */
 
 template<typename T>
-ListNode<T>* LinkedList<T>::getNode(int index)
+ListNode<T>* GenLinkedList<T>::getNode(int index)
 {
 
     int _pos = 0;
     ListNode<T>* current = root;
 
     // Check if the node trying to get is
-    // immediatly AFTER the previous got one
+    // immediately AFTER the previous got one
     if(isCached && lastIndexGot <= index) {
         _pos = lastIndexGot;
         current = lastNodeGot;
@@ -160,13 +161,13 @@ ListNode<T>* LinkedList<T>::getNode(int index)
 }
 
 template<typename T>
-int LinkedList<T>::size()
+int GenLinkedList<T>::size()
 {
     return _size;
 }
 
 template<typename T>
-bool LinkedList<T>::add(int index, T _t)
+bool GenLinkedList<T>::add(int index, T _t)
 {
 
     if(index >= _size) {
@@ -190,7 +191,7 @@ bool LinkedList<T>::add(int index, T _t)
 }
 
 template<typename T>
-bool LinkedList<T>::add(T _t)
+bool GenLinkedList<T>::add(T _t)
 {
 
     ListNode<T> *tmp = new ListNode<T>();
@@ -214,7 +215,7 @@ bool LinkedList<T>::add(T _t)
 }
 
 template<typename T>
-bool LinkedList<T>::unshift(T _t)
+bool GenLinkedList<T>::unshift(T _t)
 {
 
     if(_size == 0) {
@@ -233,7 +234,7 @@ bool LinkedList<T>::unshift(T _t)
 }
 
 template<typename T>
-bool LinkedList<T>::set(int index, T _t)
+bool GenLinkedList<T>::set(int index, T _t)
 {
     // Check if index position is in bounds
     if(index < 0 || index >= _size) {
@@ -245,7 +246,7 @@ bool LinkedList<T>::set(int index, T _t)
 }
 
 template<typename T>
-T LinkedList<T>::pop()
+T GenLinkedList<T>::pop()
 {
     if(_size <= 0) {
         return T();
@@ -273,7 +274,7 @@ T LinkedList<T>::pop()
 }
 
 template<typename T>
-T LinkedList<T>::shift()
+T GenLinkedList<T>::shift()
 {
     if(_size <= 0) {
         return T();
@@ -296,7 +297,7 @@ T LinkedList<T>::shift()
 }
 
 template<typename T>
-T LinkedList<T>::remove(int index)
+T GenLinkedList<T>::remove(int index)
 {
     if (index < 0 || index >= _size) {
         return T();
@@ -322,7 +323,7 @@ T LinkedList<T>::remove(int index)
 
 
 template<typename T>
-T LinkedList<T>::get(int index)
+T GenLinkedList<T>::get(int index)
 {
     ListNode<T> *tmp = getNode(index);
 
@@ -330,7 +331,7 @@ T LinkedList<T>::get(int index)
 }
 
 template<typename T>
-void LinkedList<T>::clear()
+void GenLinkedList<T>::clear()
 {
     while(size() > 0) {
         shift();

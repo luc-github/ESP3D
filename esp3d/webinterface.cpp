@@ -29,7 +29,7 @@
 //#include <WiFiUdp.h>
 //#include <ESP8266WiFi.h>
 //#include <ESP8266WebServer.h>
-#include "LinkedList.h"
+#include "GenLinkedList.h"
 //#include "storestrings.h"
 #include "command.h"
 #include "bridge.h"
@@ -221,7 +221,7 @@ bool WEBINTERFACE_CLASS::processTemplate(const char  * filename, STORESTRINGS_CL
         return false;
     }
 
-    LinkedList<FSFILE> myFileList  = LinkedList<FSFILE>();
+    GenLinkedList<FSFILE> myFileList  = GenLinkedList<FSFILE>();
     String  buffer2send;
     bool header_sent=false;
 
