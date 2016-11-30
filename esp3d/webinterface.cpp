@@ -593,6 +593,20 @@ void WEBINTERFACE_CLASS::ProcessNoAlert(STORESTRINGS_CLASS & KeysList, STORESTRI
 void handle_web_interface_root()
 {
     static const char HOME_PAGE [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /HOME\r\nCache-Control: no-cache\r\n\r\n";
+    String path = "/index.html";
+    String contentType =  web_interface->getContentType(path);
+    String pathWithGz = path + ".gz";
+    //if have a index.html or gzip version this is default root page
+    if(SPIFFS.exists(pathWithGz) || SPIFFS.exists(path)) {
+            if(SPIFFS.exists(pathWithGz)) {
+                path = pathWithGz;
+            }
+            FSFILE file = SPIFFS.open(path, "r");
+            web_interface->WebServer.streamFile(file, contentType);
+            file.close();
+            return;
+        }
+    //if no lets launch the /HOME
     web_interface->WebServer.sendContent_P(HOME_PAGE);
 }
 
