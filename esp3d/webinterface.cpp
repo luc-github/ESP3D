@@ -37,6 +37,7 @@
 #endif
 
 #define MAX_AUTH_IP 10
+#define HIDDEN_PASSWORD "********"
 
 typedef enum {
     UPLOAD_STATUS_NONE = 0,
@@ -1372,13 +1373,12 @@ void handle_password()
         }
     }
 
-    else { //no submit, need to get data from EEPROM
-        //password
-        sPassword="";
-        sPassword2="";
-    }
-    //Display values
+
+
+    //Do not display password
     //password
+    sPassword="";
+    sPassword2="";
     KeysList.add(FPSTR(KEY_USER_PASSWORD));
     ValuesList.add(sPassword);
     KeysList.add(FPSTR(KEY_USER_PASSWORD2));
@@ -1486,6 +1486,12 @@ void handle_web_interface_configAP()
             }
             //Password
             sPassword = web_interface->WebServer.arg("PASSWORD");
+            //check if password is changed
+            if (sPassword == HIDDEN_PASSWORD){
+                if (!CONFIG::read_string(EP_AP_PASSWORD, sPassword , MAX_PASSWORD_LENGTH) ) {
+                    sPassword=FPSTR(DEFAULT_AP_PASSWORD);
+                }
+            }
             if (!CONFIG::isPasswordValid(sPassword.c_str())) {
                 msg_alert_error=true;
                 smsg.concat(F("Error: Incorrect password<BR>"));
@@ -1603,9 +1609,8 @@ void handle_web_interface_configAP()
             sSSID=FPSTR(DEFAULT_AP_SSID);
         }
         //password
-        if (!CONFIG::read_string(EP_AP_PASSWORD, sPassword , MAX_PASSWORD_LENGTH) ) {
-            sPassword=FPSTR(DEFAULT_AP_PASSWORD);
-        }
+        sPassword = HIDDEN_PASSWORD;
+        
         //ssid visible ?
         if (!CONFIG::read_byte(EP_SSID_VISIBLE, &visible_buf )) {
             visible_buf=DEFAULT_SSID_VISIBLE;
@@ -1911,6 +1916,13 @@ void handle_web_interface_configSTA()
 
             //Password
             sPassword = web_interface->WebServer.arg("PASSWORD");
+            //check is password has been changed
+            if (sPassword == HIDDEN_PASSWORD){
+                if (!CONFIG::read_string(EP_STA_PASSWORD, sPassword , MAX_PASSWORD_LENGTH) ) {
+                sPassword=FPSTR(DEFAULT_STA_PASSWORD);
+                }
+            }
+            
             if (!CONFIG::isPasswordValid(sPassword.c_str())) {
                 msg_alert_error=true;
                 smsg.concat(F("Error: Incorrect password<BR>"));
@@ -2008,9 +2020,8 @@ void handle_web_interface_configSTA()
             sSSID=FPSTR(DEFAULT_STA_SSID);
         }
         //password
-        if (!CONFIG::read_string(EP_STA_PASSWORD, sPassword , MAX_PASSWORD_LENGTH) ) {
-            sPassword=FPSTR(DEFAULT_STA_PASSWORD);
-        }
+        sPassword = HIDDEN_PASSWORD;
+        
         //hostname
         if (!CONFIG::read_string(EP_HOSTNAME, sHostname , MAX_HOSTNAME_LENGTH) ) {
             sHostname=wifi_config.get_default_hostname();
