@@ -1,39 +1,39 @@
-* Change STA SSID
+* Change STA SSID 
 [ESP100]<SSID>
 if authentication is on, need admin password
 [ESP100]<SSID>pwd=<admin password>
 
-* Change STA Password
+* Change STA Password 
 [ESP101]<Password>
 if authentication is on, need admin password
 [ESP101]<Password>pwd=<admin password>
 
-* Change Hostname
+* Change Hostname 
 [ESP102]<hostname>
 if authentication is on, need admin password
 [ESP102]<hostname>pwd=<admin password>
 
-* Change Wifi mode (STA/AP)
+* Change Wifi mode (STA/AP) 
 [ESP103]<mode>
 if authentication is on, need admin password
 [ESP103]<mode>pwd=<admin password>
 
-* Change STA IP mode (DHCP/STATIC)
+* Change STA IP mode (DHCP/STATIC) 
 [ESP104]<mode>
 if authentication is on, need admin password
 [ESP104]<mode>pwd=<admin password>
 
-* Change AP SSID
+* Change AP SSID 
 [ESP105]<SSID>
 if authentication is on, need admin password
 [ESP105]<SSID>pwd=<admin password>
 
-* Change AP Password
+* Change AP Password 
 [ESP106]<Password>
 if authentication is on, need admin password
 [ESP106]<Password>pwd=<admin password>
 
-* Change AP IP mode (DHCP/STATIC)
+* Change AP IP mode (DHCP/STATIC) 
 [ESP107]<mode>
 if authentication is on, need admin password
 [ESP107]<mode>pwd=<admin password>
@@ -45,12 +45,13 @@ if authentication is on, need admin password
 [ESP112]<header answer>
 
 
-
 *Get/Set pin value
-[ESP201]P<pin> V<value>
+[ESP201]P<pin> V<value> [PULLUP=YES RAW=YES]
 if no V<value> get P<pin> value
 if V<value> 0/1 set INPUT_PULLUP value, but for GPIO16 INPUT_PULLDOWN_16
 GPIO1 and GPIO3 cannot be used as they are used for serial
+if PULLUP=YES set input pull up, if not set input
+if RAW=YES do not set pinmode just read value
 
 * Get/Set ESP mode
 cmd can be RESET, SAFEMODE, CONFIG, RESTART
@@ -69,6 +70,6 @@ if no password set it use default one
 [ESP800]<header answer>
 
 * Clear status/error/info list
-cmd can be ALL, ERROR, INFO, STATUS
+cmd can be ALL, ERROR, INFO, STATUS 
 [ESP999]<cmd>
 
