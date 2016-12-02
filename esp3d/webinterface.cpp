@@ -1320,11 +1320,13 @@ void handle_password()
     web_interface->GetIpWeb(KeysList, ValuesList);
     //mode
     web_interface->GetMode(KeysList, ValuesList);
-    //page title and filenames
-    web_interface->SetPageProp(KeysList,ValuesList,FPSTR(VALUE_CHANGE_PASSWORD),F("password"));
-    //menu item
-    KeysList.add(FPSTR(KEY_MENU_ADMIN));
-    ValuesList.add(FPSTR(VALUE_ACTIVE));
+    if (!outputjson){
+        //page title and filenames
+        web_interface->SetPageProp(KeysList,ValuesList,FPSTR(VALUE_CHANGE_PASSWORD),F("password"));
+        //menu item
+        KeysList.add(FPSTR(KEY_MENU_ADMIN));
+        ValuesList.add(FPSTR(VALUE_ACTIVE));
+    }
 
     //check if it is a submission or a display
     smsg="";
@@ -1386,13 +1388,15 @@ void handle_password()
         web_interface->ProcessAlertError(KeysList, ValuesList, smsg, !outputjson);
     } else if (msg_alert_success) {
         web_interface->ProcessAlertSuccess(KeysList, ValuesList, smsg, !outputjson);
-        KeysList.add(FPSTR(KEY_SERVICE_PAGE));
-        ValuesList.add("");
-        //Add all green
-        KeysList.add(FPSTR(KEY_USER_PASSWORD_STATUS));
-        ValuesList.add(FPSTR(VALUE_HAS_SUCCESS));
-        KeysList.add(FPSTR(KEY_USER_PASSWORD_STATUS2));
-        ValuesList.add(FPSTR(VALUE_HAS_SUCCESS));
+        if (!outputjson){
+            KeysList.add(FPSTR(KEY_SERVICE_PAGE));
+            ValuesList.add("");
+            //Add all green
+            KeysList.add(FPSTR(KEY_USER_PASSWORD_STATUS));
+            ValuesList.add(FPSTR(VALUE_HAS_SUCCESS));
+            KeysList.add(FPSTR(KEY_USER_PASSWORD_STATUS2));
+            ValuesList.add(FPSTR(VALUE_HAS_SUCCESS));
+            }
     }
 
     else
