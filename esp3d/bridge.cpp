@@ -127,7 +127,7 @@ void BRIDGE::send2TCP(const __FlashStringHelper *data){
     String tmp = data;
     BRIDGE::send2TCP(tmp.c_str());
 }
-void BRIDGE::send2TCP(String & data){
+void BRIDGE::send2TCP(String data){
     BRIDGE::send2TCP(data.c_str());
 }
 void BRIDGE::send2TCP(const char * data){

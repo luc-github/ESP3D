@@ -42,7 +42,7 @@ public:
 #ifdef TCP_IP_DATA_FEATURE
     static void processFromTCP2Serial();
     static void send2TCP(const __FlashStringHelper *data);
-    static void send2TCP(String & data);
+    static void send2TCP(String data);
     static void send2TCP(const char * data);
 #endif
 };
