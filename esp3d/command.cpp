@@ -490,6 +490,8 @@ void COMMAND::check_command(String buffer, tpipe output, bool handlelockserial)
     LOG("Check Command:")
     LOG(buffer)
     LOG("\r\n")
+    //feed the WD for safety
+    delay(0);
 //if direct access to SDCard no need to handle the M20 command answer
 #ifndef DIRECT_SDCARD_FEATURE
     static bool bfileslist=false;
