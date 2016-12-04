@@ -100,7 +100,7 @@ void setup()
         delay(2000);
         Serial.println(F("M117 ESP EEPROM reset"));
 #ifdef DEBUG_ESP3D
-        CONFIG::print_config();
+        CONFIG::print_config(DEBUG_PIPE);
         delay(1000);
 #endif
         CONFIG::reset_config();

@@ -122,17 +122,21 @@
     #endif
     #endif
     #include <FS.h>*/
+    #define DEBUG_PIPE NO_PIPE
     #define LOG(string) {FSFILE logfile = SPIFFS.open("/log.txt", "a+");logfile.print(string);logfile.close();}
 #endif
 #ifdef DEBUG_OUTPUT_SERIAL
         #define LOG(string) {Serial.print(string);}
+        #define DEBUG_PIPE SERIAL_PIPE
 #endif
 #ifdef DEBUG_OUTPUT_TCP
         #include "bridge.h"
         #define LOG(string) {BRIDGE::send2TCP(string);}
+        #define DEBUG_PIPE TCP_PIPE
 #endif
 #else
 #define LOG(string) {}
+#define DEBUG_PIPE NO_PIPE
 #endif
 
 #ifdef SDCARD_FEATURE
@@ -159,7 +163,7 @@ extern "C" {
 }
 #include "wifi.h"
 //version and sources location
-#define FW_VERSION "0.9.72"
+#define FW_VERSION "0.9.75"
 #define REPOSITORY "https://github.com/luc-github/ESP3D"
 
 typedef enum {
