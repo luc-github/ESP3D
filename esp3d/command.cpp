@@ -484,12 +484,13 @@ void COMMAND::execute_command(int cmd,String cmd_params, tpipe output)
     }
 }
 
-void COMMAND::check_command(String buffer, tpipe output, bool handlelockserial)
+bool COMMAND::check_command(String buffer, tpipe output, bool handlelockserial)
 {
     String buffer2;
     LOG("Check Command:")
     LOG(buffer)
     LOG("\r\n")
+    bool is_temp = false;
     //feed the WD for safety
     delay(0);
 //if direct access to SDCard no need to handle the M20 command answer
@@ -512,12 +513,11 @@ void COMMAND::check_command(String buffer, tpipe output, bool handlelockserial)
             web_interface->fileslist.clear();
             //block any new output to serial from ESP to avoid pollution
             if (handlelockserial)(web_interface->blockserial) = true;
-            return;
+            return is_temp;
         }
 #endif
-#ifdef TEMP_MONITORING_FEATURE
         int Tpos = buffer.indexOf("T:");
-#endif
+        if (Tpos > -1 ) is_temp = true;
 #ifdef POS_MONITORING_FEATURE
         int Xpos = buffer.indexOf("X:");
         int Ypos = buffer.indexOf("Y:");
@@ -673,6 +673,7 @@ void COMMAND::check_command(String buffer, tpipe output, bool handlelockserial)
         }
     }
 #endif
+    return is_temp;
 }
 
 //read a buffer in an array

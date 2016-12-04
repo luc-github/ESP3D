@@ -3803,10 +3803,11 @@ void handle_web_command(){
                 String current_buffer;
                 String current_line;
                 int pos;
+                int temp_counter = 0;
                 String tmp;
                 bool datasent = false;
-                 //pickup the list
-                 while (count < MAX_TRY){
+                //pickup the list
+                while (count < MAX_TRY){
                      //give some time between each buffer
                      if (Serial.available()){
                          count = 0;
@@ -3836,7 +3837,7 @@ void handle_web_command(){
                             LOG(current_line)
                             LOG("\r\n")
                             //check command 
-                            COMMAND::check_command(current_line, NO_PIPE, false);
+                            if (COMMAND::check_command(current_line, NO_PIPE, false)) temp_counter ++ ;
 #if ((FIRMWARE_TARGET == REPETIER) || (FIRMWARE_TARGET == REPETIER4DV))
                         if (!current_line.startsWith( "ok "))
 #endif 
@@ -3853,11 +3854,14 @@ void handle_web_command(){
                             tmp = current_buffer.substring(current_buffer.indexOf("\n")+1,current_buffer.length());
                             current_buffer = tmp;
                         }
+                     delay (0);
                      } else delay(1);
+                     //it is sending too many temp status should be heating so let's exit the loop
+                     if (temp_counter > 5)count = MAX_TRY;
                      count++;
                  }
-                 //to be sure connection close
-                 if (buffer2send.length() > 0) {
+                //to be sure connection close
+                if (buffer2send.length() > 0) {
                                 web_interface->WebServer.sendContent(buffer2send);
                                 datasent = true;
                             }
