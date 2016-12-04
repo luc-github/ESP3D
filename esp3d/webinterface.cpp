@@ -3774,7 +3774,6 @@ void handle_web_command(){
                 //block every query
                 web_interface->blockserial = true;
                 LOG("Block Serial\r\n")
-#if (PURGE_SERIAL == 1)
                  //empty the serial buffer and incoming data
                 LOG("Start PurgeSerial\r\n")
                 if(Serial.available()){
@@ -3782,21 +3781,18 @@ void handle_web_command(){
                     delay(1);
                     }
                 LOG("End PurgeSerial\r\n")
-#endif
                 web_interface->WebServer.setContentLength(CONTENT_LENGTH_UNKNOWN);
                 web_interface->WebServer.sendHeader("Content-Type","text/plain",true);
                 web_interface->WebServer.sendHeader("Cache-Control","no-cache");                
                 web_interface->WebServer.send(200);
                 //send command
                 LOG(String(cmd.length()))
-#if (PURGE_SERIAL == 1)
                 LOG("Start PurgeSerial\r\n")
                 if(Serial.available()){
                     BRIDGE::processFromSerial2TCP();
                     delay(1);
                     }
                 LOG("End PurgeSerial\r\n")
-#endif
                 LOG("Send Command\r\n")
                 Serial.println(cmd);
                 count = 0;
@@ -3825,7 +3821,7 @@ void handle_web_command(){
                             pos = current_buffer.indexOf("\n");
                             //get line
                             current_line = current_buffer.substring(0,current_buffer.indexOf("\n"));
-                           //if line is command acck - just exit so save the time out period
+                           //if line is command ack - just exit so save the time out period
                             if ((current_line == "ok") || (current_line == "wait"))
                                 { 
                                     count = MAX_TRY;
@@ -3837,7 +3833,15 @@ void handle_web_command(){
                             LOG(current_line)
                             LOG("\r\n")
                             //check command 
+#if ((FIRMWARE_TARGET == REPETIER) || (FIRMWARE_TARGET == REPETIER4DV))
+                            //save time no need to continue
+                            if (current_line.indexOf("busy:") > -1){
+                                temp_counter++;
+                                }
+                            else
+#endif
                             if (COMMAND::check_command(current_line, NO_PIPE, false)) temp_counter ++ ;
+                            if (temp_counter > 5)break;
 #if ((FIRMWARE_TARGET == REPETIER) || (FIRMWARE_TARGET == REPETIER4DV))
                         if (!current_line.startsWith( "ok "))
 #endif 
@@ -3853,6 +3857,7 @@ void handle_web_command(){
                             //current remove line from buffer
                             tmp = current_buffer.substring(current_buffer.indexOf("\n")+1,current_buffer.length());
                             current_buffer = tmp;
+                            delay(0);
                         }
                      delay (0);
                      } else delay(1);
@@ -3867,14 +3872,12 @@ void handle_web_command(){
                             }
                 if (!datasent)web_interface->WebServer.sendContent(" \r\n");
                 web_interface->WebServer.sendContent("");
-#if (PURGE_SERIAL == 1)
                 LOG("Start PurgeSerial\r\n")
                 if(Serial.available()){
                     BRIDGE::processFromSerial2TCP();
                     delay(1);
                     }
                 LOG("End PurgeSerial\r\n")
-#endif
                 web_interface->blockserial = false;
                 LOG("Release Serial\r\n")
                 }
