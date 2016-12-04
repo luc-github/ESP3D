@@ -3777,7 +3777,7 @@ void handle_web_command(){
 #if (PURGE_SERIAL == 1)
                  //empty the serial buffer and incoming data
                 LOG("Start PurgeSerial\r\n")
-                while(Serial.available()){
+                if(Serial.available()){
                     BRIDGE::processFromSerial2TCP();
                     delay(1);
                     }
@@ -3791,7 +3791,7 @@ void handle_web_command(){
                 LOG(String(cmd.length()))
 #if (PURGE_SERIAL == 1)
                 LOG("Start PurgeSerial\r\n")
-                while(Serial.available()){
+                if(Serial.available()){
                     BRIDGE::processFromSerial2TCP();
                     delay(1);
                     }
@@ -3832,6 +3832,7 @@ void handle_web_command(){
                                     break;
                                 } 
                             //get the line and transmit it
+                            LOG("Check command: ")
                             LOG(current_line)
                             LOG("\r\n")
                             //check command 
@@ -3864,7 +3865,7 @@ void handle_web_command(){
                 web_interface->WebServer.sendContent("");
 #if (PURGE_SERIAL == 1)
                 LOG("Start PurgeSerial\r\n")
-                while(Serial.available()){
+                if(Serial.available()){
                     BRIDGE::processFromSerial2TCP();
                     delay(1);
                     }
