@@ -496,9 +496,6 @@ bool COMMAND::check_command(String buffer, tpipe output, bool handlelockserial)
 #if ((FIRMWARE_TARGET == REPETIER) || (FIRMWARE_TARGET == REPETIER4DV))
     //save time no need to continue
     if ((buffer.indexOf("busy:") > -1) || (buffer.startsWith("wait")))return false;
-#endif
-    //because some answer start by ok ...
-#if (FIRMWARE_TARGET != SMOOTHIEWARE)
     if (buffer.startsWith("ok"))return false;
 #endif
 //if direct access to SDCard no need to handle the M20 command answer
