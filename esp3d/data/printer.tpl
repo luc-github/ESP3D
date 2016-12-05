@@ -387,7 +387,8 @@ var Efeedrate=$E_FEEDRATE$;
 
 function Sendcommand(commandtxt, showresult=false){
 var xmlhttp = new XMLHttpRequest();
-var url = "/command?plain="+encodeURIComponent(commandtxt);;
+var url = "/command?plain="+encodeURIComponent(commandtxt);
+if (!showresult)url = "/command_silent?plain="+encodeURIComponent(commandtxt);
 if (showresult){
     xmlhttp.onreadystatechange = function() {
      if (xmlhttp.readyState == 4 && xmlhttp.status === 200) {

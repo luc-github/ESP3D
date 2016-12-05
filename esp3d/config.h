@@ -91,7 +91,7 @@
 //Serial rx buffer size is 256 but can be extended
 #define SERIAL_RX_BUFFER_SIZE 512
 
-//DEBUG Flag do not do this when connected to printer !!!
+//DEBUG Flag do not do this when connected to printer unless you know what you are doing!!!
 //#define DEBUG_ESP3D
 //#define DEBUG_OUTPUT_SPIFFS
 //#define DEBUG_OUTPUT_SD
@@ -151,7 +151,7 @@ extern "C" {
 }
 #include "wifi.h"
 //version and sources location
-#define FW_VERSION "0.9.75"
+#define FW_VERSION "0.9.76"
 #define REPOSITORY "https://github.com/luc-github/ESP3D"
 
 typedef enum {
