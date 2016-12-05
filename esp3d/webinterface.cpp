@@ -3716,6 +3716,71 @@ void handle_restart()
 }
 
 #define MAX_TRY 2000
+void handle_web_command_silent(){
+    if (web_interface->is_authenticated() == LEVEL_GUEST) {
+        web_interface->WebServer.send(200,"text/plain","Not allowed, log in first!");
+        return;
+        }
+    String buffer2send = "";
+    LOG(String (web_interface->WebServer.args()))
+    LOG(" Web silent command\r\n")
+#ifdef DEBUG_ESP3D
+        int nb = web_interface->WebServer.args();
+        for (int i = 0 ; i < nb;i++){
+            LOG(web_interface->WebServer.argName(i))
+            LOG(":")
+            LOG(web_interface->WebServer.arg(i))
+            LOG("\r\n")
+        }
+#endif
+    String cmd = "";
+    int count ;
+    if (web_interface->WebServer.hasArg("plain") || web_interface->WebServer.hasArg("commandText")){
+         if (web_interface->WebServer.hasArg("plain")) cmd = web_interface->WebServer.arg("plain");
+         else cmd = web_interface->WebServer.arg("commandText");
+        LOG("Web Command:")
+        LOG(cmd)
+        LOG("\r\n")
+    } else {
+        LOG("invalid argument\r\n")
+        web_interface->WebServer.send(200,"text/plain","Invalid command");
+        return;
+        }
+        //if it is for ESP module [ESPXXX]<parameter>
+        cmd.trim();
+        int ESPpos = cmd.indexOf("[ESP");
+        if (ESPpos>-1) {
+            //is there the second part?
+            int ESPpos2 = cmd.indexOf("]",ESPpos);
+            if (ESPpos2>-1) {
+                //Split in command and parameters
+                String cmd_part1=cmd.substring(ESPpos+4,ESPpos2);
+                String cmd_part2="";
+                //is there space for parameters?
+                if (ESPpos2<cmd.length()) {
+                    cmd_part2=cmd.substring(ESPpos2+1);
+                }
+                //if command is a valid number then execute command
+                if(cmd_part1.toInt()!=0) {
+                    COMMAND::execute_command(cmd_part1.toInt(),cmd_part2,NO_PIPE);
+                    web_interface->WebServer.send(200,"text/plain","ok");
+
+                }
+                //if not is not a valid [ESPXXX] command
+            }
+        } else {
+            //send command to serial as no need to transfer ESP command
+            //to avoid any pollution if Uploading file to SDCard
+            if ((web_interface->blockserial) == false) {
+                LOG("Send Command\r\n")
+                //send command
+                Serial.println(cmd);
+                web_interface->WebServer.send(200,"text/plain","ok");
+                }
+                else web_interface->WebServer.send(200,"text/plain","Serial is busy, retry later!");
+        }
+
+}
 void handle_web_command(){
     if (web_interface->is_authenticated() == LEVEL_GUEST) {
         web_interface->WebServer.send(200,"text/plain","Not allowed, log in first!");
@@ -3905,9 +3970,7 @@ WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port):WebServer(port)
     WebServer.on("/SETTINGS",HTTP_ANY, handle_web_settings);
     WebServer.on("/PRINTER",HTTP_ANY, handle_web_interface_printer);
     WebServer.on("/command",HTTP_ANY, handle_web_command);
-#if FIRMWARE_TARGET == SMOOTHIEWARE
-    WebServer.on("/command_silent",HTTP_ANY, handle_web_command);
-#endif
+    WebServer.on("/command_silent",HTTP_ANY, handle_web_command_silent);
     WebServer.on("/RESTART",HTTP_GET, handle_restart);
 #ifdef WEB_UPDATE_FEATURE
     WebServer.on("/UPDATE",HTTP_ANY, handleUpdate,WebUpdateUpload);
