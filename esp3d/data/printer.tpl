@@ -192,17 +192,17 @@ $INCLUDE[css2.inc]$
         <td id="JogExtruder1-1" style="visibility:hidden;">
             <table>
                 <tr>
-                    <td class="btnimg" onclick="SendJogcommand( 'E0-50',Efeedrate);"><svg width="40" height="20" viewBox="0 0 40 20">
+                    <td class="btnimg" onclick="SendJogcommand( 'E-50',Efeedrate,'T0');"><svg width="40" height="20" viewBox="0 0 40 20">
                     <polyline points="5,18 20,5 35,18" style="fill:none;stroke:orange;stroke-width:7"/><text x="13" y="20" font-family="Verdana" font-size="7" fill="black">-50</text></svg>
                     </td>
                 </tr>
                 <tr>
-                    <td class="btnimg" onclick="SendJogcommand( 'E0-10',Efeedrate);"><svg width="40" height="20" viewBox="0 2 40 20"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:orange;stroke-width:5"/>
+                    <td class="btnimg" onclick="SendJogcommand( 'E-10',Efeedrate,'T0');"><svg width="40" height="20" viewBox="0 2 40 20"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:orange;stroke-width:5"/>
                     <text x="14" y="20" font-family="Verdana" font-size="7" fill="black">-10</text></svg>
                     </td>
                 </tr>
                 <tr>
-                    <td class="btnimg" onclick="SendJogcommand( 'E0-1',Efeedrate);"><svg width="40" height="20" viewBox="0 4 40 20"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:orange;stroke-width:2"/>
+                    <td class="btnimg" onclick="SendJogcommand( 'E-1',Efeedrate,'T0');"><svg width="40" height="20" viewBox="0 4 40 20"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:orange;stroke-width:2"/>
                     <text x="14" y="20" font-family="Verdana" font-size="7" fill="black">-1</text></svg>
                     </td>
                 </tr>
@@ -212,17 +212,17 @@ $INCLUDE[css2.inc]$
         <td id="JogExtruder2-1" style="visibility:hidden;">
             <table>
                 <tr>
-                    <td class="btnimg" onclick="SendJogcommand( 'E1-50',Efeedrate);"><svg width="40" height="20" viewBox="0 0 40 20">
+                    <td class="btnimg" onclick="SendJogcommand( 'E-50',Efeedrate,'T1');"><svg width="40" height="20" viewBox="0 0 40 20">
                     <polyline points="5,18 20,5 35,18" style="fill:none;stroke:pink;stroke-width:7"/><text x="13" y="20" font-family="Verdana" font-size="7" fill="black">-50</text></svg>
                     </td>
                 </tr>
                 <tr>
-                    <td class="btnimg" onclick="SendJogcommand( 'E1-10',Efeedrate);"><svg width="40" height="20" viewBox="0 2 40 20"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:pink;stroke-width:5"/>
+                    <td class="btnimg" onclick="SendJogcommand( 'E-10',Efeedrate,'T1');"><svg width="40" height="20" viewBox="0 2 40 20"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:pink;stroke-width:5"/>
                     <text x="14" y="20" font-family="Verdana" font-size="7" fill="black">-10</text></svg>
                     </td>
                 </tr>
                 <tr>
-                    <td class="btnimg" onclick="SendJogcommand( 'E1-1',Efeedrate);"><svg width="40" height="20" viewBox="0 4 40 20"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:pink;stroke-width:2"/>
+                    <td class="btnimg" onclick="SendJogcommand( 'E-1',Efeedrate,'T1');"><svg width="40" height="20" viewBox="0 4 40 20"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:pink;stroke-width:2"/>
                     <text x="15" y="20" font-family="Verdana" font-size="7" fill="black">-1</text></svg>
                     </td>
                 </tr>
@@ -306,15 +306,15 @@ $INCLUDE[css2.inc]$
         <td id="JogExtruder1-3" style="visibility:hidden;">
             <table>
                 <tr>
-                    <td class="btnimg" onclick="SendJogcommand( 'E0+1',Efeedrate);"><svg width="40" height="20" viewBox="0 -4 40 20">
+                    <td class="btnimg" onclick="SendJogcommand( 'E1',Efeedrate,'T0');"><svg width="40" height="20" viewBox="0 -4 40 20">
                     <polyline points="5,18 20,5 35,18" style="fill:none;stroke:orange;stroke-width:3" transform="rotate(180 20 10)"/><text x="18" y="6" font-family="Verdana" font-size="7" fill="black">1</text></svg></td>
                 </tr>
                 <tr>
-                    <td class="btnimg" onclick="SendJogcommand( 'E0+10',Efeedrate);"><svg width="40" height="20" viewBox="0 -2 40 20"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:orange;stroke-width:5" transform="rotate(180 20 10)"/>
+                    <td class="btnimg" onclick="SendJogcommand( 'E10',Efeedrate,'T0');"><svg width="40" height="20" viewBox="0 -2 40 20"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:orange;stroke-width:5" transform="rotate(180 20 10)"/>
                     <text x="14" y="7" font-family="Verdana" font-size="7" fill="black">10</text></svg></td>
                 </tr>
                 <tr>
-                    <td class="btnimg" onclick="SendJogcommand( 'E0+50',Efeedrate);"><svg width="40" height="20" viewBox="0 0 40 20">
+                    <td class="btnimg" onclick="SendJogcommand( 'E50',Efeedrate,'T0');"><svg width="40" height="20" viewBox="0 0 40 20">
                     <polyline points="5,18 20,5 35,18" style="fill:none;stroke:orange;stroke-width:7" transform="rotate(180 20 10)"/><text x="15" y="6" font-family="Verdana" font-size="7" fill="black">50</text></svg></td>
                 </tr>
             </table>
@@ -323,15 +323,15 @@ $INCLUDE[css2.inc]$
         <td id="JogExtruder2-3" style="visibility:hidden;">
             <table>
                 <tr>
-                    <td class="btnimg" onclick="SendJogcommand( 'E1+1',Efeedrate);"><svg width="40" height="20" viewBox="0 -4 40 20">
+                    <td class="btnimg" onclick="SendJogcommand( 'E1',Efeedrate,'T1');"><svg width="40" height="20" viewBox="0 -4 40 20">
                     <polyline points="5,18 20,5 35,18" style="fill:none;stroke:pink;stroke-width:3" transform="rotate(180 20 10)"/><text x="18" y="6" font-family="Verdana" font-size="7" fill="black">1</text></svg></td>
                 </tr>
                 <tr>
-                    <td class="btnimg" onclick="SendJogcommand( 'E1+10',Efeedrate);"><svg width="40" height="20" viewBox="0 -2 40 20"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:pink;stroke-width:5" transform="rotate(180 20 10)"/>
+                    <td class="btnimg" onclick="SendJogcommand( 'E10',Efeedrate,'T1');"><svg width="40" height="20" viewBox="0 -2 40 20"><polyline points="5,18 20,5 35,18" style="fill:none;stroke:pink;stroke-width:5" transform="rotate(180 20 10)"/>
                     <text x="14" y="7" font-family="Verdana" font-size="7" fill="black">10</text></svg></td>
                 </tr>
                 <tr>
-                    <td class="btnimg" onclick="SendJogcommand( 'E1+50',Efeedrate);"><svg width="40" height="20" viewBox="0 0 40 20" ><polyline points="5,18 20,5 35,18" style="fill:none;stroke:pink;stroke-width:7" transform="rotate(180 20 10)"/>
+                    <td class="btnimg" onclick="SendJogcommand( 'E50',Efeedrate,'T1');"><svg width="40" height="20" viewBox="0 0 40 20" ><polyline points="5,18 20,5 35,18" style="fill:none;stroke:pink;stroke-width:7" transform="rotate(180 20 10)"/>
                     <text x="15" y="6" font-family="Verdana" font-size="7" fill="black">50</text></svg></td>
                 </tr>
             </table>
@@ -407,7 +407,11 @@ ms += new Date().getTime();
 while (new Date() < ms){}
 }
 
-function SendJogcommand( cmd, feedrate){
+function SendJogcommand( cmd, feedrate, extra=""){
+if (extra != ""){
+    Sendcommand(extra);
+    delay(100);
+}
 Sendcommand("G91");
 delay(100);
 Sendcommand("G1 "+cmd + " F"+feedrate);
