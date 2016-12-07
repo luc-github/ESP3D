@@ -81,18 +81,19 @@ public:
     STORESTRINGS_CLASS status_msg;
 #endif
     bool restartmodule;
+    bool generateJSON(STORESTRINGS_CLASS & KeysList ,  STORESTRINGS_CLASS & ValuesList );
     bool processTemplate(const char  * filename, STORESTRINGS_CLASS & KeysList ,  STORESTRINGS_CLASS & ValuesList );
     void GetFreeMem(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList);
-    void GeLogin(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList,level_authenticate_type auth_level);
+    void GetLogin(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList,level_authenticate_type auth_level, bool ishtmloutput);
     void GetIpWeb(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList);
     void GetMode(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList);
-    void GetPorts(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList);
+    void GetPorts(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList, bool ishtmloutput);
     void SetPageProp(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList,
                      const __FlashStringHelper *title, const __FlashStringHelper *filename);
     void GetDHCPStatus(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList);
-    void ProcessAlertError(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList, String & smsg);
-    void ProcessAlertSuccess(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList, String & smsg);
-    void ProcessNoAlert(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList);
+    void ProcessAlertError(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList, String & smsg, bool ishtmloutput);
+    void ProcessAlertSuccess(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList, String & smsg,  bool ishtmloutput);
+    void ProcessNoAlert(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList, bool ishtmloutput);
     String getContentType(String filename);
     level_authenticate_type is_authenticated();
     bool AddAuthIP(auth_ip * item);

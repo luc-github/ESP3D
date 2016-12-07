@@ -111,7 +111,7 @@ bool WIFI_CONFIG::Setup(bool force_ap)
     //system_update_cpu_freq(SYS_CPU_160MHZ);
     //set the sleep mode
     if (!CONFIG::read_byte(EP_SLEEP_MODE, &bflag )) {
-        LOG("Error read Sleep mode\n")
+        LOG("Error read Sleep mode\r\n")
         return false;
     }
     WiFi.setSleepMode ((WiFiSleepType_t)bflag);
@@ -121,7 +121,7 @@ bool WIFI_CONFIG::Setup(bool force_ap)
     } else {
         //AP or client ?
         if (!CONFIG::read_byte(EP_WIFI_MODE, &bmode ) ) {
-            LOG("Error read wifi mode\n")
+            LOG("Error read wifi mode\r\n")
             return false;
         }
     }
@@ -130,7 +130,7 @@ bool WIFI_CONFIG::Setup(bool force_ap)
     }
     //this is AP mode
     if (bmode==AP_MODE) {
-        LOG("Set AP mode\n")
+        LOG("Set AP mode\r\n")
         if(!CONFIG::read_string(EP_AP_SSID, sbuf , MAX_SSID_LENGTH)) {
             return false;
         }
@@ -142,65 +142,65 @@ bool WIFI_CONFIG::Setup(bool force_ap)
         Serial.println(sbuf);
         LOG("SSID ")
         LOG(sbuf)
-        LOG("\n")
+        LOG("\r\n")
         //DHCP or Static IP ?
         if (!CONFIG::read_byte(EP_AP_IP_MODE, &bflag )) {
-            LOG("Error IP mode\n")
+            LOG("Error IP mode\r\n")
             return false;
         }
         LOG("IP Mode: ")
         LOG(CONFIG::intTostr(bflag))
-        LOG("\n")
+        LOG("\r\n")
         if (bflag==STATIC_IP_MODE) {
             byte ip_buf[4];
-            LOG("Static mode\n")
+            LOG("Static mode\r\n")
             //get the IP
             LOG("IP value:")
             if (!CONFIG::read_buffer(EP_AP_IP_VALUE,ip_buf , IP_LENGTH)) {
-                LOG("Error\n")
+                LOG("Error\r\n")
                 return false;
             }
             IPAddress local_ip (ip_buf[0],ip_buf[1],ip_buf[2],ip_buf[3]);
             LOG(local_ip.toString())
-            LOG("\nGW value:")
+            LOG("\r\nGW value:")
             //get the gateway
             if (!CONFIG::read_buffer(EP_AP_GATEWAY_VALUE,ip_buf , IP_LENGTH)) {
-                LOG("Error\n")
+                LOG("Error\r\n")
                 return false;
             }
             IPAddress gateway (ip_buf[0],ip_buf[1],ip_buf[2],ip_buf[3]);
             LOG(gateway.toString())
-            LOG("\nMask value:")
+            LOG("\r\nMask value:")
             //get the mask
             if (!CONFIG::read_buffer(EP_AP_MASK_VALUE,ip_buf , IP_LENGTH)) {
-                LOG("Error Mask value\n")
+                LOG("Error Mask value\r\n")
                 return false;
             }
             IPAddress subnet (ip_buf[0],ip_buf[1],ip_buf[2],ip_buf[3]);
             LOG(subnet.toString())
-            LOG("\n")
+            LOG("\r\n")
             //apply according active wifi mode
-            LOG("Set IP\n")
+            LOG("Set IP\r\n")
             WiFi.softAPConfig( local_ip,  gateway,  subnet);
             delay(100);
         }
-        LOG("Disable STA\n")
+        LOG("Disable STA\r\n")
         WiFi.enableSTA(false);
         delay(100);
-        LOG("Set AP\n")
+        LOG("Set AP\r\n")
         //setup Soft AP
         WiFi.mode(WIFI_AP);
         delay(50);
         WiFi.softAP(sbuf, pwd);
         delay(100);
-        LOG("Set phy mode\n")
+        LOG("Set phy mode\r\n")
         //setup PHY_MODE
         if (!CONFIG::read_byte(EP_AP_PHY_MODE, &bflag )) {
             return false;
         }
         WiFi.setPhyMode((WiFiPhyMode_t)bflag);
         delay(100);
-        LOG("Get current config\n")
+        LOG("Get current config\r\n")
         //get current config
         struct softap_config apconfig;
         wifi_softap_get_config(&apconfig);
@@ -228,7 +228,7 @@ bool WIFI_CONFIG::Setup(bool force_ap)
             delay(1000);
         }
     } else {
-        LOG("Set STA mode\n")
+        LOG("Set STA mode\r\n")
         if(!CONFIG::read_string(EP_STA_SSID, sbuf , MAX_SSID_LENGTH)) {
             return false;
         }
@@ -240,7 +240,7 @@ bool WIFI_CONFIG::Setup(bool force_ap)
         Serial.println(sbuf);
         LOG("SSID ")
         LOG(sbuf)
-        LOG("\n")
+        LOG("\r\n")
         if (!CONFIG::read_byte(EP_STA_IP_MODE, &bflag )) {
             return false;
         }

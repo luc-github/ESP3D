@@ -23,11 +23,11 @@
 extern "C" {
 #include "user_interface.h"
 }
-
+#include "bridge.h"
 
 void CONFIG::esp_restart()
 {
-    LOG("Restarting\n")
+    LOG("Restarting\r\n")
     Serial.flush();
     delay(500);
     Serial.swap();
@@ -70,9 +70,9 @@ bool CONFIG::isSSIDValid(const char * ssid)
     for (int i=0; i < strlen(ssid); i++) {
         c = ssid[i];
         //if (!(isdigit(c) || isalpha(c))) return false;
-        if (c==' ') {
-            return false;
-        }
+        //if (c==' ') {
+       //     return false;
+       //}
     }
     return true;
 }
@@ -233,7 +233,7 @@ bool CONFIG::read_string(int pos, char byte_buffer[], int size_max)
 {
     //check if parameters are acceptable
     if (size_max==0 ||  pos+size_max+1 > EEPROM_SIZE || byte_buffer== NULL) {
-        LOG("Error read string\n")
+        LOG("Error read string\r\n")
         return false;
     }
     EEPROM.begin(EEPROM_SIZE);
@@ -260,7 +260,7 @@ bool CONFIG::read_string(int pos, String & sbuffer, int size_max)
 {
     //check if parameters are acceptable
     if (size_max==0 ||  pos+size_max+1 > EEPROM_SIZE ) {
-        LOG("Error read string\n")
+        LOG("Error read string\r\n")
         return false;
     }
     byte b = 13; // non zero for the while loop below
@@ -286,7 +286,7 @@ bool CONFIG::read_buffer(int pos, byte byte_buffer[], int size_buffer)
 {
     //check if parameters are acceptable
     if (size_buffer==0 ||  pos+size_buffer > EEPROM_SIZE || byte_buffer== NULL) {
-        LOG("Error read buffer\n")
+        LOG("Error read buffer\r\n")
         return false;
     }
     int i=0;
@@ -305,7 +305,7 @@ bool CONFIG::read_byte(int pos, byte * value)
 {
     //check if parameters are acceptable
     if (pos+1 > EEPROM_SIZE) {
-        LOG("Error read byte\n")
+        LOG("Error read byte\r\n")
         return false;
     }
     EEPROM.begin(EEPROM_SIZE);
@@ -348,7 +348,7 @@ bool CONFIG::write_string(int pos, const char * byte_buffer)
         break;
     }
     if (size_buffer==0 ||  pos+size_buffer+1 > EEPROM_SIZE || size_buffer > maxsize  || byte_buffer== NULL) {
-        LOG("Error write string\n")
+        LOG("Error write string\r\n")
         return false;
     }
     //copy the value(s)
@@ -369,7 +369,7 @@ bool CONFIG::write_buffer(int pos, const byte * byte_buffer, int size_buffer)
 {
     //check if parameters are acceptable
     if (size_buffer==0 ||  pos+size_buffer > EEPROM_SIZE || byte_buffer== NULL) {
-        LOG("Error write buffer\n")
+        LOG("Error write buffer\r\n")
         return false;
     }
     EEPROM.begin(EEPROM_SIZE);
@@ -387,7 +387,7 @@ bool CONFIG::write_byte(int pos, const byte value)
 {
     //check if parameters are acceptable
     if (pos+1 > EEPROM_SIZE) {
-        LOG("Error write byte\n")
+        LOG("Error write byte\r\n")
         return false;
     }
     EEPROM.begin(EEPROM_SIZE);
@@ -489,7 +489,7 @@ bool CONFIG::reset_config()
     return true;
 }
 
-void CONFIG::print_config()
+void CONFIG::print_config(tpipe output)
 {
     //use biggest size for buffer
     char sbuf[MAX_PASSWORD_LENGTH+1];
@@ -497,314 +497,317 @@ void CONFIG::print_config()
     byte bbuf=0;
     int ibuf=0;
     if (CONFIG::read_buffer(EP_BAUD_RATE,  (byte *)&ibuf , INTEGER_LENGTH)) {
-        Serial.print(F("Baud rate: "));
-        Serial.println(ibuf);
+        BRIDGE::print(F("Baud rate: "), output);
+        BRIDGE::println(String(ibuf).c_str(), output);
     } else {
-        Serial.println(F("Error reading baud rate"));
+        BRIDGE::println(F("Error reading baud rate"), output);
     }
     if (CONFIG::read_byte(EP_SLEEP_MODE, &bbuf )) {
-        Serial.print(F("Sleep mode: "));
+        BRIDGE::print(F("Sleep mode: "), output);
         if (byte(bbuf)==WIFI_NONE_SLEEP) {
-            Serial.println(F("None"));
+            BRIDGE::println(F("None"), output);
         } else if (byte(bbuf)==WIFI_LIGHT_SLEEP) {
-            Serial.println(F("Light"));
+            BRIDGE::println(F("Light"), output);
         } else if (byte(bbuf)==WIFI_MODEM_SLEEP) {
-            Serial.println(F("Modem"));
+            BRIDGE::println(F("Modem"), output);
         } else {
-            Serial.println(F("???"));
+            BRIDGE::println(F("???"), output);
         }
     } else {
-        Serial.println(F("Error reading sleep mode"));
+        BRIDGE::println(F("Error reading sleep mode"), output);
     }
     if (CONFIG::read_string(EP_HOSTNAME, sbuf , MAX_HOSTNAME_LENGTH)) {
-        Serial.print(F("Hostname: "));
-        Serial.println(sbuf);
+        BRIDGE::print(F("Hostname: "), output);
+        BRIDGE::println(sbuf, output);
     } else {
-        Serial.println(F("Error reading hostname"));
+        BRIDGE::println(F("Error reading hostname"), output);
     }
     if (CONFIG::read_byte(EP_WIFI_MODE, &bbuf )) {
-        Serial.print(F("Mode: "));
+        BRIDGE::print(F("Mode: "), output);
         if (byte(bbuf) == CLIENT_MODE) {
-            Serial.println(F("Station"));
-            Serial.print(F("Signal: "));
-            Serial.print(wifi_config.getSignal(WiFi.RSSI()));
-            Serial.println(F("%"));
+            BRIDGE::println(F("Station"), output);
+            BRIDGE::print(F("Signal: "), output);
+            BRIDGE::print(String(wifi_config.getSignal(WiFi.RSSI())).c_str(), output);
+            BRIDGE::println(F("%"), output);
         } else if (byte(bbuf)==AP_MODE) {
-            Serial.println(F("Access Point"));
+            BRIDGE::println(F("Access Point"), output);
         } else {
-            Serial.println("???");
+            BRIDGE::println("???", output);
         }
     } else {
-        Serial.println(F("Error reading mode"));
+        BRIDGE::println(F("Error reading mode"), output);
     }
 
     if (CONFIG::read_string(EP_STA_SSID, sbuf , MAX_SSID_LENGTH)) {
-        Serial.print(F("Client SSID: "));
-        Serial.println(sbuf);
+        BRIDGE::print(F("Client SSID: "), output);
+        BRIDGE::println(sbuf, output);
     } else {
-        Serial.println(F("Error reading SSID"));
+        BRIDGE::println(F("Error reading SSID"), output);
     }
 
     if (CONFIG::read_byte(EP_STA_IP_MODE, &bbuf )) {
-        Serial.print(F("STA IP Mode: "));
+        BRIDGE::print(F("STA IP Mode: "), output);
         if (byte(bbuf)==STATIC_IP_MODE) {
-            Serial.println(F("Static"));
+            BRIDGE::println(F("Static"), output);
             if (CONFIG::read_buffer(EP_STA_IP_VALUE,(byte *)ipbuf , IP_LENGTH)) {
-                Serial.print(F("IP: "));
-                Serial.println(IPAddress(ipbuf).toString());
+                BRIDGE::print(F("IP: "), output);
+                BRIDGE::println(IPAddress(ipbuf).toString().c_str(), output);
             } else {
-                Serial.println(F("Error reading IP"));
+                BRIDGE::println(F("Error reading IP"), output);
             }
 
             if (CONFIG::read_buffer(EP_STA_MASK_VALUE, (byte *)ipbuf  , IP_LENGTH)) {
-                Serial.print(F("Subnet: "));
-                Serial.println(IPAddress(ipbuf).toString());
+                BRIDGE::print(F("Subnet: "), output);
+                BRIDGE::println(IPAddress(ipbuf).toString().c_str(), output);
             } else {
-                Serial.println(F("Error reading subnet"));
+                BRIDGE::println(F("Error reading subnet"), output);
             }
 
             if (CONFIG::read_buffer(EP_STA_GATEWAY_VALUE, (byte *)ipbuf  , IP_LENGTH)) {
-                Serial.print(F("Gateway: "));
-                Serial.println(IPAddress(ipbuf).toString());
+                BRIDGE::print(F("Gateway: "), output);
+                BRIDGE::println(IPAddress(ipbuf).toString().c_str(), output);
             } else {
-                Serial.println(F("Error reading gateway"));
+                BRIDGE::println(F("Error reading gateway"), output);
             }
         } else  if (byte(bbuf)==DHCP_MODE) {
-            Serial.println(F("DHCP"));
+            BRIDGE::println(F("DHCP"), output);
         } else {
-            Serial.println(F("???"));
+            BRIDGE::println(F("???"), output);
         }
     } else {
-        Serial.println(F("Error reading IP mode"));
+        BRIDGE::println(F("Error reading IP mode"), output);
     }
 
     if (CONFIG::read_byte(EP_STA_PHY_MODE, &bbuf )) {
-        Serial.print(F("STA Phy mode: "));
+        BRIDGE::print(F("STA Phy mode: "), output);
         if (byte(bbuf)==WIFI_PHY_MODE_11B) {
-            Serial.println(F("11b"));
+            BRIDGE::println(F("11b"), output);
         } else if (byte(bbuf)==WIFI_PHY_MODE_11G) {
-            Serial.println(F("11g"));
+            BRIDGE::println(F("11g"), output);
         } else if (byte(bbuf)==WIFI_PHY_MODE_11N) {
-            Serial.println(F("11n"));
+            BRIDGE::println(F("11n"), output);
         } else {
-            Serial.println(F("???"));
+            BRIDGE::println(F("???"), output);
         }
     } else {
-        Serial.println(F("Error reading phy mode"));
+        BRIDGE::println(F("Error reading phy mode"), output);
     }
 
     if (CONFIG::read_string(EP_AP_SSID, sbuf , MAX_SSID_LENGTH)) {
-        Serial.print(F("AP SSID: "));
-        Serial.println(sbuf);
+        BRIDGE::print(F("AP SSID: "), output);
+        BRIDGE::println(sbuf, output);
     } else {
-        Serial.println(F("Error reading SSID"));
+        BRIDGE::println(F("Error reading SSID"), output);
     }
 
     if (CONFIG::read_byte(EP_AP_IP_MODE, &bbuf )) {
-        Serial.print(F("AP IP Mode: "));
+        BRIDGE::print(F("AP IP Mode: "), output);
         if (byte(bbuf)==STATIC_IP_MODE) {
-            Serial.println(F("Static"));
+            BRIDGE::println(F("Static"), output);
             if (CONFIG::read_buffer(EP_AP_IP_VALUE,(byte *)ipbuf , IP_LENGTH)) {
-                Serial.print(F("IP: "));
-                Serial.println(IPAddress(ipbuf).toString());
+                BRIDGE::print(F("IP: "), output);
+                BRIDGE::println(IPAddress(ipbuf).toString().c_str(), output);
             } else {
-                Serial.println(F("Error reading IP"));
+                BRIDGE::println(F("Error reading IP"), output);
             }
 
             if (CONFIG::read_buffer(EP_AP_MASK_VALUE, (byte *)ipbuf  , IP_LENGTH)) {
-                Serial.print(F("Subnet: "));
-                Serial.println(IPAddress(ipbuf).toString());
+                BRIDGE::print(F("Subnet: "), output);
+                BRIDGE::println(IPAddress(ipbuf).toString().c_str(), output);
             } else {
-                Serial.println(F("Error reading subnet"));
+                BRIDGE::println(F("Error reading subnet"), output);
             }
 
             if (CONFIG::read_buffer(EP_AP_GATEWAY_VALUE, (byte *)ipbuf  , IP_LENGTH)) {
-                Serial.print(F("Gateway: "));
-                Serial.println(IPAddress(ipbuf).toString());
+                BRIDGE::print(F("Gateway: "), output);
+                BRIDGE::println(IPAddress(ipbuf).toString().c_str(), output);
             } else {
-                Serial.println(F("Error reading gateway"));
+                BRIDGE::println(F("Error reading gateway"), output);
             }
         } else  if (byte(bbuf)==DHCP_MODE) {
-            Serial.println(F("DHCP"));
+            BRIDGE::println(F("DHCP"), output);
         } else {
-            Serial.println(intTostr(bbuf));
-            Serial.println(F("???"));
+            BRIDGE::println(intTostr(bbuf), output);
+            BRIDGE::println(F("???"), output);
         }
     } else {
-        Serial.println(F("Error reading IP mode"));
+        BRIDGE::println(F("Error reading IP mode"), output);
     }
 
     if (CONFIG::read_byte(EP_AP_PHY_MODE, &bbuf )) {
-        Serial.print(F("AP Phy mode: "));
+        BRIDGE::print(F("AP Phy mode: "), output);
         if (byte(bbuf)==WIFI_PHY_MODE_11B) {
-            Serial.println(F("11b"));
+            BRIDGE::println(F("11b"), output);
         } else if (byte(bbuf)==WIFI_PHY_MODE_11G) {
-            Serial.println(F("11g"));
+            BRIDGE::println(F("11g"), output);
         } else if (byte(bbuf)==WIFI_PHY_MODE_11N) {
-            Serial.println(F("11n"));
+            BRIDGE::println(F("11n"), output);
         } else {
-            Serial.println(F("???"));
+            BRIDGE::println(F("???"), output);
         }
     } else {
-        Serial.println(F("Error reading phy mode"));
+        BRIDGE::println(F("Error reading phy mode"), output);
     }
 
     if (CONFIG::read_byte(EP_CHANNEL, &bbuf )) {
-        Serial.print(F("Channel: "));
-        Serial.println(byte(bbuf));
+        BRIDGE::print(F("Channel: "), output);
+        BRIDGE::println(String(byte(bbuf)).c_str(), output);
     } else {
-        Serial.println(F("Error reading channel"));
+        BRIDGE::println(F("Error reading channel"), output);
     }
 
     if (CONFIG::read_byte(EP_AUTH_TYPE, &bbuf )) {
-        Serial.print(F("Authentification: "));
+        BRIDGE::print(F("Authentification: "), output);
         if (byte(bbuf)==AUTH_OPEN) {
-            Serial.println(F("None"));
+            BRIDGE::println(F("None"), output);
         } else if (byte(bbuf)==AUTH_WEP) {
-            Serial.println(F("WEP"));
+            BRIDGE::println(F("WEP"), output);
         } else if (byte(bbuf)==AUTH_WPA_PSK) {
-            Serial.println(F("WPA"));
+            BRIDGE::println(F("WPA"), output);
         } else if (byte(bbuf)==AUTH_WPA2_PSK) {
-            Serial.println(F("WPA2"));
+            BRIDGE::println(F("WPA2"), output);
         } else if (byte(bbuf)==AUTH_WPA_WPA2_PSK) {
-            Serial.println(F("WPA/WPA2"));
+            BRIDGE::println(F("WPA/WPA2"), output);
         } else {
-            Serial.println(F("???"));
+            BRIDGE::println(F("???"), output);
         }
     } else {
-        Serial.println(F("Error reading authentification"));
+        BRIDGE::println(F("Error reading authentification"), output);
     }
 
     if (CONFIG::read_byte(EP_SSID_VISIBLE, &bbuf )) {
-        Serial.print(F("SSID visibility: "));
+        BRIDGE::print(F("SSID visibility: "), output);
         if (bbuf==0) {
-            Serial.println(F("Hidden"));
+            BRIDGE::println(F("Hidden"), output);
         } else if (bbuf==1) {
-            Serial.println(F("Visible"));
+            BRIDGE::println(F("Visible"), output);
         } else {
-            Serial.println(bbuf);
+            BRIDGE::println(String(bbuf).c_str(), output);
         }
     } else {
-        Serial.println(F("Error reading SSID visibility"));
+        BRIDGE::println(F("Error reading SSID visibility"), output);
     }
 
     if (CONFIG::read_buffer(EP_WEB_PORT,  (byte *)&ibuf , INTEGER_LENGTH)) {
-        Serial.print(F("Web port: "));
-        Serial.println(ibuf);
+        BRIDGE::print(F("Web port: "), output);
+        BRIDGE::println(String(ibuf).c_str(), output);
     } else {
-        Serial.println(F("Error reading web port"));
+        BRIDGE::println(F("Error reading web port"), output);
     }
-    Serial.print(F("Data port: "));
+    BRIDGE::print(F("Data port: "), output);
 #ifdef TCP_IP_DATA_FEATURE
     if (CONFIG::read_buffer(EP_DATA_PORT,  (byte *)&ibuf , INTEGER_LENGTH)) {
-        Serial.println(ibuf);
+        BRIDGE::println(String(ibuf).c_str(), output);
     } else {
-        Serial.println(F("Error reading data port"));
+        BRIDGE::println(F("Error reading data port"), output);
     }
 #else
-    Serial.println(F("Disabled"));
+    BRIDGE::println(F("Disabled"), output);
 #endif
     if (CONFIG::read_byte(EP_REFRESH_PAGE_TIME, &bbuf )) {
-        Serial.print(F("Web page refresh time: "));
-        Serial.println(byte(bbuf));
+        BRIDGE::print(F("Web page refresh time: "), output);
+        BRIDGE::println(String(byte(bbuf)).c_str(), output);
     } else {
-        Serial.println(F("Error reading refresh page"));
+        BRIDGE::println(F("Error reading refresh page"), output);
     }
 
     if (CONFIG::read_buffer(EP_XY_FEEDRATE,  (byte *)&ibuf , INTEGER_LENGTH)) {
-        Serial.print(F("XY feed rate: "));
-        Serial.println(ibuf);
+        BRIDGE::print(F("XY feed rate: "), output);
+        BRIDGE::println(String(ibuf).c_str(), output);
     } else {
-        Serial.println(F("Error reading XY feed rate"));
+        BRIDGE::println(F("Error reading XY feed rate"), output);
     }
 
     if (CONFIG::read_buffer(EP_Z_FEEDRATE,  (byte *)&ibuf , INTEGER_LENGTH)) {
-        Serial.print(F("Z feed rate: "));
-        Serial.println(ibuf);
+        BRIDGE::print(F("Z feed rate: "), output);
+        BRIDGE::println(String(ibuf).c_str(), output);
     } else {
-        Serial.println(F("Error reading Z feed rate"));
+        BRIDGE::println(F("Error reading Z feed rate"), output);
     }
 
     if (CONFIG::read_buffer(EP_E_FEEDRATE,  (byte *)&ibuf , INTEGER_LENGTH)) {
-        Serial.print(F("E feed rate: "));
-        Serial.println(ibuf);
+        BRIDGE::print(F("E feed rate: "), output);
+        BRIDGE::println(String(ibuf).c_str(), output);
     } else {
-        Serial.println(F("Error reading E feed rate"));
+        BRIDGE::println(F("Error reading E feed rate"), output);
     }
 
-    Serial.print(F("Free memory: "));
-    Serial.println(formatBytes(ESP.getFreeHeap()));
+    BRIDGE::print(F("Free memory: "), output);
+    BRIDGE::println(formatBytes(ESP.getFreeHeap()).c_str(), output);
 
-    Serial.print(F("Captive portal: "));
+    BRIDGE::print(F("Captive portal: "), output);
 #ifdef CAPTIVE_PORTAL_FEATURE
-    Serial.println(F("Enabled"));
+    BRIDGE::println(F("Enabled"), output);
 #else
-    Serial.println(F("Disabled"));
+    BRIDGE::println(F("Disabled"), output);
 #endif
-    Serial.print(F("SSDP: "));
+    BRIDGE::print(F("SSDP: "), output);
 #ifdef SSDP_FEATURE
-    Serial.println(F("Enabled"));
+    BRIDGE::println(F("Enabled"), output);
 #else
-    Serial.println(F("Disabled"));
+    BRIDGE::println(F("Disabled"), output);
 #endif
-    Serial.print(F("NetBios: "));
+    BRIDGE::print(F("NetBios: "), output);
 #ifdef NETBIOS_FEATURE
-    Serial.println(F("Enabled"));
+    BRIDGE::println(F("Enabled"), output);
 #else
-    Serial.println(F("Disabled"));
+    BRIDGE::println(F("Disabled"), output);
 #endif
-    Serial.print(F("mDNS: "));
+    BRIDGE::print(F("mDNS: "), output);
 #ifdef MDNS_FEATURE
-    Serial.println(F("Enabled"));
+    BRIDGE::println(F("Enabled"), output);
 #else
-    Serial.println(F("Disabled"));
+    BRIDGE::println(F("Disabled"), output);
 #endif
-    Serial.print(F("Web update: "));
+    BRIDGE::print(F("Web update: "), output);
 #ifdef WEB_UPDATE_FEATURE
-    Serial.println(F("Enabled"));
+    BRIDGE::println(F("Enabled"), output);
 #else
-    Serial.println(F("Disabled"));
+    BRIDGE::println(F("Disabled"), output);
 #endif
-    Serial.print(F("Pin 2 Recovery: "));
+    BRIDGE::print(F("Pin 2 Recovery: "), output);
 #ifdef RECOVERY_FEATURE
-    Serial.println(F("Enabled"));
+    BRIDGE::println(F("Enabled"), output);
 #else
-    Serial.println(F("Disabled"));
+    BRIDGE::println(F("Disabled"), output);
 #endif
-    Serial.print(F("Authentication: "));
+    BRIDGE::print(F("Authentication: "), output);
 #ifdef AUTHENTICATION_FEATURE
-    Serial.println(F("Enabled"));
+    BRIDGE::println(F("Enabled"), output);
 #else
-    Serial.println(F("Disabled"));
+    BRIDGE::println(F("Disabled"), output);
 #endif
-    Serial.print(F("Target Firmware: "));
+    BRIDGE::print(F("Target Firmware: "), output);
 #if FIRMWARE_TARGET == REPETIER
-    Serial.println(F("Repetier"));
+    BRIDGE::println(F("Repetier"), output);
 #elif FIRMWARE_TARGET == REPETIER4DV
-    Serial.println(F("Repetier for DaVinci"));
+    BRIDGE::println(F("Repetier for DaVinci"), output);
 #elif FIRMWARE_TARGET == MALRLIN
-    Serial.println(F("Marlin"));
+    BRIDGE::println(F("Marlin"), output);
 #elif FIRMWARE_TARGET == SMOOTHIEWARE
-    Serial.println(F("Smoothieware"));
+    BRIDGE::println(F("Smoothieware"), output);
 #else
-    Serial.println(F("???"));
+    BRIDGE::println(F("???"), output);
 #endif
-    Serial.print(F("SD Card support: "));
+    BRIDGE::print(F("SD Card support: "), output);
 #ifdef SDCARD_FEATURE
-    Serial.println(F("Enabled"));
+    BRIDGE::println(F("Enabled"), output);
 #else
-    Serial.println(F("Disabled"));
+    BRIDGE::println(F("Disabled"), output);
 #endif
 #ifdef DEBUG_ESP3D
-    Serial.print(F("Debug Enabled :"));
+    BRIDGE::print(F("Debug Enabled :"), output);
 #ifdef DEBUG_OUTPUT_SPIFFS
-    Serial.println(F("SPIFFS"));
+    BRIDGE::println(F("SPIFFS"), output);
 #endif
 #ifdef DEBUG_OUTPUT_SD
-    Serial.println(F("SD"));
+    BRIDGE::println(F("SD"), output);
 #endif
 #ifdef DEBUG_OUTPUT_SERIAL
-    Serial.println(F("serial"));
+    BRIDGE::println(F("serial"), output);
+#endif
+#ifdef DEBUG_OUTPUT_TCP
+    BRIDGE::println(F("TCP"), output);
 #endif
 #endif
 }

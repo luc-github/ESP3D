@@ -18,11 +18,10 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "config.h"
-
 #ifndef BRIDGE_H
 #define BRIDGE_H
-
+#include <WiFiServer.h>
+#include "config.h"
 #ifdef TCP_IP_DATA_FEATURE
 extern WiFiServer * data_server;
 #endif
@@ -30,10 +29,21 @@ extern WiFiServer * data_server;
 class BRIDGE
 {
 public:
+    static bool header_sent;
+    static String buffer_web;
     static bool processFromSerial2TCP();
+    static void print (const __FlashStringHelper *data, tpipe output);
+    static void print (String & data, tpipe output);
+    static void print (const char * data, tpipe output);
+    static void println (const __FlashStringHelper *data, tpipe output);
+    static void println (String & data, tpipe output);
+    static void println (const char * data, tpipe output);
+    static void flush (tpipe output);
 #ifdef TCP_IP_DATA_FEATURE
     static void processFromTCP2Serial();
+    static void send2TCP(const __FlashStringHelper *data);
+    static void send2TCP(String data);
+    static void send2TCP(const char * data);
 #endif
 };
-
 #endif
