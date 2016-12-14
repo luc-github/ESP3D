@@ -782,7 +782,7 @@ void CONFIG::print_config(tpipe output)
     BRIDGE::println(F("Repetier"), output);
 #elif FIRMWARE_TARGET == REPETIER4DV
     BRIDGE::println(F("Repetier for DaVinci"), output);
-#elif FIRMWARE_TARGET == MALRLIN
+#elif FIRMWARE_TARGET == MARLIN
     BRIDGE::println(F("Marlin"), output);
 #elif FIRMWARE_TARGET == SMOOTHIEWARE
     BRIDGE::println(F("Smoothieware"), output);
