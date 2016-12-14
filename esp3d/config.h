@@ -26,7 +26,7 @@
 #define SMOOTHIEWARE	    4
 
 //FIRMWARE_TARGET: the targeted FW, can be REPETIER (Original Repetier)/ REPETIER4DV (Repetier for Davinci) / MARLIN (Marlin)/ SMOOTHIEWARE (Smoothieware)
-#define FIRMWARE_TARGET REPETIER4DV
+#define FIRMWARE_TARGET MARLIN
 
 
 //number of clients allowed to use data port at once
@@ -151,7 +151,7 @@ extern "C" {
 }
 #include "wifi.h"
 //version and sources location
-#define FW_VERSION "0.9.76"
+#define FW_VERSION "0.9.77"
 #define REPOSITORY "https://github.com/luc-github/ESP3D"
 
 typedef enum {
