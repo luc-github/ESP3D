@@ -449,6 +449,26 @@ void COMMAND::execute_command(int cmd,String cmd_params, tpipe output)
         BRIDGE::print("FW version:", output);
         BRIDGE::println(FW_VERSION, output);
         break;
+    //get fw target
+    //[ESP801]<header answer>
+    case 801:
+        BRIDGE::print(cmd_params, output);
+#if FIRMWARE_TARGET == REPETIER
+        BRIDGE::println("Repetier", output);
+#endif
+#if FIRMWARE_TARGET == REPETIER4DV
+        BRIDGE::println("Repetier_Davinci", output);
+#endif
+#if FIRMWARE_TARGET == MARLIN
+        BRIDGE::println("Marlin", output);
+#endif
+#if FIRMWARE_TARGET == MARLINKIMBRA
+        BRIDGE::println("Marlin_Kimbra", output);
+#endif
+#if FIRMWARE_TARGET == SMOOTHIEWARE
+        BRIDGE::println("Smoothieware", output);
+#endif
+        break;
     //clear status/error/info list
     //[ESP999]<cmd>
     case 999:
@@ -529,6 +549,8 @@ bool COMMAND::check_command(String buffer, tpipe output, bool handlelockserial)
         int Zpos = buffer.indexOf("Z:");
 #endif
 #if FIRMWARE_TARGET == SMOOTHIEWARE
+        int Bpos = buffer.indexOf("B:");
+        if (Bpos > -1 ) is_temp = true;
 #ifdef SPEED_MONITORING_FEATURE
         int Speedpos = buffer.indexOf("Speed factor at ");
 #endif
@@ -558,7 +580,11 @@ bool COMMAND::check_command(String buffer, tpipe output, bool handlelockserial)
         int Infopos= buffer.indexOf("Info:");
 #endif
 #ifdef STATUS_MSG_FEATURE
+#if FIRMWARE_TARGET == MARLIN
+        int Statuspos= buffer.indexOf("echo:");
+#else
         int Statuspos= buffer.indexOf("Status:");
+#endif
 #endif
 #endif
 
@@ -594,8 +620,24 @@ bool COMMAND::check_command(String buffer, tpipe output, bool handlelockserial)
             if(spacepos-Tpos < 17) {
                 web_interface->answer4M105=buffer; //do not interprete just need when requested so store it
                 web_interface->last_temp=millis();
+            } else {
+                LOG("Not a T temp")
             }
         }
+#if FIRMWARE_TARGET == SMOOTHIEWARE
+        else if (Bpos > -1 ){
+            //look for valid temperature answer
+            int slashpos = buffer.indexOf(" /",Bpos);
+            int spacepos = buffer.indexOf(" ",slashpos+1);
+            //if match mask B:xxx.xx /xxx.xx
+            if(spacepos-Bpos < 17) {
+                web_interface->answer4M105=buffer; //do not interprete just need when requested so store it
+                web_interface->last_temp=millis();
+            } else {
+                LOG("Not a  B temp")
+            }
+        }
+#endif
 #endif
 #ifdef POS_MONITORING_FEATURE
         //Position of axis
@@ -647,7 +689,11 @@ bool COMMAND::check_command(String buffer, tpipe output, bool handlelockserial)
 #if FIRMWARE_TARGET == SMOOTHIEWARE
             (web_interface->status_msg).add(buffer.substring(Statuspos+8).c_str());
 #else
+#if FIRMWARE_TARGET == MARLIN
+            (web_interface->status_msg).add(buffer.substring(Statuspos+5).c_str());
+#else
             (web_interface->status_msg).add(buffer.substring(Statuspos+7).c_str());
+#endif
 #endif
         }
 #endif

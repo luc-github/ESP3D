@@ -69,6 +69,9 @@ if no password set it use default one
 * Get fw version
 [ESP800]<header answer>
 
+* Get fw target
+[ESP801]<header answer>
+
 * Clear status/error/info list
 cmd can be ALL, ERROR, INFO, STATUS 
 [ESP999]<cmd>
