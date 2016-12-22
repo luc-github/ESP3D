@@ -268,4 +268,3 @@ The screen when connected to AP:
 -- Close open topics    
 -- Do testing (a lot)    
 -- UI Improvement    
--- Printer EEPROM management
