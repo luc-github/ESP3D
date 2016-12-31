@@ -215,30 +215,12 @@ You must define the targeted FW,  can be REPETIER (Original Repetier)/ REPETIER4
 //#define DEBUG_ESP3D 
 ```
 
-
 For better performance select CPU Frequency to be 160MHz instead of default 80MHz   
 Use IDE to upload directly  (latest version of board manager module generate one binary)     
 * To flash the html files present in data directory you need to use another tool, installation and usage is explained [here](https://github.com/esp8266/Arduino/blob/master/doc/filesystem.md#uploading-files-to-file-system)    
 Once flashed you also can use the web updater to flash new FW in System Configuration Page or go to settings to change html files 
 
 <H3>:warning:Do not flash Printer fw with ESP connected - it bring troubles, at least on DaVinci</H3>
-
-##Hardware connection
-
-* Use GPIO2 to ground to reset all settings in hard way - 2-6 sec after boot / not before!! Set GPIO2 to ground before boot change boot mode and go to special boot that do not reach FW. Currently boot take 10 sec - giving 8 seconds to connect GPIO2 to GND and do an hard recovery for settings   
-* Use GPIO0 to ground to be in update mode   
-
-For ESP01:   
-<img src=https://raw.githubusercontent.com/luc-github/ESP3D/master/images/HW/Wires.png><br>
-
-For ESP12E:   
-<img src=https://raw.githubusercontent.com/luc-github/ESP3D/master/images/HW/WiresESP12E.png><br>
-
-For Davinci Board:   
-<img src=https://raw.githubusercontent.com/luc-github/ESP3D/master/images/Davinci/davinci.png><br>
-
-For RADDS Board:   
-<img src=https://raw.githubusercontent.com/luc-github/ESP3D/master/images/RADDS/RADDS.png><br>
 
 ##Contribution/customization
 To modifying and Testing tpl files a local tool has been created by [j0hnlittle](https://github.com/j0hnlittle) to avoid to upload every time your tpl files just to see the results of your modifications. It is a python script (2.7+) located in tools directory, launch it: python server.py, then open browser: http://localhost:8080   
@@ -248,22 +230,9 @@ To style the code before pushing PR please use [astyle --style=otbs *.h *.cpp *.
 
 Feedback/suggestion/discussions are always welcome
  
-
-##Result of ESP12E on Davinci    
-I use a proto board to connect ESP12E socket, one micro switch for recovery, one jumper for normal usage/ flash, I did not put hardware switch.    
-<img src=https://raw.githubusercontent.com/luc-github/ESP3D/master/images/Davinci/board.jpg><br>  
-Connected to Davinci:    
-<img src=https://raw.githubusercontent.com/luc-github/ESP3D/master/images/Davinci/boardconnected.jpg><br>  
-The back cover:    
-<img src=https://raw.githubusercontent.com/luc-github/ESP3D/master/images/Davinci/backside.jpg><br>  
-The screen when connected to AP:    
-<img src=https://raw.githubusercontent.com/luc-github/ESP3D/master/images/Davinci/screen.jpg><br>   
+##Need more information about board or wiring ?
+[Check the wiki](https://github.com/luc-github/ESP3D/wiki)
  
-##Result of ESP12E on Due/RADDS 
- the rendering on screen when connection to AP is done:   
-<img src=https://raw.githubusercontent.com/luc-github/ESP3D/master/images/RADDS/screen.jpg><br> 
-
-
 ##TODO   
 -- Close open topics    
 -- Do testing (a lot)    
