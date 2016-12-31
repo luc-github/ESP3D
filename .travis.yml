@@ -20,6 +20,14 @@ before_script:
   - git clone https://github.com/esp8266/Arduino.git esp8266
   - cd esp8266/tools
   - python get.py
+  - cd ..
+  - touch pt.txt
+  - echo 'build.flash_ld=eagle.flash.4m.ld' >> pt.txt
+  - echo 'build.flash_freq=40' >> pt.txt
+  - echo 'build.flash_size=4M' >> pt.txt
+  - cat ./platform.txt >> pt.txt
+  - rm -fr platform.txt
+  - mv pt.txt platform.txt
   
 
 script:
