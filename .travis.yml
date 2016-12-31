@@ -11,9 +11,9 @@ before_install:
 before_script:
   - "export DISPLAY=:99.0"
   - sleep 3 # give xvfb some time to start
-  - wget http://downloads.arduino.cc/arduino-1.6.9-linux64.tar.xz
-  - tar xf arduino-1.6.9-linux64.tar.xz
-  - mv arduino-1.6.9 $HOME/arduino_ide
+  - wget http://downloads.arduino.cc/arduino-1.8.0-linux64.tar.xz
+  - tar xf arduino-1.8.0-linux64.tar.xz
+  - mv arduino-1.8.0 $HOME/arduino_ide
   - cd $HOME/arduino_ide/hardware
   - mkdir esp8266com
   - cd esp8266com
