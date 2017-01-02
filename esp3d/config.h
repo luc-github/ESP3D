@@ -200,7 +200,7 @@ typedef enum {
 #define EP_AP_MASK_VALUE			320  //4  bytes xxx.xxx.xxx.xxx
 #define EP_AP_GATEWAY_VALUE			324  //4  bytes xxx.xxx.xxx.xxx
 #define EP_AP_IP_MODE			329   //1 byte = flag
-#define EP_AP_PHY_MODE			182  //1 byte = flag
+#define EP_AP_PHY_MODE			330  //1 byte = flag
 //next available is 330
 //space left 512 - 330 = 18
 
