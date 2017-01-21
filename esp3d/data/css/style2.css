@@ -1,4 +1,3 @@
-<STYLE>
 input[type="file"]::-webkit-file-upload-button{display:inline-block;margin-bottom:0;font-weight:normal;text-align:center;vertical-align:middle;-ms-touch-action:manipulation;  touch-action:manipulation;cursor:pointer;
 background-image:none;border:1px solid transparent;white-space:nowrap;padding:6px 12px;font-size:14px;line-height:1.42857143;border-radius:4px;
 * -webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;  color: #ffffff;background-color: #5bc0de;border-color: #46b8da;}
@@ -24,4 +23,3 @@ background-image:none;border:1px solid transparent;white-space:nowrap;padding:6p
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
-</STYLE>

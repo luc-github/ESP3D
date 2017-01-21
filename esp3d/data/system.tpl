@@ -1,5 +1,5 @@
 $INCLUDE[header.inc]$
-$INCLUDE[css2.inc]$
+<link rel="stylesheet" type="text/css" href="/css/style2.css">
 <div id='system' class="panel">
 <div class="panel-heading">System</div>
 <div class="panel-body">

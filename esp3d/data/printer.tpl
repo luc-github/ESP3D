@@ -1,5 +1,5 @@
 $INCLUDE[header.inc]$
-$INCLUDE[css2.inc]$
+<link rel="stylesheet" type="text/css" href="/css/style2.css">
 <div class="panel">
 <div class="panel-heading" ><div class="btnimg" style="float:left;" onclick="control_expanded = expand_collapse(control_expanded,'pin_control','control')" id="pin_control">&#9660;</div>&nbsp;&nbsp;Control</div>
 <div class="panel-body" id="control">

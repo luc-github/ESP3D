@@ -3992,6 +3992,7 @@ WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port):WebServer(port)
 #ifdef SSDP_FEATURE
     WebServer.on("/description.xml", HTTP_GET, handle_SSDP);
 #endif
+    WebServer.serveStatic("/css/", SPIFFS, "/css/", "max-age=8640");
     WebServer.onNotFound( handle_not_found);
 #ifdef TEMP_MONITORING_FEATURE
     answer4M105="T:0 /0 ";

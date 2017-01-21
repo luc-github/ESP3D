@@ -1,5 +1,5 @@
 $INCLUDE[header.inc]$
-$INCLUDE[css2.inc]$
+<link rel="stylesheet" type="text/css" href="/css/style2.css">
 <style>
 .panel-footer{padding:10px 15px;color:#31708f;background-color:#f5f5f5;border-color:#dddddd;border-top:1px solid #dddddd;}
 </style>
