@@ -18,4 +18,6 @@ $SUCCESS_MSG$
 </div>
 </div>
 </div>
-$INCLUDE[footer.inc]$
+
+</body>
+</html>

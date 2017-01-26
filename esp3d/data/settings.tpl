@@ -140,7 +140,11 @@ if (String(jsonresponse.files[i].size) == "-1")
 }
 
  document.getElementById('file_list').innerHTML=content;
- document.getElementById('path').innerHTML=navbar();}
+ document.getElementById('path').innerHTML=navbar();
+
+ container_resize();
+}
+
 function Delete(filename){
 if (confirm("Confirm deletion of file: " + filename))SendCommand("delete",filename);
 }
@@ -205,11 +209,11 @@ dispatchfilestatus(jsonresponse);
 xmlhttp.send(formData);
 }
 
-window.onload = function() {
-SendCommand('list','all');
+function on_page_load() {
+    SendCommand('list','all');
 }
 
 </script>
-$INCLUDE[footer.inc]$
 
-
+</body>
+</html>

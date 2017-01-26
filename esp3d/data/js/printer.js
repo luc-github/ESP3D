@@ -12,10 +12,6 @@ var Zfeedrate = 0;
 var Efeedrate = 0;
 var REFRESH_PAGE = 3;
 
-function elm(id) {
-    return  document.getElementById(id);
-}
-
 function expand_collapse(flag, targetpin, targetdiv) {
     if (flag) {
         elm(targetpin).innerHTML = '&#9658;';
@@ -36,7 +32,8 @@ function set_values()
     REFRESH_PAGE = elm('REFRESH_PAGE').innerHTML;
 }
 
-function Sendcommand(commandtxt, showresult = false) {
+function Sendcommand(commandtxt, _showresult) {
+    var showresult = _showresult || false;
     var xmlhttp = new XMLHttpRequest();
     var url = "/command?plain=" + encodeURIComponent(commandtxt);
     if (!showresult) url = "/command_silent?plain=" + encodeURIComponent(commandtxt);
@@ -46,6 +43,7 @@ function Sendcommand(commandtxt, showresult = false) {
                 var textarea = elm("logwindow");
                 textarea.innerHTML = textarea.innerHTML + xmlhttp.responseText;
                 textarea.scrollTop = textarea.scrollHeight;
+                container_resize();
             }
         }
     }
@@ -58,7 +56,8 @@ function delay(ms) {
     while (new Date() < ms) {}
 }
 
-function SendJogcommand(cmd, feedrate, extra = "") {
+function SendJogcommand(cmd, feedrate, _extra) {
+    var extra = _extra || "";
     if (extra != "") {
         Sendcommand(extra);
         delay(100);
@@ -259,6 +258,7 @@ function getstatus() {
             if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
                 var jsonresponse = JSON.parse(xmlhttp.responseText);
                 dispatchstatus(jsonresponse);
+                container_resize();
             }
         }
         xmlhttp.open("GET", url, true);
@@ -428,6 +428,7 @@ function dispatchfilestatus(jsonresponse) {
     }
     elm('file_list').innerHTML = content;
     elm('path').innerHTML = navbar();
+    container_resize();
 }
 
 function Delete(filename, icon) {
@@ -469,6 +470,7 @@ function SendFileCommand(action, filename) {
             dispatchfilestatus(jsonresponse);
             elm('loader').style.visibility = "hidden";
             canrefresh = true;
+            container_resize();
         }
     }
     xmlhttp.open("GET", url, true);
@@ -514,7 +516,7 @@ function Sendfile() {
     xmlhttp.send(formData);
 }
 
-window.onload = function() {
+function on_page_load() {
     Updaterange('1');
     Updaterange('2');
     Updaterange('bed');

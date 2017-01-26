@@ -662,8 +662,8 @@ void WEBINTERFACE_CLASS::ProcessNoAlert(STORESTRINGS_CLASS & KeysList, STORESTRI
 //root insterface
 void handle_web_interface_root()
 {
-    static const char HOME_PAGE [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /HOME\r\nCache-Control: no-cache\r\n\r\n";
-    String path = "/index.html";
+    static const char HOME_PAGE [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /html/index.html\r\nCache-Control: no-cache\r\n\r\n";
+    String path = "/html/index.html";
     String contentType =  web_interface->getContentType(path);
     String pathWithGz = path + ".gz";
     //if have a index.html or gzip version this is default root page
@@ -3441,7 +3441,7 @@ void handleSDFileList()
 //and handle not registred path
 void handle_not_found()
 {
-    static const char NOT_AUTH_NF [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /HOME\r\nCache-Control: no-cache\r\n\r\n";
+    static const char NOT_AUTH_NF [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /html/index.html\r\nCache-Control: no-cache\r\n\r\n";
 
     if (web_interface->is_authenticated() == LEVEL_GUEST) {
         web_interface->WebServer.sendContent_P(NOT_AUTH_NF);
@@ -3665,7 +3665,7 @@ void handle_login()
 #endif
 void handle_restart()
 {
-    static const char NOT_AUTH_NF [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /HOME\r\nCache-Control: no-cache\r\n\r\n";
+    static const char NOT_AUTH_NF [] PROGMEM = "HTTP/1.1 301 OK\r\nLocation: /html/index.html\r\nCache-Control: no-cache\r\n\r\n";
     bool outputjson = false;
     if (web_interface->WebServer.hasArg("output")){
         if (web_interface->WebServer.arg("output") == "JSON")
@@ -3957,6 +3957,19 @@ void handle_SSDP()
 }
 #endif
 
+//ping insterface
+void handle_info()
+{
+    STORESTRINGS_CLASS KeysList;
+    STORESTRINGS_CLASS ValuesList;
+    web_interface->GetFreeMem(KeysList, ValuesList);
+    web_interface->GetLogin(KeysList, ValuesList,web_interface->is_authenticated(), true);
+    web_interface->generateJSON(KeysList, ValuesList);
+    //need to clean to speed up memory recovery
+    KeysList.clear();
+    ValuesList.clear();
+}
+
 //constructor
 WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port):WebServer(port)
 {
@@ -3992,8 +4005,11 @@ WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port):WebServer(port)
 #ifdef SSDP_FEATURE
     WebServer.on("/description.xml", HTTP_GET, handle_SSDP);
 #endif
+    WebServer.on("/INFO", HTTP_ANY, handle_info);
+
     WebServer.serveStatic("/css/", SPIFFS, "/css/", "max-age=8640");
     WebServer.serveStatic("/js/", SPIFFS, "/js/", "max-age=8640");
+    WebServer.serveStatic("/html/", SPIFFS, "/html/", "max-age=8640");
     WebServer.onNotFound( handle_not_found);
 #ifdef TEMP_MONITORING_FEATURE
     answer4M105="T:0 /0 ";

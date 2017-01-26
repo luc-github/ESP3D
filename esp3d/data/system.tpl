@@ -104,5 +104,10 @@ else alert('Update failed!');
 }
 xmlhttp.send(formData);
 }
+
+	function on_page_load() {
+	}
 </script>
-$INCLUDE[footer.inc]$
+
+</body>
+</html>

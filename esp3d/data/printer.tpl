@@ -368,4 +368,5 @@ $INCLUDE[header.inc]$
 
 </div>
 
-$INCLUDE[footer.inc]$
+</body>
+</html>

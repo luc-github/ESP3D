@@ -1,0 +1,158 @@
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<link rel="stylesheet" type="text/css" href="/css/style.css"/>
+	<link rel="stylesheet" type="text/css" href="/css/style2.css"/>
+	<script src="/js/common.js"></script>
+	<title>ESP3D</title>
+</head>
+<script>
+
+// menu
+var last_menu_item = null;
+var menu_item;
+var page;
+var data;
+
+function get_page_values_cb()
+{
+	visible("page_loader", false);
+	visible("software_version", true);
+	visible("footer", true);
+	visible('content', true);
+	visible("menu_hidden", true);
+	top.document.title = elm("content").contentDocument.title;
+}
+
+function on_container_load() {
+	var cont = elm('container');
+	if (cont) {
+		if (data != null)
+			get_page_values(data);
+		container_resize();
+	}
+}
+
+function load_page(page, data_page) {
+	var container = elm("content");
+
+	visible("page_loader", true);
+	visible('content', false);
+	visible("menu_hidden", false);
+
+	container.height = "100%";
+	container.src=page;
+}
+
+var menus = {
+	"home":			{"page":"/HOME",      "data": "/INFO"},
+	"system":		{"page":"/CONFIGSYS", "data": "/INFO"},
+	"config_ap":	{"page":'/CONFIGAP',  "data": "/INFO"},
+	"config_sta":	{"page":'/CONFIGSTA', "data": "/INFO"},
+	"printer":		{"page":'/PRINTER',   "data": "/INFO"},
+	"settings":		{"page":'/SETTINGS',  "data": "/INFO"},
+	"admin":		{"page":'/PASSWORD',  "data": "/INFO"},
+}
+
+function on_menu_click(name) {
+	var menu_id = "menu_" + name;
+
+	menu_item = elm(menu_id);
+	page = menus[name].page;
+	data = menus[name].data
+	if (data != null)
+		data = data + "?output=JSON";
+
+	if (last_menu_item != null) {
+		elm(last_menu_item).className = "";
+	}
+	menu_item.className  = "active";
+	last_menu_item = menu_id;
+
+	visible("content", false);
+	visible("footer", false);
+	load_page(page, data);
+}
+
+function on_menu_page_load() {
+	var menu = 'home';
+	var params = get_uri_params();
+	if (params.menu != null) {
+		menu = params.menu;
+	}
+
+	//set menu href
+	var id;
+	var el;
+	for (id in menus) {
+		el = elm('menu_' + id);
+		if (el)
+			el.href = '?menu=' + id;
+	}
+
+	on_menu_click(menu);
+}
+
+window.onresize = function() {
+	container_resize();
+};
+
+</script>
+
+<body class="container"  onload="on_menu_page_load()">
+	<div class="container" width="100%">
+		<table id="container_menu" class="nav">
+			<tr width=100%>
+				<td><a id="menu_home" href="#" onclick="on_menu_click('home')">Home</a></td>
+				<td><a id="menu_system" href="#"  onclick="on_menu_click('system')">System</a></td>
+				<td><a id="menu_config_ap" href="#" onclick="on_menu_click('config_ap')">Access Point</a></td>
+				<td><a id="menu_config_sta" href="#" onclick="on_menu_click('config_sta')">Station</a></td>
+				<td><a id="menu_printer" href="#" onclick="on_menu_click('printer')">3D Printer</a></td>
+				<td><a id="menu_settings" href="#" onclick="on_menu_click('settings')">Extra Settings</a></td>
+				<td width=100%>&nbsp;</td>
+
+				<td id="page_loader"><div id="loader" class="loader" style="visibility: visible;"></div></td>
+
+				<td id="menu_hidden" width="100%">
+					<table class="nav"  style="padding:0px; margin-bottom:0px;"><tr>
+						<td><a id="menu_admin" href="#" style="$DISCONNECT_VISIBILITY$">Admin</a></td>
+
+						<td style="padding:0px;"><a href="/LOGIN?DISCONNECT=YES"><div class="btnroundimg" style="$DISCONNECT_VISIBILITY$"><svg width="30" height="30" viewBox="0 0 40 40">
+						<circle style="fill:white"  cx="20"  cy="20"  r="20"/>
+						<circle style="fill:white;stroke:black;stroke-width:4" cx="20" cy="15" r="10"/>
+						<rect  style="fill:black;stroke-width:4;stroke:black" width="20" height="15" x="10" y="17" />
+						<circle style="fill:white" cx="20" cy="22" r="2.5"/>
+						<polygon points="20,23 16,30 24,30" style="fill:white"/></svg></div></a></td>
+						<td id="software_version" width=100%>FW:  V$FW_VER$</td>
+					</tr></table>
+				</td>
+
+				<td><a href="https://github.com/luc-github/ESP8266">Github</a></td>
+			</tr>
+		</table>
+
+		<iframe frameborder='0' id="content" ></iframe>
+
+		<!Footer>
+		<table class="panel" id="footer"><tr style="padding:0px"><td style="padding:0px">
+			<center>
+				<table>
+					<tr>
+					<td><a class="blacklink" href="https://github.com/luc-github/ESP3D">ESP3D powered</a></td>
+					<td>-</td>
+					<td><a class="blacklink" href="http://www.gnu.org/licenses/gpl-2.0.html">GPL licensed</a></td>
+					</tr>
+				</table>
+			</center>
+		</td></tr></table>
+
+		<!debug>
+		<table>
+			<tr>
+				<td id="debug_info" height="100%"></td>
+			</tr>
+		</table>
+	</div>
+</body>
+
+</html>

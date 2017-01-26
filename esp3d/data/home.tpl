@@ -1,4 +1,9 @@
 $INCLUDE[header.inc]$
+<script>
+    function on_page_load() {
+    }
+</script>
+
 <div class="panel">
 <div class="panel-heading">System</div>
 <div class="panel-body"><label>Chip ID: </label><label class="text-info">$CHIP_ID$</label><BR>
@@ -51,5 +56,6 @@ $INCLUDE[header.inc]$
 </div>
 </div>
 </div>
-$INCLUDE[footer.inc]$
 
+</body>
+</html>
