@@ -26,11 +26,8 @@ function get_page_values_cb()
 
 function on_container_load() {
 	var cont = elm('container');
-	if (cont) {
-		if (data != null)
-			get_page_values(data);
-		container_resize();
-	}
+	if (cont && data != null)
+		get_page_values(data);
 }
 
 function load_page(page, data_page) {
@@ -49,7 +46,7 @@ var menus = {
 	"system":		{"page":"/CONFIGSYS", "data": "/INFO"},
 	"config_ap":	{"page":'/CONFIGAP',  "data": "/INFO"},
 	"config_sta":	{"page":'/CONFIGSTA', "data": "/INFO"},
-	"printer":		{"page":'/PRINTER',   "data": "/INFO"},
+	"printer":		{"page":'/html/printer.html',   "data": "/PRINTER"},
 	"settings":		{"page":'/SETTINGS',  "data": "/INFO"},
 	"admin":		{"page":'/PASSWORD',  "data": "/INFO"},
 }

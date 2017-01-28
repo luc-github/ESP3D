@@ -154,6 +154,7 @@ function container_resize() {
 
 function on_frame_load()
 {
-	on_page_load();
 	parent.on_container_load();
+	on_page_load();
+	container_resize();
 }

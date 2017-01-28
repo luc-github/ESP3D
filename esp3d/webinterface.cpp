@@ -2304,13 +2304,8 @@ void handle_web_interface_printer()
 
     STORESTRINGS_CLASS KeysList ;
     STORESTRINGS_CLASS ValuesList ;
-    bool outputjson = false;
-    if (web_interface->WebServer.hasArg("output")){
-        if (web_interface->WebServer.arg("output") == "JSON")
-            {
-                outputjson = true;
-            }
-        }
+    enum pack_mode_t pack_mode = get_output_format();
+
     level_authenticate_type auth_level= web_interface->is_authenticated();
     if (auth_level == LEVEL_GUEST) {
         web_interface->WebServer.sendContent_P(NOT_AUTH_PRT);
@@ -2318,7 +2313,7 @@ void handle_web_interface_printer()
     }
 
     //login
-    web_interface->GetLogin(KeysList, ValuesList,auth_level, !outputjson);
+    web_interface->GetLogin(KeysList, ValuesList,auth_level, pack_mode != pack_json);
 
     //IP+Web
     web_interface->GetIpWeb(KeysList, ValuesList);
@@ -2366,8 +2361,11 @@ void handle_web_interface_printer()
 
     //Firmware and Free Mem, at the end to reflect situation
     web_interface->GetFreeMem(KeysList, ValuesList);
-
-    web_interface->processTemplate("/printer.tpl", KeysList , ValuesList);
+    if (pack_mode == pack_tpl) {
+	    web_interface->processTemplate("/printer.tpl", KeysList , ValuesList);
+	} else {
+		web_interface->generateJSON(KeysList , ValuesList);
+	}
     //need to clean to speed up memory recovery
     KeysList.clear();
     ValuesList.clear();
