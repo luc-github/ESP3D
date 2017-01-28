@@ -3421,7 +3421,7 @@ void handleSDFileList()
                 LOG(" -1");
             } else { //it is a file
                 //get size position
-                int posspace = sname.indexOf(" ");
+                int posspace = sname.lastIndexOf(" ");
                 String ssize;
                 if (posspace !=-1) {
                     ssize = sname.substring(posspace+1);
