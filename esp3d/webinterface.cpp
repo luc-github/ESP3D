@@ -212,6 +212,21 @@ const char KEY_LOGIN_ID [] PROGMEM = "$LOGIN_ID$";
 const char KEY_IS_DEFAULT_MODE [] PROGMEM = "$IS_DEFAULT_MODE$";
 
 
+enum pack_mode_t {pack_tpl, pack_json, pack_json_full};
+
+enum pack_mode_t get_output_format()
+{
+    enum pack_mode_t pack_mode = pack_tpl;
+    if (web_interface->WebServer.hasArg("output")) {
+        String output = web_interface->WebServer.arg("output");
+        if (output == "JSON")
+            pack_mode = pack_json;
+        else if (output == "JSON_FULL")
+            pack_mode = pack_json_full;
+    }
+    return pack_mode;
+}
+
 bool WEBINTERFACE_CLASS::generateJSON(STORESTRINGS_CLASS & KeysList ,  STORESTRINGS_CLASS & ValuesList )
 {
     LOG("process JSON\r\n")
@@ -226,14 +241,18 @@ bool WEBINTERFACE_CLASS::generateJSON(STORESTRINGS_CLASS & KeysList ,  STORESTRI
             //add current entry to buffer
             if (pos > 0)buffer2send+=",";
             String keystring = KeysList.get(pos);
+            String valuestring = ValuesList.get(pos);
+            char first_char = valuestring[0];
             keystring.replace(String("$"),String(""));
             //this allow to add extra info in array
             buffer2send+="\"";
             buffer2send+=keystring;
             buffer2send+="\":";
-            if (ValuesList.get(pos)[0]!='\"')buffer2send+="\"";
-            buffer2send+=ValuesList.get(pos);
-            if (ValuesList.get(pos)[0]!='\"')buffer2send+="\"";
+            if (first_char != '\"' && first_char != '[')
+                buffer2send+="\"";
+            buffer2send+=valuestring;
+            if (first_char != '\"' && first_char != '[')
+                buffer2send+="\"";
 
             //if buffer limit is reached
             if (buffer2send.length()>1200) {
@@ -692,16 +711,11 @@ void handle_web_interface_home()
     struct softap_config apconfig;
     struct ip_info info;
     uint8_t mac [WL_MAC_ADDR_LENGTH];
-    bool outputjson = false;
-    if (web_interface->WebServer.hasArg("output")){
-        if (web_interface->WebServer.arg("output") == "JSON")
-            {
-                outputjson = true;
-            }
-        }
+    enum pack_mode_t pack_mode = get_output_format();
+
     LOG("request /HOME\r\n")
     //login
-    web_interface->GetLogin(KeysList, ValuesList,web_interface->is_authenticated(), !outputjson);
+    web_interface->GetLogin(KeysList, ValuesList,web_interface->is_authenticated(), pack_mode != pack_json);
 
     //IP+Web
     web_interface->GetIpWeb(KeysList, ValuesList);
@@ -712,14 +726,14 @@ void handle_web_interface_home()
         ValuesList.add(FPSTR(VALUE_STA));
         KeysList.add(FPSTR(KEY_HOSTNAME));
         ValuesList.add(wifi_config.get_hostname());
-        if (!outputjson){
+        if (pack_mode != pack_json){
             KeysList.add(FPSTR(KEY_HOSTNAME_VISIBLE));
             ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
             }
     } else {
         KeysList.add(FPSTR(KEY_HOSTNAME));
         ValuesList.add(FPSTR(KEY_NOT_APPLICABLE_4_AP));
-        if (!outputjson){
+        if (pack_mode != pack_json){
             KeysList.add(FPSTR(KEY_HOSTNAME_VISIBLE));
             ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
             }
@@ -731,7 +745,7 @@ void handle_web_interface_home()
             ValuesList.add(FPSTR(VALUE_AP_STA));
         }
     }
-    if (!outputjson){
+    if (pack_mode != pack_json){
         //page title and filenames
         web_interface->SetPageProp(KeysList,ValuesList,FPSTR(VALUE_HOME),F("home"));
         //menu item
@@ -755,12 +769,12 @@ void handle_web_interface_home()
     stmp+=wifi_config.get_hostname();
     stmp+=".local";
     ValuesList.add(stmp);
-    if (!outputjson){
+    if (pack_mode != pack_json){
         KeysList.add(FPSTR(KEY_MDNS_VISIBLE));
         ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
         }
 #else
-    if (!outputjson){
+    if (pack_mode != pack_json){
         KeysList.add(FPSTR(KEY_MDNS_NAME));
         ValuesList.add(FPSTR(VALUE_DISABLED));
         KeysList.add(FPSTR(KEY_MDNS_VISIBLE));
@@ -772,14 +786,14 @@ void handle_web_interface_home()
 #ifdef SSDP_FEATURE
     KeysList.add(FPSTR(KEY_SSDP_STATUS));
     ValuesList.add(FPSTR(VALUE_ENABLED));
-    if (!outputjson){
+    if (pack_mode != pack_json){
         KeysList.add(FPSTR(KEY_SSDP_VISIBLE));
         ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
         }
 #else
     KeysList.add(FPSTR(KEY_SSDP_STATUS));
     ValuesList.add(FPSTR(VALUE_DISABLED));
-    if (!outputjson){
+    if (pack_mode != pack_json){
         KeysList.add(FPSTR(KEY_SSDP_VISIBLE));
         ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
         }
@@ -790,14 +804,14 @@ void handle_web_interface_home()
     if (WiFi.getMode()==WIFI_AP) {
         KeysList.add(FPSTR(KEY_CAPTIVE_PORTAL_STATUS));
         ValuesList.add(FPSTR(VALUE_ENABLED));
-        if (!outputjson){
+        if (pack_mode != pack_json){
             KeysList.add(FPSTR(KEY_CAPTIVE_PORTAL_VISIBLE));
             ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
             }
     } else {
         KeysList.add(FPSTR(KEY_CAPTIVE_PORTAL_STATUS));
         ValuesList.add(FPSTR(VALUE_DISABLED));
-        if (!outputjson){
+        if (pack_mode != pack_json){
             KeysList.add(FPSTR(KEY_CAPTIVE_PORTAL_VISIBLE));
             ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
             }
@@ -805,7 +819,7 @@ void handle_web_interface_home()
 #else
     KeysList.add(FPSTR(KEY_CAPTIVE_PORTAL_STATUS));
     ValuesList.add(FPSTR(VALUE_DISABLED));
-    if (!outputjson){
+    if (pack_mode != pack_json){
         KeysList.add(FPSTR(KEY_CAPTIVE_PORTAL_VISIBLE));
         ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
         }
@@ -836,7 +850,7 @@ void handle_web_interface_home()
     KeysList.add(FPSTR(KEY_BAUD_RATE));
     ValuesList.add(CONFIG::intTostr(wifi_config.baud_rate));
     // Web and Data ports
-    web_interface->GetPorts(KeysList, ValuesList, !outputjson);
+    web_interface->GetPorts(KeysList, ValuesList, pack_mode != pack_json);
 
     //AP part
     if (WiFi.getMode()==WIFI_AP ||  WiFi.getMode()==WIFI_AP_STA) {
@@ -846,40 +860,61 @@ void handle_web_interface_home()
         KeysList.add(FPSTR(KEY_AP_STATUS_ENABLED));
         ValuesList.add(FPSTR(VALUE_ENABLED));
         //set visible
-        if (!outputjson){
+        if (pack_mode != pack_json){
             KeysList.add(FPSTR(KEY_AP_VISIBILITY));
             ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
         }
         //list of connected clients
         station = wifi_softap_get_station_info();
-        while(station) {
-            //Row number
-            stmp = "$ROW_NUMBER["+String(client_counter)+"]$";
-            KeysList.add(stmp.c_str());
-            stmp=String(client_counter+1);
+
+        if (pack_mode != pack_json){
+            while(station) {
+                //Row number
+                stmp = "$ROW_NUMBER["+String(client_counter)+"]$";
+                KeysList.add(stmp.c_str());
+                stmp=String(client_counter+1);
+                ValuesList.add(stmp);
+                //BSSID
+                stmp = "$MAC_CONNECTED["+String(client_counter)+"]$";
+                KeysList.add(stmp.c_str());
+                ValuesList.add(CONFIG::mac2str(station->bssid));
+                //IP
+                stmp = "$IP_CONNECTED["+String(client_counter)+"]$";
+                KeysList.add(stmp.c_str());
+                ValuesList.add(IPAddress((const uint8_t *)&station->ip).toString().c_str());
+                //increment counter
+                client_counter++;
+                //go next record
+                station = STAILQ_NEXT(station, next);
+            }
+            //Connected clients
+            KeysList.add(FPSTR(KEY_CONNECTED_STATIONS_NB_ITEMS));
+            ValuesList.add(CONFIG::intTostr(client_counter));
+
+        } else {
+            stmp = "[";
+            while(station) {
+                //Row number
+                stmp += "{\"ROW_NUMBER\":\"" + String(client_counter+1) +"\",";
+                stmp += "\"MAC_CONNECTED\":\"" + String(CONFIG::mac2str(station->bssid)) + "\",";
+                stmp += "\"IP_CONNECTED\":\""+ IPAddress((const uint8_t *)&station->ip).toString() +"\"}";
+
+                client_counter++;
+                station = STAILQ_NEXT(station, next);
+                if (station)
+                    stmp += ",";
+            }
+            stmp += "]";
+
+            KeysList.add("CONNECTED_STATIONS[]");
             ValuesList.add(stmp);
-            //BSSID
-            stmp = "$MAC_CONNECTED["+String(client_counter)+"]$";
-            KeysList.add(stmp.c_str());
-            ValuesList.add(CONFIG::mac2str(station->bssid));
-            //IP
-            stmp = "$IP_CONNECTED["+String(client_counter)+"]$";
-            KeysList.add(stmp.c_str());
-            ValuesList.add(IPAddress((const uint8_t *)&station->ip).toString().c_str());
-            //increment counter
-            client_counter++;
-            //go next record
-            station = STAILQ_NEXT(station, next);
         }
         wifi_softap_free_station_info();
-        //Connected clients
-        KeysList.add(FPSTR(KEY_CONNECTED_STATIONS_NB_ITEMS));
-        ValuesList.add(CONFIG::intTostr(client_counter));
     } else {
         //AP is disabled
         KeysList.add(FPSTR(KEY_AP_STATUS_ENABLED));
         ValuesList.add(FPSTR(VALUE_DISABLED));
-        if (!outputjson){
+        if (pack_mode != pack_json){
             //set hide
             KeysList.add(FPSTR(KEY_AP_VISIBILITY));
             ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
@@ -940,6 +975,7 @@ void handle_web_interface_home()
         KeysList.add(FPSTR(KEY_AP_MAX_CON));
         ValuesList.add(FPSTR(VALUE_NOT_AVAILABLE));
     }
+
     //DHCP Status
     web_interface->GetDHCPStatus(KeysList, ValuesList);
     //IP/GW/MASK
@@ -969,7 +1005,7 @@ void handle_web_interface_home()
         //STA is enabled
         KeysList.add(FPSTR(KEY_STA_STATUS_ENABLED));
         ValuesList.add(FPSTR(VALUE_ENABLED));
-        if (!outputjson){
+        if (pack_mode != pack_json){
             //set visible
             KeysList.add(FPSTR(KEY_STA_VISIBILITY));
             ValuesList.add(FPSTR(VALUE_ITEM_VISIBLE));
@@ -978,7 +1014,7 @@ void handle_web_interface_home()
         //STA is disabled
         KeysList.add(FPSTR(KEY_STA_STATUS_ENABLED));
         ValuesList.add(FPSTR(VALUE_DISABLED));
-        if (!outputjson){
+        if (pack_mode != pack_json){
             //set hide
             KeysList.add(FPSTR(KEY_STA_VISIBILITY));
             ValuesList.add(FPSTR(VALUE_ITEM_HIDDEN));
@@ -1017,7 +1053,6 @@ void handle_web_interface_home()
     KeysList.add(FPSTR(KEY_STA_SIGNAL));
     ValuesList.add(CONFIG::intTostr(wifi_config.getSignal(WiFi.RSSI())));
     //DHCP Client status
-    web_interface->GetDHCPStatus(KeysList, ValuesList);
     //IP address
     KeysList.add(FPSTR(KEY_STA_IP));
     ValuesList.add(WiFi.localIP().toString().c_str());
@@ -1027,7 +1062,7 @@ void handle_web_interface_home()
     //Sub Net Mask
     KeysList.add(FPSTR(KEY_STA_SUBNET));
     ValuesList.add(WiFi.subnetMask().toString().c_str());
-    if (!outputjson){
+    if (pack_mode != pack_json){
         //Service page / no need refresh on this page
         KeysList.add(FPSTR(KEY_SERVICE_PAGE));
         ValuesList.add("");
@@ -1035,10 +1070,12 @@ void handle_web_interface_home()
     //Firmware & Free Mem, at the end to reflect situation
     web_interface->GetFreeMem(KeysList, ValuesList);
     //check if need template or do a JSON
-    if (outputjson){
+    if (pack_mode == pack_tpl) {
+        //process the template file and provide list of variables
+        web_interface->processTemplate("/home.tpl", KeysList , ValuesList);
+    } else {
         web_interface->generateJSON(KeysList , ValuesList);
-    }//process the template file and provide list of variables
-    else web_interface->processTemplate("/home.tpl", KeysList , ValuesList);
+    }
     //need to clean to speed up memory recovery
     KeysList.clear();
     ValuesList.clear();

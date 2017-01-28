@@ -45,7 +45,7 @@ function load_page(page, data_page) {
 }
 
 var menus = {
-	"home":			{"page":"/HOME",      "data": "/INFO"},
+	"home":			{"page":"/html/home.html", "data": "/HOME"},
 	"system":		{"page":"/CONFIGSYS", "data": "/INFO"},
 	"config_ap":	{"page":'/CONFIGAP',  "data": "/INFO"},
 	"config_sta":	{"page":'/CONFIGSTA', "data": "/INFO"},
@@ -61,7 +61,7 @@ function on_menu_click(name) {
 	page = menus[name].page;
 	data = menus[name].data
 	if (data != null)
-		data = data + "?output=JSON";
+		data = data + "?output=JSON_FULL";
 
 	if (last_menu_item != null) {
 		elm(last_menu_item).className = "";
