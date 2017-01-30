@@ -1,5 +1,5 @@
 $INCLUDE[header.inc]$
-$INCLUDE[css2.inc]$
+<link rel="stylesheet" type="text/css" href="/css/style2.css">
 <div id='system' class="panel">
 <div class="panel-heading">System</div>
 <div class="panel-body">
@@ -40,6 +40,21 @@ $SUCCESS_MSG$
 
 </div>
 <script>
+	var interval;
+	var x = document.getElementById("prg");
+	x.max=40;
+
+	function dispatch(jsonresponse) {
+		var data = jsonresponse;
+		var vals = JSON.parse(data, function(key, value) {
+			if (key == "status" && value == "0") {
+				x.value = x.max;
+			}
+		});
+	}
+
+
+
 function Sendfile(){
 if (!confirm("Confirm Firmware Update ?"))return;
 var files = document.getElementById('file-select').files;
@@ -84,25 +99,36 @@ if (jsonresponse.status=='1' || jsonresponse.status=='4' || jsonresponse.status=
 if (jsonresponse.status=='2')alert('Update canceled!');
 else if (jsonresponse.status=='3')
 {
-	var i = 0;
-	var interval;
-	var x = document.getElementById("prg");
-	x.max=40;
+	x = document.getElementById("prg");
+	x.value = 0;
+
 	interval = setInterval(function(){
-		i=i+1;
-		var x = document.getElementById("prg");
-		x.value=i;
-		if (i>40)
-			{
-			clearInterval(interval);
-			location.reload();
+		var xmlhttp = new XMLHttpRequest();
+		xmlhttp.onreadystatechange = function() {
+			if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+				dispatch(xmlhttp.responseText);
 			}
-		},1000);
+		}
+		xmlhttp.open("GET", "/UPDATE", true);
+		xmlhttp.send();
+
+		var x = document.getElementById("prg");
+		x.value = x.value + 1;
+		if (x.value >= x.max)  {
+			clearInterval(interval);
+			top.window.location.href='/';
+		}
+	},1000);
 }
 else alert('Update failed!');
  } else alert('An error occurred!');
 }
 xmlhttp.send(formData);
 }
+
+	function on_page_load() {
+	}
 </script>
-$INCLUDE[footer.inc]$
+
+</body>
+</html>

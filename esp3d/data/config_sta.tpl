@@ -61,6 +61,10 @@ $SUCCESS_MSG$
 </div>
 </div>
 <script  type="text/javascript">
-update_ip_set();
+    function on_page_load() {
+        update_ip_set();
+    }
 </script>
-$INCLUDE[footer.inc]$
+
+</body>
+</html>

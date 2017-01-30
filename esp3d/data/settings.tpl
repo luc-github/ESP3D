@@ -1,5 +1,5 @@
 $INCLUDE[header.inc]$
-$INCLUDE[css2.inc]$
+<link rel="stylesheet" type="text/css" href="/css/style2.css">
 <style>
 .panel-footer{padding:10px 15px;color:#31708f;background-color:#f5f5f5;border-color:#dddddd;border-top:1px solid #dddddd;}
 </style>
@@ -140,7 +140,11 @@ if (String(jsonresponse.files[i].size) == "-1")
 }
 
  document.getElementById('file_list').innerHTML=content;
- document.getElementById('path').innerHTML=navbar();}
+ document.getElementById('path').innerHTML=navbar();
+
+ container_resize();
+}
+
 function Delete(filename){
 if (confirm("Confirm deletion of file: " + filename))SendCommand("delete",filename);
 }
@@ -205,11 +209,11 @@ dispatchfilestatus(jsonresponse);
 xmlhttp.send(formData);
 }
 
-window.onload = function() {
-SendCommand('list','all');
+function on_page_load() {
+    SendCommand('list','all');
 }
 
 </script>
-$INCLUDE[footer.inc]$
 
-
+</body>
+</html>

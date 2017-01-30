@@ -18,6 +18,10 @@ $SUCCESS_MSG$
 </div>
 </div>
 <script>
+function on_page_load()
+{
+}
+
 function checkpassword()
 {
 	var msg="";
@@ -108,4 +112,6 @@ function checkpassword()
 	}
 }
 </script>
-$INCLUDE[footer.inc]$
+
+</body>
+</html>
