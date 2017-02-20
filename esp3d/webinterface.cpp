@@ -869,7 +869,9 @@ void handle_web_interface_home()
             //increment counter
             client_counter++;
             //go next record
-            station = STAILQ_NEXT(station, next);
+            //removed due to queue.h removed
+            //station = STAILQ_NEXT(station, next);
+            station = station->next;
         }
         wifi_softap_free_station_info();
         //Connected clients
