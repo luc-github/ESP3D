@@ -841,6 +841,7 @@ document.getElementById('file-select').value="";
 var jsonresponse = JSON.parse(xmlhttp.responseText);
 dispatchfilestatus(jsonresponse);
 canrefresh = true;
+refreshSDfiles();
  } else alert('An error occurred!');
 }
 xmlhttp.send(formData);
