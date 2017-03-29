@@ -385,7 +385,8 @@ var XYfeedrate=$XY_FEEDRATE$;
 var Zfeedrate=$Z_FEEDRATE$;
 var Efeedrate=$E_FEEDRATE$;
 
-function Sendcommand(commandtxt, showresult=false){
+function Sendcommand(commandtxt, showresult){
+if (typeof showresult === 'undefined')showresult=false
 var xmlhttp = new XMLHttpRequest();
 var url = "/command?plain="+encodeURIComponent(commandtxt);
 if (!showresult)url = "/command_silent?plain="+encodeURIComponent(commandtxt);
@@ -407,7 +408,8 @@ ms += new Date().getTime();
 while (new Date() < ms){}
 }
 
-function SendJogcommand( cmd, feedrate, extra=""){
+function SendJogcommand( cmd, feedrate, extra){
+if (typeof extra === 'undefined')extra=""
 if (extra != ""){
     Sendcommand(extra);
     delay(100);
