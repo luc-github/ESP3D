@@ -108,8 +108,8 @@
     #ifndef FS_NO_GLOBALS
     #define FS_NO_GLOBALS
     #endif
-    #endif
-    #include <FS.h>*/
+    #endif*/
+    #include <FS.h>
     #define DEBUG_PIPE NO_PIPE
     #define LOG(string) {FSFILE logfile = SPIFFS.open("/log.txt", "a+");logfile.print(string);logfile.close();}
 #endif
