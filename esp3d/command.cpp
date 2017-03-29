@@ -674,27 +674,36 @@ bool COMMAND::check_command(String buffer, tpipe output, bool handlelockserial)
 #ifdef ERROR_MSG_FEATURE
         //Error
         if (Errorpos>-1 && !(buffer.indexOf("Format error")!=-1 || buffer.indexOf("wait")==Errorpos+6) ) {
-            (web_interface->error_msg).add(buffer.substring(Errorpos+6).c_str());
+            String ss = buffer.substring(Errorpos+6);
+            ss.replace("\"","");
+            ss.replace("'","");
+            (web_interface->error_msg).add(ss.c_str());
         }
 #endif
 #ifdef INFO_MSG_FEATURE
         //Info
         if (Infopos>-1) {
-            (web_interface->info_msg).add(buffer.substring(Infopos+5).c_str());
+            String ss = buffer.substring(Errorpos+5);
+            ss.replace("\"","");
+            ss.replace("'","");
+            (web_interface->info_msg).add(ss.c_str());
         }
 #endif
 #ifdef STATUS_MSG_FEATURE
         //Status
         if (Statuspos>-1) {
 #if FIRMWARE_TARGET == SMOOTHIEWARE
-            (web_interface->status_msg).add(buffer.substring(Statuspos+8).c_str());
+             String ss = buffer.substring(Errorpos+8);
 #else
 #if FIRMWARE_TARGET == MARLIN
-            (web_interface->status_msg).add(buffer.substring(Statuspos+5).c_str());
+             String ss = buffer.substring(Errorpos+5);
 #else
-            (web_interface->status_msg).add(buffer.substring(Statuspos+7).c_str());
+             String ss = buffer.substring(Errorpos+7);
 #endif
 #endif
+            ss.replace("\"","");
+            ss.replace("'","");
+            (web_interface->info_msg).add(ss.c_str());
         }
 #endif
 #ifndef DIRECT_SDCARD_FEATURE
