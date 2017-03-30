@@ -3408,13 +3408,13 @@ void handleSDFileList()
             jsonfile+="\",\"size\":\"";
             LOG(String(i+1));
             LOG(sname);
-            if (sname[0] == '/' || sname[sname.length()-1]=='/') {
+          /*  if (sname[0] == '/' || sname[sname.length()-1]=='/') {
                 jsonfile+="-1";
                 LOG(" -1");
-            } else {
+            } else {*/
                 //nothing to add
                 jsonfile+="";
-            }
+           // }
             LOG("\r\n");
 #endif
             jsonfile+="\"}";
