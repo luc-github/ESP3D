@@ -3403,7 +3403,7 @@ void handleSDFileList()
                 LOG( CONFIG::formatBytes(ssize.toInt()));
             }
 #endif
-#if FIRMWARE_TARGET == MARLIN || FIRMWARE_TARGET == MARLINKIMBRA
+#if FIRMWARE_TARGET == MARLIN
             jsonfile+=sname;
             jsonfile+="\",\"size\":\"";
             LOG(String(i+1));
@@ -3417,7 +3417,7 @@ void handleSDFileList()
            // }
             LOG("\r\n");
 #endif
-#if  FIRMWARE_TARGET == SMOOTHIEWARE
+#if  FIRMWARE_TARGET == SMOOTHIEWARE  || FIRMWARE_TARGET == MARLINKIMBRA
             jsonfile+=sname;
             jsonfile+="\",\"size\":\"";
             LOG(String(i+1));
