@@ -137,11 +137,6 @@
 #define FSINFO FSInfo
 #endif
 
-#ifndef TCP_IP_DATA_FEATURE
-#undef MAX_SRV_CLIENTS
-#define MAX_SRV_CLIENTS 0
-#endif
-
 #ifndef CONFIG_h
 #define CONFIG_h
 

@@ -745,6 +745,7 @@ void COMMAND::read_buffer_serial(uint8_t *b, size_t len)
     }
 }
 
+#ifdef TCP_IP_DATA_FEATURE
 //read buffer as char
 void COMMAND::read_buffer_tcp(uint8_t b)
 {
@@ -779,6 +780,7 @@ void COMMAND::read_buffer_tcp(uint8_t b)
         }
     }
 }
+#endif
 
 //read buffer as char
 void COMMAND::read_buffer_serial(uint8_t b)

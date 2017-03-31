@@ -139,11 +139,6 @@ void BRIDGE::send2TCP(const char * data){
         }
 }
 #endif
-
-void debug_esp(String st){
-    BRIDGE::send2TCP(st);
-}
-
 bool BRIDGE::processFromSerial2TCP()
 {
     uint8_t i;
