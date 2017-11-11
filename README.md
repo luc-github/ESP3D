@@ -4,8 +4,8 @@ It use the great https://github.com/me-no-dev/ESPAsyncWebServer
 Build status : [![Build Status](https://travis-ci.org/luc-github/ESP3D.svg?branch=asyncwebserver)](https://travis-ci.org/luc-github/ESP3D)    
 
 
-This is the base of ESP3D V2 - several change willl come so no backward compatibility is possible with 1.0
-It support [ESP8266](https://github.com/esp8266/Arduino) and [ESP32](https://github.com/espressif/arduino-esp32). MCU   
+This is the base of ESP3D V2 - several change willl come so no backward compatibility is possible with 1.0     
+It support [ESP8266](https://github.com/esp8266/Arduino) and [ESP32](https://github.com/espressif/arduino-esp32) MCU   
 
 Be aware ESP32 core is still missing several libraries (NetBios, SSDP).    
    
