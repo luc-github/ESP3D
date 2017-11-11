@@ -1,7 +1,7 @@
 # ESP3D - Async WebServer Version - This is pre-alpha and not ready for production    
 It use the great https://github.com/me-no-dev/ESPAsyncWebServer   
 
-Build status : [![Build Status](https://travis-ci.org/luc-github/ESP3D.svg?branch=master)](https://travis-ci.org/luc-github/ESP3D)    
+Build status : [![Build Status](https://travis-ci.org/luc-github/ESP3D.svg?branch=asyncwebserver)](https://travis-ci.org/luc-github/ESP3D)    
 
 
 This is the base of ESP3D V2 - several change willl come so no backward compatibility is possible with 1.0
