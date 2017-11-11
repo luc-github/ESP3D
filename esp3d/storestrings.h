@@ -20,29 +20,29 @@
 
 #ifndef STORESTRINGS_h
 #define STORESTRINGS_h
-#include <ESP8266WiFi.h>
+#include <Arduino.h>
 #include "GenLinkedList.h"
 class STORESTRINGS_CLASS
 {
 public:
-    STORESTRINGS_CLASS (int maxsize = -1, int maxstringlength=-1);
+    STORESTRINGS_CLASS (int maxsize = -1, int maxstringlength = -1);
     ~STORESTRINGS_CLASS ();
     bool add (const char * string);
     inline bool add (String & string)
     {
-        return add(string.c_str());
+        return add (string.c_str() );
     };
     bool add (const __FlashStringHelper *str);
-    bool remove(int pos);
-    const char * get(int pos);
-    int get_index(const char * string);
+    bool remove (int pos);
+    const char * get (int pos);
+    int get_index (const char * string);
     void clear();
     inline int size()
     {
         return _charlist.size();
     };
-    bool setsize(int size);
-    bool setlength(int len);
+    bool setsize (int size);
+    bool setlength (int len);
     inline int getsize()
     {
         return _maxsize;

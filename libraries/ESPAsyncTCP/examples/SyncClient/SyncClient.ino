@@ -13,12 +13,13 @@ const char* password = "************";
 
 void setup(){
   Serial.begin(115200);
-  WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   if (WiFi.waitForConnectResult() != WL_CONNECTED) {
     Serial.printf("WiFi Failed!\n");
     return;
   }
+  Serial.printf("WiFi Connected!\n");
+  Serial.println(WiFi.localIP());
 #ifdef ESP8266
   ArduinoOTA.begin();
 #endif
@@ -29,14 +30,15 @@ void setup(){
     return;
   }
   client.setTimeout(2);
-  if(client.printf("GET / HTTP/1.1\r\nHost: www.google.com\r\n\r\n") > 0){
-    while(!client.available())
+  if(client.printf("GET / HTTP/1.1\r\nHost: www.google.com\r\nConnection: close\r\n\r\n") > 0){
+    while(client.connected() && client.available() == 0){
       delay(1);
-    while(client.connected()){
-      while(client.connected() && client.available() == 0) delay(1);
-      while(client.connected() && client.available()){
-        Serial.write(client.read());
-      }
+    }
+    while(client.available()){
+      Serial.write(client.read());
+    }
+    if(client.connected()){
+      client.stop();
     }
   } else {
     client.stop();

@@ -39,6 +39,8 @@ class SyncClient: public Client {
     void _onConnect(AsyncClient *c);
     void _onDisconnect();
     void _attachCallbacks();
+    void _attachCallbacks_Disconnect();
+    void _attachCallbacks_AfterConnected();
 
   public:
     SyncClient(size_t txBufLen = 1460);

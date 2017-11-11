@@ -18,22 +18,31 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "config.h"
-
 #ifndef BRIDGE_H
 #define BRIDGE_H
-
+#include <WiFiServer.h>
+#include "config.h"
 #ifdef TCP_IP_DATA_FEATURE
 extern WiFiServer * data_server;
 #endif
 
+class AsyncResponseStream;
+
 class BRIDGE
 {
 public:
-    static bool processFromSerial2TCP();
+    static bool processFromSerial (bool async = false);
+    static void print (const __FlashStringHelper *data, tpipe output, AsyncResponseStream  *asyncresponse = NULL);
+    static void print (String & data, tpipe output, AsyncResponseStream  *asyncresponse = NULL);
+    static void print (const char * data, tpipe output, AsyncResponseStream  *asyncresponse = NULL);
+    static void println (const __FlashStringHelper *data, tpipe output, AsyncResponseStream  *asyncresponse = NULL);
+    static void println (String & data, tpipe output, AsyncResponseStream  *asyncresponse = NULL);
+    static void println (const char * data, tpipe output, AsyncResponseStream  *asyncresponse = NULL);
 #ifdef TCP_IP_DATA_FEATURE
     static void processFromTCP2Serial();
+    static void send2TCP (const __FlashStringHelper *data, bool async = false);
+    static void send2TCP (String data, bool async = false);
+    static void send2TCP (const char * data, bool async = false);
 #endif
 };
-
 #endif

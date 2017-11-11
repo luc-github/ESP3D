@@ -1,0 +1,30 @@
+{
+  "name": "embedded4ESP3D",
+  "description": "Embedded files for ESP3D",
+  "devDependencies": {
+    "del": "^2.2.2",
+    "deprecated": "0.0.1",
+    "fs": "0.0.1-security",
+    "gulp": "github:gulpjs/gulp#4.0",
+    "gulp-bytediff": "^1.0.0",
+    "gulp-cdnizer": "^1.1.7",
+    "gulp-clean-css": "^2.4.0",
+    "gulp-concat": "^2.6.1",
+    "gulp-gzip": "^1.4.0",
+    "gulp-htmlmin": "^3.0.0",
+    "gulp-if": "^2.0.2",
+    "gulp-jshint": "^2.0.4",
+    "gulp-ng-annotate": "^2.0.0",
+    "gulp-remove-code": "^1.0.2",
+    "gulp-replace": "^0.5.4",
+    "gulp-smoosher": "0.0.9",
+    "gulp-uglify": "^2.1.2",
+    "gulp-util": "^3.0.1",
+    "gulp-zip": "^3.2.0",
+    "jshint": "^2.9.5",
+    "merge-stream": "^1.0.1"
+  },
+  "repository": "https://github.com/luc-github/ESP3D",
+  "author": "Luc LEBOSSE",
+  "license": "(ISC OR GPL-3.0)"
+}

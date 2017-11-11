@@ -1,6 +1,6 @@
 {
   "name":"ESPAsyncTCP",
-  "description":"Asynchronous TCP Library for ESP8266 and ESP32",
+  "description":"Asynchronous TCP Library for ESP8266",
   "keywords":"async,tcp",
   "authors":
   {
@@ -12,6 +12,8 @@
     "type": "git",
     "url": "https://github.com/me-no-dev/ESPAsyncTCP.git"
   },
+  "version": "1.1.1",
+  "license": "LGPL-3.0",
   "frameworks": "arduino",
-  "platforms":"espressif"
+  "platforms":"espressif8266"
 }

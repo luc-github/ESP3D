@@ -21,7 +21,11 @@
 #define ASYNCEVENTSOURCE_H_
 
 #include <Arduino.h>
+#ifdef ESP32
+#include <AsyncTCP.h>
+#else
 #include <ESPAsyncTCP.h>
+#endif
 #include <ESPAsyncWebServer.h>
 
 class AsyncEventSource;
@@ -29,11 +33,30 @@ class AsyncEventSourceResponse;
 class AsyncEventSourceClient;
 typedef std::function<void(AsyncEventSourceClient *client)> ArEventHandlerFunction;
 
+class AsyncEventSourceMessage {
+  private:
+    uint8_t * _data; 
+    size_t _len;
+    size_t _sent;
+    //size_t _ack;
+    size_t _acked; 
+  public:
+    AsyncEventSourceMessage(const char * data, size_t len);
+    ~AsyncEventSourceMessage();
+    size_t ack(size_t len, uint32_t time __attribute__((unused)));
+    size_t send(AsyncClient *client);
+    bool finished(){ return _acked == _len; }
+    bool sent() { return _sent == _len; }
+};
+
 class AsyncEventSourceClient {
   private:
     AsyncClient *_client;
     AsyncEventSource *_server;
     uint32_t _lastId;
+    LinkedList<AsyncEventSourceMessage *> _messageQueue;
+    void _queueMessage(AsyncEventSourceMessage *dataMessage);
+    void _runQueue();
 
   public:
 
@@ -48,6 +71,8 @@ class AsyncEventSourceClient {
     uint32_t lastId() const { return _lastId; }
 
     //system callbacks (do not call)
+    void _onAck(size_t len, uint32_t time);
+    void _onPoll(); 
     void _onTimeout(uint32_t time);
     void _onDisconnect();
 };

@@ -1,0 +1,100 @@
+<html>
+    <head>
+        <!-- smoosh -->
+        <link href="css/style.css" rel="stylesheet">
+        <!-- endsmoosh -->
+    </head>
+    <body> 
+        <div style="position:absolute;top:0;right:0;">
+            V1.1
+            &nbsp;&nbsp;
+        </div>
+        <center>
+            <h2>It seems you do not have any index.html neither index.html.gz, please upload it or update your firmware if necessary.</h2>
+        </center>
+
+        <div class="panel" id="SPIFFS">
+            <div class="panel-heading">Flash Filesystem</div>
+            <div class="panel-body">
+                <input type="file" id="file-select" name="myfiles[]" multiple />
+                <input class="btn btn-primary" type="button" id="upload-button" onclick="Sendfile();" value="Upload"/>&nbsp;&nbsp;<progress style="visibility:hidden;" name='prg' id='prg' max='100'></progress>
+                <br><br>
+                <div class="panel">
+                    <div class="panel-body">
+                        <table>
+                            <tr>
+                                <td width="0%">
+                                    <input class="btn btn-primary" type="button" onclick="SendCommand('list','all');" value="Refresh"/>
+                                </td>
+                                <td width="0%">
+                                    <div onclick="Createdir()" class="btnimg"><svg width="40" height="40" viewBox="0 0 40 40"><rect x="5" y="10" width="30" height="20" rx="2" ry="2" fill="#31b0d5" />
+                                            <rect x="20" y="5" width="15" height="15" rx="2" ry="2" fill="#31b0d5" /><text x="15" y="25" font-size="18"  font-weight="800"  fill="white">+</text></svg>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div id="loader" class="loader"></div>
+                                </td>
+                                <td width="100%">
+                                    <div id="path" class="info" >&nbsp;</div>
+                                </td>
+                            </tr>
+                        </table>
+                        <table class="table table-striped" style="border:1px;solid #dddddd;margin-bottom:20px;" >
+                            <thead>
+                                <tr>
+                                    <th width='0%'>Type</th>
+                                    <th>Name</th>
+                                    <th>Size</th>
+                                    <th width='0%'></th>
+                                    <th width='100%'></th>
+                                </tr>
+                            </thead>
+                            <tbody id="file_list"></tbody>
+                        </table>
+                    </div>
+                    <div class="panel-footer " id="status"></div>
+                </div>
+            </div>
+        </div>
+        <div class="panel">
+            <div class="panel-heading">Firmware Update</div>
+            <div class="panel-body">
+                <table>
+                    <tr>
+                        <td><input type="file" id="fw-select" name="myfiles[]" /></td>
+                        <td><input class="btn btn-primary" type="button" id="uploadfw-button" onclick="Uploadfile();" value="Update"/></td>
+                        <td><progress style="visibility:hidden;" name='prgfw' id='prgfw' max='100'></progress></td>
+                        <td><span id='msg' style='visibility:hidden;'>Restarting, please wait....</span><span id='counter'></span></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+                <div id="loginpage"class="modal">
+                    <div class="modal-content" >
+                        <div class="modal-header">
+                            <h3>Identification</h3>
+                        </div>
+                         <div class="modal-body">
+                              <span>
+                                <span class="modal-text" translate>User:</span>
+                                <input class='form-control'  type="text" id="login_user_text" style="width:auto"/>
+                            </span>
+                            <hr>
+                            <span>
+                                <span class="modal-text" translate>Password:</span>
+                                <input class='form-control'  type="password" id="login_password_text" style="width:auto"/>
+                            </span>
+                            <br>
+                         </div>
+                          <div class="modal-footer">
+                            <input  type="button" class="btn btn-primary" onclick="SubmitRequest()" value="Submit"/>
+                         </div>
+                    </div>
+                </div>
+        <!-- smoosh -->
+        <script src="js/script.js"></script>
+        <!-- endsmoosh -->
+    </body>
+</html>
+
+

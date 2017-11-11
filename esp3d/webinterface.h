@@ -20,30 +20,29 @@
 
 #ifndef WEBINTERFACE_h
 #define WEBINTERFACE_h
-//#include <Arduino.h>
-//#include <WiFiClient.h>
-//#include <WiFiServer.h>
-//#include <ESP8266WebServer.h>
-#include <ESPAsyncWebServer.h>
-#ifdef SDCARD_FEATURE
+#include <Arduino.h>
+#include <WiFiClient.h>
+#include <WiFiServer.h>
 #ifndef FS_NO_GLOBALS
 #define FS_NO_GLOBALS
 #endif
-#endif
 #include <FS.h>
+#include <ESPAsyncWebServer.h>
+#ifdef ARDUINO_ARCH_ESP8266
+#include <ESPAsyncTCP.h>
+#else //ESP32
+#include <AsyncTCP.h>
+#endif
+
+
 #include "storestrings.h"
 
-//#define MAX_EXTRUDERS 4
-
-typedef enum {
-    LEVEL_GUEST = 0,
-    LEVEL_USER = 1,
-    LEVEL_ADMIN = 2
-} level_authenticate_type;
+#define MAX_EXTRUDERS 4
 
 struct auth_ip {
     IPAddress ip;
     level_authenticate_type level;
+    char userID[17];
     char sessionID[17];
     uint32_t last_time;
     auth_ip * _next;
@@ -54,24 +53,7 @@ class WEBINTERFACE_CLASS
 public:
     WEBINTERFACE_CLASS (int port = 80);
     ~WEBINTERFACE_CLASS();
-    AsyncWebServer WebServer;
-    FSFILE fsUploadFile;
-#ifdef TEMP_MONITORING_FEATURE
-    String answer4M105;
-    uint32_t last_temp;
-#endif
-#ifdef POS_MONITORING_FEATURE
-    String answer4M114;
-#endif
-#ifdef SPEED_MONITORING_FEATURE
-    String answer4M220;
-#endif
-#ifdef FLOW_MONITORING_FEATURE
-    String answer4M221;
-#endif
-#ifndef DIRECT_SDCARD_FEATURE
-    STORESTRINGS_CLASS fileslist;
-#endif
+    AsyncWebServer web_server;
 #ifdef ERROR_MSG_FEATURE
     STORESTRINGS_CLASS error_msg;
 #endif
@@ -82,24 +64,15 @@ public:
     STORESTRINGS_CLASS status_msg;
 #endif
     bool restartmodule;
-    //bool processTemplate(const char  * filename, STORESTRINGS_CLASS & KeysList ,  STORESTRINGS_CLASS & ValuesList );
-    //void GetFreeMem(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList);
-    //void GeLogin(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList,level_authenticate_type auth_level);
-    //void GetIpWeb(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList);
-    //void GetMode(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList);
-    //void GetPorts(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList);
-    //void SetPageProp(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList,
-    //            const __FlashStringHelper *title, const __FlashStringHelper *filename);
-    //void GetDHCPStatus(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList);
-    //void ProcessAlertError(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList, String & smsg);
-    //void ProcessAlertSuccess(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList, String & smsg);
-    //void ProcessNoAlert(STORESTRINGS_CLASS & KeysList, STORESTRINGS_CLASS & ValuesList);
-    //level_authenticate_type is_authenticated();
+    String getContentType (String filename);
+    level_authenticate_type is_authenticated();
+    bool AddAuthIP (auth_ip * item);
     bool blockserial;
 #ifdef AUTHENTICATION_FEATURE
-    //bool AddAuthIP(auth_ip * item);
-    //level_authenticate_type ResetAuthIP(IPAddress ip,const char * sessionID);
-    //char * create_session_ID();
+    level_authenticate_type ResetAuthIP (IPAddress ip, const char * sessionID);
+    auth_ip * GetAuth (IPAddress ip, const char * sessionID);
+    bool ClearAuthIP (IPAddress ip, const char * sessionID);
+    char * create_session_ID();
 #endif
     uint8_t _upload_status;
 

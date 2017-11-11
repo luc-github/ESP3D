@@ -1,7 +1,10 @@
 #ifndef LIBRARIES_ESPASYNCTCP_SRC_ASYNC_CONFIG_H_
 #define LIBRARIES_ESPASYNCTCP_SRC_ASYNC_CONFIG_H_
 
+#ifndef ASYNC_TCP_SSL_ENABLED
 #define ASYNC_TCP_SSL_ENABLED 0
+#endif
+
 #define ASYNC_TCP_DEBUG(...) //ets_printf(__VA_ARGS__)
 #define TCP_SSL_DEBUG(...) //ets_printf(__VA_ARGS__)
 

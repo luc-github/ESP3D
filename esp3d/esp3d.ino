@@ -14,8 +14,9 @@
     You should have received a copy of the GNU General Public License
     along with this Firmware.  If not, see <http://www.gnu.org/licenses/>.
 
-    This firmware is using the standard arduino IDE with module to support ESP8266:
-    https://github.com/esp8266/Arduino from Bootmanager
+    This firmware is using the standard arduino IDE with module to support ESP8266/ESP32:
+    https://github.com/esp8266/Arduino
+    https://github.com/espressif/arduino-esp32
 
     Latest version of the code and documentation can be found here :
     https://github.com/luc-github/ESP3D
@@ -23,178 +24,196 @@
     Main author: luc lebosse
 
 */
-//be sure correct IDE and settings are used for ESP8266
-#ifndef ARDUINO_ARCH_ESP8266
-#error Oops!  Make sure you have 'ESP8266' compatible board selected from the 'Tools -> Boards' menu.
+//be sure correct IDE and settings are used for ESP8266 or ESP32
+#if !(defined( ARDUINO_ARCH_ESP8266) || defined(ARDUINO_ARCH_ESP32))
+#error Oops!  Make sure you have 'ESP8266 or ESP32' compatible board selected from the 'Tools -> Boards' menu.
 #endif
 #include <EEPROM.h>
+#include <ESPAsyncWebServer.h>
 #include "config.h"
-#include "wifi.h"
+#include "wificonf.h"
 #include "bridge.h"
 #include "webinterface.h"
 #include "command.h"
-#include <ESP8266WiFi.h>
-#include <WiFiClient.h>
-//#include <ESP8266WebServer.h>
+#ifdef ARDUINO_ARCH_ESP8266
+#include "ESP8266WiFi.h"
 #ifdef MDNS_FEATURE
 #include <ESP8266mDNS.h>
 #endif
+#include <ESPAsyncTCP.h>
+#else //ESP32
+#include <WiFi.h>
+#include <AsyncTCP.h>
+#ifdef MDNS_FEATURE
+#include <ESPmDNS.h>
+#include <rom/rtc.h>
+#endif
+#include "esp_wifi.h"
+#include "FS.h"
+#include "SPIFFS.h"
+#include "Update.h"
+#endif
+#include <WiFiClient.h>
+
 #ifdef CAPTIVE_PORTAL_FEATURE
 #include <DNSServer.h>
-const byte DNS_PORT = 53;
-DNSServer dnsServer;
+extern DNSServer dnsServer;
 #endif
 #ifdef SSDP_FEATURE
+#ifdef ARDUINO_ARCH_ESP8266
 #include <ESP8266SSDP.h>
+#else
+//#include <ESPSSDP.h>
+#endif
 #endif
 #ifdef NETBIOS_FEATURE
+#ifdef ARDUINO_ARCH_ESP8266
 #include <ESP8266NetBIOS.h>
+#else
+//#include <ESPNetBIOS.h>
 #endif
+#endif
+#ifndef FS_NO_GLOBALS
+#define FS_NO_GLOBALS
+#endif
+#include <FS.h>
 
 void setup()
 {
-    bool breset_config=false;
-    long baud_rate=0;
+#ifdef ARDUINO_ARCH_ESP8266
+    struct	rst_info	*rtc_info	=	system_get_rst_info();
+#else 
+    RESET_REASON reason_0 = rtc_get_reset_reason(0);
+    RESET_REASON reason_1 = rtc_get_reset_reason(1);
+#endif
+    bool breset_config = false;
     web_interface = NULL;
 #ifdef TCP_IP_DATA_FEATURE
     data_server = NULL;
 #endif
     // init:
 #ifdef DEBUG_ESP3D
-    Serial.begin(DEFAULT_BAUD_RATE);
-    delay(2000);
-    LOG("\nDebug Serial set\n")
+    if (ESP_SERIAL_OUT.baudRate() != DEFAULT_BAUD_RATE) {
+        ESP_SERIAL_OUT.begin (DEFAULT_BAUD_RATE);
+    }
+    delay (2000);
+    LOG ("\r\nDebug Serial set\r\n")
 #endif
     //WiFi.disconnect();
-    WiFi.mode(WIFI_OFF);
+    WiFi.mode (WIFI_OFF);
+    delay (8000);
+    CONFIG::InitDirectSD();
+    CONFIG::InitPins();
 #ifdef RECOVERY_FEATURE
-    delay(8000);
+    delay (8000);
     //check if reset config is requested
-    pinMode(RESET_CONFIG_PIN, INPUT);
-    if (digitalRead(RESET_CONFIG_PIN)==0) {
-        breset_config=true;    //if requested =>reset settings
+    if (digitalRead (RESET_CONFIG_PIN) == 0) {
+        breset_config = true;  //if requested =>reset settings
     }
 #endif
     //check if EEPROM has value
-    if ( CONFIG::read_buffer(EP_BAUD_RATE,  (byte *)&baud_rate , INTEGER_LENGTH)&&CONFIG::read_buffer(EP_WEB_PORT,  (byte *)&(wifi_config.iweb_port) , INTEGER_LENGTH)&&CONFIG::read_buffer(EP_DATA_PORT,  (byte *)&(wifi_config.idata_port) , INTEGER_LENGTH)) {
-        //check if baud value is one of allowed ones
-        if ( ! (baud_rate==9600 || baud_rate==19200 ||baud_rate==38400 ||baud_rate==57600 ||baud_rate==115200 ||baud_rate==230400 ||baud_rate==250000) ) {
-            LOG("Error for EEPROM baud rate\n")
-            breset_config=true;    //baud rate is incorrect =>reset settings
-        }
-        if (wifi_config.iweb_port<1 ||wifi_config.iweb_port>65001 || wifi_config.idata_port <1 || wifi_config.idata_port >65001) {
-            breset_config=true;    //out of range =>reset settings
-            LOG("Error for EEPROM port values\n")
-        }
-
-    } else {
-        breset_config=true;    //cannot access to config settings=> reset settings
-        LOG("Error no EEPROM access\n")
+    if (  !CONFIG::InitBaudrate() || !CONFIG::InitExternalPorts() ) {
+        breset_config = true;  //cannot access to config settings=> reset settings
+        LOG ("Error no EEPROM access\r\n")
     }
 
     //reset is requested
-    if(breset_config) {
+    if (breset_config) {
         //update EEPROM with default settings
-        Serial.begin(DEFAULT_BAUD_RATE);
-        delay(2000);
-        Serial.println(F("M117 ESP EEPROM reset"));
+        if (ESP_SERIAL_OUT.baudRate() != DEFAULT_BAUD_RATE) {
+            ESP_SERIAL_OUT.begin (DEFAULT_BAUD_RATE);
+        }
+#ifdef ARDUINO_ARCH_ESP8266
+        ESP_SERIAL_OUT.setRxBufferSize (SERIAL_RX_BUFFER_SIZE);
+#endif
+        delay (2000);
+        ESP_SERIAL_OUT.println (F ("M117 ESP EEPROM reset") );
 #ifdef DEBUG_ESP3D
-        CONFIG::print_config();
-        delay(1000);
+        CONFIG::print_config (DEBUG_PIPE, true);
+        delay (1000);
 #endif
         CONFIG::reset_config();
-        delay(1000);
+        delay (1000);
         //put some default value to a void some exception at first start
-        WiFi.mode(WIFI_AP);
-        WiFi.setPhyMode(WIFI_PHY_MODE_11G);
+        WiFi.mode (WIFI_AP);
+#ifdef ARDUINO_ARCH_ESP8266
+        WiFi.setPhyMode (WIFI_PHY_MODE_11G);
+#else
+        esp_wifi_set_protocol (ESP_IF_WIFI_AP, WIFI_PHY_MODE_11G);
+#endif
         CONFIG::esp_restart();
     }
 #if defined(DEBUG_ESP3D) && defined(DEBUG_OUTPUT_SERIAL)
-    LOG("\n");
-    delay(500);
-    Serial.flush();
+    LOG ("\r\n");
+    delay (500);
+    ESP_SERIAL_OUT.flush();
 #endif
-    //setup serial
-    Serial.begin(baud_rate);
-    delay(1000);
-    LOG("Serial Set\n");
-    wifi_config.baud_rate=baud_rate;
+    //get target FW
+    CONFIG::InitFirmwareTarget();
     //Update is done if any so should be Ok
+#ifdef ARDUINO_ARCH_ESP32
+    SPIFFS.begin (true);
+#else
     SPIFFS.begin();
+#endif
 
     //setup wifi according settings
-    if (!wifi_config.Setup()) {
-        Serial.println(F("M117 Safe mode 1"));
+    if (!wifi_config.Setup() ) {
+        ESP_SERIAL_OUT.println (F ("M117 Safe mode 1") );
         //try again in AP mode
-        if (!wifi_config.Setup(true)) {
-            Serial.println(F("M117 Safe mode 2"));
+        if (!wifi_config.Setup (true) ) {
+            ESP_SERIAL_OUT.println (F ("M117 Safe mode 2") );
             wifi_config.Safe_Setup();
         }
     }
-    delay(1000);
-    //start web interface
-    web_interface = new WEBINTERFACE_CLASS(wifi_config.iweb_port);
-
-#ifdef CAPTIVE_PORTAL_FEATURE
-    if (WiFi.getMode()!=WIFI_STA ) {
-        // if DNSServer is started with "*" for domain name, it will reply with
-        // provided IP to all DNS request
-        dnsServer.start(DNS_PORT, "*", WiFi.softAPIP());
+    delay (1000);
+    //setup servers
+    if (!wifi_config.Enable_servers() ) {
+        ESP_SERIAL_OUT.println (F ("M117 Error enabling servers") );
     }
-#endif
-    web_interface->WebServer.begin();
-#ifdef TCP_IP_DATA_FEATURE
-    //start TCP/IP interface
-    data_server = new WiFiServer (wifi_config.idata_port);
-    data_server->begin();
-    data_server->setNoDelay(true);
-#endif
+#ifdef ARDUINO_ARCH_ESP8266
+    if	(rtc_info->reason	==	REASON_WDT_RST	||
 
-#ifdef MDNS_FEATURE
-    // Check for any mDNS queries and send responses
-    wifi_config.mdns.addService("http", "tcp", wifi_config.iweb_port);
-#endif
-#if defined(SSDP_FEATURE) || defined(NETBIOS_FEATURE)
-    String shost;
-    if (!CONFIG::read_string(EP_HOSTNAME, shost , MAX_HOSTNAME_LENGTH)) {
-        shost=wifi_config.get_default_hostname();
+            rtc_info->reason	==	REASON_EXCEPTION_RST	||
+
+            rtc_info->reason	==	REASON_SOFT_WDT_RST)	{
+        ESP_SERIAL_OUT.printf ("M117 reset %d",	rtc_info->reason);
+
+        if	(rtc_info->reason	==	REASON_EXCEPTION_RST)	{
+
+            ESP_SERIAL_OUT.printf (" except %d:\n",	rtc_info->exccause);
+
+        } else {
+            ESP_SERIAL_OUT.println();
+        }
     }
+#else
+    if((( reason_0< 17) || ( reason_1< 17)) && !(((reason_0 == 1) && (reason_1 == 14)) || ((reason_0 == 16) && (reason_1 == 14)))) ESP_SERIAL_OUT.printf ("M117 reset %d / %d\n",	reason_0, reason_1);
 #endif
-#ifdef SSDP_FEATURE
-    String stmp;
-    SSDP.setSchemaURL("description.xml");
-    SSDP.setHTTPPort( wifi_config.iweb_port);
-    SSDP.setName(shost.c_str());
-    stmp=String(ESP.getChipId());
-    SSDP.setSerialNumber(stmp.c_str());
-    SSDP.setURL("/");
-    SSDP.setModelName("ESP8266 01");
-    SSDP.setModelNumber("01");
-    SSDP.setModelURL("http://espressif.com/en/products/esp8266/");
-    SSDP.setManufacturer("Espressif Systems");
-    SSDP.setManufacturerURL("http://espressif.com");
-    SSDP.setDeviceType("upnp:rootdevice");
-    SSDP.begin();
-#endif
-#ifdef NETBIOS_FEATURE
-    NBNS.begin(shost.c_str());
-#endif
-    LOG("Setup Done\n");
+    if (WiFi.getMode() != WIFI_AP) {
+        WiFi.scanNetworks (true);
+    }
+    LOG ("Setup Done\r\n");
 }
+
 
 
 //main loop
 void loop()
 {
+    //be sure wifi is on to proceed wifi function
+    if (WiFi.getMode() != WIFI_OFF ) {
 #ifdef CAPTIVE_PORTAL_FEATURE
-    if (WiFi.getMode()!=WIFI_STA ) {
-        dnsServer.processNextRequest();
-    }
+        if (WiFi.getMode() != WIFI_STA ) {
+            dnsServer.processNextRequest();
+        }
 #endif
 #ifdef TCP_IP_DATA_FEATURE
-    BRIDGE::processFromTCP2Serial();
+        BRIDGE::processFromTCP2Serial();
 #endif
-    BRIDGE::processFromSerial2TCP();
+    }
+    BRIDGE::processFromSerial();
+    //in case of restart requested
     if (web_interface->restartmodule) {
         CONFIG::esp_restart();
     }

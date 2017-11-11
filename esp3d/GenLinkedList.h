@@ -8,7 +8,6 @@
 	Created by Ivan Seidel Gomes, March, 2013.
 	Released into the public domain.
 	Changelog: 2015/10/05: [Luc] Change false to NULL for pointers
-             : 2016/11/29: [Luc] Change class name to GenLinkedList to avoid conflict 
 */
 
 
@@ -37,7 +36,7 @@ protected:
     // every time the list suffer changes
     bool isCached;
 
-    ListNode<T>* getNode(int index);
+    ListNode<T>* getNode (int index);
 
 public:
     GenLinkedList();
@@ -52,28 +51,28 @@ public:
     	Unlink and link the GenLinkedList correcly;
     	Increment _size
     */
-    virtual bool add(int index, T);
+    virtual bool add (int index, T);
     /*
     	Adds a T object in the end of the GenLinkedList;
     	Increment _size;
     */
-    virtual bool add(T);
+    virtual bool add (T);
     /*
     	Adds a T object in the start of the GenLinkedList;
     	Increment _size;
     */
-    virtual bool unshift(T);
+    virtual bool unshift (T);
     /*
     	Set the object at index, with T;
     	Increment _size;
     */
-    virtual bool set(int index, T);
+    virtual bool set (int index, T);
     /*
     	Remove object at index;
     	If index is not reachable, returns false;
     	else, decrement _size
     */
-    virtual T remove(int index);
+    virtual T remove (int index);
     /*
     	Remove last object;
     */
@@ -87,7 +86,7 @@ public:
     	Return Element if accessible,
     	else, return false;
     */
-    virtual T get(int index);
+    virtual T get (int index);
 
     /*
     	Clear the entire array
@@ -100,9 +99,9 @@ public:
 template<typename T>
 GenLinkedList<T>::GenLinkedList()
 {
-    root=NULL;
-    last=NULL;
-    _size=0;
+    root = NULL;
+    last = NULL;
+    _size = 0;
 
     lastNodeGot = root;
     lastIndexGot = 0;
@@ -114,13 +113,13 @@ template<typename T>
 GenLinkedList<T>::~GenLinkedList()
 {
     ListNode<T>* tmp;
-    while(root!=NULL) {
-        tmp=root;
-        root=root->next;
+    while (root != NULL) {
+        tmp = root;
+        root = root->next;
         delete tmp;
     }
     last = NULL;
-    _size=0;
+    _size = 0;
     isCached = false;
 }
 
@@ -129,7 +128,7 @@ GenLinkedList<T>::~GenLinkedList()
 */
 
 template<typename T>
-ListNode<T>* GenLinkedList<T>::getNode(int index)
+ListNode<T>* GenLinkedList<T>::getNode (int index)
 {
 
     int _pos = 0;
@@ -137,19 +136,19 @@ ListNode<T>* GenLinkedList<T>::getNode(int index)
 
     // Check if the node trying to get is
     // immediately AFTER the previous got one
-    if(isCached && lastIndexGot <= index) {
+    if (isCached && lastIndexGot <= index) {
         _pos = lastIndexGot;
         current = lastNodeGot;
     }
 
-    while(_pos < index && current) {
+    while (_pos < index && current) {
         current = current->next;
 
         _pos++;
     }
 
     // Check if the object index got is the same as the required
-    if(_pos == index) {
+    if (_pos == index) {
         isCached = true;
         lastIndexGot = index;
         lastNodeGot = current;
@@ -167,19 +166,19 @@ int GenLinkedList<T>::size()
 }
 
 template<typename T>
-bool GenLinkedList<T>::add(int index, T _t)
+bool GenLinkedList<T>::add (int index, T _t)
 {
 
-    if(index >= _size) {
-        return add(_t);
+    if (index >= _size) {
+        return add (_t);
     }
 
-    if(index == 0) {
-        return unshift(_t);
+    if (index == 0) {
+        return unshift (_t);
     }
 
     ListNode<T> *tmp = new ListNode<T>(),
-    *_prev = getNode(index-1);
+    *_prev = getNode (index - 1);
     tmp->data = _t;
     tmp->next = _prev->next;
     _prev->next = tmp;
@@ -191,14 +190,14 @@ bool GenLinkedList<T>::add(int index, T _t)
 }
 
 template<typename T>
-bool GenLinkedList<T>::add(T _t)
+bool GenLinkedList<T>::add (T _t)
 {
 
     ListNode<T> *tmp = new ListNode<T>();
     tmp->data = _t;
     tmp->next = NULL;
 
-    if(root) {
+    if (root) {
         // Already have elements inserted
         last->next = tmp;
         last = tmp;
@@ -215,11 +214,11 @@ bool GenLinkedList<T>::add(T _t)
 }
 
 template<typename T>
-bool GenLinkedList<T>::unshift(T _t)
+bool GenLinkedList<T>::unshift (T _t)
 {
 
-    if(_size == 0) {
-        return add(_t);
+    if (_size == 0) {
+        return add (_t);
     }
 
     ListNode<T> *tmp = new ListNode<T>();
@@ -234,30 +233,30 @@ bool GenLinkedList<T>::unshift(T _t)
 }
 
 template<typename T>
-bool GenLinkedList<T>::set(int index, T _t)
+bool GenLinkedList<T>::set (int index, T _t)
 {
     // Check if index position is in bounds
-    if(index < 0 || index >= _size) {
+    if (index < 0 || index >= _size) {
         return false;
     }
 
-    getNode(index)->data = _t;
+    getNode (index)->data = _t;
     return true;
 }
 
 template<typename T>
 T GenLinkedList<T>::pop()
 {
-    if(_size <= 0) {
+    if (_size <= 0) {
         return T();
     }
 
     isCached = false;
 
-    if(_size >= 2) {
-        ListNode<T> *tmp = getNode(_size - 2);
+    if (_size >= 2) {
+        ListNode<T> *tmp = getNode (_size - 2);
         T ret = tmp->next->data;
-        delete(tmp->next);
+        delete (tmp->next);
         tmp->next = NULL;
         last = tmp;
         _size--;
@@ -265,7 +264,7 @@ T GenLinkedList<T>::pop()
     } else {
         // Only one element left on the list
         T ret = root->data;
-        delete(root);
+        delete (root);
         root = NULL;
         last = NULL;
         _size = 0;
@@ -276,14 +275,14 @@ T GenLinkedList<T>::pop()
 template<typename T>
 T GenLinkedList<T>::shift()
 {
-    if(_size <= 0) {
+    if (_size <= 0) {
         return T();
     }
 
-    if(_size > 1) {
+    if (_size > 1) {
         ListNode<T> *_next = root->next;
         T ret = root->data;
-        delete(root);
+        delete (root);
         root = _next;
         _size --;
         isCached = false;
@@ -297,25 +296,25 @@ T GenLinkedList<T>::shift()
 }
 
 template<typename T>
-T GenLinkedList<T>::remove(int index)
+T GenLinkedList<T>::remove (int index)
 {
     if (index < 0 || index >= _size) {
         return T();
     }
 
-    if(index == 0) {
+    if (index == 0) {
         return shift();
     }
 
-    if (index == _size-1) {
+    if (index == _size - 1) {
         return pop();
     }
 
-    ListNode<T> *tmp = getNode(index - 1);
+    ListNode<T> *tmp = getNode (index - 1);
     ListNode<T> *toDelete = tmp->next;
     T ret = toDelete->data;
     tmp->next = tmp->next->next;
-    delete(toDelete);
+    delete (toDelete);
     _size--;
     isCached = false;
     return ret;
@@ -323,17 +322,17 @@ T GenLinkedList<T>::remove(int index)
 
 
 template<typename T>
-T GenLinkedList<T>::get(int index)
+T GenLinkedList<T>::get (int index)
 {
-    ListNode<T> *tmp = getNode(index);
+    ListNode<T> *tmp = getNode (index);
 
-    return (tmp ? tmp->data : T());
+    return (tmp ? tmp->data : T() );
 }
 
 template<typename T>
 void GenLinkedList<T>::clear()
 {
-    while(size() > 0) {
+    while (size() > 0) {
         shift();
     }
 }

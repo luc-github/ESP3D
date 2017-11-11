@@ -104,9 +104,55 @@ static String generateEventMessage(const char *message, const char *event, uint3
   return ev;
 }
 
+// Message
+
+AsyncEventSourceMessage::AsyncEventSourceMessage(const char * data, size_t len)
+: _data(nullptr), _len(len), _sent(0), _acked(0)
+{
+  _data = (uint8_t*)malloc(_len+1);
+  if(_data == nullptr){
+    _len = 0;
+  } else {
+    memcpy(_data, data, len);
+    _data[_len] = 0;
+  }
+}
+
+AsyncEventSourceMessage::~AsyncEventSourceMessage() {
+     if(_data != NULL)
+        free(_data);
+}
+
+size_t AsyncEventSourceMessage::ack(size_t len, uint32_t time) {
+  // If the whole message is now acked...
+  if(_acked + len > _len){
+     // Return the number of extra bytes acked (they will be carried on to the next message)
+     const size_t extra = _acked + len - _len;
+     _acked = _len;
+     return extra;
+  }
+  // Return that no extra bytes left.
+  _acked += len;
+  return 0;
+}
+
+size_t AsyncEventSourceMessage::send(AsyncClient *client) {
+  const size_t len = _len - _sent;
+  if(client->space() < len){
+    return 0;
+  }
+  size_t sent = client->add((const char *)_data, len);
+  if(client->canSend())
+    client->send();
+  _sent += sent;
+  return sent; 
+}
+
 // Client
 
-AsyncEventSourceClient::AsyncEventSourceClient(AsyncWebServerRequest *request, AsyncEventSource *server){
+AsyncEventSourceClient::AsyncEventSourceClient(AsyncWebServerRequest *request, AsyncEventSource *server)
+: _messageQueue(LinkedList<AsyncEventSourceMessage *>([](AsyncEventSourceMessage *m){ delete  m; }))
+{
   _client = request->client();
   _server = server;
   _lastId = 0;
@@ -115,18 +161,50 @@ AsyncEventSourceClient::AsyncEventSourceClient(AsyncWebServerRequest *request, A
     
   _client->setRxTimeout(0);
   _client->onError(NULL, NULL);
-  _client->onAck(NULL, NULL);
-  _client->onPoll(NULL, NULL);
+  _client->onAck([](void *r, AsyncClient* c, size_t len, uint32_t time){ ((AsyncEventSourceClient*)(r))->_onAck(len, time); }, this);
+  _client->onPoll([](void *r, AsyncClient* c){ ((AsyncEventSourceClient*)(r))->_onPoll(); }, this);
   _client->onData(NULL, NULL);
-  _client->onTimeout([](void *r, AsyncClient* c __attribute__((unused)), uint32_t time){ ((AsyncEventSourceClient*)(r))->_onTimeout(time); }, this);
-  _client->onDisconnect([](void *r, AsyncClient* c){ ((AsyncEventSourceClient*)(r))->_onDisconnect(); delete c; }, this);
+  _client->onTimeout([this](void *r, AsyncClient* c __attribute__((unused)), uint32_t time){ ((AsyncEventSourceClient*)(r))->_onTimeout(time); }, this);
+  _client->onDisconnect([this](void *r, AsyncClient* c){ ((AsyncEventSourceClient*)(r))->_onDisconnect(); delete c; }, this);
+
   _server->_addClient(this);
   delete request;
 }
 
 AsyncEventSourceClient::~AsyncEventSourceClient(){
+   _messageQueue.free();
   close();
 }
+
+void AsyncEventSourceClient::_queueMessage(AsyncEventSourceMessage *dataMessage){
+  if(dataMessage == NULL)
+    return;
+  if(!connected()){
+    delete dataMessage;
+    return;
+  }
+
+  _messageQueue.add(dataMessage);
+
+  _runQueue();
+}
+
+void AsyncEventSourceClient::_onAck(size_t len, uint32_t time){
+  while(len && !_messageQueue.isEmpty()){
+    len = _messageQueue.front()->ack(len, time);
+    if(_messageQueue.front()->finished())
+      _messageQueue.remove(_messageQueue.front());
+  }
+
+  _runQueue();
+}
+
+void AsyncEventSourceClient::_onPoll(){
+  if(!_messageQueue.isEmpty()){
+    _runQueue();
+  }
+}
+
 
 void AsyncEventSourceClient::_onTimeout(uint32_t time __attribute__((unused))){
   _client->close(true);
@@ -143,18 +221,24 @@ void AsyncEventSourceClient::close(){
 }
 
 void AsyncEventSourceClient::write(const char * message, size_t len){
-  if(!_client->canSend()){
-    return;
-  }
-  if(_client->space() < len){
-    return;
-  }
-  _client->write(message, len);
+  _queueMessage(new AsyncEventSourceMessage(message, len));
 }
 
 void AsyncEventSourceClient::send(const char *message, const char *event, uint32_t id, uint32_t reconnect){
   String ev = generateEventMessage(message, event, id, reconnect);
-  write(ev.c_str(), ev.length());
+  _queueMessage(new AsyncEventSourceMessage(ev.c_str(), ev.length()));
+}
+
+void AsyncEventSourceClient::_runQueue(){
+  while(!_messageQueue.isEmpty() && _messageQueue.front()->finished()){
+    _messageQueue.remove(_messageQueue.front());
+  }
+
+  for(auto i = _messageQueue.begin(); i != _messageQueue.end(); ++i)
+  {
+    if(!(*i)->sent())
+      (*i)->send(_client);
+  }
 }
 
 
@@ -210,8 +294,9 @@ void AsyncEventSource::send(const char *message, const char *event, uint32_t id,
 
   String ev = generateEventMessage(message, event, id, reconnect);
   for(const auto &c: _clients){
-    if(c->connected())
+    if(c->connected()) {
       c->write(ev.c_str(), ev.length());
+    }
   }
 }
 
@@ -222,13 +307,15 @@ size_t AsyncEventSource::count() const {
 }
 
 bool AsyncEventSource::canHandle(AsyncWebServerRequest *request){
-  if(request->method() != HTTP_GET || !request->url().equals(_url))
+  if(request->method() != HTTP_GET || !request->url().equals(_url) || !request->isExpectedRequestedConnType(RCT_EVENT))
     return false;
   request->addInterestingHeader("Last-Event-ID");
   return true;
 }
 
 void AsyncEventSource::handleRequest(AsyncWebServerRequest *request){
+  if((_username != "" && _password != "") && !request->authenticate(_username.c_str(), _password.c_str()))
+    return request->requestAuthentication();
   request->send(new AsyncEventSourceResponse(this));
 }
 
@@ -255,3 +342,4 @@ size_t AsyncEventSourceResponse::_ack(AsyncWebServerRequest *request, size_t len
   }
   return 0;
 }
+

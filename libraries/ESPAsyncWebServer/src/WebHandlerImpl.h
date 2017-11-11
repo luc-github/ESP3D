@@ -26,6 +26,8 @@
 #include <time.h>
 
 class AsyncStaticWebHandler: public AsyncWebHandler {
+   using File = fs::File;
+   using FS = fs::FS;
   private:
     bool _getFile(AsyncWebServerRequest *request);
     bool _fileExists(AsyncWebServerRequest *request, const String& path);
@@ -37,6 +39,7 @@ class AsyncStaticWebHandler: public AsyncWebHandler {
     String _default_file;
     String _cache_control;
     String _last_modified;
+    AwsTemplateProcessor _callback;
     bool _isDir;
     bool _gzipFirst;
     uint8_t _gzipStats;
@@ -53,6 +56,7 @@ class AsyncStaticWebHandler: public AsyncWebHandler {
     AsyncStaticWebHandler& setLastModified(time_t last_modified);
     AsyncStaticWebHandler& setLastModified(); //sets to current time. Make sure sntp is runing and time is updated
   #endif
+    AsyncStaticWebHandler& setTemplateProcessor(AwsTemplateProcessor newCallback) {_callback = newCallback; return *this;}
 };
 
 class AsyncCallbackWebHandler: public AsyncWebHandler {
