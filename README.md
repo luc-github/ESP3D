@@ -31,7 +31,7 @@ Arduino ide 1.8.4 with git version from ESP8266 or ESP32 : [![Build Status](http
 Every support is welcome: [<img src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG_global.gif" border="0" alt="PayPal – The safer, easier way to pay online.">](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Y8FFE7NA4LJWQ)    
 Especially if need to buy new modules for testing.
 
-##Features
+## Features
 * Serial/Wifi bridge using configurable port 8888, here to enable/disable [TCP_IP_DATA_FEATURE](https://github.com/luc-github/ESP3D/blob/master/esp3d/config.h)
 * Use GPIO2 to ground to reset all settings in hard way - 2-6 sec after boot / not before!! Set GPIO2 to ground before boot change boot mode and go to special boot that do not reach FW. Currently boot take 10 sec - giving 8 seconds to connect GPIO2 to GND and do an hard recovery for settings, here to enable/disable [RECOVERY_FEATURE](https://github.com/luc-github/ESP8266/blob/master/esp8266/config.h)   
 * Complete configuration by web browser (Station or Access point) or by Serial commands
@@ -47,7 +47,7 @@ Especially if need to buy new modules for testing.
 * The web ui add even more feature : https://github.com/luc-github/ESP3D-WEBUI/blob/master/README.md#features  
 
 
-##Web configuration      
+## Web configuration      
 *Wifi Mode : Access point / Client station  
 *IP Generation: DHCP/Static IP      
 *IP/MASK/GATEWAY for static data    
@@ -55,7 +55,7 @@ Especially if need to buy new modules for testing.
 *web port and data port      
 
     
-##Default Configuration      
+## Default Configuration      
 Default Settings:    
 AP:ESP8266    
 PW:12345678   
@@ -79,7 +79,7 @@ Password: user
 
 
 
-##Direct commands:    
+## Direct commands:    
 ```
 * Change STA SSID 
 [ESP100]<SSID>
@@ -195,7 +195,7 @@ cmd can be ALL, ERROR, INFO, STATUS
 [ESP999]<cmd>
 
  ```
-##Installation
+## Installation
 1. Please follow installation of the ESP core you want to use : [ESP8266 core version](https://github.com/esp8266/Arduino)  or [ESP32 core version](https://github.com/espressif/arduino-esp32)   
 2.  Add missing libraries if you target ESP32 present in libraries directory
 * DNSServer (from https://github.com/bbx10/DNSServer_tng)
@@ -209,12 +209,12 @@ cmd can be ALL, ERROR, INFO, STATUS
 if embedded uploader does not show up you can force it ti display using : http://your_IP_address?forcefallback=yes    
 <img src=https://raw.githubusercontent.com/luc-github/ESP3D/master/images/docs/embedded.png><br>
 
-##Update
+## Update
 * Generate a binary using the export binary menu from Arduino IDE and upload it using ESP-WEBUI or embedded interface  
 
 <H3>:warning:Do not flash your Printer fw with ESP connected - it bring troubles, at least on DaVinci</H3>
 
-##Contribution/customization
+## Contribution/customization
 * To style the code before pushing PR please use [astyle --style=otbs *.h *.cpp *.ino](http://astyle.sourceforge.net/)   
 * The embedded page is created using nodejs then gulp to generate a compressed html page (tool.html.gz), all necessary modules can be installed using the install.bat file content, then it is included using bin2c (https://sourceforge.net/projects/bin2c/) to generate the  h file used to create the file nofile.h, update the array and size according new out.h.   
 * The current UI is located [here](https://github.com/luc-github/ESP3D-WEBUI)
@@ -222,17 +222,17 @@ if embedded uploader does not show up you can force it ti display using : http:/
 
 Feedback/suggestion/discussions are always welcome   
  
-##Need more information about supported boards or wiring ?
+## Need more information about supported boards or wiring ?
 [Check the wiki](https://github.com/luc-github/ESP3D/wiki)
 
-##:question:Any question ?   
+## :question:Any question ?   
 Check [Wiki](https://github.com/luc-github/ESP3D/wiki/Install-Instructions) or [![Join the chat at https://gitter.im/luc-github/ESP3D](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/luc-github/ESP3D?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)   
 
-##:exclamation:Any issue/feedback ?    
+## :exclamation:Any issue/feedback ?    
 Check [Wiki](https://github.com/luc-github/ESP3D/wiki/Install-Instructions) and [FAQ](https://github.com/luc-github/ESP3D/issues?utf8=%E2%9C%93&q=label%3AFAQ+) or [submit ticket](https://github.com/luc-github/ESP3D/issues)    
 
  
-##TODO   
+## TODO   
 -- Close open topics    
 -- Do testing (a lot)    
 -- UI Improvement    
