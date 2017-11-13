@@ -20,7 +20,7 @@
 
 #ifndef STORESTRINGS_h
 #define STORESTRINGS_h
-#include <ESP8266WiFi.h>
+#include <Arduino.h>
 #include "GenLinkedList.h"
 class STORESTRINGS_CLASS
 {

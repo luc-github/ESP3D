@@ -1,0 +1,99 @@
+sudo: false
+
+language: python
+python:
+  - "2.7"
+
+os:
+  - linux
+
+env:
+  - TESTCASE="1.8.3|esp8266|stable|esp8266:esp8266:nodemcuv2:CpuFrequency=80,FlashSize=4M3M"
+  - TESTCASE="1.8.3|esp8266|devel|esp8266com:esp8266:nodemcuv2:CpuFrequency=80,FlashSize=4M3M"
+  - TESTCASE="1.8.3|esp32|devel|espressif:esp32:esp32:FlashFreq=40"
+
+script:
+  - echo -e "travis_fold:start:sketch_test_env_prepare"
+  - pip install pyserial
+  - IFS='|' read -r -a array <<< "${TESTCASE}"
+  - |
+    for index in "${!array[@]}"
+    do
+      case $index in
+        0) IDEVER="${array[index]}" ;;
+        1) PLATFORM="${array[index]}" ;;
+        2) RELEASE="${array[index]}" ;;
+        3) BOARD="${array[index]}" ;;
+      esac
+    done
+  - cd $HOME
+  - wget -O arduino.tar.xz https://downloads.arduino.cc/arduino-${IDEVER}-linux64.tar.xz
+  - tar xf arduino.tar.xz
+  - mv arduino-${IDEVER} $HOME/arduino_ide
+  - mkdir -p $HOME/Arduino/libraries
+  - IDEDIR="${HOME}/arduino_ide"
+  - export PATH="$IDEDIR:$PATH"
+  - cd ${IDEDIR}
+  - which arduino
+  - |
+    if [[ $PLATFORM == "esp8266" ]] && [[ $RELEASE == "stable" ]]
+    then
+      arduino --pref "boardsmanager.additional.urls=http://arduino.esp8266.com/stable/package_esp8266com_index.json" --save-prefs
+      arduino --install-boards "esp8266:esp8266"
+    fi
+  - |
+    if [[ $PLATFORM == "esp8266" ]] && [[ $RELEASE == "devel" ]]
+    then
+      mkdir -p hardware/esp8266com
+      cd hardware/esp8266com
+      git clone https://github.com/esp8266/Arduino.git esp8266
+      cd esp8266/tools
+      python get.py
+    fi
+  - |
+    if [[ $PLATFORM == "esp32" ]] && [[ $RELEASE == "devel" ]]
+    then
+      mkdir -p hardware/espressif
+      cd hardware/espressif
+      git clone https://github.com/espressif/arduino-esp32.git esp32
+      cd esp32/tools/
+      python get.py
+    fi
+  - arduino --pref "compiler.warning_level=all" --save-prefs
+  - echo -e "travis_fold:end:sketch_test_env_prepare"
+  - echo -e "travis_fold:start:install_library"
+  - cd $HOME/Arduino/libraries
+  - git clone https://github.com/bbx10/WebServer_tng ${HOME}/Arduino/libraries/WebServer
+  - echo -e "travis_fold:end:install_library"
+  - echo -e "travis_fold:start:AdvancedWebServer"
+  - cd ${HOME}/Arduino/libraries/WebServer/examples
+  - arduino --verbose-build --verify --board ${BOARD} AdvancedWebServer/AdvancedWebServer.ino
+  - echo -e "travis_fold:end:AdvancedWebServer"
+  - echo -e "travis_fold:start:HelloServer"
+  - arduino --verbose-build --verify --board ${BOARD} HelloServer/HelloServer.ino
+  - echo -e "travis_fold:end:HelloServer"
+  - echo -e "travis_fold:start:HttpBasicAuth"
+  - arduino --verbose-build --verify --board ${BOARD} HttpBasicAuth/HttpBasicAuth.ino
+  - echo -e "travis_fold:end:HttpBasicAuth"
+  - echo -e "travis_fold:start:SDWebServer"
+  - arduino --verbose-build --verify --board ${BOARD} SDWebServer/SDWebServer.ino
+  - echo -e "travis_fold:end:SDWebServer"
+  - echo -e "travis_fold:start:SimpleAuthentification"
+  - arduino --verbose-build --verify --board ${BOARD} SimpleAuthentification/SimpleAuthentification.ino
+  - echo -e "travis_fold:end:SimpleAuthentification"
+  - |
+    if [[ $PLATFORM == "esp8266" ]]
+    then
+      echo -e "travis_fold:start:FSBrowser"
+      arduino --verbose-build --verify --board ${BOARD} FSBrowser/FSBrowser.ino
+      echo -e "travis_fold:end:FSBrowser"
+      echo -e "travis_fold:start:WebUpdate"
+      arduino --verbose-build --verify --board ${BOARD} WebUpdate/WebUpdate.ino
+      echo -e "travis_fold:end:WebUpdate"
+    fi
+
+notifications:
+  email:
+    on_success: change
+    on_failure: change    
+

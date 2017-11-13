@@ -19,7 +19,7 @@
 */
 #include "storestrings.h"
 //Constructor
-STORESTRINGS_CLASS::STORESTRINGS_CLASS (int maxsize , int maxstringlength)
+STORESTRINGS_CLASS::STORESTRINGS_CLASS (int maxsize, int maxstringlength)
 {
 //for rolling buffer
 //if max size is reached then remove oldest one and add the new one

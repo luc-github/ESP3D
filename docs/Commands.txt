@@ -38,12 +38,20 @@ if authentication is on, need admin password
 if authentication is on, need admin password
 [ESP107]<mode>pwd=<admin password>
 
+* Set wifi on/off
+[ESP110]<state>
+state can be ON, OFF, RESTART
+if authentication is on, need admin password
+[ESP110]<state>pwd=<admin password>
+
 * Get current IP
 [ESP111]<header answer>
 
 * Get hostname
 [ESP112]<header answer>
 
+* Restart time client
+[ESP114]
 
 *Get/Set pin value
 [ESP201]P<pin> V<value> [PULLUP=YES RAW=YES]
@@ -52,6 +60,29 @@ if V<value> 0/1 set INPUT_PULLUP value, but for GPIO16 INPUT_PULLDOWN_16
 GPIO1 and GPIO3 cannot be used as they are used for serial
 if PULLUP=YES set input pull up, if not set input
 if RAW=YES do not set pinmode just read value
+
+
+*Save data string
+[ESP300]<data> pwd=<user/admin password>
+*Get data string
+[ESP301] pwd=<user/admin password>
+
+*Get full EEPROM settings content
+but do not give any passwords
+can filter if only need wifi or printer 
+[ESP400]<network/printer>
+
+*Set EEPROM setting
+position in EEPROM, type: B(byte), I(integer/long), S(string), A(IP address / mask)
+[ESP401]P=<position> T=<type> V=<value> pwd=<user/admin password>
+
+*Get available AP list (limited to 30)
+output is JSON or plain text according parameter
+[ESP410]<plain>
+
+*Get current settings of ESP3D
+output is JSON or plain text according parameter
+[ESP420]<plain>
 
 * Get/Set ESP mode
 cmd can be RESET, SAFEMODE, CONFIG, RESTART
@@ -66,7 +97,13 @@ if no password set it use default one
 * Read SPIFFS file and send each line to serial
 [ESP700]<filename>
 
-* Get fw version
+* Format SPIFFS
+[ESP710]FORMAT pwd=<admin password>
+
+* SPIFFS total size and used size
+[ESP720]<header answer>
+
+* Get fw version and basic information
 [ESP800]<header answer>
 
 * Get fw target
