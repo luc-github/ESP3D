@@ -26,6 +26,7 @@ Arduino ide 1.8.4 with git version from ESP8266 or ESP32 : [![Build Status](http
 :+1:Thanks
 * to @disneysw for bringing this module idea
 * to @lkarlslund for suggestion about independent reset using GPIO2
+* to Roy Cortes from http://www.panucatt.com for supporting and pushing me implementing great features
 * to all contributors, feedbacks owners and donations.
 
 Every support is welcome: [<img src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG_global.gif" border="0" alt="PayPal – The safer, easier way to pay online.">](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Y8FFE7NA4LJWQ)    
@@ -231,7 +232,10 @@ Check [Wiki](https://github.com/luc-github/ESP3D/wiki/Install-Instructions) or [
 ## :exclamation:Any issue/feedback ?    
 Check [Wiki](https://github.com/luc-github/ESP3D/wiki/Install-Instructions) and [FAQ](https://github.com/luc-github/ESP3D/issues?utf8=%E2%9C%93&q=label%3AFAQ+) or [submit ticket](https://github.com/luc-github/ESP3D/issues)    
 
- 
+## ESP3D is used by :
+* Custom version is used on azteeg mini wifi : http://www.panucatt.com/azteeg_X5_mini_reprap_3d_printer_controller_p/ax5mini.htm
+* More to come...
+
 ## TODO   
 -- Close open topics    
 -- Do testing (a lot)    
