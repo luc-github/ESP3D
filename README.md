@@ -14,8 +14,9 @@ The web interface files are present in data directory but UI has it's own reposi
 <u>Stable version (ESP8266 only):</u>    
 Arduino ide 1.6.5 with stable [2.0.0](http://arduino.esp8266.com/versions/2.0.0/package_esp8266com_index.json) from ESP8266, please use https://github.com/luc-github/ESP3D/releases/tag/v0.5.1    
 Arduino ide 1.6.8 with stable [2.2.0](http://arduino.esp8266.com/versions/2.2.0/package_esp8266com_index.json) from ESP8266, please use https://github.com/luc-github/ESP3D/releases/tag/v0.6.2    
+Arduino ide 1.8.5 with stable [2.4.0](http://arduino.esp8266.com/versions/2.4.0/package_esp8266com_index.json) from ESP8266, please use https://github.com/luc-github/ESP3D/releases/tag/V0.9.99    
 
-<u>RC version for 1.0(master branch) very stable but waiting for 2.4 release of ESP8266:</u>    
+<u>RC version for 1.0(master branch)</u>    
 Arduino ide 1.8.4 with git version from ESP8266 or ESP32 : [![Build Status](https://travis-ci.org/luc-github/ESP3D.svg?branch=master)](https://travis-ci.org/luc-github/ESP3D)  
  
 <u>Development version for 2.0 (asyncwebserver branch) pre alpha :</u>    
