@@ -1217,38 +1217,39 @@ bool COMMAND::execute_command(int cmd,String cmd_params, tpipe output, level_aut
         if (currentfile) {//if file open success
             //flush to be sure send buffer is empty
             ESP_SERIAL_OUT.flush();
-            //read content
-            String currentline = currentfile.readString();
             //until no line in file
-            while (currentline.length() >0) {
-                int ESPpos = currentline.indexOf("[ESP");
-                if (ESPpos>-1) {
-                    //is there the second part?
-                    int ESPpos2 = currentline.indexOf("]",ESPpos);
-                    if (ESPpos2>-1) {
-                        //Split in command and parameters
-                        String cmd_part1=currentline.substring(ESPpos+4,ESPpos2);
-                        String cmd_part2="";
-                        //is there space for parameters?
-                        if (ESPpos2<currentline.length()) {
-                            cmd_part2=currentline.substring(ESPpos2+1);
+            while (currentfile.available()) {
+                String currentline = currentfile.readStringUntil('\n');
+                currentline.replace("\n","");
+                currentline.replace("\r","");
+                if (currentline.length() > 0) {
+                    int ESPpos = currentline.indexOf("[ESP");
+                    if (ESPpos>-1) {
+                        //is there the second part?
+                        int ESPpos2 = currentline.indexOf("]",ESPpos);
+                        if (ESPpos2>-1) {
+                            //Split in command and parameters
+                            String cmd_part1=currentline.substring(ESPpos+4,ESPpos2);
+                            String cmd_part2="";
+                            //is there space for parameters?
+                            if (ESPpos2<currentline.length()) {
+                                cmd_part2=currentline.substring(ESPpos2+1);
+                            }
+                            //if command is a valid number then execute command
+                            if(cmd_part1.toInt()!=0) {
+                                execute_command(cmd_part1.toInt(),cmd_part2,NO_PIPE);
+                            }
+                            //if not is not a valid [ESPXXX] command ignore it
                         }
-                        //if command is a valid number then execute command
-                        if(cmd_part1.toInt()!=0) {
-                            execute_command(cmd_part1.toInt(),cmd_part2,NO_PIPE);
-                        }
-                        //if not is not a valid [ESPXXX] command ignore it
+                    } else {
+                        //send line to serial
+                        ESP_SERIAL_OUT.println(currentline);
+                        //flush to be sure send buffer is empty
+                        delay(0);
+                        ESP_SERIAL_OUT.flush();
                     }
-                } else {
-                    //send line to serial
-                    ESP_SERIAL_OUT.println(currentline);
-                    //flush to be sure send buffer is empty
-                    delay(0);
-                    ESP_SERIAL_OUT.flush();
+                 delay(0);   
                 }
-                currentline="";
-                //read next line if any
-                currentline = currentfile.readString();
             }
             currentfile.close();
             BRIDGE::println(OK_CMD_MSG, output);
