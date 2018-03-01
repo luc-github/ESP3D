@@ -93,7 +93,7 @@ void handle_web_interface_status()
   //  static const char NO_TEMP_LINE[] PROGMEM = "\"temperature\":\"0\",\"target\":\"0\",\"active\":\"0\"";
     //we do not care if need authentication - just reset counter
     web_interface->is_authenticated();
-    int tagpos,tagpos2;
+    //int tagpos,tagpos2;
     String buffer2send;
     String value;
     //start JSON answer
@@ -1307,7 +1307,7 @@ void handle_web_command()
             count = 0;
             String current_buffer;
             String current_line;
-            int pos;
+            //int pos;
             int temp_counter = 0;
             String tmp;
             bool datasent = false;
@@ -1327,7 +1327,7 @@ void handle_web_command()
                     while (current_buffer.indexOf("\n") !=-1) {
                         //remove the possible "\r"
                         current_buffer.replace("\r","");
-                        pos = current_buffer.indexOf("\n");
+                        //pos = current_buffer.indexOf("\n");
                         //get line
                         current_line = current_buffer.substring(0,current_buffer.indexOf("\n"));
                         //if line is command ack - just exit so save the time out period
@@ -1430,7 +1430,7 @@ void handle_web_command_silent()
     }
 #endif
     String cmd = "";
-    int count ;
+    //int count ;
     if (web_interface->web_server.hasArg("plain") || web_interface->web_server.hasArg("commandText")) {
         if (web_interface->web_server.hasArg("plain")) {
             cmd = web_interface->web_server.arg("plain");

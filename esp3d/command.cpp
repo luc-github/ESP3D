@@ -1132,6 +1132,7 @@ bool COMMAND::execute_command(int cmd,String cmd_params, tpipe output, level_aut
                 if (!plain)BRIDGE::print(F("\"}"), output);
             }
         if (!plain)BRIDGE::print(F("]}"), output);
+        else BRIDGE::print(F("\n"), output);
         WiFi.scanDelete();
 	}
 	break;
@@ -1506,8 +1507,8 @@ if (CONFIG::GetFirmwareTarget()  == SMOOTHIEWARE) {
 void COMMAND::read_buffer_serial(uint8_t *b, size_t len)
 {
     for (long i = 0; i< len; i++) {
-        read_buffer_serial(*b);
-        *b++;
+        read_buffer_serial(b[i]);
+       //*b++;
     }
 }
 

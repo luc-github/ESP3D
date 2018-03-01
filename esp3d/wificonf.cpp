@@ -229,7 +229,7 @@ bool WIFI_CONFIG::Setup(bool force_ap)
         LOG("Disable STA\r\n")
         WiFi.enableSTA(false);
         delay(100);
-LOG("Set phy mode\r\n")
+        LOG("Set phy mode\r\n")
         //setup PHY_MODE
         if (!CONFIG::read_byte(EP_AP_PHY_MODE, &bflag )) {
             return false;
@@ -350,11 +350,10 @@ LOG("Set phy mode\r\n")
         //setup station mode
         WiFi.mode(WIFI_STA);
         delay(100);
-        WiFi.begin(sbuf, pwd);
-        delay(100);
 #ifdef ARDUINO_ARCH_ESP8266
         WiFi.setPhyMode((WiFiPhyMode_t)bflag);
 #endif
+        WiFi.begin(sbuf, pwd);
         delay(100);
         byte i=0;
         //try to connect

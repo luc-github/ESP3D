@@ -43,7 +43,7 @@ HardwareSerial Serial2(2);
 uint8_t CONFIG::FirmwareTarget = UNKNOWN_FW;
 
 bool CONFIG::SetFirmwareTarget(uint8_t fw){
-    if ( fw >= 0 && fw <= MAX_FW_ID) {
+    if ( fw <= MAX_FW_ID) {
         FirmwareTarget = fw;
         return true;
     } else return false;
@@ -748,7 +748,7 @@ bool CONFIG::isHostnameValid(const char * hostname)
 bool CONFIG::isSSIDValid(const char * ssid)
 {
     //limited size
-    char c;
+    //char c;
     if (strlen(ssid)>MAX_SSID_LENGTH || strlen(ssid)<MIN_SSID_LENGTH) {
         return false;
     }
@@ -766,9 +766,12 @@ bool CONFIG::isSSIDValid(const char * ssid)
 bool CONFIG::isPasswordValid(const char * password)
 {
     //limited size
-    if ((strlen(password)>MAX_PASSWORD_LENGTH)||  (strlen(password)<MIN_PASSWORD_LENGTH)) {
+    if (strlen(password)>MAX_PASSWORD_LENGTH) {
         return false;
     }
+    #if MIN_PASSWORD_LENGTH > 0
+    if (strlen(password)<MIN_PASSWORD_LENGTH)) return false;
+    #endif 
     //no space allowed
     for (int i=0; i < strlen(password); i++)
         if (password[i] == ' ') {
@@ -1038,7 +1041,7 @@ bool CONFIG::check_update_presence( ){
         count = 0;
         String current_buffer;
         String current_line;
-        int pos;
+        //int pos;
         int temp_counter = 0;
        
         //pickup the list
@@ -1057,7 +1060,7 @@ bool CONFIG::check_update_presence( ){
                 while (current_buffer.indexOf("\n") !=-1) {
                     //remove the possible "\r"
                     current_buffer.replace("\r","");
-                    pos = current_buffer.indexOf("\n");
+                    //pos = current_buffer.indexOf("\n");
                     //get line
                     current_line = current_buffer.substring(0,current_buffer.indexOf("\n"));
                     //if line is command ack - just exit so save the time out period
@@ -1070,7 +1073,6 @@ bool CONFIG::check_update_presence( ){
                     if (current_line.indexOf("busy:") > -1 || current_line.indexOf("T:") > -1 || current_line.indexOf("B:") > -1) {
                         temp_counter++;
                     } else {
-                    
                     }
                     if (temp_counter > 5) {
                         break;
@@ -1456,9 +1458,9 @@ void CONFIG::print_config(tpipe output, bool plaintext)
 #endif
     if (!plaintext)BRIDGE::print(F("\"phy_mode\":\""), output);
     else BRIDGE::print(F("Phy Mode: "), output);
-    if (PhyMode == WIFI_PHY_MODE_11G )BRIDGE::print(F("11g"), output);
-    else if (PhyMode == WIFI_PHY_MODE_11B )BRIDGE::print(F("11b"), output);
-    else if (PhyMode == WIFI_PHY_MODE_11N )BRIDGE::print(F("11n"), output);
+    if (PhyMode == (WIFI_PHY_MODE_11G))BRIDGE::print(F("11g"), output);
+    else if (PhyMode == (WIFI_PHY_MODE_11B))BRIDGE::print(F("11b"), output);
+    else if (PhyMode == (WIFI_PHY_MODE_11N))BRIDGE::print(F("11n"), output);
     else BRIDGE::print(F("???"), output);
     if (!plaintext)BRIDGE::print(F("\","), output);
     else BRIDGE::print(F("\n"), output);

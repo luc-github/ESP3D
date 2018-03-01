@@ -299,7 +299,7 @@ const char DEFAULT_USER_LOGIN []  PROGMEM =	"user";
 const char DEFAULT_TIME_SERVER1 []  PROGMEM =	"time.nist.gov";
 const char DEFAULT_TIME_SERVER2 []  PROGMEM =	"0.pool.ntp.org";
 const char DEFAULT_TIME_SERVER3 []  PROGMEM =	"1.pool.ntp.org";
-#define DEFAULT_TIME_ZONE			1
+#define DEFAULT_TIME_ZONE			0
 #define DEFAULT_TIME_DST			0
 #define DEFAULT_PRIMARY_SD  1
 #define DEFAULT_SECONDARY_SD 2
@@ -425,7 +425,6 @@ public:
     static char * mac2str(uint8_t mac [WL_MAC_ADDR_LENGTH]);
     static byte split_ip (const char * ptr,byte * part);
     static void esp_restart();
-    static void flashfromSD(const char * Filename, int flashtype);
 private:
     static uint8_t FirmwareTarget;
 };
