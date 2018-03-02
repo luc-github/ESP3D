@@ -90,7 +90,7 @@ bool COMMAND::isadmin(String & cmd_params)
     }
     adminpassword = get_param(cmd_params,"pwd=", true);
     if (!sadminPassword.equals(adminpassword)) {
-        LOG("Not allowed\r\n")
+        LOG("Not identified from command line\r\n")
         return false;
     } else {
         return true;
@@ -122,11 +122,28 @@ bool COMMAND::execute_command(int cmd,String cmd_params, tpipe output, level_aut
     level_authenticate_type auth_type = auth_level;
     if (isadmin(cmd_params)) {
         auth_type = LEVEL_ADMIN;
+        LOG("admin identified\r\n");
     }
     if (isuser(cmd_params) && (auth_type != LEVEL_ADMIN)) {
         auth_type = LEVEL_USER;
+          LOG("user identified\r\n");
     }
-
+#ifdef DEBUG_ESP3D
+    if ( auth_type == LEVEL_ADMIN)  
+        {
+            LOG("admin identified\r\n");
+        }
+    else  {
+        if( auth_type == LEVEL_USER)  
+            {
+                LOG("user identified\r\n");
+            }
+        else  
+            {
+                LOG("guest identified\r\n");
+            }
+        }
+#endif
 #endif
     //manage parameters
     byte mode = 254;
@@ -390,7 +407,7 @@ bool COMMAND::execute_command(int cmd,String cmd_params, tpipe output, level_aut
     break;
 #ifdef DIRECT_PIN_FEATURE
     //Get/Set pin value
-    //[ESP201]P<pin> V<value>
+    //[ESP201]P<pin> V<value> [PULLUP=YES RAW=YES]pwd=<admin password>
     case 201:
         parameter = get_param(cmd_params,"", true);
 #ifdef AUTHENTICATION_FEATURE
@@ -1238,7 +1255,7 @@ bool COMMAND::execute_command(int cmd,String cmd_params, tpipe output, level_aut
                             }
                             //if command is a valid number then execute command
                             if(cmd_part1.toInt()!=0) {
-                                execute_command(cmd_part1.toInt(),cmd_part2,NO_PIPE);
+                                execute_command(cmd_part1.toInt(),cmd_part2,NO_PIPE, auth_type);
                             }
                             //if not is not a valid [ESPXXX] command ignore it
                         }
