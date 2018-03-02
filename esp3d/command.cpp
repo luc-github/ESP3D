@@ -118,8 +118,8 @@ bool COMMAND::isuser(String & cmd_params)
 bool COMMAND::execute_command(int cmd,String cmd_params, tpipe output, level_authenticate_type auth_level)
 {
     bool response = true;
-#ifdef AUTHENTICATION_FEATURE
     level_authenticate_type auth_type = auth_level;
+#ifdef AUTHENTICATION_FEATURE
     if (isadmin(cmd_params)) {
         auth_type = LEVEL_ADMIN;
         LOG("admin identified\r\n");
