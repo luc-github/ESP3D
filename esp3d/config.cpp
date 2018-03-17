@@ -1371,22 +1371,23 @@ void CONFIG::print_config(tpipe output, bool plaintext)
     BRIDGE::print(formatBytes(ESP.getFlashChipSize()).c_str(), output);
     if (!plaintext)BRIDGE::print(F("\","), output);
     else BRIDGE::print(F("\n"), output);
-#ifdef ARDUINO_ARCH_ESP8266    
+#ifdef ARDUINO_ARCH_ESP8266 
+    fs::FSInfo info;
+    SPIFFS.info(info);
     if (!plaintext)BRIDGE::print(F("\"update_size\":\""), output);
     else BRIDGE::print(F("Available Size for update: "), output);
     uint32_t  flashsize = ESP.getFlashChipSize();
     if (flashsize > 1024 * 1024) flashsize = 1024 * 1024;
-    BRIDGE::print(formatBytes(flashsize - ESP.getSketchSize()).c_str(), output);
+    BRIDGE::print(formatBytes(flashsize - ESP.getSketchSize()-info.totalBytes).c_str(), output);
     if (!plaintext)BRIDGE::print(F("\","), output);
     else {
-        if ((flashsize - ESP.getSketchSize()) > (flashsize / 2)) BRIDGE::println(F("(Ok)"), output);
-        else BRIDGE::print(F("(Not enough)"), output);
+        if ((flashsize - ESP.getSketchSize()-info.totalBytes) > (flashsize / 2)) BRIDGE::println(F("(Ok)"), output);
+        else BRIDGE::println(F("(Not enough)"), output);
         }
 
     if (!plaintext)BRIDGE::print(F("\"spiffs_size\":\""), output);
     else BRIDGE::print(F("Available Size for SPIFFS: "), output);
-    fs::FSInfo info;
-    SPIFFS.info(info);
+   
     BRIDGE::print(formatBytes(info.totalBytes).c_str(), output);
     if (!plaintext)BRIDGE::print(F("\","), output);
     else BRIDGE::print(F("\n"), output);
