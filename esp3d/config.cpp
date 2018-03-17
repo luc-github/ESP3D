@@ -1381,7 +1381,7 @@ void CONFIG::print_config(tpipe output, bool plaintext)
     BRIDGE::print(formatBytes(flashsize - ESP.getSketchSize()-info.totalBytes).c_str(), output);
     if (!plaintext)BRIDGE::print(F("\","), output);
     else {
-        if ((flashsize - ESP.getSketchSize()-info.totalBytes) > (flashsize / 2)) BRIDGE::println(F("(Ok)"), output);
+        if ((flashsize - ESP.getSketchSize()-info.totalBytes) > (ESP.getSketchSize())) BRIDGE::println(F("(Ok)"), output);
         else BRIDGE::println(F("(Not enough)"), output);
         }
 
