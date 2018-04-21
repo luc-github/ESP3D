@@ -7,8 +7,7 @@ os:
 
 
 before_script:
-  - cd $HOME/arduino_ide/hardware
-  - cd $HOME
+    - cd $HOME
     - wget https://pypi.python.org/packages/df/c9/d9da7fafaf2a2b323d20eee050503ab08237c16b0119c7bbf1597d53f793/pyserial-2.7.tar.gz#md5=794506184df83ef2290de0d18803dd11
     - tar -xvf  pyserial-2.7.tar.gz
     - cd pyserial-2.7
@@ -16,7 +15,6 @@ before_script:
     - wget http://downloads.arduino.cc/arduino-1.8.0-linux64.tar.xz
     - tar xf ./arduino-1.8.0-linux64.tar.xz
     - mv arduino-1.8.0 $HOME/arduino_ide
-    - mkdir -p $HOME/arduino_ide/hardware
     - cd $HOME/arduino_ide/hardware
     - mkdir esp8266com
     - cd esp8266com
