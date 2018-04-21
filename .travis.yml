@@ -5,51 +5,71 @@ language: bash
 os:
   - linux
 
-before_install:
-  - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1280x1024x16"
 
 before_script:
-  - "export DISPLAY=:99.0"
-  - sleep 3 # give xvfb some time to start
-  - wget http://downloads.arduino.cc/arduino-1.8.4-linux64.tar.xz
-  - tar xf arduino-1.8.4-linux64.tar.xz
-  - mv arduino-1.8.4 $HOME/arduino_ide
   - cd $HOME/arduino_ide/hardware
-  - mkdir esp8266com
-  - cd esp8266com
-  - git clone https://github.com/esp8266/Arduino.git esp8266
-  - cd esp8266/tools
-  - python get.py
-  - cd ..
-  - echo 'build.flash_ld=eagle.flash.4m.ld' >> platform.txt
-  - echo 'build.flash_freq=40' >> platform.txt
-  - echo 'build.flash_size=4M' >> platform.txt
-  - echo 'build.flash_mode=dio' >> platform.txt
-  - echo 'build.f_cpu=160000000L' >> platform.txt
-  - sed -i "s/generic.build.f_cpu=80000000L/generic.build.f_cpu=160000000L/g" ./boards.txt
-  - cd $HOME/arduino_ide/hardware
-  - mkdir esp32
-  - cd esp32
-  - git clone https://github.com/espressif/arduino-esp32.git esp32
-  - cd esp32/tools
-  - python get.py
-  - cd ..
-  - echo 'build.flash_freq=40m' >> platform.txt
-  - mv $TRAVIS_BUILD_DIR/libraries/DNSServer $HOME/arduino_ide/hardware/esp32/esp32/libraries/
-  - mv $TRAVIS_BUILD_DIR/libraries/AsyncTCP $HOME/arduino_ide/libraries/
-  - mv $TRAVIS_BUILD_DIR/libraries/ESPAsyncTCP $HOME/arduino_ide/libraries/
-  - mv $TRAVIS_BUILD_DIR/libraries/ESPAsyncWebServer $HOME/arduino_ide/libraries/
+  - cd $HOME
+    - wget https://pypi.python.org/packages/df/c9/d9da7fafaf2a2b323d20eee050503ab08237c16b0119c7bbf1597d53f793/pyserial-2.7.tar.gz#md5=794506184df83ef2290de0d18803dd11
+    - tar -xvf  pyserial-2.7.tar.gz
+    - cd pyserial-2.7
+    - python ./setup.py install
+    - wget http://downloads.arduino.cc/arduino-1.8.0-linux64.tar.xz
+    - tar xf ./arduino-1.8.0-linux64.tar.xz
+    - mv arduino-1.8.0 $HOME/arduino_ide
+    - cd $HOME/arduino_ide/hardware
+    - mkdir esp8266com
+    - cd esp8266com
+    - git clone https://github.com/esp8266/Arduino.git esp8266
+    - cd esp8266/tools
+    - python get.py
+    - cd ..
+    - touch pt.txt
+    - echo 'build.flash_ld=eagle.flash.4m.ld' >> pt.txt
+    - echo 'build.flash_freq=40' >> pt.txt
+    - echo 'build.flash_size=4M' >> pt.txt
+    - echo 'build.f_cpu=160000000L' >> pt.txt
+    - echo 'build.flash_mode=dio' >> pt.txt
+    - cat ./platform.txt >> pt.txt
+    - rm -fr platform.txt
+    - mv pt.txt platform.txt
+    - mv $TRAVIS_BUILD_DIR/libraries/ESPAsyncWebServer $HOME/arduino_ide/libraries/
+    - mv $TRAVIS_BUILD_DIR/libraries/ESPAsyncTCP $HOME/arduino_ide/libraries/
+    - mv $TRAVIS_BUILD_DIR/libraries/AsyncTCP $HOME/arduino_ide/libraries/
+    - mv $TRAVIS_BUILD_DIR/libraries/oled-ssd1306 $HOME/arduino_ide/libraries/
+    - mv $TRAVIS_BUILD_DIR/libraries/ESP32SSDP $HOME/arduino_ide/libraries/
+    - mv $TRAVIS_BUILD_DIR/libraries/ESP32NetBIOS $HOME/arduino_ide/libraries/
+    - mkdir $HOME/arduino_ide/libraries/ESP3D
+    - mv $TRAVIS_BUILD_DIR/src $HOME/arduino_ide/libraries/ESP3D
+    - mv $TRAVIS_BUILD_DIR/library.properties $HOME/arduino_ide/libraries/ESP3D
+    - cd $HOME/arduino_ide/hardware 
+    - mkdir esp32
+    - cd esp32
+    - git clone https://github.com/espressif/arduino-esp32.git esp32
+    - cd esp32
+    - cd tools
+    - python get.py
+    - cd ..
+    - touch pt.txt
+    - echo 'build.flash_freq=80m' >> pt.txt
+    - cat ./platform.txt >> pt.txt
+    - rm -fr platform.txt
+    - mv pt.txt platform.txt
+  
   
 
 script:
   - cd $TRAVIS_BUILD_DIR
   - source command.sh
   - export PATH="$HOME/arduino_ide:$PATH"
+  - arduino --get-pref
   - arduino --board esp8266com:esp8266:generic --save-prefs
-  - arduino --get-pref sketchbook.path
-  - build_sketch esp3d/esp3d.ino
+  - sed -i "s/\/\/#define DIRECT_SDCARD_FEATURE /#define DIRECT_SDCARD_FEATURE/g" $HOME/arduino_ide/libraries/ESP3D/src/config.h
+  - sed -i "s/\/\/#define SDCARD_FEATURE /#define SDCARD_FEATURE/g" $HOME/arduino_ide/libraries/ESP3D/src/config.h
+  - echo "build ESP8266"
+  - build_sketch  $TRAVIS_BUILD_DIR/examples/basicesp3d/basicesp3d.ino
   - arduino --board esp32:esp32:esp32 --save-prefs
-  - build_sketch esp3d/esp3d.ino
+  - echo "build ESP32"
+  - build_sketch  $TRAVIS_BUILD_DIR/examples/basicesp3d/basicesp3d.ino
   
 notifications:
   email:
