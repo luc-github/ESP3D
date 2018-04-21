@@ -1,0 +1,8 @@
+TODO
+MONITORING_FEATURE : temperatures
+INFO_MSG_FEATURE
+ERROR_MSG_FEATURE
+STATUS_MSG_FEATURE
+SDCard Support
+EEPROM support
+Full serial log support

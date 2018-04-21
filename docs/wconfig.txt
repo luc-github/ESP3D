@@ -1,0 +1,80 @@
+[network]
+#string 32 char
+hostname = lucesp
+#9600, 19200, 38400, 57600, 115200, 230400, 250000
+baudrate = 115200
+#1-65000
+webport = 80
+#1-65000
+dataport = 8888
+#string 20 char
+adminpwd = admin
+#string 20 char
+userpwd = user
+#none, light, modem
+sleep = none
+#AP for Access Point, STA for Client Station
+wifimode = STA
+#string  32 char
+STAssid = NETGEAR_2GEXT_OFFICE2
+#string 64 char
+STApassword = bureauchambre
+#DHCP, STATIC
+STAipmode = DHCP
+STAstatic_ip = 192.168.0.1
+STAstatic_mask = 255.255.255.0
+STAstatic_gateway = 192.168.0.1
+#11b, 11g, 11n
+STANetwork_mode = 11g
+#string  32 char
+APssid = MYESP
+#string  64 char
+APpassword = 12345678
+#DHCP, STATIC
+APipmode = STATIC
+APstatic_ip = 192.168.0.1
+APstatic_mask = 255.255.255.0
+APstatic_gateway = 192.168.0.1
+#1 to 12
+AP_channel = 9
+#yes, no
+AP_visible = yes
+#open, wpa, wpa2, wpa_wpa2
+AP_auth = WPA
+#11b, 11g, 
+APNetwork_mode = 11g
+#-12...+12
+time_zone = 1
+#yes, no
+day_st = yes
+#string 128 char
+time_server_1 = time.nist.gov
+#string 128 char
+time_server_2 = 0.pool.ntp.org
+#string 128 char
+time_server_3 = 1.pool.ntp.org
+
+[printer]
+#0 to disable, time is in secondes <120
+refreshrate = 3
+XY_feedrate = 1000
+Z_feedrate = 100
+E_feedrate = 400
+#string 128 char
+data = 192.168.1.1/video.cgi?user=luc&pwd=mypassword
+#0 to disable, time is in secondes <120
+refreshrate2 = 3
+# smoothieware, marlin, marlinkimbra, repetier, repetier4davinci
+target_printer= smoothieware
+#yes, no
+direct_sd = yes
+#none, sd, ext
+primary_sd = ext
+#none, sd, ext
+secondary_sd = sd
+#yes, no
+sd_boot_check = yes
+#yes, no
+direct_sd_boot_check = yes
+#yes, no
+sd_check_update = yes

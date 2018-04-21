@@ -52,18 +52,12 @@ if authentication is on, need admin password
 
 
 *Get/Set pin value
-[ESP201]P<pin> V<value> [PULLUP=YES RAW=YES]
+[ESP201]P<pin> V<value> [PULLUP=YES RAW=YES]pwd=<admin password>
 if no V<value> get P<pin> value
 if V<value> 0/1 set INPUT_PULLUP value, but for GPIO16 INPUT_PULLDOWN_16
 GPIO1 and GPIO3 cannot be used as they are used for serial
 if PULLUP=YES set input pull up, if not set input
 if RAW=YES do not set pinmode just read value
-
-
-*Save data string
-[ESP300]<data> pwd=<user/admin password>
-*Get data string
-[ESP301] pwd=<user/admin password>
 
 *Get full EEPROM settings content
 but do not give any passwords
