@@ -89,12 +89,12 @@ Check wiki : https://github.com/luc-github/ESP3D/wiki/Direct-ESP3D-commands
 1. Please follow installation of the ESP core you want to use : [ESP8266 core version](https://github.com/esp8266/Arduino)  or [ESP32 core version](https://github.com/espressif/arduino-esp32)   
 2.  Add libraries 
 * ESP3D because it is now a library so copy project to your arduino library folder
-* ESPAsyncWebServer from @me-no-dev
-if you target ESP8266
-* ESPAsyncTCP from @me-no-dev 
-if you target ESP32
-* AsyncTCP from @me-no-dev 
-* ESPNetBIOS and ESPSSDP
+* ESPAsyncWebServer from @me-no-dev   
+if you target ESP8266  
+* ESPAsyncTCP from @me-no-dev   
+if you target ESP32   
+* AsyncTCP from @me-no-dev   
+* ESPNetBIOS and ESPSSDP  
 3. Compile project from examples\basicesp3d\basicesp3d.ino) according target: ESP8266 board or ESP32 board, please review config.h to enable disable a feature, by default athenticatio is disabled and all others are enabled.   
 * for ESP8266 set CPU freq to 160MHz for better (https://github.com/luc-github/ESP3D/wiki/Install-Instructions)
 4. Upload the data content on ESP3D file system
