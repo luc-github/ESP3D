@@ -17,8 +17,7 @@ Arduino ide 1.6.8 with stable [2.2.0](http://arduino.esp8266.com/versions/2.2.0/
 Arduino ide 1.8.5 with stable [2.4.0](http://arduino.esp8266.com/versions/2.4.0/package_esp8266com_index.json) from ESP8266, please use https://github.com/luc-github/ESP3D/releases/tag/1.0 [![Build Status](https://travis-ci.org/luc-github/ESP3D.svg?branch=master)](https://travis-ci.org/luc-github/ESP3D)    
  
 <u>[Development version for 2.0 (asyncwebserver branch)](https://github.com/luc-github/ESP3D/tree/asyncwebserver) & [ESP-WEBUI (asyncUI branch)](https://github.com/luc-github/ESP3D-WEBUI/tree/asyncUI):</u>    
-Arduino ide 1.8.4 with git version from ESP8266 or ESP32 : [![Build Status](https://travis-ci.org/luc-github/ESP3D.svg?branch=asyncwebserver)](https://travis-ci.org/luc-github/ESP3D)   
-for 100% support of ESP32
+Arduino ide 1.8.5 with git version from ESP8266 or ESP32 for 100% support of ESP32 : [![Build Status](https://travis-ci.org/luc-github/ESP3D.svg?branch=asyncwebserver)](https://travis-ci.org/luc-github/ESP3D)   
 
 [All releases](https://github.com/luc-github/ESP3D/wiki)
 
