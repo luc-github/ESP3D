@@ -20,9 +20,35 @@
 
 #ifndef ESP_OLED_H
 #define ESP_OLED_H
-#include <Arduino.h>
 #include "config.h"
 #ifdef ESP_OLED_FEATURE
+class OLED_DISPLAY
+{
+public:
+static void begin();
+static void setCursor(int col, int row = -1);
+static void print(String & s);
+static void print(const char * s);
+static void display_signal( int value, int x=86, int y=0);
+static void display_text(const char * txt, int x=0, int y=48, int max=128);
+static void display_progress(int value, int x=0, int y=48); 
+static void display_mini_progress(int value, int x = 14, int y=61, int w=100);
+static void update_lcd();
+static void clear_lcd();
+static void splash();
+static String L0;
+static String L1;
+static String L2;
+static String L3;
+static int L0_size;
+static int L1_size;
+static int L2_size;
+static int L3_size;
+private:
+static int col;
+static int row;
 
+
+};
 #endif
 #endif

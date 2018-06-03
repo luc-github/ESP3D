@@ -21,7 +21,7 @@
 #ifndef COMMAND_h
 #define COMMAND_h
 #include <Arduino.h>
-#include "bridge.h"
+#include "espcom.h"
 class AsyncResponseStream;
 
 class COMMAND

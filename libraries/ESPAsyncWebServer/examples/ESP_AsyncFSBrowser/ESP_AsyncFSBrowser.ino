@@ -6,7 +6,7 @@
 #include <ESPAsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <SPIFFSEditor.h>
-#include <ESP8266SSDP.h>
+
 // SKETCH BEGIN
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");

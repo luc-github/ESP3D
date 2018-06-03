@@ -55,8 +55,11 @@ public:
     ~WEBINTERFACE_CLASS();
     AsyncWebServer web_server;
     AsyncEventSource web_events;
+#ifdef WS_DATA_FEATURE
     AsyncWebSocket  web_socket;
+#endif
     FS_FILE fsUploadFile;
+
 #ifdef ERROR_MSG_FEATURE
     STORESTRINGS_CLASS error_msg;
 #endif

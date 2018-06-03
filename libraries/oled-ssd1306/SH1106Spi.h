@@ -82,7 +82,7 @@ class SH1106Spi : public OLEDDisplay {
           }
           buffer_back[pos] = buffer[pos];
         }
-        yield();
+        optimistic_yield(10000);
        }
 
        // If the minBoundY wasn't updated
@@ -102,7 +102,7 @@ class SH1106Spi : public OLEDDisplay {
          for (x = minBoundX; x <= maxBoundX; x++) {
            SPI.transfer(buffer[x + y * DISPLAY_WIDTH]);
          }
-         yield();
+        optimistic_yield(10000);
        }
      #else
       for (uint8_t y=0; y<DISPLAY_HEIGHT/8; y++) {
@@ -113,7 +113,7 @@ class SH1106Spi : public OLEDDisplay {
         for( uint8_t x=0; x < DISPLAY_WIDTH; x++) {
           SPI.transfer(buffer[x + y * DISPLAY_WIDTH]);
         }
-        yield();
+        optimistic_yield(10000);
       }
      #endif
     }

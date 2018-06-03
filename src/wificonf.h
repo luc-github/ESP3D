@@ -42,6 +42,7 @@ public:
 #ifdef MDNS_FEATURE
     MDNSResponder mdns;
 #endif
+	bool WiFi_on;
     WIFI_CONFIG();
     int iweb_port;
     int idata_port;

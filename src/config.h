@@ -19,7 +19,7 @@
 */
 
 //version and sources location
-#define FW_VERSION "2.0.0.b16"
+#define FW_VERSION "2.0.0.b20"
 #define REPOSITORY "https://github.com/luc-github/ESP3D"
 
 //definition
@@ -31,6 +31,10 @@
 #define REPETIER		5
 #define GRBL		6
 #define MAX_FW_ID 6
+
+#define USE_SERIAL_0
+//#define USE_SERIAL_1
+//#define USE_SERIAL_2
 
 #ifdef ARDUINO_ARCH_ESP32
 #include "FS.h"
@@ -50,16 +54,17 @@ using fs::File;
 #define ENC_TYPE_NONE AUTH_OPEN
 #define FS_FILE File
 #define FS_DIR File
-#define ESP_SERIAL_OUT Serial
 #define SD_FILE_READ FILE_READ
 #define SPIFFS_FILE_READ FILE_READ
 #define SD_FILE_WRITE FILE_WRITE
 #define SPIFFS_FILE_WRITE FILE_WRITE
-extern HardwareSerial Serial2;
+#define WIFI_EVENT_STAMODE_CONNECTED SYSTEM_EVENT_STA_CONNECTED
+#define WIFI_EVENT_STAMODE_DISCONNECTED SYSTEM_EVENT_STA_DISCONNECTED
+#define WIFI_EVENT_STAMODE_GOT_IP SYSTEM_EVENT_STA_GOT_IP
+#define WIFI_EVENT_SOFTAPMODE_STACONNECTED SYSTEM_EVENT_AP_STACONNECTED
 #else
 #define FS_DIR fs::Dir
 #define FS_FILE fs::File
-#define ESP_SERIAL_OUT Serial
 #define SD_FILE_READ FILE_READ
 #define SPIFFS_FILE_READ "r"
 #define SD_FILE_WRITE FILE_WRITE
@@ -83,6 +88,10 @@ extern HardwareSerial Serial2;
 //ESP_OLED_FEATURE: allow oled screen output
 #define ESP_OLED_FEATURE
 
+//DHT_FEATURE: send update of temperature / humidity based on DHT 11/22
+#define DHT_FEATURE
+#define ESP_DHT_PIN 22
+
 //CAPTIVE_PORTAL_FEATURE: In SoftAP redirect all unknow call to main page
 #define CAPTIVE_PORTAL_FEATURE
 
@@ -97,6 +106,9 @@ extern HardwareSerial Serial2;
 
 //TCP_IP_DATA_FEATURE: allow to connect serial from TCP/IP
 #define TCP_IP_DATA_FEATURE
+
+//WS_DATA_FEATURE: allow to connect serial from Websocket
+#define WS_DATA_FEATURE
 
 //RECOVERY_FEATURE: allow to use GPIO2 pin as hardware reset for EEPROM, add 8s to boot time to let user to jump GPIO2 to GND
 //#define RECOVERY_FEATURE
@@ -120,6 +132,16 @@ extern HardwareSerial Serial2;
 
 //Serial rx buffer size is 256 but can be extended
 #define SERIAL_RX_BUFFER_SIZE 512
+
+//Pins where the screen is connected 
+#ifdef ESP_OLED_FEATURE
+#define OLED_PIN_A  4
+#define OLED_PIN_B  15
+#define OLED_ADDR	0x3c
+#define HELTEC_EMBEDDED_PIN 16 //0 to disable
+#define OLED_FLIP_VERTICALY 1 //0 to disable
+#endif
+
 
 
 //DEBUG Flag do not do this when connected to printer !!!
@@ -149,16 +171,20 @@ extern HardwareSerial Serial2;
 #define DEBUG_PIPE NO_PIPE
 #define LOG(string) { FS_FILE logfile = SPIFFS.open("/log.txt", "a+");logfile.print(string);logfile.close();}
 #endif
+
+#define LOG(string) {if(CONFIG::hasSD()){ACCESSSD() File logfile = SD.open("/log.txt", "a+");logfile.print(string);logfile.close();RELEASESD()}}
+#endif
 #ifdef DEBUG_OUTPUT_SERIAL
-#define LOG(string) {ESP_SERIAL_OUT.print(string);}
 #define DEBUG_PIPE SERIAL_PIPE
+#define LOG(string) {Serial.print(string);}
 #endif
 #ifdef DEBUG_OUTPUT_TCP
-#include "bridge.h"
-#define LOG(string) {BRIDGE::send2TCP(string, true);}
+#include "espcom.h"
+#define LOG(string) {ESPCOM::send2TCP(string, true);}
 #define DEBUG_PIPE TCP_PIPE
 #endif
-#else
+
+#ifndef DEBUG_ESP3D
 #define LOG(string) {}
 #define DEBUG_PIPE NO_PIPE
 #endif
@@ -173,7 +199,6 @@ extern HardwareSerial Serial2;
 extern "C" {
 #include "user_interface.h"
 }
-#else
 #endif
 #include "wificonf.h"
 
@@ -181,11 +206,21 @@ typedef enum {
     NO_PIPE = 0,
     SERIAL_PIPE = 2,
     SERIAL1_PIPE = 3,
+    SERIAL2_PIPE = 4,
 #ifdef TCP_IP_DATA_FEATURE
-    TCP_PIPE = 4,
+    TCP_PIPE = 5,
 #endif
-    WEB_PIPE = 5
+#ifdef WS_DATA_FEATURE
+    WS_PIPE = 6,
+#endif
+#ifdef ESP_OLED_FEATURE
+    OLED_PIPE = 7,
+#endif
+    WEB_PIPE = 8,
+    PRINTER_PIPE = 9
 } tpipe;
+
+#define DEFAULT_PRINTER_PIPE SERIAL_PIPE
 
 typedef enum {
     LEVEL_GUEST = 0,
@@ -222,9 +257,9 @@ typedef enum {
 #define EP_SSID_VISIBLE			120 //1 byte = flag
 #define EP_WEB_PORT			121 //4  bytes = int
 #define EP_DATA_PORT			125 //4  bytes = int
-#define EP_FREE_BYTE1			129 //1  bytes = flag
+#define EP_OUTPUT_FLAG			129 //1  bytes = flag
 #define EP_HOSTNAME				130//33 bytes 32+1 = string  ; warning does not support multibyte char like chinese
-#define EP_FREE_INT1		    164//4  bytes = int
+#define EP_DHT_INTERVAL		    164//4  bytes = int
 #define EP_FREE_INT2		    168//4  bytes = int
 #define EP_FREE_INT3		    172//4  bytes = int
 #define EP_ADMIN_PWD		    176//21  bytes 20+1 = string  ; warning does not support multibyte char like chinese
@@ -237,7 +272,7 @@ typedef enum {
 #define EP_AP_IP_MODE			329   //1 byte = flag
 #define EP_AP_PHY_MODE			330  //1 byte = flag
 #define EP_FREE_STRING1			331  //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese
-#define EP_FREE_BYTE2		460 //1  bytes = flag
+#define EP_DHT_TYPE		460 //1  bytes = flag
 #define EP_TARGET_FW		461 //1  bytes = flag
 #define EP_TIMEZONE         462//1  bytes = flag
 #define EP_TIME_ISDST       463//1  bytes = flag
@@ -253,13 +288,10 @@ typedef enum {
 #define LAST_EEPROM_ADDRESS 855
 //next available is 855
 //space left 1024 - 855 = 169
-//extra free
-//#define EP_FREE_BYTE1			129 //1  bytes = flag
-//#define EP_FREE_INT1		    164//4  bytes = int
+//extra fre
 //#define EP_FREE_INT2		    168//4  bytes = int
 //#define EP_FREE_INT3		    172//4  bytes = int
 //#define EP_FREE_STRING1			331  //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese
-//#define EP_FREE_BYTE2		460 //1  bytes = flag
 
 //default values
 #define DEFAULT_WIFI_MODE			AP_MODE
@@ -273,7 +305,6 @@ const byte DEFAULT_IP_VALUE[]   =	        {192, 168, 0, 1};
 const byte DEFAULT_MASK_VALUE[]  =	        {255, 255, 255, 0};
 #define DEFAULT_GATEWAY_VALUE   	        DEFAULT_IP_VALUE
 const long DEFAULT_BAUD_RATE =			115200;
-const char M117_[] PROGMEM =		"M117 ";
 #define DEFAULT_PHY_MODE			WIFI_PHY_MODE_11G
 #define DEFAULT_SLEEP_MODE			WIFI_MODEM_SLEEP
 #define DEFAULT_CHANNEL				11
@@ -283,16 +314,20 @@ const char M117_[] PROGMEM =		"M117 ";
 #define DEFAULT_BEACON_INTERVAL			100
 const int DEFAULT_WEB_PORT =			80;
 const int DEFAULT_DATA_PORT =			8888;
-#define DEFAULT_REFRESH_PAGE_TIME			3
-const int  DEFAULT_XY_FEEDRATE = 1000;
-const int  DEFAULT_Z_FEEDRATE	= 100;
-const int  DEFAULT_E_FEEDRATE = 400;
+
 const char DEFAULT_ADMIN_PWD []  PROGMEM =	"admin";
 const char DEFAULT_USER_PWD []  PROGMEM =	"user";
 const char DEFAULT_ADMIN_LOGIN []  PROGMEM =	"admin";
 const char DEFAULT_USER_LOGIN []  PROGMEM =	"user";
+#define DEFAULT_PRIMARY_SD 1
+#define DEFAULT_SECONDARY_SD 0
+
+#define DEFAULT_OUTPUT_FLAG 0
+#define DEFAULT_DHT_TYPE 255
+const int DEFAULT_DHT_INTERVAL =			30;
 
 #define DEFAULT_IS_DIRECT_SD 0
+
 
 
 
@@ -332,9 +367,19 @@ const uint16_t Setting[][2] = {
     {EP_PRIMARY_SD, LEVEL_USER},//32
     {EP_SECONDARY_SD, LEVEL_USER},//33
     {EP_DIRECT_SD_CHECK, LEVEL_USER}, //34
-    {EP_SD_CHECK_UPDATE_AT_BOOT, LEVEL_USER} //35
+    {EP_SD_CHECK_UPDATE_AT_BOOT, LEVEL_USER},//35
+    {EP_OUTPUT_FLAG, LEVEL_USER},//36
+    {EP_DHT_INTERVAL, LEVEL_USER},//37
+    {EP_DHT_TYPE, LEVEL_USER}//38
 };
-#define AUTH_ENTRY_NB 36
+#define AUTH_ENTRY_NB 39
+
+#define FLAG_BLOCK_M117 0x01
+#define FLAG_BLOCK_OLED 0x02
+#define FLAG_BLOCK_SERIAL 0x04
+#define FLAG_BLOCK_WSOCKET 0x08
+#define FLAG_BLOCK_TCP 0x010
+
 //values
 #define DEFAULT_MAX_WEB_PORT			65001
 #define DEFAULT_MIN_WEB_PORT			1
@@ -368,6 +413,12 @@ class CONFIG
 public:
     static void wait (uint32_t milliseconds);
     static void wdtFeed();
+    static byte output_flag;
+#ifdef DHT_FEATURE
+    static byte DHT_type;
+    static int DHT_interval;
+#endif
+    static bool is_locked(byte flag);
     static bool is_direct_sd;
     static bool read_string (int pos, char byte_buffer[], int size_max);
     static bool read_string (int pos, String & sbuffer, int size_max);
@@ -381,14 +432,18 @@ public:
     static void print_config (tpipe output, bool plaintext, AsyncResponseStream  *asyncresponse = NULL);
     static bool SetFirmwareTarget (uint8_t fw);
     static void InitFirmwareTarget();
+    static void InitOutput();
     static void InitDirectSD();
     static void InitPins();
-    static bool InitBaudrate();
+#ifdef DHT_FEATURE
+    static void InitDHT(bool refresh = false);
+#endif
+    static bool InitBaudrate(long value = 0);
     static bool InitExternalPorts();
+    
     static uint8_t GetFirmwareTarget();
     static const char* GetFirmwareTargetName();
     static const char* GetFirmwareTargetShortName();
-
     static bool isHostnameValid (const char * hostname);
     static bool isSSIDValid (const char * ssid);
     static bool isPasswordValid (const char * password);

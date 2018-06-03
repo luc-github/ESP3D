@@ -31,13 +31,20 @@
 #else
 #define MAX_GPIO 37
 #endif
+#ifdef ESP_OLED_FEATURE
+#include "esp_oled.h"
+#endif
 
+#ifdef DHT_FEATURE
+#include "DHTesp.h"
+extern DHTesp dht;
+#endif 
 String COMMAND::buffer_serial;
 String COMMAND::buffer_tcp;
 
-#define ERROR_CMD_MSG (output == WEB_PIPE)?F("Error: Wrong Command"):F("M117 Cmd Error")
-#define INCORRECT_CMD_MSG (output == WEB_PIPE)?F("Error: Incorrect Command"):F("M117 Incorrect Cmd")
-#define OK_CMD_MSG (output == WEB_PIPE)?F("ok"):F("M117 Cmd Ok")
+#define ERROR_CMD_MSG (output == WEB_PIPE)?F("Error: Wrong Command"):F("Cmd Error")
+#define INCORRECT_CMD_MSG (output == WEB_PIPE)?F("Error: Incorrect Command"):F("Incorrect Cmd")
+#define OK_CMD_MSG (output == WEB_PIPE)?F("ok"):F("Cmd Ok")
 
 String COMMAND::get_param (String & cmd_params, const char * id, bool withspace)
 {
@@ -157,18 +164,18 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
     case 100:
         parameter = get_param (cmd_params, "", true);
         if (!CONFIG::isSSIDValid (parameter.c_str() ) ) {
-            BRIDGE::println (INCORRECT_CMD_MSG, output, asyncresponse);
+            ESPCOM::println (INCORRECT_CMD_MSG, output, asyncresponse);
         }
 #ifdef AUTHENTICATION_FEATURE
         if (auth_type != LEVEL_ADMIN) {
-            BRIDGE::println (INCORRECT_CMD_MSG, output, asyncresponse);
+            ESPCOM::println (INCORRECT_CMD_MSG, output, asyncresponse);
         } else
 #endif
             if (!CONFIG::write_string (EP_STA_SSID, parameter.c_str() ) ) {
-                BRIDGE::println (ERROR_CMD_MSG, output, asyncresponse);
+                ESPCOM::println (ERROR_CMD_MSG, output, asyncresponse);
                 response = false;
             } else {
-                BRIDGE::println (OK_CMD_MSG, output, asyncresponse);
+                ESPCOM::println (OK_CMD_MSG, output, asyncresponse);
             }
         break;
     //STA Password
@@ -176,20 +183,20 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
     case 101:
         parameter = get_param (cmd_params, "", true);
         if (!CONFIG::isPasswordValid (parameter.c_str() ) ) {
-            BRIDGE::println (INCORRECT_CMD_MSG, output, asyncresponse);
+            ESPCOM::println (INCORRECT_CMD_MSG, output, asyncresponse);
             response = false;
         }
 #ifdef AUTHENTICATION_FEATURE
         if (auth_type != LEVEL_ADMIN) {
-            BRIDGE::println (INCORRECT_CMD_MSG, output, asyncresponse);
+            ESPCOM::println (INCORRECT_CMD_MSG, output, asyncresponse);
             response = false;
         } else
 #endif
             if (!CONFIG::write_string (EP_STA_PASSWORD, parameter.c_str() ) ) {
-                BRIDGE::println (ERROR_CMD_MSG, output, asyncresponse);
+                ESPCOM::println (ERROR_CMD_MSG, output, asyncresponse);
                 response = false;
             } else {
-                BRIDGE::println (OK_CMD_MSG, output, asyncresponse);
+                ESPCOM::println (OK_CMD_MSG, output, asyncresponse);
             }
         break;
     //Hostname
@@ -197,20 +204,20 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
     case 102:
         parameter = get_param (cmd_params, "", true);
         if (!CONFIG::isHostnameValid (parameter.c_str() ) ) {
-            BRIDGE::println (INCORRECT_CMD_MSG, output, asyncresponse);
+            ESPCOM::println (INCORRECT_CMD_MSG, output, asyncresponse);
             response = false;
         }
 #ifdef AUTHENTICATION_FEATURE
         if (auth_type != LEVEL_ADMIN) {
-            BRIDGE::println (INCORRECT_CMD_MSG, output, asyncresponse);
+            ESPCOM::println (INCORRECT_CMD_MSG, output, asyncresponse);
             response = false;
         } else
 #endif
             if (!CONFIG::write_string (EP_HOSTNAME, parameter.c_str() ) ) {
-                BRIDGE::println (ERROR_CMD_MSG, output, asyncresponse);
+                ESPCOM::println (ERROR_CMD_MSG, output, asyncresponse);
                 response = false;
             } else {
-                BRIDGE::println (OK_CMD_MSG, output, asyncresponse);
+                ESPCOM::println (OK_CMD_MSG, output, asyncresponse);
             }
         break;
     //Wifi mode (STA/AP)
@@ -222,21 +229,21 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
         } else if (parameter == "AP") {
             mode = AP_MODE;
         } else {
-            BRIDGE::println (INCORRECT_CMD_MSG, output, asyncresponse);
+            ESPCOM::println (INCORRECT_CMD_MSG, output, asyncresponse);
             response = false;
         }
         if ( (mode == CLIENT_MODE) || (mode == AP_MODE) ) {
 #ifdef AUTHENTICATION_FEATURE
             if (auth_type != LEVEL_ADMIN) {
-                BRIDGE::println (INCORRECT_CMD_MSG, output, asyncresponse);
+                ESPCOM::println (INCORRECT_CMD_MSG, output, asyncresponse);
                 response = false;
             } else
 #endif
                 if (!CONFIG::write_byte (EP_WIFI_MODE, mode) ) {
-                    BRIDGE::println (ERROR_CMD_MSG, output, asyncresponse);
+                    ESPCOM::println (ERROR_CMD_MSG, output, asyncresponse);
                     response = false;
                 } else {
-                    BRIDGE::println (OK_CMD_MSG, output, asyncresponse);
+                    ESPCOM::println (OK_CMD_MSG, output, asyncresponse);
                 }
         }
         break;
@@ -249,21 +256,21 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
         } else if (parameter == "DHCP") {
             mode = DHCP_MODE;
         } else {
-            BRIDGE::println (INCORRECT_CMD_MSG, output, asyncresponse);
+            ESPCOM::println (INCORRECT_CMD_MSG, output, asyncresponse);
             response = false;
         }
         if ( (mode == STATIC_IP_MODE) || (mode == DHCP_MODE) ) {
 #ifdef AUTHENTICATION_FEATURE
             if (auth_type != LEVEL_ADMIN) {
-                BRIDGE::println (INCORRECT_CMD_MSG, output, asyncresponse);
+                ESPCOM::println (INCORRECT_CMD_MSG, output, asyncresponse);
                 response = false;
             } else
 #endif
                 if (!CONFIG::write_byte (EP_STA_IP_MODE, mode) ) {
-                    BRIDGE::println (ERROR_CMD_MSG, output, asyncresponse);
+                    ESPCOM::println (ERROR_CMD_MSG, output, asyncresponse);
                     response = false;
                 } else {
-                    BRIDGE::println (OK_CMD_MSG, output, asyncresponse);
+                    ESPCOM::println (OK_CMD_MSG, output, asyncresponse);
                 }
         }
         break;
@@ -272,20 +279,20 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
     case 105:
         parameter = get_param (cmd_params, "", true);
         if (!CONFIG::isSSIDValid (parameter.c_str() ) ) {
-            BRIDGE::println (INCORRECT_CMD_MSG, output, asyncresponse);
+            ESPCOM::println (INCORRECT_CMD_MSG, output, asyncresponse);
             response = false;
         }
 #ifdef AUTHENTICATION_FEATURE
         if (auth_type != LEVEL_ADMIN) {
-            BRIDGE::println (INCORRECT_CMD_MSG, output, asyncresponse);
+            ESPCOM::println (INCORRECT_CMD_MSG, output, asyncresponse);
             response = false;
         } else
 #endif
             if (!CONFIG::write_string (EP_AP_SSID, parameter.c_str() ) ) {
-                BRIDGE::println (ERROR_CMD_MSG, output, asyncresponse);
+                ESPCOM::println (ERROR_CMD_MSG, output, asyncresponse);
                 response = false;
             } else {
-                BRIDGE::println (OK_CMD_MSG, output, asyncresponse);
+                ESPCOM::println (OK_CMD_MSG, output, asyncresponse);
             }
         break;
     //AP Password
@@ -293,20 +300,20 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
     case 106:
         parameter = get_param (cmd_params, "", true);
         if (!CONFIG::isPasswordValid (parameter.c_str() ) ) {
-            BRIDGE::println (INCORRECT_CMD_MSG, output, asyncresponse);
+            ESPCOM::println (INCORRECT_CMD_MSG, output, asyncresponse);
             response = false;
         }
 #ifdef AUTHENTICATION_FEATURE
         if (auth_type != LEVEL_ADMIN) {
-            BRIDGE::println (INCORRECT_CMD_MSG, output, asyncresponse);
+            ESPCOM::println (INCORRECT_CMD_MSG, output, asyncresponse);
             response = false;
         } else
 #endif
             if (!CONFIG::write_string (EP_AP_PASSWORD, parameter.c_str() ) ) {
-                BRIDGE::println (ERROR_CMD_MSG, output, asyncresponse);
+                ESPCOM::println (ERROR_CMD_MSG, output, asyncresponse);
                 response = false;
             } else {
-                BRIDGE::println (OK_CMD_MSG, output, asyncresponse);
+                ESPCOM::println (OK_CMD_MSG, output, asyncresponse);
             }
         break;
     //AP IP mode (DHCP/STATIC)
@@ -318,21 +325,21 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
         } else if (parameter == "DHCP") {
             mode = DHCP_MODE;
         } else {
-            BRIDGE::println (INCORRECT_CMD_MSG, output, asyncresponse);
+            ESPCOM::println (INCORRECT_CMD_MSG, output, asyncresponse);
             response = false;
         }
         if ( (mode == STATIC_IP_MODE) || (mode == DHCP_MODE) ) {
 #ifdef AUTHENTICATION_FEATURE
             if (auth_type != LEVEL_ADMIN) {
-                BRIDGE::println (INCORRECT_CMD_MSG, output, asyncresponse);
+                ESPCOM::println (INCORRECT_CMD_MSG, output, asyncresponse);
                 response = false;
             } else
 #endif
                 if (!CONFIG::write_byte (EP_AP_IP_MODE, mode) ) {
-                    BRIDGE::println (ERROR_CMD_MSG, output, asyncresponse);
+                    ESPCOM::println (ERROR_CMD_MSG, output, asyncresponse);
                     response = false;
                 } else {
-                    BRIDGE::println (OK_CMD_MSG, output, asyncresponse);
+                    ESPCOM::println (OK_CMD_MSG, output, asyncresponse);
                 }
         }
         break;
@@ -347,35 +354,48 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
         } else if (parameter == "restart") {
             mode = 2;
         } else {
-            BRIDGE::println (INCORRECT_CMD_MSG, output, asyncresponse);
+            ESPCOM::println (INCORRECT_CMD_MSG, output, asyncresponse);
             response = false;
         }
         if (response) {
 #ifdef AUTHENTICATION_FEATURE
             if (auth_type != LEVEL_ADMIN) {
-                BRIDGE::println (INCORRECT_CMD_MSG, output, asyncresponse);
+                ESPCOM::println (INCORRECT_CMD_MSG, output, asyncresponse);
                 response = false;
             } else
 #endif
                 if (mode == 0) {
-                    if (WiFi.getMode() != WIFI_OFF) {
+                    if ((WiFi.getMode() != WIFI_OFF)  || wifi_config.WiFi_on) {
                         //disable wifi
-                        ESP_SERIAL_OUT.println ("M117 Disabling Wifi");
+                        ESPCOM::println ("Disabling Wifi", output, asyncresponse);
+#ifdef ESP_OLED_FEATURE
+						OLED_DISPLAY::display_signal(-1);
+						OLED_DISPLAY::setCursor(0, 0);
+						ESPCOM::print("", OLED_PIPE);
+						OLED_DISPLAY::setCursor(0, 16);
+						ESPCOM::print("", OLED_PIPE);
+						OLED_DISPLAY::setCursor(0, 48);
+						ESPCOM::print("Wifi disabled", OLED_PIPE);
+#endif
+                        WiFi.disconnect(true);
+                        WiFi.enableSTA (false);
+                        WiFi.enableAP (false);
                         WiFi.mode (WIFI_OFF);
+                        wifi_config.WiFi_on = false;
                         wifi_config.Disable_servers();
                         return response;
                     } else {
-                        BRIDGE::println ("M117 Wifi already off", output, asyncresponse);
+                        ESPCOM::println ("Wifi already off", output, asyncresponse);
                     }
                 } else if (mode == 1) { //restart device is the best way to start everything clean
-                    if (WiFi.getMode() == WIFI_OFF) {
-                        ESP_SERIAL_OUT.println ("M117 Enabling Wifi");
+                    if ((WiFi.getMode() == WIFI_OFF) || !wifi_config.WiFi_on) {
+                        ESPCOM::println ("Enabling Wifi", output, asyncresponse);
                         web_interface->restartmodule = true;
                     } else {
-                        BRIDGE::println ("M117 Wifi already on", output, asyncresponse);
+                        ESPCOM::println ("Wifi already on", output, asyncresponse);
                     }
                 } else  { //restart wifi and restart is the best way to start everything clean
-                    ESP_SERIAL_OUT.println ("M117 Enabling Wifi");
+                    ESPCOM::println ("Enabling Wifi", output, asyncresponse);
                     web_interface->restartmodule = true;
                 }
         }
@@ -389,8 +409,8 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
         } else {
             currentIP = WiFi.softAPIP().toString();
         }
-        BRIDGE::print (cmd_params, output, asyncresponse);
-        BRIDGE::println (currentIP, output, asyncresponse);
+        ESPCOM::print (cmd_params, output, asyncresponse);
+        ESPCOM::println (currentIP, output, asyncresponse);
         LOG (cmd_params)
         LOG (currentIP)
         LOG ("\r\n")
@@ -403,8 +423,8 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
         if (!CONFIG::read_string (EP_HOSTNAME, shost, MAX_HOSTNAME_LENGTH) ) {
             shost = wifi_config.get_default_hostname();
         }
-        BRIDGE::print (cmd_params, output, asyncresponse);
-        BRIDGE::println (shost, output, asyncresponse);
+        ESPCOM::print (cmd_params, output, asyncresponse);
+        ESPCOM::println (shost, output, asyncresponse);
         LOG (cmd_params)
         LOG (shost)
         LOG ("\r\n")
@@ -418,7 +438,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
         parameter = get_param (cmd_params, "", true);
 #ifdef AUTHENTICATION_FEATURE
         if (auth_type == LEVEL_GUEST) {
-            BRIDGE::println (INCORRECT_CMD_MSG, output, asyncresponse);
+            ESPCOM::println (INCORRECT_CMD_MSG, output, asyncresponse);
             response = false;
         } else
 #endif
@@ -429,7 +449,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
             LOG (parameter)
             LOG ("\r\n")
             if (parameter == "") {
-                BRIDGE::println (INCORRECT_CMD_MSG, output, asyncresponse);
+                ESPCOM::println (INCORRECT_CMD_MSG, output, asyncresponse);
                 response = false;
             } else {
                 int pin = parameter.toInt();
@@ -464,7 +484,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
                         LOG ("Read:");
                         LOG (String (value).c_str() )
                         LOG ("\n");
-                        BRIDGE::println (String (value).c_str(), output, asyncresponse);
+                        ESPCOM::println (String (value).c_str(), output, asyncresponse);
                     } else {
                         //it is a set
                         int value = parameter.toInt();
@@ -475,14 +495,14 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
                             LOG (String ( (value == 0) ? LOW : HIGH) )
                             LOG ("\r\n")
                             digitalWrite (pin, (value == 0) ? LOW : HIGH);
-                            BRIDGE::println (OK_CMD_MSG, output, asyncresponse);
+                            ESPCOM::println (OK_CMD_MSG, output, asyncresponse);
                         } else {
-                            BRIDGE::println (INCORRECT_CMD_MSG, output, asyncresponse);
+                            ESPCOM::println (INCORRECT_CMD_MSG, output, asyncresponse);
                             response = false;
                         }
                     }
                 } else {
-                    BRIDGE::println (INCORRECT_CMD_MSG, output, asyncresponse);
+                    ESPCOM::println (INCORRECT_CMD_MSG, output, asyncresponse);
                     response = false;
                 }
             }
@@ -490,7 +510,58 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
         break;
 #endif
 
-	//Get full EEPROM settings content
+#ifdef ESP_OLED_FEATURE
+    //Output to oled 
+    //[ESP210]<Text>
+    case 210: {
+        parameter = get_param (cmd_params, "C=", false);
+        int c = parameter.toInt();
+        parameter = get_param (cmd_params, "L=", false);
+        int l = parameter.toInt();
+        parameter = get_param (cmd_params, "T=", true);
+		OLED_DISPLAY::setCursor(c, l);
+		ESPCOM::print(parameter.c_str(), OLED_PIPE);
+		ESPCOM::println (OK_CMD_MSG, output, asyncresponse);
+		}
+		break;
+    //Output to oled line 1
+    //[ESP211]<Text>
+    case 211: {
+		parameter = get_param (cmd_params, "", true);
+		OLED_DISPLAY::setCursor(0, 0);
+		ESPCOM::print(parameter.c_str(), OLED_PIPE);
+		ESPCOM::println (OK_CMD_MSG, output, asyncresponse);
+		}
+		break;
+    //Output to oled line 2
+    //[ESP212]<Text>
+    case 212: {
+		parameter = get_param (cmd_params, "", true);
+		OLED_DISPLAY::setCursor(0, 16);
+		ESPCOM::print(parameter.c_str(), OLED_PIPE);
+		ESPCOM::println (OK_CMD_MSG, output, asyncresponse);
+		}
+		break;
+    //Output to oled line 3
+    //[ESP213]<Text>
+    case 213: {
+		parameter = get_param (cmd_params, "", true);
+		OLED_DISPLAY::setCursor(0, 32);
+		ESPCOM::print(parameter.c_str(), OLED_PIPE);
+		ESPCOM::println (OK_CMD_MSG, output, asyncresponse);
+		}
+		break;
+    //Output to oled line 4
+    //[ESP214]<Text>
+    case 214: {
+		parameter = get_param (cmd_params, "", true);
+		OLED_DISPLAY::setCursor(0, 48);
+		ESPCOM::print(parameter.c_str(), OLED_PIPE);
+		ESPCOM::println (OK_CMD_MSG, output, asyncresponse);
+		}
+		break;
+#endif
+    //Get full EEPROM settings content
     //[ESP400]
     case 400: {
         char sbuf[MAX_DATA_LENGTH + 1];
@@ -499,414 +570,480 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
         int ibuf = 0;
         parameter = get_param (cmd_params, "", true);
         //Start JSON
-        BRIDGE::println (F ("{\"EEPROM\":["), output, asyncresponse);
+        ESPCOM::println (F ("{\"EEPROM\":["), output, asyncresponse);
         if (cmd_params == "network" || cmd_params == "") {
 
             //1- Baud Rate
-            BRIDGE::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (EP_BAUD_RATE), output, asyncresponse);
-            BRIDGE::print (F ("\",\"T\":\"I\",\"V\":\""), output, asyncresponse);
+            ESPCOM::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (EP_BAUD_RATE), output, asyncresponse);
+            ESPCOM::print (F ("\",\"T\":\"I\",\"V\":\""), output, asyncresponse);
             if (!CONFIG::read_buffer (EP_BAUD_RATE,  (byte *) &ibuf, INTEGER_LENGTH) ) {
-                BRIDGE::print ("???", output, asyncresponse);
+                ESPCOM::print ("???", output, asyncresponse);
             } else {
-                BRIDGE::print ( (const char *) CONFIG::intTostr (ibuf), output, asyncresponse);
+                ESPCOM::print ( (const char *) CONFIG::intTostr (ibuf), output, asyncresponse);
             }
-            BRIDGE::print (F ("\",\"H\":\"Baud Rate\",\"O\":[{\"9600\":\"9600\"},{\"19200\":\"19200\"},{\"38400\":\"38400\"},{\"57600\":\"57600\"},{\"115200\":\"115200\"},{\"230400\":\"230400\"},{\"250000\":\"250000\"}]}"), output, asyncresponse);
-            BRIDGE::println (F (","), output, asyncresponse);
+            ESPCOM::print (F ("\",\"H\":\"Baud Rate\",\"O\":[{\"9600\":\"9600\"},{\"19200\":\"19200\"},{\"38400\":\"38400\"},{\"57600\":\"57600\"},{\"115200\":\"115200\"},{\"230400\":\"230400\"},{\"250000\":\"250000\"}]}"), output, asyncresponse);
+            ESPCOM::println (F (","), output, asyncresponse);
 
             //2-Sleep Mode
-            BRIDGE::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (EP_SLEEP_MODE), output, asyncresponse);
-            BRIDGE::print (F ("\",\"T\":\"B\",\"V\":\""), output, asyncresponse);
+            ESPCOM::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (EP_SLEEP_MODE), output, asyncresponse);
+            ESPCOM::print (F ("\",\"T\":\"B\",\"V\":\""), output, asyncresponse);
             if (!CONFIG::read_byte (EP_SLEEP_MODE, &bbuf ) ) {
-                BRIDGE::print ("???", output, asyncresponse);
+                ESPCOM::print ("???", output, asyncresponse);
             } else {
-                BRIDGE::print ( (const char *) CONFIG::intTostr (bbuf), output, asyncresponse);
+                ESPCOM::print ( (const char *) CONFIG::intTostr (bbuf), output, asyncresponse);
             }
-            BRIDGE::print (F ("\",\"H\":\"Sleep Mode\",\"O\":[{\"None\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (WIFI_NONE_SLEEP), output, asyncresponse);
-            BRIDGE::print (F ("\"},{\"Light\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (WIFI_LIGHT_SLEEP), output, asyncresponse);
-            BRIDGE::print (F ("\"},{\"Modem\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (WIFI_MODEM_SLEEP), output, asyncresponse);
-            BRIDGE::print (F ("\"}]}"), output, asyncresponse);
-            BRIDGE::println (F (","), output, asyncresponse);
+            ESPCOM::print (F ("\",\"H\":\"Sleep Mode\",\"O\":[{\"None\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (WIFI_NONE_SLEEP), output, asyncresponse);
+            ESPCOM::print (F ("\"},{\"Light\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (WIFI_LIGHT_SLEEP), output, asyncresponse);
+            ESPCOM::print (F ("\"},{\"Modem\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (WIFI_MODEM_SLEEP), output, asyncresponse);
+            ESPCOM::print (F ("\"}]}"), output, asyncresponse);
+            ESPCOM::println (F (","), output, asyncresponse);
 
             //3-Web Port
-            BRIDGE::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (EP_WEB_PORT), output, asyncresponse);
-            BRIDGE::print (F ("\",\"T\":\"I\",\"V\":\""), output, asyncresponse);
+            ESPCOM::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (EP_WEB_PORT), output, asyncresponse);
+            ESPCOM::print (F ("\",\"T\":\"I\",\"V\":\""), output, asyncresponse);
             if (!CONFIG::read_buffer (EP_WEB_PORT,  (byte *) &ibuf, INTEGER_LENGTH) ) {
-                BRIDGE::print ("???", output, asyncresponse);
+                ESPCOM::print ("???", output, asyncresponse);
             } else {
-                BRIDGE::print ( (const char *) CONFIG::intTostr (ibuf), output, asyncresponse);
+                ESPCOM::print ( (const char *) CONFIG::intTostr (ibuf), output, asyncresponse);
             }
-            BRIDGE::print (F ("\",\"H\":\"Web Port\",\"S\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (DEFAULT_MAX_WEB_PORT), output, asyncresponse);
-            BRIDGE::print (F ("\",\"M\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (DEFAULT_MIN_WEB_PORT), output, asyncresponse);
-            BRIDGE::print (F ("\"}"), output, asyncresponse);
-            BRIDGE::println (F (","), output, asyncresponse);
+            ESPCOM::print (F ("\",\"H\":\"Web Port\",\"S\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (DEFAULT_MAX_WEB_PORT), output, asyncresponse);
+            ESPCOM::print (F ("\",\"M\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (DEFAULT_MIN_WEB_PORT), output, asyncresponse);
+            ESPCOM::print (F ("\"}"), output, asyncresponse);
+            ESPCOM::println (F (","), output, asyncresponse);
 
             //4-Data Port
-            BRIDGE::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (EP_DATA_PORT), output, asyncresponse);
-            BRIDGE::print (F ("\",\"T\":\"I\",\"V\":\""), output, asyncresponse);
+            ESPCOM::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (EP_DATA_PORT), output, asyncresponse);
+            ESPCOM::print (F ("\",\"T\":\"I\",\"V\":\""), output, asyncresponse);
             if (!CONFIG::read_buffer (EP_DATA_PORT,  (byte *) &ibuf, INTEGER_LENGTH) ) {
-                BRIDGE::print ("???", output, asyncresponse);
+                ESPCOM::print ("???", output, asyncresponse);
             } else {
-                BRIDGE::print ( (const char *) CONFIG::intTostr (ibuf), output, asyncresponse);
+                ESPCOM::print ( (const char *) CONFIG::intTostr (ibuf), output, asyncresponse);
             }
-            BRIDGE::print (F ("\",\"H\":\"Data Port\",\"S\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (DEFAULT_MAX_DATA_PORT), output, asyncresponse);
-            BRIDGE::print (F ("\",\"M\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (DEFAULT_MIN_DATA_PORT), output, asyncresponse);
-            BRIDGE::print (F ("\"}"), output, asyncresponse);
-            BRIDGE::println (F (","), output, asyncresponse);
+            ESPCOM::print (F ("\",\"H\":\"Data Port\",\"S\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (DEFAULT_MAX_DATA_PORT), output, asyncresponse);
+            ESPCOM::print (F ("\",\"M\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (DEFAULT_MIN_DATA_PORT), output, asyncresponse);
+            ESPCOM::print (F ("\"}"), output, asyncresponse);
+            ESPCOM::println (F (","), output, asyncresponse);
 #ifdef AUTHENTICATION_FEATURE
             //5-Admin password
-            BRIDGE::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (EP_ADMIN_PWD), output, asyncresponse);
-            BRIDGE::print (F ("\",\"T\":\"S\",\"V\":\""), output, asyncresponse);
+            ESPCOM::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (EP_ADMIN_PWD), output, asyncresponse);
+            ESPCOM::print (F ("\",\"T\":\"S\",\"V\":\""), output, asyncresponse);
             if (!CONFIG::read_string (EP_ADMIN_PWD, sbuf, MAX_LOCAL_PASSWORD_LENGTH) ) {
-                BRIDGE::print ("???", output, asyncresponse);
+                ESPCOM::print ("???", output, asyncresponse);
             } else {
-                BRIDGE::print ("********", output, asyncresponse);
+                ESPCOM::print ("********", output, asyncresponse);
             }
-            BRIDGE::print (F ("\",\"S\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (MAX_LOCAL_PASSWORD_LENGTH), output, asyncresponse);
-            BRIDGE::print (F ("\",\"H\":\"Admin Password\",\"M\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (MIN_LOCAL_PASSWORD_LENGTH), output, asyncresponse);
-            BRIDGE::print (F ("\"}"), output, asyncresponse);
-            BRIDGE::println (F (","), output, asyncresponse);
+            ESPCOM::print (F ("\",\"S\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (MAX_LOCAL_PASSWORD_LENGTH), output, asyncresponse);
+            ESPCOM::print (F ("\",\"H\":\"Admin Password\",\"M\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (MIN_LOCAL_PASSWORD_LENGTH), output, asyncresponse);
+            ESPCOM::print (F ("\"}"), output, asyncresponse);
+            ESPCOM::println (F (","), output, asyncresponse);
 
             //6-User password
-            BRIDGE::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (EP_USER_PWD), output, asyncresponse);
-            BRIDGE::print (F ("\",\"T\":\"S\",\"V\":\""), output, asyncresponse);
+            ESPCOM::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (EP_USER_PWD), output, asyncresponse);
+            ESPCOM::print (F ("\",\"T\":\"S\",\"V\":\""), output, asyncresponse);
             if (!CONFIG::read_string (EP_USER_PWD, sbuf, MAX_LOCAL_PASSWORD_LENGTH) ) {
-                BRIDGE::print ("???", output, asyncresponse);
+                ESPCOM::print ("???", output, asyncresponse);
             } else {
-                BRIDGE::print ("********", output, asyncresponse);
+                ESPCOM::print ("********", output, asyncresponse);
             }
-            BRIDGE::print (F ("\",\"S\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (MAX_LOCAL_PASSWORD_LENGTH), output, asyncresponse);
-            BRIDGE::print (F ("\",\"H\":\"User Password\",\"M\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (MIN_LOCAL_PASSWORD_LENGTH), output, asyncresponse);
-            BRIDGE::print (F ("\"}"), output, asyncresponse);
-            BRIDGE::println (F (","), output, asyncresponse);
+            ESPCOM::print (F ("\",\"S\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (MAX_LOCAL_PASSWORD_LENGTH), output, asyncresponse);
+            ESPCOM::print (F ("\",\"H\":\"User Password\",\"M\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (MIN_LOCAL_PASSWORD_LENGTH), output, asyncresponse);
+            ESPCOM::print (F ("\"}"), output, asyncresponse);
+            ESPCOM::println (F (","), output, asyncresponse);
 #endif
             //7-Hostname
-            BRIDGE::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (EP_HOSTNAME), output, asyncresponse);
-            BRIDGE::print (F ("\",\"T\":\"S\",\"V\":\""), output, asyncresponse);
+            ESPCOM::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (EP_HOSTNAME), output, asyncresponse);
+            ESPCOM::print (F ("\",\"T\":\"S\",\"V\":\""), output, asyncresponse);
             if (!CONFIG::read_string (EP_HOSTNAME, sbuf, MAX_HOSTNAME_LENGTH) ) {
-                BRIDGE::print ("???", output, asyncresponse);
+                ESPCOM::print ("???", output, asyncresponse);
             } else {
-                BRIDGE::print (sbuf, output, asyncresponse);
+                ESPCOM::print (sbuf, output, asyncresponse);
             }
-            BRIDGE::print (F ("\",\"H\":\"Hostname\" ,\"S\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (MAX_HOSTNAME_LENGTH), output, asyncresponse);
-            BRIDGE::print (F ("\", \"M\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (MIN_HOSTNAME_LENGTH), output, asyncresponse);
-            BRIDGE::print (F ("\"}"), output, asyncresponse);
-            BRIDGE::println (F (","), output, asyncresponse);
+            ESPCOM::print (F ("\",\"H\":\"Hostname\" ,\"S\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (MAX_HOSTNAME_LENGTH), output, asyncresponse);
+            ESPCOM::print (F ("\", \"M\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (MIN_HOSTNAME_LENGTH), output, asyncresponse);
+            ESPCOM::print (F ("\"}"), output, asyncresponse);
+            ESPCOM::println (F (","), output, asyncresponse);
 
             //8-wifi mode
-            BRIDGE::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (EP_WIFI_MODE), output, asyncresponse);
-            BRIDGE::print (F ("\",\"T\":\"B\",\"V\":\""), output, asyncresponse);
+            ESPCOM::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (EP_WIFI_MODE), output, asyncresponse);
+            ESPCOM::print (F ("\",\"T\":\"B\",\"V\":\""), output, asyncresponse);
             if (!CONFIG::read_byte (EP_WIFI_MODE, &bbuf ) ) {
-                BRIDGE::print ("???", output, asyncresponse);
+                ESPCOM::print ("???", output, asyncresponse);
             } else {
-                BRIDGE::print ( (const char *) CONFIG::intTostr (bbuf), output, asyncresponse);
+                ESPCOM::print ( (const char *) CONFIG::intTostr (bbuf), output, asyncresponse);
             }
-            BRIDGE::print (F ("\",\"H\":\"Wifi mode\",\"O\":[{\"AP\":\"1\"},{\"STA\":\"2\"}]}"), output, asyncresponse);
-            BRIDGE::println (F (","), output, asyncresponse);
+            ESPCOM::print (F ("\",\"H\":\"Wifi mode\",\"O\":[{\"AP\":\"1\"},{\"STA\":\"2\"}]}"), output, asyncresponse);
+            ESPCOM::println (F (","), output, asyncresponse);
 
             //9-STA SSID
-            BRIDGE::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (EP_STA_SSID), output, asyncresponse);
-            BRIDGE::print (F ("\",\"T\":\"S\",\"V\":\""), output, asyncresponse);
+            ESPCOM::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (EP_STA_SSID), output, asyncresponse);
+            ESPCOM::print (F ("\",\"T\":\"S\",\"V\":\""), output, asyncresponse);
             if (!CONFIG::read_string (EP_STA_SSID, sbuf, MAX_SSID_LENGTH) ) {
-                BRIDGE::print ("???", output, asyncresponse);
+                ESPCOM::print ("???", output, asyncresponse);
             } else {
-                BRIDGE::print (sbuf, output, asyncresponse);
+                ESPCOM::print (sbuf, output, asyncresponse);
             }
-            BRIDGE::print (F ("\",\"S\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (MAX_SSID_LENGTH), output, asyncresponse);
-            BRIDGE::print (F ("\",\"H\":\"Station SSID\",\"M\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (MIN_SSID_LENGTH), output, asyncresponse);
-            BRIDGE::print (F ("\"}"), output, asyncresponse);
-            BRIDGE::println (F (","), output, asyncresponse);
+            ESPCOM::print (F ("\",\"S\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (MAX_SSID_LENGTH), output, asyncresponse);
+            ESPCOM::print (F ("\",\"H\":\"Station SSID\",\"M\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (MIN_SSID_LENGTH), output, asyncresponse);
+            ESPCOM::print (F ("\"}"), output, asyncresponse);
+            ESPCOM::println (F (","), output, asyncresponse);
 
             //10-STA password
-            BRIDGE::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (EP_STA_PASSWORD), output, asyncresponse);
-            BRIDGE::print (F ("\",\"T\":\"S\",\"V\":\""), output, asyncresponse);
+            ESPCOM::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (EP_STA_PASSWORD), output, asyncresponse);
+            ESPCOM::print (F ("\",\"T\":\"S\",\"V\":\""), output, asyncresponse);
             if (!CONFIG::read_string (EP_STA_PASSWORD, sbuf, MAX_PASSWORD_LENGTH) ) {
-                BRIDGE::print ("???", output, asyncresponse);
+                ESPCOM::print ("???", output, asyncresponse);
             } else {
-                BRIDGE::print ("********", output, asyncresponse);
+                ESPCOM::print ("********", output, asyncresponse);
             }
-            BRIDGE::print (F ("\",\"S\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (MAX_PASSWORD_LENGTH), output, asyncresponse);
-            BRIDGE::print (F ("\",\"H\":\"Station Password\",\"M\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (MIN_PASSWORD_LENGTH), output, asyncresponse);
-            BRIDGE::print (F ("\"}"), output, asyncresponse);
-            BRIDGE::println (F (","), output, asyncresponse);
+            ESPCOM::print (F ("\",\"S\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (MAX_PASSWORD_LENGTH), output, asyncresponse);
+            ESPCOM::print (F ("\",\"H\":\"Station Password\",\"M\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (MIN_PASSWORD_LENGTH), output, asyncresponse);
+            ESPCOM::print (F ("\"}"), output, asyncresponse);
+            ESPCOM::println (F (","), output, asyncresponse);
 
             //11-Station Network Mode
-            BRIDGE::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (EP_STA_PHY_MODE), output, asyncresponse);
-            BRIDGE::print (F ("\",\"T\":\"B\",\"V\":\""), output, asyncresponse);
+            ESPCOM::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (EP_STA_PHY_MODE), output, asyncresponse);
+            ESPCOM::print (F ("\",\"T\":\"B\",\"V\":\""), output, asyncresponse);
             if (!CONFIG::read_byte (EP_STA_PHY_MODE, &bbuf ) ) {
-                BRIDGE::print ("???", output, asyncresponse);
+                ESPCOM::print ("???", output, asyncresponse);
             } else {
-                BRIDGE::print ( (const char *) CONFIG::intTostr (bbuf), output, asyncresponse);
+                ESPCOM::print ( (const char *) CONFIG::intTostr (bbuf), output, asyncresponse);
             }
-            BRIDGE::print (F ("\",\"H\":\"Station Network Mode\",\"O\":[{\"11b\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (WIFI_PHY_MODE_11B), output, asyncresponse);
-            BRIDGE::print (F ("\"},{\"11g\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (WIFI_PHY_MODE_11G), output, asyncresponse);
-            BRIDGE::print (F ("\"},{\"11n\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (WIFI_PHY_MODE_11N), output, asyncresponse);
-            BRIDGE::print (F ("\"}]}"), output, asyncresponse);
-            BRIDGE::println (F (","), output, asyncresponse);
+            ESPCOM::print (F ("\",\"H\":\"Station Network Mode\",\"O\":[{\"11b\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (WIFI_PHY_MODE_11B), output, asyncresponse);
+            ESPCOM::print (F ("\"},{\"11g\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (WIFI_PHY_MODE_11G), output, asyncresponse);
+            ESPCOM::print (F ("\"},{\"11n\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (WIFI_PHY_MODE_11N), output, asyncresponse);
+            ESPCOM::print (F ("\"}]}"), output, asyncresponse);
+            ESPCOM::println (F (","), output, asyncresponse);
 
             //12-STA IP mode
-            BRIDGE::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (EP_STA_IP_MODE), output, asyncresponse);
-            BRIDGE::print (F ("\",\"T\":\"B\",\"V\":\""), output, asyncresponse);
+            ESPCOM::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (EP_STA_IP_MODE), output, asyncresponse);
+            ESPCOM::print (F ("\",\"T\":\"B\",\"V\":\""), output, asyncresponse);
             if (!CONFIG::read_byte (EP_STA_IP_MODE, &bbuf ) ) {
-                BRIDGE::print ("???", output, asyncresponse);
+                ESPCOM::print ("???", output, asyncresponse);
             } else {
-                BRIDGE::print ( (const char *) CONFIG::intTostr (bbuf), output, asyncresponse);
+                ESPCOM::print ( (const char *) CONFIG::intTostr (bbuf), output, asyncresponse);
             }
-            BRIDGE::print (F ("\",\"H\":\"Station IP Mode\",\"O\":[{\"DHCP\":\"1\"},{\"Static\":\"2\"}]}"), output, asyncresponse);
-            BRIDGE::println (F (","), output, asyncresponse);
+            ESPCOM::print (F ("\",\"H\":\"Station IP Mode\",\"O\":[{\"DHCP\":\"1\"},{\"Static\":\"2\"}]}"), output, asyncresponse);
+            ESPCOM::println (F (","), output, asyncresponse);
 
             //13-STA static IP
-            BRIDGE::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (EP_STA_IP_VALUE), output, asyncresponse);
-            BRIDGE::print (F ("\",\"T\":\"A\",\"V\":\""), output, asyncresponse);
+            ESPCOM::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (EP_STA_IP_VALUE), output, asyncresponse);
+            ESPCOM::print (F ("\",\"T\":\"A\",\"V\":\""), output, asyncresponse);
             if (!CONFIG::read_buffer (EP_STA_IP_VALUE, (byte *) ipbuf, IP_LENGTH) ) {
-                BRIDGE::print ("???", output, asyncresponse);
+                ESPCOM::print ("???", output, asyncresponse);
             } else {
-                BRIDGE::print (IPAddress (ipbuf).toString().c_str(), output, asyncresponse);
+                ESPCOM::print (IPAddress (ipbuf).toString().c_str(), output, asyncresponse);
             }
-            BRIDGE::print (F ("\",\"H\":\"Station Static IP\"}"), output, asyncresponse);
-            BRIDGE::println (F (","), output, asyncresponse);
+            ESPCOM::print (F ("\",\"H\":\"Station Static IP\"}"), output, asyncresponse);
+            ESPCOM::println (F (","), output, asyncresponse);
 
             //14-STA static Mask
-            BRIDGE::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (EP_STA_MASK_VALUE), output, asyncresponse);
-            BRIDGE::print (F ("\",\"T\":\"A\",\"V\":\""), output, asyncresponse);
+            ESPCOM::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (EP_STA_MASK_VALUE), output, asyncresponse);
+            ESPCOM::print (F ("\",\"T\":\"A\",\"V\":\""), output, asyncresponse);
             if (!CONFIG::read_buffer (EP_STA_MASK_VALUE, (byte *) ipbuf, IP_LENGTH) ) {
-                BRIDGE::print ("???", output, asyncresponse);
+                ESPCOM::print ("???", output, asyncresponse);
             } else {
-                BRIDGE::print (IPAddress (ipbuf).toString().c_str(), output, asyncresponse);
+                ESPCOM::print (IPAddress (ipbuf).toString().c_str(), output, asyncresponse);
             }
-            BRIDGE::print (F ("\",\"H\":\"Station Static Mask\"}"), output, asyncresponse);
-            BRIDGE::println (F (","), output, asyncresponse);
+            ESPCOM::print (F ("\",\"H\":\"Station Static Mask\"}"), output, asyncresponse);
+            ESPCOM::println (F (","), output, asyncresponse);
 
             //15-STA static Gateway
-            BRIDGE::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (EP_STA_GATEWAY_VALUE), output, asyncresponse);
-            BRIDGE::print (F ("\",\"T\":\"A\",\"V\":\""), output, asyncresponse);
+            ESPCOM::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (EP_STA_GATEWAY_VALUE), output, asyncresponse);
+            ESPCOM::print (F ("\",\"T\":\"A\",\"V\":\""), output, asyncresponse);
             if (!CONFIG::read_buffer (EP_STA_GATEWAY_VALUE, (byte *) ipbuf, IP_LENGTH) ) {
-                BRIDGE::print ("???", output, asyncresponse);
+                ESPCOM::print ("???", output, asyncresponse);
             } else {
-                BRIDGE::print (IPAddress (ipbuf).toString().c_str(), output, asyncresponse);
+                ESPCOM::print (IPAddress (ipbuf).toString().c_str(), output, asyncresponse);
             }
-            BRIDGE::print (F ("\",\"H\":\"Station Static Gateway\"}"), output, asyncresponse);
-            BRIDGE::println (F (","), output, asyncresponse);
+            ESPCOM::print (F ("\",\"H\":\"Station Static Gateway\"}"), output, asyncresponse);
+            ESPCOM::println (F (","), output, asyncresponse);
 
             //16-AP SSID
-            BRIDGE::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (EP_AP_SSID), output, asyncresponse);
-            BRIDGE::print (F ("\",\"T\":\"S\",\"V\":\""), output, asyncresponse);
+            ESPCOM::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (EP_AP_SSID), output, asyncresponse);
+            ESPCOM::print (F ("\",\"T\":\"S\",\"V\":\""), output, asyncresponse);
             if (!CONFIG::read_string (EP_AP_SSID, sbuf, MAX_SSID_LENGTH) ) {
-                BRIDGE::print ("???", output, asyncresponse);
+                ESPCOM::print ("???", output, asyncresponse);
             } else {
-                BRIDGE::print (sbuf, output, asyncresponse);
+                ESPCOM::print (sbuf, output, asyncresponse);
             }
-            BRIDGE::print (F ("\",\"S\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (MAX_SSID_LENGTH), output, asyncresponse);
-            BRIDGE::print (F ("\",\"H\":\"AP SSID\",\"M\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (MIN_SSID_LENGTH), output, asyncresponse);
-            BRIDGE::print (F ("\"}"), output, asyncresponse);
-            BRIDGE::println (F (","), output, asyncresponse);
+            ESPCOM::print (F ("\",\"S\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (MAX_SSID_LENGTH), output, asyncresponse);
+            ESPCOM::print (F ("\",\"H\":\"AP SSID\",\"M\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (MIN_SSID_LENGTH), output, asyncresponse);
+            ESPCOM::print (F ("\"}"), output, asyncresponse);
+            ESPCOM::println (F (","), output, asyncresponse);
 
             //17-AP password
-            BRIDGE::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (EP_AP_PASSWORD), output, asyncresponse);
-            BRIDGE::print (F ("\",\"T\":\"S\",\"V\":\""), output, asyncresponse);
+            ESPCOM::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (EP_AP_PASSWORD), output, asyncresponse);
+            ESPCOM::print (F ("\",\"T\":\"S\",\"V\":\""), output, asyncresponse);
             if (!CONFIG::read_string (EP_AP_PASSWORD, sbuf, MAX_PASSWORD_LENGTH) ) {
-                BRIDGE::print ("???", output, asyncresponse);
+                ESPCOM::print ("???", output, asyncresponse);
             } else {
-                BRIDGE::print ("********", output, asyncresponse);
+                ESPCOM::print ("********", output, asyncresponse);
             }
-            BRIDGE::print (F ("\",\"S\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (MAX_PASSWORD_LENGTH), output, asyncresponse);
-            BRIDGE::print (F ("\",\"H\":\"AP Password\",\"M\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (MIN_PASSWORD_LENGTH), output, asyncresponse);
-            BRIDGE::print (F ("\"}"), output, asyncresponse);
-            BRIDGE::println (F (","), output, asyncresponse);
+            ESPCOM::print (F ("\",\"S\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (MAX_PASSWORD_LENGTH), output, asyncresponse);
+            ESPCOM::print (F ("\",\"H\":\"AP Password\",\"M\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (MIN_PASSWORD_LENGTH), output, asyncresponse);
+            ESPCOM::print (F ("\"}"), output, asyncresponse);
+            ESPCOM::println (F (","), output, asyncresponse);
 
             //18 - AP Network Mode
-            BRIDGE::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (EP_AP_PHY_MODE), output, asyncresponse);
-            BRIDGE::print (F ("\",\"T\":\"B\",\"V\":\""), output, asyncresponse);
+            ESPCOM::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (EP_AP_PHY_MODE), output, asyncresponse);
+            ESPCOM::print (F ("\",\"T\":\"B\",\"V\":\""), output, asyncresponse);
             if (!CONFIG::read_byte (EP_AP_PHY_MODE, &bbuf ) ) {
-                BRIDGE::print ("???", output, asyncresponse);
+                ESPCOM::print ("???", output, asyncresponse);
             } else {
-                BRIDGE::print ( (const char *) CONFIG::intTostr (bbuf), output, asyncresponse);
+                ESPCOM::print ( (const char *) CONFIG::intTostr (bbuf), output, asyncresponse);
             }
-            BRIDGE::print (F ("\",\"H\":\"AP Network Mode\",\"O\":[{\"11b\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (WIFI_PHY_MODE_11B), output, asyncresponse);
-            BRIDGE::print (F ("\"},{\"11g\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (WIFI_PHY_MODE_11G), output, asyncresponse);
-            BRIDGE::print (F ("\"}]}"), output, asyncresponse);
-            BRIDGE::println (F (","), output, asyncresponse);
+            ESPCOM::print (F ("\",\"H\":\"AP Network Mode\",\"O\":[{\"11b\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (WIFI_PHY_MODE_11B), output, asyncresponse);
+            ESPCOM::print (F ("\"},{\"11g\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (WIFI_PHY_MODE_11G), output, asyncresponse);
+            ESPCOM::print (F ("\"}]}"), output, asyncresponse);
+            ESPCOM::println (F (","), output, asyncresponse);
 
             //19-AP SSID visibility
-            BRIDGE::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (EP_SSID_VISIBLE), output, asyncresponse);
-            BRIDGE::print (F ("\",\"T\":\"B\",\"V\":\""), output, asyncresponse);
+            ESPCOM::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (EP_SSID_VISIBLE), output, asyncresponse);
+            ESPCOM::print (F ("\",\"T\":\"B\",\"V\":\""), output, asyncresponse);
             if (!CONFIG::read_byte (EP_SSID_VISIBLE, &bbuf ) ) {
-                BRIDGE::print ("???", output, asyncresponse);
+                ESPCOM::print ("???", output, asyncresponse);
             } else {
-                BRIDGE::print ( (const char *) CONFIG::intTostr (bbuf), output, asyncresponse);
+                ESPCOM::print ( (const char *) CONFIG::intTostr (bbuf), output, asyncresponse);
             }
-            BRIDGE::print (F ("\",\"H\":\"SSID Visible\",\"O\":[{\"No\":\"0\"},{\"Yes\":\"1\"}]}"), output, asyncresponse);
-            BRIDGE::println (F (","), output, asyncresponse);
+            ESPCOM::print (F ("\",\"H\":\"SSID Visible\",\"O\":[{\"No\":\"0\"},{\"Yes\":\"1\"}]}"), output, asyncresponse);
+            ESPCOM::println (F (","), output, asyncresponse);
 
             //20-AP Channel
-            BRIDGE::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (EP_CHANNEL), output, asyncresponse);
-            BRIDGE::print (F ("\",\"T\":\"B\",\"V\":\""), output, asyncresponse);
+            ESPCOM::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (EP_CHANNEL), output, asyncresponse);
+            ESPCOM::print (F ("\",\"T\":\"B\",\"V\":\""), output, asyncresponse);
             if (!CONFIG::read_byte (EP_CHANNEL, &bbuf ) ) {
-                BRIDGE::print ("???", output, asyncresponse);
+                ESPCOM::print ("???", output, asyncresponse);
             } else {
-                BRIDGE::print ( (const char *) CONFIG::intTostr (bbuf), output, asyncresponse);
+                ESPCOM::print ( (const char *) CONFIG::intTostr (bbuf), output, asyncresponse);
             }
-            BRIDGE::print (F ("\",\"H\":\"AP Channel\",\"O\":["), output, asyncresponse);
+            ESPCOM::print (F ("\",\"H\":\"AP Channel\",\"O\":["), output, asyncresponse);
             for (int i = 1; i < 12 ; i++) {
-                BRIDGE::print (F ("{\""), output, asyncresponse);
-                BRIDGE::print ( (const char *) CONFIG::intTostr (i), output, asyncresponse);
-                BRIDGE::print (F ("\":\""), output, asyncresponse);
-                BRIDGE::print ( (const char *) CONFIG::intTostr (i), output, asyncresponse);
-                BRIDGE::print (F ("\"}"), output, asyncresponse);
+                ESPCOM::print (F ("{\""), output, asyncresponse);
+                ESPCOM::print ( (const char *) CONFIG::intTostr (i), output, asyncresponse);
+                ESPCOM::print (F ("\":\""), output, asyncresponse);
+                ESPCOM::print ( (const char *) CONFIG::intTostr (i), output, asyncresponse);
+                ESPCOM::print (F ("\"}"), output, asyncresponse);
                 if (i < 11) {
-                    BRIDGE::print (F (","), output, asyncresponse);
+                    ESPCOM::print (F (","), output, asyncresponse);
                 }
             }
-            BRIDGE::print (F ("]}"), output, asyncresponse);
-            BRIDGE::println (F (","), output, asyncresponse);
+            ESPCOM::print (F ("]}"), output, asyncresponse);
+            ESPCOM::println (F (","), output, asyncresponse);
 
             //21-AP Authentication
-            BRIDGE::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (EP_AUTH_TYPE), output, asyncresponse);
-            BRIDGE::print (F ("\",\"T\":\"B\",\"V\":\""), output, asyncresponse);
+            ESPCOM::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (EP_AUTH_TYPE), output, asyncresponse);
+            ESPCOM::print (F ("\",\"T\":\"B\",\"V\":\""), output, asyncresponse);
             if (!CONFIG::read_byte (EP_AUTH_TYPE, &bbuf ) ) {
-                BRIDGE::print ("???", output, asyncresponse);
+                ESPCOM::print ("???", output, asyncresponse);
             } else {
-                BRIDGE::print ( (const char *) CONFIG::intTostr (bbuf), output, asyncresponse);
+                ESPCOM::print ( (const char *) CONFIG::intTostr (bbuf), output, asyncresponse);
             }
-            BRIDGE::print (F ("\",\"H\":\"Authentication\",\"O\":[{\"Open\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (AUTH_OPEN), output, asyncresponse);
-            BRIDGE::print (F ("\"},{\"WPA\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (AUTH_WPA_PSK), output, asyncresponse);
-            BRIDGE::print (F ("\"},{\"WPA2\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (AUTH_WPA2_PSK), output, asyncresponse);
-            BRIDGE::print (F ("\"},{\"WPA/WPA2\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (AUTH_WPA_WPA2_PSK), output, asyncresponse);
-            BRIDGE::print (F ("\"}]}"), output, asyncresponse);
-            BRIDGE::println (F (","), output, asyncresponse);
+            ESPCOM::print (F ("\",\"H\":\"Authentication\",\"O\":[{\"Open\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (AUTH_OPEN), output, asyncresponse);
+            ESPCOM::print (F ("\"},{\"WPA\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (AUTH_WPA_PSK), output, asyncresponse);
+            ESPCOM::print (F ("\"},{\"WPA2\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (AUTH_WPA2_PSK), output, asyncresponse);
+            ESPCOM::print (F ("\"},{\"WPA/WPA2\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (AUTH_WPA_WPA2_PSK), output, asyncresponse);
+            ESPCOM::print (F ("\"}]}"), output, asyncresponse);
+            ESPCOM::println (F (","), output, asyncresponse);
 
             //22-AP IP mode
-            BRIDGE::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (EP_AP_IP_MODE), output, asyncresponse);
-            BRIDGE::print (F ("\",\"T\":\"B\",\"V\":\""), output, asyncresponse);
+            ESPCOM::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (EP_AP_IP_MODE), output, asyncresponse);
+            ESPCOM::print (F ("\",\"T\":\"B\",\"V\":\""), output, asyncresponse);
             if (!CONFIG::read_byte (EP_AP_IP_MODE, &bbuf ) ) {
-                BRIDGE::print ("???", output, asyncresponse);
+                ESPCOM::print ("???", output, asyncresponse);
             } else {
-                BRIDGE::print ( (const char *) CONFIG::intTostr (bbuf), output, asyncresponse);
+                ESPCOM::print ( (const char *) CONFIG::intTostr (bbuf), output, asyncresponse);
             }
-            BRIDGE::print (F ("\",\"H\":\"AP IP Mode\",\"O\":[{\"DHCP\":\"1\"},{\"Static\":\"2\"}]}"), output, asyncresponse);
-            BRIDGE::println (F (","), output, asyncresponse);
+            ESPCOM::print (F ("\",\"H\":\"AP IP Mode\",\"O\":[{\"DHCP\":\"1\"},{\"Static\":\"2\"}]}"), output, asyncresponse);
+            ESPCOM::println (F (","), output, asyncresponse);
 
             //23-AP static IP
-            BRIDGE::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (EP_AP_IP_VALUE), output, asyncresponse);
-            BRIDGE::print (F ("\",\"T\":\"A\",\"V\":\""), output, asyncresponse);
+            ESPCOM::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (EP_AP_IP_VALUE), output, asyncresponse);
+            ESPCOM::print (F ("\",\"T\":\"A\",\"V\":\""), output, asyncresponse);
             if (!CONFIG::read_buffer (EP_AP_IP_VALUE, (byte *) ipbuf, IP_LENGTH) ) {
-                BRIDGE::print ("???", output, asyncresponse);
+                ESPCOM::print ("???", output, asyncresponse);
             } else {
-                BRIDGE::print (IPAddress (ipbuf).toString().c_str(), output, asyncresponse);
+                ESPCOM::print (IPAddress (ipbuf).toString().c_str(), output, asyncresponse);
             }
-            BRIDGE::print (F ("\",\"H\":\"AP Static IP\"}"), output, asyncresponse);
-            BRIDGE::println (F (","), output, asyncresponse);
+            ESPCOM::print (F ("\",\"H\":\"AP Static IP\"}"), output, asyncresponse);
+            ESPCOM::println (F (","), output, asyncresponse);
 
             //24-AP static Mask
-            BRIDGE::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (EP_AP_MASK_VALUE), output, asyncresponse);
-            BRIDGE::print (F ("\",\"T\":\"A\",\"V\":\""), output, asyncresponse);
+            ESPCOM::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (EP_AP_MASK_VALUE), output, asyncresponse);
+            ESPCOM::print (F ("\",\"T\":\"A\",\"V\":\""), output, asyncresponse);
             if (!CONFIG::read_buffer (EP_AP_MASK_VALUE, (byte *) ipbuf, IP_LENGTH) ) {
-                BRIDGE::print ("???", output, asyncresponse);
+                ESPCOM::print ("???", output, asyncresponse);
             } else {
-                BRIDGE::print (IPAddress (ipbuf).toString().c_str(), output, asyncresponse);
+                ESPCOM::print (IPAddress (ipbuf).toString().c_str(), output, asyncresponse);
             }
-            BRIDGE::print (F ("\",\"H\":\"AP Static Mask\"}"), output, asyncresponse);
-            BRIDGE::println (F (","), output, asyncresponse);
+            ESPCOM::print (F ("\",\"H\":\"AP Static Mask\"}"), output, asyncresponse);
+            ESPCOM::println (F (","), output, asyncresponse);
 
             //25-AP static Gateway
-            BRIDGE::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (EP_AP_GATEWAY_VALUE), output, asyncresponse);
-            BRIDGE::print (F ("\",\"T\":\"A\",\"V\":\""), output, asyncresponse);
+            ESPCOM::print (F ("{\"F\":\"network\",\"P\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (EP_AP_GATEWAY_VALUE), output, asyncresponse);
+            ESPCOM::print (F ("\",\"T\":\"A\",\"V\":\""), output, asyncresponse);
             if (!CONFIG::read_buffer (EP_AP_GATEWAY_VALUE, (byte *) ipbuf, IP_LENGTH) ) {
-                BRIDGE::print ("???", output, asyncresponse);
+                ESPCOM::print ("???", output, asyncresponse);
             } else {
-                BRIDGE::print (IPAddress (ipbuf).toString().c_str(), output, asyncresponse);
+                ESPCOM::print (IPAddress (ipbuf).toString().c_str(), output, asyncresponse);
             }
-            BRIDGE::print (F ("\",\"H\":\"AP Static Gateway\"}"), output, asyncresponse);
-
+            ESPCOM::print (F ("\",\"H\":\"AP Static Gateway\"}"), output, asyncresponse);
         }
 
         if (cmd_params == "printer" || cmd_params == "") {
             if (cmd_params == "") {
-                BRIDGE::println (F (","), output, asyncresponse);
+                ESPCOM::println (F (","), output, asyncresponse);
             }
             //Target FW
-            BRIDGE::print (F ("{\"F\":\"printer\",\"P\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (EP_TARGET_FW), output, asyncresponse);
-            BRIDGE::print (F ("\",\"T\":\"B\",\"V\":\""), output, asyncresponse);
+            ESPCOM::print (F ("{\"F\":\"printer\",\"P\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (EP_TARGET_FW), output, asyncresponse);
+            ESPCOM::print (F ("\",\"T\":\"B\",\"V\":\""), output, asyncresponse);
             if (!CONFIG::read_byte (EP_TARGET_FW, &bbuf ) ) {
-                BRIDGE::print ("Unknown", output, asyncresponse);
+                ESPCOM::print ("Unknown", output, asyncresponse);
             } else {
-                BRIDGE::print ( (const char *) CONFIG::intTostr (bbuf), output, asyncresponse);
+                ESPCOM::print ( (const char *) CONFIG::intTostr (bbuf), output, asyncresponse);
             }
-            BRIDGE::print (F ("\",\"H\":\"Target FW\",\"O\":[{\"Repetier\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (REPETIER), output, asyncresponse);
-            BRIDGE::print (F ("\"},{\"Repetier for Davinci\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (REPETIER4DV), output, asyncresponse);
-            BRIDGE::print (F ("\"},{\"Marlin\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (MARLIN), output, asyncresponse);
-            BRIDGE::print (F ("\"},{\"Marlin Kimbra\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (MARLINKIMBRA), output, asyncresponse);
-            BRIDGE::print (F ("\"},{\"Smoothieware\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (SMOOTHIEWARE), output, asyncresponse);
-            BRIDGE::print (F ("\"},{\"Grbl\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (GRBL), output, asyncresponse);
-            BRIDGE::print (F ("\"},{\"Unknown\":\""), output, asyncresponse);
-            BRIDGE::print ( (const char *) CONFIG::intTostr (UNKNOWN_FW), output, asyncresponse);
-            BRIDGE::print (F ("\"}]}"), output, asyncresponse);
+            ESPCOM::print (F ("\",\"H\":\"Target FW\",\"O\":[{\"Repetier\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (REPETIER), output, asyncresponse);
+            ESPCOM::print (F ("\"},{\"Repetier for Davinci\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (REPETIER4DV), output, asyncresponse);
+            ESPCOM::print (F ("\"},{\"Marlin\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (MARLIN), output, asyncresponse);
+            ESPCOM::print (F ("\"},{\"Marlin Kimbra\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (MARLINKIMBRA), output, asyncresponse);
+            ESPCOM::print (F ("\"},{\"Smoothieware\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (SMOOTHIEWARE), output, asyncresponse);
+            ESPCOM::print (F ("\"},{\"Grbl\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (GRBL), output, asyncresponse);
+            ESPCOM::print (F ("\"},{\"Unknown\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (UNKNOWN_FW), output, asyncresponse);
+            ESPCOM::print (F ("\"}]}"), output, asyncresponse);
+            ESPCOM::println (F (","), output, asyncresponse);
+            
+             //Output flag
+            ESPCOM::print (F ("{\"F\":\"printer\",\"P\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (EP_OUTPUT_FLAG), output, asyncresponse);
+            ESPCOM::print (F ("\",\"T\":\"F\",\"V\":\""), output, asyncresponse);
+            if (!CONFIG::read_byte (EP_OUTPUT_FLAG, &bbuf ) ) {
+                ESPCOM::print ("???", output, asyncresponse);
+            } else {
+                ESPCOM::print ( (const char *) CONFIG::intTostr (bbuf), output, asyncresponse);
+            }
+            String s = "\",\"H\":\"Output msg\",\"O\":[{\"M117\":\"";
+            s+= CONFIG::intTostr(FLAG_BLOCK_M117);
+            s+= "\"}";
+#ifdef ESP_OLED_FEATURE
+            s+=",{\"Oled\":\"";
+             s+= CONFIG::intTostr(FLAG_BLOCK_OLED);
+            s+="\"}";
+#endif
+            s+=",{\"Serial\":\"";
+            s+= CONFIG::intTostr(FLAG_BLOCK_SERIAL);
+            s+="\"}";
+#ifdef WS_DATA_FEATURE
+            s+=",{\"Web Socket\":\"";
+            s+= CONFIG::intTostr(FLAG_BLOCK_WSOCKET);
+            s+="\"}";
+#endif
+#ifdef TCP_IP_DATA_FEATURE
+            s+=",{\"TCP\":\"";
+            s+= CONFIG::intTostr(FLAG_BLOCK_TCP);
+            s+="\"";
+#endif
+            s+= "}]}";
+            ESPCOM::print (s, output, asyncresponse);
+
+#ifdef DHT_FEATURE
+
+            //DHT type
+            ESPCOM::println (F (","), output, asyncresponse);
+            ESPCOM::print (F ("{\"F\":\"printer\",\"P\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (EP_DHT_TYPE), output, asyncresponse);
+            ESPCOM::print (F ("\",\"T\":\"B\",\"V\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (CONFIG::DHT_type), output, asyncresponse);
+            ESPCOM::print (F ("\",\"H\":\"DHT Type\",\"O\":[{\"None\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (255), output, asyncresponse);
+            ESPCOM::print (F ("\"},{\"DHT11\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (DHTesp::DHT11), output, asyncresponse);
+            ESPCOM::print (F ("\"},{\"DHT22\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (DHTesp::DHT22), output, asyncresponse);
+            ESPCOM::print (F ("\"},{\"AM2302\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (DHTesp::RHT03), output, asyncresponse);
+             ESPCOM::print (F ("\"},{\"RHT03\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (DHTesp::AM2302), output, asyncresponse);
+            ESPCOM::print (F ("\"}]}"), output, asyncresponse);
+            
+             //DHT interval
+            ESPCOM::println (F (","), output, asyncresponse);
+            ESPCOM::print (F ("{\"F\":\"printer\",\"P\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (EP_DHT_INTERVAL), output, asyncresponse);
+            ESPCOM::print (F ("\",\"T\":\"I\",\"V\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (CONFIG::DHT_interval), output, asyncresponse);
+            ESPCOM::print (F ("\",\"H\":\"DHT check (seconds)\",\"S\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (DEFAULT_MAX_WEB_PORT), output, asyncresponse);
+            ESPCOM::print (F ("\",\"M\":\""), output, asyncresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (0), output, asyncresponse);
+            ESPCOM::print (F ("\"}"), output, asyncresponse);
+#endif
 
         }
 
         //end JSON
-        BRIDGE::println (F ("\n]}"), output, asyncresponse);
+        ESPCOM::println (F ("\n]}"), output, asyncresponse);
     }
     break;
 
@@ -922,7 +1059,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
         if ( (pos == 0 && spos != "0") || (pos > LAST_EEPROM_ADDRESS || pos < 0) ) {
             response = false;
         }
-        if (! (styp == "B" || styp == "S" || styp == "A" || styp == "I") ) {
+        if (! (styp == "B" || styp == "S" || styp == "A" || styp == "I" || styp == "F") ) {
             response = false;
         }
         if (sval.length() == 0) {
@@ -946,12 +1083,15 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
         }
 #endif
         if (response) {
-            if (styp == "B") {
+            if ((styp == "B")  ||  (styp == "F")){
                 byte bbuf = sval.toInt();
                 if (!CONFIG::write_byte (pos, bbuf) ) {
                     response = false;
                 } else {
                     //dynamique refresh is better than restart the board
+                    if (pos == EP_OUTPUT_FLAG){
+                        CONFIG::output_flag = bbuf;
+                    }
                     if (pos == EP_TARGET_FW) {
                         CONFIG::InitFirmwareTarget();
                     }
@@ -961,12 +1101,24 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
                             CONFIG::InitPins();
                         }
                     }
+#ifdef DHT_FEATURE
+                    if (pos == EP_DHT_TYPE) {
+                        CONFIG::DHT_type = bbuf;
+                        CONFIG::InitDHT(true);
+                    }
+#endif
                 }
             }
             if (styp == "I") {
                 int ibuf = sval.toInt();
                 if (!CONFIG::write_buffer (pos, (const byte *) &ibuf, INTEGER_LENGTH) ) {
                     response = false;
+                } else {
+#ifdef DHT_FEATURE
+                    if (pos == EP_DHT_INTERVAL) {
+                        CONFIG::DHT_interval = ibuf;
+                    }
+#endif
                 }
             }
             if (styp == "S") {
@@ -984,9 +1136,9 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
             }
         }
         if (!response) {
-            BRIDGE::println (INCORRECT_CMD_MSG, output, asyncresponse);
+            ESPCOM::println (INCORRECT_CMD_MSG, output, asyncresponse);
         } else {
-            BRIDGE::println (OK_CMD_MSG, output, asyncresponse);
+            ESPCOM::println (OK_CMD_MSG, output, asyncresponse);
         }
 
     }
@@ -999,7 +1151,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
         parameter = get_param (cmd_params, "", true);
         bool plain = (parameter == "plain");
         if (!plain) {
-            BRIDGE::print (F ("{\"AP_LIST\":["), output, asyncresponse);
+            ESPCOM::print (F ("{\"AP_LIST\":["), output, asyncresponse);
         }
         int n = WiFi.scanComplete();
         if (n == -2) {
@@ -1008,40 +1160,40 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
             for (int i = 0; i < n; ++i) {
                 if (i > 0) {
                     if (!plain) {
-                        BRIDGE::print (F (","), output, asyncresponse);
+                        ESPCOM::print (F (","), output, asyncresponse);
                     } else {
-                        BRIDGE::print (F ("\n"), output, asyncresponse);
+                        ESPCOM::print (F ("\n"), output, asyncresponse);
                     }
                 }
                 if (!plain) {
-                    BRIDGE::print (F ("{\"SSID\":\""), output, asyncresponse);
+                    ESPCOM::print (F ("{\"SSID\":\""), output, asyncresponse);
                 }
-                BRIDGE::print (WiFi.SSID (i).c_str(), output, asyncresponse);
+                ESPCOM::print (WiFi.SSID (i).c_str(), output, asyncresponse);
                 if (!plain) {
-                    BRIDGE::print (F ("\",\"SIGNAL\":\""), output, asyncresponse);
+                    ESPCOM::print (F ("\",\"SIGNAL\":\""), output, asyncresponse);
                 } else {
-                    BRIDGE::print (F ("\t"), output, asyncresponse);
+                    ESPCOM::print (F ("\t"), output, asyncresponse);
                 }
-                BRIDGE::print (CONFIG::intTostr (wifi_config.getSignal (WiFi.RSSI (i) ) ), output, asyncresponse);;
-                //BRIDGE::print(F("%"), output, asyncresponse);
+                ESPCOM::print (CONFIG::intTostr (wifi_config.getSignal (WiFi.RSSI (i) ) ), output, asyncresponse);;
+                //ESPCOM::print(F("%"), output, asyncresponse);
                 if (!plain) {
-                    BRIDGE::print (F ("\",\"IS_PROTECTED\":\""), output, asyncresponse);
+                    ESPCOM::print (F ("\",\"IS_PROTECTED\":\""), output, asyncresponse);
                 }
                 if (WiFi.encryptionType (i) == ENC_TYPE_NONE) {
                     if (!plain) {
-                        BRIDGE::print (F ("0"), output, asyncresponse);
+                        ESPCOM::print (F ("0"), output, asyncresponse);
                     } else {
-                        BRIDGE::print (F ("\tOpen"), output, asyncresponse);
+                        ESPCOM::print (F ("\tOpen"), output, asyncresponse);
                     }
                 } else {
                     if (!plain) {
-                        BRIDGE::print (F ("1"), output, asyncresponse);
+                        ESPCOM::print (F ("1"), output, asyncresponse);
                     } else {
-                        BRIDGE::print (F ("\tSecure"), output, asyncresponse);
+                        ESPCOM::print (F ("\tSecure"), output, asyncresponse);
                     }
                 }
                 if (!plain) {
-                    BRIDGE::print (F ("\"}"), output, asyncresponse);
+                    ESPCOM::print (F ("\"}"), output, asyncresponse);
                 }
             }
             WiFi.scanDelete();
@@ -1050,9 +1202,9 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
             }
         }
         if (!plain) {
-            BRIDGE::print (F ("]}"), output, asyncresponse);
+            ESPCOM::print (F ("]}"), output, asyncresponse);
         } else {
-            BRIDGE::print (F ("\n"), output, asyncresponse);
+            ESPCOM::print (F ("\n"), output, asyncresponse);
         }
     }
     break;
@@ -1070,22 +1222,22 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
         parameter = get_param (cmd_params, "", true);
 #ifdef AUTHENTICATION_FEATURE
         if (auth_type != LEVEL_ADMIN) {
-            BRIDGE::println (INCORRECT_CMD_MSG, output, asyncresponse);
+            ESPCOM::println (INCORRECT_CMD_MSG, output, asyncresponse);
             response = false;
         } else
 #endif
         {
             if (parameter == "RESET") {
                 CONFIG::reset_config();
-                BRIDGE::println (F ("Reset done - restart needed"), output, asyncresponse);
+                ESPCOM::println (F ("Reset done - restart needed"), output, asyncresponse);
             } else if (parameter == "SAFEMODE") {
                 wifi_config.Safe_Setup();
-                BRIDGE::println (F ("Set Safe Mode  - restart needed"), output, asyncresponse);
+                ESPCOM::println (F ("Set Safe Mode  - restart needed"), output, asyncresponse);
             } else  if (parameter == "RESTART") {
-                BRIDGE::println (F ("Restart started"), output, asyncresponse);
+                ESPCOM::println (F ("Restart started"), output, asyncresponse);
                 web_interface->restartmodule = true;
             } else {
-                BRIDGE::println (INCORRECT_CMD_MSG, output, asyncresponse);
+                ESPCOM::println (INCORRECT_CMD_MSG, output, asyncresponse);
                 response = false;
             }
         }
@@ -1098,26 +1250,26 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
             parameter = get_param (cmd_params, "", true);
             if (parameter.length() == 0) {
                 if (CONFIG::write_string (EP_USER_PWD, FPSTR (DEFAULT_USER_PWD) ) ) {
-                    BRIDGE::println (OK_CMD_MSG, output, asyncresponse);
+                    ESPCOM::println (OK_CMD_MSG, output, asyncresponse);
                 } else {
-                    BRIDGE::println (ERROR_CMD_MSG, output, asyncresponse);
+                    ESPCOM::println (ERROR_CMD_MSG, output, asyncresponse);
                     response = false;
                 }
             } else {
                 if (CONFIG::isLocalPasswordValid (parameter.c_str() ) ) {
                     if (CONFIG::write_string (EP_USER_PWD, parameter.c_str() ) ) {
-                        BRIDGE::println (OK_CMD_MSG, output, asyncresponse);
+                        ESPCOM::println (OK_CMD_MSG, output, asyncresponse);
                     } else {
-                        BRIDGE::println (ERROR_CMD_MSG, output, asyncresponse);
+                        ESPCOM::println (ERROR_CMD_MSG, output, asyncresponse);
                         response = false;
                     }
                 } else {
-                    BRIDGE::println (INCORRECT_CMD_MSG, output, asyncresponse);
+                    ESPCOM::println (INCORRECT_CMD_MSG, output, asyncresponse);
                     response = false;
                 }
             }
         } else {
-            BRIDGE::println (INCORRECT_CMD_MSG, output, asyncresponse);
+            ESPCOM::println (INCORRECT_CMD_MSG, output, asyncresponse);
             response = false;
         }
         break;
@@ -1136,7 +1288,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
         FS_FILE currentfile = SPIFFS.open (cmd_params, SPIFFS_FILE_READ);
         if (currentfile) {//if file open success
             //flush to be sure send buffer is empty
-            ESP_SERIAL_OUT.flush();
+            ESPCOM::flush (DEFAULT_PRINTER_PIPE);
             //until no line in file
             while (currentfile.available()) {
                 String currentline = currentfile.readStringUntil('\n');
@@ -1163,18 +1315,18 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
                         }
                     } else {
                         //send line to serial
-                        ESP_SERIAL_OUT.println (currentline);
+                        ESPCOM::println (currentline, DEFAULT_PRINTER_PIPE);
                         CONFIG::wait (1);
                         //flush to be sure send buffer is empty
-                        ESP_SERIAL_OUT.flush();
+                        ESPCOM::flush (DEFAULT_PRINTER_PIPE);
                     }
                 CONFIG::wait (1);
                 }
             }
             currentfile.close();
-            BRIDGE::println (OK_CMD_MSG, output, asyncresponse);
+            ESPCOM::println (OK_CMD_MSG, output, asyncresponse);
         } else {
-            BRIDGE::println (ERROR_CMD_MSG, output, asyncresponse);
+            ESPCOM::println (ERROR_CMD_MSG, output, asyncresponse);
             response = false;
         }
 
@@ -1186,17 +1338,17 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
         parameter = get_param (cmd_params, "", true);
 #ifdef AUTHENTICATION_FEATURE
         if (auth_type != LEVEL_ADMIN) {
-            BRIDGE::println (INCORRECT_CMD_MSG, output, asyncresponse);
+            ESPCOM::println (INCORRECT_CMD_MSG, output, asyncresponse);
             response = false;
         } else
 #endif
         {
             if (parameter == "FORMAT") {
-                BRIDGE::print (F ("Formating"), output, asyncresponse);
+                ESPCOM::print (F ("Formating"), output, asyncresponse);
                 SPIFFS.format();
-                BRIDGE::println (F ("...Done"), output, asyncresponse);
+                ESPCOM::println (F ("...Done"), output, asyncresponse);
             } else {
-                BRIDGE::println (INCORRECT_CMD_MSG, output, asyncresponse);
+                ESPCOM::println (INCORRECT_CMD_MSG, output, asyncresponse);
                 response = false;
             }
         }
@@ -1204,50 +1356,72 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
     //SPIFFS total size and used size
     //[ESP720]<header answer>
     case 720:
-        BRIDGE::print (cmd_params, output, asyncresponse);
+        ESPCOM::print (cmd_params, output, asyncresponse);
 #ifdef ARDUINO_ARCH_ESP8266
         fs::FSInfo info;
         SPIFFS.info (info);
-        BRIDGE::print ("SPIFFS Total:", output, asyncresponse);
-        BRIDGE::print (CONFIG::formatBytes (info.totalBytes).c_str(), output, asyncresponse);
-        BRIDGE::print (" Used:", output, asyncresponse);
-        BRIDGE::println (CONFIG::formatBytes (info.usedBytes).c_str(), output, asyncresponse);
+        ESPCOM::print ("SPIFFS Total:", output, asyncresponse);
+        ESPCOM::print (CONFIG::formatBytes (info.totalBytes).c_str(), output, asyncresponse);
+        ESPCOM::print (" Used:", output, asyncresponse);
+        ESPCOM::println (CONFIG::formatBytes (info.usedBytes).c_str(), output, asyncresponse);
 #else
-        BRIDGE::print ("SPIFFS  Total:", output, asyncresponse);
-        BRIDGE::print (CONFIG::formatBytes (SPIFFS.totalBytes() ).c_str(), output, asyncresponse);
-        BRIDGE::print (" Used:", output, asyncresponse);
-        BRIDGE::println (CONFIG::formatBytes (SPIFFS.usedBytes() ).c_str(), output, asyncresponse);
+        ESPCOM::print ("SPIFFS  Total:", output, asyncresponse);
+        ESPCOM::print (CONFIG::formatBytes (SPIFFS.totalBytes() ).c_str(), output, asyncresponse);
+        ESPCOM::print (" Used:", output, asyncresponse);
+        ESPCOM::println (CONFIG::formatBytes (SPIFFS.usedBytes() ).c_str(), output, asyncresponse);
 #endif
         break;
     //get fw version firmare target and fw version
     //[ESP800]<header answer>
     case 800: {
         byte sd_dir = 0;
-        BRIDGE::print (cmd_params, output, asyncresponse);
-        BRIDGE::print (F ("FW version:"), output, asyncresponse);
-        BRIDGE::print (FW_VERSION, output, asyncresponse);
-        BRIDGE::print (F (" # FW target:"), output, asyncresponse);
-        BRIDGE::print (CONFIG::GetFirmwareTargetShortName(), output, asyncresponse);
-        BRIDGE::print (F (" # FW HW:"), output, asyncresponse);
-        BRIDGE::print (F ("Direct SD"), output, asyncresponse);
-        BRIDGE::print (F (" # primary sd:"), output, asyncresponse);
-        BRIDGE::print (F ("none"), output, asyncresponse);
-        BRIDGE::print (F (" # secondary sd:"), output, asyncresponse);
-        BRIDGE::print (F ("none"), output, asyncresponse);
-        BRIDGE::print (F (" # authentication:"), output, asyncresponse);
+        ESPCOM::print (cmd_params, output, asyncresponse);
+        ESPCOM::print (F ("FW version:"), output, asyncresponse);
+        ESPCOM::print (FW_VERSION, output, asyncresponse);
+        ESPCOM::print (F (" # FW target:"), output, asyncresponse);
+        ESPCOM::print (CONFIG::GetFirmwareTargetShortName(), output, asyncresponse);
+        ESPCOM::print (F (" # FW HW:"), output, asyncresponse);
+        if (CONFIG::is_direct_sd) {
+            ESPCOM::print (F ("Direct SD"), output, asyncresponse);
+        } else {
+            ESPCOM::print (F ("Serial SD"), output, asyncresponse);
+        }
+        ESPCOM::print (F (" # primary sd:"), output, asyncresponse);
+        if (!CONFIG::read_byte (EP_PRIMARY_SD, &sd_dir ) ) {
+            sd_dir = DEFAULT_PRIMARY_SD;
+        }
+        if (sd_dir == SD_DIRECTORY) {
+            ESPCOM::print (F ("/sd/"), output, asyncresponse);
+        } else if (sd_dir == EXT_DIRECTORY) {
+            ESPCOM::print (F ("/ext/"), output, asyncresponse);
+        } else {
+            ESPCOM::print (F ("none"), output, asyncresponse);
+        }
+        ESPCOM::print (F (" # secondary sd:"), output, asyncresponse);
+        if (!CONFIG::read_byte (EP_SECONDARY_SD, &sd_dir ) ) {
+            sd_dir = DEFAULT_SECONDARY_SD;
+        }
+        if (sd_dir == SD_DIRECTORY) {
+            ESPCOM::print (F ("/sd/"), output, asyncresponse);
+        } else if (sd_dir == EXT_DIRECTORY) {
+            ESPCOM::print (F ("/ext/"), output, asyncresponse);
+        } else {
+            ESPCOM::print (F ("none"), output, asyncresponse);
+        }
+        ESPCOM::print (F (" # authentication:"), output, asyncresponse);
 #ifdef AUTHENTICATION_FEATURE
-        BRIDGE::print (F ("yes"), output, asyncresponse);
+        ESPCOM::print (F ("yes"), output, asyncresponse);
 #else
-        BRIDGE::print (F ("no"), output, asyncresponse);
+        ESPCOM::print (F ("no"), output, asyncresponse);
 #endif
-        BRIDGE::println ("", output, asyncresponse);
+        ESPCOM::println ("", output, asyncresponse);
     }
     break;
     //get fw target
     //[ESP801]<header answer>
     case 801:
-        BRIDGE::print (cmd_params, output, asyncresponse);
-        BRIDGE::println (CONFIG::GetFirmwareTargetShortName(), output, asyncresponse);
+        ESPCOM::print (cmd_params, output, asyncresponse);
+        ESPCOM::println (CONFIG::GetFirmwareTargetShortName(), output, asyncresponse);
         break;
     case 810:
         web_interface->blockserial = false;
@@ -1258,21 +1432,21 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
 #ifdef ERROR_MSG_FEATURE
         if (cmd_params == "ERROR") {
             web_interface->error_msg.clear();
-            BRIDGE::println (OK_CMD_MSG, output, asyncresponse);
+            ESPCOM::println (OK_CMD_MSG, output, asyncresponse);
             break;
         }
 #endif
 #ifdef INFO_MSG_FEATURE
         if (cmd_params == "INFO") {
             web_interface->info_msg.clear();
-            BRIDGE::println (OK_CMD_MSG, output, asyncresponse);
+            ESPCOM::println (OK_CMD_MSG, output, asyncresponse);
             break;
         }
 #endif
 #ifdef STATUS_MSG_FEATURE
         if (cmd_params == "STATUS") {
             web_interface->status_msg.clear();
-            BRIDGE::println (OK_CMD_MSG, output, asyncresponse);
+            ESPCOM::println (OK_CMD_MSG, output, asyncresponse);
             break;
         }
 #endif
@@ -1286,11 +1460,11 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
 #ifdef INFO_MSG_FEATURE
             web_interface->info_msg.clear();
 #endif
-            BRIDGE::println (OK_CMD_MSG, output, asyncresponse);
+            ESPCOM::println (OK_CMD_MSG, output, asyncresponse);
             break;
         }
     default:
-        BRIDGE::println (INCORRECT_CMD_MSG, output, asyncresponse);
+        ESPCOM::println (INCORRECT_CMD_MSG, output, asyncresponse);
         response = false;
     }
     return response;
@@ -1490,7 +1664,7 @@ void COMMAND::read_buffer_serial (uint8_t b)
         iscomment = false;
         //Minimum is something like M10 so 3 char
         if (buffer_serial.length() > 3) {
-            check_command (buffer_serial, SERIAL_PIPE);
+            check_command (buffer_serial, DEFAULT_PRINTER_PIPE);
         }
     }
 }

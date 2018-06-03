@@ -85,17 +85,16 @@ static void _handle_async_event(lwip_event_packet_t * e){
     } else if(e->event == LWIP_TCP_ERROR){
         AsyncClient::_s_error(e->arg, e->error.err);
     }
-    free((void*)(e));
+    if(e) free((void*)(e));
+    e = NULL;
 }
 
 static void _async_service_task(void *pvParameters){
     lwip_event_packet_t * packet = NULL;
     for (;;) {
-        if(xQueueReceive(_async_queue, &packet, 0) == pdTRUE){
+        if(xQueueReceive(_async_queue, &packet, portMAX_DELAY) == pdTRUE){
             //dispatch packet
             _handle_async_event(packet);
-        } else {
-            vTaskDelay(1);
         }
     }
     vTaskDelete(NULL);
@@ -138,7 +137,7 @@ static int8_t _tcp_poll(void * arg, struct tcp_pcb * pcb) {
     e->arg = arg;
     e->poll.pcb = pcb;
     if (xQueueSend(_async_queue, &e, portMAX_DELAY) != pdPASS) {
-        free((void*)(e));
+          if(e) free((void*)(e));
     }
     return ERR_OK;
 }
@@ -154,7 +153,7 @@ static int8_t _tcp_recv(void * arg, struct tcp_pcb * pcb, struct pbuf *pb, int8_
     e->recv.pb = pb;
     e->recv.err = err;
     if (xQueueSend(_async_queue, &e, portMAX_DELAY) != pdPASS) {
-        free((void*)(e));
+         if(e)free((void*)(e));
     }
     return ERR_OK;
 }
@@ -169,7 +168,7 @@ static int8_t _tcp_sent(void * arg, struct tcp_pcb * pcb, uint16_t len) {
     e->sent.pcb = pcb;
     e->sent.len = len;
     if (xQueueSend(_async_queue, &e, portMAX_DELAY) != pdPASS) {
-        free((void*)(e));
+          if(e) free((void*)(e));
     }
     return ERR_OK;
 }
@@ -183,7 +182,7 @@ static void _tcp_error(void * arg, int8_t err) {
     e->arg = arg;
     e->error.err = err;
     if (xQueueSend(_async_queue, &e, portMAX_DELAY) != pdPASS) {
-        free((void*)(e));
+          if(e) free((void*)(e));
     }
 }
 
@@ -352,6 +351,8 @@ AsyncClient::AsyncClient(tcp_pcb* pcb)
 , _error_cb_arg(0)
 , _recv_cb(0)
 , _recv_cb_arg(0)
+, _pb_cb(0)
+, _pb_cb_arg(0)
 , _timeout_cb(0)
 , _timeout_cb_arg(0)
 , _pcb_busy(false)
@@ -504,15 +505,19 @@ int8_t AsyncClient::_recv(tcp_pcb* pcb, pbuf* pb, int8_t err) {
         //Serial.write((const uint8_t *)pb->payload, pb->len);
         _ack_pcb = true;
         pbuf *b = pb;
-        if(_recv_cb)
-            _recv_cb(_recv_cb_arg, this, b->payload, b->len);
-        if(!_ack_pcb)
-            _rx_ack_len += b->len;
-        else
-            _tcp_recved(pcb, b->len);
         pb = b->next;
         b->next = NULL;
-        pbuf_free(b);
+        if(_pb_cb){
+            _pb_cb(_pb_cb_arg, this, b);
+        } else {
+            if(_recv_cb)
+                _recv_cb(_recv_cb_arg, this, b->payload, b->len);
+            if(!_ack_pcb)
+                _rx_ack_len += b->len;
+            else
+                _tcp_recved(pcb, b->len);
+            pbuf_free(b);
+        }
     }
     return ERR_OK;
 }
@@ -814,6 +819,14 @@ bool AsyncClient::canSend(){
     return space() > 0;
 }
 
+void AsyncClient::ackPacket(struct pbuf * pb){
+  if(!pb){
+    return;
+  }
+  _tcp_recved(_pcb, pb->len);
+  pbuf_free(pb);
+}
+
 
 // Callback Setters
 
@@ -840,6 +853,11 @@ void AsyncClient::onError(AcErrorHandler cb, void* arg){
 void AsyncClient::onData(AcDataHandler cb, void* arg){
     _recv_cb = cb;
     _recv_cb_arg = arg;
+}
+
+void AsyncClient::onPacket(AcPacketHandler cb, void* arg){
+  _pb_cb = cb;
+  _pb_cb_arg = arg;
 }
 
 void AsyncClient::onTimeout(AcTimeoutHandler cb, void* arg){

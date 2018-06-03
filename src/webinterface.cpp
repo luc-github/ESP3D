@@ -44,7 +44,7 @@
 #include "GenLinkedList.h"
 #include "storestrings.h"
 #include "command.h"
-#include "bridge.h"
+#include "espcom.h"
 
 #ifdef SSDP_FEATURE
     #ifdef ARDUINO_ARCH_ESP32
@@ -60,7 +60,7 @@
 #define MAX_AUTH_IP 10
 #define HIDDEN_PASSWORD "********"
 
-static long id_connection = 0;
+ static long id_connection = 0;
 
 typedef enum {
     UPLOAD_STATUS_NONE = 0,
@@ -587,24 +587,10 @@ void SPIFFSFileupload (AsyncWebServerRequest *request, String filename, size_t i
     LOG ("Uploading: ")
     LOG (filename)
     LOG ("\n")
-    if (filename == "/failupload.txt"){
-    //Test Cancel
-        ESP_SERIAL_OUT.println (request->client()->state());
-        web_interface->_upload_status = UPLOAD_STATUS_CANCELLED;
-        //handleFileList (request);
-        ESP_SERIAL_OUT.println ("M117 Upload rejected");
-        LOG ("Upload rejected\r\n");
-        if(request->client()->state() == 4 ) {
-            ESP_SERIAL_OUT.println ("M117 can rejected");
-            //handleFileList (request);
-            request->client()->abort();
-        } else ESP_SERIAL_OUT.println ("M117 cannot rejected");
-        return;
-    }
     //Guest cannot upload - only admin
     if (web_interface->is_authenticated() != LEVEL_ADMIN) {
         web_interface->_upload_status = UPLOAD_STATUS_CANCELLED;
-        ESP_SERIAL_OUT.println ("M117 Upload rejected");
+        ESPCOM::println (F ("Upload rejected"), PRINTER_PIPE);
         LOG ("Upload rejected\r\n");
         request->client()->abort();
         return;
@@ -703,14 +689,14 @@ void WebUpdateUpload (AsyncWebServerRequest *request, String filename, size_t in
     if (web_interface->is_authenticated() != LEVEL_ADMIN) {
         web_interface->_upload_status = UPLOAD_STATUS_CANCELLED;
         request->client()->abort();
-        ESP_SERIAL_OUT.println ("M117 Update rejected");
+        ESPCOM::println (F ("Update rejected"), PRINTER_PIPE);
         LOG ("Update failed\r\n");
         return;
     }
     //Upload start
     //**************
     if (!index) {
-        ESP_SERIAL_OUT.println (F ("M117 Update Firmware") );
+        ESPCOM::println (F ("Update Firmware"), PRINTER_PIPE);
         web_interface->_upload_status = UPLOAD_STATUS_ONGOING;
 #ifdef ARDUINO_ARCH_ESP8266
         Update.runAsync (true);
@@ -726,14 +712,14 @@ void WebUpdateUpload (AsyncWebServerRequest *request, String filename, size_t in
         totalSize = 0;
         if (!Update.begin (maxSketchSpace) ) { //start with max available size
             web_interface->_upload_status = UPLOAD_STATUS_CANCELLED;
-            ESP_SERIAL_OUT.println (F ("M117 Update Cancelled") );
+            ESPCOM::println (F ("Update Cancelled"), PRINTER_PIPE);
             request->client()->abort();
             return;
         } else {
             if ( ( CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER) ) {
-                ESP_SERIAL_OUT.println (F ("M117 Update 0%%") );
+                ESPCOM::println (F ("Update 0%%"), PRINTER_PIPE);
             } else {
-                ESP_SERIAL_OUT.println (F ("M117 Update 0%") );
+                ESPCOM::println (F ("Update 0%"), PRINTER_PIPE);
             }
         }
     }
@@ -744,17 +730,19 @@ void WebUpdateUpload (AsyncWebServerRequest *request, String filename, size_t in
         totalSize += len;
         if ( ( (100 * totalSize) / maxSketchSpace) != last_upload_update) {
             last_upload_update = (100 * totalSize) / maxSketchSpace;
-            ESP_SERIAL_OUT.print (F ("M117 Update ") );
-            ESP_SERIAL_OUT.print (last_upload_update);
+            String s = "Update ";
+            s+= String(last_upload_update);
+
             if ( ( CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER) ) {
-                ESP_SERIAL_OUT.println (F ("%%") );
+                s+="%%";
             } else {
-                ESP_SERIAL_OUT.println (F ("%") );
+                s+="%";
             }
+            ESPCOM::println (s, PRINTER_PIPE);
         }
         if (Update.write (data, len) != len) {
             web_interface->_upload_status = UPLOAD_STATUS_CANCELLED;
-            ESP_SERIAL_OUT.print (F ("M117 Update Error ") );
+            ESPCOM::println(F("Update Error"), PRINTER_PIPE);
             Update.end();
             request->client()->abort();
         }
@@ -764,20 +752,20 @@ void WebUpdateUpload (AsyncWebServerRequest *request, String filename, size_t in
     if (final) {
         String  sizeargname  = filename + "S";
         if (request->hasArg (sizeargname.c_str()) ) {
-            ESP_SERIAL_OUT.print (F ("M117 Check integrity") );
+            ESPCOM::println (F ("Check integrity"), PRINTER_PIPE);
              if (request->arg (sizeargname.c_str()) != String(totalSize)) {
                  web_interface->_upload_status = UPLOAD_STATUS_FAILED;
-                 ESP_SERIAL_OUT.print (F ("M117 Update Error ") );
-                Update.end();
-                request->client()->abort();
+                 ESPCOM::println (F ("Update Error"), PRINTER_PIPE);
+                 Update.end();
+                 request->client()->abort();
              }
         }
         if (Update.end (true) ) { //true to set the size to the current progress
             //Now Reboot
             if ( ( CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER) ) {
-                ESP_SERIAL_OUT.println (F ("M117 Update 100%%") );
+                ESPCOM::println (F ("Update 100%%"), PRINTER_PIPE);
             } else {
-                ESP_SERIAL_OUT.println (F ("M117 Update 100%") );
+                ESPCOM::println (F ("Update 100%"), PRINTER_PIPE);
             }
             web_interface->_upload_status = UPLOAD_STATUS_SUCCESSFUL;
         }
@@ -864,14 +852,14 @@ void handle_web_command (AsyncWebServerRequest *request)
             LOG ("Block Serial\r\n")
             //empty the serial buffer and incoming data
             LOG ("Start PurgeSerial\r\n")
-            BRIDGE::processFromSerial (true);
+            ESPCOM::processFromSerial (true);
             LOG ("End PurgeSerial\r\n")
             LOG ("Start PurgeSerial\r\n")
-            BRIDGE::processFromSerial (true);
+            ESPCOM::processFromSerial (true);
             LOG ("End PurgeSerial\r\n")
             //send command
             LOG ("Send Command\r\n")
-            ESP_SERIAL_OUT.println (cmd);
+            ESPCOM::println (cmd, DEFAULT_PRINTER_PIPE);
             CONFIG::wait (1);
             AsyncWebServerResponse *response = request->beginChunkedResponse ("text/plain", [] (uint8_t *buffer, size_t maxLen, size_t index) -> size_t {
                 static bool  finish_check;
@@ -936,7 +924,7 @@ void handle_web_command (AsyncWebServerRequest *request)
                 while (!finish_check && (count < maxLen) )
                 {
                     CONFIG::wdtFeed();
-                    size_t len = ESP_SERIAL_OUT.available();
+                    size_t len = ESPCOM::available(DEFAULT_PRINTER_PIPE);
                     LOG ("Input Size ")
                     LOG (String (len) )
                     LOG ("\n")
@@ -954,7 +942,7 @@ void handle_web_command (AsyncWebServerRequest *request)
                         active_serial_buffer = tmp_buf;
                         //read full buffer instead of read char by char
                         //so it give time to refill when processing
-                        ESP_SERIAL_OUT.readBytes (&active_serial_buffer[active_serial_buffer_size], len);
+                        ESPCOM::readBytes (DEFAULT_PRINTER_PIPE, &active_serial_buffer[active_serial_buffer_size], len);
                         //new size of current buffer
                         active_serial_buffer_size += len;
                     }
@@ -1124,7 +1112,7 @@ void handle_web_command (AsyncWebServerRequest *request)
             response->addHeader ("Cache-Control", "no-cache");
             request->send (response);
             LOG ("Start PurgeSerial\r\n")
-            BRIDGE::processFromSerial (true);
+            ESPCOM::processFromSerial (true);
             LOG ("End PurgeSerial\r\n")
             web_interface->blockserial = false;
             LOG ("Release Serial\r\n")
@@ -1209,7 +1197,8 @@ void handle_web_command_silent (AsyncWebServerRequest *request)
         if ( (web_interface->blockserial) == false) {
             LOG ("Send Command\r\n")
             //send command
-            ESP_SERIAL_OUT.println (cmd);
+            ESPCOM::println (cmd, DEFAULT_PRINTER_PIPE);
+            
             request->send (200, "text/plain", "ok");
         } else {
             request->send (200, "text/plain", "Serial is busy, retry later!");
@@ -1304,25 +1293,25 @@ void handle_serial_SDFileList (AsyncWebServerRequest *request)
 bool sendLine2Serial (String &  line)
 {
     LOG (line)
-    ESP_SERIAL_OUT.println (line);
-    ESP_SERIAL_OUT.flush();
+    ESPCOM::println (line, DEFAULT_PRINTER_PIPE);
+    ESPCOM::flush(DEFAULT_PRINTER_PIPE);
 #ifdef ARDUINO_ARCH_ESP8266
     CONFIG::wait (5);
 #else
     CONFIG::wait (2);
 #endif
-    if (ESP_SERIAL_OUT.available() > 0 ) {
+    if (ESPCOM::available(DEFAULT_PRINTER_PIPE) > 0 ) {
         bool done = false;
         uint32_t timeout = millis();
         uint8_t count = 0;
         while (!done) {
             CONFIG::wdtFeed();
-            size_t len = ESP_SERIAL_OUT.available();
+            size_t len = ESPCOM::available(DEFAULT_PRINTER_PIPE);
             //get size of buffer
             if (len > 0) {
                 uint8_t sbuf[len + 1];
                 //read buffer
-                ESP_SERIAL_OUT.readBytes (sbuf, len);
+                ESPCOM::readBytes (DEFAULT_PRINTER_PIPE, sbuf, len);
                 //convert buffer to zero end array
                 sbuf[len] = '\0';
                 //use string because easier to handle
@@ -1336,8 +1325,8 @@ bool sendLine2Serial (String &  line)
                         return false;
                     }
                     LOG ("resend\r\n")
-                    ESP_SERIAL_OUT.println (line);
-                    ESP_SERIAL_OUT.flush();
+                    ESPCOM::println (line, DEFAULT_PRINTER_PIPE);
+                    ESPCOM::flush (DEFAULT_PRINTER_PIPE);
                     CONFIG::wait (5);
                     timeout = millis();
                 }
@@ -1355,20 +1344,20 @@ bool sendLine2Serial (String &  line)
 void CloseSerialUpload (bool iserror, String & filename)
 {
 
-    ESP_SERIAL_OUT.println ("\r\nM29");
-    ESP_SERIAL_OUT.flush();
+    ESPCOM::println ("\r\nM29", DEFAULT_PRINTER_PIPE);
+    ESPCOM::flush (DEFAULT_PRINTER_PIPE);
     CONFIG::wait (1000);
-    ESP_SERIAL_OUT.println ("\r\nM29");
-    ESP_SERIAL_OUT.flush();
+    ESPCOM::println ("\r\nM29", DEFAULT_PRINTER_PIPE);
+    ESPCOM::flush (DEFAULT_PRINTER_PIPE);
     if (iserror) {
         String cmdfilename = "M30 " + filename;
-        ESP_SERIAL_OUT.println (cmdfilename);
-        ESP_SERIAL_OUT.println ("M117 SD upload failed");
-        ESP_SERIAL_OUT.flush();
+        ESPCOM::println (cmdfilename, DEFAULT_PRINTER_PIPE);
+        ESPCOM::println (F ("SD upload failed"), PRINTER_PIPE);
+        ESPCOM::flush (DEFAULT_PRINTER_PIPE);
         web_interface->_upload_status = UPLOAD_STATUS_FAILED;
     }  else {
-        ESP_SERIAL_OUT.println ("M117 SD upload done");
-        ESP_SERIAL_OUT.flush();
+        ESPCOM::println (F ("SD upload done"), PRINTER_PIPE);
+        ESPCOM::flush (DEFAULT_PRINTER_PIPE);
         web_interface->_upload_status = UPLOAD_STATUS_SUCCESSFUL;
     }
     //lets give time to FW to proceed
@@ -1392,7 +1381,7 @@ void SDFile_serial_upload (AsyncWebServerRequest *request, String filename, size
     //Guest cannot upload - only admin and user
     if (web_interface->is_authenticated() == LEVEL_GUEST) {
         web_interface->_upload_status = UPLOAD_STATUS_CANCELLED;
-        ESP_SERIAL_OUT.println ("M117 SD upload rejected");
+        ESPCOM::println (F ("SD upload rejected"), PRINTER_PIPE);
         LOG ("SD upload rejected\r\n");
         request->client()->abort();
         return;
@@ -1413,8 +1402,8 @@ void SDFile_serial_upload (AsyncWebServerRequest *request, String filename, size
         is_comment = false;
         current_filename = filename;
         web_interface->_upload_status = UPLOAD_STATUS_ONGOING;
-        ESP_SERIAL_OUT.println ("M117 Uploading...");
-        ESP_SERIAL_OUT.flush();
+        ESPCOM::println (F ("Uploading..."), PRINTER_PIPE);
+        ESPCOM::flush (DEFAULT_PRINTER_PIPE);
 #ifdef DEBUG_PERFORMANCE
         startupload = millis();
         write_time = 0;
@@ -1422,11 +1411,11 @@ void SDFile_serial_upload (AsyncWebServerRequest *request, String filename, size
 #endif
         LOG ("Clear Serial\r\n");
         //get size of buffer
-        size_t len = ESP_SERIAL_OUT.available();
+        size_t len = ESPCOM::available(DEFAULT_PRINTER_PIPE);
         if (len > 0) {
             uint8_t sbuf[len + 1];
             //read buffer
-            ESP_SERIAL_OUT.readBytes (sbuf, len);
+            ESPCOM::readBytes (DEFAULT_PRINTER_PIPE, sbuf, len);
             //convert buffer to zero end array
             sbuf[len] = '\0';
             //use string because easier to handle
@@ -1438,21 +1427,21 @@ void SDFile_serial_upload (AsyncWebServerRequest *request, String filename, size
         String command = "M28 " + filename;
         LOG (command);
         LOG ("\r\n");
-        ESP_SERIAL_OUT.println (command);
-        ESP_SERIAL_OUT.flush();
+        ESPCOM::println (command, DEFAULT_PRINTER_PIPE);
+        ESPCOM::flush (DEFAULT_PRINTER_PIPE);
         CONFIG::wait (500);
         uint32_t timeout = millis();
         bool done = false;
         while (!done) { //time out is  2000ms
             CONFIG::wdtFeed();
             //if there is something in serial buffer
-            size_t len = ESP_SERIAL_OUT.available();
+            size_t len = ESPCOM::available(DEFAULT_PRINTER_PIPE);
             //get size of buffer
             if (len > 0) {
                 CONFIG::wdtFeed();
                 uint8_t sbuf[len + 1];
                 //read buffer
-                ESP_SERIAL_OUT.readBytes (sbuf, len);
+                ESPCOM::readBytes (DEFAULT_PRINTER_PIPE, sbuf, len);
                 //convert buffer to zero end array
                 sbuf[len] = '\0';
                 //use string because easier to handle
@@ -1584,7 +1573,11 @@ void handle_Websocket_Event(AsyncWebSocket * server, AsyncWebSocketClient * clie
 }
 
 //constructor
-WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port) : web_server (port), web_events("/events"), web_socket("/ws")
+WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port) : web_server (port) 
+													, web_events("/events")
+#ifdef WS_DATA_FEATURE
+													, web_socket("/ws")
+#endif
 {
     //that handle "/" and default index.html.gz
     //trick to catch command line on "/" before file being processed
@@ -1621,10 +1614,12 @@ WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port) : web_server (port), web_event
     web_events.onConnect(handle_onevent_connect);
     //events management
     web_server.addHandler(&web_events);
+#ifdef WS_DATA_FEATURE
     //Websocket function
     web_socket.onEvent(handle_Websocket_Event);
     //Websocket management
     web_server.addHandler(&web_socket);
+#endif
     //page not found handler
     web_server.onNotFound ( handle_not_found);
     blockserial = false;

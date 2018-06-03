@@ -74,7 +74,7 @@ class SSD1306Wire : public OLEDDisplay {
            }
            buffer_back[pos] = buffer[pos];
          }
-         yield();
+         optimistic_yield(10000);
         }
 
         // If the minBoundY wasn't updated
@@ -104,7 +104,7 @@ class SSD1306Wire : public OLEDDisplay {
               k = 0;
             }
           }
-          yield();
+          optimistic_yield(10000);
         }
 
         if (k != 0) {

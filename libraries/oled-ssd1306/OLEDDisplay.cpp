@@ -754,8 +754,7 @@ void inline OLEDDisplay::drawInternal(int16_t xMove, int16_t yMove, int16_t widt
         // and setting the new yOffset
         yOffset = 8 - yOffset;
       }
-
-      yield();
+      optimistic_yield(10000);
     }
   }
 }

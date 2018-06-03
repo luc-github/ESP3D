@@ -1,5 +1,5 @@
 /*
-  bridge.h - esp3d bridge serial/tcp class
+  espcom.h - esp3d communication serial/tcp/etc... class
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -18,8 +18,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef BRIDGE_H
-#define BRIDGE_H
+#ifndef ESPCOM_H
+#define ESPCOM_H
 #include <WiFiServer.h>
 #include "config.h"
 #ifdef TCP_IP_DATA_FEATURE
@@ -28,9 +28,15 @@ extern WiFiServer * data_server;
 
 class AsyncResponseStream;
 
-class BRIDGE
+class ESPCOM
 {
 public:
+	static size_t  write(tpipe output, uint8_t d);
+	static long readBytes (tpipe output, uint8_t * sbuf, size_t len);
+	static long baudRate(tpipe output);
+	static size_t available(tpipe output);
+	static void flush(tpipe output);
+	static void bridge(bool async = false);
     static bool processFromSerial (bool async = false);
     static void print (const __FlashStringHelper *data, tpipe output, AsyncResponseStream  *asyncresponse = NULL);
     static void print (String & data, tpipe output, AsyncResponseStream  *asyncresponse = NULL);
@@ -42,7 +48,11 @@ public:
     static void processFromTCP2Serial();
     static void send2TCP (const __FlashStringHelper *data, bool async = false);
     static void send2TCP (String data, bool async = false);
-    static void send2TCP (const char * data, bool async = false);
+    static void send2TCP (const char * data, bool async = false);   
+#endif
+	static bool block_2_printer;
+#ifdef ESP_OLED_FEATURE
+	static bool block_2_oled;
 #endif
 };
 #endif

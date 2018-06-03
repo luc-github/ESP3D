@@ -77,7 +77,7 @@ class SH1106Brzo : public OLEDDisplay {
           }
           buffer_back[pos] = buffer[pos];
         }
-        yield();
+        optimistic_yield(10000);
        }
 
        // If the minBoundY wasn't updated
@@ -111,7 +111,7 @@ class SH1106Brzo : public OLEDDisplay {
            brzo_i2c_write(sendBuffer, k + 1, true);
            k = 0;
          }
-         yield();
+         optimistic_yield(10000);
        }
        if (k != 0) {
          brzo_i2c_write(sendBuffer, k + 1, true);

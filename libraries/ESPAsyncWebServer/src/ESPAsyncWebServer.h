@@ -130,6 +130,7 @@ class AsyncWebServerRequest {
     AsyncWebServerResponse* _response;
     StringArray _interestingHeaders;
     ArDisconnectHandler _onDisconnectfn;
+
     String _temp;
     uint8_t _parseState;
 
@@ -204,6 +205,7 @@ class AsyncWebServerRequest {
     RequestedConnectionType requestedConnType() const { return _reqconntype; }
     bool isExpectedRequestedConnType(RequestedConnectionType erct1, RequestedConnectionType erct2 = RCT_NOT_USED, RequestedConnectionType erct3 = RCT_NOT_USED);
     void onDisconnect (ArDisconnectHandler fn);
+
     //hash is the string representation of:
     // base64(user:pass) for basic or
     // user:realm:md5(user:realm:pass) for digest
@@ -323,6 +325,7 @@ class AsyncWebHandler {
     virtual void handleRequest(AsyncWebServerRequest *request __attribute__((unused))){}
     virtual void handleUpload(AsyncWebServerRequest *request  __attribute__((unused)), const String& filename __attribute__((unused)), size_t index __attribute__((unused)), uint8_t *data __attribute__((unused)), size_t len __attribute__((unused)), bool final  __attribute__((unused))){}
     virtual void handleBody(AsyncWebServerRequest *request __attribute__((unused)), uint8_t *data __attribute__((unused)), size_t len __attribute__((unused)), size_t index __attribute__((unused)), size_t total __attribute__((unused))){}
+    virtual bool isRequestHandlerTrivial(){return true;}
 };
 
 /*
