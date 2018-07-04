@@ -262,7 +262,7 @@ void ESPCOM::print (const char * data, tpipe output, ESPResponseStream  *espresp
     case OLED_PIPE:
 		{
 		if (!ESPCOM::block_2_oled) {
-			if(!((data=="\n")||(data=="\r")||(data=="\r\n"))) {
+			if(!(!strcmp(data,"\n")||!strcmp(data,"\r")||!strcmp(data,"\r\n"))) {
 				OLED_DISPLAY::print(data);
 				OLED_DISPLAY::update_lcd();	
 				}
@@ -274,9 +274,9 @@ void ESPCOM::print (const char * data, tpipe output, ESPResponseStream  *espresp
 		{
 #ifdef ESP_OLED_FEATURE
 		OLED_DISPLAY::setCursor(0, 48);
-		if(!((data=="\n")||(data=="\r")||(data=="\r\n")))ESPCOM::print(data, OLED_PIPE);
+		if(!(!strcmp(data,"\n")||!strcmp(data,"\r")||!strcmp(data,"\r\n")))ESPCOM::print(data, OLED_PIPE);
 #endif
-        if(!((data=="\n")||(data=="\r")||(data=="\r\n")))ESPCOM::print ("M117 ", DEFAULT_PRINTER_PIPE);
+        if(!(!strcmp(data,"\n")||!strcmp(data,"\r")||!strcmp(data,"\r\n")))ESPCOM::print ("M117 ", DEFAULT_PRINTER_PIPE);
         ESPCOM::print (data, DEFAULT_PRINTER_PIPE);
         }
         break;
