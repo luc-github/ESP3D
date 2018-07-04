@@ -1,4 +1,4 @@
-# ESP3D[![Code Climate](https://codeclimate.com/github/luc-github/ESP3D/badges/gpa.svg)](https://codeclimate.com/github/luc-github/ESP3D)
+# ESP3D 2.0 [![Code Climate](https://codeclimate.com/github/luc-github/ESP3D/badges/gpa.svg)](https://codeclimate.com/github/luc-github/ESP3D)
 
 Firmware for ESP8266/ESP8285  and ESP32 used with 3D printer using [ESP8266 core version](https://github.com/esp8266/Arduino)  and [ESP32 core version](https://github.com/espressif/arduino-esp32)   
 
@@ -16,7 +16,7 @@ Arduino ide 1.6.5 with stable [2.0.0](http://arduino.esp8266.com/versions/2.0.0/
 Arduino ide 1.6.8 with stable [2.2.0](http://arduino.esp8266.com/versions/2.2.0/package_esp8266com_index.json) from ESP8266, please use https://github.com/luc-github/ESP3D/releases/tag/v0.6.2    
 Arduino ide 1.8.5 with stable [2.4.0](http://arduino.esp8266.com/versions/2.4.0/package_esp8266com_index.json) from ESP8266, please use https://github.com/luc-github/ESP3D/releases/tag/1.0 [![Build Status](https://travis-ci.org/luc-github/ESP3D.svg?branch=master)](https://travis-ci.org/luc-github/ESP3D)    
  
-<u>[Development version for 2.0 (2.0 branch)](https://github.com/luc-github/ESP3D/tree/2.0) & [ESP-WEBUI (2.0 branch)](https://github.com/luc-github/ESP3D-WEBUI/tree/2.0):</u>    
+<u>[Development version for 2.0](https://github.com/luc-github/ESP3D/tree/2.0) & [ESP-WEBUI (2.0 branch)](https://github.com/luc-github/ESP3D-WEBUI/tree/2.0):</u>    
 Arduino ide 1.8.5 with git version from ESP8266 or ESP32 for 100% support of ESP32 : [![Build Status](https://travis-ci.org/luc-github/ESP3D.svg?branch=2.0)](https://travis-ci.org/luc-github/ESP3D)   
 
 [All releases](https://github.com/luc-github/ESP3D/wiki)
@@ -38,12 +38,13 @@ Especially if need to buy new modules for testing.
 * Authentication for sensitive pages, here to enable/disable [AUTHENTICATION_FEATURE](https://github.com/luc-github/ESP3D/blob/master/esp3d/config.h)
 * Update firmware by web browser, here to enable/disable [WEB_UPDATE_FEATURE](https://github.com/luc-github/ESP3D/blob/master/esp3d/config.h)
 * Control ESP module using commands on serial or data port, here to enable/disable [SERIAL_COMMAND_FEATURE](https://github.com/luc-github/ESP3D/blob/master/esp3d/config.h)
-* UI fully constomizable without reflashing FW using html templates, [keywords](https://raw.githubusercontent.com/luc-github/ESP3D/master/docs/keywords.txt) and html files/images
 * Captive portal in Access point mode which redirect all unknow call to main page, here to enable/disable [CAPTIVE_PORTAL_FEATURE](https://github.com/luc-github/ESP3D/blob/master/esp3d/config.h) 
 * mDNS which allows to key the name defined in web browser and connect only with bonjour installed on computer, here to enable/disable [MDNS_FEATURE](https://github.com/luc-github/ESP3D/blob/master/esp3d/config.h)
 * SSDP, this feature is a discovery protocol, supported on Windows out of the box, here to enable/disable [SSDP_FEATURE](https://github.com/luc-github/ESP3D/blob/master/esp3d/config.h)
-* Printer monitoring / control (temperatures/speed/jog/list SDCard content/launch,pause or stop a print/etc...), here to enable/disable [MONITORING_FEATURE/INFO_MSG_FEATURE/ERROR_MSG_FEATURE/STATUS_MSG_FEATURE](https://github.com/luc-github/ESP3D/blob/master/esp3d/config.h)
 * Fail safe mode (Access point)is enabled if cannot connect to defined station at boot.
+* Choice of web server Async or Sync   
+* Websocket support   
+* OLED screen support   
 * The web ui add even more feature : https://github.com/luc-github/ESP3D-WEBUI/blob/master/README.md#features  
 
 
@@ -69,7 +70,8 @@ IP: 192.168.0.1
 Mask: 255.255.255.0   
 GW:192.168.0.1    
 Baud rate: 115200   
-Web port:80   
+Web port:80 
+On async webserver the websocket is web port => 80+1 : 81  
 Data port: 8888     
 Web Page refresh: 3 secondes    
 User: admin   
@@ -84,14 +86,27 @@ Check wiki : https://github.com/luc-github/ESP3D/wiki/Direct-ESP3D-commands
 
 ## Installation
 1. Please follow installation of the ESP core you want to use : [ESP8266 core version](https://github.com/esp8266/Arduino)  or [ESP32 core version](https://github.com/espressif/arduino-esp32)   
-2.  Add missing libraries if you target ESP32 present in libraries directory
-* DNSServer (from https://github.com/bbx10/DNSServer_tng)
-* WebServer (from https://github.com/bbx10/WebServer_tng)
-* NetBIOS and SSDP are currently disabled for ESP32 as not yet supported
-3. Compile project (ESP3D.ino) according target: ESP8266 board or ESP32 board, please review config.h to enable disable a feature, by default athenticatio is disabled and all others are enabled.   
+2.  Add libraries 
+* ESP3D because it is now a library so copy project to your arduino library folder
+If you want async webserver (currently not recommended for ESP8266, suggested for ESP32):   
+* ESPAsyncWebServer from @me-no-dev   
+if you target ESP8266  
+* ESPAsyncTCP from @me-no-dev   
+if you target ESP32:      
+* AsyncTCP from @me-no-dev 
+Specific for ESP32    
+* ESP32SSDP
+If you want sync webserver (recommended for ESP8266, slow for ESP32):  
+* arduinoWebSockets fron @Links2004
+If you want OLED support:  
+* oled-ssd1306 from @squix78
+If you want DHT11/22 support:  
+* DHT_sensor_library_for_ESPx from @beegee-tokyo
+3. Compile project from examples\basicesp3d\basicesp3d.ino) according target: ESP8266 board or ESP32 board, please review config.h to enable disable a feature, by default athenticatio is disabled and all others are enabled.   
 * for ESP8266 set CPU freq to 160MHz for better (https://github.com/luc-github/ESP3D/wiki/Install-Instructions)
 4. Upload the data content on ESP3D file system
 * Using SPIFFS uploader, this plugin and install instructions is available on each ESP core - please refere to it
+or
 * Using embedded uploader (you may need to format SPIFFS using : [ESP710]FORMAT on ESP8266 first)    
 if embedded uploader does not show up you can force it ti display using : http://your_IP_address?forcefallback=yes    
 <img src=https://raw.githubusercontent.com/luc-github/ESP3D/master/images/docs/embedded.png><br>
@@ -99,7 +114,7 @@ if embedded uploader does not show up you can force it ti display using : http:/
 ## Update
 * Generate a binary using the export binary menu from Arduino IDE and upload it using ESP-WEBUI or embedded interface  
 
-<H3>:warning:Do not flash your Printer fw with ESP connected - it bring troubles, at least on DaVinci</H3>
+<H3>:warning:Do not flash your Printer fw with ESP connected on Serial - it bring troubles, at least on DaVinci, but no issue if you update using web UI</H3>
 
 ## Contribution/customization
 * To style the code before pushing PR please use [astyle --style=otbs *.h *.cpp *.ino](http://astyle.sourceforge.net/)   
@@ -107,7 +122,6 @@ if embedded uploader does not show up you can force it ti display using : http:/
 * The current UI is located [here](https://github.com/luc-github/ESP3D-WEBUI)
 * An optional UI is under development using old repetier UI - check [UI\repetier\testui.htm] (https://github.com/luc-github/ESP3D/blob/master/UI/repetier/testui.htm) file   
 
-Feedback/suggestion/discussions are always welcome   
  
 ## Need more information about supported boards or wiring ?
 [Check the wiki](https://github.com/luc-github/ESP3D/wiki)
@@ -120,6 +134,7 @@ Check [Wiki](https://github.com/luc-github/ESP3D/wiki/Install-Instructions) and 
 
 ## ESP3D is used by :
 * Custom version is used on azteeg mini wifi : http://www.panucatt.com/azteeg_X5_mini_reprap_3d_printer_controller_p/ax5mini.htm
+* Several boards, mostly chinese ones, but without noticed me, so I can't promote them here... 
 * More to come...
 
 If you use ESP3D on your product, drop me a message so I can link your product page here.   

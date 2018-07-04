@@ -131,6 +131,9 @@ var formData = new FormData();
 formData.append('path', currentpath);
 for (var i3 = 0; i3 < files.length; i3++) {
 var file = files[i3];
+var arg = currentpath + file.name + "S";
+ //append file size first to check updload is complete
+ formData.append(arg, file.size);
  formData.append('myfiles[]', file, currentpath+file.name);}
 var xmlhttp = new XMLHttpRequest();
 xmlhttp.open('POST', '/files', true);
@@ -175,6 +178,9 @@ document.getElementById('prgfw').style.visibility = "visible";
 var formData = new FormData();
 for (var i4 = 0; i4 < files.length; i4++) {
 var file = files[i4];
+var arg =  "/" + file.name + "S";
+ //append file size first to check updload is complete
+ formData.append(arg, file.size);
  formData.append('myfile[]', file, "/"+file.name);}
 var xmlhttp = new XMLHttpRequest();
 xmlhttp.open('POST', '/updatefw', true);
