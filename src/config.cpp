@@ -38,14 +38,6 @@ extern "C" {
 #include <time.h>
 #endif
 
-#ifdef ARDUINO_ARCH_ESP32
-#ifdef USE_SERIAL_1
-HardwareSerial Serial (1);
-#endif
-#ifdef USE_SERIAL_2
-HardwareSerial Serial2 (2);
-#endif
-#endif
 
 #ifdef DHT_FEATURE
 #include "DHTesp.h"

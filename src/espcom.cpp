@@ -35,15 +35,6 @@
 
 uint8_t  ESPCOM::current_socket_id=0;
 
-#ifdef ARDUINO_ARCH_ESP32
-#ifdef USE_SERIAL_1
-extern HardwareSerial Serial1;
-#endif
-#ifdef USE_SERIAL_2
-extern HardwareSerial Serial2;
-#endif
-#endif
-
 #ifdef TCP_IP_DATA_FEATURE
 WiFiServer * data_server;
 WiFiClient serverClients[MAX_SRV_CLIENTS];
