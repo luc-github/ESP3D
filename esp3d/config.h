@@ -47,8 +47,6 @@
 #define SPIFFS_FILE_READ FILE_READ
 #define SD_FILE_WRITE FILE_WRITE
 #define SPIFFS_FILE_WRITE FILE_WRITE
-
-extern HardwareSerial Serial2;
 #else
 #define FS_DIR fs::Dir
 #define FS_FILE fs::File

@@ -35,10 +35,6 @@ extern "C" {
 #endif
 #include "bridge.h"
 
-#ifdef ARDUINO_ARCH_ESP32
-//This is output for ESP32 to avoid garbage
-HardwareSerial Serial2(2);
-#endif
 
 uint8_t CONFIG::FirmwareTarget = UNKNOWN_FW;
 
