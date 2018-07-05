@@ -19,7 +19,7 @@
 */
 
 //version and sources location
-#define FW_VERSION "2.0.0.c17"
+#define FW_VERSION "2.0.0.c18"
 #define REPOSITORY "https://github.com/luc-github/ESP3D"
 
 //Customize ESP3D ////////////////////////////////////////////////////////////////////////
@@ -90,19 +90,21 @@
 //Serial rx buffer size is 256 but can be extended
 #define SERIAL_RX_BUFFER_SIZE 512
 
-//which serial ESP use to communicate to printer (ESP32 has 3 serials available)
+//Serial Parameters
+#define ESP_SERIAL_PARAM SERIAL_8N1
+
+//which serial ESP use to communicate to printer (ESP32 has 3 serials available, ESP8266 only one)
+//Uncomment one only
 #define USE_SERIAL_0
+//For ESP32 Only
 //#define USE_SERIAL_1
 //#define USE_SERIAL_2
 
-//DEBUG Flag do not do this when connected to printer !!!
-//be noted all upload may failed if enabled
-//#define DEBUG_ESP3D
-//#define DEBUG_OUTPUT_SPIFFS
-//#define DEBUG_OUTPUT_SERIAL
-//#define DEBUG_OUTPUT_TCP
-
 //Pins Definition ////////////////////////////////////////////////////////////////////////
+//-1 means use default pins of your board what ever the serial you choose
+#define ESP_RX_PIN -1
+#define ESP_TX_PIN -1
+
 #ifdef RECOVERY_FEATURE
 //pin used to reset setting
 #define RESET_CONFIG_PIN 2
@@ -133,6 +135,13 @@
 #define MAX_FW_ID 6
 
 //Do not Edit after this line //////////////////////////////////////////////
+
+//DEBUG Flag do not do this when connected to printer !!!
+//be noted all upload may failed if enabled
+//#define DEBUG_ESP3D
+//#define DEBUG_OUTPUT_SPIFFS
+//#define DEBUG_OUTPUT_SERIAL
+//#define DEBUG_OUTPUT_TCP
 
 //Sanity check
 #ifndef SDCARD_FEATURE

@@ -173,17 +173,30 @@ bool CONFIG::InitBaudrate(long value)
     //TODO define baudrate for each Serial
 #ifdef USE_SERIAL_0
     if (Serial.baudRate() != baud_rate) {
-        Serial.begin (baud_rate);
+#ifdef ARDUINO_ARCH_ESP8266
+	Serial.begin (baud_rate);
+#else
+	Serial.begin (baud_rate, ESP_SERIAL_PARAM, ESP_RX_PIN, ESP_TX_PIN);
+#endif
+        
     }
 #endif
 #ifdef USE_SERIAL_1
     if (Serial1.baudRate() != baud_rate) {
-        Serial1.begin (baud_rate);
+#ifdef ARDUINO_ARCH_ESP8266
+	Serial1.begin (baud_rate);
+#else
+	Serial1.begin (baud_rate, ESP_SERIAL_PARAM, ESP_RX_PIN, ESP_TX_PIN);
+#endif
     }
 #endif
 #ifdef USE_SERIAL_2
     if (Serial2.baudRate() != baud_rate) {
-        Serial2.begin (baud_rate);
+#ifdef ARDUINO_ARCH_ESP8266
+	Serial2.begin (baud_rate);
+#else
+	Serial2.begin (baud_rate, ESP_SERIAL_PARAM, ESP_RX_PIN, ESP_TX_PIN);
+#endif
     }
 #endif
 
