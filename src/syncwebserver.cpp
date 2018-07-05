@@ -1201,7 +1201,18 @@ void SDFile_serial_upload()
             //get size of buffer
             if (len > 0) {
                 CONFIG::wait(0);
-                uint8_t sbuf[len + 1];
+                uint8_t * sbuf = (uint8_t *)malloc(len+1);
+				if(!sbuf){
+					        ESPCOM::println (F ("SD upload rejected"), PRINTER_PIPE);
+							LOG("SD upload rejected\r\n");
+							LOG("Need to stop");
+#if defined ( ARDUINO_ARCH_ESP8266)
+							web_interface->web_server.client().stopAll();
+#else 
+							web_interface->web_server.client().stop();
+#endif
+							return ;
+						}
                 //read buffer
                 ESPCOM::readBytes (DEFAULT_PRINTER_PIPE, sbuf, len);
                 //convert buffer to zero end array
@@ -1213,6 +1224,7 @@ void SDFile_serial_upload()
                 if (response.indexOf ("wait") > -1) {
                     LOG ("Exit start writing\r\n");
                     done = true;
+                    free(sbuf);
                     break;
                 }
                 //it is first command if it is failed no need to continue
@@ -1226,8 +1238,10 @@ void SDFile_serial_upload()
 #else 
 					web_interface->web_server.client().stop();
 #endif
+					free(sbuf);
                     return;
                 }
+             free(sbuf);
             }
             if ( (millis() - timeout) > SERIAL_CHECK_TIMEOUT) {
                 done = true;

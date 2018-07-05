@@ -615,7 +615,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
             } else {
                 ESPCOM::print ( (const char *) CONFIG::intTostr (ibuf), output, espresponse);
             }
-            ESPCOM::print (F ("\",\"H\":\"Baud Rate\",\"O\":[{\"9600\":\"9600\"},{\"19200\":\"19200\"},{\"38400\":\"38400\"},{\"57600\":\"57600\"},{\"115200\":\"115200\"},{\"230400\":\"230400\"},{\"250000\":\"250000\"}]}"), output, espresponse);
+            ESPCOM::print (F ("\",\"H\":\"Baud Rate\",\"O\":[{\"9600\":\"9600\"},{\"19200\":\"19200\"},{\"38400\":\"38400\"},{\"57600\":\"57600\"},{\"115200\":\"115200\"},{\"230400\":\"230400\"},{\"250000\":\"250000\"},{\"500000\":\"500000\"},{\"921600 \":\"921600 \"}]}"), output, espresponse);
             ESPCOM::println (F (","), output, espresponse);
 
             //2-Sleep Mode
@@ -1213,7 +1213,6 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
                     if (pos == EP_TARGET_FW) {
                         CONFIG::InitFirmwareTarget();
                     }
-
 #ifdef DHT_FEATURE
                     if (pos == EP_DHT_TYPE) {
                         CONFIG::DHT_type = bbuf;
@@ -1568,14 +1567,6 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
     case 801:
         ESPCOM::print (cmd_params, output, espresponse);
         ESPCOM::println (CONFIG::GetFirmwareTargetShortName(), output, espresponse);
-        break;
-    //clear status/error/info list
-    case 802:
-        if (CONFIG::check_update_presence( ) ) {
-            ESPCOM::println ("yes", output, espresponse);
-        } else {
-            ESPCOM::println ("no", output, espresponse);
-        }
         break;
     case 810:
         web_interface->blockserial = false;

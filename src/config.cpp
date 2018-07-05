@@ -38,7 +38,6 @@ extern "C" {
 #include <time.h>
 #endif
 
-
 #ifdef DHT_FEATURE
 #include "DHTesp.h"
 extern DHTesp dht;
@@ -153,11 +152,9 @@ bool  CONFIG::is_locked(byte flag){
 
 void CONFIG::InitDirectSD()
 {
-
     CONFIG::is_direct_sd = false;
 
 }
-
 
 bool CONFIG::InitBaudrate(long value)
 {
@@ -168,7 +165,7 @@ bool CONFIG::InitBaudrate(long value)
 			return false;
 		}
 	}
-    if ( ! (baud_rate == 9600 || baud_rate == 19200 || baud_rate == 38400 || baud_rate == 57600 || baud_rate == 115200 || baud_rate == 230400 || baud_rate == 250000) ) {
+    if ( ! (baud_rate == 9600 || baud_rate == 19200 || baud_rate == 38400 || baud_rate == 57600 || baud_rate == 115200 || baud_rate == 230400 || baud_rate == 250000 || baud_rate == 500000 || baud_rate == 921600 ) ) {
         return false;
     }
 
@@ -579,104 +576,6 @@ bool CONFIG::write_string (int pos, const __FlashStringHelper *str)
     String stmp = str;
     return write_string (pos, stmp.c_str() );
 }
-
-bool CONFIG::check_update_presence( )
-{
-    bool result = false;
-    if (CONFIG::is_direct_sd) {
-        if (!CONFIG::InitBaudrate()) return false;
-        CONFIG::InitFirmwareTarget();
-        delay (500);
-        String cmd = "M20";
-        //By default M20 should be applied
-        //if (CONFIG::FirmwareTarget == UNKNOWN_FW) return false;
-        if (CONFIG::FirmwareTarget == SMOOTHIEWARE) {
-            byte sd_dir = 0;
-            if (!CONFIG::read_byte (EP_PRIMARY_SD, &sd_dir ) ) {
-                sd_dir = DEFAULT_PRIMARY_SD;
-            }
-            if (sd_dir == SD_DIRECTORY) {
-                cmd = "ls /sd";
-            } else if (sd_dir == EXT_DIRECTORY) {
-                cmd = "ls /ext";
-            } else {
-                return false;
-            }
-        }
-        String tmp;
-
-        int count ;
-        //send command to serial as no need to transfer ESP command
-        //to avoid any pollution if Uploading file to SDCard
-        //block every query
-        //empty the serial buffer and incoming data
-        if (ESPCOM::processFromSerial() ) {
-            delay (1);
-        }
-        //Send command
-        ESPCOM::println (cmd, DEFAULT_PRINTER_PIPE);
-        count = 0;
-        String current_buffer;
-        String current_line;
-        //int pos;
-        int temp_counter = 0;
-
-        //pickup the list
-        while (count < MAX_TRY) {
-            //give some time between each buffer
-            if (ESPCOM::available(DEFAULT_PRINTER_PIPE)) {
-                count = 0;
-                size_t len = ESPCOM::available(DEFAULT_PRINTER_PIPE);
-                uint8_t sbuf[len + 1];
-                //read buffer
-                ESPCOM::readBytes (DEFAULT_PRINTER_PIPE, sbuf, len);
-                //change buffer as string
-                sbuf[len] = '\0';
-                //add buffer to current one if any
-                current_buffer += (char * ) sbuf;
-                while (current_buffer.indexOf ("\n") != -1) {
-                    //remove the possible "\r"
-                    current_buffer.replace ("\r", "");
-                    //pos = current_buffer.indexOf("\n");
-                    //get line
-                    current_line = current_buffer.substring (0, current_buffer.indexOf ("\n") );
-                    //if line is command ack - just exit so save the time out period
-                    if ( (current_line == "ok") || (current_line == "wait") ) {
-                        count = MAX_TRY;
-                        break;
-                    }
-                    //check line
-                    //save time no need to continue
-                    if (current_line.indexOf ("busy:") > -1 || current_line.indexOf ("T:") > -1 || current_line.indexOf ("B:") > -1) {
-                        temp_counter++;
-                    } else {
-
-                    }
-                    if (temp_counter > 5) {
-                        break;
-                    }
-                    //current remove line from buffer
-                    tmp = current_buffer.substring (current_buffer.indexOf ("\n") + 1, current_buffer.length() );
-                    current_buffer = tmp;
-                    delay (0);
-                }
-                delay (0);
-            } else {
-                delay (1);
-            }
-            //it is sending too many temp status should be heating so let's exit the loop
-            if (temp_counter > 5) {
-                count = MAX_TRY;
-            }
-            count++;
-        }
-        if (ESPCOM::processFromSerial() ) {
-            delay (1);
-        }
-    }
-    return result;
-}
-
 
 //write a string (array of byte with a 0x00  at the end)
 bool CONFIG::write_string (int pos, const char * byte_buffer)

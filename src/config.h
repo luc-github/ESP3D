@@ -19,7 +19,7 @@
 */
 
 //version and sources location
-#define FW_VERSION "2.0.0.c15"
+#define FW_VERSION "2.0.0.c17"
 #define REPOSITORY "https://github.com/luc-github/ESP3D"
 
 //Customize ESP3D ////////////////////////////////////////////////////////////////////////
@@ -201,7 +201,6 @@ using fs::File;
 #define LOG(string) { FS_FILE logfile = SPIFFS.open("/log.txt", "a+");logfile.print(string);logfile.close();}
 #endif
 
-
 #ifdef DEBUG_OUTPUT_SERIAL
 #define DEBUG_PIPE SERIAL_PIPE
 #define LOG(string) {Serial.print(string);}
@@ -369,9 +368,7 @@ const char DEFAULT_TIME_SERVER3 []  PROGMEM =	"1.pool.ntp.org";
 #define DEFAULT_DHT_TYPE 255
 const int DEFAULT_DHT_INTERVAL =			30;
 
-
 #define DEFAULT_IS_DIRECT_SD 0
-
 
 //SD Card reader speed
 //possible values are :SPI_FULL_SPEED, SPI_DIV3_SPEED,
@@ -502,7 +499,6 @@ public:
     static void InitPins();
     static bool InitBaudrate(long value = 0);
     static bool InitExternalPorts();
-    static bool check_update_presence();
     static uint8_t GetFirmwareTarget();
     static const char* GetFirmwareTargetName();
     static const char* GetFirmwareTargetShortName();

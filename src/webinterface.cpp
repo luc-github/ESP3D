@@ -95,7 +95,10 @@ bool sendLine2Serial (String &  line)
             size_t len = ESPCOM::available(DEFAULT_PRINTER_PIPE);
             //get size of buffer
             if (len > 0) {
-                uint8_t sbuf[len + 1];
+                uint8_t * sbuf = (uint8_t *)malloc(len+1);
+					if(!sbuf){
+					return false;
+					}
                 //read buffer
                 ESPCOM::readBytes (DEFAULT_PRINTER_PIPE, sbuf, len);
                 //convert buffer to zero end array
@@ -103,11 +106,13 @@ bool sendLine2Serial (String &  line)
                 //use string because easier to handle
                 String response = (const char*) sbuf;
                 if ( (response.indexOf ("ok") > -1)  || (response.indexOf ("wait") > -1) ) {
+					free(sbuf);
                     return true;
                 }
                 if (response.indexOf ("Resend") > -1) {
                     count++;
                     if (count > 5) {
+						free(sbuf);
                         return false;
                     }
                     LOG ("resend\r\n")
@@ -116,6 +121,7 @@ bool sendLine2Serial (String &  line)
                     CONFIG::wait (5);
                     timeout = millis();
                 }
+                free(sbuf);
             }
             //no answer so exit: no news = good news
             if ( millis() - timeout > 500) {

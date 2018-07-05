@@ -346,7 +346,7 @@ bool ESPCOM::processFromSerial (bool async)
     //check UART for data
     if (ESPCOM::available(DEFAULT_PRINTER_PIPE)) {
         size_t len = ESPCOM::available(DEFAULT_PRINTER_PIPE);
-       uint8_t * sbuf = (uint8_t *)malloc(len+1);
+        uint8_t * sbuf = (uint8_t *)malloc(len+1);
         if(!sbuf){
             return false;
         }
