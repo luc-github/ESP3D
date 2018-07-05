@@ -34,6 +34,7 @@ extern void handle_serial_SDFileList (AsyncWebServerRequest *request);
 extern void SDFile_serial_upload (AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final);
 extern void handle_Websocket_Event(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len);
 extern void handle_onevent_connect(AsyncEventSourceClient *client);
+extern bool can_process_serial;
 
 #ifdef SSDP_FEATURE
 extern void handle_SSDP (AsyncWebServerRequest *request);

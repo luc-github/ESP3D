@@ -44,6 +44,9 @@ bool ESPCOM::block_2_printer = false;
 
 void ESPCOM::bridge(bool async)
 {
+#if defined (ASYNCWEBSERVER)
+	if(can_process_serial) {
+#endif
 //be sure wifi is on to proceed wifi function
     if ((WiFi.getMode() != WIFI_OFF) || wifi_config.WiFi_on) {
 //read tcp port input
@@ -53,7 +56,11 @@ void ESPCOM::bridge(bool async)
     }
 //read serial input
 ESPCOM::processFromSerial();
+#if defined (ASYNCWEBSERVER)
+	}
+#endif
 }
+
 long ESPCOM::readBytes (tpipe output, uint8_t * sbuf, size_t len)
 {
 	 switch (output) {
@@ -339,7 +346,10 @@ bool ESPCOM::processFromSerial (bool async)
     //check UART for data
     if (ESPCOM::available(DEFAULT_PRINTER_PIPE)) {
         size_t len = ESPCOM::available(DEFAULT_PRINTER_PIPE);
-        uint8_t sbuf[len+1];
+       uint8_t * sbuf = (uint8_t *)malloc(len+1);
+        if(!sbuf){
+            return false;
+        }
         sbuf[len] = '\0';
         ESPCOM::readBytes (DEFAULT_PRINTER_PIPE, sbuf, len);
 #ifdef TCP_IP_DATA_FEATURE
@@ -366,6 +376,7 @@ bool ESPCOM::processFromSerial (bool async)
 #endif
         //process data if any
         COMMAND::read_buffer_serial (sbuf, len);
+        free(sbuf);
         return true;
     } else {
         return false;

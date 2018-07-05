@@ -57,6 +57,7 @@
 
 //embedded response file if no files on SPIFFS
 #include "nofile.h"
+bool can_process_serial = true;
 
 extern bool  deleteRecursive(String path);
 extern void CloseSerialUpload (bool iserror, String & filename);
@@ -707,6 +708,8 @@ void handle_web_command (AsyncWebServerRequest *request)
             LOG ("Start PurgeSerial\r\n")
             ESPCOM::processFromSerial (true);
             LOG ("End PurgeSerial\r\n")
+			can_process_serial = false;
+			request->onDisconnect([request](){can_process_serial = true;});
             //send command
             LOG ("Send Command\r\n")
             ESPCOM::println (cmd, DEFAULT_PRINTER_PIPE);
