@@ -1575,6 +1575,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
     default:
         ESPCOM::println (INCORRECT_CMD_MSG, output, espresponse);
         response = false;
+        break;
     }
     return response;
 }

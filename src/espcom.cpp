@@ -79,6 +79,9 @@ long ESPCOM::readBytes (tpipe output, uint8_t * sbuf, size_t len)
         return Serial2.readBytes(sbuf,len);
         break;
 #endif
+	default: 
+		return 0;
+		break;
 	}
 }
 long ESPCOM::baudRate(tpipe output)
@@ -100,6 +103,9 @@ long ESPCOM::baudRate(tpipe output)
         br = Serial2.baudRate();
         break;
 #endif
+	default: 
+		return 0;
+		break;
 	}
 #ifdef ARDUINO_ARCH_ESP32
     //workaround for ESP32
@@ -129,6 +135,9 @@ size_t ESPCOM::available(tpipe output){
         return Serial2.available();
         break;
 #endif
+	default: 
+		return 0;
+		break;
 	}
 }
 size_t   ESPCOM::write(tpipe output, uint8_t d){
@@ -150,6 +159,9 @@ size_t   ESPCOM::write(tpipe output, uint8_t d){
         return Serial2.write(d);
         break;
 #endif
+	default:
+		return 0;
+		break;
 	}	
 }
 void ESPCOM::flush (tpipe output, ESPResponseStream  *espresponse)
@@ -184,6 +196,8 @@ void ESPCOM::flush (tpipe output, ESPResponseStream  *espresponse)
 		}
         break;
 #endif
+	default:
+		break;
 
 	}
 }

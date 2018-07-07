@@ -213,6 +213,8 @@ void onWiFiEvent(WiFiEvent_t event){
 		case SYSTEM_EVENT_ETH_GOT_IP:
 			break;     
 #endif
+		default:
+			break;
 	}
 
 }
@@ -488,12 +490,13 @@ bool WIFI_CONFIG::Setup (bool force_ap)
 
             default:
 #ifdef ESP_OLED_FEATURE
-			OLED_DISPLAY::display_signal(wifi_config.getSignal (WiFi.RSSI ()));
+				OLED_DISPLAY::display_signal(wifi_config.getSignal (WiFi.RSSI ()));
 #endif
-			if ((dot == 0) || last!=WiFi.status()) {
-				msg = F ("Connecting");
-				last=WiFi.status();
-			}
+				if ((dot == 0) || last!=WiFi.status()) {
+					msg = F ("Connecting");
+					last=WiFi.status();
+				}
+				break;
 		   }
 			dot++;
 			msg.trim();

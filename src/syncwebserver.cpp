@@ -93,6 +93,8 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
             // send message to client
             // webSocket.sendBIN(num, payload, length);
             break;
+        default:
+			break;
     }
 
 }
@@ -249,6 +251,7 @@ void handle_login()
                         break;
                     default:
                         auths = "guest";
+                        break;
                     }
             } else {
                 delete current_auth;
