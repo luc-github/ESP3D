@@ -141,7 +141,7 @@ size_t ESPCOM::available(tpipe output){
 	}
 }
 size_t   ESPCOM::write(tpipe output, uint8_t d){
-	if ((DEFAULT_PRINTER_PIPE == output) && (block_2_printer || CONFIG::is_locked(FLAG_BLOCK_M117))) return 0;
+	if ((DEFAULT_PRINTER_PIPE == output) && (block_2_printer || CONFIG::is_locked(FLAG_BLOCK_SERIAL))) return 0;
     if ((SERIAL_PIPE == output) && CONFIG::is_locked(FLAG_BLOCK_SERIAL))return 0;
  switch (output) {
 #ifdef USE_SERIAL_0
@@ -213,7 +213,7 @@ void ESPCOM::print (String & data, tpipe output, ESPResponseStream  *espresponse
 }
 void ESPCOM::print (const char * data, tpipe output, ESPResponseStream  *espresponse)
 {
-	if ((DEFAULT_PRINTER_PIPE == output) && ( block_2_printer || CONFIG::is_locked(FLAG_BLOCK_M117))) return;
+	if ((DEFAULT_PRINTER_PIPE == output) && ( block_2_printer || CONFIG::is_locked(FLAG_BLOCK_SERIAL))) return;
     if ((SERIAL_PIPE == output) && CONFIG::is_locked(FLAG_BLOCK_SERIAL))return;
 #ifdef TCP_IP_DATA_FEATURE
     if ((TCP_PIPE == output) && CONFIG::is_locked(FLAG_BLOCK_TCP))return;
@@ -297,8 +297,10 @@ void ESPCOM::print (const char * data, tpipe output, ESPResponseStream  *espresp
 		OLED_DISPLAY::setCursor(0, 48);
 		if(!(!strcmp(data,"\n")||!strcmp(data,"\r")||!strcmp(data,"\r\n")))ESPCOM::print(data, OLED_PIPE);
 #endif
-        if(!(!strcmp(data,"\n")||!strcmp(data,"\r")||!strcmp(data,"\r\n")))ESPCOM::print ("M117 ", DEFAULT_PRINTER_PIPE);
-        ESPCOM::print (data, DEFAULT_PRINTER_PIPE);
+		if (!CONFIG::is_locked(FLAG_BLOCK_M117)){
+			if(!(!strcmp(data,"\n")||!strcmp(data,"\r")||!strcmp(data,"\r\n")))ESPCOM::print ("M117 ", DEFAULT_PRINTER_PIPE);
+			ESPCOM::print (data, DEFAULT_PRINTER_PIPE);
+			}
         }
         break;
     default:
