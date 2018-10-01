@@ -120,6 +120,10 @@ Check [Wiki](https://github.com/luc-github/ESP3D/wiki/Install-Instructions) and 
 
 ## ESP3D is used by :
 * Custom version is used on azteeg mini wifi : http://www.panucatt.com/azteeg_X5_mini_reprap_3d_printer_controller_p/ax5mini.htm
+* GRBL_Esp32 a GRBL port on ESP32 done by @bdring - https://github.com/bdring/Grbl_Esp32   
+
+[![](https://img.youtube.com/vi/7vtWNn9jyDs/3.jpg)](https://www.youtube.com/watch?v=7vtWNn9jyDs)
+* Marlin_ESP32 a Marlin port on ESP32 done by @simon-jouet is under sync : https://github.com/luc-github/Marlin/tree/eps32_webui 
 * More to come...
 
 If you use ESP3D on your product, drop me a message so I can link your product page here.   
