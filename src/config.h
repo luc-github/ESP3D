@@ -114,10 +114,11 @@
 #define ESP_DHT_PIN 2
 #endif
 
-//Pins where the screen is connected 
+//Pins where the screen is connected
 #ifdef ESP_OLED_FEATURE
-#define OLED_PIN_A  4
-#define OLED_PIN_B  15
+#define OLED_DISPLAY_SH1106  // OLED Display Type: SSD1306(OLED_DISPLAY_SSD1306) / SH1106(OLED_DISPLAY_SH1106), comment this line out to disable oled
+#define OLED_PIN_A  5  //5 //SDA;  // i2c SDA Pin
+#define OLED_PIN_B  4  //4 //SCL;  // i2c SCL Pin
 #define OLED_ADDR	0x3c
 #define HELTEC_EMBEDDED_PIN 16 //0 to disable
 #define OLED_FLIP_VERTICALY 1 //0 to disable
