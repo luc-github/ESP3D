@@ -374,7 +374,7 @@ void SDFile_serial_upload()
         filesize+=upload.currentSize;
         uint32_t startwrite = millis();
 #endif
-        for (int pos = 0; pos < upload.currentSize; pos++) { //parse full post data
+        for (int pos = 0; pos < (int)upload.currentSize; pos++) { //parse full post data
             if (buffer_size < MAX_RESEND_BUFFER-1) { //raise error/handle if overbuffer - copy is space available
                 //remove/ignore every comment to save transfert time and avoid over buffer issues
                 if (upload.buf[pos] == ';') {
@@ -1262,7 +1262,7 @@ void handle_web_command()
                 return;
             }
             //is there space for parameters?
-            if (ESPpos2<cmd.length()) {
+            if (ESPpos2<(int)cmd.length()) {
                 cmd_part2=cmd.substring(ESPpos2+1);
             }
             //if command is a valid number then execute command
@@ -1456,7 +1456,7 @@ void handle_web_command_silent()
             String cmd_part1=cmd.substring(ESPpos+4,ESPpos2);
             String cmd_part2="";
             //is there space for parameters?
-            if (ESPpos2<cmd.length()) {
+            if (ESPpos2<(int)cmd.length()) {
                 cmd_part2=cmd.substring(ESPpos2+1);
             }
             //if command is a valid number then execute command

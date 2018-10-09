@@ -79,7 +79,7 @@ extern DNSServer dnsServer;
 void setup()
 {
     bool breset_config=false;
-    bool directsd_check = false;
+    // unused: bool directsd_check = false;
     web_interface = NULL;
 #ifdef TCP_IP_DATA_FEATURE
     data_server = NULL;

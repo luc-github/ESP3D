@@ -83,7 +83,7 @@ bool STORESTRINGS_CLASS::add (const char * string)
     //get size including \0 at the end
     size_t size = strlen(string)+1;
     bool need_resize=false;
-    if ( (_maxstringlength!=-1) && (size >_maxstringlength+1 )) {
+    if ( (_maxstringlength!=-1) && ((int)size >_maxstringlength+1 )) {
         need_resize = true;
         size=_maxstringlength+1;
     }

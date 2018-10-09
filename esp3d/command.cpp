@@ -1250,7 +1250,7 @@ bool COMMAND::execute_command(int cmd,String cmd_params, tpipe output, level_aut
                             String cmd_part1=currentline.substring(ESPpos+4,ESPpos2);
                             String cmd_part2="";
                             //is there space for parameters?
-                            if (ESPpos2<currentline.length()) {
+                            if (ESPpos2<(int)currentline.length()) {
                                 cmd_part2=currentline.substring(ESPpos2+1);
                             }
                             //if command is a valid number then execute command
@@ -1409,6 +1409,7 @@ bool COMMAND::execute_command(int cmd,String cmd_params, tpipe output, level_aut
 
 bool COMMAND::check_command(String buffer, tpipe output, bool handlelockserial)
 {
+    (void)handlelockserial;
     String buffer2;
     LOG("Check Command:")
     LOG(buffer)
@@ -1475,7 +1476,7 @@ if (CONFIG::GetFirmwareTarget()  == SMOOTHIEWARE) {
                 String cmd_part1=buffer.substring(ESPpos+4,ESPpos2);
                 String cmd_part2="";
                 //is there space for parameters?
-                if (ESPpos2<buffer.length()) {
+                if (ESPpos2<(int)buffer.length()) {
                     cmd_part2=buffer.substring(ESPpos2+1);
                 }
                 //if command is a valid number then execute command
@@ -1523,7 +1524,7 @@ if (CONFIG::GetFirmwareTarget()  == SMOOTHIEWARE) {
 //read a buffer in an array
 void COMMAND::read_buffer_serial(uint8_t *b, size_t len)
 {
-    for (long i = 0; i< len; i++) {
+    for (size_t i = 0; i< len; i++) {
         read_buffer_serial(b[i]);
        //*b++;
     }

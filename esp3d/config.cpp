@@ -729,7 +729,7 @@ bool CONFIG::isHostnameValid(const char * hostname)
         return false;
     }
     //only letter and digit
-    for (int i=0; i < strlen(hostname); i++) {
+    for (size_t i=0; i < strlen(hostname); i++) {
         c = hostname[i];
         if (!(isdigit(c) || isalpha(c) || c=='_')) {
             return false;
@@ -749,7 +749,7 @@ bool CONFIG::isSSIDValid(const char * ssid)
         return false;
     }
     //only letter and digit
-    for (int i=0; i < strlen(ssid); i++) {
+    for (size_t i=0; i < strlen(ssid); i++) {
         if (!isPrintable(ssid[i]))return false;
         //if (!(isdigit(c) || isalpha(c))) return false;
         //if (c==' ') {
@@ -769,7 +769,7 @@ bool CONFIG::isPasswordValid(const char * password)
     if (strlen(password)<MIN_PASSWORD_LENGTH)) return false;
     #endif 
     //no space allowed
-    for (int i=0; i < strlen(password); i++)
+    for (size_t i=0; i < strlen(password); i++)
         if (password[i] == ' ') {
             return false;
         }
@@ -784,7 +784,7 @@ bool CONFIG::isLocalPasswordValid(const char * password)
         return false;
     }
     //no space allowed
-    for (int i=0; i < strlen(password); i++) {
+    for (size_t i=0; i < strlen(password); i++) {
         c= password[i];
         if (c==' ') {
             return false;
@@ -809,7 +809,7 @@ bool CONFIG::isIPValid(const char * IP)
         return false;
     }
     //only letter and digit
-    for (int i=0; i < strlen(IP); i++) {
+    for (size_t i=0; i < strlen(IP); i++) {
         c = IP[i];
         if (isdigit(c)) {
             //only 3 digit at once
@@ -1689,7 +1689,7 @@ void CONFIG::print_config(tpipe output, bool plaintext)
 #endif
         String stmp ="";
 #ifdef ARDUINO_ARCH_ESP32
-		for (int i=0; i < station.num; i++){
+        for (int i=0; i < station.num; i++){
 #else
         while(station) {
 #endif
