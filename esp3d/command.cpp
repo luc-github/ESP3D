@@ -1123,9 +1123,9 @@ bool COMMAND::execute_command(int cmd,String cmd_params, tpipe output, level_aut
     //output is JSON or plain text according parameter
     //[ESP410]<plain>
     case 410: {
-		parameter = get_param(cmd_params,"", true);
-		int n = WiFi.scanNetworks();
-		bool plain = parameter == "plain";
+        parameter = get_param(cmd_params,"", true);
+        int n = WiFi.scanNetworks();
+        bool plain = parameter == "plain";
         if (!plain)BRIDGE::print(F("{\"AP_LIST\":["), output);
         for (int i = 0; i < n; ++i) {
                 if (i>0) {
@@ -1151,15 +1151,15 @@ bool COMMAND::execute_command(int cmd,String cmd_params, tpipe output, level_aut
         if (!plain)BRIDGE::print(F("]}"), output);
         else BRIDGE::print(F("\n"), output);
         WiFi.scanDelete();
-	}
-	break;
-	//Get ESP current status in plain or JSON
+    }
+    break;
+    //Get ESP current status in plain or JSON
     //[ESP420]<plain>
     case 420: {
-		parameter = get_param(cmd_params,"", true);
+        parameter = get_param(cmd_params,"", true);
         CONFIG::print_config(output, (parameter == "plain"));
-	}
-	break;
+    }
+    break;
     //Set ESP mode
     //cmd is RESET, SAFEMODE, RESTART
     //[ESP444]<cmd>pwd=<admin password>
@@ -1281,43 +1281,43 @@ bool COMMAND::execute_command(int cmd,String cmd_params, tpipe output, level_aut
     //Format SPIFFS
     //[ESP710]FORMAT pwd=<admin password>
     case 710: 
-		parameter = get_param(cmd_params,"", true);
+        parameter = get_param(cmd_params,"", true);
 #ifdef AUTHENTICATION_FEATURE
         if (auth_type != LEVEL_ADMIN) {
             BRIDGE::println(INCORRECT_CMD_MSG, output);
             response = false;
         } else
 #endif 
-		{
-		if (parameter=="FORMAT") {
-			 BRIDGE::print(F("Formating"), output);
-			 //SPIFFS.end();
-			 delay(0);
-			 SPIFFS.format();
-			 //SPIFFS.begin();
-			 BRIDGE::println(F("...Done"), output);
+        {
+            if (parameter=="FORMAT") {
+                BRIDGE::print(F("Formating"), output);
+                //SPIFFS.end();
+                delay(0);
+                SPIFFS.format();
+                //SPIFFS.begin();
+                BRIDGE::println(F("...Done"), output);
             } else {
-			BRIDGE::println(INCORRECT_CMD_MSG, output);
-			response = false;
+                BRIDGE::println(INCORRECT_CMD_MSG, output);
+                response = false;
             }
         }
         break;
      //SPIFFS total size and used size
     //[ESP720]<header answer>
     case 720: 
-		BRIDGE::print(cmd_params, output);
+        BRIDGE::print(cmd_params, output);
 #ifdef ARDUINO_ARCH_ESP8266   
-		fs::FSInfo info;
-		SPIFFS.info(info);
-		BRIDGE::print("SPIFFS Total:", output);
-		BRIDGE::print(CONFIG::formatBytes(info.totalBytes).c_str(), output);
-		BRIDGE::print(" Used:", output);
-		BRIDGE::println(CONFIG::formatBytes(info.usedBytes).c_str(), output);
+        fs::FSInfo info;
+        SPIFFS.info(info);
+        BRIDGE::print("SPIFFS Total:", output);
+        BRIDGE::print(CONFIG::formatBytes(info.totalBytes).c_str(), output);
+        BRIDGE::print(" Used:", output);
+        BRIDGE::println(CONFIG::formatBytes(info.usedBytes).c_str(), output);
 #else
-		BRIDGE::print("SPIFFS  Total:", output);
-		BRIDGE::print(CONFIG::formatBytes(SPIFFS.totalBytes()).c_str(), output);
-		BRIDGE::print(" Used:", output);
-		BRIDGE::println(CONFIG::formatBytes(SPIFFS.usedBytes()).c_str(), output);
+        BRIDGE::print("SPIFFS  Total:", output);
+        BRIDGE::print(CONFIG::formatBytes(SPIFFS.totalBytes()).c_str(), output);
+        BRIDGE::print(" Used:", output);
+        BRIDGE::println(CONFIG::formatBytes(SPIFFS.usedBytes()).c_str(), output);
 #endif
         break;
     //get fw version firmare target and fw version

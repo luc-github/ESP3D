@@ -77,7 +77,7 @@ void handle_web_interface_root()
         if(SPIFFS.exists(pathWithGz)) {
             path = pathWithGz;
         }
-		FS_FILE file = SPIFFS.open(path, SPIFFS_FILE_READ);
+        FS_FILE file = SPIFFS.open(path, SPIFFS_FILE_READ);
         web_interface->web_server.streamFile(file, contentType);
         file.close();
         return;
@@ -163,7 +163,7 @@ void SPIFFSFileupload()
 #ifdef ARDUINO_ARCH_ESP8266
         web_interface->web_server.client().stopAll();
 #else 
-		web_interface->web_server.client().stop();
+        web_interface->web_server.client().stop();
 #endif
         return;
     }
@@ -187,7 +187,7 @@ void SPIFFSFileupload()
         }
         ESP_SERIAL_OUT.println("M117 Start ESP upload");
         //create file
-		web_interface->fsUploadFile = SPIFFS.open(filename, SPIFFS_FILE_WRITE);
+        web_interface->fsUploadFile = SPIFFS.open(filename, SPIFFS_FILE_WRITE);
         //check If creation succeed
         if (web_interface->fsUploadFile) {
             //if yes upload is started
@@ -197,9 +197,9 @@ void SPIFFSFileupload()
             web_interface->_upload_status=UPLOAD_STATUS_CANCELLED;
             ESP_SERIAL_OUT.println("M117 Error ESP create");
 #ifdef ARDUINO_ARCH_ESP8266
-			web_interface->web_server.client().stopAll();
+            web_interface->web_server.client().stopAll();
 #else 
-			web_interface->web_server.client().stop();
+            web_interface->web_server.client().stop();
 #endif
         }
         //Upload write
@@ -220,9 +220,9 @@ void SPIFFSFileupload()
             //we have a problem set flag UPLOAD_STATUS_CANCELLED
             web_interface->_upload_status=UPLOAD_STATUS_CANCELLED;
 #ifdef ARDUINO_ARCH_ESP8266
-			web_interface->web_server.client().stopAll();
+            web_interface->web_server.client().stopAll();
 #else 
-			web_interface->web_server.client().stop();
+            web_interface->web_server.client().stop();
 #endif
             ESP_SERIAL_OUT.println("M117 Error ESP write");
         }
@@ -245,9 +245,9 @@ void SPIFFSFileupload()
             //we have a problem set flag UPLOAD_STATUS_CANCELLED
             web_interface->_upload_status=UPLOAD_STATUS_CANCELLED;
 #ifdef ARDUINO_ARCH_ESP8266
-			web_interface->web_server.client().stopAll();
+            web_interface->web_server.client().stopAll();
 #else 
-			web_interface->web_server.client().stop();
+            web_interface->web_server.client().stop();
 #endif
             SPIFFS.remove(filename);
             ESP_SERIAL_OUT.println("M117 Error ESP close");
@@ -255,8 +255,8 @@ void SPIFFSFileupload()
         //Upload cancelled
         //**************
     } else {
-			ESP_SERIAL_OUT.println("M117 Error ESP close");
-			return;
+            ESP_SERIAL_OUT.println("M117 Error ESP close");
+            return;
         web_interface->_upload_status=UPLOAD_STATUS_CANCELLED;
         SPIFFS.remove(filename);
         ESP_SERIAL_OUT.println("M117 Error ESP upload");
@@ -615,7 +615,7 @@ void WebUpdateUpload()
 #ifdef ARDUINO_ARCH_ESP8266
         web_interface->web_server.client().stopAll();
 #else 
-		web_interface->web_server.client().stop();
+        web_interface->web_server.client().stop();
 #endif
         ESP_SERIAL_OUT.println("M117 Update failed");
         LOG("SD Update failed\r\n");
@@ -629,13 +629,13 @@ void WebUpdateUpload()
         ESP_SERIAL_OUT.println(F("M117 Update Firmware"));
         web_interface->_upload_status= UPLOAD_STATUS_ONGOING;
 #ifdef ARDUINO_ARCH_ESP8266
-		WiFiUDP::stopAll();
+        WiFiUDP::stopAll();
 #endif
 #ifdef ARDUINO_ARCH_ESP8266
                 maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
 #else 
 //Not sure can do OTA on 2Mb board
-				maxSketchSpace = (ESP.getFlashChipSize()>0x20000)?0x140000:0x140000/2;
+                maxSketchSpace = (ESP.getFlashChipSize()>0x20000)?0x140000:0x140000/2;
 #endif
         last_upload_update = 0;
         if(!Update.begin(maxSketchSpace)) { //start with max available size
@@ -682,7 +682,7 @@ void handleUpdate()
 {
     level_authenticate_type auth_level = web_interface->is_authenticated();
     if (auth_level != LEVEL_ADMIN) {
-		web_interface->_upload_status=UPLOAD_STATUS_NONE;
+        web_interface->_upload_status=UPLOAD_STATUS_NONE;
         web_interface->web_server.send(403,"text/plain","Not allowed, log in first!\n");
         return;
     }
@@ -750,10 +750,10 @@ void handleFileList()
                     FS_DIR dir = SPIFFS.openDir(path);
                     if (!dir.next()) {
 #else
-					String ptmp = path;
-					if ((path != "/") && (path[path.length()-1]='/'))ptmp = path.substring(0,path.length()-1);
-					FS_FILE dir = SPIFFS.open(ptmp);
-					FS_FILE dircontent = dir.openNextFile();
+                    String ptmp = path;
+                    if ((path != "/") && (path[path.length()-1]='/'))ptmp = path.substring(0,path.length()-1);
+                    FS_FILE dir = SPIFFS.open(ptmp);
+                    FS_FILE dircontent = dir.openNextFile();
                     if (!dircontent) {
 #endif
                         //keep directory alive even empty
@@ -783,15 +783,15 @@ void handleFileList()
                 {
                     while (dir.next()) {
 #else
-				FS_FILE dir = SPIFFS.open(path + shortname);
+                FS_FILE dir = SPIFFS.open(path + shortname);
                 {
-					FS_FILE file2deleted = dir.openNextFile();
+                    FS_FILE file2deleted = dir.openNextFile();
                     while (file2deleted) {
 #endif
 #ifdef ARDUINO_ARCH_ESP8266
                         String fullpath = dir.fileName();
 #else
-						String fullpath = file2deleted.name();
+                        String fullpath = file2deleted.name();
 #endif
                         if (!SPIFFS.remove(fullpath)) {
                             delete_error = true;
@@ -834,9 +834,9 @@ void handleFileList()
 #ifdef ARDUINO_ARCH_ESP8266
     FS_DIR dir = SPIFFS.openDir(path);
 #else
-	String ptmp = path;
-	if ((path != "/") && (path[path.length()-1]='/'))ptmp = path.substring(0,path.length()-1);
-	FS_FILE dir = SPIFFS.open(ptmp);
+    String ptmp = path;
+    if ((path != "/") && (path[path.length()-1]='/'))ptmp = path.substring(0,path.length()-1);
+    FS_FILE dir = SPIFFS.open(ptmp);
 #endif
     jsonfile+="\"files\":[";
     bool firstentry=true;
@@ -845,8 +845,8 @@ void handleFileList()
     while (dir.next()) {
         String filename = dir.fileName();
 #else
-	File fileparsed = dir.openNextFile();
-	while (fileparsed) {
+    File fileparsed = dir.openNextFile();
+    while (fileparsed) {
         String filename = fileparsed.name();
 #endif
         String size ="";
@@ -876,7 +876,7 @@ void handleFileList()
 #ifdef ARDUINO_ARCH_ESP8266
                 size = CONFIG::formatBytes(dir.fileSize());
 #else
-				size = CONFIG::formatBytes(fileparsed.size());
+                size = CONFIG::formatBytes(fileparsed.size());
 #endif
                 
             } else {
@@ -912,7 +912,7 @@ void handleFileList()
     totalBytes = info.totalBytes;
     usedBytes = info.usedBytes;
 #else
-	totalBytes = SPIFFS.totalBytes();
+    totalBytes = SPIFFS.totalBytes();
     usedBytes = SPIFFS.usedBytes();
 #endif
     jsonfile+="\"total\":\"" + CONFIG::formatBytes(totalBytes) + "\",";

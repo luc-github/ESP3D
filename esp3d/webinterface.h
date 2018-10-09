@@ -55,7 +55,7 @@ public:
 #ifdef ARDUINO_ARCH_ESP8266
     ESP8266WebServer web_server;
 #else
-	WebServer web_server;
+    WebServer web_server;
 #endif
      FS_FILE fsUploadFile;
 #ifdef ERROR_MSG_FEATURE

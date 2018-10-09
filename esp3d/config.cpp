@@ -1329,7 +1329,7 @@ void CONFIG::print_config(tpipe output, bool plaintext)
 #ifdef ARDUINO_ARCH_ESP8266
     BRIDGE::print(String(ESP.getChipId()).c_str(), output);
 #else
-	BRIDGE::print(String((uint16_t)(ESP.getEfuseMac()>>32)).c_str(), output);
+    BRIDGE::print(String((uint16_t)(ESP.getEfuseMac()>>32)).c_str(), output);
 #endif
     if (!plaintext)BRIDGE::print(F("\","), output);
     else BRIDGE::print(F("\n"), output);
@@ -1388,7 +1388,7 @@ void CONFIG::print_config(tpipe output, bool plaintext)
     if (!plaintext)BRIDGE::print(F("\","), output);
     else BRIDGE::print(F("\n"), output);
 #else 
-	if (!plaintext)BRIDGE::print(F("\"update_size\":\""), output);
+    if (!plaintext)BRIDGE::print(F("\"update_size\":\""), output);
     else BRIDGE::print(F("Available Size for update: "), output);
     uint32_t  flashsize = ESP.getFlashChipSize();
 //Not OTA on 2Mb board per spec
@@ -1539,8 +1539,8 @@ void CONFIG::print_config(tpipe output, bool plaintext)
         if (wifi_station_dhcpc_status()==DHCP_STARTED) 
 #endif
         {
-			BRIDGE::print(F("DHCP"), output);
-		}
+            BRIDGE::print(F("DHCP"), output);
+        }
         else BRIDGE::print(F("Static"), output);
          if (!plaintext)BRIDGE::print(F("\","), output);
         else BRIDGE::print(F("\n"), output);
@@ -1601,7 +1601,7 @@ void CONFIG::print_config(tpipe output, bool plaintext)
 #ifdef ARDUINO_ARCH_ESP32
         BRIDGE::print((const char*)conf.ap.ssid, output);
 #else
-		BRIDGE::print((const char*)apconfig.ssid, output);
+        BRIDGE::print((const char*)apconfig.ssid, output);
 #endif
         if (!plaintext)BRIDGE::print(F("\","), output);
         else BRIDGE::print(F("\n"), output);
@@ -1644,8 +1644,8 @@ void CONFIG::print_config(tpipe output, bool plaintext)
         if(wifi_softap_dhcps_status() == DHCP_STARTED) 
 #endif
         {
-			BRIDGE::print(F("Started"), output);
-		}
+            BRIDGE::print(F("Started"), output);
+        }
         else BRIDGE::print(F("Stopped"), output);
         if (!plaintext)BRIDGE::print(F("\","), output);
         else BRIDGE::print(F("\n"), output);
@@ -1703,7 +1703,7 @@ void CONFIG::print_config(tpipe output, bool plaintext)
 #ifdef ARDUINO_ARCH_ESP32
             stmp += CONFIG::mac2str(tcpip_sta_list.sta[i].mac);
 #else
-			stmp += CONFIG::mac2str(station->bssid);
+            stmp += CONFIG::mac2str(station->bssid);
 #endif
             if (!plaintext)stmp+=F("\",\"ip\":\"");
             else stmp += F(" ");
@@ -1711,16 +1711,16 @@ void CONFIG::print_config(tpipe output, bool plaintext)
 #ifdef ARDUINO_ARCH_ESP32
             stmp += IPAddress(tcpip_sta_list.sta[i].ip.addr).toString().c_str();
 #else
-			stmp += IPAddress((const uint8_t *)&station->ip).toString().c_str();
+            stmp += IPAddress((const uint8_t *)&station->ip).toString().c_str();
 #endif
             if (!plaintext)stmp+=F("\"}");
             //increment counter
             client_counter++;
 #ifdef ARDUINO_ARCH_ESP32
-		}
+        }
 #else
             //go next record
-            station =STAILQ_NEXT(station,	next);
+            station =STAILQ_NEXT(station, next);
         }
         wifi_softap_free_station_info();
 #endif

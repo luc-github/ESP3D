@@ -86,11 +86,11 @@ int32_t WIFI_CONFIG::getSignal(int32_t RSSI)
 
 const char * WIFI_CONFIG::get_hostname()
 {
-	String hname;
+    String hname;
 #ifdef ARDUINO_ARCH_ESP8266
-	hname = WiFi.hostname();
+    hname = WiFi.hostname();
 #else
-	hname = WiFi.getHostname();
+    hname = WiFi.getHostname();
 #endif
     if (hname.length()==0) {
         if (!CONFIG::read_string(EP_HOSTNAME, _hostname, MAX_HOSTNAME_LENGTH)) {
@@ -235,7 +235,7 @@ bool WIFI_CONFIG::Setup(bool force_ap)
             return false;
         }
 #ifdef ARDUINO_ARCH_ESP32
-		esp_wifi_set_protocol(ESP_IF_WIFI_AP, bflag);
+        esp_wifi_set_protocol(ESP_IF_WIFI_AP, bflag);
 #endif
         LOG("Set AP\r\n")
         //setup Soft AP
@@ -261,7 +261,7 @@ bool WIFI_CONFIG::Setup(bool force_ap)
             return false;
         }
 #ifdef ARDUINO_ARCH_ESP32
-		conf.ap.channel=bflag;
+        conf.ap.channel=bflag;
 #else
         apconfig.channel=bflag;
 #endif
@@ -270,7 +270,7 @@ bool WIFI_CONFIG::Setup(bool force_ap)
             return false;
         }
 #ifdef ARDUINO_ARCH_ESP32
-		conf.ap.authmode=(wifi_auth_mode_t)bflag;
+        conf.ap.authmode=(wifi_auth_mode_t)bflag;
 #else
         apconfig.authmode=(AUTH_MODE)bflag;
 #endif
@@ -279,14 +279,14 @@ bool WIFI_CONFIG::Setup(bool force_ap)
             return false;
         }
 #ifdef ARDUINO_ARCH_ESP32
-		conf.ap.ssid_hidden=!bflag;
+        conf.ap.ssid_hidden=!bflag;
 #else
         apconfig.ssid_hidden=!bflag;
 #endif
         
         //no need to add these settings to configuration just use default ones
 #ifdef ARDUINO_ARCH_ESP32
-		conf.ap.max_connection=DEFAULT_MAX_CONNECTIONS;
+        conf.ap.max_connection=DEFAULT_MAX_CONNECTIONS;
         conf.ap.beacon_interval=DEFAULT_BEACON_INTERVAL;
         if (esp_wifi_set_config(ESP_IF_WIFI_AP, &conf)!=ESP_OK){
             ESP_SERIAL_OUT.println(F("M117 Error Wifi AP!"));
@@ -345,7 +345,7 @@ bool WIFI_CONFIG::Setup(bool force_ap)
             return false;
         }
 #ifdef ARDUINO_ARCH_ESP32
-		esp_wifi_set_protocol(ESP_IF_WIFI_STA, bflag);
+        esp_wifi_set_protocol(ESP_IF_WIFI_STA, bflag);
 #endif
         //setup station mode
         WiFi.mode(WIFI_STA);
@@ -394,7 +394,7 @@ bool WIFI_CONFIG::Setup(bool force_ap)
 #ifdef ARDUINO_ARCH_ESP8266
         WiFi.hostname(hostname);
 #else
-		WiFi.setHostname(hostname);
+        WiFi.setHostname(hostname);
 #endif
     }
 
@@ -439,20 +439,20 @@ bool WIFI_CONFIG::Enable_servers()
     // Set up mDNS responder:
     //useless in AP mode and service consuming 
     if (WiFi.getMode()!=WIFI_AP ){
-		char hostname [MAX_HOSTNAME_LENGTH+1];
-		if (!CONFIG::read_string(EP_HOSTNAME, hostname, MAX_HOSTNAME_LENGTH)) {
-			strcpy(hostname,get_default_hostname());
-		}
-		if (!mdns.begin(hostname)) {
-        ESP_SERIAL_OUT.print(FPSTR(M117_));
-        ESP_SERIAL_OUT.println(F("Error with mDNS!"));
-        delay(1000);
-		} else {
-		// Check for any mDNS queries and send responses
-		delay(100);
-		wifi_config.mdns.addService("http", "tcp", wifi_config.iweb_port);
-		}
-	}
+        char hostname [MAX_HOSTNAME_LENGTH+1];
+        if (!CONFIG::read_string(EP_HOSTNAME, hostname, MAX_HOSTNAME_LENGTH)) {
+            strcpy(hostname,get_default_hostname());
+        }
+        if (!mdns.begin(hostname)) {
+            ESP_SERIAL_OUT.print(FPSTR(M117_));
+            ESP_SERIAL_OUT.println(F("Error with mDNS!"));
+            delay(1000);
+        } else {
+            // Check for any mDNS queries and send responses
+            delay(100);
+            wifi_config.mdns.addService("http", "tcp", wifi_config.iweb_port);
+        }
+    }
 #endif
 #if defined(SSDP_FEATURE) || defined(NETBIOS_FEATURE)
     String shost;
