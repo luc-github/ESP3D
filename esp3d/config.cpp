@@ -703,10 +703,10 @@ void CONFIG::esp_restart()
     LOG("Restarting\r\n")
     ESP_SERIAL_OUT.flush();
     delay(500);
-#ifdef ARDUINO_ARCH_ESP8266
+#if defined(ARDUINO_ARCH_ESP8266) && !defined(SERIAL_SWAP)
     ESP_SERIAL_OUT.swap();
-#endif
     delay(100);
+#endif
     ESP.restart();
     while (1) {
         delay(1);
@@ -767,7 +767,7 @@ bool CONFIG::isPasswordValid(const char * password)
     }
     #if MIN_PASSWORD_LENGTH > 0
     if (strlen(password)<MIN_PASSWORD_LENGTH)) return false;
-    #endif 
+    #endif
     //no space allowed
     for (size_t i=0; i < strlen(password); i++)
         if (password[i] == ' ') {
@@ -1004,9 +1004,9 @@ bool CONFIG::write_string(int pos, const __FlashStringHelper *str)
     return write_string(pos,stmp.c_str());
 }
 
-bool CONFIG::check_update_presence( ){ 
+bool CONFIG::check_update_presence( ){
      bool result = false;
-     if (CONFIG::is_direct_sd) { 
+     if (CONFIG::is_direct_sd) {
          long baud_rate=0;
          if (!CONFIG::read_buffer(EP_BAUD_RATE,  (byte *)&baud_rate, INTEGER_LENGTH)) return false;
          if (ESP_SERIAL_OUT.baudRate() != baud_rate)ESP_SERIAL_OUT.begin(baud_rate);

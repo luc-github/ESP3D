@@ -51,6 +51,7 @@
 #define FS_DIR fs::Dir
 #define FS_FILE fs::File
 #define ESP_SERIAL_OUT Serial
+#define ESP_SWSERIAL_OUT (*SwSerial)
 #define SD_FILE_READ FILE_READ
 #define SPIFFS_FILE_READ "r"
 #define SD_FILE_WRITE FILE_WRITE
@@ -120,6 +121,14 @@
 //Serial rx buffer size is 256 but can be extended
 #define SERIAL_RX_BUFFER_SIZE 512
 
+//esp8266 Serial Swap:
+// Hardware serial pins become GPIO15 (TX) and GPIO13 (RX) (connect printer to this)
+// Software serial pins is configured on former Hardware pins GPIO1 (TX) and GPIO3 (RX) (legacy usb serial converter <-> pc/debug)
+// this allows:
+// - avoiding garbage at boot time
+// - debug on USB software serial port while printing on hardware serial port
+//#define SERIAL_SWAP
+
 #ifdef ARDUINO_ARCH_ESP32
 #ifdef SSDP_FEATURE
 #undef SSDP_FEATURE
@@ -158,8 +167,15 @@
 #define LOG(string) { FS_FILE logfile = SPIFFS.open("/log.txt", "a+");logfile.print(string);logfile.close();}
 #endif
 #ifdef DEBUG_OUTPUT_SERIAL
+#ifdef SERIAL_SWAP
+#include <SoftwareSerial.h>
+extern SoftwareSerial* SwSerial;
+#define LOG(string) {ESP_SWSERIAL_OUT.print(string);}
+#define DEBUG_PIPE SWSERIAL_PIPE
+#else
 #define LOG(string) {ESP_SERIAL_OUT.print(string);}
 #define DEBUG_PIPE SERIAL_PIPE
+#endif
 #endif
 #ifdef DEBUG_OUTPUT_TCP
 #include "bridge.h"
@@ -194,7 +210,10 @@ typedef enum {
 #ifdef TCP_IP_DATA_FEATURE
     TCP_PIPE = 4,
 #endif
-    WEB_PIPE = 5
+    WEB_PIPE = 5,
+#ifdef SERIAL_SWAP
+    SWSERIAL_PIPE = 6,
+#endif    
 } tpipe;
 
 typedef enum {

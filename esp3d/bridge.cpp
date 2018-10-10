@@ -68,7 +68,13 @@ void BRIDGE::print (const char * data, tpipe output)
             buffer_web="";
         }
         break;
-    default:
+#ifdef SERIAL_SWAP
+    case SWSERIAL_PIPE:
+        ESP_SWSERIAL_OUT.print(data);
+        break;
+#endif
+    case NO_PIPE:
+    case SERIAL1_PIPE:
         break;
     }
 }

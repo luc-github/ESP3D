@@ -22,6 +22,8 @@
 #include "bridge.h"
 #include "webinterface.h"
 
+#include "lwip/init.h" // LWIP_VERSION_MAJOR definition
+
 #ifdef ARDUINO_ARCH_ESP8266
 #include "ESP8266WiFi.h"
 #ifdef MDNS_FEATURE
@@ -185,6 +187,16 @@ bool WIFI_CONFIG::Setup(bool force_ap)
         LOG("SSID ")
         LOG(sbuf)
         LOG("\r\n")
+
+#ifndef LWIP_VERSION_MAJOR
+#error
+#endif
+#if defined(ARDUINO_ARCH_ESP32) || LWIP_VERSION_MAJOR == 1
+
+// the code below does not work for esp8266/lwip2
+// Beside, there's no real point changing IP address in AP mode
+// the default IP address to use in wifi clients will be 192.168.4.1
+
         //DHCP or Static IP ?
         if (!CONFIG::read_byte(EP_AP_IP_MODE, &bflag )) {
             LOG("Error IP mode\r\n")
@@ -226,6 +238,7 @@ bool WIFI_CONFIG::Setup(bool force_ap)
             WiFi.softAPConfig( local_ip,  gateway,  subnet);
             delay(100);
         }
+#endif // no static IP configuration in esp8266 AP mode
         LOG("Disable STA\r\n")
         WiFi.enableSTA(false);
         delay(100);

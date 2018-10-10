@@ -76,6 +76,10 @@ extern DNSServer dnsServer;
 #endif
 #include <FS.h>
 
+#if defined(DEBUG_ESP3D) && defined(SERIAL_SWAP)
+SoftwareSerial* SwSerial = nullptr;
+#endif
+
 void setup()
 {
     bool breset_config=false;
@@ -85,10 +89,24 @@ void setup()
     data_server = NULL;
 #endif
     // init:
+#ifdef SERIAL_SWAP
+    Serial.begin(DEFAULT_BAUD_RATE); // needed for swap
+    Serial.swap();
+#endif
 #ifdef DEBUG_ESP3D
+#ifdef SERIAL_SWAP
+    (SwSerial = new SoftwareSerial(-1 /* transmit not needed - was:3 */, /* receive */1))->begin(DEFAULT_BAUD_RATE);
+    LOG("\r\nHardwareSerial for Printer is now on GPIO15 (TX) and GPIO13 (RX)");
+#endif
     if (ESP_SERIAL_OUT.baudRate() != DEFAULT_BAUD_RATE)ESP_SERIAL_OUT.begin(DEFAULT_BAUD_RATE);
     delay(2000);
+#ifdef SERIAL_SWAP
     LOG("\r\nDebug Serial set\r\n")
+    ESP_SERIAL_OUT.println("M117 hardware serial here");
+    ESP_SWSERIAL_OUT.println("software serial here 1/2");
+    LOG("software serial here 2/2\r\n");
+    delay(2000);
+#endif
 #endif
     //WiFi.disconnect();
     WiFi.mode(WIFI_OFF);
