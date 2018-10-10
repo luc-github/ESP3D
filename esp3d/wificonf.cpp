@@ -156,7 +156,7 @@ bool WIFI_CONFIG::Setup(bool force_ap)
     }
 #ifdef ARDUINO_ARCH_ESP8266
     WiFi.setSleepMode ((WiFiSleepType_t)bflag);
-#else 
+#else
     esp_wifi_set_ps((wifi_ps_type_t)bflag);
 #endif
     sleep_mode=bflag;
@@ -296,7 +296,7 @@ bool WIFI_CONFIG::Setup(bool force_ap)
 #else
         apconfig.ssid_hidden=!bflag;
 #endif
-        
+
         //no need to add these settings to configuration just use default ones
 #ifdef ARDUINO_ARCH_ESP32
         conf.ap.max_connection=DEFAULT_MAX_CONNECTIONS;
@@ -393,7 +393,7 @@ bool WIFI_CONFIG::Setup(bool force_ap)
                 //for smoothieware to keep position
                 for (byte i= 0;i< 4-dot; i++)msg +=F(" ");
                 if (dot == 4)dot=0;
-                ESP_SERIAL_OUT.println(msg); 
+                ESP_SERIAL_OUT.println(msg);
                 break;
             }
             delay(500);
@@ -450,7 +450,7 @@ bool WIFI_CONFIG::Enable_servers()
 
 #ifdef MDNS_FEATURE
     // Set up mDNS responder:
-    //useless in AP mode and service consuming 
+    //useless in AP mode and service consuming
     if (WiFi.getMode()!=WIFI_AP ){
         char hostname [MAX_HOSTNAME_LENGTH+1];
         if (!CONFIG::read_string(EP_HOSTNAME, hostname, MAX_HOSTNAME_LENGTH)) {
@@ -490,7 +490,7 @@ bool WIFI_CONFIG::Enable_servers()
     if (WiFi.getMode()!=WIFI_AP )SSDP.begin();
 #endif
 #ifdef NETBIOS_FEATURE
-    //useless in AP mode and service consuming 
+    //useless in AP mode and service consuming
     if (WiFi.getMode()!=WIFI_AP )NBNS.begin(shost.c_str());
 #endif
 
@@ -508,7 +508,7 @@ bool WIFI_CONFIG::Disable_servers()
     }
 #endif
 #ifdef NETBIOS_FEATURE
-    //useless in AP mode and service consuming 
+    //useless in AP mode and service consuming
     if (WiFi.getMode()!=WIFI_AP )NBNS.end();
 #endif
     web_interface->web_server.stop();

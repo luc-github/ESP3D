@@ -162,13 +162,13 @@ void SPIFFSFileupload()
         ESP_SERIAL_OUT.println("M117 Error ESP upload");
 #ifdef ARDUINO_ARCH_ESP8266
         web_interface->web_server.client().stopAll();
-#else 
+#else
         web_interface->web_server.client().stop();
 #endif
         return;
     }
 
-    static String filename;    
+    static String filename;
     //get current file ID
     HTTPUpload& upload = (web_interface->web_server).upload();
     //Upload start
@@ -198,7 +198,7 @@ void SPIFFSFileupload()
             ESP_SERIAL_OUT.println("M117 Error ESP create");
 #ifdef ARDUINO_ARCH_ESP8266
             web_interface->web_server.client().stopAll();
-#else 
+#else
             web_interface->web_server.client().stop();
 #endif
         }
@@ -221,7 +221,7 @@ void SPIFFSFileupload()
             web_interface->_upload_status=UPLOAD_STATUS_CANCELLED;
 #ifdef ARDUINO_ARCH_ESP8266
             web_interface->web_server.client().stopAll();
-#else 
+#else
             web_interface->web_server.client().stop();
 #endif
             ESP_SERIAL_OUT.println("M117 Error ESP write");
@@ -246,7 +246,7 @@ void SPIFFSFileupload()
             web_interface->_upload_status=UPLOAD_STATUS_CANCELLED;
 #ifdef ARDUINO_ARCH_ESP8266
             web_interface->web_server.client().stopAll();
-#else 
+#else
             web_interface->web_server.client().stop();
 #endif
             SPIFFS.remove(filename);
@@ -567,7 +567,7 @@ void SDFile_serial_upload()
                 //web_interface->web_server.client().stopAll();
                  LOG("Need to stop");
                 client_closed = true;
-            }   
+            }
             filename = "M30 " + filename;
             ESP_SERIAL_OUT.println(filename);
             ESP_SERIAL_OUT.println("M117 SD upload failed");
@@ -614,7 +614,7 @@ void WebUpdateUpload()
         web_interface->_upload_status=UPLOAD_STATUS_CANCELLED;
 #ifdef ARDUINO_ARCH_ESP8266
         web_interface->web_server.client().stopAll();
-#else 
+#else
         web_interface->web_server.client().stop();
 #endif
         ESP_SERIAL_OUT.println("M117 Update failed");
@@ -633,7 +633,7 @@ void WebUpdateUpload()
 #endif
 #ifdef ARDUINO_ARCH_ESP8266
                 maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
-#else 
+#else
 //Not sure can do OTA on 2Mb board
                 maxSketchSpace = (ESP.getFlashChipSize()>0x20000)?0x140000:0x140000/2;
 #endif
@@ -798,7 +798,7 @@ void handleFileList()
                             status = F("Cannot deleted ") ;
                             status+=fullpath;
                         }
-#ifdef ARDUINO_ARCH_ESP32     
+#ifdef ARDUINO_ARCH_ESP32
                      file2deleted = dir.openNextFile();
 #endif
                     }
@@ -878,7 +878,7 @@ void handleFileList()
 #else
                 size = CONFIG::formatBytes(fileparsed.size());
 #endif
-                
+
             } else {
                 addtolist = false;
             }
@@ -1026,7 +1026,7 @@ void handle_not_found()
             FS_FILE file = SPIFFS.open(path, SPIFFS_FILE_READ);
             web_interface->web_server.streamFile(file, contentType);
             file.close();
-           
+
         } else {
             //if not template use default page
             contentType=FPSTR(PAGE_404);
@@ -1075,13 +1075,13 @@ void handle_login()
         //web_interface->web_server.client().stop();
         return;
     }
-    
+
     level_authenticate_type auth_level= web_interface->is_authenticated();
    if (auth_level == LEVEL_GUEST) auths = F("guest");
     else if (auth_level == LEVEL_USER) auths = F("user");
     else if (auth_level == LEVEL_ADMIN) auths = F("admin");
     else auths = F("???");
-        
+
     //check is it is a submission or a query
     if (web_interface->web_server.hasArg("SUBMIT")) {
         //is there a correct list of query?
@@ -1156,7 +1156,7 @@ void handle_login()
             strcpy(current_auth->userID,sUser.c_str());
             current_auth->last_time=millis();
             if (web_interface->AddAuthIP(current_auth)) {
-                String tmps ="ESPSESSIONID="; 
+                String tmps ="ESPSESSIONID=";
                 tmps+=current_auth->sessionID;
                 web_interface->web_server.sendHeader("Set-Cookie",tmps);
                 web_interface->web_server.sendHeader("Cache-Control","no-cache");
@@ -1177,9 +1177,9 @@ void handle_login()
                 smsg = F("Error: Too many connections");
             }
         }
-   } 
+   }
     if (code == 200) smsg = F("Ok");
-    
+
     //build  JSON
     String buffer2send = "{\"status\":\"" + smsg + "\",\"authentication_lvl\":\"";
     buffer2send += auths;
@@ -1515,7 +1515,7 @@ WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port):web_server(port)
 #ifdef CAPTIVE_PORTAL_FEATURE
     web_server.on("/generate_204",HTTP_ANY, handle_web_interface_root);
     web_server.on("/gconnectivitycheck.gstatic.com",HTTP_ANY, handle_web_interface_root);
-    //do not forget the / at the end 
+    //do not forget the / at the end
     web_server.on("/fwlink/",HTTP_ANY, handle_web_interface_root);
 #endif
     web_server.onNotFound( handle_not_found);

@@ -129,16 +129,16 @@ bool COMMAND::execute_command(int cmd,String cmd_params, tpipe output, level_aut
           LOG("user identified\r\n");
     }
 #ifdef DEBUG_ESP3D
-    if ( auth_type == LEVEL_ADMIN)  
+    if ( auth_type == LEVEL_ADMIN)
         {
             LOG("admin identified\r\n");
         }
     else  {
-        if( auth_type == LEVEL_USER)  
+        if( auth_type == LEVEL_USER)
             {
                 LOG("user identified\r\n");
             }
-        else  
+        else
             {
                 LOG("guest identified\r\n");
             }
@@ -442,7 +442,7 @@ bool COMMAND::execute_command(int cmd,String cmd_params, tpipe output, level_aut
                                 if (pin < MAX_GPIO) {
                                     LOG("Set as input pull up\r\n")
                                     pinMode(pin, INPUT_PULLUP);
-                                } 
+                                }
 #ifdef ARDUINO_ARCH_ESP8266
                                 else {
                                     LOG("Set as input pull down 16\r\n")
@@ -536,7 +536,7 @@ bool COMMAND::execute_command(int cmd,String cmd_params, tpipe output, level_aut
         //Start JSON
         BRIDGE::println(F("{\"EEPROM\":["), output);
         if (cmd_params == "network" || cmd_params == "") {
-            
+
             //1- Baud Rate
             BRIDGE::print(F("{\"F\":\"network\",\"P\":\""), output);
             BRIDGE::print((const char *)CONFIG::intTostr(EP_BAUD_RATE), output);
@@ -548,7 +548,7 @@ bool COMMAND::execute_command(int cmd,String cmd_params, tpipe output, level_aut
             }
             BRIDGE::print(F("\",\"H\":\"Baud Rate\",\"O\":[{\"9600\":\"9600\"},{\"19200\":\"19200\"},{\"38400\":\"38400\"},{\"57600\":\"57600\"},{\"115200\":\"115200\"},{\"230400\":\"230400\"},{\"250000\":\"250000\"}]}"), output);
             BRIDGE::println(F(","), output);
-            
+
             //2-Sleep Mode
             BRIDGE::print(F("{\"F\":\"network\",\"P\":\""), output);
             BRIDGE::print((const char *)CONFIG::intTostr(EP_SLEEP_MODE), output);
@@ -568,7 +568,7 @@ bool COMMAND::execute_command(int cmd,String cmd_params, tpipe output, level_aut
             BRIDGE::print((const char *)CONFIG::intTostr(WIFI_MODEM_SLEEP), output);
             BRIDGE::print(F("\"}]}"), output);
             BRIDGE::println(F(","), output);
-            
+
             //3-Web Port
             BRIDGE::print(F("{\"F\":\"network\",\"P\":\""), output);
             BRIDGE::print((const char *)CONFIG::intTostr(EP_WEB_PORT), output);
@@ -648,7 +648,7 @@ bool COMMAND::execute_command(int cmd,String cmd_params, tpipe output, level_aut
             BRIDGE::print((const char *)CONFIG::intTostr(MIN_HOSTNAME_LENGTH), output);
             BRIDGE::print(F("\"}"), output);
             BRIDGE::println(F(","), output);
-            
+
             //8-wifi mode
             BRIDGE::print(F("{\"F\":\"network\",\"P\":\""), output);
             BRIDGE::print((const char *)CONFIG::intTostr(EP_WIFI_MODE), output);
@@ -692,7 +692,7 @@ bool COMMAND::execute_command(int cmd,String cmd_params, tpipe output, level_aut
             BRIDGE::print((const char *)CONFIG::intTostr(MIN_PASSWORD_LENGTH), output);
             BRIDGE::print(F("\"}"), output);
             BRIDGE::println(F(","), output);
-            
+
             //11-Station Network Mode
             BRIDGE::print(F("{\"F\":\"network\",\"P\":\""), output);
             BRIDGE::print((const char *)CONFIG::intTostr(EP_STA_PHY_MODE), output);
@@ -818,7 +818,7 @@ bool COMMAND::execute_command(int cmd,String cmd_params, tpipe output, level_aut
             }
             BRIDGE::print(F("\",\"H\":\"SSID Visible\",\"O\":[{\"No\":\"0\"},{\"Yes\":\"1\"}]}"), output);
             BRIDGE::println(F(","), output);
-            
+
             //20-AP Channel
             BRIDGE::print(F("{\"F\":\"network\",\"P\":\""), output);
             BRIDGE::print((const char *)CONFIG::intTostr(EP_CHANNEL), output);
@@ -910,7 +910,7 @@ bool COMMAND::execute_command(int cmd,String cmd_params, tpipe output, level_aut
             BRIDGE::print(F("\",\"H\":\"AP Static Gateway\"}"), output);
             delay(0);
         }
-        
+
         if (cmd_params == "printer" || cmd_params == "") {
             if (cmd_params == "") {
                 BRIDGE::println(F(","), output);
@@ -938,7 +938,7 @@ bool COMMAND::execute_command(int cmd,String cmd_params, tpipe output, level_aut
             BRIDGE::print((const char *)CONFIG::intTostr(UNKNOWN_FW), output);
             BRIDGE::print(F("\"}]}"), output);
             BRIDGE::println(F(","), output);
-            
+
             //Refresh time 1
             BRIDGE::print(F("{\"F\":\"printer\",\"P\":\""), output);
             BRIDGE::print((const char *)CONFIG::intTostr(EP_REFRESH_PAGE_TIME), output);
@@ -954,7 +954,7 @@ bool COMMAND::execute_command(int cmd,String cmd_params, tpipe output, level_aut
             BRIDGE::print((const char *)CONFIG::intTostr(DEFAULT_MIN_REFRESH), output);
             BRIDGE::print(F("\"}"), output);
             BRIDGE::println(F(","), output);
-            
+
             //Refresh time 2
             BRIDGE::print(F("{\"F\":\"printer\",\"P\":\""), output);
             BRIDGE::print((const char *)CONFIG::intTostr(EP_REFRESH_PAGE_TIME2), output);
@@ -1118,7 +1118,7 @@ bool COMMAND::execute_command(int cmd,String cmd_params, tpipe output, level_aut
 
     }
     break;
-    
+
     //Get available AP list (limited to 30)
     //output is JSON or plain text according parameter
     //[ESP410]<plain>
@@ -1266,7 +1266,7 @@ bool COMMAND::execute_command(int cmd,String cmd_params, tpipe output, level_aut
                         delay(0);
                         ESP_SERIAL_OUT.flush();
                     }
-                 delay(0);   
+                 delay(0);
                 }
             }
             currentfile.close();
@@ -1280,14 +1280,14 @@ bool COMMAND::execute_command(int cmd,String cmd_params, tpipe output, level_aut
     }
     //Format SPIFFS
     //[ESP710]FORMAT pwd=<admin password>
-    case 710: 
+    case 710:
         parameter = get_param(cmd_params,"", true);
 #ifdef AUTHENTICATION_FEATURE
         if (auth_type != LEVEL_ADMIN) {
             BRIDGE::println(INCORRECT_CMD_MSG, output);
             response = false;
         } else
-#endif 
+#endif
         {
             if (parameter=="FORMAT") {
                 BRIDGE::print(F("Formating"), output);
@@ -1304,9 +1304,9 @@ bool COMMAND::execute_command(int cmd,String cmd_params, tpipe output, level_aut
         break;
      //SPIFFS total size and used size
     //[ESP720]<header answer>
-    case 720: 
+    case 720:
         BRIDGE::print(cmd_params, output);
-#ifdef ARDUINO_ARCH_ESP8266   
+#ifdef ARDUINO_ARCH_ESP8266
         fs::FSInfo info;
         SPIFFS.info(info);
         BRIDGE::print("SPIFFS Total:", output);
@@ -1329,7 +1329,7 @@ bool COMMAND::execute_command(int cmd,String cmd_params, tpipe output, level_aut
         BRIDGE::print(F("FW version:"), output);
         BRIDGE::print(FW_VERSION, output);
         BRIDGE::print(F(" # FW target:"), output);
-        BRIDGE::print(CONFIG::GetFirmwareTargetShortName(), output);      
+        BRIDGE::print(CONFIG::GetFirmwareTargetShortName(), output);
         BRIDGE::print(F(" # FW HW:"), output);
         if (CONFIG::is_direct_sd) BRIDGE::print(F("Direct SD"), output);
         else  BRIDGE::print(F("Serial SD"), output);
@@ -1426,7 +1426,7 @@ bool COMMAND::check_command(String buffer, tpipe output, bool handlelockserial)
         if (buffer.startsWith("ok")) {
             return false;
         }
-    }   
+    }
 #ifdef ERROR_MSG_FEATURE
         int Errorpos = -1;
 #endif
@@ -1517,7 +1517,7 @@ if (CONFIG::GetFirmwareTarget()  == SMOOTHIEWARE) {
             (web_interface->info_msg).add(ss.c_str());
         }
 #endif
-    
+
     return is_temp;
 }
 
