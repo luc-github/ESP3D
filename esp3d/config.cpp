@@ -449,7 +449,7 @@ bool CONFIG::update_settings(){
                         }
                     }
                 }
-                
+
                 //Timezone
                 if (espconfig.getValue("network", "time_zone", buffer, bufferLen, itmp)) {
                     bflag = itmp;
@@ -457,7 +457,7 @@ bool CONFIG::update_settings(){
                         success = false;
                     }
                 }
-                
+
                 //day saving time
                 if (espconfig.getValue("network", "day_st", buffer, bufferLen)) {
                     stmp = buffer;
@@ -486,7 +486,7 @@ bool CONFIG::update_settings(){
                         success = false;
                     }
                 }
-                
+
                 //time server 2
                 if (espconfig.getValue("network", "time_server_2", buffer, bufferLen)) {
                     if (strlen(buffer) > 128) {
@@ -495,7 +495,7 @@ bool CONFIG::update_settings(){
                         success = false;
                     }
                 }
-                
+
                 //time server 3
                 if (espconfig.getValue("network", "time_server_3", buffer, bufferLen)) {
                     if (strlen(buffer) > 128) {
@@ -504,7 +504,7 @@ bool CONFIG::update_settings(){
                         success = false;
                     }
                 }
-                
+
                 //Section [printer]
                 //data = 192.168.1.1/video.cgi?user=luc&pwd=mypassword
                 if (espconfig.getValue("printer", "data", buffer, bufferLen)) {
@@ -546,7 +546,7 @@ bool CONFIG::update_settings(){
                         success = false;
                     }
                 }
-                
+
                  //target_printer= smoothieware
                 if (espconfig.getValue("printer", "target_printer", buffer, bufferLen)) {
                     stmp = buffer;
@@ -561,7 +561,7 @@ bool CONFIG::update_settings(){
                         success = false;
                     }
                 }
-                
+
                 //direct sd connection
                 if (espconfig.getValue("printer", "direct_sd", buffer, bufferLen)) {
                     stmp = buffer;
@@ -622,7 +622,7 @@ bool CONFIG::update_settings(){
                         }
                     }
                 }
-                
+
                 //primary sd directory
                 if (espconfig.getValue("printer", "primary_sd ", buffer, bufferLen)) {
                     stmp = buffer;
@@ -634,7 +634,7 @@ bool CONFIG::update_settings(){
                     } else  if (stmp =="sd") {
                         bflag = 1;
                     } else  if (stmp =="ext") {
-                        bflag = 2;                        
+                        bflag = 2;
                     } else {
                         localerror = true;
                         success = false;
@@ -645,7 +645,7 @@ bool CONFIG::update_settings(){
                         }
                     }
                 }
-            
+
                  //secondary sd directory
                 if (espconfig.getValue("printer", "secondary_sd  ", buffer, bufferLen)) {
                     stmp = buffer;
@@ -657,7 +657,7 @@ bool CONFIG::update_settings(){
                     } else  if (stmp =="sd") {
                         bflag = 1;
                     } else  if (stmp =="ext") {
-                        bflag = 2;                      
+                        bflag = 2;
                     } else {
                         localerror = true;
                         success = false;
@@ -668,7 +668,7 @@ bool CONFIG::update_settings(){
                         }
                     }
                 }
-            
+
             }
             espconfig.close();
             if(success) {
@@ -1039,7 +1039,7 @@ bool CONFIG::check_update_presence( ){
         String current_line;
         //int pos;
         int temp_counter = 0;
-       
+
         //pickup the list
         while (count < MAX_TRY) {
             //give some time between each buffer
@@ -1275,35 +1275,35 @@ bool CONFIG::reset_config()
     if(!CONFIG::write_string(EP_USER_PWD,FPSTR(DEFAULT_USER_PWD))) {
         return false;
     }
-    
+
     if(!CONFIG::write_byte(EP_TARGET_FW, UNKNOWN_FW)) {
         return false;
     }
-    
+
     if(!CONFIG::write_byte(EP_TIMEZONE, DEFAULT_TIME_ZONE)) {
         return false;
     }
-    
+
     if(!CONFIG::write_byte(EP_TIME_ISDST, DEFAULT_TIME_DST)) {
         return false;
     }
-    
+
      if(!CONFIG::write_byte(EP_PRIMARY_SD, DEFAULT_PRIMARY_SD)) {
         return false;
     }
-    
+
      if(!CONFIG::write_byte(EP_SECONDARY_SD, DEFAULT_SECONDARY_SD)) {
         return false;
     }
-    
+
     if(!CONFIG::write_byte(EP_IS_DIRECT_SD, DEFAULT_IS_DIRECT_SD)) {
         return false;
     }
-    
+
      if(!CONFIG::write_byte(EP_DIRECT_SD_CHECK, DEFAULT_DIRECT_SD_CHECK)) {
         return false;
     }
-    
+
     if(!CONFIG::write_byte(EP_SD_CHECK_UPDATE_AT_BOOT, DEFAULT_SD_CHECK_UPDATE_AT_BOOT)) {
         return false;
     }
@@ -1311,11 +1311,11 @@ bool CONFIG::reset_config()
     if(!CONFIG::write_string(EP_TIME_SERVER1,FPSTR(DEFAULT_TIME_SERVER1))) {
         return false;
     }
-    
+
     if(!CONFIG::write_string(EP_TIME_SERVER2,FPSTR(DEFAULT_TIME_SERVER2))) {
         return false;
     }
-    
+
     if(!CONFIG::write_string(EP_TIME_SERVER3,FPSTR(DEFAULT_TIME_SERVER3))) {
         return false;
     }
@@ -1323,7 +1323,7 @@ bool CONFIG::reset_config()
 }
 
 void CONFIG::print_config(tpipe output, bool plaintext)
-{    
+{
     if (!plaintext)BRIDGE::print(F("{\"chip_id\":\""), output);
     else BRIDGE::print(F("Chip ID: "), output);
 #ifdef ARDUINO_ARCH_ESP8266
@@ -1333,27 +1333,27 @@ void CONFIG::print_config(tpipe output, bool plaintext)
 #endif
     if (!plaintext)BRIDGE::print(F("\","), output);
     else BRIDGE::print(F("\n"), output);
-    
+
     if (!plaintext)BRIDGE::print(F("\"cpu\":\""), output);
     else BRIDGE::print(F("CPU Frequency: "), output);
     BRIDGE::print(String(ESP.getCpuFreqMHz()).c_str(), output);
     if (plaintext)BRIDGE::print(F("Mhz"), output);
     if (!plaintext)BRIDGE::print(F("\","), output);
     else BRIDGE::print(F("\n"), output);
-#ifdef ARDUINO_ARCH_ESP32 
+#ifdef ARDUINO_ARCH_ESP32
     if (!plaintext)BRIDGE::print(F("\"cpu_temp\":\""), output);
     else BRIDGE::print(F("CPU Temperature: "), output);
     BRIDGE::print(String(temperatureRead(),1).c_str(), output);
     if (plaintext)BRIDGE::print(F("C"), output);
     if (!plaintext)BRIDGE::print(F("\","), output);
     else BRIDGE::print(F("\n"), output);
-#endif  
+#endif
     if (!plaintext)BRIDGE::print(F("\"freemem\":\""), output);
     else BRIDGE::print(F("Free memory: "), output);
     BRIDGE::print(formatBytes(ESP.getFreeHeap()).c_str(), output);
     if (!plaintext)BRIDGE::print(F("\","), output);
     else BRIDGE::print(F("\n"), output);
-    
+
     if (!plaintext)BRIDGE::print(F("\""), output);
     BRIDGE::print(F("SDK"), output);
     if (!plaintext)BRIDGE::print(F("\":\""), output);
@@ -1361,13 +1361,13 @@ void CONFIG::print_config(tpipe output, bool plaintext)
     BRIDGE::print(ESP.getSdkVersion(), output);
     if (!plaintext)BRIDGE::print(F("\","), output);
     else BRIDGE::print(F("\n"), output);
-      
+
     if (!plaintext)BRIDGE::print(F("\"flash_size\":\""), output);
     else BRIDGE::print(F("Flash Size: "), output);
     BRIDGE::print(formatBytes(ESP.getFlashChipSize()).c_str(), output);
     if (!plaintext)BRIDGE::print(F("\","), output);
     else BRIDGE::print(F("\n"), output);
-#ifdef ARDUINO_ARCH_ESP8266 
+#ifdef ARDUINO_ARCH_ESP8266
     fs::FSInfo info;
     SPIFFS.info(info);
     if (!plaintext)BRIDGE::print(F("\"update_size\":\""), output);
@@ -1383,11 +1383,11 @@ void CONFIG::print_config(tpipe output, bool plaintext)
 
     if (!plaintext)BRIDGE::print(F("\"spiffs_size\":\""), output);
     else BRIDGE::print(F("Available Size for SPIFFS: "), output);
-   
+
     BRIDGE::print(formatBytes(info.totalBytes).c_str(), output);
     if (!plaintext)BRIDGE::print(F("\","), output);
     else BRIDGE::print(F("\n"), output);
-#else 
+#else
     if (!plaintext)BRIDGE::print(F("\"update_size\":\""), output);
     else BRIDGE::print(F("Available Size for update: "), output);
     uint32_t  flashsize = ESP.getFlashChipSize();
@@ -1440,7 +1440,7 @@ void CONFIG::print_config(tpipe output, bool plaintext)
     }
     if (!plaintext)BRIDGE::print(F("\","), output);
     else BRIDGE::print(F("\n"), output);
-    
+
     if (!plaintext)BRIDGE::print(F("\"channel\":\""), output);
     else BRIDGE::print(F("Channel: "), output);
     BRIDGE::print(String(WiFi.channel()).c_str(), output);
@@ -1450,7 +1450,7 @@ void CONFIG::print_config(tpipe output, bool plaintext)
     uint8_t PhyMode;
     if (WiFi.getMode() == WIFI_STA)esp_wifi_get_protocol(ESP_IF_WIFI_STA, &PhyMode);
     else esp_wifi_get_protocol(ESP_IF_WIFI_AP, &PhyMode);
-#else   
+#else
     WiFiPhyMode_t PhyMode = WiFi.getPhyMode();
 #endif
     if (!plaintext)BRIDGE::print(F("\"phy_mode\":\""), output);
@@ -1461,13 +1461,13 @@ void CONFIG::print_config(tpipe output, bool plaintext)
     else BRIDGE::print(F("???"), output);
     if (!plaintext)BRIDGE::print(F("\","), output);
     else BRIDGE::print(F("\n"), output);
-    
+
     if (!plaintext)BRIDGE::print(F("\"web_port\":\""), output);
     else BRIDGE::print(F("Web port: "), output);
     BRIDGE::print(String(wifi_config.iweb_port).c_str(), output);
     if (!plaintext)BRIDGE::print(F("\","), output);
     else BRIDGE::print(F("\n"), output);
-    
+
     if (!plaintext)BRIDGE::print(F("\"data_port\":\""), output);
     else BRIDGE::print(F("Data port: "), output);
 #ifdef TCP_IP_DATA_FEATURE
@@ -1477,7 +1477,7 @@ void CONFIG::print_config(tpipe output, bool plaintext)
 #endif
     if (!plaintext)BRIDGE::print(F("\","), output);
     else BRIDGE::print(F("\n"), output);
-    
+
     if (WiFi.getMode() == WIFI_STA || WiFi.getMode() == WIFI_AP_STA) {
         if (!plaintext)BRIDGE::print(F("\"hostname\":\""), output);
         else BRIDGE::print(F("Hostname: "), output);
@@ -1536,7 +1536,7 @@ void CONFIG::print_config(tpipe output, bool plaintext)
         tcpip_adapter_dhcpc_get_status(TCPIP_ADAPTER_IF_STA, &dhcp_status);
         if (dhcp_status == TCPIP_ADAPTER_DHCP_STARTED)
 #else
-        if (wifi_station_dhcpc_status()==DHCP_STARTED) 
+        if (wifi_station_dhcpc_status()==DHCP_STARTED)
 #endif
         {
             BRIDGE::print(F("DHCP"), output);
@@ -1544,31 +1544,31 @@ void CONFIG::print_config(tpipe output, bool plaintext)
         else BRIDGE::print(F("Static"), output);
          if (!plaintext)BRIDGE::print(F("\","), output);
         else BRIDGE::print(F("\n"), output);
-        
+
         if (!plaintext)BRIDGE::print(F("\"ip\":\""), output);
         else BRIDGE::print(F("IP: "), output);
         BRIDGE::print(WiFi.localIP().toString().c_str(), output);
         if (!plaintext)BRIDGE::print(F("\","), output);
         else BRIDGE::print(F("\n"), output);
-        
+
         if (!plaintext)BRIDGE::print(F("\"gw\":\""), output);
         else BRIDGE::print(F("Gateway: "), output);
         BRIDGE::print(WiFi.gatewayIP().toString().c_str(), output);
         if (!plaintext)BRIDGE::print(F("\","), output);
         else BRIDGE::print(F("\n"), output);
-        
+
         if (!plaintext)BRIDGE::print(F("\"msk\":\""), output);
         else BRIDGE::print(F("Mask: "), output);
         BRIDGE::print(WiFi.subnetMask().toString().c_str(), output);
         if (!plaintext)BRIDGE::print(F("\","), output);
         else BRIDGE::print(F("\n"), output);
-        
+
         if (!plaintext)BRIDGE::print(F("\"dns\":\""), output);
         else BRIDGE::print(F("DNS: "), output);
         BRIDGE::print(WiFi.dnsIP().toString().c_str(), output);
         if (!plaintext)BRIDGE::print(F("\","), output);
         else BRIDGE::print(F("\n"), output);
-        
+
         if (!plaintext)BRIDGE::print(F("\"disabled_mode\":\""), output);
         else BRIDGE::print(F("Disabled Mode: "), output);
         BRIDGE::print(F("Access Point ("), output);
@@ -1576,14 +1576,14 @@ void CONFIG::print_config(tpipe output, bool plaintext)
         BRIDGE::print(F(")"), output);
         if (!plaintext)BRIDGE::print(F("\","), output);
         else BRIDGE::print(F("\n"), output);
-        
+
     } else if (WiFi.getMode() == WIFI_AP) {
         BRIDGE::print(F("Access Point ("), output);
         BRIDGE::print(WiFi.softAPmacAddress().c_str(), output);
         BRIDGE::print(F(")"), output);
         if (!plaintext)BRIDGE::print(F("\","), output);
         else BRIDGE::print(F("\n"), output);
-        
+
         //get current config
 #ifdef ARDUINO_ARCH_ESP32
         wifi_ap_config_t apconfig;
@@ -1605,13 +1605,13 @@ void CONFIG::print_config(tpipe output, bool plaintext)
 #endif
         if (!plaintext)BRIDGE::print(F("\","), output);
         else BRIDGE::print(F("\n"), output);
-        
+
         if (!plaintext)BRIDGE::print(F("\"ssid_visible\":\""), output);
         else BRIDGE::print(F("Visible: "), output);
         BRIDGE::print((apconfig.ssid_hidden == 0)?F("Yes"):F("No"), output);
         if (!plaintext)BRIDGE::print(F("\","), output);
         else BRIDGE::print(F("\n"), output);
-        
+
         if (!plaintext)BRIDGE::print(F("\"ssid_authentication\":\""), output);
         else BRIDGE::print(F("Authentication: "), output);
         if (apconfig.authmode==AUTH_OPEN) {
@@ -1627,13 +1627,13 @@ void CONFIG::print_config(tpipe output, bool plaintext)
         }
         if (!plaintext)BRIDGE::print(F("\","), output);
         else BRIDGE::print(F("\n"), output);
-        
+
         if (!plaintext)BRIDGE::print(F("\"ssid_max_connections\":\""), output);
         else BRIDGE::print(F("Max Connections: "), output);
         BRIDGE::print(String(apconfig.max_connection).c_str(), output);
         if (!plaintext)BRIDGE::print(F("\","), output);
         else BRIDGE::print(F("\n"), output);
-        
+
         if (!plaintext)BRIDGE::print(F("\"ssid_dhcp\":\""), output);
         else BRIDGE::print(F("DHCP Server: "), output);
 #ifdef ARDUINO_ARCH_ESP32
@@ -1641,7 +1641,7 @@ void CONFIG::print_config(tpipe output, bool plaintext)
         tcpip_adapter_dhcps_get_status(TCPIP_ADAPTER_IF_AP, &dhcp_status);
         if (dhcp_status == TCPIP_ADAPTER_DHCP_STARTED)
 #else
-        if(wifi_softap_dhcps_status() == DHCP_STARTED) 
+        if(wifi_softap_dhcps_status() == DHCP_STARTED)
 #endif
         {
             BRIDGE::print(F("Started"), output);
@@ -1649,16 +1649,16 @@ void CONFIG::print_config(tpipe output, bool plaintext)
         else BRIDGE::print(F("Stopped"), output);
         if (!plaintext)BRIDGE::print(F("\","), output);
         else BRIDGE::print(F("\n"), output);
-        
+
         if (!plaintext)BRIDGE::print(F("\"ip\":\""), output);
         else BRIDGE::print(F("IP: "), output);
         BRIDGE::print(WiFi.softAPIP().toString().c_str(), output);
         if (!plaintext)BRIDGE::print(F("\","), output);
         else BRIDGE::print(F("\n"), output);
-#ifdef ARDUINO_ARCH_ESP32      
+#ifdef ARDUINO_ARCH_ESP32
         tcpip_adapter_ip_info_t ip;
         tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_AP, &ip);
-#else    
+#else
         struct ip_info ip;
         wifi_get_ip_info(SOFTAP_IF, &ip);
 #endif
@@ -1667,23 +1667,23 @@ void CONFIG::print_config(tpipe output, bool plaintext)
         BRIDGE::print(IPAddress(ip.gw.addr).toString().c_str(), output);
         if (!plaintext)BRIDGE::print(F("\","), output);
         else BRIDGE::print(F("\n"), output);
-        
+
         if (!plaintext)BRIDGE::print(F("\"msk\":\""), output);
         else BRIDGE::print(F("Mask: "), output);
         BRIDGE::print(IPAddress(ip.netmask.addr).toString().c_str(), output);
         if (!plaintext)BRIDGE::print(F("\","), output);
         else BRIDGE::print(F("\n"), output);
-        
-        
+
+
         if (!plaintext)BRIDGE::print(F("\"connected_clients\":["), output);
         else BRIDGE::print(F("Connected clients: "), output);
         int client_counter=0;
-#ifdef ARDUINO_ARCH_ESP32     
+#ifdef ARDUINO_ARCH_ESP32
         wifi_sta_list_t station;
         tcpip_adapter_sta_list_t tcpip_sta_list;
         esp_wifi_ap_get_sta_list(&station);
         tcpip_adapter_get_sta_list(&station, &tcpip_sta_list);
-#else       
+#else
         struct station_info * station;
         station = wifi_softap_get_station_info();
 #endif
@@ -1696,7 +1696,7 @@ void CONFIG::print_config(tpipe output, bool plaintext)
             if(stmp.length() > 0) {
                 if (!plaintext)stmp+=F(",");
                 else stmp+=F("\n");
-                
+
             }
             if (!plaintext)stmp+=F("{\"bssid\":\"");
             //BSSID
@@ -1734,7 +1734,7 @@ void CONFIG::print_config(tpipe output, bool plaintext)
                 //display list if any
                 if(stmp.length() > 0)BRIDGE::println(stmp.c_str(), output);
             }
-        
+
         if (!plaintext)BRIDGE::print(F("\"disabled_mode\":\""), output);
         else BRIDGE::print(F("Disabled Mode: "), output);
         BRIDGE::print(F("Station ("), output);
@@ -1742,7 +1742,7 @@ void CONFIG::print_config(tpipe output, bool plaintext)
         BRIDGE::print(F(") is disabled"), output);
         if (!plaintext)BRIDGE::print(F("\","), output);
         else BRIDGE::print(F("\n"), output);
-        
+
     } else if (WiFi.getMode() == WIFI_AP_STA) {
         BRIDGE::print(F("Mixed"), output);
         if (!plaintext)BRIDGE::print(F("\","), output);
@@ -1772,7 +1772,7 @@ void CONFIG::print_config(tpipe output, bool plaintext)
 #endif
     if (!plaintext)BRIDGE::print(F("\","), output);
     else BRIDGE::print(F("\n"), output);
-    
+
     if (!plaintext)BRIDGE::print(F("\"ssdp\":\""), output);
     else BRIDGE::print(F("SSDP: "), output);
 #ifdef SSDP_FEATURE
@@ -1782,7 +1782,7 @@ void CONFIG::print_config(tpipe output, bool plaintext)
 #endif
     if (!plaintext)BRIDGE::print(F("\","), output);
     else BRIDGE::print(F("\n"), output);
-    
+
     if (!plaintext)BRIDGE::print(F("\"netbios\":\""), output);
     else BRIDGE::print(F("NetBios: "), output);
 #ifdef NETBIOS_FEATURE
@@ -1792,7 +1792,7 @@ void CONFIG::print_config(tpipe output, bool plaintext)
 #endif
     if (!plaintext)BRIDGE::print(F("\","), output);
     else BRIDGE::print(F("\n"), output);
-    
+
     if (!plaintext)BRIDGE::print(F("\"mdns\":\""), output);
     else BRIDGE::print(F("mDNS: "), output);
 #ifdef MDNS_FEATURE
@@ -1832,7 +1832,7 @@ void CONFIG::print_config(tpipe output, bool plaintext)
 #endif
     if (!plaintext)BRIDGE::print(F("\","), output);
     else BRIDGE::print(F("\n"), output);
-    
+
     if (!plaintext)BRIDGE::print(F("\"target_fw\":\""), output);
     else BRIDGE::print(F("Target Firmware: "), output);
     BRIDGE::print(CONFIG::GetFirmwareTargetName(), output);
