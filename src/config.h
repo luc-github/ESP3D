@@ -116,7 +116,7 @@
 
 //Pins where the screen is connected
 #ifdef ESP_OLED_FEATURE
-#define OLED_DISPLAY_SH1106  // OLED Display Type: SSD1306(OLED_DISPLAY_SSD1306) / SH1106(OLED_DISPLAY_SH1106), comment this line out to disable oled
+#define OLED_DISPLAY_SSD1306  // OLED Display Type: SSD1306(OLED_DISPLAY_SSD1306) / SH1106(OLED_DISPLAY_SH1106), comment this line out to disable oled
 #define OLED_PIN_SDA  4  //5 //SDA;  // i2c SDA Pin
 #define OLED_PIN_SCL  15  //4 //SCL;  // i2c SCL Pin
 #define OLED_ADDR	0x3c
