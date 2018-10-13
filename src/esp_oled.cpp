@@ -32,9 +32,9 @@
 
 
 #ifdef OLED_DISPLAY_SSD1306
-  SSD1306  esp_display(0x3c, OLED_PIN_A, OLED_PIN_B);
+  SSD1306  esp_display(OLED_ADDR, OLED_PIN_SDA, OLED_PIN_SCL);
 #elif defined OLED_DISPLAY_SH1106
-  SH1106 esp_display(0x3c, OLED_PIN_A, OLED_PIN_B);
+  SH1106 esp_display(OLED_ADDR, OLED_PIN_SDA, OLED_PIN_SCL);
 #endif
 
 
