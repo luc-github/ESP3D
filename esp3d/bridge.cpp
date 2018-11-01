@@ -167,10 +167,26 @@ bool BRIDGE::processFromSerial2TCP()
     //check UART for data
     if(ESP_SERIAL_OUT.available()) {
         size_t len = ESP_SERIAL_OUT.available();
+        size_t maxlen = 512; // stack protection
+#ifdef TCP_IP_DATA_FEATURE
+        // check tcp client write buffer size
+        if (WiFi.getMode()!=WIFI_OFF ) {
+            //push UART data to all connected tcp clients
+            for(i = 0; i < MAX_SRV_CLIENTS; i++) {
+                if (serverClients[i] && serverClients[i].connected()) {
+                    size_t maxcliwrite = serverClients[i].availableForWrite();
+                    if (maxcliwrite > maxlen)
+                        maxlen = maxcliwrite;
+                }
+            }
+        }
+        if (len > maxlen)
+            len = maxlen;
+#endif
         uint8_t sbuf[len];
         ESP_SERIAL_OUT.readBytes(sbuf, len);
 #ifdef TCP_IP_DATA_FEATURE
-          if (WiFi.getMode()!=WIFI_OFF ) {
+        if (WiFi.getMode()!=WIFI_OFF ) {
             //push UART data to all connected tcp clients
             for(i = 0; i < MAX_SRV_CLIENTS; i++) {
                 if (serverClients[i] && serverClients[i].connected()) {
@@ -221,7 +237,8 @@ void BRIDGE::processFromTCP2Serial()
             if (serverClients[i] && serverClients[i].connected()) {
                 if(serverClients[i].available()) {
                     //get data from the tcp client and push it to the UART
-                    while(serverClients[i].available()) {
+                    while(   serverClients[i].available()
+                          && ESP_SERIAL_OUT.availableForWrite()) {
                         data = serverClients[i].read();
                         ESP_SERIAL_OUT.write(data);
                         COMMAND::read_buffer_tcp(data);
