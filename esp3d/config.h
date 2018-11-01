@@ -168,8 +168,6 @@
 #endif
 #ifdef DEBUG_OUTPUT_SERIAL
 #ifdef SERIAL_SWAP
-#include <SoftwareSerial.h>
-extern SoftwareSerial* SwSerial;
 #define LOG(string) {ESP_SWSERIAL_OUT.print(string);}
 #define DEBUG_PIPE SWSERIAL_PIPE
 #else
@@ -185,6 +183,11 @@ extern SoftwareSerial* SwSerial;
 #else
 #define LOG(string) {}
 #define DEBUG_PIPE NO_PIPE
+#endif
+
+#ifdef SERIAL_SWAP
+#include <SoftwareSerial.h>
+extern SoftwareSerial* SwSerial;
 #endif
 
 #ifndef CONFIG_h
