@@ -26,6 +26,10 @@
 #ifdef TCP_IP_DATA_FEATURE
 WiFiServer * data_server;
 WiFiClient serverClients[MAX_SRV_CLIENTS];
+#if defined(DEBUG_ESP3D) && defined(DEBUG_OUTPUT_TCP)
+WiFiServer * debug_server;
+WiFiClient debugClient;
+#endif
 #endif
 
 bool BRIDGE::header_sent = false;
@@ -129,17 +133,25 @@ void BRIDGE::flush (tpipe output)
 
 
 #ifdef TCP_IP_DATA_FEATURE
-void BRIDGE::send2TCP(const __FlashStringHelper *data)
+void BRIDGE::send2TCP(const __FlashStringHelper *data, bool debug)
 {
     String tmp = data;
-    BRIDGE::send2TCP(tmp.c_str());
+    BRIDGE::send2TCP(tmp.c_str(), debug);
 }
-void BRIDGE::send2TCP(String data)
+void BRIDGE::send2TCP(String data, bool debug)
 {
-    BRIDGE::send2TCP(data.c_str());
+    BRIDGE::send2TCP(data.c_str(), debug);
 }
-void BRIDGE::send2TCP(const char * data)
+void BRIDGE::send2TCP(const char * data, bool debug)
 {
+    if (debug) {
+#if defined(DEBUG_ESP3D) && defined(DEBUG_OUTPUT_TCP)
+        if (debugClient && debugClient.connected()) {
+            debugClient.write(data, strlen(data));
+            delay(0);
+        }
+#endif
+    } else
     for(uint8_t i = 0; i < MAX_SRV_CLIENTS; i++) {
         if (serverClients[i] && serverClients[i].connected()) {
             serverClients[i].write(data, strlen(data));
@@ -195,6 +207,13 @@ void BRIDGE::processFromTCP2Serial()
         WiFiClient serverClient = data_server->available();
         serverClient.stop();
     }
+#if defined(DEBUG_ESP3D) && defined(DEBUG_OUTPUT_TCP)
+    if (debug_server->hasClient())
+    {
+        debugClient.stop();
+        debugClient = debug_server->available();
+    }
+#endif
     //check clients for data
     //to avoid any pollution if Uploading file to SDCard
     if ((web_interface->blockserial) == false) {

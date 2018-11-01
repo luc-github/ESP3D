@@ -24,6 +24,9 @@
 #include "config.h"
 #ifdef TCP_IP_DATA_FEATURE
 extern WiFiServer * data_server;
+#if defined(DEBUG_ESP3D) && defined(DEBUG_OUTPUT_TCP)
+extern WiFiServer * debug_server;
+#endif
 #endif
 
 class BRIDGE
@@ -41,9 +44,9 @@ public:
     static void flush (tpipe output);
 #ifdef TCP_IP_DATA_FEATURE
     static void processFromTCP2Serial();
-    static void send2TCP(const __FlashStringHelper *data);
-    static void send2TCP(String data);
-    static void send2TCP(const char * data);
+    static void send2TCP(const __FlashStringHelper *data, bool debug = false);
+    static void send2TCP(String data, bool debug = false);
+    static void send2TCP(const char * data, bool debug = false);
 #endif
 };
 #endif

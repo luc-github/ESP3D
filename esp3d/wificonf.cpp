@@ -70,6 +70,7 @@ WIFI_CONFIG::WIFI_CONFIG()
 {
     iweb_port=DEFAULT_WEB_PORT;
     idata_port=DEFAULT_DATA_PORT;
+    idebug_port=DEFAULT_DEBUG_PORT;
     baud_rate=DEFAULT_BAUD_RATE;
     sleep_mode=DEFAULT_SLEEP_MODE;
     _hostname[0]=0;
@@ -446,6 +447,11 @@ bool WIFI_CONFIG::Enable_servers()
     data_server = new WiFiServer (wifi_config.idata_port);
     data_server->begin();
     data_server->setNoDelay(true);
+#if defined(DEBUG_ESP3D) && defined(DEBUG_OUTPUT_TCP)
+    debug_server = new WiFiServer (wifi_config.idebug_port);
+    debug_server->begin();
+    debug_server->setNoDelay(false);
+#endif
 #endif
 
 #ifdef MDNS_FEATURE

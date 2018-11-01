@@ -177,7 +177,7 @@
 #endif
 #ifdef DEBUG_OUTPUT_TCP
 #include "bridge.h"
-#define LOG(string) {BRIDGE::send2TCP(string);}
+#define LOG(string) {BRIDGE::send2TCP(string, true);}
 #define DEBUG_PIPE TCP_PIPE
 #endif
 #else
@@ -308,6 +308,7 @@ const char M117_[] PROGMEM =		"M117 ";
 #define DEFAULT_BEACON_INTERVAL			100
 const int DEFAULT_WEB_PORT =			80;
 const int DEFAULT_DATA_PORT =			8888;
+const int DEFAULT_DEBUG_PORT =			8889;
 #define DEFAULT_REFRESH_PAGE_TIME			3
 const int  DEFAULT_XY_FEEDRATE=1000;
 const int  DEFAULT_Z_FEEDRATE	=100;

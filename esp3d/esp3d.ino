@@ -76,7 +76,7 @@ extern DNSServer dnsServer;
 #endif
 #include <FS.h>
 
-#if defined(DEBUG_ESP3D) && defined(SERIAL_SWAP)
+#if defined(SERIAL_SWAP)
 SoftwareSerial* SwSerial = nullptr;
 #endif
 
