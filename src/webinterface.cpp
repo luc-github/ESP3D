@@ -73,78 +73,203 @@
 
 long id_connection = 0;
 
+uint8_t Checksum(const char * line, uint16_t lineSize)
+{
+    uint8_t checksum_val =0;
+    for (uint16_t i=0; i < lineSize; i++) checksum_val = checksum_val ^ ((uint8_t)line[i]);
+    return checksum_val;
+}
 
+String CheckSumLine(const char* line, uint32_t linenb){
+	String linechecksum = "N" + String(linenb)+ " " + line;
+    uint8_t crc = Checksum(linechecksum.c_str(), linechecksum.length());
+    linechecksum+="*"+String(crc);
+    return linechecksum;
+}
+
+bool purge_serial(){
+    uint32_t start = millis();
+    uint8_t buf [51];
+    ESPCOM::flush (DEFAULT_PRINTER_PIPE);
+    CONFIG::wait (5);
+    LOG("Purge Serial\r\n")
+    while (ESPCOM::available(DEFAULT_PRINTER_PIPE) > 0 ){
+        if ((millis() - start ) > 2000) {
+            LOG("Purge timeout\r\n")
+            return false;
+        }
+        size_t len = ESPCOM::readBytes (DEFAULT_PRINTER_PIPE, buf, 50);
+        buf[len] = '\0';
+        LOG("Purge ")
+        LOG((const char *)buf)
+        LOG("\r\n")
+        if ( ( CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER) ) {
+            String s = (const char *)buf;
+            //repetier never stop sending data so no need to wait if have 'wait' or 'busy'
+            if((s.indexOf ("wait") > -1) || (s.indexOf ("busy") > -1))return true;
+            LOG("Purge interrupted\r\n")
+        }
+        CONFIG::wait (5);
+     }
+    CONFIG::wait (0);
+    LOG("Purge done\r\n")
+    return true; 
+}
+
+size_t wait_for_data(uint32_t timeout){
+    uint32_t start = millis();
+    while ((ESPCOM::available(DEFAULT_PRINTER_PIPE) < 2) && ((millis()-start) < timeout))CONFIG::wait (10);
+    return ESPCOM::available(DEFAULT_PRINTER_PIPE);
+}
+
+uint32_t Get_lineNumber(String & response){
+    int32_t l = 0;
+    String sresend = "Resend:";
+    if ( CONFIG::GetFirmwareTarget() == SMOOTHIEWARE){
+        sresend = "rs N";
+    }
+    int pos = response.indexOf(sresend);
+    if (pos == -1 ) {
+        return -1;
+        }
+    pos+=sresend.length();
+    int pos2 = response.indexOf("\n", pos);
+    String snum = response.substring(pos, pos2);
+    //remove potential unwished char
+    snum.replace("\r", "");
+    l = snum.toInt();
+    LOG("New number ")
+    LOG(String(l))
+    LOG("\r\n")
+    return l;
+}
 
 //function to send line to serial///////////////////////////////////////
-bool sendLine2Serial (String &  line)
+//if newlinenb is NULL no auto correction of line number in case of resend
+bool sendLine2Serial (String &  line, int32_t linenb,  int32_t * newlinenb)
 {
-    LOG (line)
-    ESPCOM::println (line, DEFAULT_PRINTER_PIPE);
+    LOG ("Send line ")
+    LOG (line )
+    LOG ("  NB:")
+    LOG (String(linenb))
+    LOG ("\r\n")
+    String line2send;
+    String sok = "ok";
+    String sresend = "Resend";
+    if (newlinenb) *newlinenb = linenb;
+    if ( CONFIG::GetFirmwareTarget() == SMOOTHIEWARE)sresend = "rs N";
+    if (linenb != -1) {
+        if ( ( CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER) ) sok+=" " + String(linenb);
+        line2send = CheckSumLine(line.c_str(),linenb);
+    } else line2send = line;
+    //purge serial as nothing is supposed to interfere with upload
+    purge_serial();
+    LOG ("Send line ")
+    LOG (line2send )
+    LOG ("\r\n")
+    //send line
+    ESPCOM::println (line2send, DEFAULT_PRINTER_PIPE);
     ESPCOM::flush(DEFAULT_PRINTER_PIPE);
-#ifdef ARDUINO_ARCH_ESP8266
-    CONFIG::wait (5);
-#else
-    CONFIG::wait (2);
-#endif
-    if (ESPCOM::available(DEFAULT_PRINTER_PIPE) > 0 ) {
+    //check answer
+    if (wait_for_data(2000) > 0 ) {
         bool done = false;
         uint32_t timeout = millis();
         uint8_t count = 0;
+        //got data check content
+        String response ;
         while (!done) {
-            CONFIG::wdtFeed();
             size_t len = ESPCOM::available(DEFAULT_PRINTER_PIPE);
             //get size of buffer
             if (len > 0) {
                 uint8_t * sbuf = (uint8_t *)malloc(len+1);
-					if(!sbuf){
-					return false;
-					}
+                if(!sbuf){
+                    return false;
+                }
                 //read buffer
                 ESPCOM::readBytes (DEFAULT_PRINTER_PIPE, sbuf, len);
                 //convert buffer to zero end array
                 sbuf[len] = '\0';
-                //use string because easier to handle
-                String response = (const char*) sbuf;
-                if ( (response.indexOf ("ok") > -1)  || (response.indexOf ("wait") > -1) ) {
-					free(sbuf);
-                    return true;
+                //use string because easier to handle and allow to re-assemble cutted answer 
+                response += (const char*) sbuf;
+                LOG ("Response: ")
+                LOG (response)
+                LOG ("\r\n")
+                //in that case there is no way to know what is the right number to use and so send should be failed
+                if (( ( CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER) ) && (response.indexOf ("skip") != -1)) {
+                    LOG ("Wrong line requested\r\n")
+                    count = 5;  
                 }
-                if (response.indexOf ("Resend") > -1) {
+                //it is resend ?
+                int pos = response.indexOf (sresend);
+                //be sure we get full line to be able to process properly
+                if (( pos > -1) && (response.lastIndexOf("\n") > pos)){
+                    LOG ("Resend detected\r\n")
+                    uint32_t line_number = Get_lineNumber(response);
+                    if (newlinenb){ 
+                        *newlinenb = line_number;
+                        free(sbuf);
+                        return sendLine2Serial (line, line_number, newlinenb);
+                    } else {
+                        //the line requested is not the current one so we stop
+                        if (line_number !=linenb) {
+                            LOG ("Wrong line requested\r\n")
+                            count = 5;
+                        }
+                    }
                     count++;
                     if (count > 5) {
-						free(sbuf);
+                        free(sbuf);
+                        LOG ("Exit too many resend or wrong line\r\n")
                         return false;
                     }
-                    LOG ("resend\r\n")
-                    ESPCOM::println (line, DEFAULT_PRINTER_PIPE);
+                    LOG ("Resend\r\n")
+                    purge_serial();
+                    ESPCOM::println (line2send, DEFAULT_PRINTER_PIPE);
                     ESPCOM::flush (DEFAULT_PRINTER_PIPE);
-                    CONFIG::wait (5);
+                    wait_for_data(1000);
                     timeout = millis();
+                    
+                } else {
+                    if ( (response.indexOf (sok) > -1) ) { //we have ok so it is done
+                        free(sbuf);
+                    LOG ("Got ok\r\n")
+                    purge_serial();
+                    return true;
+                    }
                 }
                 free(sbuf);
             }
-            //no answer so exit: no news = good news
-            if ( millis() - timeout > 500) {
+            //no answer or over buffer  exit
+            if ( (millis() - timeout > 2000) ||  (response.length() >200)){ 
+                LOG ("Time out\r\n")
                 done = true;
+            }
+            CONFIG::wait (50);
+        }
+    }
+    LOG ("Send line error\r\n") 
+    return false;
+}
+
+
+
+//send M29 / M30 command to close file on SD////////////////////////////
+void CloseSerialUpload (bool iserror, String & filename , int32_t linenb)
+{
+    purge_serial();
+    String command = "M29";
+    purge_serial();
+    if (!sendLine2Serial (command,linenb, &linenb)) {
+        wait_for_data(2000);
+        if (!sendLine2Serial (command,linenb, &linenb)) {
+            if ((CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER) ) {
+                sendLine2Serial (command,-1, NULL);
             }
         }
     }
-    return true;
-}
-
-//send M29 / M30 command to close file on SD////////////////////////////
-
-void CloseSerialUpload (bool iserror, String & filename)
-{
-
-    ESPCOM::println ("\r\nM29", DEFAULT_PRINTER_PIPE);
-    ESPCOM::flush (DEFAULT_PRINTER_PIPE);
-    CONFIG::wait (1000);
-    ESPCOM::println ("\r\nM29", DEFAULT_PRINTER_PIPE);
-    ESPCOM::flush (DEFAULT_PRINTER_PIPE);
     if (iserror) {
         String cmdfilename = "M30 " + filename;
-        ESPCOM::println (cmdfilename, DEFAULT_PRINTER_PIPE);
+        sendLine2Serial (cmdfilename,-1, NULL);
         ESPCOM::println (F ("SD upload failed"), PRINTER_PIPE);
         ESPCOM::flush (DEFAULT_PRINTER_PIPE);
         web_interface->_upload_status = UPLOAD_STATUS_FAILED;
@@ -154,7 +279,8 @@ void CloseSerialUpload (bool iserror, String & filename)
         web_interface->_upload_status = UPLOAD_STATUS_SUCCESSFUL;
     }
     //lets give time to FW to proceed
-    CONFIG::wait (1000);
+    wait_for_data(2000);
+    purge_serial();
     web_interface->blockserial = false;
 }
 

@@ -136,6 +136,12 @@ if authentication is on, need admin password for RESET, RESTART and SAFEMODE
 [ESP555]<password>pwd=<admin password>
 if no password set it use default one
 
+* Send GCode with check sum caching right line numbering
+[ESP600]<gcode>
+
+* Send line checksum
+[ESP601]<line>
+    
 * Read SPIFFS file and send each line to serial
 [ESP700]<filename>
 

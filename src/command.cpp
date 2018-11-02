@@ -49,6 +49,9 @@ String COMMAND::buffer_tcp;
 #define INCORRECT_CMD_MSG (output == WEB_PIPE)?F("Error: Incorrect Command"):F("Incorrect Cmd")
 #define OK_CMD_MSG (output == WEB_PIPE)?F("ok"):F("Cmd Ok")
 
+extern uint8_t Checksum(const char * line, uint16_t lineSize);
+extern bool sendLine2Serial (String &  line, int32_t linenb, int32_t* newlinenb);
+
 String COMMAND::get_param (String & cmd_params, const char * id, bool withspace)
 {
     static String parameter;
@@ -1403,6 +1406,47 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
         break;
     }
 #endif
+    //[ESP600]<gcode>
+    case 600: { //send GCode with check sum caching right line numbering
+        //be sure serial is locked
+        if ( (web_interface->blockserial) ) {
+            break;
+        }
+        int32_t linenb = 1;
+        cmd_params.trim() ;
+        if (sendLine2Serial (cmd_params, linenb,  &linenb))ESPCOM::println (OK_CMD_MSG, output, espresponse);
+        else { //it may failed because of skip if repetier so let's reset numbering first
+            if ( ( CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER) ) {
+                //reset numbering
+                String cmd = "M110 N0";
+                if (sendLine2Serial (cmd, -1,  NULL)){
+                    linenb = 1;
+                    //if success let's try again to send the command
+                    if (sendLine2Serial (cmd_params, linenb,  &linenb))ESPCOM::println (OK_CMD_MSG, output, espresponse);
+                    else {
+                        ESPCOM::println (ERROR_CMD_MSG, output, espresponse);
+                        response = false;
+                    }
+                } else {
+                    ESPCOM::println (ERROR_CMD_MSG, output, espresponse);
+                    response = false;
+                }
+            } else {
+                
+                ESPCOM::println (ERROR_CMD_MSG, output, espresponse);
+                response = false;
+            }
+        }
+    }
+        break;
+    //[ESP601]<line>
+    case 601: { //send line checksum
+        cmd_params.trim();
+        int8_t chk = Checksum(cmd_params.c_str(),cmd_params.length());
+        String schecksum = "Checksum: " + String(chk);
+        ESPCOM::println (schecksum, output, espresponse);
+    }
+        break;
     //[ESP700]<filename>
     case 700: { //read local file
         //be sure serial is locked

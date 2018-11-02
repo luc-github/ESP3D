@@ -19,7 +19,7 @@
 */
 
 //version and sources location
-#define FW_VERSION "2.0.0.c20"
+#define FW_VERSION "2.0.0.c21"
 #define REPOSITORY "https://github.com/luc-github/ESP3D"
 
 //Customize ESP3D ////////////////////////////////////////////////////////////////////////
@@ -71,10 +71,10 @@
 #define DIRECT_PIN_FEATURE
 
 //ESP_OLED_FEATURE: allow oled screen output
-#define ESP_OLED_FEATURE
+//#define ESP_OLED_FEATURE
 
 //DHT_FEATURE: send update of temperature / humidity based on DHT 11/22
-#define DHT_FEATURE
+//#define DHT_FEATURE
 
 //AUTHENTICATION_FEATURE: protect pages by login password
 //#define AUTHENTICATION_FEATURE
@@ -83,7 +83,7 @@
 #define WS_DATA_FEATURE
 
 //TIMESTAMP_FEATURE: Time stamp feature on direct SD  files
-#define TIMESTAMP_FEATURE
+//#define TIMESTAMP_FEATURE
 
 //Extra features /////////////////////////////////////////////////////////////////////////
 
@@ -216,7 +216,7 @@ using fs::File;
 #endif
 #ifdef DEBUG_OUTPUT_TCP
 #include "espcom.h"
-#define LOG(string) {ESPCOM::send2TCP(string, true);}
+#define LOG(string) {ESPCOM::send2TCP(string, false);}
 #define DEBUG_PIPE TCP_PIPE
 #endif
 #else
