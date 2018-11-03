@@ -97,11 +97,13 @@ if you target ESP32:
 Specific for ESP32    
 * ESP32SSDP
 If you want sync webserver (recommended for ESP8266, slow for ESP32):  
-* arduinoWebSockets fron @Links2004
+* arduinoWebSockets fron @Links2004    
+
 If you want OLED support:  
-* oled-ssd1306 from @squix78
+* oled-ssd1306 from @squix78    
+
 If you want DHT11/22 support:  
-* DHT_sensor_library_for_ESPx from @beegee-tokyo
+* DHT_sensor_library_for_ESPx from @beegee-tokyo   
 3. Compile project from examples\basicesp3d\basicesp3d.ino) according target: ESP8266 board or ESP32 board, please review config.h to enable disable a feature, by default athenticatio is disabled and all others are enabled.   
 * for ESP8266 set CPU freq to 160MHz for better (https://github.com/luc-github/ESP3D/wiki/Install-Instructions)
 4. Upload the data content on ESP3D file system
