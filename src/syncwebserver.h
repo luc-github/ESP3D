@@ -21,6 +21,7 @@
 #ifndef SYNCWEBSERVER_H
 #define SYNCWEBSERVER_H
 #include "config.h"
+#define NODEBUG_WEBSOCKETS
 #include <WebSocketsServer.h>
 
 extern void handle_web_interface_root();
