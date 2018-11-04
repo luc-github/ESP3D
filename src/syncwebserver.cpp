@@ -1194,6 +1194,13 @@ void SDFile_serial_upload()
                 return;
             }
         }
+        //Mount SD card
+        command = "M21";
+        if(!sendLine2Serial (command,-1, NULL)){
+            LOG("Mounting SD failed")
+            web_interface->_upload_status= UPLOAD_STATUS_FAILED;
+            return;
+        }
         //Reset line numbering
         if(!sendLine2Serial (resetcmd,-1, NULL)){
             LOG("Reset Numbering failed")
