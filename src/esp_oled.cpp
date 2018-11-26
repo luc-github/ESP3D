@@ -20,9 +20,24 @@
 #include "config.h"
 #ifdef ESP_OLED_FEATURE
 #include "esp_oled.h"
-#include "SSD1306.h"
 #include "Wire.h"
-SSD1306 esp_display(OLED_ADDR, OLED_PIN_A, OLED_PIN_B);
+
+
+// Initialize the OLED display using I2C
+#ifdef OLED_DISPLAY_SSD1306
+  #include "SSD1306.h"   // alias for `#include "SSD1306Wire.h"`
+#elif defined OLED_DISPLAY_SH1106
+  #include "SH1106.h"  // alias for `#include "SH1106Wire.h"`
+#endif
+
+
+#ifdef OLED_DISPLAY_SSD1306
+  SSD1306  esp_display(OLED_ADDR, OLED_PIN_SDA, OLED_PIN_SCL);
+#elif defined OLED_DISPLAY_SH1106
+  SH1106 esp_display(OLED_ADDR, OLED_PIN_SDA, OLED_PIN_SCL);
+#endif
+
+
 #define ESP3D_Logo_width 62
 #define ESP3D_Logo_height 45
 const char  ESP3D_Logo[] PROGMEM = {
