@@ -87,7 +87,7 @@ Check wiki : https://github.com/luc-github/ESP3D/wiki/Direct-ESP3D-commands
 ## Installation
 1. Please follow installation of the ESP core you want to use : [ESP8266 core version](https://github.com/esp8266/Arduino)  or [ESP32 core version](https://github.com/espressif/arduino-esp32)   
 2.  Add libraries 
-* ESP3D because it is now a library so copy project to your arduino library folder
+* ESP3D because it is now a library so copy project to your arduino library folder.   
 If you want async webserver (currently not recommended for ESP8266, suggested for ESP32):   
 * ESPAsyncWebServer from @me-no-dev   
 if you target ESP8266  
