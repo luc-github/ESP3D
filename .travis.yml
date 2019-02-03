@@ -21,7 +21,7 @@ before_script:
   - echo 'build.flash_size=4M' >> platform.txt
   - echo 'build.flash_mode=dio' >> platform.txt
   - echo 'build.f_cpu=160000000L' >> platform.txt
-  - echo 'build.flash_flags=-DFLASHMODE_DIO' >> pt.txt
+  - echo 'build.flash_flags=-DFLASHMODE_DIO' >> platform.txt
   - sed -i "s/build.lwip_lib=-llwip_gcc/build.lwip_lib=-llwip2-536-feat/g" ./platform.txt
   - sed -i "s/build.lwip_include=lwip/build.lwip_include=lwip2/g" ./platform.txt
   - sed -i "s/build.lwip_flags=-DLWIP_OPEN_SRC/build.lwip_flags=-DLWIP_OPEN_SRC -DTCP_MSS=536 -DLWIP_FEATURES=1 -DLWIP_IPV6=0/g" ./platform.txt
