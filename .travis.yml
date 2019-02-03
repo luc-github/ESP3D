@@ -45,7 +45,6 @@ before_script:
   - mv $TRAVIS_BUILD_DIR/src $HOME/arduino_ide/libraries/ESP3D
   - mv $TRAVIS_BUILD_DIR/library.properties $HOME/arduino_ide/libraries/ESP3D
   
-
 script:
   - cd $TRAVIS_BUILD_DIR
   - source command.sh
