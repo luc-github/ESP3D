@@ -100,9 +100,9 @@ bool purge_serial(){
         }
         size_t len = ESPCOM::readBytes (DEFAULT_PRINTER_PIPE, buf, 50);
         buf[len] = '\0';
-        LOG("Purge ")
+        LOG("Purge: \r\n************\r\n")
         LOG((const char *)buf)
-        LOG("\r\n")
+        LOG("\r\n************\r\n")
         if ( ( CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER) ) {
             String s = (const char *)buf;
             //repetier never stop sending data so no need to wait if have 'wait' or 'busy'
@@ -138,7 +138,7 @@ uint32_t Get_lineNumber(String & response){
     //remove potential unwished char
     snum.replace("\r", "");
     l = snum.toInt();
-    LOG("New number ")
+    LOG("Line requested is ")
     LOG(String(l))
     LOG("\r\n")
     return l;
@@ -155,7 +155,7 @@ bool sendLine2Serial (String &  line, int32_t linenb,  int32_t * newlinenb)
     LOG ("\r\n")
     String line2send;
     String sok = "ok";
-    String sresend = "Resend";
+    String sresend = "Resend:";
     if (newlinenb) *newlinenb = linenb;
     if ( CONFIG::GetFirmwareTarget() == SMOOTHIEWARE)sresend = "rs N";
     if (linenb != -1) {
@@ -191,9 +191,9 @@ bool sendLine2Serial (String &  line, int32_t linenb,  int32_t * newlinenb)
                 sbuf[len] = '\0';
                 //use string because easier to handle and allow to re-assemble cutted answer 
                 response += (const char*) sbuf;
-                LOG ("Response: ")
+                LOG ("Response:\r\n************\r\n")
                 LOG (response)
-                LOG ("\r\n")
+                LOG ("\r\n************\r\n")
                 //in that case there is no way to know what is the right number to use and so send should be failed
                 if (( ( CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER) ) && (response.indexOf ("skip") != -1)) {
                     LOG ("Wrong line requested\r\n")
@@ -205,9 +205,11 @@ bool sendLine2Serial (String &  line, int32_t linenb,  int32_t * newlinenb)
                 if (( pos > -1) && (response.lastIndexOf("\n") > pos)){
                     LOG ("Resend detected\r\n")
                     uint32_t line_number = Get_lineNumber(response);
-                    if (newlinenb){ 
+                    //this part is only if have newlinenb variable
+                    if (newlinenb != nullptr){ 
                         *newlinenb = line_number;
                         free(sbuf);
+                        //no need newlinenb in this one in theory, but just in case...
                         return sendLine2Serial (line, line_number, newlinenb);
                     } else {
                         //the line requested is not the current one so we stop
@@ -222,8 +224,11 @@ bool sendLine2Serial (String &  line, int32_t linenb,  int32_t * newlinenb)
                         LOG ("Exit too many resend or wrong line\r\n")
                         return false;
                     }
-                    LOG ("Resend\r\n")
                     purge_serial();
+                    LOG ("Resend ")
+                    LOG (String(count))
+                    LOG ("\r\n")
+                    response="";
                     ESPCOM::println (line2send, DEFAULT_PRINTER_PIPE);
                     ESPCOM::flush (DEFAULT_PRINTER_PIPE);
                     wait_for_data(1000);
@@ -244,7 +249,7 @@ bool sendLine2Serial (String &  line, int32_t linenb,  int32_t * newlinenb)
                 LOG ("Time out\r\n")
                 done = true;
             }
-            CONFIG::wait (50);
+            CONFIG::wait (5);
         }
     }
     LOG ("Send line error\r\n") 

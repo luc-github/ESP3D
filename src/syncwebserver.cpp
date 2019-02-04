@@ -1257,8 +1257,7 @@ void SDFile_serial_upload()
                     if (current_line.length() > 0 ) {
                         lineNb++;
                         if (!sendLine2Serial (current_line, lineNb, NULL) ) {
-                           //fup.println("[Log]Write Error");
-                            LOG ("Error over buffer\n")
+                            LOG ("Error sending line\n")
                             CloseSerialUpload (true, current_filename,lineNb);
 #if defined ( ARDUINO_ARCH_ESP8266)
 					web_interface->web_server.client().stopAll();
