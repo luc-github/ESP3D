@@ -51,7 +51,7 @@ if authentication is on, need admin password
 [ESP112]<header answer>
 
 *Get/Set pin value
-[ESP201]P<pin> V<value> [PULLUP=YES RAW=YES]pwd=<admin password>
+[ESP201]P<pin> V<value> [PULLUP=YES RAW=YES ANALOG=NO ANALOG_RANGE=255 CLEARCHANNELS=NO]pwd=<admin password>
 if no V<value> get P<pin> value
 if V<value> 0/1 set INPUT_PULLUP value, but for GPIO16 INPUT_PULLDOWN_16
 GPIO1 and GPIO3 cannot be used as they are used for serial

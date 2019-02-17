@@ -27,9 +27,10 @@
 #include <FS.h>
 #if defined(ARDUINO_ARCH_ESP32)
 #include "SPIFFS.h"
-#define MAX_GPIO 16
-#else
 #define MAX_GPIO 37
+int ChannelAttached2Pin[16]={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
+#else
+#define MAX_GPIO 16
 #endif
 #ifdef TIMESTAMP_FEATURE
 #include <time.h>
@@ -468,7 +469,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
 
 #ifdef DIRECT_PIN_FEATURE
     //Get/Set pin value
-    //[ESP201]P<pin> V<value> [PULLUP=YES RAW=YES]pwd=<admin password>
+    //[ESP201]P<pin> V<value> [PULLUP=YES RAW=YES ANALOG=NO ANALOG_RANGE=255 CLEARCHANNELS=NO]pwd=<admin password>
     case 201:
         parameter = get_param (cmd_params, "", true);
 #ifdef AUTHENTICATION_FEATURE
@@ -488,34 +489,62 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
                 response = false;
             } else {
                 int pin = parameter.toInt();
-                //check pin is valid and not serial used pins
-                if ( (pin >= 0) && (pin <= 16) && ! ( (pin == 1) || (pin == 3) ) ) {
+                //check pin is valid 
+                if ((pin >= 0) && (pin <= MAX_GPIO)) {
+                    //check if analog or digital
+                    bool isdigital = true;
+                    
+                    parameter = get_param (cmd_params, "ANALOG=", false);
+                    if (parameter == "YES") {
+                        LOG ("Set as analog\r\n")
+                        isdigital=false;
+#ifdef ARDUINO_ARCH_ESP32
+                        parameter = get_param (cmd_params, "CLEARCHANNELS=", false);
+                        if (parameter == "YES") {
+                            for (uint8_t p = 0; p < 16;p++){
+                                if(ChannelAttached2Pin[p] != -1){
+                                    ledcDetachPin(ChannelAttached2Pin[p]);
+                                    ChannelAttached2Pin[p] = -1;
+                                }
+                            }
+                        }
+#endif
+                    }
                     //check if is set or get
                     parameter = get_param (cmd_params, "V", false);
                     //it is a get
                     if (parameter == "") {
-                        //this is to not set pin mode
-                        parameter = get_param (cmd_params, "RAW=", false);
-                        if (parameter != "YES") {
-                            parameter = get_param (cmd_params, "PULLUP=", false);
-                            if (parameter == "YES") {
-                                //GPIO16 is different than others
-                                if (pin < MAX_GPIO) {
-                                    LOG ("Set as input pull up\r\n")
-                                    pinMode (pin, INPUT_PULLUP);
-                                }
-#ifdef ARDUINO_ARCH_ESP8266
-                                else {
-                                    LOG ("Set as input pull down 16\r\n")
-                                    pinMode (pin, INPUT_PULLDOWN_16);
-                                }
-#endif
-                            } else {
-                                LOG ("Set as input\r\n")
-                                pinMode (pin, INPUT);
+                        int value = 0;
+                        if(isdigital) {
+                            //this is to not set pin mode
+                            parameter = get_param (cmd_params, "RAW=", false);
+                            if (parameter == "NO") {
+                                parameter = get_param (cmd_params, "PULLUP=", false);
+                                if (parameter == "NO") {
+                                    LOG ("Set as input\r\n")
+                                    pinMode (pin, INPUT);
+                                } else {
+                                    //GPIO16 is different than others
+                                    if (pin < MAX_GPIO) {
+                                        LOG ("Set as input pull up\r\n")
+                                        pinMode (pin, INPUT_PULLUP);
+                                    }
+    #ifdef ARDUINO_ARCH_ESP8266
+                                    else {
+                                        LOG ("Set as input pull down 16\r\n")
+                                        pinMode (pin, INPUT_PULLDOWN_16);
+                                    }
+    #endif
+                                }  
                             }
+                            value = digitalRead (pin);
+                        } else {
+    #ifdef ARDUINO_ARCH_ESP8266 //only one ADC on ESP8266 A0
+                            value = analogRead (A0);
+    #else
+                            value = analogRead (pin);
+    #endif
                         }
-                        int value = digitalRead (pin);
                         LOG ("Read:");
                         LOG (String (value).c_str() )
                         LOG ("\n");
@@ -523,17 +552,85 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
                     } else {
                         //it is a set
                         int value = parameter.toInt();
-                        //verify it is a 0 or a 1
-                        if ( (value == 0) || (value == 1) ) {
-                            pinMode (pin, OUTPUT);
-                            LOG ("Set:")
-                            LOG (String ( (value == 0) ? LOW : HIGH) )
-                            LOG ("\r\n")
-                            digitalWrite (pin, (value == 0) ? LOW : HIGH);
-                            ESPCOM::println (OK_CMD_MSG, output, espresponse);
+                        if (isdigital) {
+                            //verify it is a 0 or a 1
+                            if ( (value == 0) || (value == 1) ) {
+                                pinMode (pin, OUTPUT);
+                                LOG ("Set:")
+                                LOG (String ( (value == 0) ? LOW : HIGH) )
+                                LOG ("\r\n")
+                                digitalWrite (pin, (value == 0) ? LOW : HIGH);
+                                ESPCOM::println (OK_CMD_MSG, output, espresponse);
+                            } else {
+                                ESPCOM::println (INCORRECT_CMD_MSG, output, espresponse);
+                                response = false;
+                            }
                         } else {
-                            ESPCOM::println (INCORRECT_CMD_MSG, output, espresponse);
-                            response = false;
+                            int analog_range= 255;
+                            parameter = get_param (cmd_params, "ANALOG_RANGE=", false);
+                            if (parameter.length() > 0) {
+                                analog_range = parameter.toInt();
+                            }
+                            LOG ("Range ")
+                            LOG(String (analog_range).c_str() )
+                            LOG ("\r\n")
+                            if ( (value >= 0) || (value <= analog_range+1) ) {
+                                LOG ("Set:")
+                                LOG (String ( value) )
+                                LOG ("\r\n")
+    #ifdef ARDUINO_ARCH_ESP8266
+                                
+                                analogWriteRange(analog_range);
+                                pinMode(pin, OUTPUT);
+                                analogWrite(pin, value);
+    #else
+                                int channel  = -1;
+                                for (uint8_t p = 0; p < 16;p++){
+                                    if(ChannelAttached2Pin[p] == pin){
+                                        channel = p;
+                                    }
+                                }
+                                if (channel==-1){
+                                   for (uint8_t p = 0; p < 16;p++){
+                                    if(ChannelAttached2Pin[p] = -1){
+                                        channel = p;
+                                        ChannelAttached2Pin[p] = pin;
+                                        p  = 16;
+                                        }
+                                    } 
+                                }
+                                uint8_t resolution = 0;
+                                analog_range++;
+                                switch(analog_range){
+                                    case 8191:
+                                        resolution=13;
+                                        break;
+                                    case 1024:
+                                        resolution=10;
+                                        break;
+                                    case 2047:
+                                        resolution=11;
+                                        break;
+                                    case 4095:
+                                        resolution=12;
+                                        break;
+                                    default:
+                                        resolution=8;
+                                        analog_range = 255;
+                                        break;
+                                }
+                                if ((channel==-1) || (value > (analog_range-1))){
+                                    ESPCOM::println (INCORRECT_CMD_MSG, output, espresponse);
+                                    return false; 
+                                }
+                                ledcSetup(channel, 1000, resolution);
+                                ledcAttachPin(pin, channel);
+                                ledcWrite(channel, value);
+    #endif
+                            } else{
+                                ESPCOM::println (INCORRECT_CMD_MSG, output, espresponse);
+                                response = false;
+                            }
                         }
                     }
                 } else {
