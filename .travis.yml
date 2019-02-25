@@ -49,9 +49,12 @@ script:
   - arduino --get-pref sketchbook.path
   #- build_sketch  esp3d/esp3d.ino
   - arduino --board esp32:esp32:esp32 --save-prefs
+  - cat $HOME/.arduino15/preferences.txt
+  - echo "custom_PartitionScheme=esp32_min_spiffs" >> $HOME/.arduino15/preferences.txt
+  - cat $HOME/.arduino15/preferences.txt
   - build_sketch  esp3d/esp3d.ino
   - cd $HOME/arduino_ide/hardware/esp32/esp32
-  - cat ./platform.txt
+  
   
 notifications:
   email:
