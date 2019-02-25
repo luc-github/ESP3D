@@ -52,7 +52,6 @@ script:
   - echo "custom_PartitionScheme=esp32_min_spiffs" >> $HOME/.arduino15/preferences.txt
   - sed -i "s/\/\/#define BLUETOOTH_FEATURE/#define BLUETOOTH_FEATURE/g" $TRAVIS_BUILD_DIR/esp3d/src/configuration.h
   - build_sketch  esp3d/esp3d.ino
-  - cd $HOME/arduino_ide/hardware/esp32/esp32
   
   
 notifications:
