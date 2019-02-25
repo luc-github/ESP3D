@@ -45,9 +45,11 @@ script:
   - export PATH="$HOME/arduino_ide:$PATH"
   - arduino --board esp8266com:esp8266:generic --save-prefs
   - arduino --get-pref sketchbook.path
-  - build_sketch  esp3d/esp3d.ino
+  #- build_sketch  esp3d/esp3d.ino
   - arduino --board esp32:esp32:esp32 --save-prefs
   - build_sketch  esp3d/esp3d.ino
+  - cd $HOME/arduino_ide/hardware/esp32/esp32
+  - cat ./platform.txt
   
 notifications:
   email:
