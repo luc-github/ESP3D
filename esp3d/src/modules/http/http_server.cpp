@@ -1,0 +1,220 @@
+/*
+  http_server.cpp -  http server functions class
+
+  Copyright (c) 2014 Luc Lebosse. All rights reserved.
+
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License, or (at your option) any later version.
+
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
+
+
+#include "../../include/esp3d_config.h"
+
+#if defined (HTTP_FEATURE)
+#if defined (ARDUINO_ARCH_ESP32)
+#include <WebServer.h>
+#endif //ARDUINO_ARCH_ESP32
+#if defined (ARDUINO_ARCH_ESP8266)
+#include <ESP8266WebServer.h>
+#endif //ARDUINO_ARCH_ESP8266
+#include "http_server.h"
+#include "../authentication/authentication_service.h"
+#include "../../core/settings_esp3d.h"
+#include "../filesystem/esp_filesystem.h"
+
+bool HTTP_Server::_started = false;
+uint16_t HTTP_Server::_port = 0;
+WEBSERVER * HTTP_Server::_webserver = nullptr;
+uint8_t HTTP_Server::_upload_status = UPLOAD_STATUS_NONE;
+
+HTTP_Server::HTTP_Server()
+{
+}
+HTTP_Server::~HTTP_Server()
+{
+    end();
+}
+
+void HTTP_Server::init_handlers()
+{
+    _webserver->on("/",HTTP_ANY, handle_root);
+    //Page not found handler
+    _webserver->onNotFound (handle_not_found);
+    //web commands
+    _webserver->on ("/command", HTTP_ANY, handle_web_command);
+    //need to be there even no authentication to say to UI no authentication
+    _webserver->on("/login", HTTP_ANY, handle_login);
+#ifdef FILESYSTEM_FEATURE
+    //FileSystem
+    _webserver->on ("/files", HTTP_ANY, handleFSFileList, FSFileupload);
+#endif //FILESYSTEM_FEATURE
+#ifdef WEB_UPDATE_FEATURE
+    //web update
+    _webserver->on ("/updatefw", HTTP_ANY, handleUpdate, WebUpdateUpload);
+#endif //WEB_UPDATE_FEATURE
+#ifdef SSDP_FEATURE
+    if(WiFi.getMode() != WIFI_AP) {
+        _webserver->on("/description.xml", HTTP_GET, handle_SSDP);
+    }
+#endif
+#ifdef CAPTIVE_PORTAL_FEATURE
+    if(WiFi.getMode() == WIFI_AP) {
+        _webserver->on ("/generate_204", HTTP_ANY,  handle_root);
+        _webserver->on ("/gconnectivitycheck.gstatic.com", HTTP_ANY, handle_root);
+        //do not forget the / at the end
+        _webserver->on ("/fwlink/", HTTP_ANY, handle_root);
+    }
+#endif
+}
+
+bool HTTP_Server::StreamFSFile(const char* filename, const char * contentType)
+{
+    ESP_File datafile = ESP_FileSystem::open(filename);
+    if (!datafile) {
+        return false;
+    }
+    size_t totalFileSize = datafile.size();
+    size_t i = 0;
+    bool done = false;
+    _webserver->setContentLength(totalFileSize);
+    _webserver->send(200, contentType, "");
+    uint8_t buf[1024];
+    while (!done) {
+        Hal::wait(0);
+        int v = datafile.read(buf,1024);
+        if ((v == -1) ||  (v == 0)) {
+            done = true;
+        } else {
+            _webserver->client().write(buf,v);
+            i+=v;
+        }
+        if (i >= totalFileSize) {
+            done = true;
+        }
+    }
+    datafile.close();
+    if ( i != totalFileSize) {
+        return false;
+    }
+    return true;
+}
+
+bool HTTP_Server::begin()
+{
+    bool no_error = true;
+    end();
+    _port = Settings_ESP3D::read_uint32(ESP_HTTP_PORT);
+    _webserver= new WEBSERVER(_port);
+    if (!_webserver) {
+        return false;
+    }
+
+    init_handlers();
+#ifdef AUTHENTICATION_FEATURE
+    //here the list of headers to be recorded
+    //Autrization is already added
+    const char * headerkeys[] = {"Cookie"} ;
+    size_t headerkeyssize = sizeof (headerkeys) / sizeof (char*);
+    //ask server to track these headers
+    _webserver->collectHeaders (headerkeys, headerkeyssize );
+#endif
+    _webserver->begin();
+#ifdef AUTHENTICATION_FEATURE
+    AuthenticationService::begin(_webserver);
+#endif //AUTHENTICATION_FEATURE
+
+    _started = no_error;
+    return no_error;
+}
+
+void HTTP_Server::end()
+{
+    _started = false;
+    _upload_status = UPLOAD_STATUS_NONE;
+#ifdef AUTHENTICATION_FEATURE
+    AuthenticationService::end();
+#endif //AUTHENTICATION_FEATURE
+    if (_webserver) {
+        _webserver->stop();
+        delete _webserver;
+        _webserver = NULL;
+    }
+}
+
+void HTTP_Server::handle()
+{
+    if (_started) {
+        if (_webserver) {
+            _webserver->handleClient();
+        }
+    }
+}
+
+const char * HTTP_Server::get_Splited_Value(String data, char separator, int index)
+{
+    int found = 0;
+    int strIndex[] = {0, -1};
+    int maxIndex = data.length()-1;
+
+    for(int i=0; i<=maxIndex && found<=index; i++) {
+        if(data.charAt(i)==separator || i==maxIndex) {
+            found++;
+            strIndex[0] = strIndex[1]+1;
+            strIndex[1] = (i == maxIndex) ? i+1 : i;
+        }
+    }
+
+    return found>index ? data.substring(strIndex[0], strIndex[1]).c_str() : "";
+}
+
+//helper to extract content type from file extension
+//Check what is the content tye according extension file
+const char* HTTP_Server::getContentType (const char* filename)
+{
+    String file_name = filename;
+    file_name.toLowerCase();
+    if (file_name.endsWith (".htm") ) {
+        return "text/html";
+    } else if (file_name.endsWith (".html") ) {
+        return "text/html";
+    } else if (file_name.endsWith (".css") ) {
+        return "text/css";
+    } else if (file_name.endsWith (".js") ) {
+        return "application/javascript";
+    } else if (file_name.endsWith (".png") ) {
+        return "image/png";
+    } else if (file_name.endsWith (".gif") ) {
+        return "image/gif";
+    } else if (file_name.endsWith (".jpeg") ) {
+        return "image/jpeg";
+    } else if (file_name.endsWith (".jpg") ) {
+        return "image/jpeg";
+    } else if (file_name.endsWith (".ico") ) {
+        return "image/x-icon";
+    } else if (file_name.endsWith (".xml") ) {
+        return "text/xml";
+    } else if (file_name.endsWith (".pdf") ) {
+        return "application/x-pdf";
+    } else if (file_name.endsWith (".zip") ) {
+        return "application/x-zip";
+    } else if (file_name.endsWith (".gz") ) {
+        return "application/x-gzip";
+    } else if (file_name.endsWith (".txt") ) {
+        return "text/plain";
+    }
+    return "application/octet-stream";
+}
+
+#endif // Enable HTTP 
+
