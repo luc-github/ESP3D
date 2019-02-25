@@ -35,6 +35,7 @@ before_script:
   - cd ..
   - echo 'build.flash_freq=40m' >> platform.txt
   - echo 'build.partitions=min_spiffs' >> platform.txt
+  - sed -i "s/{build.partitions}.csv/min_spiffs.csv/g" ./platform.txt
   - mv $TRAVIS_BUILD_DIR/libraries/ESP32SSDP $HOME/arduino_ide/libraries/
   - mv $TRAVIS_BUILD_DIR/libraries/arduinoWebSockets $HOME/arduino_ide/libraries/
 
