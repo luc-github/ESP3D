@@ -37,13 +37,18 @@ before_script:
   - echo 'build.partitions=min_spiffs' >> platform.txt
   - mv $TRAVIS_BUILD_DIR/libraries/ESP32SSDP $HOME/arduino_ide/libraries/
   - mv $TRAVIS_BUILD_DIR/libraries/arduinoWebSockets $HOME/arduino_ide/libraries/
-  script:
+
+script:
   - cd $TRAVIS_BUILD_DIR
   - source command.sh
   - export PATH="$HOME/arduino_ide:$PATH"
   - arduino --board esp8266com:esp8266:generic --save-prefs
   - arduino --get-pref sketchbook.path
-  - build_sketch  $TRAVIS_BUILD_DIR/esp3d/esp3d.ino
+  - build_sketch  esp3d/esp3d.ino
   - arduino --board esp32:esp32:esp32 --save-prefs
-  - build_sketch  $TRAVIS_BUILD_DIR/esp3d/esp3d.ino
+  - build_sketch  esp3d/esp3d.ino
   
+notifications:
+  email:
+    on_success: change
+    on_failure: change
