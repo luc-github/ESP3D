@@ -36,6 +36,8 @@ before_script:
   - echo 'build.flash_freq=40m' >> platform.txt
   - echo 'build.partitions=min_spiffs' >> platform.txt
   - sed -i "s/{build.partitions}.csv/min_spiffs.csv/g" ./platform.txt
+  - sed -i "s/esp32.menu.PartitionScheme.default.build.partitions=default/esp32.menu.PartitionScheme.default.build.partitions=min_spiffs/g" ./boards.txt
+  - sed -i "s/esp32.build.partitions=default/esp32.build.partitions=min_spiffs/g" ./boards.txt
   - mv $TRAVIS_BUILD_DIR/libraries/ESP32SSDP $HOME/arduino_ide/libraries/
   - mv $TRAVIS_BUILD_DIR/libraries/arduinoWebSockets $HOME/arduino_ide/libraries/
 
