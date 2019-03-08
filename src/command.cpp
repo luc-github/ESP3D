@@ -592,7 +592,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
                                 }
                                 if (channel==-1){
                                    for (uint8_t p = 0; p < 16;p++){
-                                    if(ChannelAttached2Pin[p] = -1){
+                                    if(ChannelAttached2Pin[p] == -1){
                                         channel = p;
                                         ChannelAttached2Pin[p] = pin;
                                         p  = 16;
