@@ -60,6 +60,10 @@
 const byte DNS_PORT = 53;
 DNSServer dnsServer;
 #endif //CAPTIVE_PORTAL_FEATURE
+#ifdef TIMESTAMP_FEATURE
+#include "../time/time_server.h"
+#endif //TIMESTAMP_FEATURE
+
 
 bool NetServices::_started = false;
 
@@ -78,6 +82,17 @@ bool NetServices::begin()
     String hostname = Settings_ESP3D::read_string(ESP_HOSTNAME);
     ESP3DOutput output(ESP_ALL_CLIENTS);
     end();
+#ifdef TIMESTAMP_FEATURE
+    if (WiFi.getMode() != WIFI_AP) {
+        if(!timeserver.begin()) {
+            output.printERROR("Failed contact time servers!");
+        } else {
+            String tmp = "Time set :";
+            tmp+=timeserver.current_time();
+            output.printMSG(tmp.c_str());
+        }
+    }
+#endif //TIMESTAMP_FEATURE
 #if defined(MDNS_FEATURE) && defined(ARDUINO_ARCH_ESP8266)
     if(WiFi.getMode() != WIFI_AP) {
         String lhostname =hostname;
@@ -216,11 +231,6 @@ bool NetServices::begin()
         output.printMSG(stmp.c_str());
     }
 #endif //SSDP_FEATURE
-
-    /*    #ifdef ENABLE_TELNET
-           telnet_server.begin();
-        #endif
-           return no_error;*/
     if (!res) {
         end();
     }
@@ -294,10 +304,9 @@ void NetServices::handle()
 #if defined(HTTP_FEATURE)
         websocket_terminal_server.handle();
 #endif //HTTP_FEATURE
-
-    }
 #ifdef TELNET_FEATURE
-    telnet_server.handle();
+        telnet_server.handle();
 #endif //TELNET_FEATURE
+    }
 }
 

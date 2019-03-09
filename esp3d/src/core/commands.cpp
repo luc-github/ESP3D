@@ -119,7 +119,7 @@ const char * Commands::get_param (const char * cmd_params, const char * label)
     if (strlen(label) > 0) {
         start = tmp.indexOf(slabel);
         if (start == -1) {
-            return res.c_str();
+            return "";
         }
         start+=slabel.length();
         end = get_space_pos(tmp.c_str(),start);
@@ -190,7 +190,7 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
 //override if parameters
 #ifdef AUTHENTICATION_FEATURE
 
-    //do not overwrite previous authetication level
+    //do not overwrite previous authetic <time=YYYY-MM-DD#H24:MM:SS>ation level
     if (auth_type == LEVEL_GUEST) {
         String pwd=get_param (cmd_params, "pwd=");
         auth_type = AuthenticationService::authenticated_level(pwd.c_str());
@@ -286,7 +286,7 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
     case 121:
         response = ESP121(cmd_params, auth_type, output);
         break;
-#endif HTTP_FEATURE
+#endif //HTTP_FEATURE
 #ifdef TELNET_FEATURE
     //Set TELNET state which can be ON, OFF
     //[ESP130]<state>pwd=<admin password>
@@ -299,7 +299,13 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
         response = ESP131(cmd_params, auth_type, output);
         break;
 #endif //TELNET_FEATURE
-
+#ifdef TIMESTAMP_FEATURE
+    //Init / Get current time
+    //[ESP140]<INIT>  <srv1=XXXXX> <srv2=XXXXX> <srv3=XXXXX> <zone=xxx> <dst=YES/NO> <time=YYYY-MM-DD#H24:MM:SS> pwd=<admin password>
+    case 140:
+        response = ESP140(cmd_params, auth_type, output);
+        break;
+#endif //TIMESTAMP_FEATURE
 #ifdef DIRECT_PIN_FEATURE
     //Get/Set pin value
     //[ESP201]P<pin> V<value> [PULLUP=YES RAW=YES]pwd=<admin password>
@@ -307,7 +313,13 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
         response = ESP201(cmd_params, auth_type, output);
         break;
 #endif //DIRECT_PIN_FEATURE
-
+#ifdef DHT_DEVICE
+    //Get DHT Value / type/Set DHT type
+    //[ESP210] <TYPE> <type=NONE/11/22/xxx> <interval=XXX in millisec>
+    case 210:
+        response = ESP210(cmd_params, auth_type, output);
+        break;
+#endif //#ifdef DHT_DEVICE
     //Get full ESP3D settings
     //[ESP400]<pwd=admin>
     case 400:
@@ -350,6 +362,13 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
         response = ESP555(cmd_params, auth_type, output);
         break;
 #endif  //AUTHENTICATION_FEATURE
+#if defined( WIFI_FEATURE) || defined (ETH_FEATURE)
+    //Send Notification
+    //[ESP600]<msg>[pwd=<admin password>]
+    case 600:
+        response = ESP600(cmd_params, auth_type, output);
+        break;
+#endif //WIFI_FEATURE || ETH_FEATURE+
 #ifdef FILESYSTEM_FEATURE
     //Format ESP Filesystem
     //[ESP710]FORMAT pwd=<admin password>

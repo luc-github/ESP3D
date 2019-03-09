@@ -61,7 +61,7 @@ public:
         return write((uint8_t) n);
     }
     int available();
-    int availableForWrite();
+    uint availableForWrite();
     void flush();
     int read(void);
     size_t readBytes (uint8_t * sbuf, size_t len);
@@ -69,6 +69,7 @@ public:
     {
         return _port;
     }
+    void closeClient();
 private:
     bool _started;
     WiFiServer * _telnetserver;

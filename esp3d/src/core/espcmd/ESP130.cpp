@@ -23,7 +23,8 @@
 #include "../esp3doutput.h"
 #include "../settings_esp3d.h"
 #include "../../modules/authentication/authentication_service.h"
-//Set TELNET state which can be ON, OFF
+#include "../../modules/telnet/telnet_server.h"
+//Set TELNET state which can be ON, OFF, CLOSE
 //[ESP130]<state>pwd=<admin password>
 bool Commands::ESP130(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
@@ -34,6 +35,8 @@ bool Commands::ESP130(const char* cmd_params, level_authenticate_type auth_type,
         output->printERROR("Wrong authentication!", 401);
         return false;
     }
+#else
+    (void)auth_type;
 #endif //AUTHENTICATION_FEATURE
     parameter = get_param (cmd_params, "");
     //get
@@ -47,14 +50,19 @@ bool Commands::ESP130(const char* cmd_params, level_authenticate_type auth_type,
         }
 #endif //AUTHENTICATION_FEATURE
         parameter.toUpperCase();
-        if (!((parameter == "ON") || (parameter == "OFF"))) {
-            output->printERROR("Only ON or OFF mode supported!");
+        if (!((parameter == "ON") || (parameter == "OFF") || (parameter == "CLOSE"))) {
+            output->printERROR("Only ON or OFF or CLOSE mode supported!");
             return false;
         } else {
-            if (!Settings_ESP3D::write_byte (ESP_TELNET_ON, (parameter == "ON")?1:0)) {
-                output->printERROR ("Set failed!");
-                response = false;
+            if (parameter == "CLOSE") {
+                telnet_server.closeClient();
+                output->printMSG ("ok");
             } else {
+                if (!Settings_ESP3D::write_byte (ESP_TELNET_ON, (parameter == "ON")?1:0)) {
+                    output->printERROR ("Set failed!");
+                    response = false;
+                }
+
                 output->printMSG ("ok");
             }
         }

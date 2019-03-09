@@ -22,6 +22,9 @@
 #include "../esp3doutput.h"
 #include "../settings_esp3d.h"
 #include "../../modules/authentication/authentication_service.h"
+#ifdef DHT_DEVICE
+#include "../../modules/dht/dht.h"
+#endif //DHT_DEVICE
 //Set EEPROM setting
 //[ESP401]P=<position> T=<type> V=<value> pwd=<user/admin password>
 bool Commands::ESP401(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
@@ -33,6 +36,8 @@ bool Commands::ESP401(const char* cmd_params, level_authenticate_type auth_type,
         output->printERROR("Wrong authentication!", 401);
         return false;
     }
+#else
+    (void)auth_type;
 #endif //AUTHENTICATION_FEATURE
     //check validity of parameters
     String spos = get_param (cmd_params, "P=");
@@ -56,6 +61,11 @@ bool Commands::ESP401(const char* cmd_params, level_authenticate_type auth_type,
                 case ESP_TARGET_FW:
                     Settings_ESP3D::GetFirmwareTarget(true);
                     break;
+#ifdef DHT_DEVICE
+                case ESP_DHT_TYPE:
+                    esp3d_DHT.begin();
+                    break;
+#endif //DHT_DEVICE
                 default:
                     break;
                 }
@@ -67,7 +77,15 @@ bool Commands::ESP401(const char* cmd_params, level_authenticate_type auth_type,
                 response = false;
             } else {
                 //dynamique refresh is better than restart the board
-                //TBD
+                switch(spos.toInt()) {
+#ifdef DHT_DEVICE
+                case ESP_DHT_INTERVAL:
+                    esp3d_DHT.setInterval(sval.toInt());
+                    break;
+#endif //DHT_DEVICE
+                default:
+                    break;
+                }
             }
         }
         //String value

@@ -121,6 +121,7 @@ public:
     static const char * TargetBoard();
     static bool isLocalPasswordValid (const char * password);
 private:
+    static bool is_string(const char * s, uint len);
     static uint8_t _FirmwareTarget;
     static bool _directSD;
 };

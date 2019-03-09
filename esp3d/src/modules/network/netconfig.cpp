@@ -321,22 +321,24 @@ const char* NetConfig::hostname(bool fromsettings)
 
 void NetConfig::handle()
 {
+    if (_started) {
 #if defined (WIFI_FEATURE)
-    if(_needReconnect2AP) {
+        if(_needReconnect2AP) {
 
-        if(WiFi.getMode()!= WIFI_OFF) {
-            begin();
+            if(WiFi.getMode()!= WIFI_OFF) {
+                begin();
+            }
         }
-    }
-    WiFiConfig::handle();
+        WiFiConfig::handle();
 #endif //WIFI_FEATURE
 #if defined (ETH_FEATURE)
-    EthConfig::handle();
+        EthConfig::handle();
 #endif //ETH_FEATURE
 #if defined (BLUETOOTH_FEATURE)
-    bt_service.handle();
+        bt_service.handle();
 #endif //BLUETOOTH_FEATURE
-    NetServices::handle();
+        NetServices::handle();
+    }
 }
 
 bool NetConfig::isIPModeDHCP (uint8_t mode)

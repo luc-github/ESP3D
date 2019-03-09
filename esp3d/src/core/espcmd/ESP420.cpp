@@ -44,6 +44,12 @@
 #ifdef TELNET_FEATURE
 #include "../../modules/telnet/telnet_server.h"
 #endif //TELNET_FEATURE
+#if defined (TIMESTAMP_FEATURE)
+#include "../../modules/time/time_server.h"
+#endif //TIMESTAMP_FEATURE
+#if defined (DHT_DEVICE)
+#include "../../modules/dht/dht.h"
+#endif //DHT_DEVICE
 //Get ESP current status
 //output is JSON or plain text according parameter
 //[ESP420]<plain>
@@ -56,6 +62,8 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         output->printERROR("Wrong authentication!", 401);
         return false;
     }
+#else
+    (void)auth_type;
 #endif //AUTHENTICATION_FEATURE
     bool plain = hastag(cmd_params,"plain");
     //TODO add plain / JSON support
@@ -332,7 +340,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         } else {
             output->print (": ");
         }
-        output->printf ("%ld",HTTP_Server::port());
+        output->printf ("%d",HTTP_Server::port());
         if (!plain) {
             output->print ("\"}");
         } else {
@@ -352,7 +360,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         } else {
             output->print (": ");
         }
-        output->printf ("%ld",telnet_server.port());
+        output->printf ("%d",telnet_server.port());
         if (!plain) {
             output->print ("\"}");
         } else {
@@ -923,6 +931,43 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
     }
 #endif //WIFI_FEATURE
 #endif //WIFI_FEATURE || ETH FEATURE
+#if defined (TIMESTAMP_FEATURE)
+    if (!plain) {
+        output->print (",{\"id\":\"");
+    }
+    output->print ("Time client");
+    if (!plain) {
+        output->print ("\",\"value\":\"");
+    } else {
+        output->print (": ");
+    }
+    output->print (timeserver.started()?"Started":"Disabled");
+    if (!plain) {
+        output->print ("\"}");
+    } else {
+        output->printLN("");
+    }
+#endif //TIMESTAMP_FEATURE
+#if defined (DHT_DEVICE)
+    if (!plain) {
+        output->print (",{\"id\":\"");
+    }
+    output->print ("DHT sensor");
+    if (!plain) {
+        output->print ("\",\"value\":\"");
+    } else {
+        output->print (": ");
+    }
+    output->print (esp3d_DHT.started()?"Enabled":"Disabled");
+    output->print ("(");
+    output->print (esp3d_DHT.GetModelString());
+    output->print (")");
+    if (!plain) {
+        output->print ("\"}");
+    } else {
+        output->printLN("");
+    }
+#endif //DHT_DEVICE
     //FW version
     if (!plain) {
         output->print (",{\"id\":\"");

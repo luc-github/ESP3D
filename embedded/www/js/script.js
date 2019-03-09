@@ -77,6 +77,7 @@ jsonresponse.files.sort(function(a, b) {
 if (currentpath=="/") {
     display_message = true;
 }
+var display_time =false;
 for (var i1=0;i1 <jsonresponse.files.length;i1++){
 //first display files
 if (String(jsonresponse.files[i1].size) != "-1")
@@ -91,7 +92,16 @@ if (String(jsonresponse.files[i1].size) != "-1")
     }
     content +="</div></a></TD><TD>";
     content +=jsonresponse.files[i1].size;
-    content +="</TD><TD width='0%'><div class=\"btnimg\" onclick=\"Delete('"+jsonresponse.files[i1].name+"')\">";
+    content +="</TD>";
+    if (jsonresponse.files[i1].hasOwnProperty('time')){
+		display_time = true;
+		content +="<TD>";
+		content += jsonresponse.files[i1].time;
+		content +="</TD>";
+	} else {
+	content +="<TD></TD>";	
+	}
+    content +="<TD width='0%'><div class=\"btnimg\" onclick=\"Delete('"+jsonresponse.files[i1].name+"')\">";
     content +=trash_icon();
     content +="</div></TD><td></td></TR>";
     }
@@ -103,11 +113,19 @@ if (String(jsonresponse.files[i2].size) == "-1")
     content+="<TR><td><svg height='24' width='24' viewBox='0 0 24 24' ><path d='M19,11 L19,8 L18,7 L8,7 L8,5 L7,4 L2,4 L1,5 L1,22 L19,22 L20,21 L23,11 L5,11 L2,21 L1,22' stroke='black' fill='white' /></svg></td>";
     content +="<TD  class='btnimg blacklink' style='padding:10px 15px;' onclick=\"select_dir('" + jsonresponse.files[i2].name+"');\">";
     content +=jsonresponse.files[i2].name;
-    content +="</TD><TD>";
-    content +="</TD><TD width='0%'><div class=\"btnimg\" onclick=\"Deletedir('"+jsonresponse.files[i2].name+"')\">";
+    content +="</TD><TD></TD><TD></TD>";
+    if (typeof jsonresponse.files[i2].hasOwnProperty('time')){
+		display_time = true;
+	}
+    content +="<TD width='0%'><div class=\"btnimg\" onclick=\"Deletedir('"+jsonresponse.files[i2].name+"')\">";
     content +=trash_icon();
     content +="</div></TD><td></td></TR>";
     }
+}
+if(display_time){
+	document.getElementById('FS_time').innerHTML = "";
+} else {
+	document.getElementById('FS_time').innerHTML = "Time";
 }
  if (display_message) {
     

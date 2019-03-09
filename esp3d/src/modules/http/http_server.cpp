@@ -53,6 +53,8 @@ void HTTP_Server::init_handlers()
     _webserver->onNotFound (handle_not_found);
     //web commands
     _webserver->on ("/command", HTTP_ANY, handle_web_command);
+    //config
+    _webserver->on ("/config", HTTP_ANY, handle_config);
     //need to be there even no authentication to say to UI no authentication
     _webserver->on("/login", HTTP_ANY, handle_login);
 #ifdef FILESYSTEM_FEATURE

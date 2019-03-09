@@ -18,10 +18,6 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#define ESP_SPIFFS_FILESYSTEM       0
-#define ESP_FAT_FILESYSTEM          1
-#define ESP_LITTLEFS_FILESYSTEM     2
-
 #ifndef _ESP_FILESYSTEM_H
 #define _ESP_FILESYSTEM_H
 #include "../../include/esp3d_config.h"

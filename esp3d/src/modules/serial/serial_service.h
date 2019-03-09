@@ -38,7 +38,7 @@ public:
     const long * get_baudratelist(uint8_t * count);
     void flush();
     void swap();
-    int availableForWrite();
+    uint availableForWrite();
     int available();
     bool is_valid_baudrate(long br);
     size_t write(uint8_t c);

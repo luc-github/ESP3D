@@ -80,13 +80,14 @@ void Hal::pinMode(uint8_t pin, uint8_t mode)
 int Hal::analogRead(uint8_t pin)
 {
 #ifdef ARDUINO_ARCH_ESP8266 //only one ADC on ESP8266 A0
+    (void)pin;
     return analogRead (A0);
 #else
     return analogRead (pin);
 #endif
 }
 
-bool  Hal::analogWrite(uint8_t pin, int value)
+bool  Hal::analogWrite(uint8_t pin, uint value)
 {
     if (value > (_analogWriteRange-1)) {
         return false;
@@ -103,7 +104,7 @@ bool  Hal::analogWrite(uint8_t pin, int value)
     }
     if (channel==-1) {
         for (uint8_t p = 0; p < 16; p++) {
-            if(ChannelAttached2Pin[p] = -1) {
+            if(ChannelAttached2Pin[p] == -1) {
                 channel = p;
                 ChannelAttached2Pin[p] = pin;
                 p  = 16;

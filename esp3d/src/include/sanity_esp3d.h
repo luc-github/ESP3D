@@ -26,32 +26,38 @@
 /**************************
  * Settings
  * ***********************/
-#if defined (SETTINGS_IN_PREFERENCES) && defined( ARDUINO_ARCH_ESP8266)
+#if (ESP_SAVE_SETTINGS == SETTINGS_IN_PREFERENCES) && defined( ARDUINO_ARCH_ESP8266)
 #error Preferences library is not available for ESP8266
 #endif
 
-#if defined (SETTINGS_IN_PREFERENCES) && defined( SETTINGS_IN_EEPROM)
-#error Choose Preferences or EEPROM for settings not both
+#if !defined (ESP_SAVE_SETTINGS)
+#error Choose Preferences or EEPROM for settings
 #endif
+
+/**************************
+ * Debug
+ * ***********************/
+
+#if defined(ESP_DEBUG_FEATURE)
+#if ESP_DEBUG_FEATURE == ESP_SERIAL_OUTPUT
+#warning You use same serial for output and debug
+#endif //ESP_DEBUG_FEATURE == ESP_SERIAL_OUTPUT
+#if (ESP_DEBUG_FEATURE == DEBUG_OUTPUT_SERIAL2) && defined( ARDUINO_ARCH_ESP8266)
+#error Serial 2 is not available in ESP8266 for debug
+#endif //ESP_DEBUG_FEATURE == DEBUG_OUTPUT_SERIAL2 ) && ARDUINO_ARCH_ESP8266
+#endif //ESP_DEBUG_FEATURE
 
 /**************************
  * Serial
  * ***********************/
-#if (defined(DEBUG_OUTPUT_SERIAL0) && (defined (DEBUG_OUTPUT_SERIAL1) || defined (DEBUG_OUTPUT_SERIAL2))) || (defined (DEBUG_OUTPUT_SERIAL1) && defined (DEBUG_OUTPUT_SERIAL2))
-#error You can only use one serial for debug
+
+#if !defined(ESP_SERIAL_OUTPUT)
+#error ESP_SERIAL_OUTPUT must be defined
 #endif
 
-#if (defined(USE_SERIAL_0) && (defined (USE_SERIAL_1) || defined (USE_SERIAL_2))) || (defined (USE_SERIAL_1) && defined (USE_SERIAL_2))
-#error You can only use one serial output
-#endif
-
-#if (defined(DEBUG_OUTPUT_SERIAL0) &&defined(USE_SERIAL_0)) || (defined(DEBUG_OUTPUT_SERIAL1) &&defined(USE_SERIAL_1)) || (defined(DEBUG_OUTPUT_SERIAL2) &&defined(USE_SERIAL_2))
-#warning You use same serial for output and debug
-#endif
-
-#if ((defined (USE_SERIAL_2) ||  defined (DEBUG_OUTPUT_SERIAL2))&& defined( ARDUINO_ARCH_ESP8266))
+#if (ESP_SERIAL_OUTPUT == USE_SERIAL2) && defined( ARDUINO_ARCH_ESP8266)
 #error Serial 2 is not available in ESP8266
-#endif
+#endif //ESP_SERIAL_OUTPUT == USE_SERIAL_2 ) && ARDUINO_ARCH_ESP8266
 
 
 /**************************
@@ -79,7 +85,7 @@
 /**************************
  * Filesystem
  * ***********************/
-#if FILESYSTEM_FEATURE == 1 && defined( ARDUINO_ARCH_ESP8266)
+#if FILESYSTEM_FEATURE == ESP_FAT_FILESYSTEM && defined( ARDUINO_ARCH_ESP8266)
 #error Fat FS is not available in ESP8266
 #endif
 

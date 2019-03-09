@@ -32,7 +32,10 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
         output->printERROR("Wrong authentication!", 401);
         return false;
     }
+#else
+    (void)auth_type;
 #endif //AUTHENTICATION_FEATURE
+    (void)cmd_params;
     //Start JSON
     output->printLN ("{\"Settings\":[");
     //1- Baud Rate
@@ -284,6 +287,60 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->printLN ("\"}");
 #endif //AUTHENTICATION_FEATURE
 
+#ifdef TIMESTAMP_FEATURE
+    //24-Time zone
+    output->print (",{\"F\":\"network\",\"P\":\"");
+    output->print (ESP_TIMEZONE);
+    output->print("\",\"T\":\"B\",\"V\":\"");
+    output->print ((int8_t)Settings_ESP3D::read_byte(ESP_TIMEZONE));
+    output->print("\",\"H\":\"Time Zone\",\"O\":[");
+    for (int8_t i = Settings_ESP3D::get_min_byte(ESP_TIMEZONE); i <= Settings_ESP3D::get_max_byte(ESP_TIMEZONE) ; i++) {
+        if (i > 1) {
+            output->print (",");
+        }
+        output->printf("{\"%d\":\"%d\"}", i, i);
+    }
+    output->printLN("]}");
+    //25- DST
+    output->print (",{\"F\":\"network\",\"P\":\"");
+    output->print (ESP_TIME_IS_DST);
+    output->print("\",\"T\":\"B\",\"V\":\"");
+    output->print (Settings_ESP3D::read_byte(ESP_TIME_IS_DST));
+    output->printLN("\",\"H\":\"Day Saving Time\",\"O\":[{\"No\":\"0\"},{\"Yes\":\"1\"}]}");
+
+    //26- Time Server1
+    output->print (",{\"F\":\"network\",\"P\":\"");
+    output->print (ESP_TIME_SERVER1);
+    output->print("\",\"T\":\"S\",\"V\":\"");
+    output->print (Settings_ESP3D::read_string(ESP_TIME_SERVER1));
+    output->print ("\",\"S\":\"");
+    output->print (Settings_ESP3D::get_max_string_size(ESP_TIME_SERVER1));
+    output->print ("\",\"H\":\"Time Server 1\",\"M\":\"");
+    output->print (Settings_ESP3D::get_min_string_size(ESP_TIME_SERVER1));
+    output->printLN ("\"}");
+
+    //27- Time Server2
+    output->print (",{\"F\":\"network\",\"P\":\"");
+    output->print (ESP_TIME_SERVER2);
+    output->print("\",\"T\":\"S\",\"V\":\"");
+    output->print (Settings_ESP3D::read_string(ESP_TIME_SERVER2));
+    output->print ("\",\"S\":\"");
+    output->print (Settings_ESP3D::get_max_string_size(ESP_TIME_SERVER2));
+    output->print ("\",\"H\":\"Time Server 2\",\"M\":\"");
+    output->print (Settings_ESP3D::get_min_string_size(ESP_TIME_SERVER2));
+    output->printLN ("\"}");
+
+    //28- Time Server3
+    output->print (",{\"F\":\"network\",\"P\":\"");
+    output->print (ESP_TIME_SERVER3);
+    output->print("\",\"T\":\"S\",\"V\":\"");
+    output->print (Settings_ESP3D::read_string(ESP_TIME_SERVER3));
+    output->print ("\",\"S\":\"");
+    output->print (Settings_ESP3D::get_max_string_size(ESP_TIME_SERVER3));
+    output->print ("\",\"H\":\"Time Server 3\",\"M\":\"");
+    output->print (Settings_ESP3D::get_min_string_size(ESP_TIME_SERVER3));
+    output->printLN ("\"}");
+#endif //TIMESTAMP_FEATURE
     //Target FW
     output->print (",{\"F\":\"printer\",\"P\":\"");
     output->print (ESP_TARGET_FW);
@@ -304,6 +361,29 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print ("\"},{\"Unknown\":\"");
     output->print (UNKNOWN_FW);
     output->printLN ("\"}]}");
+#ifdef DHT_DEVICE
+    //DHT type
+    output->print (",{\"F\":\"printer\",\"P\":\"");
+    output->print (ESP_DHT_TYPE);
+    output->print ("\",\"T\":\"B\",\"V\":\"");
+    output->print (Settings_ESP3D::read_byte(ESP_DHT_TYPE));
+    output->print ("\",\"H\":\"DHT Type\",\"O\":[{\"None\":\"0\"},{\"DHT11\":\"");
+    output->print (DHT11_DEVICE);
+    output->print ("\"},{\"DHT22\":\"");
+    output->print (DHT22_DEVICE);
+    output->printLN ("\"}]}");
+
+    //DHT interval
+    output->print (",{\"F\":\"printer\",\"P\":\"");
+    output->print (ESP_DHT_INTERVAL);
+    output->print ("\",\"T\":\"I\",\"V\":\"");
+    output->print (Settings_ESP3D::read_uint32(ESP_DHT_INTERVAL));
+    output->print ("\",\"H\":\"DHT interval (millisec)\",\"S\":\"");
+    output->print (Settings_ESP3D::get_max_int32_value(ESP_DHT_INTERVAL));
+    output->print ("\",\"M\":\"");
+    output->print (Settings_ESP3D::get_min_int32_value(ESP_DHT_INTERVAL));
+    output->printLN ("\"}");
+#endif //DHT_DEVICE
 
     //Output flag
     output->print (",{\"F\":\"printer\",\"P\":\"");

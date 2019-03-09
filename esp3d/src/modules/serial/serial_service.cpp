@@ -24,15 +24,15 @@
 #include "../../core/esp3doutput.h"
 #include "../../core/commands.h"
 
-#ifdef USE_SERIAL_0
+#if ESP_SERIAL_OUTPUT == USE_SERIAL_0
 #define ESP3D_SERIAL Serial
 #endif //USE_SERIAL_0
 
-#ifdef USE_SERIAL_1
+#if ESP_SERIAL_OUTPUT == USE_SERIAL_1
 #define ESP3D_SERIAL Serial1
 #endif //USE_SERIAL_1
 
-#ifdef USE_SERIAL_2
+#if ESP_SERIAL_OUTPUT == USE_SERIAL_2
 #define ESP3D_SERIAL Serial2
 #endif //USE_SERIAL_2
 
@@ -182,6 +182,7 @@ void SerialService::push2buffer(uint8_t * sbuf, size_t len)
 //Reset Serial Setting (baud rate)
 bool SerialService::reset()
 {
+    log_esp3d("Reset serial");
     return Settings_ESP3D::write_uint32 (ESP_BAUD_RATE, Settings_ESP3D::get_default_int32_value(ESP_BAUD_RATE));
 }
 
@@ -209,7 +210,7 @@ size_t SerialService::write(uint8_t c)
 
 size_t SerialService::write(const uint8_t *buffer, size_t size)
 {
-    if (ESP3D_SERIAL.availableForWrite() >= size) {
+    if ((uint)ESP3D_SERIAL.availableForWrite() >= size) {
         return ESP3D_SERIAL.write(buffer, size);
     } else {
         size_t sizetosend = size;
@@ -233,7 +234,7 @@ size_t SerialService::write(const uint8_t *buffer, size_t size)
     }
 }
 
-int SerialService::availableForWrite()
+uint SerialService::availableForWrite()
 {
     return ESP3D_SERIAL.availableForWrite();
 }

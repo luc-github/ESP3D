@@ -25,29 +25,27 @@
 #define log_esp3d(format, ...)
 #define log_esp3dS(format, ...)
 #define DEBUG_ESP3D_INIT
-#undef DEBUG_ESP3D
-
+#if defined(ESP_DEBUG_FEATURE)
 //Serial
-#if defined(DEBUG_OUTPUT_SERIAL0) || defined(DEBUG_OUTPUT_SERIAL1) || defined(DEBUG_OUTPUT_SERIAL2)
+#if (ESP_DEBUG_FEATURE == DEBUG_OUTPUT_SERIAL0) || (ESP_DEBUG_FEATURE == DEBUG_OUTPUT_SERIAL1) || (ESP_DEBUG_FEATURE == DEBUG_OUTPUT_SERIAL2)
 #if defined(ARDUINO_ARCH_ESP8266)
 extern const char * pathToFileName(const char * path);
 #endif //ARDUINO_ARCH_ESP8266
 #undef DEBUG_ESP3D_INIT
 #undef log_esp3d
 #undef log_esp3dS
-#define DEBUG_ESP3D
-#ifdef DEBUG_OUTPUT_SERIAL0
+#if ESP_DEBUG_FEATURE == DEBUG_OUTPUT_SERIAL0
 #define DEBUG_OUTPUT_SERIAL Serial
 #endif //DEBUG_OUTPUT_SERIAL0
-#ifdef DEBUG_OUTPUT_SERIAL1
+#if ESP_DEBUG_FEATURE == DEBUG_OUTPUT_SERIAL1
 #define DEBUG_OUTPUT_SERIAL Serial1
 #endif //DEBUG_OUTPUT_SERIAL1
-#ifdef DEBUG_OUTPUT_SERIAL2
+#if ESP_DEBUG_FEATURE == DEBUG_OUTPUT_SERIAL2
 #define DEBUG_OUTPUT_SERIAL Serial2
 #endif //DEBUG_OUTPUT_SERIAL2
 #define DEBUG_ESP3D_INIT DEBUG_OUTPUT_SERIAL.begin(115200);
 #define log_esp3d(format, ...) DEBUG_OUTPUT_SERIAL.printf("[ESP3D][%s:%u] %s(): " format "\r\n", pathToFileName(__FILE__), __LINE__, __FUNCTION__, ##__VA_ARGS__)
 #define log_esp3dS(format, ...) DEBUG_OUTPUT_SERIAL.printf(format "\r\n", ##__VA_ARGS__)
-#endif //defined(DEBUG_OUTPUT_SERIAL0) || defined(DEBUG_OUTPUT_SERIAL1) || defined(DEBUG_OUTPUT_SERIAL2)
-
+#endif //DEBUG_OUTPUT_SERIAL0 || DEBUG_OUTPUT_SERIAL1 || DEBUG_OUTPUT_SERIAL2
+#endif //ESP_DEBUG_FEATURE
 #endif //_DEBUG_ESP3D_H 

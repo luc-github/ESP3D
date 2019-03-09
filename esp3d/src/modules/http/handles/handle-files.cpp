@@ -32,7 +32,6 @@
 //Filesystem files list and file commands
 void HTTP_Server::handleFSFileList ()
 {
-    uint32_t start = millis();
     level_authenticate_type auth_level = AuthenticationService::authenticated_level();
     if (auth_level == LEVEL_GUEST) {
         _upload_status = UPLOAD_STATUS_NONE;

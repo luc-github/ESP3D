@@ -64,13 +64,13 @@ public:
     //int available();
     //int peek(void);
     //int read(void);
-    //bool push (const char * data);
+    void pushMSG (const char * data);
+    void pushMSG (uint num, const char * data);
     void flush(void);
     void handle();
     operator bool() const;
     void set_currentID(uint8_t current_id);
     uint8_t get_currentID();
-    WebSocketsServer * Socket_Server();
 private:
     bool _started;
     uint16_t _port;

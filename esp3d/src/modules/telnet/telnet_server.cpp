@@ -32,6 +32,13 @@ Telnet_Server telnet_server;
 
 #define TIMEOUT_TELNET_FLUSH 1500
 
+void Telnet_Server::closeClient()
+{
+    if(_telnetClients) {
+        _telnetClients.stop();
+    }
+}
+
 bool Telnet_Server::isConnected()
 {
     if ( !_started || _telnetserver == NULL) {
@@ -45,6 +52,7 @@ bool Telnet_Server::isConnected()
                 _telnetClients.stop();
             }
             _telnetClients = _telnetserver->available();
+            //new client
         }
     }
     if (_telnetserver->hasClient()) {
@@ -70,7 +78,7 @@ Telnet_Server::Telnet_Server()
     _buffer_size = 0;
     _started = false;
     _port = 0;
-    WiFiServer * _telnetserver = nullptr;
+    _telnetserver = nullptr;
 }
 Telnet_Server::~Telnet_Server()
 {
@@ -105,6 +113,7 @@ void Telnet_Server::end()
     _started = false;
     _buffer_size = 0;
     _port = 0;
+    closeClient();
     if (_telnetserver) {
         delete _telnetserver;
         _telnetserver = nullptr;
@@ -231,7 +240,7 @@ size_t Telnet_Server::write(const uint8_t *buffer, size_t size)
     return 0;
 }
 
-int Telnet_Server::availableForWrite()
+uint Telnet_Server::availableForWrite()
 {
     if (!isConnected()) {
         return 0;

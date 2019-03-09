@@ -45,20 +45,46 @@
 //WS_DATA_FEATURE: allow to connect serial from Websocket
 //#define WS_DATA_FEATURE
 
-//ESP_OLED_FEATURE: allow oled screen output
-//#define ESP_OLED_FEATURE
+//DISPLAY_DEVICE: allow screen output
+//OLED_I2C_SSD1306    1
+//OLED_I2C_SSDSH1106  2
+//#define DISPLAY_DEVICE OLED_I2C_SSDSH1106
 
+#if defined (DISPLAY_DEVICE)
+#define DISPLAY_I2C_PIN_SDA         4
+#define DISPLAY_I2C_PIN_SCL         15
+#define DISPLAY_I2C_PIN_RST         16 //comment if not applicable
+#define DISPLAY_I2C_ADDR	        0x3c
+//#define DISPLAY_FLIP_VERTICALY      1 //comment to disable
+#endif //DISPLAY_DEVICE
+//DHT_DEVICE: send update of temperature / humidity based on DHT 11/22
+//#define DHT_DEVICE
+#ifdef DHT_DEVICE
+#define ESP3D_DHT_PIN 22
+//USE_CELSIUS
+//USE_FAHRENHEIT
+#define DHT_UNIT USE_CELSIUS
+#endif //DHT_DEVICE
+
+//PIN_RESET_FEATURE : allow to reset settings by setting low a pin
+#define PIN_RESET_FEATURE
+#if defined (PIN_RESET_FEATURE)
+#define ESP3D_RESET_PIN 4
+#endif //PIN_RESET_FEATURE
 //SDCARD_FEATURE: to access SD Card files directly instead of access by serial using printer Board FW
 //#define SDCARD_FEATURE
 
 //FILESYSTEM_FEATURE: to host some files on flash
-// 0 is SPIFFS
-// 1 is FAT
-// 2 is LittleFS //Not Yet implemented
-#define FILESYSTEM_FEATURE 0
+//ESP_SPIFFS_FILESYSTEM       0
+//ESP_FAT_FILESYSTEM          1
+//ESP_LITTLEFS_FILESYSTEM     2 //Not Yet implemented
+#define FILESYSTEM_FEATURE ESP_SPIFFS_FILESYSTEM
 
 //DIRECT_PIN_FEATURE: allow to access pin using ESP201 command
 #define DIRECT_PIN_FEATURE
+
+//TIMESTAMP_FEATURE: set time system
+#define TIMESTAMP_FEATURE
 
 //FILESYSTEM_TIMESTAMP_FEATURE: allow to get last write time from FILESYSTEM files
 //#define FILESYSTEM_TIMESTAMP_FEATURE
@@ -80,6 +106,10 @@
 //WEB_UPDATE_FEATURE: allow to flash fw using web UI
 #define WEB_UPDATE_FEATURE
 
+//NOTIFICATION_FEATURE : allow to push notifications
+//ESP_PUSHOVER_NOTIFICATION		1
+//ESP_EMAIL_NOTIFICATION		2
+//#define NOTIFICATION_FEATURE ESP_PUSHOVER_NOTIFICATION
 
 //Extra features /////////////////////////////////////////////////////////////////////////
 /************************************
@@ -89,9 +119,10 @@
  * **********************************/
 //Do not do this when connected to printer !!!
 //be noted all upload may failed if enabled
-//#define DEBUG_OUTPUT_SERIAL0
-//#define DEBUG_OUTPUT_SERIAL1
-//#define DEBUG_OUTPUT_SERIAL2
+//DEBUG_OUTPUT_SERIAL0 0
+//DEBUG_OUTPUT_SERIAL1 1
+//DEBUG_OUTPUT_SERIAL2 2
+//#define ESP_DEBUG_FEATURE DEBUG_OUTPUT_SERIAL0
 
 /************************************
  *
@@ -99,11 +130,10 @@
  *
  * **********************************/
 //which serial ESP use to communicate to printer (ESP32 has 3 serials available, ESP8266 only 2)
-//Uncomment one only
-#define USE_SERIAL_0
-//#define USE_SERIAL_1
-//For ESP32 Only
-//#define USE_SERIAL_2
+//USE_SERIAL_0 for ESP8266/32
+//USE_SERIAL_1 for ESP8266/32
+//USE_SERIAL_2 for ESP32 Only
+#define ESP_SERIAL_OUTPUT USE_SERIAL_0
 
 //Serial rx buffer size is 256 but can be extended
 #define SERIAL_RX_BUFFER_SIZE 512
@@ -123,9 +153,9 @@
  * Settings
  *
  * **********************************/
-#define SETTINGS_IN_EEPROM
-//#define SETTINGS_IN_PREFERENCES
-
+//SETTINGS_IN_EEPROM 0
+//SETTINGS_IN_PREFERENCES 1
+#define ESP_SAVE_SETTINGS SETTINGS_IN_EEPROM
 
 /************************************
  *

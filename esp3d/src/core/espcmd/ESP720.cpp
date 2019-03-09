@@ -36,6 +36,8 @@ bool Commands::ESP720(const char* cmd_params, level_authenticate_type auth_type,
         output->printERROR("Wrong authentication!", 401);
         return false;
     }
+#else
+    (void)auth_type;
 #endif //AUTHENTICATION_FEATURE
     if (parameter.length() == 0) {
         parameter = "/";

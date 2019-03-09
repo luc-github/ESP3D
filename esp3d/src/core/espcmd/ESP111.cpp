@@ -37,6 +37,7 @@ bool Commands::ESP111(const char* cmd_params, level_authenticate_type auth_type,
     String parameter;
     String res = get_param (cmd_params, "");
     String currentIP="";
+    (void)auth_type;
 #if defined( WIFI_FEATURE)
     if (WiFi.getMode() == WIFI_STA) {
         currentIP = WiFi.localIP().toString();

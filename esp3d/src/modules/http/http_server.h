@@ -74,6 +74,7 @@ private:
     static void handle_login();
     static void handle_not_found ();
     static void handle_web_command ();
+    static void handle_config ();
     // static void handle_Websocket_Event(uint8_t num, uint8_t type, uint8_t * payload, size_t length);
 #ifdef FILESYSTEM_FEATURE
     static void FSFileupload ();

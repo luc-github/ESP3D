@@ -47,7 +47,7 @@ public:
     static void clearAnalogChannels();
     static void pinMode(uint8_t pin, uint8_t mode);
     static int analogRead(uint8_t pin);
-    static bool analogWrite(uint8_t pin, int value);
+    static bool analogWrite(uint8_t pin, uint value);
     static void analogWriteFreq(uint32_t freq);
     static void analogWriteRange(uint32_t range);
 private:

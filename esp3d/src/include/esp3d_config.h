@@ -21,9 +21,26 @@
 #ifndef _ESP3D_CONFIG_H
 #define _ESP3D_CONFIG_H
 #include <Arduino.h>
+#include "../include/defines.h"
 #include "../configuration.h"
 #include "../include/sanity_esp3d.h"
 #include "../core/hal.h"
 #include "../core/debug_esp3d.h"
 #include "../include/version.h"
+
+/************************************
+ *
+ * Additional Flags
+ *
+ * **********************************/
+
+//Make Flag more generic
+#if defined(PIN_RESET_FEATURE) || defined(SD_RECOVERY_FEATURE)
+#define RECOVERY_FEATURE
+#endif //PIN_RESET_FEATURE || SD_RECOVERY_FEATURE
+
+#if defined(DISPLAY_DEVICE) || defined(DHT_DEVICE) || defined(RECOVERY_FEATURE)
+#define CONNECTED_DEVICES_FEATURE
+#endif //DISPLAY_DEVICE || DHT_DEVICE
+
 #endif //_ESP3D_CONFIG_H

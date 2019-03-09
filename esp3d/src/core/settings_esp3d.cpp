@@ -19,9 +19,11 @@
 */
 
 #include "../include/esp3d_config.h"
+#if defined (ESP_SAVE_SETTINGS)
 #include "settings_esp3d.h"
 #include "esp3doutput.h"
-#if defined(SETTINGS_IN_EEPROM)
+
+#if ESP_SAVE_SETTINGS == SETTINGS_IN_EEPROM
 #include <EEPROM.h>
 //EEPROM SIZE (Up to 4096)
 #define EEPROM_SIZE		1024 //max is 1024
@@ -35,7 +37,7 @@
 #endif //WIFI_FEATURE || ETH_FEATURE
 
 
-#if defined(SETTINGS_IN_PREFERENCES)
+#if ESP_SAVE_SETTINGS == SETTINGS_IN_PREFERENCES
 #include <Preferences.h>
 #define NAMESPACE "ESP3D"
 #endif // SETTINGS_IN_PREFERENCES
@@ -86,7 +88,7 @@
 #define DEFAULT_SECONDARY_SD    1
 #define DEFAULT_DIRECT_SD_CHECK 0
 #define DEFAULT_SD_CHECK_UPDATE_AT_BOOT 1
-#define DEFAULT_DHT_TYPE        255
+#define DEFAULT_DHT_TYPE        0
 #define DEFAULT_IS_DIRECT_SD    0
 #define DEFAULT_HTTP_ON         1
 #define DEFAULT_TELNET_ON       1
@@ -97,27 +99,37 @@
 #define DEFAULT_BAUD_RATE       115200L
 #define DEFAULT_HTTP_PORT       80L
 #define DEFAULT_TELNET_PORT     23L
-#define DEFAULT_DHT_INTERVAL    30L
+#define DEFAULT_DHT_INTERVAL    30000L
 
+#ifdef WIFI_FEATURE
 //default string values
-const char DEFAULT_AP_SSID []  PROGMEM =        "ESP3D";
-const char DEFAULT_AP_PASSWORD [] PROGMEM =     "12345678";
-const char DEFAULT_STA_SSID []  PROGMEM =       "ESP3D";
-const char DEFAULT_STA_PASSWORD [] PROGMEM =    "12345678";
-const char DEFAULT_HOSTNAME []  PROGMEM =       "esp3d";
+const char DEFAULT_AP_SSID []   =        "ESP3D";
+const char DEFAULT_AP_PASSWORD []  =     "12345678";
+const char DEFAULT_STA_SSID []   =       "ESP3D";
+const char DEFAULT_STA_PASSWORD []  =    "12345678";
+#endif //WIFI_FEATURE
+#if defined (BLUETOOTH_FEATURE) || defined (WIFI_FEATURE) ||defined (ETH_FEATURE)
+const char DEFAULT_HOSTNAME []   =       "esp3d";
+#endif //BLUETOOTH_FEATURE ||WIFI_FEATURE || ETH_FEATURE
 const char DEFAULT_ESP_STRING []  =             "";
-const char DEFAULT_ADMIN_PWD []  PROGMEM =      "admin";
-const char DEFAULT_USER_PWD []  PROGMEM =       "user";
-const char DEFAULT_TIME_SERVER1 []  PROGMEM =	"time.nist.gov";
-const char DEFAULT_TIME_SERVER2 []  PROGMEM =	"0.pool.ntp.org";
-const char DEFAULT_TIME_SERVER3 []  PROGMEM =	"1.pool.ntp.org";
-const char DEFAULT_SETTINGS_VERSION []  PROGMEM =	"ESP3D";
+#ifdef AUTHENTICATION_FEATURE
+const char DEFAULT_ADMIN_PWD []   =      "admin";
+const char DEFAULT_USER_PWD []   =       "user";
+#endif //AUTHENTICATION_FEATURE
+#ifdef TIMESTAMP_FEATURE
+const char DEFAULT_TIME_SERVER1 []   =	"1.pool.ntp.org";
+const char DEFAULT_TIME_SERVER2 []   =	"2.pool.ntp.org";
+const char DEFAULT_TIME_SERVER3 []   =	"0.pool.ntp.org";
+#endif //TIMESTAMP_FEATURE
+const char DEFAULT_SETTINGS_VERSION []  =	"ESP3D";
 
+#if defined (WIFI_FEATURE) ||defined (ETH_FEATURE)
 //default IP values
 const uint8_t DEFAULT_IP_VALUE[]   =       {192, 168, 0, 1};
 const uint8_t DEFAULT_MASK_VALUE[]  =      {255, 255, 255, 0};
 #define DEFAULT_GATEWAY_VALUE           DEFAULT_IP_VALUE
 const uint8_t DEFAULT_ADDRESS_VALUE[]   =  {0, 0, 0, 0};
+#endif //WIFI_FEATURE || ETH_FEATURE
 
 uint8_t Settings_ESP3D::_FirmwareTarget = UNKNOWN_FW;
 bool Settings_ESP3D::_directSD = false;
@@ -216,26 +228,23 @@ uint8_t Settings_ESP3D::get_default_byte_value(int pos)
     case ESP_OUTPUT_FLAG:
         res = DEFAULT_OUTPUT_FLAG;
         break;
+#ifdef HTTP_FEATURE
     case ESP_HTTP_ON:
         res = DEFAULT_HTTP_ON;
         break;
+#endif //HTTP_FEATURE
+#ifdef TELNET_FEATURE
     case ESP_TELNET_ON:
         res = DEFAULT_TELNET_ON;
         break;
+#endif //TELNET_FEATURE
+#ifdef SDCARD_FEATURE
     case ESP_SD_SPEED_DIV:
         res = DEFAULT_SDREADER_SPEED;
         break;
+#endif //SDCARD_FEATURE
     case ESP_TARGET_FW:
         res = DEFAULT_FW;
-        break;
-    case ESP_TIMEZONE:
-        res = DEFAULT_TIME_ZONE;
-        break;
-    case ESP_TIME_IS_DST:
-        res = DEFAULT_TIME_DST;
-        break;
-    case ESP_IS_DIRECT_SD:
-        res = DEFAULT_IS_DIRECT_SD;
         break;
     case ESP_PRIMARY_SD:
         res = DEFAULT_PRIMARY_SD;
@@ -246,12 +255,26 @@ uint8_t Settings_ESP3D::get_default_byte_value(int pos)
     case ESP_DIRECT_SD_CHECK:
         res = DEFAULT_DIRECT_SD_CHECK;
         break;
-    case ESP_DHT_TYPE:
-        res = DEFAULT_DHT_TYPE;
-        break;
     case ESP_SD_CHECK_UPDATE_AT_BOOT:
         res = DEFAULT_SD_CHECK_UPDATE_AT_BOOT;
         break;
+#ifdef TIMESTAMP_FEATURE
+    case ESP_TIMEZONE:
+        res = DEFAULT_TIME_ZONE;
+        break;
+    case ESP_TIME_IS_DST:
+        res = DEFAULT_TIME_DST;
+        break;
+    case ESP_IS_DIRECT_SD:
+        res = DEFAULT_IS_DIRECT_SD;
+        break;
+#endif //TIMESTAMP_FEATURE
+
+#if defined(DHT_DEVICE)
+    case ESP_DHT_TYPE:
+        res = DEFAULT_DHT_TYPE;
+        break;
+#endif //DHT_DEVICE
     default:
         res = DEFAULT_ESP_BYTE;
     }
@@ -277,16 +300,22 @@ uint32_t Settings_ESP3D::get_default_int32_value(int pos)
     case ESP_STA_GATEWAY_VALUE:
         res = IPAddress(DEFAULT_GATEWAY_VALUE);
         break;
+#endif //WIFI_FEATURE || ETH_FEATURE
+#ifdef HTTP_FEATURE
     case ESP_HTTP_PORT:
         res = DEFAULT_HTTP_PORT;
         break;
+#endif //HTTP_FEATURE
+#ifdef TELNET_FEATURE
     case ESP_TELNET_PORT:
         res = DEFAULT_TELNET_PORT;
         break;
-#endif //WIFI_FEATURE || ETH_FEATURE
+#endif //TELNET_FEATURE
+#if defined(DHT_DEVICE)
     case ESP_DHT_INTERVAL:
         res = DEFAULT_DHT_INTERVAL;
         break;
+#endif //DHT_DEVICE        
     default:
         res = DEFAULT_ESP_INT;
     }
@@ -298,17 +327,21 @@ uint32_t Settings_ESP3D::get_max_int32_value(int pos)
 {
     uint32_t res;
     switch(pos) {
-#if defined (WIFI_FEATURE) || defined (ETH_FEATURE)
+#ifdef HTTP_FEATURE
     case ESP_HTTP_PORT:
         res = MAX_HTTP_PORT;
         break;
+#endif //HTTP_FEATURE
+#ifdef TELNET_FEATURE
     case ESP_TELNET_PORT:
         res = MAX_TELNET_PORT;
         break;
-#endif //WIFI_FEATURE || ETH_FEATURE
+#endif //TELNET_FEATURE
+#if defined(DHT_DEVICE)
     case ESP_DHT_INTERVAL:
         res = MAX_DHT_INTERVAL;
         break;
+#endif //DHT_DEVICE
     default:
         res = DEFAULT_ESP_INT;
     }
@@ -320,17 +353,21 @@ uint32_t Settings_ESP3D::get_min_int32_value(int pos)
 {
     uint32_t res;
     switch(pos) {
-#if defined (WIFI_FEATURE) || defined (ETH_FEATURE)
+#ifdef HTTP_FEATURE
     case ESP_HTTP_PORT:
         res = MIN_HTTP_PORT;
         break;
+#endif //HTTP_FEATURE
+#ifdef TELNET_FEATURE
     case ESP_TELNET_PORT:
         res = MIN_TELNET_PORT;
         break;
-#endif //WIFI_FEATURE || ETH_FEATURE
+#endif //TELNET_FEATURE
+#if defined(DHT_DEVICE)
     case ESP_DHT_INTERVAL:
         res = MIN_DHT_INTERVAL;
         break;
+#endif //DHT_DEVICE        
     default:
         res = DEFAULT_ESP_INT;
     }
@@ -346,6 +383,11 @@ uint8_t Settings_ESP3D::get_max_byte(int pos)
         res = MAX_CHANNEL;
         break;
 #endif //WIFI_FEATURE
+#ifdef TIMESTAMP_FEATURE
+    case ESP_TIMEZONE:
+        res= 12;
+        break;
+#endif //TIMESTAMP_FEATURE
     default:
         res = 255;
     }
@@ -359,7 +401,12 @@ uint8_t Settings_ESP3D::get_min_byte(int pos)
     case ESP_AP_CHANNEL:
         res = MIN_CHANNEL;
         break;
-#endif //WIFI_FEATURE || ETH_FEATURE
+#endif //WIFI_FEATURE 
+#ifdef TIMESTAMP_FEATURE
+    case ESP_TIMEZONE:
+        res= -12;
+        break;
+#endif //TIMESTAMP_FEATURE
     default:
         res = 0;
     }
@@ -378,10 +425,11 @@ const String & Settings_ESP3D::get_default_string_value(int pos)
 {
     static String res;
     switch(pos) {
-#if defined (WIFI_FEATURE) || defined (ETH_FEATURE)
+#if defined (WIFI_FEATURE) || defined (ETH_FEATURE) || defined (BLUETOOTH_FEATURE)
     case ESP_HOSTNAME:
         res = DEFAULT_HOSTNAME;
         break;
+#ifdef TIMESTAMP_FEATURE
     case ESP_TIME_SERVER1:
         res = DEFAULT_TIME_SERVER1;
         break;
@@ -391,7 +439,8 @@ const String & Settings_ESP3D::get_default_string_value(int pos)
     case ESP_TIME_SERVER3:
         res = DEFAULT_TIME_SERVER3;
         break;
-#endif //WIFI_FEATURE || ETH_FEATURE
+#endif //TIMESTAMP_FEATURE
+#endif //WIFI_FEATURE || ETH_FEATURE || defined (ETH_FEATURE)
 #if defined (WIFI_FEATURE)
     case ESP_STA_SSID:
         res = DEFAULT_STA_SSID;
@@ -406,13 +455,14 @@ const String & Settings_ESP3D::get_default_string_value(int pos)
         res = DEFAULT_AP_PASSWORD;
         break;
 #endif //WIFI_FEATURE 
+#ifdef AUTHENTICATION_FEATURE
     case ESP_ADMIN_PWD:
         res = DEFAULT_ADMIN_PWD;
         break;
     case ESP_USER_PWD:
         res = DEFAULT_USER_PWD;
         break;
-
+#endif //AUTHENTICATION_FEATURE
     case ESP_SETTINGS_VERSION:
         res = DEFAULT_SETTINGS_VERSION;
         break;
@@ -427,17 +477,19 @@ uint8_t Settings_ESP3D::get_max_string_size(int pos)
 {
     uint8_t res;
     switch(pos) {
-#if defined (WIFI_FEATURE) || defined (ETH_FEATURE)
-
+#if defined (WIFI_FEATURE) || defined (ETH_FEATURE) || defined (BLUETOOTH_FEATURE)
     case ESP_HOSTNAME:
         res = MAX_HOSTNAME_LENGTH;
         break;
+#endif //WIFI_FEATURE || ETH_FEATURE || BLUETOOTH_FEATURE
+#ifdef TIMESTAMP_FEATURE
     case ESP_TIME_SERVER1:
     case ESP_TIME_SERVER2:
     case ESP_TIME_SERVER3:
         res =  MAX_SERVER_ADDRESS_LENGTH;
         break;
-#endif //WIFI_FEATURE || ETH_FEATURE 
+#endif //TIMESTAMP_FEATURE
+
 #if defined (WIFI_FEATURE)
     case ESP_STA_SSID:
     case ESP_AP_SSID:
@@ -448,11 +500,12 @@ uint8_t Settings_ESP3D::get_max_string_size(int pos)
         res = MAX_PASSWORD_LENGTH;
         break;
 #endif //WIFI_FEATURE 
+#ifdef AUTHENTICATION_FEATURE
     case ESP_ADMIN_PWD:
     case ESP_USER_PWD:
         res = MAX_LOCAL_PASSWORD_LENGTH;
         break;
-
+#endif //AUTHENTICATION_FEATURE
     case ESP_SETTINGS_VERSION:
         res = MAX_VERSION_LENGTH;
         break;
@@ -467,16 +520,18 @@ uint8_t Settings_ESP3D::get_min_string_size(int pos)
 {
     uint8_t res;
     switch(pos) {
-#if defined (WIFI_FEATURE) || defined (ETH_FEATURE)
+#if defined (WIFI_FEATURE) || defined (ETH_FEATURE) || defined (BLUETOOTH_FEATURE)
     case ESP_HOSTNAME:
         res = MIN_HOSTNAME_LENGTH;
         break;
+#ifdef TIMESTAMP_FEATURE
     case ESP_TIME_SERVER1:
     case ESP_TIME_SERVER2:
     case ESP_TIME_SERVER3:
         res =  MIN_SERVER_ADDRESS_LENGTH;
         break;
-#endif //WIFI_FEATURE || ETH_FEATURE
+#endif //TIMESTAMP_FEATURE
+#endif //WIFI_FEATURE || ETH_FEATURE || BLUETOOTH_FEATURE
 #if defined (WIFI_FEATURE)
     case ESP_STA_SSID:
     case ESP_AP_SSID:
@@ -486,12 +541,13 @@ uint8_t Settings_ESP3D::get_min_string_size(int pos)
     case ESP_AP_PASSWORD:
         res = MIN_PASSWORD_LENGTH;
         break;
-#endif
+#endif //WIFI_FEATURE
+#ifdef AUTHENTICATION_FEATURE
     case ESP_ADMIN_PWD:
     case ESP_USER_PWD:
         res = MIN_LOCAL_PASSWORD_LENGTH;
         break;
-
+#endif //AUTHENTICATION_FEATURE
     default:
         res = DEFAULT_ESP_STRING_SIZE;
     }
@@ -504,7 +560,7 @@ uint8_t Settings_ESP3D::read_byte (int pos, bool * haserror)
         *haserror = true;
     }
     uint8_t value = get_default_byte_value(pos);
-#if defined( SETTINGS_IN_EEPROM)
+#if ESP_SAVE_SETTINGS == SETTINGS_IN_EEPROM
 //check if parameters are acceptable
     if ((pos + 1 > EEPROM_SIZE) )  {
         log_esp3d("Error read byte %d", pos);
@@ -515,7 +571,7 @@ uint8_t Settings_ESP3D::read_byte (int pos, bool * haserror)
     value = EEPROM.read (pos);
     EEPROM.end();
 #endif //SETTINGS_IN_EEPROM
-#if defined(SETTINGS_IN_PREFERENCES)
+#if ESP_SAVE_SETTINGS == SETTINGS_IN_PREFERENCES
     Preferences prefs;
     if (!prefs.begin(NAMESPACE, true)) {
         log_esp3d("Error opening %s", NAMESPACE);
@@ -534,7 +590,7 @@ uint8_t Settings_ESP3D::read_byte (int pos, bool * haserror)
 //write a flag / byte
 bool Settings_ESP3D::write_byte (int pos, const uint8_t value)
 {
-#if defined( SETTINGS_IN_EEPROM)
+#if ESP_SAVE_SETTINGS == SETTINGS_IN_EEPROM
     //check if parameters are acceptable
     if (pos + 1 > EEPROM_SIZE) {
         log_esp3d("Error read byte %d", pos);
@@ -548,7 +604,7 @@ bool Settings_ESP3D::write_byte (int pos, const uint8_t value)
     }
     EEPROM.end();
 #endif //SETTINGS_IN_EEPROM
-#if defined(SETTINGS_IN_PREFERENCES)
+#if ESP_SAVE_SETTINGS == SETTINGS_IN_PREFERENCES
     Preferences prefs;
     if (!prefs.begin(NAMESPACE, false)) {
         log_esp3d("Error opening %s", NAMESPACE);
@@ -565,6 +621,16 @@ bool Settings_ESP3D::write_byte (int pos, const uint8_t value)
     return true;
 }
 
+bool Settings_ESP3D::is_string(const char * s, uint len)
+{
+    for (uint p = 0; p < len; p++) {
+        if (!isPrintable (char(s[p]))) {
+            return false;
+        }
+    }
+    return true;
+}
+
 //read a string
 //a string is multibyte + \0, this is won't work if 1 char is multibyte like chinese char
 const char * Settings_ESP3D::read_string (int pos, bool *haserror)
@@ -577,7 +643,7 @@ const char * Settings_ESP3D::read_string (int pos, bool *haserror)
         log_esp3d("Error size string %d", pos);
         return DEFAULT_ESP_STRING;
     }
-#if defined(SETTINGS_IN_EEPROM)
+#if ESP_SAVE_SETTINGS == SETTINGS_IN_EEPROM
     static char * byte_buffer = NULL;
     size_max++;//do not forget the 0x0 for the end
     if (byte_buffer) {
@@ -601,7 +667,7 @@ const char * Settings_ESP3D::read_string (int pos, bool *haserror)
     //read until max size is reached or \0 is found
     while (i < size_max && b != 0) {
         b = EEPROM.read (pos + i);
-        byte_buffer[i] = b;
+        byte_buffer[i] = isPrintable (char(b))?b:0;
         i++;
     }
 
@@ -610,12 +676,14 @@ const char * Settings_ESP3D::read_string (int pos, bool *haserror)
         byte_buffer[i - 1] = 0x00;
     }
     EEPROM.end();
+
     if (haserror) {
         *haserror = false;
     }
     return byte_buffer;
+
 #endif //SETTINGS_IN_EEPROM
-#if defined(SETTINGS_IN_PREFERENCES)
+#if ESP_SAVE_SETTINGS == SETTINGS_IN_PREFERENCES
     Preferences prefs;
     static String res;
 
@@ -626,14 +694,17 @@ const char * Settings_ESP3D::read_string (int pos, bool *haserror)
     String p = "P_" + String(pos);
     res = prefs.getString(p.c_str(), get_default_string_value(pos));
     prefs.end();
-    if(haserror) {
-        *haserror = false;
-    }
+
     if (res.length() > size_max) {
         log_esp3d("String too long %d vs %d", res.length(), size_max);
         res = res.substring(0,size_max-1);
     }
+
+    if (haserror) {
+        *haserror = false;
+    }
     return res.c_str();
+
 #endif //SETTINGS_IN_PREFERENCES
 }
 
@@ -651,7 +722,7 @@ bool Settings_ESP3D::write_string (int pos, const char * byte_buffer)
         log_esp3d("Error string too long %d, %d", pos, size_buffer);
         return false;
     }
-#if defined(SETTINGS_IN_EEPROM)
+#if ESP_SAVE_SETTINGS == SETTINGS_IN_EEPROM
     if (  pos + size_buffer + 1 > EEPROM_SIZE  || byte_buffer == NULL) {
         log_esp3d("Error write string %d", pos);
         return false;
@@ -669,7 +740,7 @@ bool Settings_ESP3D::write_string (int pos, const char * byte_buffer)
     }
     EEPROM.end();
 #endif //SETTINGS_IN_EEPROM
-#if defined(SETTINGS_IN_PREFERENCES)
+#if ESP_SAVE_SETTINGS == SETTINGS_IN_PREFERENCES
     Preferences prefs;
     if (!prefs.begin(NAMESPACE, false)) {
         log_esp3d("Error opening %s", NAMESPACE);
@@ -693,7 +764,7 @@ uint32_t Settings_ESP3D::read_uint32(int pos, bool * haserror)
         *haserror = true;
     }
     uint32_t res = get_default_int32_value(pos);
-#if defined(SETTINGS_IN_EEPROM)
+#if ESP_SAVE_SETTINGS == SETTINGS_IN_EEPROM
     //check if parameters are acceptable
     uint8_t size_buffer = sizeof(uint32_t);
     if ( pos + size_buffer > EEPROM_SIZE ) {
@@ -709,7 +780,7 @@ uint32_t Settings_ESP3D::read_uint32(int pos, bool * haserror)
     }
     EEPROM.end();
 #endif //SETTINGS_IN_EEPROM
-#if defined(SETTINGS_IN_PREFERENCES)
+#if ESP_SAVE_SETTINGS == SETTINGS_IN_PREFERENCES
     Preferences prefs;
     if (!prefs.begin(NAMESPACE, true)) {
         log_esp3d("Error opening %s", NAMESPACE);
@@ -740,7 +811,7 @@ String Settings_ESP3D::read_IP_String(int pos, bool * haserror)
 //write a uint32
 bool Settings_ESP3D::write_uint32(int pos, const uint32_t value)
 {
-#if defined(SETTINGS_IN_EEPROM)
+#if ESP_SAVE_SETTINGS == SETTINGS_IN_EEPROM
     uint8_t size_buffer = sizeof(uint32_t);
     //check if parameters are acceptable
     if (pos + size_buffer > EEPROM_SIZE) {
@@ -758,7 +829,7 @@ bool Settings_ESP3D::write_uint32(int pos, const uint32_t value)
     }
     EEPROM.end();
 #endif //SETTINGS_IN_EEPROM
-#if defined(SETTINGS_IN_PREFERENCES)
+#if ESP_SAVE_SETTINGS == SETTINGS_IN_PREFERENCES
     Preferences prefs;
     if (!prefs.begin(NAMESPACE, false)) {
         log_esp3d("Error opening %s", NAMESPACE);
@@ -786,7 +857,9 @@ bool Settings_ESP3D::reset()
 {
     bool res = true;
     log_esp3d("Reset Settings");
-#if defined(SETTINGS_IN_PREFERENCES)
+
+#if ESP_SAVE_SETTINGS == SETTINGS_IN_PREFERENCES
+    log_esp3d("clear preferences");
     Preferences prefs;
     if (!prefs.begin(NAMESPACE, false)) {
         return false;
@@ -794,29 +867,22 @@ bool Settings_ESP3D::reset()
     res = prefs.clear();
     prefs.end();
 #endif //SETTINGS_IN_PREFERENCES 
+
 //for EEPROM need to overwrite all settings
-#if defined(SETTINGS_IN_EEPROM)
+#if ESP_SAVE_SETTINGS == SETTINGS_IN_EEPROM
+    log_esp3d("clear EEPROM");
+
 #if defined (WIFI_FEATURE) || defined (BLUETOOTH_FEATURE) || defined (ETH_FEATURE)
     //Hostname
     Settings_ESP3D::write_string(ESP_HOSTNAME,Settings_ESP3D::get_default_string_value(ESP_HOSTNAME).c_str());
-#endif //WIFI_FEATURE ||  BLUETOOTH_FEATURE
+#endif //WIFI_FEATURE ||  BLUETOOTH_FEATURE || ETH_FEATURE
     //radio mode
     Settings_ESP3D::write_byte(ESP_RADIO_MODE,Settings_ESP3D::get_default_byte_value(ESP_RADIO_MODE));
-#if defined (WIFI_FEATURE) || defined (ETH_FEATURE)
+#if defined (WIFI_FEATURE)
     //STA SSID
     Settings_ESP3D::write_string(ESP_STA_SSID,Settings_ESP3D::get_default_string_value(ESP_STA_SSID).c_str());
     //STA pwd
     Settings_ESP3D::write_string(ESP_STA_PASSWORD,Settings_ESP3D::get_default_string_value(ESP_STA_PASSWORD).c_str());
-    //STA Network Mode
-    //Settings_ESP3D::write_byte(ESP_STA_PHY_MODE,Settings_ESP3D::get_default_byte_value(ESP_STA_PHY_MODE));
-    //STA IP mode
-    Settings_ESP3D::write_byte(ESP_STA_IP_MODE,Settings_ESP3D::get_default_byte_value(ESP_STA_IP_MODE));
-    //STA static IP
-    Settings_ESP3D::write_IP(ESP_STA_IP_VALUE, Settings_ESP3D::get_default_IP_value(ESP_STA_IP_VALUE));
-    //STA static Gateway
-    Settings_ESP3D::write_IP(ESP_STA_GATEWAY_VALUE, Settings_ESP3D::get_default_IP_value(ESP_STA_GATEWAY_VALUE));
-    //STA static Mask
-    Settings_ESP3D::write_IP(ESP_STA_MASK_VALUE, Settings_ESP3D::get_default_IP_value(ESP_STA_MASK_VALUE));
     //AP SSID
     Settings_ESP3D::write_string(ESP_AP_SSID,Settings_ESP3D::get_default_string_value(ESP_AP_SSID).c_str());
     //AP password
@@ -831,6 +897,20 @@ bool Settings_ESP3D::reset()
     //Settings_ESP3D::write_byte(ESP_AP_AUTH_TYPE,Settings_ESP3D::get_default_byte_value(ESP_AP_AUTH_TYPE));
     //AP SSID visibility
     //Settings_ESP3D::write_byte(ESP_SSID_VISIBLE,Settings_ESP3D::get_default_byte_value(ESP_SSID_VISIBLE));
+#endif //WIFI_FEATURE
+
+#if defined (WIFI_FEATURE) || defined (ETH_FEATURE)
+    //STA Network Mode
+    //Settings_ESP3D::write_byte(ESP_STA_PHY_MODE,Settings_ESP3D::get_default_byte_value(ESP_STA_PHY_MODE));
+    //STA IP mode
+    Settings_ESP3D::write_byte(ESP_STA_IP_MODE,Settings_ESP3D::get_default_byte_value(ESP_STA_IP_MODE));
+    //STA static IP
+    Settings_ESP3D::write_IP(ESP_STA_IP_VALUE, Settings_ESP3D::get_default_IP_value(ESP_STA_IP_VALUE));
+    //STA static Gateway
+    Settings_ESP3D::write_IP(ESP_STA_GATEWAY_VALUE, Settings_ESP3D::get_default_IP_value(ESP_STA_GATEWAY_VALUE));
+    //STA static Mask
+    Settings_ESP3D::write_IP(ESP_STA_MASK_VALUE, Settings_ESP3D::get_default_IP_value(ESP_STA_MASK_VALUE));
+#endif //WIFI_FEATURE || ETH_FEATURE
 #ifdef HTTP_FEATURE
     //HTTP On
     Settings_ESP3D::write_byte(ESP_HTTP_ON,Settings_ESP3D::get_default_byte_value(ESP_HTTP_ON));
@@ -844,7 +924,6 @@ bool Settings_ESP3D::reset()
     //TELNET Port
     Settings_ESP3D::write_uint32 (ESP_TELNET_PORT, Settings_ESP3D::get_default_int32_value(ESP_TELNET_PORT));
 #endif //TELNET
-#endif //WIFI_FEATURE
 #ifdef AUTHENTICATION_FEATURE
     //Admin password
     Settings_ESP3D::write_string(ESP_ADMIN_PWD,Settings_ESP3D::get_default_string_value(ESP_ADMIN_PWD).c_str());
@@ -858,10 +937,30 @@ bool Settings_ESP3D::reset()
 #ifdef SDCARD_FEATURE
     //Direct SD
     Settings_ESP3D::write_byte(ESP_IS_DIRECT_SD,Settings_ESP3D::get_default_byte_value(ESP_IS_DIRECT_SD));
-#endif //SDCARD_FEATURE      
+#endif //SDCARD_FEATURE
+
+#ifdef TIMESTAMP_FEATURE
+    //Time Zone
+    Settings_ESP3D::write_byte(ESP_TIMEZONE,Settings_ESP3D::get_default_byte_value(ESP_TIMEZONE));
+    //Is DST Time Zone
+    Settings_ESP3D::write_byte(ESP_TIME_IS_DST,Settings_ESP3D::get_default_byte_value(ESP_TIME_IS_DST));
+    //Time Server 1 address
+    Settings_ESP3D::write_string(ESP_TIME_SERVER1, Settings_ESP3D::get_default_string_value(ESP_TIME_SERVER1).c_str());
+    //Time Server 2 address
+    Settings_ESP3D::write_string(ESP_TIME_SERVER2, Settings_ESP3D::get_default_string_value(ESP_TIME_SERVER2).c_str());
+    //Time Server 3 address
+    Settings_ESP3D::write_string(ESP_TIME_SERVER3, Settings_ESP3D::get_default_string_value(ESP_TIME_SERVER3).c_str());
+#endif //TIMESTAMP_FEATURE
+#ifdef DHT_DEVICE
+    //DHT device
+    Settings_ESP3D::write_byte(ESP_DHT_TYPE,Settings_ESP3D::get_default_byte_value(ESP_DHT_TYPE));
+    //DHT query interval
+    Settings_ESP3D::write_uint32 (ESP_DHT_INTERVAL, Settings_ESP3D::get_default_int32_value(ESP_DHT_INTERVAL));
+#endif //DHT_DEVICE   
 #endif //SETTINGS_IN_EEPROM
     //set version in settings
     if (res) {
+        log_esp3d("Reset Setting Version");
         res =  Settings_ESP3D::write_string(ESP_SETTINGS_VERSION, CURRENT_SETTINGS_VERSION);
     }
     return res;
@@ -935,3 +1034,4 @@ bool Settings_ESP3D::isLocalPasswordValid (const char * password)
     }
     return true;
 }
+#endif //ESP_SAVE_SETTINGS

@@ -20,8 +20,7 @@
 
 #include "../include/esp3d_config.h"
 
-#if defined(ARDUINO_ARCH_ESP8266) && (defined(DEBUG_OUTPUT_SERIAL0) || defined(DEBUG_OUTPUT_SERIAL1) || defined(DEBUG_OUTPUT_SERIAL2))
-#include <Arduino.h>
+#if defined(ARDUINO_ARCH_ESP8266) && defined(ESP_DEBUG_FEATURE)
 const char * pathToFileName(const char * path)
 {
     size_t i = 0;
@@ -36,4 +35,4 @@ const char * pathToFileName(const char * path)
     }
     return path+pos;
 }
-#endif //ARDUINO_ARCH_ESP8266 + DEBUG SERIAL0/1/2
+#endif //ARDUINO_ARCH_ESP8266 && ESP_DEBUG_FEATURE

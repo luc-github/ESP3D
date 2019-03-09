@@ -47,6 +47,8 @@ bool Commands::ESP800(const char* cmd_params, level_authenticate_type auth_type,
         output->printERROR("Wrong authentication!", 401);
         return false;
     }
+#else
+    (void)auth_type;
 #endif //AUTHENTICATION_FEATURE
     bool plain = hastag(cmd_params,"plain");
     //FW version
