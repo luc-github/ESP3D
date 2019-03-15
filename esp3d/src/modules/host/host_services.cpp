@@ -1,5 +1,5 @@
 /*
-  esp3d.h - esp3d class
+  host_services.cpp -  host services functions class
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -18,25 +18,44 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _ESP3D_H
-#define _ESP3D_H
-//be sure correct IDE and settings are used for ESP8266 or ESP32
-#if !(defined( ARDUINO_ARCH_ESP8266) || defined(ARDUINO_ARCH_ESP32))
-#error Oops!  Make sure you have 'ESP8266 or ESP32' compatible board selected from the 'Tools -> Boards' menu.
-#endif // ARDUINO_ARCH_ESP8266 + ARDUINO_ARCH_ESP32
-#include <Arduino.h>
-class Esp3D
+#include "../../include/esp3d_config.h"
+#include "host_services.h"
+#include "../../core/settings_esp3d.h"
+#include "../../core/esp3doutput.h"
+
+
+HostServices::HostServices()
 {
-public:
-    Esp3D();
-    ~Esp3D();
-    bool begin();
-    void handle();
-    bool end();
-    static bool reset();
-    static void restart_esp(bool need_restart = true);
-private:
-    static bool restart;
-    void restart_now();
-};
-#endif //_ESP3D_H
+    _started = false;
+}
+HostServices::~HostServices()
+{
+    end();
+}
+
+bool HostServices::begin()
+{
+    bool res = true;
+    end();
+    //Check autostart.g on SPIFFS
+    if (!res) {
+        end();
+    }
+    _started = res;
+    return _started;
+}
+void HostServices::end()
+{
+    if(!_started) {
+        return;
+    }
+    _started = false;
+
+}
+
+void HostServices::handle()
+{
+    if (_started) {
+    }
+}
+

@@ -306,6 +306,11 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
         response = ESP140(cmd_params, auth_type, output);
         break;
 #endif //TIMESTAMP_FEATURE
+    //Get/Set boot delay
+    //[ESP150]<time>[pwd=<admin password>]
+    case 150:
+        response = ESP150(cmd_params, auth_type, output);
+        break;
 #ifdef DIRECT_PIN_FEATURE
     //Get/Set pin value
     //[ESP201]P<pin> V<value> [PULLUP=YES RAW=YES]pwd=<admin password>
@@ -362,13 +367,19 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
         response = ESP555(cmd_params, auth_type, output);
         break;
 #endif  //AUTHENTICATION_FEATURE
-#if defined( WIFI_FEATURE) || defined (ETH_FEATURE)
+#if defined(NOTIFICATION_FEATURE)
     //Send Notification
     //[ESP600]<msg>[pwd=<admin password>]
     case 600:
         response = ESP600(cmd_params, auth_type, output);
         break;
-#endif //WIFI_FEATURE || ETH_FEATURE+
+    //Set/Get Notification settings
+    //[ESP610]type=<NONE/PUSHOVER/EMAIL/LINE> T1=<token1> T2=<token2> TS=<Settings> [pwd=<admin password>]
+    //Get will give type and settings only not the protected T1/T2
+    case 610:
+        response = ESP610(cmd_params, auth_type, output);
+        break;
+#endif //NOTIFICATION_FEATURE
 #ifdef FILESYSTEM_FEATURE
     //Format ESP Filesystem
     //[ESP710]FORMAT pwd=<admin password>

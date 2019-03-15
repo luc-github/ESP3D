@@ -53,6 +53,9 @@ Note:
 * Init / Get current time
 [ESP140]<INIT> <srv1=XXXXX> <srv2=XXXXX> <srv3=XXXXX> <zone=xxx> <dst=YES/NO> <time=YYYY-MM-DD#H24:MM:SS> pwd=<admin password>
 
+* Get/Set boot delay
+[ESP150]<time in milliseconds>[pwd=<admin password>]
+
 *Get/Set pin value
 [ESP201]P<pin> V<value> [PULLUP=YES RAW=YES]pwd=<admin password>
 if no V<value> get P<pin> value
@@ -129,6 +132,13 @@ cmd are RESTART / RESET
 
 * Change user password
 [ESP555]<password>pwd=<admin/user password>
+
+* Send Notification
+[ESP600]msg [pwd=<admin password>]
+
+* Set/Get Notification settings
+[ESP610]type=<NONE/PUSHOVER/EMAIL/LINE> T1=<token1> T2=<token2> TS=<Settings> [pwd=<admin password>]
+Get will give type and settings only, not the protected T1/T2
 
 * Format ESP Filesystem
 [ESP710]FORMAT pwd=<admin password>

@@ -107,9 +107,7 @@
 #define WEB_UPDATE_FEATURE
 
 //NOTIFICATION_FEATURE : allow to push notifications
-//ESP_PUSHOVER_NOTIFICATION		1
-//ESP_EMAIL_NOTIFICATION		2
-//#define NOTIFICATION_FEATURE ESP_PUSHOVER_NOTIFICATION
+#define NOTIFICATION_FEATURE
 
 //Extra features /////////////////////////////////////////////////////////////////////////
 /************************************

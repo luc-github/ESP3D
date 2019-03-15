@@ -50,6 +50,9 @@
 #if defined (DHT_DEVICE)
 #include "../../modules/dht/dht.h"
 #endif //DHT_DEVICE
+#ifdef NOTIFICATION_FEATURE
+#include "../../modules/notifications/notifications_service.h"
+#endif //NOTIFICATION_FEATURE
 //Get ESP current status
 //output is JSON or plain text according parameter
 //[ESP420]<plain>
@@ -948,6 +951,28 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         output->printLN("");
     }
 #endif //TIMESTAMP_FEATURE
+#if defined (NOTIFICATION_FEATURE)
+    if (!plain) {
+        output->print (",{\"id\":\"");
+    }
+    output->print ("Notification");
+    if (!plain) {
+        output->print ("\",\"value\":\"");
+    } else {
+        output->print (": ");
+    }
+    output->print (notificationsservice.started()?"Enabled":"Disabled");
+    if (notificationsservice.started()) {
+        output->print ("(");
+        output->print (notificationsservice.getTypeString());
+        output->print (")");
+    }
+    if (!plain) {
+        output->print ("\"}");
+    } else {
+        output->printLN("");
+    }
+#endif //NOTIFICATION_FEATURE
 #if defined (DHT_DEVICE)
     if (!plain) {
         output->print (",{\"id\":\"");

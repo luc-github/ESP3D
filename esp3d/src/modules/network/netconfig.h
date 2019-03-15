@@ -20,8 +20,6 @@
 
 //boundaries
 
-#define MAX_SERVER_ADDRESS_LENGTH   128
-#define MIN_SERVER_ADDRESS_LENGTH   0
 
 #define MAX_HTTP_PORT               65001
 #define MIN_HTTP_PORT               1

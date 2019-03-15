@@ -43,7 +43,7 @@
 #define ESP_STA_MASK_VALUE      104     //4  bytes xxx.xxx.xxx.xxx
 #define ESP_STA_GATEWAY_VALUE   108     //4  bytes xxx.xxx.xxx.xxx
 #define ESP_BAUD_RATE           112     //4  bytes = int
-//#define ESP_STA_PHY_MODE        116     //1 byte = flag
+#define ESP_NOTIFICATION_TYPE   116     //1 byte = flag
 //#define ESP_SLEEP_MODE          117     //1 byte = flag
 #define ESP_AP_CHANNEL          118     //1 byte = flag
 //#define ESP_AP_AUTH_TYPE        119     //1 byte = flag
@@ -59,13 +59,14 @@
 #define ESP_AP_SSID             218     //33 bytes 32+1 = string  ; warning does not support multibyte char like chinese
 #define ESP_AP_PASSWORD         251     //65 bytes 64 +1 = string ;warning does not support multibyte char like chinese
 #define ESP_AP_IP_VALUE         316     //4  bytes xxx.xxx.xxx.xxx
-//#define EP_FREE_INT4          320     //4  bytes xxx.xxx.xxx.xxx
+#define ESP_BOOT_DELAY          320     //4  bytes xxx.xxx.xxx.xxx
 //#define EP_FREE_INT5          324     //4  bytes xxx.xxx.xxx.xxx
 #define ESP_HTTP_ON             328     //1 byte = flag
 #define ESP_TELNET_ON           329     //1 byte = flag
 //#define ESP_AP_PHY_MODE         330     //1 byte = flag
 #define ESP_SD_SPEED_DIV        331     //1 byte = flag
-//#define EP_FREE_STRING1       332//128 bytes 127+1 = string  ; warning does not support multibyte char like chinese
+#define ESP_NOTIFICATION_TOKEN1 332    //64 bytes 63+1 = string  ; warning does not support multibyte char like chinese
+#define ESP_NOTIFICATION_TOKEN2 396    //64 bytes 63+1 = string  ; warning does not support multibyte char like chinese
 #define ESP_DHT_TYPE            460//1  bytes = flag
 #define ESP_TARGET_FW           461 //1  bytes = flag
 #define ESP_TIMEZONE            462//1  bytes = flag
@@ -78,7 +79,7 @@
 #define ESP_SECONDARY_SD        852//1  bytes = flag
 #define ESP_DIRECT_SD_CHECK     853//1  bytes = flag
 #define ESP_SD_CHECK_UPDATE_AT_BOOT   854//1  bytes = flag
-
+#define ESP_NOTIFICATION_SETTINGS 855//128 bytes 127+1 = string  ; warning does not support multibyte char like chinese
 //Hidden password
 #define HIDDEN_PASSWORD "********"
 

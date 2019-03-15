@@ -47,6 +47,7 @@
 //Notifications
 #define ESP_PUSHOVER_NOTIFICATION	1
 #define ESP_EMAIL_NOTIFICATION		2
+#define ESP_LINE_NOTIFICATION		3
 
 //DHT
 #define DHT11_DEVICE 1

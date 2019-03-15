@@ -1,5 +1,5 @@
 /*
- ESP600.cpp - ESP3D command class
+ ESP150.cpp - ESP3D command class
 
  Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -18,15 +18,13 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "../../include/esp3d_config.h"
-#if defined (NOTIFICATION_FEATURE)
 #include "../commands.h"
 #include "../esp3doutput.h"
 #include "../settings_esp3d.h"
 #include "../../modules/authentication/authentication_service.h"
-#include "../../modules/notifications/notifications_service.h"
-//Send Notification
-//[ESP600]msg [pwd=<admin password>]
-bool Commands::ESP600(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
+//Get/Set boot delay
+//[ESP150]<time>[pwd=<admin password>]
+bool Commands::ESP150(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
     bool response = true;
     String parameter;
@@ -41,18 +39,25 @@ bool Commands::ESP600(const char* cmd_params, level_authenticate_type auth_type,
     parameter = get_param (cmd_params, "");
     //get
     if (parameter.length() == 0) {
-        output->printERROR ("Invalid message!");
-        return false;
+        output->printMSG(String(Settings_ESP3D::read_uint32(ESP_BOOT_DELAY)).c_str());
     } else {
-        parameter = get_param (cmd_params, "");
-        if (notificationsservice.sendMSG("ESP3D Notification", parameter.c_str())) {
-            output->printMSG ("ok");
-        } else {
-            output->printERROR ("Cannot send message!");
+#ifdef AUTHENTICATION_FEATURE
+        if (auth_type != LEVEL_ADMIN) {
+            output->printERROR("Wrong authentication!", 401);
             return false;
+        }
+#endif //AUTHENTICATION_FEATURE
+        uint ibuf = parameter.toInt();
+        if ((ibuf > Settings_ESP3D::get_max_int32_value(ESP_BOOT_DELAY)) || (ibuf < Settings_ESP3D::get_min_int32_value(ESP_BOOT_DELAY))) {
+            output->printERROR ("Incorrect delay!");
+            return false;
+        }
+        if (!Settings_ESP3D::write_uint32 (ESP_BOOT_DELAY, ibuf)) {
+            output->printERROR ("Set failed!");
+            response = false;
+        } else {
+            output->printMSG ("ok");
         }
     }
     return response;
 }
-
-#endif //NOTIFICATION_FEATURE

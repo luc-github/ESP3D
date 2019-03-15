@@ -341,6 +341,50 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (Settings_ESP3D::get_min_string_size(ESP_TIME_SERVER3));
     output->printLN ("\"}");
 #endif //TIMESTAMP_FEATURE
+#ifdef NOTIFICATION_FEATURE
+    //Notification type
+    output->print (",{\"F\":\"network\",\"P\":\"");
+    output->print (ESP_NOTIFICATION_TYPE);
+    output->print ("\",\"T\":\"B\",\"V\":\"");
+    output->print (Settings_ESP3D::read_byte(ESP_NOTIFICATION_TYPE));
+    output->print ("\",\"H\":\"Notification\",\"O\":[{\"None\":\"0\"},{\"Pushover\":\"");
+    output->print (ESP_PUSHOVER_NOTIFICATION);
+    output->print ("\"},{\"Email\":\"");
+    output->print (ESP_EMAIL_NOTIFICATION);
+    output->print ("\"},{\"Line\":\"");
+    output->print (ESP_LINE_NOTIFICATION);
+    output->printLN ("\"}]}");
+    //Token 1
+    output->print (",{\"F\":\"network\",\"P\":\"");
+    output->print (ESP_NOTIFICATION_TOKEN1);
+    output->print ("\",\"T\":\"S\",\"V\":\"");
+    output->print (HIDDEN_PASSWORD);
+    output->print ("\",\"S\":\"");
+    output->print (Settings_ESP3D::get_max_string_size(ESP_NOTIFICATION_TOKEN1));
+    output->print ("\",\"H\":\"Token 1\",\"M\":\"");
+    output->print (Settings_ESP3D::get_min_string_size(ESP_NOTIFICATION_TOKEN1));
+    output->printLN ("\"}");
+    //Token 2
+    output->print (",{\"F\":\"network\",\"P\":\"");
+    output->print (ESP_NOTIFICATION_TOKEN2);
+    output->print ("\",\"T\":\"S\",\"V\":\"");
+    output->print (HIDDEN_PASSWORD);
+    output->print ("\",\"S\":\"");
+    output->print (Settings_ESP3D::get_max_string_size(ESP_NOTIFICATION_TOKEN2));
+    output->print ("\",\"H\":\"Token 2\",\"M\":\"");
+    output->print (Settings_ESP3D::get_min_string_size(ESP_NOTIFICATION_TOKEN2));
+    output->printLN ("\"}");
+    //Notifications Settings
+    output->print (",{\"F\":\"network\",\"P\":\"");
+    output->print (ESP_NOTIFICATION_SETTINGS);
+    output->print ("\",\"T\":\"S\",\"V\":\"");
+    output->print (Settings_ESP3D::read_string(ESP_NOTIFICATION_SETTINGS));
+    output->print ("\",\"S\":\"");
+    output->print (Settings_ESP3D::get_max_string_size(ESP_NOTIFICATION_SETTINGS));
+    output->print ("\",\"H\":\"Notifications Settings\",\"M\":\"");
+    output->print (Settings_ESP3D::get_min_string_size(ESP_NOTIFICATION_SETTINGS));
+    output->printLN ("\"}");
+#endif //NOTIFICATION_FEATURE
     //Target FW
     output->print (",{\"F\":\"printer\",\"P\":\"");
     output->print (ESP_TARGET_FW);
@@ -384,7 +428,16 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (Settings_ESP3D::get_min_int32_value(ESP_DHT_INTERVAL));
     output->printLN ("\"}");
 #endif //DHT_DEVICE
-
+    //Start delay
+    output->print (",{\"F\":\"printer\",\"P\":\"");
+    output->print (ESP_BOOT_DELAY);
+    output->print ("\",\"T\":\"I\",\"V\":\"");
+    output->print (Settings_ESP3D::read_uint32(ESP_BOOT_DELAY));
+    output->print ("\",\"H\":\"Start delay\",\"S\":\"");
+    output->print (Settings_ESP3D::get_max_int32_value(ESP_BOOT_DELAY));
+    output->print ("\",\"M\":\"");
+    output->print (Settings_ESP3D::get_min_int32_value(ESP_BOOT_DELAY));
+    output->printLN ("\"}");
     //Output flag
     output->print (",{\"F\":\"printer\",\"P\":\"");
     output->print (ESP_OUTPUT_FLAG);

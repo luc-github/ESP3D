@@ -1,5 +1,5 @@
 /*
-  esp3d.h - esp3d class
+  boot_delay.h -  boot delay functions class
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -18,25 +18,28 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _ESP3D_H
-#define _ESP3D_H
-//be sure correct IDE and settings are used for ESP8266 or ESP32
-#if !(defined( ARDUINO_ARCH_ESP8266) || defined(ARDUINO_ARCH_ESP32))
-#error Oops!  Make sure you have 'ESP8266 or ESP32' compatible board selected from the 'Tools -> Boards' menu.
-#endif // ARDUINO_ARCH_ESP8266 + ARDUINO_ARCH_ESP32
-#include <Arduino.h>
-class Esp3D
+
+
+#ifndef _BOOT_DELAY_H
+#define _BOOT_DELAY_H
+
+typedef void (progress_t)(uint8_t percent);
+
+class BootDelay
 {
 public:
-    Esp3D();
-    ~Esp3D();
-    bool begin();
+    BootDelay();
+    ~BootDelay();
+    bool begin(progress_t* fn = nullptr);
+    void end();
     void handle();
-    bool end();
-    static bool reset();
-    static void restart_esp(bool need_restart = true);
+    bool started();
 private:
-    static bool restart;
-    void restart_now();
+    bool _started;
+    progress_t * _callbackfn;
+    uint32_t _startdelay;
+    uint32_t _totalduration;
 };
-#endif //_ESP3D_H
+
+#endif //_BOOT_DELAY_H
+
