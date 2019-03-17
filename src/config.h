@@ -19,7 +19,7 @@
 */
 
 //version and sources location
-#define FW_VERSION "2.0.0.c23"
+#define FW_VERSION "2.0.0.c24"
 #define REPOSITORY "https://github.com/luc-github/ESP3D"
 
 //Customize ESP3D ////////////////////////////////////////////////////////////////////////
@@ -111,7 +111,7 @@
 #endif
 
 #ifdef DHT_FEATURE
-#define ESP_DHT_PIN 2
+#define ESP_DHT_PIN 15
 #endif
 
 //Pins where the screen is connected

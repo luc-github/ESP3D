@@ -292,7 +292,7 @@ void Esp3D::process()
                  last_dht_update = now_dht;
                   float humidity = dht.getHumidity();
                   float temperature = dht.getTemperature();
-                  if (dht.getStatusString() == "OK") {
+                  if (strcmp(dht.getStatusString(),"OK") == 0) {
                       String s = String(temperature,2);
                       String s2 = s + " " +String(humidity,2);
     #if defined (ASYNCWEBSERVER)
