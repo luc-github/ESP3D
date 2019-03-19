@@ -25,7 +25,8 @@
 #include "IPAddress.h"
 #include <functional>
 extern "C" {
-#include "freertos/semphr.h"
+    #include "freertos/semphr.h"
+    #include "lwip/pbuf.h"
 }
 
 class AsyncClient;
@@ -38,11 +39,11 @@ typedef std::function<void(void*, AsyncClient*)> AcConnectHandler;
 typedef std::function<void(void*, AsyncClient*, size_t len, uint32_t time)> AcAckHandler;
 typedef std::function<void(void*, AsyncClient*, int8_t error)> AcErrorHandler;
 typedef std::function<void(void*, AsyncClient*, void *data, size_t len)> AcDataHandler;
+typedef std::function<void(void*, AsyncClient*, struct pbuf *pb)> AcPacketHandler;
 typedef std::function<void(void*, AsyncClient*, uint32_t time)> AcTimeoutHandler;
 
 struct tcp_pcb;
-struct pbuf;
-struct _ip_addr;
+struct ip_addr;
 
 class AsyncClient {
   protected:
@@ -58,6 +59,8 @@ class AsyncClient {
     void* _error_cb_arg;
     AcDataHandler _recv_cb;
     void* _recv_cb_arg;
+    AcPacketHandler _pb_cb;
+    void* _pb_cb_arg;
     AcTimeoutHandler _timeout_cb;
     void* _timeout_cb_arg;
     AcConnectHandler _poll_cb;
@@ -78,7 +81,7 @@ class AsyncClient {
     void _error(int8_t err);
     int8_t _poll(tcp_pcb* pcb);
     int8_t _sent(tcp_pcb* pcb, uint16_t len);
-    void _dns_found(struct _ip_addr *ipaddr);
+    void _dns_found(struct ip_addr *ipaddr);
 
 
   public:
@@ -105,13 +108,13 @@ class AsyncClient {
 
     bool canSend();//ack is not pending
     size_t space();
-    size_t add(const char* data, size_t size, uint8_t apiflags=0);//add for sending
+    size_t add(const char* data, size_t size, uint8_t apiflags=ASYNC_WRITE_FLAG_COPY);//add for sending
     bool send();//send all data added with the method above
     size_t ack(size_t len); //ack data that you have not acked using the method below
     void ackLater(){ _ack_pcb = false; } //will not ack the current packet. Call from onData
 
     size_t write(const char* data);
-    size_t write(const char* data, size_t size, uint8_t apiflags=0); //only when canSend() == true
+    size_t write(const char* data, size_t size, uint8_t apiflags=ASYNC_WRITE_FLAG_COPY); //only when canSend() == true
 
     uint8_t state();
     bool connecting();
@@ -141,9 +144,12 @@ class AsyncClient {
     void onDisconnect(AcConnectHandler cb, void* arg = 0);  //disconnected
     void onAck(AcAckHandler cb, void* arg = 0);             //ack received
     void onError(AcErrorHandler cb, void* arg = 0);         //unsuccessful connect or error
-    void onData(AcDataHandler cb, void* arg = 0);           //data received
+    void onData(AcDataHandler cb, void* arg = 0);           //data received (called if onPacket is not used)
+    void onPacket(AcPacketHandler cb, void* arg = 0);       //data received
     void onTimeout(AcTimeoutHandler cb, void* arg = 0);     //ack timeout
     void onPoll(AcConnectHandler cb, void* arg = 0);        //every 125ms when connected
+
+    void ackPacket(struct pbuf * pb);
 
     const char * errorToString(int8_t error);
     const char * stateToString();
@@ -155,7 +161,7 @@ class AsyncClient {
     static void _s_error(void *arg, int8_t err);
     static int8_t _s_sent(void *arg, struct tcp_pcb *tpcb, uint16_t len);
     static int8_t _s_connected(void* arg, void* tpcb, int8_t err);
-    static void _s_dns_found(const char *name, struct _ip_addr *ipaddr, void *arg);
+    static void _s_dns_found(const char *name, struct ip_addr *ipaddr, void *arg);
 
     bool _in_lwip_thread;
 };

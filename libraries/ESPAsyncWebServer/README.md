@@ -12,6 +12,8 @@ To use this library you might need to have the latest git versions of [ESP32](ht
 
 ## Table of contents
 - [ESPAsyncWebServer ](#espasyncwebserver-)
+	- [Installation](#installation)
+		- [Using PlatformIO](#using-platformio)
 	- [Why should you care](#why-should-you-care)
 	- [Important things to remember](#important-things-to-remember)
 	- [Principles of operation](#principles-of-operation)
@@ -28,6 +30,7 @@ To use this library you might need to have the latest git versions of [ESP32](ht
 		- [GET, POST and FILE parameters](#get-post-and-file-parameters)
 		- [FILE Upload handling](#file-upload-handling)
 		- [Body data handling](#body-data-handling)
+		- [JSON body handling with ArduinoJson](#json-body-handling-with-arduinojson)
 	- [Responses](#responses)
 		- [Redirect to another URL](#redirect-to-another-url)
 		- [Basic response with HTTP Code](#basic-response-with-http-code)
@@ -78,6 +81,33 @@ To use this library you might need to have the latest git versions of [ESP32](ht
 		- [Setup global and class functions as request handlers](#setup-global-and-class-functions-as-request-handlers)
 		- [Methods for controlling websocket connections](#methods-for-controlling-websocket-connections)
 	- [Adding default headers to all responses](#adding-default-headers)
+
+## Installation
+
+### Using PlatformIO
+
+[PlatformIO](http://platformio.org) is an open source ecosystem for IoT development with cross platform build system, library manager and full support for Espressif ESP8266/ESP32 development. It works on the popular host OS: Mac OS X, Windows, Linux 32/64, Linux ARM (like Raspberry Pi, BeagleBone, CubieBoard).
+
+1. Install [PlatformIO IDE](http://platformio.org/platformio-ide)
+2. Create new project using "PlatformIO Home > New Project"
+3. Update dev/platform to staging version:
+   - [Instruction for Espressif 8266](http://docs.platformio.org/en/latest/platforms/espressif8266.html#using-arduino-framework-with-staging-version)
+   - [Instruction for Espressif 32](http://docs.platformio.org/en/latest/platforms/espressif32.html#using-arduino-framework-with-staging-version)
+ 4. Add "ESP Async WebServer" to project using [Project Configuration File `platformio.ini`](http://docs.platformio.org/page/projectconf.html) and [lib_deps](http://docs.platformio.org/page/projectconf/section_env_library.html#lib-deps) option:
+```ini
+[env:myboard]
+platform = espressif...
+board = ...
+framework = arduino
+
+# using the latest stable version
+lib_deps = ESP Async WebServer
+
+# or using GIT Url (the latest development version)
+lib_deps = https://github.com/me-no-dev/ESPAsyncWebServer.git
+```
+ 5. Happy coding with PlatformIO!
+
 ## Why should you care
 - Using asynchronous network means that you can handle more than one connection at the same time
 - You are called once the request is ready and parsed
@@ -283,6 +313,20 @@ void handleBody(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_
     Serial.printf("BodyEnd: %u B\n", total);
   }
 }
+```
+If needed, the `_tempObject` field on the request can be used to store a pointer to temporary data (e.g. from the body) associated with the request. If assigned, the pointer will automatically be freed along with the request.
+
+### JSON body handling with ArduinoJson
+Endpoints which consume JSON can use a special handler to get ready to use JSON data in the request callback:
+```cpp
+#include "AsyncJson.h"
+#include "ArduinoJson.h"
+
+AsyncCallbackJsonWebHandler* handler = new AsyncCallbackJsonWebHandler("/rest/endpoint", [](AsyncWebServerRequest *request, JsonVariant &json) {
+  JsonObject& jsonObj = json.as<JsonObject>();
+  // ...
+});
+server.addHandler(handler);
 ```
 
 ## Responses
@@ -688,7 +732,7 @@ This way of sending Json is great for when the result is below 4KB
 #include "ArduinoJson.h"
 
 
-AsyncResponseStream *response = request->beginResponseStream("text/json");
+AsyncResponseStream *response = request->beginResponseStream("application/json");
 DynamicJsonBuffer jsonBuffer;
 JsonObject &root = jsonBuffer.createObject();
 root["heap"] = ESP.getFreeHeap();
@@ -942,7 +986,7 @@ ws.printfAll(arguments...);
 //printf_P to a client
 ws.printf_P((uint32_t)client_id, PSTR(format), arguments...);
 //printfAll_P to all clients
-ws.printf_P(PSTR(format), arguments...);
+ws.printfAll_P(PSTR(format), arguments...);
 //send text to a client
 ws.text((uint32_t)client_id, (char*)text);
 ws.text((uint32_t)client_id, (uint8_t*)text, (size_t)len);
@@ -1097,7 +1141,7 @@ server.on("/scan", HTTP_GET, [](AsyncWebServerRequest *request){
     }
   }
   json += "]";
-  request->send(200, "text/json", json);
+  request->send(200, "application/json", json);
   json = String();
 });
 ```

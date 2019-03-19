@@ -60,8 +60,9 @@
 bool can_process_serial = true;
 
 extern bool  deleteRecursive(String path);
-extern void CloseSerialUpload (bool iserror, String & filename);
-extern bool sendLine2Serial (String &  line);
+extern bool sendLine2Serial (String &  line, int32_t linenb,  int32_t * newlinenb);
+extern void CloseSerialUpload (bool iserror, String & filename , int32_t linenb);
+extern bool purge_serial();
 extern long id_connection;
 
 const uint8_t PAGE_404 [] PROGMEM = "<HTML>\n<HEAD>\n<title>Redirecting...</title> \n</HEAD>\n<BODY>\n<CENTER>Unknown page : $QUERY$- you will be redirected...\n<BR><BR>\nif not redirected, <a href='http://$WEB_ADDRESS$'>click here</a>\n<BR><BR>\n<PROGRESS name='prg' id='prg'></PROGRESS>\n\n<script>\nvar i = 0; \nvar x = document.getElementById(\"prg\"); \nx.max=5; \nvar interval=setInterval(function(){\ni=i+1; \nvar x = document.getElementById(\"prg\"); \nx.value=i; \nif (i>5) \n{\nclearInterval(interval);\nwindow.location.href='/';\n}\n},1000);\n</script>\n</CENTER>\n</BODY>\n</HTML>\n\n";
@@ -1092,6 +1093,7 @@ void SDFile_serial_upload (AsyncWebServerRequest *request, String filename, size
     LOG ("Uploading: ")
     LOG (filename)
     LOG ("\n")
+    static int32_t lineNb =-1;
     static String current_line;
     static bool is_comment = false;
     static String current_filename;
@@ -1107,74 +1109,65 @@ void SDFile_serial_upload (AsyncWebServerRequest *request, String filename, size
     //Upload start
     //**************
     if (!index) {
-        LOG ("Starting\n")
-        //need to lock serial out to avoid garbage in file
-        (web_interface->blockserial) = true;
-        current_line = "";
-        //init flags
-        is_comment = false;
-        current_filename = filename;
-        web_interface->_upload_status = UPLOAD_STATUS_ONGOING;
-        ESPCOM::println (F ("Uploading..."), PRINTER_PIPE);
-        ESPCOM::flush (DEFAULT_PRINTER_PIPE);
-        LOG ("Clear Serial\r\n");
-        if(ESPCOM::available(DEFAULT_PRINTER_PIPE)) {
-			ESPCOM::bridge();
-			CONFIG::wait(1);
-		}
-        //command to pritnter to start print
-        String command = "M28 " + filename;
-        LOG (command);
-        LOG ("\r\n");
-        ESPCOM::println (command, DEFAULT_PRINTER_PIPE);
-        ESPCOM::flush (DEFAULT_PRINTER_PIPE);
-        CONFIG::wait (500);
-        uint32_t timeout = millis();
-        bool done = false;
-        while (!done) { //time out is  2000ms
-            CONFIG::wdtFeed();
-            //if there is something in serial buffer
-            size_t len = ESPCOM::available(DEFAULT_PRINTER_PIPE);
-            //get size of buffer
-            if (len > 0) {
-                CONFIG::wdtFeed();
-                uint8_t * sbuf = (uint8_t *)malloc(len+1);
-				if(!sbuf){
-					web_interface->_upload_status = UPLOAD_STATUS_CANCELLED;
-					ESPCOM::println (F ("SD upload rejected"), PRINTER_PIPE);
-					LOG ("SD upload rejected\r\n");
-					request->client()->abort();
-					return ;
-					}
-                //read buffer
-                ESPCOM::readBytes (DEFAULT_PRINTER_PIPE, sbuf, len);
-                //convert buffer to zero end array
-                sbuf[len] = '\0';
-                //use string because easier to handle
-                response = (const char*) sbuf;
-                LOG (response);
-                //if there is a wait it means purge is done
-                if (response.indexOf ("wait") > -1) {
-                    LOG ("Exit start writing\r\n");
-                    done = true;
-                    free(sbuf);
-                    break;
-                }
-                //it is first command if it is failed no need to continue
-                //and resend command won't help
-                if (response.indexOf ("Resend") > -1 || response.indexOf ("failed") > -1) {
-                    web_interface->blockserial = false;
-                    LOG ("Error start writing\r\n");
-                    web_interface->_upload_status = UPLOAD_STATUS_FAILED;
-                    request->client()->abort();
-                    free(sbuf);
+		LOG("Upload Start\r\n")
+        String command = "M29";
+        String resetcmd = "M110 N0";
+        if (CONFIG::GetFirmwareTarget() == SMOOTHIEWARE)resetcmd = "N0 M110";
+        lineNb=1;
+        //close any ongoing upload and get current line number
+        if(!sendLine2Serial (command,1, &lineNb)){
+            //it can failed for repetier
+            if ( ( CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER) ) {
+                if(!sendLine2Serial (command,-1, NULL)){
+                    LOG("Start Upload failed")
+                    web_interface->_upload_status= UPLOAD_STATUS_FAILED;
                     return;
                 }
-                free(sbuf);
+            } else {
+                LOG("Start Upload failed")
+                web_interface->_upload_status= UPLOAD_STATUS_FAILED;
+                return;
             }
-            if ( (millis() - timeout) > SERIAL_CHECK_TIMEOUT) {
-                done = true;
-            }
+        }
+        //Mount SD card
+        command = "M21";
+        if(!sendLine2Serial (command,-1, NULL)){
+            LOG("Mounting SD failed")
+            web_interface->_upload_status= UPLOAD_STATUS_FAILED;
+            return;
+        }
+        //Reset line numbering
+        if(!sendLine2Serial (resetcmd,-1, NULL)){
+            LOG("Reset Numbering failed")
+            web_interface->_upload_status= UPLOAD_STATUS_FAILED;
+            return;
+        }
+        lineNb=1;
+        //need to lock serial out to avoid garbage in file
+        (web_interface->blockserial) = true;
+        current_line ="";
+        current_filename = filename;
+        is_comment = false;
+        String response;
+        ESPCOM::println (F ("Uploading..."), PRINTER_PIPE);
+        //Clear all serial
+        ESPCOM::flush (DEFAULT_PRINTER_PIPE);
+        purge_serial();
+        //besure nothing left again
+        purge_serial();
+        command = "M28 " + current_filename;
+        //send start upload
+        //no correction allowed because it means reset numbering was failed
+        if (sendLine2Serial(command, lineNb, NULL)){
+            CONFIG::wait(1200);
+            //additional purge, in case it is slow to answer
+            purge_serial();
+            web_interface->_upload_status= UPLOAD_STATUS_ONGOING;
+            LOG("Creation Ok\r\n")
+            
+        } else  {
+            web_interface->_upload_status= UPLOAD_STATUS_FAILED;
+           LOG("Creation failed\r\n");
         }
     }
     //Upload write
@@ -1196,10 +1189,10 @@ void SDFile_serial_upload (AsyncWebServerRequest *request, String filename, size
                 if (current_line.length() < 126) {
                     //do we have something in buffer ?
                     if (current_line.length() > 0 ) {
-                        current_line += "\r\n";
-                        if (!sendLine2Serial (current_line) ) {
-                            LOG ("Error over buffer\n")
-                            CloseSerialUpload (true, current_filename);
+						lineNb++;
+                        if (!sendLine2Serial (current_line, lineNb, NULL) ) {
+                            LOG ("Error sending line\n")
+                            CloseSerialUpload (true, current_filename,lineNb);
                             request->client()->abort();
                             return;
                         }
@@ -1212,7 +1205,8 @@ void SDFile_serial_upload (AsyncWebServerRequest *request, String filename, size
                 } else {
                     //error buffer overload
                     LOG ("Error over buffer\n")
-                    CloseSerialUpload (true, current_filename);
+                    lineNb++;
+                    CloseSerialUpload (true, current_filename, lineNb);
                     request->client()->abort();
                     return;
                 }
@@ -1221,7 +1215,8 @@ void SDFile_serial_upload (AsyncWebServerRequest *request, String filename, size
                     current_line += char (data[pos]);  //copy current char to buffer to send/resend
                 } else {
                     LOG ("Error over buffer\n")
-                    CloseSerialUpload (true, current_filename);
+                    lineNb++;
+                    CloseSerialUpload (true, current_filename, lineNb);
                     request->client()->abort();
                     return;
                 }
@@ -1238,16 +1233,18 @@ void SDFile_serial_upload (AsyncWebServerRequest *request, String filename, size
         LOG ("Final is reached\n")
         //if last part does not have '\n'
         if (current_line.length()  > 0) {
-            current_line += "\r\n";
-            if (!sendLine2Serial (current_line) ) {
+            lineNb++;
+            if (!sendLine2Serial (current_line, lineNb, NULL) ) {
                 LOG ("Error sending buffer\n")
-                CloseSerialUpload (true, current_filename);
+                lineNb++;
+                CloseSerialUpload (true, current_filename, lineNb);
                 request->client()->abort();
                 return;
             }
         }
         LOG ("Upload finished ");
-        CloseSerialUpload (false, current_filename);
+        lineNb++;
+        CloseSerialUpload (false, current_filename, lineNb);
     }
     LOG ("Exit fn\n")
 }

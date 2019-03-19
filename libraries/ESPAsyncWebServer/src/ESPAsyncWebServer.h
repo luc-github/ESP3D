@@ -51,6 +51,7 @@ class AsyncStaticWebHandler;
 class AsyncCallbackWebHandler;
 class AsyncResponseStream;
 
+#ifndef WEBSERVER_H
 typedef enum {
   HTTP_GET     = 0b00000001,
   HTTP_POST    = 0b00000010,
@@ -61,6 +62,11 @@ typedef enum {
   HTTP_OPTIONS = 0b01000000,
   HTTP_ANY     = 0b01111111,
 } WebRequestMethod;
+#endif
+
+//if this value is returned when asked for data, packet will not be sent and you will be asked for data again
+#define RESPONSE_TRY_AGAIN 0xFFFFFFFF
+
 typedef uint8_t WebRequestMethodComposite;
 typedef std::function<void(void)> ArDisconnectHandler;
 
@@ -130,6 +136,7 @@ class AsyncWebServerRequest {
     AsyncWebServerResponse* _response;
     StringArray _interestingHeaders;
     ArDisconnectHandler _onDisconnectfn;
+
     String _temp;
     uint8_t _parseState;
 
@@ -204,6 +211,7 @@ class AsyncWebServerRequest {
     RequestedConnectionType requestedConnType() const { return _reqconntype; }
     bool isExpectedRequestedConnType(RequestedConnectionType erct1, RequestedConnectionType erct2 = RCT_NOT_USED, RequestedConnectionType erct3 = RCT_NOT_USED);
     void onDisconnect (ArDisconnectHandler fn);
+
     //hash is the string representation of:
     // base64(user:pass) for basic or
     // user:realm:md5(user:realm:pass) for digest
@@ -323,6 +331,7 @@ class AsyncWebHandler {
     virtual void handleRequest(AsyncWebServerRequest *request __attribute__((unused))){}
     virtual void handleUpload(AsyncWebServerRequest *request  __attribute__((unused)), const String& filename __attribute__((unused)), size_t index __attribute__((unused)), uint8_t *data __attribute__((unused)), size_t len __attribute__((unused)), bool final  __attribute__((unused))){}
     virtual void handleBody(AsyncWebServerRequest *request __attribute__((unused)), uint8_t *data __attribute__((unused)), size_t len __attribute__((unused)), size_t index __attribute__((unused)), size_t total __attribute__((unused))){}
+    virtual bool isRequestHandlerTrivial(){return true;}
 };
 
 /*

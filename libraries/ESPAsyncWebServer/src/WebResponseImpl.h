@@ -42,6 +42,10 @@ class AsyncBasicResponse: public AsyncWebServerResponse {
 class AsyncAbstractResponse: public AsyncWebServerResponse {
   private:
     String _head;
+    // Data is inserted into cache at begin(). 
+    // This is inefficient with vector, but if we use some other container, 
+    // we won't be able to access it as contiguous array of bytes when reading from it,
+    // so by gaining performance in one place, we'll lose it in another.
     std::vector<uint8_t> _cache;
     size_t _readDataFromCacheOrContent(uint8_t* data, const size_t len);
     size_t _fillBufferAndProcessTemplates(uint8_t* buf, size_t maxLen);
@@ -55,7 +59,10 @@ class AsyncAbstractResponse: public AsyncWebServerResponse {
     virtual size_t _fillBuffer(uint8_t *buf __attribute__((unused)), size_t maxLen __attribute__((unused))) { return 0; }
 };
 
+#ifndef TEMPLATE_PLACEHOLDER
 #define TEMPLATE_PLACEHOLDER '%'
+#endif
+
 #define TEMPLATE_PARAM_NAME_LENGTH 32
 class AsyncFileResponse: public AsyncAbstractResponse {
   using File = fs::File;
