@@ -5,11 +5,7 @@ language: bash
 os:
   - linux
 
-before_install:
-  - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1280x1024x16"
-
 before_script:
-  - "export DISPLAY=:99.0"
   - sleep 3 # give xvfb some time to start
   - wget http://downloads.arduino.cc/arduino-1.8.5-linux64.tar.xz
   - tar xf arduino-1.8.5-linux64.tar.xz
@@ -41,11 +37,7 @@ before_script:
   - mv $TRAVIS_BUILD_DIR/libraries/oled-ssd1306 $HOME/arduino_ide/hardware/esp32/esp32/libraries/
   - mv $TRAVIS_BUILD_DIR/libraries/ESP32SSDP $HOME/arduino_ide/hardware/esp32/esp32/libraries/
   - mv $TRAVIS_BUILD_DIR/libraries/arduinoWebSockets $HOME/arduino_ide/hardware/esp32/esp32/libraries/
-  - mv $TRAVIS_BUILD_DIR/libraries/DHT_sensor_library_for_ESPx $HOME/arduino_ide/hardware/esp32/esp32/libraries/
-  - mkdir $HOME/arduino_ide/libraries/ESP3D
-  - mv $TRAVIS_BUILD_DIR/src $HOME/arduino_ide/libraries/ESP3D
-  - mv $TRAVIS_BUILD_DIR/library.properties $HOME/arduino_ide/libraries/ESP3D
-  
+  - mv $TRAVIS_BUILD_DIR/libraries/DHT_sensor_library_for_ESPx $HOME/arduino_ide/hardware/esp32/esp32/libraries/  
 
 script:
   - cd $TRAVIS_BUILD_DIR
@@ -53,21 +45,21 @@ script:
   - export PATH="$HOME/arduino_ide:$PATH"
   - arduino --board esp8266com:esp8266:generic --save-prefs
   - arduino --get-pref sketchbook.path
-  - build_sketch  $TRAVIS_BUILD_DIR/examples/basicesp3d/basicesp3d.ino
+  - build_sketch  $TRAVIS_BUILD_DIR/esp3d/esp3d.ino
   - arduino --board esp32:esp32:esp32 --save-prefs
-  - build_sketch  $TRAVIS_BUILD_DIR/examples/basicesp3d/basicesp3d.ino
+  - build_sketch  $TRAVIS_BUILD_DIR/esp3d/esp3d.ino
   - sed -i "s/\/\/#define AUTHENTICATION_FEATURE /#define AUTHENTICATION_FEATURE/g" $HOME/arduino_ide/libraries/ESP3D/src/config.h
   - arduino --board esp8266com:esp8266:generic --save-prefs
   - arduino --get-pref sketchbook.path
-  - build_sketch  $TRAVIS_BUILD_DIR/examples/basicesp3d/basicesp3d.ino
+  - build_sketch  $TRAVIS_BUILD_DIR/esp3d/esp3d.ino
   - arduino --board esp32:esp32:esp32 --save-prefs
-  - build_sketch  $TRAVIS_BUILD_DIR/examples/basicesp3d/basicesp3d.ino
+  - build_sketch  $TRAVIS_BUILD_DIR/esp3d/esp3d.ino
   - sed -i "s/\/\/#define ASYNCWEBSERVER /#define ASYNCWEBSERVER/g" $HOME/arduino_ide/libraries/ESP3D/src/config.h
   - arduino --board esp8266com:esp8266:generic --save-prefs
   - arduino --get-pref sketchbook.path
-  - build_sketch  $TRAVIS_BUILD_DIR/examples/basicesp3d/basicesp3d.ino
+  - build_sketch  $TRAVIS_BUILD_DIR/esp3d/esp3d.ino
   - arduino --board esp32:esp32:esp32 --save-prefs
-  - build_sketch  $TRAVIS_BUILD_DIR/examples/basicesp3d/basicesp3d.ino
+  - build_sketch  $TRAVIS_BUILD_DIR/esp3d/esp3d.ino
   
 notifications:
   email:

@@ -1,4 +1,4 @@
-# ESP3D 2.0 [![Code Climate](https://codeclimate.com/github/luc-github/ESP3D/badges/gpa.svg)](https://codeclimate.com/github/luc-github/ESP3D)
+# ESP3D 2.1 [![Code Climate](https://codeclimate.com/github/luc-github/ESP3D/badges/gpa.svg)](https://codeclimate.com/github/luc-github/ESP3D)
 
 Firmware for ESP8266/ESP8285  and ESP32 used with 3D printer using [ESP8266 core version](https://github.com/esp8266/Arduino)  and [ESP32 core version](https://github.com/espressif/arduino-esp32)   
 
@@ -15,9 +15,9 @@ The web interface files are present in data directory but UI has it's own reposi
 Arduino ide 1.6.5 with stable [2.0.0](http://arduino.esp8266.com/versions/2.0.0/package_esp8266com_index.json) from ESP8266, please use https://github.com/luc-github/ESP3D/releases/tag/v0.5.1    
 Arduino ide 1.6.8 with stable [2.2.0](http://arduino.esp8266.com/versions/2.2.0/package_esp8266com_index.json) from ESP8266, please use https://github.com/luc-github/ESP3D/releases/tag/v0.6.2    
 Arduino ide 1.8.5 with stable [2.4.0](http://arduino.esp8266.com/versions/2.4.0/package_esp8266com_index.json) from ESP8266, please use https://github.com/luc-github/ESP3D/releases/tag/1.0 [![Build Status](https://travis-ci.org/luc-github/ESP3D.svg?branch=master)](https://travis-ci.org/luc-github/ESP3D)    
- 
-<u>[Development version for 2.0](https://github.com/luc-github/ESP3D/tree/2.0) & [ESP-WEBUI (2.0 branch)](https://github.com/luc-github/ESP3D-WEBUI/tree/2.0):</u>    
-Arduino ide 1.8.5 with git version from ESP8266 or ESP32 for 100% support of ESP32 : [![Build Status](https://travis-ci.org/luc-github/ESP3D.svg?branch=2.0)](https://travis-ci.org/luc-github/ESP3D)   
+Arduino ide 1.8.5 with latest GIT from ESP8266 and ESP32, please use https://github.com/luc-github/ESP3D/releases/tag/2.0 [![Build Status](https://travis-ci.org/luc-github/ESP3D.svg?branch=2.0)](https://travis-ci.org/luc-github/ESP3D)    
+<u>[Development version for 2.1](https://github.com/luc-github/ESP3D/tree/2.1) & [ESP-WEBUI (2.1 branch)](https://github.com/luc-github/ESP3D-WEBUI/tree/2.1):</u>    
+Arduino ide 1.8.5 with git version from ESP8266 or ESP32 for 100% support of ESP32 : [![Build Status](https://travis-ci.org/luc-github/ESP3D.svg?branch=2.1)](https://travis-ci.org/luc-github/ESP3D)   
 
 [All releases](https://github.com/luc-github/ESP3D/wiki)
 
@@ -85,9 +85,10 @@ Password: user
 Check wiki : https://github.com/luc-github/ESP3D/wiki/Direct-ESP3D-commands
 
 ## Installation
+Feedback on 2.0 was : ESP3D being a library is not really useful and make setup more complex, so now we are back to simple application.   
+
 1. Please follow installation of the ESP core you want to use : [ESP8266 core version](https://github.com/esp8266/Arduino)  or [ESP32 core version](https://github.com/espressif/arduino-esp32)   
-2.  Add libraries 
-* ESP3D because it is now a library so copy project to your arduino library folder.   
+2.  Add libraries  
 If you want async webserver (currently not recommended for ESP8266, suggested for ESP32):   
 * ESPAsyncWebServer from @me-no-dev   
 if you target ESP8266  
@@ -143,9 +144,3 @@ If you use ESP3D on your product, drop me a message so I can link your product p
 
 
 
-## TODO/On going  :   
--- Version 2.X 
--- Close open topics    
--- Do testing (a lot)    
--- UI Improvement    
--- ESP3D V2

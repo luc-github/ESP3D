@@ -1,5 +1,5 @@
 /*
-  basic esp3d sample
+	ESP3D
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
