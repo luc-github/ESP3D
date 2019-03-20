@@ -41,6 +41,8 @@ private:
     bool _started;
     uint8_t _screenID;
     bool _splash_displayed;
+    uint _screenwidth;
+    uint _screenheight;
 };
 
 extern Display esp3d_display;

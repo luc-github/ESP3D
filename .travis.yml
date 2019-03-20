@@ -40,6 +40,9 @@ before_script:
   - sed -i "s/esp32.build.partitions=default/esp32.build.partitions=min_spiffs/g" ./boards.txt
   - mv $TRAVIS_BUILD_DIR/libraries/ESP32SSDP $HOME/arduino_ide/libraries/
   - mv $TRAVIS_BUILD_DIR/libraries/arduinoWebSockets $HOME/arduino_ide/libraries/
+  - mv $TRAVIS_BUILD_DIR/libraries/DHT_sensor_library_for_ESPx $HOME/arduino_ide/libraries/
+  - mv $TRAVIS_BUILD_DIR/libraries/oled-ssd1306 $HOME/arduino_ide/libraries/
+  - mv $TRAVIS_BUILD_DIR/libraries/TFT_eSPI $HOME/arduino_ide/libraries/
 
 script:
   - cd $TRAVIS_BUILD_DIR
@@ -50,7 +53,7 @@ script:
   - build_sketch  esp3d/esp3d.ino
   - arduino --board esp32:esp32:esp32 --save-prefs
   - echo "custom_PartitionScheme=esp32_min_spiffs" >> $HOME/.arduino15/preferences.txt
-  - sed -i "s/\/\/#define BLUETOOTH_FEATURE/#define BLUETOOTH_FEATURE/g" $TRAVIS_BUILD_DIR/esp3d/src/configuration.h
+  - sed -i "s/\/\/#define BLUETOOTH_FEATURE/#define BLUETOOTH_FEATURE/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
   - build_sketch  esp3d/esp3d.ino
   
   

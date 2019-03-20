@@ -18,7 +18,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 //Inspired by following sources
-//* Line : 
+//* Line :
 // - https://github.com/TridentTD/TridentTD_LineNotify
 // - https://notify-bot.line.me/doc/en/
 //* Pushover:
@@ -130,6 +130,9 @@ const char * NotificationsService::getTypeString()
 
 bool NotificationsService::sendMSG(const char * title, const char * message)
 {
+    if(!_started) {
+        return false;
+    }
     if (!((strlen(title) == 0) && (strlen(message) == 0))) {
         switch(_notificationType) {
         case ESP_PUSHOVER_NOTIFICATION:

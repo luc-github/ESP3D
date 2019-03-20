@@ -26,6 +26,7 @@
 
 #if DISPLAY_DEVICE == OLED_I2C_SSD1306 || DISPLAY_DEVICE == OLED_I2C_SSDSH1106
 #include "Wire.h"
+#include "esp3d_logo.h"
 #if DISPLAY_DEVICE == OLED_I2C_SSD1306
 #include <SSD1306.h>
 SSD1306  esp_display(DISPLAY_I2C_ADDR, DISPLAY_I2C_PIN_SDA, DISPLAY_I2C_PIN_SCL);
@@ -35,8 +36,13 @@ SSD1306  esp_display(DISPLAY_I2C_ADDR, DISPLAY_I2C_PIN_SDA, DISPLAY_I2C_PIN_SCL)
 SH1106  esp_display(DISPLAY_I2C_ADDR, (DISPLAY_I2C_PIN_SDA==-1)?SDA:DISPLAY_I2C_PIN_SDA, (DISPLAY_I2C_PIN_SCL==-1)?SCL:DISPLAY_I2C_PIN_SCL);
 #endif //DISPLAY_DEVICE == OLED_I2C_SSDSH1106
 #endif //DISPLAY_DEVICE == OLED_I2C_SSD1306 || DISPLAY_DEVICE == OLED_I2C_SSDSH1106
+#if DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240
+#include <TFT_eSPI.h>
+TFT_eSPI esp_display = TFT_eSPI();
+#include "esp3d_logob.h"
+#endif //TFT_SPI_ILI9341_240X320
 
-#include "esp3d_logo.h"
+
 
 #define DISPLAY_REFRESH_TIME 1000
 
@@ -46,8 +52,11 @@ bool Display::splash()
 {
     if (!_splash_displayed) {
 #if DISPLAY_DEVICE == OLED_I2C_SSD1306 || DISPLAY_DEVICE == OLED_I2C_SSDSH1106
-        esp_display.drawXbm(33, 10, ESP3D_Logo_width, ESP3D_Logo_height, FPSTR(ESP3D_Logo));
+        esp_display.drawXbm((_screenwidth-ESP3D_Logo_width)/2, (_screenheight-ESP3D_Logo_height)/2, ESP3D_Logo_width, ESP3D_Logo_height, ESP3D_Logo);
 #endif //DISPLAY_DEVICE == OLED_I2C_SSD1306 || DISPLAY_DEVICE == OLED_I2C_SSDSH1106
+#if DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240
+        esp_display.drawXBitmap((_screenwidth-ESP3D_Logo_width)/2, (_screenheight-ESP3D_Logo_height)/2, ESP3D_Logo, ESP3D_Logo_width, ESP3D_Logo_height, TFT_WHITE);
+#endif //TFT_SPI_ILI9341_240X320
         log_esp3d("Splash");
         _splash_displayed = true;
         return true;
@@ -65,6 +74,18 @@ Display::Display()
     _started = false;
     _screenID = SPLASH_SCREEN;
     _splash_displayed=false;
+#if DISPLAY_DEVICE == OLED_I2C_SSD1306
+    _screenwidth = 128;
+    _screenheight = 64;
+#endif //OLED_I2C_SSD1306
+#if DISPLAY_DEVICE == OLED_I2C_SSDSH1106
+    _screenwidth = 132;
+    _screenheight = 64;
+#endif //OLED_I2C_SSDSH1106
+#if DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240
+    _screenwidth = 320;
+    _screenheight = 240;
+#endif //TFT_SPI_ILI9341_240X320
 }
 Display::~Display()
 {
@@ -89,6 +110,11 @@ bool Display::begin()
     esp_display.flipScreenVertically();
 #endif
 #endif //DISPLAY_DEVICE == OLED_I2C_SSD1306 || DISPLAY_DEVICE == OLED_I2C_SSDSH1106
+#if DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240
+    esp_display.begin();               // Initialise the display
+    esp_display.setRotation(3);
+    esp_display.fillScreen(TFT_BLACK); // Black screen fill
+#endif //TFT_SPI_ILI9341_320X240 
     show_screenID(SPLASH_SCREEN);
     update_screen();
     res = true;
@@ -114,6 +140,9 @@ void Display::clear_screen()
 #if DISPLAY_DEVICE == OLED_I2C_SSD1306 || DISPLAY_DEVICE == OLED_I2C_SSDSH1106
     esp_display.clear();
 #endif //#if DISPLAY_DEVICE == OLED_I2C_SSD1306 || DISPLAY_DEVICE == OLED_I2C_SSDSH1106
+#if DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240
+    esp_display.fillScreen(TFT_BLACK); // Black screen fill
+#endif //TFT_SPI_ILI9341_240X320
 }
 
 void Display::update_screen()

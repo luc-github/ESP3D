@@ -22,7 +22,7 @@
 #define _ESP3D_CONFIG_H
 #include <Arduino.h>
 #include "../include/defines.h"
-#include "../configuration.h"
+#include "../../configuration.h"
 #include "../include/sanity_esp3d.h"
 #include "../core/hal.h"
 #include "../core/debug_esp3d.h"
