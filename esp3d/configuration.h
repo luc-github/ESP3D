@@ -49,14 +49,15 @@
 //OLED_I2C_SSD1306    		1
 //OLED_I2C_SSDSH1106  		2
 //TFT_SPI_ILI9341_320X240 	3
-//#define DISPLAY_DEVICE TFT_SPI_ILI9341_320X240
+#define DISPLAY_DEVICE OLED_I2C_SSD1306
 
 #if defined (DISPLAY_DEVICE)
+//for ILI9143 edit User_Setup.h of TFT_eSPI library
 #define DISPLAY_I2C_PIN_SDA         4
-#define DISPLAY_I2C_PIN_SCL         15
-#define DISPLAY_I2C_PIN_RST         16 //comment if not applicable
+#define DISPLAY_I2C_PIN_SCL         5
+//#define DISPLAY_I2C_PIN_RST         16 //comment if not applicable
 #define DISPLAY_I2C_ADDR	        0x3c
-//#define DISPLAY_FLIP_VERTICALY      1 //comment to disable
+#define DISPLAY_FLIP_VERTICALY      1 //comment to disable
 #endif //DISPLAY_DEVICE
 //DHT_DEVICE: send update of temperature / humidity based on DHT 11/22
 //#define DHT_DEVICE
@@ -68,9 +69,9 @@
 #endif //DHT_DEVICE
 
 //PIN_RESET_FEATURE : allow to reset settings by setting low a pin
-#define PIN_RESET_FEATURE
+//#define PIN_RESET_FEATURE
 #if defined (PIN_RESET_FEATURE)
-#define ESP3D_RESET_PIN 4
+#define ESP3D_RESET_PIN 2
 #endif //PIN_RESET_FEATURE
 //SDCARD_FEATURE: to access SD Card files directly instead of access by serial using printer Board FW
 //#define SDCARD_FEATURE

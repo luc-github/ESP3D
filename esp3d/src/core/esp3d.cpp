@@ -44,6 +44,7 @@
 #include "esp3doutput.h"
 #include "../modules/boot_delay/boot_delay.h"
 
+
 bool Esp3D::restart = false;
 
 //Contructor
@@ -64,6 +65,8 @@ bool Esp3D::begin()
     BootDelay bd;
     Hal::begin();
     DEBUG_ESP3D_INIT
+    //init output
+    ESP3DOutput::isOutput(ESP_ALL_CLIENTS, true);
     bool res = true;
 #if defined(CONNECTED_DEVICES_FEATURE)
     if (!DevicesServices::begin()) {
@@ -72,7 +75,11 @@ bool Esp3D::begin()
     }
 #endif //CONNECTED_DEVICES_FEATURE
     //delayto avoid to disturb printer
-    bd.begin(/*&outserialfn*/);
+#ifdef DISPLAY_DEVICE
+    bd.begin(&display_progress);
+#else
+    bd.begin();
+#endif //DISPLAY_DEVICE 
     log_esp3d("Mode %d", WiFi.getMode());
 
     if (!Settings_ESP3D::begin()) {
@@ -81,8 +88,6 @@ bool Esp3D::begin()
         //Restart ESP3D
         restart_esp();
     }
-    //init output
-    ESP3DOutput::isOutput(ESP_ALL_CLIENTS, true);
     //BT do not start automaticaly so should be OK
     //Serial service
     if (!serial_service.begin()) {

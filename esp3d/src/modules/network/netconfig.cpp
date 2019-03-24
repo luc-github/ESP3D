@@ -19,7 +19,7 @@
 */
 
 #include "../../include/esp3d_config.h"
-#if defined (WIFI_FEATURE) || defined (ETH_FEATURE)
+#if defined (WIFI_FEATURE) || defined (ETH_FEATURE) || defined (BLUETOOTH_FEATURE)
 #ifdef ARDUINO_ARCH_ESP32
 #define WIFI_EVENT_STAMODE_CONNECTED SYSTEM_EVENT_STA_CONNECTED
 #define WIFI_EVENT_STAMODE_DISCONNECTED SYSTEM_EVENT_STA_DISCONNECTED
@@ -46,7 +46,7 @@ String NetConfig::_hostname = "";
 bool NetConfig::_needReconnect2AP = false;
 bool NetConfig::_events_registered = false;
 bool NetConfig::_started = false;
-
+uint8_t NetConfig::_mode = ESP_RADIO_OFF;
 NetConfig::NetConfig()
 {
 }
@@ -127,40 +127,42 @@ bool NetConfig::isValidIP(const char * string)
 //wifi event
 void NetConfig::onWiFiEvent(WiFiEvent_t event)
 {
-    ESP3DOutput output(ESP_PRINTER_LCD_CLIENT);
+    ESP3DOutput output(ESP_ALL_CLIENTS);
     switch (event) {
     case WIFI_EVENT_STAMODE_CONNECTED:
         _needReconnect2AP = false;
-#ifdef ESP_OLED_FEATURE
-        OLED_DISPLAY::display_signal(wifi_config.getSignal (WiFi.RSSI ()));
-        OLED_DISPLAY::setCursor(0, 0);
-        ESPCOM::print("", OLED_PIPE);
-#endif //ESP_OLED_FEATURE
         break;
     case WIFI_EVENT_STAMODE_DISCONNECTED:
-#ifdef ESP_OLED_FEATURE
-        OLED_DISPLAY::display_signal(-1);
-        OLED_DISPLAY::setCursor(0, 16);
-        ESPCOM::print("", OLED_PIPE);
-        OLED_DISPLAY::setCursor(0, 48);
-#endif //ESP_OLED_FEATURE
+    {
         if(_started) {
             output.printMSG ("Disconnected");
+#if defined (DISPLAY_DEVICE)
+		ESP3DOutput outputscr(ESP_SCREEN_CLIENT);
+#endif //DISPLAY_DEVICE
             _needReconnect2AP = true;
         }
+	}
         break;
     case WIFI_EVENT_STAMODE_GOT_IP:
+    {
         output.printMSG ("Connected");
+#if defined (DISPLAY_DEVICE)
+		{
+		ESP3DOutput outputscr(ESP_SCREEN_CLIENT);
+		outputscr.printMSG("Connected");
+		}
+#endif //DISPLAY_DEVICE
         output.printMSG (WiFi.localIP().toString().c_str());
-#ifdef ESP_OLED_FEATURE
-        OLED_DISPLAY::setCursor(0, 16);
-        ESPCOM::print(WiFi.localIP().toString().c_str(), OLED_PIPE);
-        OLED_DISPLAY::setCursor(0, 48);
-        ESPCOM::print("", OLED_PIPE);
-#endif //ESP_OLED_FEATURE
+	}
         break;
     case WIFI_EVENT_SOFTAPMODE_STACONNECTED:
+    {
         output.printMSG ("New client");
+#if defined (DISPLAY_DEVICE)
+		ESP3DOutput outputscr(ESP_SCREEN_CLIENT);
+		outputscr.printMSG("New client");
+#endif //DISPLAY_DEVICE
+	}
         break;
 #ifdef ARDUINO_ARCH_ESP32
     case SYSTEM_EVENT_STA_LOST_IP:
@@ -170,10 +172,22 @@ void NetConfig::onWiFiEvent(WiFiEvent_t event)
         break;
 #ifdef ETH_FEATURE
     case SYSTEM_EVENT_ETH_CONNECTED:
+    {
         output.printMSG ("Cable connected");
+#if defined (DISPLAY_DEVICE)
+		ESP3DOutput outputscr(ESP_SCREEN_CLIENT);
+		outputscr.printMSG("Cable connected");
+#endif //DISPLAY_DEVICE
+	}
         break;
     case SYSTEM_EVENT_ETH_DISCONNECTED:
+    {
         output.printMSG ("Cable disconnected");
+#if defined (DISPLAY_DEVICE)
+		ESP3DOutput outputscr(ESP_SCREEN_CLIENT);
+		outputscr.printMSG("Cable disconnected");
+#endif //DISPLAY_DEVICE
+	}
         break;
     case SYSTEM_EVENT_ETH_GOT_IP:
         output.printMSG (ETH.localIP().toString().c_str());
@@ -183,7 +197,11 @@ void NetConfig::onWiFiEvent(WiFiEvent_t event)
     default:
         break;
     }
+}
 
+uint8_t NetConfig::getMode()
+{
+	return _mode;
 }
 
 /**
@@ -211,6 +229,7 @@ bool NetConfig::begin()
     //Get hostname
     _hostname = Settings_ESP3D::read_string(ESP_HOSTNAME);
     int8_t espMode =Settings_ESP3D::read_byte(ESP_RADIO_MODE);
+    _mode = espMode;
     if (espMode == NO_NETWORK) {
         return true;
     }
@@ -270,7 +289,7 @@ bool NetConfig::begin()
 void NetConfig::end()
 {
     NetServices::end();
-
+	_mode = ESP_RADIO_OFF;
 #if defined (WIFI_FEATURE)
     WiFiConfig::end();
     _needReconnect2AP=false;

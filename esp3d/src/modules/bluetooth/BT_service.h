@@ -77,6 +77,6 @@ private :
     void flushbuffer();
 };
 
-extern BTService bt_service;
+extern BTService  bt_service;
 
 #endif //_BT_SERVICE_H

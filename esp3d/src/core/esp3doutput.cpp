@@ -40,8 +40,9 @@ uint8_t ESP3DOutput::_outputflags = ESP_ALL_CLIENTS;
 #include <ESP8266WebServer.h>
 #endif //ARDUINO_ARCH_ESP8266
 #endif //HTTP_FEATURE
-
-
+#if defined (DISPLAY_DEVICE)
+#include "../modules/display/display.h"
+#endif //DISPLAY_DEVICE
 
 //constructor
 ESP3DOutput::ESP3DOutput(uint8_t client)
@@ -204,6 +205,9 @@ size_t ESP3DOutput::printMSG(const char * s)
         display+= s;
         return printLN(display.c_str());
     }
+    if (_client == ESP_SCREEN_CLIENT){
+		return print(s);
+	}
     switch(Settings_ESP3D::GetFirmwareTarget()) {
     case GRBL:
         display = "[MSG:";
@@ -230,6 +234,9 @@ size_t ESP3DOutput::printERROR(const char * s, int code_error)
     if (!isOutput(_client)) {
         return 0;
     }
+    if (_client == ESP_SCREEN_CLIENT){
+		return print(s);
+	}
 #ifdef HTTP_FEATURE
     _code = code_error;
     if (_client == ESP_HTTP_CLIENT) {
@@ -350,6 +357,11 @@ size_t ESP3DOutput::write(const uint8_t *buffer, size_t size)
         }
         break;
 #endif //HTTP_FEATURE
+#if defined (DISPLAY_DEVICE)
+    case ESP_SCREEN_CLIENT:
+			esp3d_display.SetStatus((const char *)buffer);
+            return size;
+#endif //DISPLAY_DEVICE
 #if defined (BLUETOOTH_FEATURE)
     case ESP_BT_CLIENT:
         if(bt_service.started()) {

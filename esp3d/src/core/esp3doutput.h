@@ -25,7 +25,7 @@
 #define ESP_WEBSOCKET_TERMINAL_CLIENT   8
 #define ESP_PRINTER_LCD_CLIENT          16
 #define ESP_BT_CLIENT                   32
-#define ESP_OLED_CLIENT                 64
+#define ESP_SCREEN_CLIENT               64
 #define ESP_WEBSOCKET_CLIENT            128
 #define ESP_ALL_CLIENTS                 255
 

@@ -34,18 +34,33 @@ public:
     void end();
     void handle();
     void show_screenID(uint8_t screenID);
-    void update_screen();
+    void update_screen(bool force=false);
     void clear_screen();
+    void progress(uint8_t v);
+    void SetStatus(const char * status);
 private:
+	bool main_screen();
     bool splash();
+    void showStatus();
     bool _started;
     uint8_t _screenID;
     bool _splash_displayed;
     uint _screenwidth;
     uint _screenheight;
+    uint16_t sizetoFitSpace(const char * string, uint16_t maxwidth);
+    void drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t color);
+    void drawRect(int16_t x, int16_t y, int16_t width, int16_t height, int16_t color);
+    void fillRect(int16_t x, int16_t y, int16_t width, int16_t height, int16_t color);
+    void setTextFont(uint8_t font);
+    void drawString(const char *string, int32_t poX, int32_t poY, int16_t color);
+    void drawXbm(int16_t x, int16_t y, int16_t width, int16_t height, int16_t color, const unsigned char *xbm);
+    void drawXbm(int16_t x, int16_t y, int16_t width, int16_t height, uint16_t fgcolor, uint16_t bgcolor, const unsigned char *xbm);
+    uint16_t getStringWidth(const char* text);
+    String _status;
 };
 
 extern Display esp3d_display;
+extern void display_progress(uint8_t v);
 
 #endif //_DISPLAY_H
 
