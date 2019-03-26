@@ -201,7 +201,7 @@ OLED_DISPLAY::splash();
     if (!wifi_config.Enable_servers() ) {
         ESPCOM::println (F ("Error enabling servers"), PRINTER_PIPE);
     }
-#ifdef ARDUINO_ARCH_ESP8266
+/*#ifdef ARDUINO_ARCH_ESP8266
     if	(rtc_info->reason	==	REASON_WDT_RST	||
 
             rtc_info->reason	==	REASON_EXCEPTION_RST	||
@@ -227,7 +227,7 @@ OLED_DISPLAY::splash();
 		s+=String(reason_1);
 		
 	}
-#endif
+#endif*/
 
 #ifdef ASYNCWEBSERVER
     if (WiFi.getMode() != WIFI_AP) {
