@@ -51,7 +51,7 @@ const byte DNS_PORT = 53;
 #ifdef ARDUINO_ARCH_ESP8266
 #include <ESP8266NetBIOS.h>
 #else
-#include <NetBIOS.h>
+#include <ESP32NetBIOS.h>
 #endif
 #endif
 #ifdef ARDUINO_ARCH_ESP8266
