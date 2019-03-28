@@ -132,38 +132,35 @@ void NetConfig::onWiFiEvent(WiFiEvent_t event)
     case WIFI_EVENT_STAMODE_CONNECTED:
         _needReconnect2AP = false;
         break;
-    case WIFI_EVENT_STAMODE_DISCONNECTED:
-    {
+    case WIFI_EVENT_STAMODE_DISCONNECTED: {
         if(_started) {
             output.printMSG ("Disconnected");
 #if defined (DISPLAY_DEVICE)
-		ESP3DOutput outputscr(ESP_SCREEN_CLIENT);
+            ESP3DOutput outputscr(ESP_SCREEN_CLIENT);
 #endif //DISPLAY_DEVICE
             _needReconnect2AP = true;
         }
-	}
-        break;
-    case WIFI_EVENT_STAMODE_GOT_IP:
-    {
+    }
+    break;
+    case WIFI_EVENT_STAMODE_GOT_IP: {
         output.printMSG ("Connected");
 #if defined (DISPLAY_DEVICE)
-		{
-		ESP3DOutput outputscr(ESP_SCREEN_CLIENT);
-		outputscr.printMSG("Connected");
-		}
+        {
+            ESP3DOutput outputscr(ESP_SCREEN_CLIENT);
+            outputscr.printMSG("Connected");
+        }
 #endif //DISPLAY_DEVICE
         output.printMSG (WiFi.localIP().toString().c_str());
-	}
-        break;
-    case WIFI_EVENT_SOFTAPMODE_STACONNECTED:
-    {
+    }
+    break;
+    case WIFI_EVENT_SOFTAPMODE_STACONNECTED: {
         output.printMSG ("New client");
 #if defined (DISPLAY_DEVICE)
-		ESP3DOutput outputscr(ESP_SCREEN_CLIENT);
-		outputscr.printMSG("New client");
+        ESP3DOutput outputscr(ESP_SCREEN_CLIENT);
+        outputscr.printMSG("New client");
 #endif //DISPLAY_DEVICE
-	}
-        break;
+    }
+    break;
 #ifdef ARDUINO_ARCH_ESP32
     case SYSTEM_EVENT_STA_LOST_IP:
         if(_started) {
@@ -171,24 +168,22 @@ void NetConfig::onWiFiEvent(WiFiEvent_t event)
         }
         break;
 #ifdef ETH_FEATURE
-    case SYSTEM_EVENT_ETH_CONNECTED:
-    {
+    case SYSTEM_EVENT_ETH_CONNECTED: {
         output.printMSG ("Cable connected");
 #if defined (DISPLAY_DEVICE)
-		ESP3DOutput outputscr(ESP_SCREEN_CLIENT);
-		outputscr.printMSG("Cable connected");
+        ESP3DOutput outputscr(ESP_SCREEN_CLIENT);
+        outputscr.printMSG("Cable connected");
 #endif //DISPLAY_DEVICE
-	}
-        break;
-    case SYSTEM_EVENT_ETH_DISCONNECTED:
-    {
+    }
+    break;
+    case SYSTEM_EVENT_ETH_DISCONNECTED: {
         output.printMSG ("Cable disconnected");
 #if defined (DISPLAY_DEVICE)
-		ESP3DOutput outputscr(ESP_SCREEN_CLIENT);
-		outputscr.printMSG("Cable disconnected");
+        ESP3DOutput outputscr(ESP_SCREEN_CLIENT);
+        outputscr.printMSG("Cable disconnected");
 #endif //DISPLAY_DEVICE
-	}
-        break;
+    }
+    break;
     case SYSTEM_EVENT_ETH_GOT_IP:
         output.printMSG (ETH.localIP().toString().c_str());
         break;
@@ -201,7 +196,7 @@ void NetConfig::onWiFiEvent(WiFiEvent_t event)
 
 uint8_t NetConfig::getMode()
 {
-	return _mode;
+    return _mode;
 }
 
 /**
@@ -274,6 +269,7 @@ bool NetConfig::begin()
     }
 #endif //WIFI_FEATURE
 #endif //ARDUINO_ARCH_ESP32
+    DEBUG_ESP3D_NETWORK_INIT
     if (res) {
         _started = true;
     } else {
@@ -289,7 +285,8 @@ bool NetConfig::begin()
 void NetConfig::end()
 {
     NetServices::end();
-	_mode = ESP_RADIO_OFF;
+    DEBUG_ESP3D_NETWORK_END
+    _mode = ESP_RADIO_OFF;
 #if defined (WIFI_FEATURE)
     WiFiConfig::end();
     _needReconnect2AP=false;
@@ -357,6 +354,8 @@ void NetConfig::handle()
         bt_service.handle();
 #endif //BLUETOOTH_FEATURE
         NetServices::handle();
+        //Debug
+        DEBUG_ESP3D_NETWORK_HANDLE
     }
 }
 

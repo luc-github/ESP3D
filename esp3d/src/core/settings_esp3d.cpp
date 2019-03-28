@@ -100,6 +100,7 @@
 #define DEFAULT_IS_DIRECT_SD    0
 #define DEFAULT_HTTP_ON         1
 #define DEFAULT_TELNET_ON       1
+#define DEFAULT_WEBSOCKET_ON    1
 #define DEFAULT_NOTIFICATION_TYPE 0
 #define DEFAULT_NOTIFICATION_TOKEN1 ""
 #define DEFAULT_NOTIFICATION_TOKEN2 ""
@@ -110,6 +111,7 @@
 #define DEFAULT_ESP_INT         0L
 #define DEFAULT_BAUD_RATE       115200L
 #define DEFAULT_HTTP_PORT       80L
+#define DEFAULT_WEBSOCKET_PORT  8282L
 #define DEFAULT_TELNET_PORT     23L
 #define DEFAULT_DHT_INTERVAL    30000L
 #define DEFAULT_BOOT_DELAY	    10000L
@@ -256,6 +258,11 @@ uint8_t Settings_ESP3D::get_default_byte_value(int pos)
         res = DEFAULT_TELNET_ON;
         break;
 #endif //TELNET_FEATURE
+#ifdef WS_DATA_FEATURE
+    case ESP_WEBSOCKET_ON:
+        res = DEFAULT_WEBSOCKET_ON;
+        break;
+#endif //WS_DATA_FEATURE
 #ifdef SDCARD_FEATURE
     case ESP_SD_SPEED_DIV:
         res = DEFAULT_SDREADER_SPEED;
@@ -332,6 +339,11 @@ uint32_t Settings_ESP3D::get_default_int32_value(int pos)
         res = DEFAULT_TELNET_PORT;
         break;
 #endif //TELNET_FEATURE
+#ifdef WS_DATA_FEATURE
+    case ESP_WEBSOCKET_PORT:
+        res = DEFAULT_WEBSOCKET_PORT;
+        break;
+#endif //WS_DATA_FEATURE
 #if defined(DHT_DEVICE)
     case ESP_DHT_INTERVAL:
         res = DEFAULT_DHT_INTERVAL;
@@ -361,6 +373,11 @@ uint32_t Settings_ESP3D::get_max_int32_value(int pos)
         res = MAX_TELNET_PORT;
         break;
 #endif //TELNET_FEATURE
+#ifdef WS_DATA_FEATURE
+    case ESP_WEBSOCKET_PORT:
+        res = MAX_WEBSOCKET_PORT;
+        break;
+#endif //WS_DATA_FEATURE
 #if defined(DHT_DEVICE)
     case ESP_DHT_INTERVAL:
         res = MAX_DHT_INTERVAL;
@@ -390,6 +407,11 @@ uint32_t Settings_ESP3D::get_min_int32_value(int pos)
         res = MIN_TELNET_PORT;
         break;
 #endif //TELNET_FEATURE
+#ifdef WS_DATA_FEATURE
+    case ESP_WEBSOCKET_PORT:
+        res = MIN_WEBSOCKET_PORT;
+        break;
+#endif //WS_DATA_FEATURE
 #if defined(DHT_DEVICE)
     case ESP_DHT_INTERVAL:
         res = MIN_DHT_INTERVAL;
@@ -989,6 +1011,13 @@ bool Settings_ESP3D::reset()
     //TELNET Port
     Settings_ESP3D::write_uint32 (ESP_TELNET_PORT, Settings_ESP3D::get_default_int32_value(ESP_TELNET_PORT));
 #endif //TELNET
+
+#ifdef WS_DATA_FEATURE
+    //Websocket On
+    Settings_ESP3D::write_byte(ESP_WEBSOCKET_ON,Settings_ESP3D::get_default_byte_value(ESP_WEBSOCKET_ON));
+    //Websocket Port
+    Settings_ESP3D::write_uint32 (ESP_WEBSOCKET_PORT, Settings_ESP3D::get_default_int32_value(ESP_WEBSOCKET_PORT));
+#endif //WS_DATA_FEATURE
 #ifdef AUTHENTICATION_FEATURE
     //Admin password
     Settings_ESP3D::write_string(ESP_ADMIN_PWD,Settings_ESP3D::get_default_string_value(ESP_ADMIN_PWD).c_str());

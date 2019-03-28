@@ -24,7 +24,7 @@
 
 #include "Print.h"
 #define TXBUFFERSIZE 1200
-//#define RXBUFFERSIZE 128
+#define RXBUFFERSIZE 256
 #define FLUSHTIMEOUT 500
 class WebSocketsServer;
 class WebSocket_Server: public Print
@@ -55,15 +55,14 @@ public:
     {
         return write((uint8_t) n);
     }
-    bool begin(uint16_t port=0);
+    bool begin(uint16_t port=0, bool debug=false);
     uint16_t port()
     {
         return _port;
     }
     void end();
-    //int available();
-    //int peek(void);
-    //int read(void);
+    int available();
+    uint availableForWrite();
     void pushMSG (const char * data);
     void pushMSG (uint num, const char * data);
     void flush(void);
@@ -71,18 +70,31 @@ public:
     operator bool() const;
     void set_currentID(uint8_t current_id);
     uint8_t get_currentID();
+    void closeClients();
+    bool started()
+    {
+        return _started;
+    }
+    void push2RXbuffer(uint8_t * sbuf, size_t len);
 private:
     bool _started;
     uint16_t _port;
-    uint32_t _lastflush;
+    bool _isdebug;
+    uint32_t _lastTXflush;
+    uint32_t _lastRXflush;
     WebSocketsServer * _websocket_server;
     uint8_t _TXbuffer[TXBUFFERSIZE];
     uint16_t _TXbufferSize;
     uint8_t _current_id;
-    //uint8_t _RXbuffer[RXBUFFERSIZE];
-    //uint16_t _RXbufferSize;
-    //uint16_t _RXbufferpos;
+    void flushTXbuffer();
+    void flushRXbuffer();
+    uint8_t  *_RXbuffer;
+    uint16_t _RXbufferSize;
 };
 
 extern WebSocket_Server websocket_terminal_server;
+
+#if defined(WS_DATA_FEATURE)
+extern  WebSocket_Server websocket_data_server;
+#endif //WS_DATA_FEATURE
 #endif //_WEBSOCKET_SERVER_H_

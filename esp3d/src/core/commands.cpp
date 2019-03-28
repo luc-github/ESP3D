@@ -311,6 +311,18 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
     case 150:
         response = ESP150(cmd_params, auth_type, output);
         break;
+#ifdef WS_DATA_FEATURE
+    //Set WebSocket state which can be ON, OFF
+    //[ESP160]<state>pwd=<admin password>
+    case 160:
+        response = ESP160(cmd_params, auth_type, output);
+        break;
+    //Set WebSocket port
+    //[ESP161]<port>pwd=<admin password>
+    case 161:
+        response = ESP161(cmd_params, auth_type, output);
+        break;
+#endif //WS_DATA_FEATURE
 #ifdef DIRECT_PIN_FEATURE
     //Get/Set pin value
     //[ESP201]P<pin> V<value> [PULLUP=YES RAW=YES]pwd=<admin password>

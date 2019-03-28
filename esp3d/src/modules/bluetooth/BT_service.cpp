@@ -69,8 +69,8 @@ static void my_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
 {
     ESP3DOutput output(ESP_ALL_CLIENTS);
     switch (event) {
-    case ESP_SPP_SRV_OPEN_EVT: 
-    { //Server connection open
+    case ESP_SPP_SRV_OPEN_EVT: {
+        //Server connection open
         char str[18];
         str[17]='\0';
         uint8_t * addr = param->srv_open.rem_bda;
@@ -80,22 +80,22 @@ static void my_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
         stmp += str;
         output.printMSG(stmp.c_str());
 #if defined (DISPLAY_DEVICE)
-		ESP3DOutput outputscr(ESP_SCREEN_CLIENT);
-		outputscr.printMSG(stmp.c_str());
+        ESP3DOutput outputscr(ESP_SCREEN_CLIENT);
+        outputscr.printMSG(stmp.c_str());
 #endif //DISPLAY_DEVICE
     }
     break;
 
-    case ESP_SPP_CLOSE_EVT:
-    {//Client connection closed
+    case ESP_SPP_CLOSE_EVT: {
+        //Client connection closed
         output.printMSG("BT Disconnected");
 #if defined (DISPLAY_DEVICE)
-		ESP3DOutput outputscr(ESP_SCREEN_CLIENT);
-		outputscr.printMSG("BT Disconnected");
+        ESP3DOutput outputscr(ESP_SCREEN_CLIENT);
+        outputscr.printMSG("BT Disconnected");
 #endif //DISPLAY_DEVICE
         BTService::setClientAddress("");
-	}
-        break;
+    }
+    break;
     default:
         break;
     }

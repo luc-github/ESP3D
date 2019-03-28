@@ -34,6 +34,7 @@ public:
     void handle();
 private:
     bool _started;
+    bool purge_serial();
 };
 
 #endif //_HOST_SERVICES_H

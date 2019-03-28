@@ -60,10 +60,10 @@
 #define ESP_AP_PASSWORD         251     //65 bytes 64 +1 = string ;warning does not support multibyte char like chinese
 #define ESP_AP_IP_VALUE         316     //4  bytes xxx.xxx.xxx.xxx
 #define ESP_BOOT_DELAY          320     //4  bytes xxx.xxx.xxx.xxx
-//#define EP_FREE_INT5          324     //4  bytes xxx.xxx.xxx.xxx
+#define ESP_WEBSOCKET_PORT      324     //4  bytes xxx.xxx.xxx.xxx
 #define ESP_HTTP_ON             328     //1 byte = flag
 #define ESP_TELNET_ON           329     //1 byte = flag
-//#define ESP_AP_PHY_MODE         330     //1 byte = flag
+#define ESP_WEBSOCKET_ON        330     //1 byte = flag
 #define ESP_SD_SPEED_DIV        331     //1 byte = flag
 #define ESP_NOTIFICATION_TOKEN1 332    //64 bytes 63+1 = string  ; warning does not support multibyte char like chinese
 #define ESP_NOTIFICATION_TOKEN2 396    //64 bytes 63+1 = string  ; warning does not support multibyte char like chinese

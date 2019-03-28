@@ -27,9 +27,13 @@
 #include "websocket_server.h"
 #include <WebSocketsServer.h>
 #include "../../core/settings_esp3d.h"
+#include "../../core/esp3doutput.h"
+#include "../../core/commands.h"
 
 WebSocket_Server websocket_terminal_server;
-
+#if defined(WS_DATA_FEATURE)
+WebSocket_Server websocket_data_server;
+#endif //WS_DATA_FEATURE
 void WebSocket_Server::pushMSG (const char * data)
 {
     _websocket_server->broadcastTXT(data);
@@ -37,16 +41,53 @@ void WebSocket_Server::pushMSG (const char * data)
 
 void WebSocket_Server::pushMSG (uint num, const char * data)
 {
-    _websocket_server->sendTXT(num, data);
+    if (_websocket_server) {
+        _websocket_server->sendTXT(num, data);
+    }
 }
 
+void WebSocket_Server::closeClients()
+{
+    if (_websocket_server) {
+        _websocket_server->disconnect();
+    }
+}
+#if defined(WS_DATA_FEATURE)
+//Events for Websocket bridge
+void handle_Websocket_Server_Event(uint8_t num, uint8_t type, uint8_t * payload, size_t length)
+{
+    (void)num;
+    switch(type) {
+    case WStype_DISCONNECTED:
+        log_esp3d("[%u] Disconnected! port %d", num,websocket_data_server.port());
+        break;
+    case WStype_CONNECTED: {
+        log_esp3d("[%u] Connected! port %d", num,websocket_data_server.port());
+    }
+    break;
+    case WStype_TEXT:
+        log_esp3d("[%u] get Text: %s port %d", num, payload,websocket_data_server.port());
+        websocket_data_server.push2RXbuffer(payload, length);
+        break;
+    case WStype_BIN:
+        log_esp3d("[%u] get binary length: %u port %d", num, length,websocket_data_server.port());
+        websocket_data_server.push2RXbuffer(payload, length);
+        break;
+    default:
+        break;
+    }
+
+}
+#endif //WS_DATA_FEATURE
+#if defined (HTTP_FEATURE)
+//Events for Websocket used in WebUI for events and serial bridge
 void handle_Websocket_Terminal_Event(uint8_t num, uint8_t type, uint8_t * payload, size_t length)
 {
     (void)payload;
     (void)length;
     switch(type) {
     case WStype_DISCONNECTED:
-        //Serial.printf("[%u] Disconnected!\n", num);
+        log_esp3d("[%u] Socket Disconnected port %d!", num,websocket_terminal_server.port());
         break;
     case WStype_CONNECTED: {
         String s = "currentID:" + String(num);
@@ -55,43 +96,48 @@ void handle_Websocket_Terminal_Event(uint8_t num, uint8_t type, uint8_t * payloa
         websocket_terminal_server.pushMSG(num, s.c_str());
         s = "activeID:" + String(num);
         websocket_terminal_server.pushMSG(s.c_str());
+        log_esp3d("[%u] Socket connected port %d", num,websocket_terminal_server.port());
     }
     break;
     case WStype_TEXT:
-        //USE_SERIAL.printf("[%u] get Text: %s\n", num, payload);
-
-        // send message to client
-        // webSocket.sendTXT(num, "message here");
-
-        // send data to all connected clients
-        // webSocket.broadcastTXT("message here");
+        //we do not expect any input
+        log_esp3d("[IGNORED][%u] get Text: %s  port %d", num, payload, num,websocket_terminal_server.port());
         break;
     case WStype_BIN:
-        //USE_SERIAL.printf("[%u] get binary length: %u\n", num, length);
-        //hexdump(payload, length);
-
-        // send message to client
-        // webSocket.sendBIN(num, payload, length);
+        //we do not expect any input
+        log_esp3d("[IGNORED][%u] get binary length: %u  port %d", num, length, num,websocket_terminal_server.port());
         break;
     default:
         break;
     }
 
 }
+#endif //HTTP_FEATURE 
 
+int WebSocket_Server::available()
+{
+    return _RXbufferSize;
+}
+uint WebSocket_Server::availableForWrite()
+{
+    return TXBUFFERSIZE -_TXbufferSize;
+}
 WebSocket_Server::WebSocket_Server()
 {
     _websocket_server = nullptr;
     _started = false;
     _port = 0;
     _current_id = 0;
+    _isdebug = false;
+    _RXbuffer = nullptr;
+    _RXbufferSize = 0;
 
 }
 WebSocket_Server::~WebSocket_Server()
 {
     end();
 }
-bool WebSocket_Server::begin(uint16_t port)
+bool WebSocket_Server::begin(uint16_t port, bool debug)
 {
     end();
     if(port == 0) {
@@ -99,6 +145,7 @@ bool WebSocket_Server::begin(uint16_t port)
     } else {
         _port  = port;
     }
+    _isdebug = debug;
     _websocket_server = new WebSocketsServer(_port);
     if (_websocket_server) {
         _websocket_server->begin();
@@ -107,6 +154,15 @@ bool WebSocket_Server::begin(uint16_t port)
             _websocket_server->onEvent(handle_Websocket_Terminal_Event);
         }
 #endif //HTTP_FEATURE
+#if defined (WS_DATA_FEATURE) //terminal websocket for HTTP
+        if((port != 0) && !_isdebug) {
+            _websocket_server->onEvent(handle_Websocket_Server_Event);
+            _RXbuffer= (uint8_t *)malloc(RXBUFFERSIZE +1);
+            if (!_RXbuffer) {
+                return false;
+            }
+        }
+#endif //WS_DATA_FEATURE
         _started = true;
     } else {
         end();
@@ -118,8 +174,12 @@ void WebSocket_Server::end()
 {
     _current_id = 0;
     _TXbufferSize = 0;
-    //_RXbufferSize = 0;
-    //_RXbufferpos = 0;
+    _isdebug = false;
+    if(_RXbuffer) {
+        free(_RXbuffer);
+        _RXbuffer = nullptr;
+    }
+    _RXbufferSize = 0;
     if (_websocket_server) {
         _websocket_server->close();
         delete _websocket_server;
@@ -144,11 +204,6 @@ uint8_t WebSocket_Server::get_currentID()
     return _current_id;
 }
 
-/*int WebSocket_Server::available(){
-    return _RXbufferSize;
-}*/
-
-
 size_t WebSocket_Server::write(uint8_t c)
 {
     return write(&c,1);;
@@ -156,84 +211,128 @@ size_t WebSocket_Server::write(uint8_t c)
 
 size_t WebSocket_Server::write(const uint8_t *buffer, size_t size)
 {
-    if((buffer == NULL) ||(!_websocket_server) || (size == 0)) {
-        log_esp3d("%s %d",_websocket_server?"[SOCKET]No socket":"[SOCKET]No buffer", size);
-        return 0;
+    if (_started) {
+        if((buffer == nullptr) ||(!_websocket_server) || (size == 0)) {
+            return 0;
+        }
+        if (_TXbufferSize==0) {
+            _lastTXflush = millis();
+        }
+        //send full line
+        if (_TXbufferSize + size > TXBUFFERSIZE) {
+            flushTXbuffer();
+        }
+        if(_websocket_server->connectedClients() == 0) {
+            return 0;
+        }
+        //need periodic check to force to flush in case of no end
+        for (uint i = 0; i < size; i++) {
+            _TXbuffer[_TXbufferSize] = buffer[i];
+            _TXbufferSize++;
+        }
+        //if(!_isdebug) {
+        //	log_esp3d("[SOCKET]buffer size %d",_TXbufferSize);
+        //}
+        return size;
     }
-    if (_TXbufferSize==0) {
-        _lastflush = millis();
-    }
-    //send full line
-    if (_TXbufferSize + size > TXBUFFERSIZE) {
-        flush();
-    }
-    //need periodic check to force to flush in case of no end
-    for (uint i = 0; i < size; i++) {
-        _TXbuffer[_TXbufferSize] = buffer[i];
-        _TXbufferSize++;
-    }
-    log_esp3d("[SOCKET]buffer size %d",_TXbufferSize);
-    return size;
+    return 0;
 }
 
-/*int WebSocket_Server::peek(void){
-    if (_RXbufferSize > 0)return _RXbuffer[_RXbufferpos];
-    else return -1;
-}*/
-
-/*bool WebSocket_Server::push (const char * data){
-    int data_size = strlen(data);
-    if ((data_size + _RXbufferSize) <= RXBUFFERSIZE){
-        int current = _RXbufferpos + _RXbufferSize;
-        if (current > RXBUFFERSIZE) current = current - RXBUFFERSIZE;
-        for (int i = 0; i < data_size; i++){
-        if (current > (RXBUFFERSIZE-1)) current = 0;
-        _RXbuffer[current] = data[i];
-        current ++;
-        }
-        _RXbufferSize+=strlen(data);
-        return true;
+void WebSocket_Server::push2RXbuffer(uint8_t * sbuf, size_t len)
+{
+    if (!_RXbuffer || !_started) {
+        return;
     }
-    return false;
-}*/
+    for (size_t i = 0; i < len; i++) {
+        _lastRXflush = millis();
+        //command is defined
+        if (char(sbuf[i]) == '\n') {
+            if (_RXbufferSize < RXBUFFERSIZE) {
+                _RXbuffer[_RXbufferSize] = sbuf[i];
+                _RXbufferSize++;
+            }
+            flushRXbuffer();
+        } else if (isPrintable (char(sbuf[i]) ) || char(sbuf[i]) == '\r') {
+            if (_RXbufferSize < RXBUFFERSIZE) {
+                _RXbuffer[_RXbufferSize] = sbuf[i];
+                _RXbufferSize++;
+            } else {
+                flushRXbuffer();
+                _RXbuffer[_RXbufferSize] = sbuf[i];
+                _RXbufferSize++;
+            }
+        } else { //it is not printable char
+            //clean buffer first
+            if (_RXbufferSize > 0) {
+                flushRXbuffer();
+            }
+            //process char
+            _RXbuffer[_RXbufferSize] = sbuf[i];
+            _RXbufferSize++;
+            flushRXbuffer();
+        }
+    }
+}
 
-/*int WebSocket_Server::read(void){
-    if (_RXbufferSize > 0) {
-        int v = _RXbuffer[_RXbufferpos];
-        _RXbufferpos++;
-        if (_RXbufferpos > (RXBUFFERSIZE-1))_RXbufferpos = 0;
-        _RXbufferSize--;
-        return v;
-    } else return -1;
-}*/
+void WebSocket_Server::flushRXbuffer()
+{
+    if (!_RXbuffer || !_started) {
+        _RXbufferSize = 0;
+        return;
+    }
+    ESP3DOutput output(ESP_WEBSOCKET_CLIENT);
+    _RXbuffer[_RXbufferSize] = 0x0;
+    //dispatch command
+    esp3d_commands.process(_RXbuffer, _RXbufferSize, &output);
+    _lastRXflush = millis();
+    _RXbufferSize = 0;
+}
+
 
 void WebSocket_Server::handle()
 {
-    if (_TXbufferSize > 0) {
-        if ((_TXbufferSize>=TXBUFFERSIZE) || ((millis()- _lastflush) > FLUSHTIMEOUT)) {
-            log_esp3d("[SOCKET]need flush, buffer size %d",_TXbufferSize);
-            flush();
+    Hal::wait(0);
+    if (_started) {
+        if (_TXbufferSize > 0) {
+            if ((_TXbufferSize>=TXBUFFERSIZE) || ((millis()- _lastTXflush) > FLUSHTIMEOUT)) {
+                flushTXbuffer();
+            }
         }
-    }
-    if (_websocket_server) {
-        _websocket_server->loop();
+        if (_RXbufferSize > 0) {
+            if ((_RXbufferSize>=RXBUFFERSIZE) || ((millis()- _lastRXflush) > FLUSHTIMEOUT)) {
+                flushRXbuffer();
+            }
+        }
+        if (_websocket_server) {
+            _websocket_server->loop();
+        }
     }
 }
 
-
 void WebSocket_Server::flush(void)
 {
-    if (_TXbufferSize > 0) {
-        log_esp3d("[SOCKET]flush data, buffer size %d",_TXbufferSize);
-        if (_websocket_server) {
-            _websocket_server->broadcastBIN
-            (_TXbuffer,_TXbufferSize);
+    flushTXbuffer();
+    flushRXbuffer();
+}
+
+void WebSocket_Server::flushTXbuffer(void)
+{
+    if (_started) {
+        if ((_TXbufferSize > 0) && (_websocket_server->connectedClients() > 0 )) {
+            //if(!_isdebug) {
+            //	log_esp3d("[SOCKET]flush data, buffer size %d",_TXbufferSize);
+            //}
+            if (_websocket_server) {
+                _websocket_server->broadcastBIN(_TXbuffer,_TXbufferSize);
+                log_esp3d("WS Broadcast bin port %d", port());
+            }
+            //refresh timout
+            _lastTXflush = millis();
+
         }
-        //refresh timout
-        _lastflush = millis();
-        //reset buffer
-        _TXbufferSize = 0;
     }
+    //reset buffer
+    _TXbufferSize = 0;
 }
 
 

@@ -44,6 +44,9 @@
 #ifdef TELNET_FEATURE
 #include "../../modules/telnet/telnet_server.h"
 #endif //TELNET_FEATURE
+#ifdef WS_DATA_FEATURE
+#include "../../modules/websocket/websocket_server.h"
+#endif //WS_DATA_FEATURE
 #if defined (TIMESTAMP_FEATURE)
 #include "../../modules/time/time_server.h"
 #endif //TIMESTAMP_FEATURE
@@ -388,6 +391,26 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         }
     }
 #endif //TELNET_FEATURE
+#if defined (WS_DATA_FEATURE)
+    if (websocket_data_server.started()) {
+        //websocket port
+        if (!plain) {
+            output->print (",{\"id\":\"");
+        }
+        output->print ("Websocket port");
+        if (!plain) {
+            output->print ("\",\"value\":\"");
+        } else {
+            output->print (": ");
+        }
+        output->printf ("%d",websocket_data_server.port());
+        if (!plain) {
+            output->print ("\"}");
+        } else {
+            output->printLN("");
+        }
+    }
+#endif //WS_DATA_FEATURE
 #if defined (BLUETOOTH_FEATURE)
     if (bt_service.started()) {
         //BT mode
@@ -993,6 +1016,38 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         output->printLN("");
     }
 #endif //DHT_DEVICE
+#if defined (ESP_DEBUG_FEATURE)
+    //debug
+    if (!plain) {
+        output->print (",{\"id\":\"");
+    }
+    output->print ("Debug");
+    if (!plain) {
+        output->print ("\",\"value\":\"");
+    } else {
+        output->print (": ");
+    }
+#if ESP_DEBUG_FEATURE == DEBUG_OUTPUT_SERIAL0
+    output->print ("Serial");
+#endif //DEBUG_OUTPUT_SERIAL0
+#if ESP_DEBUG_FEATURE == DEBUG_OUTPUT_SERIAL1
+    output->print ("Serial1");
+#endif //DEBUG_OUTPUT_SERIAL1
+#if ESP_DEBUG_FEATURE == DEBUG_OUTPUT_SERIAL2
+    output->print ("Serial2");
+#endif //DEBUG_OUTPUT_SERIAL2	
+#if ESP_DEBUG_FEATURE == DEBUG_OUTPUT_TELNET
+    output->printf ("Telnet(%d)", DEBUG_ESP3D_OUTPUT_PORT);
+#endif //DEBUG_OUTPUT_TELNET	
+#if ESP_DEBUG_FEATURE == DEBUG_OUTPUT_WEBSOCKET
+    output->printf ("Websocket(%d)", DEBUG_ESP3D_OUTPUT_PORT);
+#endif //DEBUG_OUTPUT_WEBSOCKET			
+    if (!plain) {
+        output->print ("\"}");
+    } else {
+        output->printLN("");
+    }
+#endif //ESP_DEBUG_FEATURE
     //FW version
     if (!plain) {
         output->print (",{\"id\":\"");

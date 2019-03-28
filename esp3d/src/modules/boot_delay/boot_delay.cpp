@@ -45,7 +45,7 @@ bool BootDelay::begin(progress_t* fn)
     _totalduration = Settings_ESP3D::read_uint32(ESP_BOOT_DELAY);
     log_esp3d("Boot delay %d", _totalduration);
     if (_totalduration > Settings_ESP3D::get_max_int32_value(ESP_BOOT_DELAY)) {
-        _totalduration = Settings_ESP3D::get_max_int32_value(ESP_BOOT_DELAY);
+        _totalduration = Settings_ESP3D::get_default_int32_value(ESP_BOOT_DELAY);
         log_esp3d("Boot delay modified %d", _totalduration);
     }
     _callbackfn = fn;

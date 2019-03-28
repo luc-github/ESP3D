@@ -113,6 +113,14 @@ size_t ESP3DOutput::dispatch (uint8_t * sbuf, size_t len)
         }
     }
 #endif //TELNET_FEATURE 
+#if defined (WS_DATA_FEATURE)
+    if (_client != ESP_WEBSOCKET_CLIENT) {
+        if (isOutput(ESP_WEBSOCKET_CLIENT) && websocket_data_server.started()) {
+            log_esp3d("Dispatch to websocket data server");
+            websocket_data_server.write(sbuf, len);
+        }
+    }
+#endif //WS_DATA_FEATURE 
     return len;
 }
 
@@ -205,9 +213,9 @@ size_t ESP3DOutput::printMSG(const char * s)
         display+= s;
         return printLN(display.c_str());
     }
-    if (_client == ESP_SCREEN_CLIENT){
-		return print(s);
-	}
+    if (_client == ESP_SCREEN_CLIENT) {
+        return print(s);
+    }
     switch(Settings_ESP3D::GetFirmwareTarget()) {
     case GRBL:
         display = "[MSG:";
@@ -234,9 +242,9 @@ size_t ESP3DOutput::printERROR(const char * s, int code_error)
     if (!isOutput(_client)) {
         return 0;
     }
-    if (_client == ESP_SCREEN_CLIENT){
-		return print(s);
-	}
+    if (_client == ESP_SCREEN_CLIENT) {
+        return print(s);
+    }
 #ifdef HTTP_FEATURE
     _code = code_error;
     if (_client == ESP_HTTP_CLIENT) {
@@ -284,14 +292,19 @@ int ESP3DOutput::availableforwrite()
         return serial_service.availableForWrite();
 #if defined (BLUETOOTH_FEATURE)
     case ESP_BT_CLIENT:
-        bt_service.availableForWrite();
+        return bt_service.availableForWrite();
         break;
 #endif //BLUETOOTH_FEATURE 
 #if defined (TELNET_FEATURE)
     case ESP_TELNET_CLIENT:
-        telnet_server.availableForWrite();
+        return telnet_server.availableForWrite();
         break;
 #endif //TELNET_FEATURE 
+#if defined (WS_DATA_FEATURE)
+    case ESP_WEBSOCKET_CLIENT:
+        return websocket_data_server.availableForWrite();
+        break;
+#endif //WS_DATA_FEATURE
     case ESP_ALL_CLIENTS:
         return serial_service.availableForWrite();
     default :
@@ -317,6 +330,10 @@ size_t ESP3DOutput::write(uint8_t c)
     case ESP_TELNET_CLIENT:
         return telnet_server.write(c);
 #endif //TELNET_FEATURE 
+#if defined (WS_DATA_FEATURE)
+    case ESP_WEBSOCKET_CLIENT:
+        return websocket_data_server.write(c);
+#endif //WS_DATA_FEATURE 
     case ESP_ALL_CLIENTS:
 #if defined (BLUETOOTH_FEATURE)
         if(bt_service.started()) {
@@ -359,8 +376,8 @@ size_t ESP3DOutput::write(const uint8_t *buffer, size_t size)
 #endif //HTTP_FEATURE
 #if defined (DISPLAY_DEVICE)
     case ESP_SCREEN_CLIENT:
-			esp3d_display.SetStatus((const char *)buffer);
-            return size;
+        esp3d_display.SetStatus((const char *)buffer);
+        return size;
 #endif //DISPLAY_DEVICE
 #if defined (BLUETOOTH_FEATURE)
     case ESP_BT_CLIENT:
@@ -374,6 +391,12 @@ size_t ESP3DOutput::write(const uint8_t *buffer, size_t size)
             return telnet_server.write(buffer, size);
         }
 #endif //TELNET_FEATURE
+#if defined (WS_DATA_FEATURE)
+    case ESP_WEBSOCKET_CLIENT:
+        if(websocket_data_server.started()) {
+            return websocket_data_server.write(buffer, size);
+        }
+#endif //WS_DATA_FEATURE
     case ESP_PRINTER_LCD_CLIENT:
     case ESP_SERIAL_CLIENT:
         return serial_service.write(buffer, size);

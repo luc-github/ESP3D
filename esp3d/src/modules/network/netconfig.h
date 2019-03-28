@@ -25,6 +25,8 @@
 #define MIN_HTTP_PORT               1
 #define MAX_TELNET_PORT             65001
 #define MIN_TELNET_PORT             1
+#define MAX_WEBSOCKET_PORT          65001
+#define MIN_WEBSOCKET_PORT          1
 #define MAX_HOSTNAME_LENGTH         32
 #define MIN_HOSTNAME_LENGTH         1
 

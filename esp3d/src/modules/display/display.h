@@ -39,7 +39,7 @@ public:
     void progress(uint8_t v);
     void SetStatus(const char * status);
 private:
-	bool main_screen();
+    bool main_screen();
     bool splash();
     void showStatus();
     bool _started;

@@ -71,6 +71,10 @@ public:
     bool ESP140(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #endif //TIMESTAMP_FEATURE
     bool ESP150(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+#if defined(WS_DATA_FEATURE)
+    bool ESP160(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+    bool ESP161(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+#endif //WS_DATA_FEATURE
 #ifdef DIRECT_PIN_FEATURE
     bool ESP201(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #endif //DIRECT_PIN_FEATURE

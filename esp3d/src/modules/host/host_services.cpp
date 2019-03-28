@@ -22,7 +22,7 @@
 #include "host_services.h"
 #include "../../core/settings_esp3d.h"
 #include "../../core/esp3doutput.h"
-
+#include "../serial/serial_service.h"
 
 HostServices::HostServices()
 {
@@ -59,3 +59,32 @@ void HostServices::handle()
     }
 }
 
+
+bool HostServices::purge_serial()
+{
+    uint32_t start = millis();
+    uint8_t buf [51];
+    serial_service.flush();
+    log_esp3d("Purge Serial");
+    while (serial_service.available() > 0 ) {
+        if ((millis() - start ) > 2000) {
+            log_esp3d("Purge timeout");
+            return false;
+        }
+        size_t len = serial_service.readBytes (buf, 50);
+        buf[len] = '\0';
+        log_esp3d ("Purge: %s",(const char *)buf);
+        if ( (Settings_ESP3D::GetFirmwareTarget() == REPETIER4DV) || (Settings_ESP3D::GetFirmwareTarget() == REPETIER) ) {
+            String s = (const char *)buf;
+            //repetier never stop sending data so no need to wait if have 'wait' or 'busy'
+            if((s.indexOf ("wait") > -1) || (s.indexOf ("busy") > -1)) {
+                return true;
+            }
+            log_esp3d("Purge interrupted");
+        }
+        Hal::wait (5);
+    }
+    Hal::wait (0);
+    log_esp3d("Purge done");
+    return true;
+}

@@ -56,6 +56,12 @@ Note:
 * Get/Set boot delay
 [ESP150]<time in milliseconds>[pwd=<admin password>]
 
+* Get/Set WebSocket state which can be ON, OFF
+[ESP160]<state>pwd=<admin password>
+
+* Get/Set WebSocket port 
+[ESP161]<port>pwd=<admin password>
+
 *Get/Set pin value
 [ESP201]P<pin> V<value> [PULLUP=YES RAW=YES]pwd=<admin password>
 if no V<value> get P<pin> value

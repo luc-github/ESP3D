@@ -19,8 +19,9 @@
 */
 
 #include "../include/esp3d_config.h"
+#if defined(ESP_DEBUG_FEATURE)
 
-#if defined(ARDUINO_ARCH_ESP8266) && defined(ESP_DEBUG_FEATURE)
+#if defined(ARDUINO_ARCH_ESP8266)
 const char * pathToFileName(const char * path)
 {
     size_t i = 0;
@@ -35,4 +36,15 @@ const char * pathToFileName(const char * path)
     }
     return path+pos;
 }
-#endif //ARDUINO_ARCH_ESP8266 && ESP_DEBUG_FEATURE
+#endif //ARDUINO_ARCH_ESP8266 
+
+//Telnet
+#if ESP_DEBUG_FEATURE == DEBUG_OUTPUT_TELNET
+Telnet_Server telnet_debug;
+#endif // ESP_DEBUG_FEATURE == DEBUG_OUTPUT_TELNET
+
+//Websocket
+#if ESP_DEBUG_FEATURE == DEBUG_OUTPUT_WEBSOCKET
+WebSocket_Server websocket_debug;
+#endif // ESP_DEBUG_FEATURE == DEBUG_OUTPUT_WEBSOCKET
+#endif //ESP_DEBUG_FEATURE

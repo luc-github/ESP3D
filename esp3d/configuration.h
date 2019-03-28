@@ -43,19 +43,19 @@
 #define TELNET_FEATURE
 
 //WS_DATA_FEATURE: allow to connect serial from Websocket
-//#define WS_DATA_FEATURE
+#define WS_DATA_FEATURE
 
 //DISPLAY_DEVICE: allow screen output
 //OLED_I2C_SSD1306    		1
 //OLED_I2C_SSDSH1106  		2
 //TFT_SPI_ILI9341_320X240 	3
-#define DISPLAY_DEVICE OLED_I2C_SSD1306
+//#define DISPLAY_DEVICE OLED_I2C_SSD1306
 
 #if defined (DISPLAY_DEVICE)
 //for ILI9143 edit User_Setup.h of TFT_eSPI library
 #define DISPLAY_I2C_PIN_SDA         4
-#define DISPLAY_I2C_PIN_SCL         5
-//#define DISPLAY_I2C_PIN_RST         16 //comment if not applicable
+#define DISPLAY_I2C_PIN_SCL         15
+#define DISPLAY_I2C_PIN_RST         16 //comment if not applicable
 #define DISPLAY_I2C_ADDR	        0x3c
 #define DISPLAY_FLIP_VERTICALY      1 //comment to disable
 #endif //DISPLAY_DEVICE
@@ -119,10 +119,15 @@
  * **********************************/
 //Do not do this when connected to printer !!!
 //be noted all upload may failed if enabled
-//DEBUG_OUTPUT_SERIAL0 0
-//DEBUG_OUTPUT_SERIAL1 1
-//DEBUG_OUTPUT_SERIAL2 2
+//DEBUG_OUTPUT_SERIAL0 1
+//DEBUG_OUTPUT_SERIAL1 2
+//DEBUG_OUTPUT_SERIAL2 3
+//DEBUG_OUTPUT_TELNET  4
+//DEBUG_OUTPUT_WEBSOCKET  5
 //#define ESP_DEBUG_FEATURE DEBUG_OUTPUT_SERIAL0
+#ifdef ESP_DEBUG_FEATURE
+#define DEBUG_ESP3D_OUTPUT_PORT  8000
+#endif //ESP_DEBUG_FEATURE
 
 /************************************
  *

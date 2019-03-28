@@ -200,11 +200,19 @@ bool NetServices::begin()
         output.printMSG(stmp.c_str());
     }
 #endif //TELNET_FEATURE
+#ifdef WS_DATA_FEATURE
+    if (!websocket_data_server.begin(Settings_ESP3D::read_uint32(ESP_WEBSOCKET_PORT))) {
+        output.printMSG("Failed start Terminal Web Socket");
+    } else {
+        String stmp = "Websocket server started port " + String(websocket_data_server.port());
+        output.printMSG(stmp.c_str());
+    }
+#endif //WS_DATA_FEATURE
 #if defined(HTTP_FEATURE)
     if (!websocket_terminal_server.begin()) {
         output.printMSG("Failed start Terminal Web Socket");
     }
-#endif //HTTP_FEATURE  || WS_DATA_FEATURE
+#endif //HTTP_FEATURE 
 #ifdef MDNS_FEATURE
     if(WiFi.getMode() != WIFI_AP) {
         // Add service to MDNS-SD
@@ -283,7 +291,9 @@ void NetServices::end()
 #ifdef HTTP_FEATURE
     HTTP_Server::end();
 #endif //HTTP_FEATURE
-
+#ifdef WS_DATA_FEATURE
+    websocket_data_server.end();
+#endif //WS_DATA_FEATURE
 #ifdef TELNET_FEATURE
     telnet_server.end();
 #endif //TELNET_FEATURE
@@ -309,6 +319,9 @@ void NetServices::handle()
 #ifdef HTTP_FEATURE
         HTTP_Server::handle();
 #endif //HTTP_FEATURE
+#ifdef WS_DATA_FEATURE
+        websocket_data_server.handle();
+#endif //WS_DATA_FEATURE
 #if defined(HTTP_FEATURE)
         websocket_terminal_server.handle();
 #endif //HTTP_FEATURE
