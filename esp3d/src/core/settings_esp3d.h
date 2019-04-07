@@ -1,3 +1,4 @@
+
 /*
   settings_esp3d.h -  settings esp3d functions class
 
@@ -44,7 +45,7 @@
 #define ESP_STA_GATEWAY_VALUE   108     //4  bytes xxx.xxx.xxx.xxx
 #define ESP_BAUD_RATE           112     //4  bytes = int
 #define ESP_NOTIFICATION_TYPE   116     //1 byte = flag
-//#define ESP_SLEEP_MODE          117     //1 byte = flag
+#define ESP_CALIBRATION         117     //1 byte = flag
 #define ESP_AP_CHANNEL          118     //1 byte = flag
 //#define ESP_AP_AUTH_TYPE        119     //1 byte = flag
 //#define ESP_SSID_VISIBLE        120     //1 byte = flag
@@ -80,6 +81,12 @@
 #define ESP_DIRECT_SD_CHECK     853//1  bytes = flag
 #define ESP_SD_CHECK_UPDATE_AT_BOOT   854//1  bytes = flag
 #define ESP_NOTIFICATION_SETTINGS 855//128 bytes 127+1 = string  ; warning does not support multibyte char like chinese
+#define ESP_CALIBRATION_1       983
+#define ESP_CALIBRATION_2       987
+#define ESP_CALIBRATION_3       991
+#define ESP_CALIBRATION_4       995
+#define ESP_CALIBRATION_5       999
+
 //Hidden password
 #define HIDDEN_PASSWORD "********"
 

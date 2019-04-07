@@ -70,6 +70,12 @@ if PULLUP=YES set input pull up (for GPIO16(ESP8266) INPUT_PULLDOWN_16), if not 
 if RAW=YES do not set pinmode just read value
 Flash pins (6~11) cannot be used
 
+* Output to esp screen status
+[ESP214]<Text>pwd=<user password>
+
+* Touch Calibration 
+[ESP215]<CALIBRATE>[pwd=<user password>]
+
 * Get full EEPROM settings content
 but do not give any passwords
 [ESP400] pwd=<admin password>
@@ -86,11 +92,11 @@ ESP_STA_IP_VALUE        100     //4  bytes xxx.xxx.xxx.xxx
 ESP_STA_MASK_VALUE      104     //4  bytes xxx.xxx.xxx.xxx
 ESP_STA_GATEWAY_VALUE   108     //4  bytes xxx.xxx.xxx.xxx
 ESP_BAUD_RATE           112     //4  bytes = int
-ESP_STA_PHY_MODE        116     //1 byte = flag
-ESP_SLEEP_MODE          117     //1 byte = flag
+ESP_NOTIFICATION_TYPE   116     //1 byte = flag
+ESP_CALIBRATION         117     //1 byte = flag
 ESP_AP_CHANNEL          118     //1 byte = flag
-ESP_AP_AUTH_TYPE        119     //1 byte = flag
-ESP_SSID_VISIBLE        120     //1 byte = flag
+FREE                    119     //1 byte = flag
+FREE                    120     //1 byte = flag
 ESP_HTTP_PORT           121     //4  bytes = int
 ESP_TELNET_PORT         125     //4  bytes = int
 ESP_OUTPUT_FLAG         129     //1  bytes = flag
@@ -102,12 +108,14 @@ ESP_USER_PWD            197     //21  bytes 20+1 = string  ; warning does not su
 ESP_AP_SSID             218     //33 bytes 32+1 = string  ; warning does not support multibyte char like chinese
 ESP_AP_PASSWORD         251     //65 bytes 64 +1 = string ;warning does not support multibyte char like chinese
 ESP_AP_IP_VALUE         316     //4  bytes xxx.xxx.xxx.xxx
-
+ESP_BOOT_DELAY          320     //4  bytes xxx.xxx.xxx.xxx
+ESP_WEBSOCKET_PORT      324     //4  bytes xxx.xxx.xxx.xxx
 ESP_HTTP_ON             328     //1 byte = flag
 ESP_TELNET_ON           329     //1 byte = flag
-ESP_AP_PHY_MODE         330     //1 byte = flag
+ESP_WEBSOCKET_ON        330     //1 byte = flag
 ESP_SD_SPEED_DIV        331     //1 byte = flag
-
+ESP_NOTIFICATION_TOKEN1 332    //64 bytes 63+1 = string  ; warning does not support multibyte char like chinese
+ESP_NOTIFICATION_TOKEN2 396    //64 bytes 63+1 = string  ; warning does not support multibyte char like chinese
 ESP_DHT_TYPE            460//1  bytes = flag
 ESP_TARGET_FW           461 //1  bytes = flag
 ESP_TIMEZONE            462//1  bytes = flag
@@ -120,6 +128,12 @@ ESP_PRIMARY_SD          851//1  bytes = flag
 ESP_SECONDARY_SD        852//1  bytes = flag
 ESP_DIRECT_SD_CHECK     853//1  bytes = flag
 ESP_SD_CHECK_UPDATE_AT_BOOT   854//1  bytes = flag
+ESP_NOTIFICATION_SETTINGS 855//128 bytes 127+1 = string  ; warning does not support multibyte char like chinese
+ESP_CALIBRATION_1       983
+ESP_CALIBRATION_2       987
+ESP_CALIBRATION_3       991
+ESP_CALIBRATION_4       995
+ESP_CALIBRATION_5       999
 
 *Get available AP list (limited to 30)
 output is JSON or plain text according parameter

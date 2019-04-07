@@ -43,13 +43,13 @@
 #define TELNET_FEATURE
 
 //WS_DATA_FEATURE: allow to connect serial from Websocket
-#define WS_DATA_FEATURE
+//#define WS_DATA_FEATURE
 
 //DISPLAY_DEVICE: allow screen output
 //OLED_I2C_SSD1306    		1
 //OLED_I2C_SSDSH1106  		2
 //TFT_SPI_ILI9341_320X240 	3
-//#define DISPLAY_DEVICE OLED_I2C_SSD1306
+//#define DISPLAY_DEVICE TFT_SPI_ILI9341_320X240
 
 #if defined (DISPLAY_DEVICE)
 //for ILI9143 edit User_Setup.h of TFT_eSPI library
@@ -58,9 +58,16 @@
 #define DISPLAY_I2C_PIN_RST         16 //comment if not applicable
 #define DISPLAY_I2C_ADDR	        0x3c
 #define DISPLAY_FLIP_VERTICALY      1 //comment to disable
+#define DISPLAY_TOUCH_DRIVER		XPT2046_SPI
 #endif //DISPLAY_DEVICE
+
+//INPUT_DEVICE: allow input
+//ROTARY_ENCODER   		1
+//#define INPUT_DEVICE ROTARY_ENCODER
+
 //DHT_DEVICE: send update of temperature / humidity based on DHT 11/22
 //#define DHT_DEVICE
+
 #ifdef DHT_DEVICE
 #define ESP3D_DHT_PIN 22
 //USE_CELSIUS

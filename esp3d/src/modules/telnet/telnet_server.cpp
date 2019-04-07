@@ -93,6 +93,9 @@ Telnet_Server::~Telnet_Server()
 bool Telnet_Server::begin(uint16_t port, bool debug)
 {
     end();
+    if (Settings_ESP3D::read_byte(ESP_TELNET_ON) !=1) {
+        return true;
+    }
     //Get telnet port
     if (port == 0) {
         _port = Settings_ESP3D::read_uint32(ESP_TELNET_PORT);
@@ -183,7 +186,7 @@ void Telnet_Server::handle()
 
 void Telnet_Server::flushbuffer()
 {
-    if (!_buffer || _started) {
+    if (!_buffer || !_started) {
         _buffer_size = 0;
         return;
     }

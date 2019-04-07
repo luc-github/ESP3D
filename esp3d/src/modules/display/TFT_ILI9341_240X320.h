@@ -30,12 +30,16 @@
 #define SSID_FG	TFT_WHITE
 #define IP_FG	TFT_WHITE
 #define STATUS_FG	TFT_WHITE
+#define CALIBRATION_BG TFT_BLACK
+#define CALIBRATION_FG TFT_GREEN
+#define CALIBRATION_CORNER TFT_RED
 
 //Fonts
 #define FONTSIGNAL 2
 #define FONTSSID	 2
-#define FONTIP	 3
+#define FONTIP	 2
 #define FONTSTATUS	 2
+#define FONTCALIBRATION 2
 
 //Positions
 #define SIGNAL_X 320-34
@@ -61,6 +65,6 @@
 #define IP_AREA_H 16
 
 #define STATUS_AREA_X 0
-#define STATUS_AREA_Y 48
+#define STATUS_AREA_Y 223
 #define STATUS_AREA_W 320
 #define STATUS_AREA_H 16

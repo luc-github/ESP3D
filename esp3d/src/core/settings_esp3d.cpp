@@ -26,7 +26,7 @@
 #if ESP_SAVE_SETTINGS == SETTINGS_IN_EEPROM
 #include <EEPROM.h>
 //EEPROM SIZE (Up to 4096)
-#define EEPROM_SIZE		1024 //max is 1024
+#define EEPROM_SIZE		2048 //max is 2048
 #endif //SETTINGS_IN_EEPROM
 
 #if defined (WIFI_FEATURE) || defined(ETH_FEATURE)
@@ -115,6 +115,8 @@
 #define DEFAULT_TELNET_PORT     23L
 #define DEFAULT_DHT_INTERVAL    30000L
 #define DEFAULT_BOOT_DELAY	    10000L
+#define DEFAULT_CALIBRATION_VALUE 0
+#define DEFAULT_CALIBRATION_DONE 0
 
 #ifdef WIFI_FEATURE
 //default string values
@@ -267,10 +269,6 @@ uint8_t Settings_ESP3D::get_default_byte_value(int pos)
     case ESP_SD_SPEED_DIV:
         res = DEFAULT_SDREADER_SPEED;
         break;
-#endif //SDCARD_FEATURE
-    case ESP_TARGET_FW:
-        res = DEFAULT_FW;
-        break;
     case ESP_PRIMARY_SD:
         res = DEFAULT_PRIMARY_SD;
         break;
@@ -283,15 +281,19 @@ uint8_t Settings_ESP3D::get_default_byte_value(int pos)
     case ESP_SD_CHECK_UPDATE_AT_BOOT:
         res = DEFAULT_SD_CHECK_UPDATE_AT_BOOT;
         break;
+    case ESP_IS_DIRECT_SD:
+        res = DEFAULT_IS_DIRECT_SD;
+        break;
+#endif //SDCARD_FEATURE
+    case ESP_TARGET_FW:
+        res = DEFAULT_FW;
+        break;
 #ifdef TIMESTAMP_FEATURE
     case ESP_TIMEZONE:
         res = DEFAULT_TIME_ZONE;
         break;
     case ESP_TIME_IS_DST:
         res = DEFAULT_TIME_DST;
-        break;
-    case ESP_IS_DIRECT_SD:
-        res = DEFAULT_IS_DIRECT_SD;
         break;
 #endif //TIMESTAMP_FEATURE
 
@@ -300,6 +302,11 @@ uint8_t Settings_ESP3D::get_default_byte_value(int pos)
         res = DEFAULT_DHT_TYPE;
         break;
 #endif //DHT_DEVICE
+#if defined(DISPLAY_DEVICE) && defined(DISPLAY_TOUCH_DRIVER)
+    case ESP_CALIBRATION:
+        res = DEFAULT_CALIBRATION_DONE;
+        break;
+#endif // DISPLAY_DEVICE && DISPLAY_TOUCH_DRIVER
     default:
         res = DEFAULT_ESP_BYTE;
     }
@@ -317,6 +324,15 @@ uint32_t Settings_ESP3D::get_default_int32_value(int pos)
     case ESP_BOOT_DELAY:
         res = DEFAULT_BOOT_DELAY;
         break;
+#if defined(DISPLAY_DEVICE) && defined(DISPLAY_TOUCH_DRIVER)
+    case ESP_CALIBRATION_1:
+    case ESP_CALIBRATION_2:
+    case ESP_CALIBRATION_3:
+    case ESP_CALIBRATION_4:
+    case ESP_CALIBRATION_5:
+        res = DEFAULT_CALIBRATION_VALUE;
+        break;
+#endif // DISPLAY_DEVICE && DISPLAY_TOUCH_DRIVER
 #if defined (WIFI_FEATURE) || defined (ETH_FEATURE)
     case ESP_AP_IP_VALUE:
     case ESP_STA_IP_VALUE:
@@ -949,6 +965,17 @@ bool Settings_ESP3D::reset()
 #if ESP_SAVE_SETTINGS == SETTINGS_IN_EEPROM
     log_esp3d("clear EEPROM");
 
+#if defined(DISPLAY_DEVICE) && defined(DISPLAY_TOUCH_DRIVER)
+    //Calibration done (internal only)
+    Settings_ESP3D::write_byte(ESP_CALIBRATION,Settings_ESP3D::get_default_byte_value(ESP_CALIBRATION));
+    //Calibration data (internal only)
+    Settings_ESP3D::write_uint32 (ESP_CALIBRATION_1, Settings_ESP3D::get_default_int32_value(ESP_CALIBRATION_1));
+    Settings_ESP3D::write_uint32 (ESP_CALIBRATION_2, Settings_ESP3D::get_default_int32_value(ESP_CALIBRATION_2));
+    Settings_ESP3D::write_uint32 (ESP_CALIBRATION_3, Settings_ESP3D::get_default_int32_value(ESP_CALIBRATION_3));
+    Settings_ESP3D::write_uint32 (ESP_CALIBRATION_4, Settings_ESP3D::get_default_int32_value(ESP_CALIBRATION_4));
+    Settings_ESP3D::write_uint32 (ESP_CALIBRATION_5, Settings_ESP3D::get_default_int32_value(ESP_CALIBRATION_5));
+#endif // DISPLAY_DEVICE && DISPLAY_TOUCH_DRIVER
+
 #if defined (WIFI_FEATURE) || defined (BLUETOOTH_FEATURE) || defined (ETH_FEATURE)
     //Hostname
     Settings_ESP3D::write_string(ESP_HOSTNAME,Settings_ESP3D::get_default_string_value(ESP_HOSTNAME).c_str());
@@ -1057,6 +1084,7 @@ bool Settings_ESP3D::reset()
     //set version in settings
     if (res) {
         log_esp3d("Reset Setting Version");
+        //Settings version (internal only)
         res =  Settings_ESP3D::write_string(ESP_SETTINGS_VERSION, CURRENT_SETTINGS_VERSION);
     }
     return res;

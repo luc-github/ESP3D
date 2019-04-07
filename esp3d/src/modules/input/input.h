@@ -1,5 +1,5 @@
 /*
-  version.h - ESP3D version file
+  input.h -  input functions class
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -17,12 +17,24 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+#ifndef _INPUT_H
+#define _INPUT_H
 
-#ifndef _VERSION_ESP3D_H
-#define _VERSION_ESP3D_H
 
-//version and sources location
-#define FW_VERSION "3.0.0.a8"
-#define REPOSITORY "https://github.com/luc-github/ESP3D"
+class Input
+{
+public:
+    Input();
+    ~Input();
+    bool begin();
+    void end();
+    void handle();
+    bool started();
+private:
+    bool _started;
+};
 
-#endif //_VERSION_ESP3D_H
+extern Input esp3d_input;
+
+#endif //_INPUT_H
+

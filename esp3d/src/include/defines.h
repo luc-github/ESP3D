@@ -43,6 +43,12 @@
 #define OLED_I2C_SSDSH1106  	2
 #define TFT_SPI_ILI9341_320X240 3
 
+//Touch
+#define XPT2046_SPI		1
+
+//Input
+#define ROTARY_ENCODER	1
+
 //File systems
 #define ESP_SPIFFS_FILESYSTEM       1
 #define ESP_FAT_FILESYSTEM          2

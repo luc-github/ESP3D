@@ -1,5 +1,5 @@
 /*
-  version.h - ESP3D version file
+  input.cpp -  input functions class
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -18,11 +18,56 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _VERSION_ESP3D_H
-#define _VERSION_ESP3D_H
+#include "../../include/esp3d_config.h"
+#if defined (INPUT_DEVICE)
+#include "input.h"
+#include "../../core/settings_esp3d.h"
+#include "../../core/esp3doutput.h"
 
-//version and sources location
-#define FW_VERSION "3.0.0.a8"
-#define REPOSITORY "https://github.com/luc-github/ESP3D"
 
-#endif //_VERSION_ESP3D_H
+Input esp3d_input;
+
+
+Input::Input()
+{
+    _started = false;
+}
+
+Input::~Input()
+{
+    end();
+}
+
+bool Input::begin()
+{
+    bool res = true;
+    _started = false;
+    if (!res) {
+        end();
+    }
+    _started = res;
+    return _started;
+}
+
+void Input::end()
+{
+    if(!_started) {
+        return;
+    }
+    _started = false;
+}
+
+bool Input::started()
+{
+    return _started;
+}
+
+
+void Input::handle()
+{
+    if (_started) {
+
+    }
+}
+
+#endif //INPUT_DEVICE

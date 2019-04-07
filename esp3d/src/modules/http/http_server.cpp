@@ -116,6 +116,9 @@ bool HTTP_Server::begin()
 {
     bool no_error = true;
     end();
+    if (Settings_ESP3D::read_byte(ESP_HTTP_ON) !=1) {
+        return no_error;
+    }
     _port = Settings_ESP3D::read_uint32(ESP_HTTP_PORT);
     _webserver= new WEBSERVER(_port);
     if (!_webserver) {

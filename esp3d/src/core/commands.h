@@ -78,6 +78,12 @@ public:
 #ifdef DIRECT_PIN_FEATURE
     bool ESP201(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #endif //DIRECT_PIN_FEATURE
+#if defined (DISPLAY_DEVICE)
+    bool ESP214(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+#if defined(DISPLAY_TOUCH_DRIVER)
+    bool ESP215(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+#endif //DISPLAY_TOUCH_DRIVER
+#endif //DISPLAY_DEVICE
 #ifdef DHT_DEVICE
     bool ESP210(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #endif //DHT_DEVICE

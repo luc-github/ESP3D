@@ -65,6 +65,8 @@ void Commands::process(uint8_t * sbuf, size_t len, ESP3DOutput * output, level_a
 //check if current line is an [ESPXXX] command
 bool Commands::is_esp_command(uint8_t * sbuf, size_t len)
 {
+    //TODO
+    //M117 should be handled here and transfered to [ESP214] if it is an host
     if (len < 8) {
         return false;
     }
@@ -337,6 +339,20 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
         response = ESP210(cmd_params, auth_type, output);
         break;
 #endif //#ifdef DHT_DEVICE
+#if defined (DISPLAY_DEVICE)
+    //Output to esp screen status
+    //[ESP214]<Text>pwd=<user password>
+    case 214:
+        response = ESP214(cmd_params, auth_type, output);
+        break;
+#if defined(DISPLAY_TOUCH_DRIVER)
+    //Touch Calibration
+    //[ESP215]<CALIBRATE>[pwd=<user password>]
+    case 215:
+        response = ESP215(cmd_params, auth_type, output);
+        break;
+#endif //DISPLAY_TOUCH_DRIVER
+#endif //DISPLAY_DEVICE
     //Get full ESP3D settings
     //[ESP400]<pwd=admin>
     case 400:

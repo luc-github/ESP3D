@@ -20,6 +20,7 @@
 
 #define SPLASH_SCREEN       0
 #define MAIN_SCREEN         1
+#define CALIBRATION_SCREEN	2
 
 #ifndef _DISPLAY_H
 #define _DISPLAY_H
@@ -38,10 +39,13 @@ public:
     void clear_screen();
     void progress(uint8_t v);
     void SetStatus(const char * status);
+    bool startCalibration();
 private:
-    bool main_screen();
+    bool main_screen(bool force = false);
+    bool display_signal(bool force = false);
+    bool display_IP(bool force = false);
     bool splash();
-    void showStatus();
+    bool showStatus(bool force = false);
     bool _started;
     uint8_t _screenID;
     bool _splash_displayed;
