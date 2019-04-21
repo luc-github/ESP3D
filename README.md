@@ -49,11 +49,11 @@ Especially if need to buy new modules for testing.
 
 
 ## Web configuration      
-*Wifi Mode : Access point / Client station  
-*IP Generation: DHCP/Static IP      
-*IP/MASK/GATEWAY for static data    
-*Baud Rate for serial (supported : 9600, 19200, 38400, 57600, 115200, 230400, 250000)    
-*web port and data port      
+* Wifi Mode : Access point / Client station  
+* IP Generation: DHCP/Static IP      
+* IP/MASK/GATEWAY for static data    
+* Baud Rate for serial (supported : 9600, 19200, 38400, 57600, 115200, 230400, 250000)    
+* web port and data port      
 
     
 ## Default Configuration      
