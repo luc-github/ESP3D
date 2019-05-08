@@ -457,7 +457,7 @@ bool WIFI_CONFIG::Setup (bool force_ap)
         WiFi.begin (sbuf, pwd);
         delay (100);
 #ifdef ARDUINO_ARCH_ESP8266
-		WiFi.setSleepMode ( (WiFiSleepType_t) bflag);
+		WiFi.setSleepMode ( (WiFiSleepType_t) sleep_mode );
 #else
 		//for backward compatibility
 		if ((wifi_ps_type_t) sleep_mode == WIFI_PS_MAX_MODEM)sleep_mode=WIFI_PS_MIN_MODEM;
