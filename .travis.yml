@@ -15,25 +15,12 @@ before_script:
   - git clone https://github.com/esp8266/Arduino.git esp8266
   - cd esp8266/tools
   - python get.py
-  - cd ..
-  - echo 'build.flash_ld=eagle.flash.4m.ld' >> platform.txt
-  - echo 'build.flash_freq=40' >> platform.txt
-  - echo 'build.flash_size=4M' >> platform.txt
-  - echo 'build.flash_mode=dio' >> platform.txt
-  - echo 'build.f_cpu=160000000L' >> platform.txt
-  - echo 'build.flash_flags=-DFLASHMODE_DIO' >> platform.txt
-  - sed -i "s/build.lwip_lib=-llwip_gcc/build.lwip_lib=-llwip2-536-feat/g" ./platform.txt
-  - sed -i "s/build.lwip_include=lwip/build.lwip_include=lwip2/g" ./platform.txt
-  - sed -i "s/build.lwip_flags=-DLWIP_OPEN_SRC/build.lwip_flags=-DLWIP_OPEN_SRC -DTCP_MSS=536 -DLWIP_FEATURES=1 -DLWIP_IPV6=0/g" ./platform.txt
-  - sed -i "s/generic.build.f_cpu=80000000L/generic.build.f_cpu=160000000L/g" ./boards.txt
   - cd $HOME/arduino_ide/hardware
   - mkdir esp32
   - cd esp32
   - git clone https://github.com/espressif/arduino-esp32.git esp32
   - cd esp32/tools
   - python get.py
-  - cd ..
-  - echo 'build.flash_freq=40m' >> platform.txt
   - mv $TRAVIS_BUILD_DIR/libraries/ESPAsyncWebServer $HOME/arduino_ide/libraries/
   - mv $TRAVIS_BUILD_DIR/libraries/ESPAsyncTCP $HOME/arduino_ide/libraries/
   - mv $TRAVIS_BUILD_DIR/libraries/AsyncTCP $HOME/arduino_ide/libraries/
@@ -47,22 +34,25 @@ script:
   - cd $TRAVIS_BUILD_DIR
   - source command.sh
   - export PATH="$HOME/arduino_ide:$PATH"
-  - arduino --board esp8266com:esp8266:generic --save-prefs
-  - arduino --get-pref sketchbook.path
+  - rm -f $HOME/.arduino15/preferences.txt
+  - arduino --board esp8266com:esp8266:generic:eesz=4M3M,xtal=160,FlashMode=dio,FlashFreq=40,sdk=nonosdk221,ip=lm2f,dbg=Disabled,vt=flash,exception=disabled,ssl=basic --save-prefs
   - build_sketch  $TRAVIS_BUILD_DIR/esp3d/esp3d.ino
-  - arduino --board esp32:esp32:esp32 --save-prefs
+  - rm -f $HOME/.arduino15/preferences.txt
+  - arduino --board esp32:esp32:esp32:PartitionScheme=min_spiffs,FlashFreq=80,PSRAM=disabled,CPUFreq=240,FlashMode=qio,FlashSize=4M,DebugLevel=none --pref compiler.warning_level=all --save-prefs
   - build_sketch  $TRAVIS_BUILD_DIR/esp3d/esp3d.ino
   - sed -i "s/\/\/#define AUTHENTICATION_FEATURE /#define AUTHENTICATION_FEATURE/g" $TRAVIS_BUILD_DIR/esp3d/config.h
-  - arduino --board esp8266com:esp8266:generic --save-prefs
-  - arduino --get-pref sketchbook.path
+  - rm -f $HOME/.arduino15/preferences.txt
+  - arduino --board esp8266com:esp8266:generic:eesz=4M3M,xtal=160,FlashMode=dio,FlashFreq=40,sdk=nonosdk221,ip=lm2f,dbg=Disabled,vt=flash,exception=disabled,ssl=basic --save-prefs
   - build_sketch  $TRAVIS_BUILD_DIR/esp3d/esp3d.ino
-  - arduino --board esp32:esp32:esp32 --save-prefs
+  - rm -f $HOME/.arduino15/preferences.txt
+  - arduino --board esp32:esp32:esp32:PartitionScheme=min_spiffs,FlashFreq=80,PSRAM=disabled,CPUFreq=240,FlashMode=qio,FlashSize=4M,DebugLevel=none --pref compiler.warning_level=all --save-prefs
   - build_sketch  $TRAVIS_BUILD_DIR/esp3d/esp3d.ino
   - sed -i "s/\/\/#define ASYNCWEBSERVER /#define ASYNCWEBSERVER/g" $TRAVIS_BUILD_DIR/esp3d/config.h
-  - arduino --board esp8266com:esp8266:generic --save-prefs
-  - arduino --get-pref sketchbook.path
+  - rm -f $HOME/.arduino15/preferences.txt
+  - arduino --board esp8266com:esp8266:generic:eesz=4M3M,xtal=160,FlashMode=dio,FlashFreq=40,sdk=nonosdk221,ip=lm2f,dbg=Disabled,vt=flash,exception=disabled,ssl=basic --save-prefs
   - build_sketch  $TRAVIS_BUILD_DIR/esp3d/esp3d.ino
-  - arduino --board esp32:esp32:esp32 --save-prefs
+  - rm -f $HOME/.arduino15/preferences.txt
+  - arduino --board esp32:esp32:esp32:PartitionScheme=min_spiffs,FlashFreq=80,PSRAM=disabled,CPUFreq=240,FlashMode=qio,FlashSize=4M,DebugLevel=none --pref compiler.warning_level=all --save-prefs
   - build_sketch  $TRAVIS_BUILD_DIR/esp3d/esp3d.ino
   
 notifications:
