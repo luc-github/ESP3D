@@ -89,7 +89,7 @@ Feedback on 2.0 was : ESP3D being a library is not really useful and make setup 
 
 1. Please follow installation of the ESP core you want to use : [ESP8266 core version](https://github.com/esp8266/Arduino)  or [ESP32 core version](https://github.com/espressif/arduino-esp32)   
 2.  Add libraries  
-If you want async webserver (currently not recommended for ESP8266, suggested for ESP32):   
+If you want async webserver (currently not recommended due to reliability issues):   
 * ESPAsyncWebServer from @me-no-dev   
 if you target ESP8266  
 * ESPAsyncTCP from @me-no-dev   
@@ -97,7 +97,7 @@ if you target ESP32:
 * AsyncTCP from @me-no-dev 
 Specific for ESP32    
 * ESP32SSDP
-If you want sync webserver (recommended for ESP8266, slow for ESP32):  
+If you want sync webserver (recommended as stable):  
 * arduinoWebSockets fron @Links2004    
 
 If you want OLED support:  
