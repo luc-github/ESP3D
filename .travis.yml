@@ -15,7 +15,7 @@ before_script:
   - git clone https://github.com/esp8266/Arduino.git esp8266
   - cd esp8266
   - git checkout 2.4.0
-  - cd esp8266/tools
+  - cd tools
   - python get.py
   
 
