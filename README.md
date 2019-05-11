@@ -136,7 +136,8 @@ Check [Wiki](https://github.com/luc-github/ESP3D/wiki/Install-Instructions) or [
 Check [Wiki](https://github.com/luc-github/ESP3D/wiki/Install-Instructions) and [FAQ](https://github.com/luc-github/ESP3D/issues?utf8=%E2%9C%93&q=label%3AFAQ+) or [submit ticket](https://github.com/luc-github/ESP3D/issues)    
 
 ## ESP3D is used by :
-* Custom version is used on azteeg mini wifi : http://www.panucatt.com/azteeg_X5_mini_reprap_3d_printer_controller_p/ax5mini.htm and Wifi boards for 3D printers : https://www.panucatt.com/ProductDetails.asp?ProductCode=WB8266
+* Custom version is used on azteeg mini wifi : http://www.panucatt.com/azteeg_X5_mini_reprap_3d_printer_controller_p/ax5mini.htm    
+Wifi boards for 3D printers : https://www.panucatt.com/ProductDetails.asp?ProductCode=WB8266
 * Several boards, mostly chinese ones, but without noticed me, so I can't promote them here... 
 * More to come...
 
