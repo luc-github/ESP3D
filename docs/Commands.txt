@@ -73,7 +73,8 @@ if RAW=YES do not set pinmode just read value
 * Output to oled line 4
 [ESP214]<Text>
 
-
+* Give EEPROM Version detected
+[ESP300]
 
 *Get full EEPROM settings content
 but do not give any passwords
@@ -132,16 +133,23 @@ cmd can be RESET, SAFEMODE, CONFIG, RESTART
 if authentication is on, need admin password for RESET, RESTART and SAFEMODE
 [ESP444]<cmd>pwd=<admin password>
 
+* Send GCode with check sum caching right line numbering
+[ESP500]<gcode>
+
+* Send line checksum
+[ESP501]<line>
+
 * Change / Reset user password
 [ESP555]<password>pwd=<admin password>
 if no password set it use default one
 
-* Send GCode with check sum caching right line numbering
-[ESP600]<gcode>
+* Send Notification
+[ESP600]msg [pwd=<admin password>]
 
-* Send line checksum
-[ESP601]<line>
-    
+* Set/Get Notification settings
+[ESP610]type=<NONE/PUSHOVER/EMAIL/LINE> T1=<token1> T2=<token2> TS=<Settings> [pwd=<admin password>]
+Get will give type and settings only not the protected T1/T2
+
 * Read SPIFFS file and send each line to serial
 [ESP700]<filename>
 
@@ -157,7 +165,5 @@ if no password set it use default one
 * Get fw target
 [ESP801]<header answer>
 
-* Check SD presence
-[ESP802]
 
 

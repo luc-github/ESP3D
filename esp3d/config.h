@@ -19,7 +19,7 @@
 */
 
 //version and sources location
-#define FW_VERSION "2.1.0.c26"
+#define FW_VERSION "2.1.0.b27"
 #define REPOSITORY "https://github.com/luc-github/ESP3D"
 
 //Customize ESP3D ////////////////////////////////////////////////////////////////////////
@@ -27,7 +27,7 @@
 #define ESP8266_MODEL_URL "http://espressif.com/en/products/esp8266/"
 #define ESP32_MODEL_NAME "ESP32"
 #define ESP32_MODEL_URL "https://www.espressif.com/en/products/hardware/esp-wroom-32/overview"
-#define ESP_MODEL_NUMBER "ESP3D 2.0" 
+#define ESP_MODEL_NUMBER "ESP3D 2.1" 
 #define ESP_MANUFACTURER_NAME "Espressif Systems"
 #define ESP_MANUFACTURER_URL "http://espressif.com"
 //default name if no mac address is valid
@@ -47,6 +47,9 @@
 
 //TCP_IP_DATA_FEATURE: allow to connect serial from TCP/IP
 #define TCP_IP_DATA_FEATURE
+
+//NOTIFICATION_FEATURE : allow to push notifications
+#define NOTIFICATION_FEATURE
 
 //MDNS_FEATURE: this feature allow  type the name defined
 //in web browser by default: http:\\esp8266.local and connect
@@ -111,10 +114,10 @@
 #endif
 
 #ifdef DHT_FEATURE
-#define ESP_DHT_PIN 15
+#define ESP_DHT_PIN 2
 #endif
 
-//Pins where the screen is connected
+//Pins where the screen is connected 
 #ifdef ESP_OLED_FEATURE
 #define OLED_DISPLAY_SSD1306  // OLED Display Type: SSD1306(OLED_DISPLAY_SSD1306) / SH1106(OLED_DISPLAY_SH1106), comment this line out to disable oled
 #define OLED_PIN_SDA  4  //5 //SDA;  // i2c SDA Pin
@@ -306,7 +309,8 @@ typedef enum {
 #define EP_OUTPUT_FLAG			129 //1  bytes = flag
 #define EP_HOSTNAME				130//33 bytes 32+1 = string  ; warning does not support multibyte char like chinese
 #define EP_DHT_INTERVAL		    164//4  bytes = int
-#define EP_FREE_INT2		    168//4  bytes = int
+#define ESP_NOTIFICATION_TYPE   168     //1 byte = flag
+#define EP_FREE_INT2		    169//3  bytes = int
 #define EP_FREE_INT3		    172//4  bytes = int
 #define EP_ADMIN_PWD		    176//21  bytes 20+1 = string  ; warning does not support multibyte char like chinese
 #define EP_USER_PWD		    197//21  bytes 20+1 = string  ; warning does not support multibyte char like chinese
@@ -318,7 +322,8 @@ typedef enum {
 #define EP_AP_IP_MODE			329   //1 byte = flag
 #define EP_AP_PHY_MODE			330  //1 byte = flag
 #define EP_SD_SPEED_DIV			331  //1 byte = flag
-#define EP_FREE_STRING1			332  //128 bytes 127+1 = string  ; warning does not support multibyte char like chinese
+#define ESP_NOTIFICATION_TOKEN1 332    //64 bytes 63+1 = string  ; warning does not support multibyte char like chinese
+#define ESP_NOTIFICATION_TOKEN2 396    //64 bytes 63+1 = string  ; warning does not support multibyte char like chinese
 #define EP_DHT_TYPE		460 //1  bytes = flag
 #define EP_TARGET_FW		461 //1  bytes = flag
 #define EP_TIMEZONE         462//1  bytes = flag
@@ -331,14 +336,11 @@ typedef enum {
 #define EP_SECONDARY_SD   852//1  bytes = flag
 #define EP_DIRECT_SD_CHECK   853//1  bytes = flag
 #define EP_SD_CHECK_UPDATE_AT_BOOT   854//1  bytes = flag
+#define ESP_NOTIFICATION_SETTINGS 855//128 bytes 127+1 = string  ; warning does not support multibyte char like chinese
 
-#define LAST_EEPROM_ADDRESS 855
-//next available is 855
-//space left 1024 - 855 = 169
-//extra fre
-//#define EP_FREE_INT2		    168//4  bytes = int
-//#define EP_FREE_INT3		    172//4  bytes = int
-//#define EP_FREE_STRING1			331  //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese
+#define EP_EEPROM_VERSION 1017// 6 bytes = ESP3D<V on one byte>
+
+#define LAST_EEPROM_ADDRESS 983
 
 //default values
 #define DEFAULT_WIFI_MODE			AP_MODE
@@ -365,9 +367,9 @@ const char DEFAULT_ADMIN_PWD []  PROGMEM =	"admin";
 const char DEFAULT_USER_PWD []  PROGMEM =	"user";
 const char DEFAULT_ADMIN_LOGIN []  PROGMEM =	"admin";
 const char DEFAULT_USER_LOGIN []  PROGMEM =	"user";
-const char DEFAULT_TIME_SERVER1 []  PROGMEM =	"time.nist.gov";
-const char DEFAULT_TIME_SERVER2 []  PROGMEM =	"0.pool.ntp.org";
-const char DEFAULT_TIME_SERVER3 []  PROGMEM =	"1.pool.ntp.org";
+const char DEFAULT_TIME_SERVER1 []  PROGMEM =	"1.pool.ntp.org";
+const char DEFAULT_TIME_SERVER2 []  PROGMEM =	"2.pool.ntp.org";
+const char DEFAULT_TIME_SERVER3 []  PROGMEM =	"0.pool.ntp.org";
 #define DEFAULT_TIME_ZONE			0
 #define DEFAULT_TIME_DST			0
 #define DEFAULT_PRIMARY_SD  2
@@ -376,9 +378,29 @@ const char DEFAULT_TIME_SERVER3 []  PROGMEM =	"1.pool.ntp.org";
 #define DEFAULT_SD_CHECK_UPDATE_AT_BOOT 1
 #define DEFAULT_OUTPUT_FLAG 0
 #define DEFAULT_DHT_TYPE 255
-const int DEFAULT_DHT_INTERVAL =			30;
+const int DEFAULT_DHT_INTERVAL = 30;
 
+
+#define MIN_NOTIFICATION_TOKEN_LENGTH 0
+#define MIN_NOTIFICATION_SETTINGS_LENGTH 0
+#define MAX_NOTIFICATION_TOKEN_LENGTH 63
+#define MAX_NOTIFICATION_SETTINGS_LENGTH 127
+
+#define DEFAULT_NOTIFICATION_TYPE 0
+#define DEFAULT_NOTIFICATION_TOKEN1 ""
+#define DEFAULT_NOTIFICATION_TOKEN2 ""
+#define DEFAULT_NOTIFICATION_SETTINGS ""
+
+//Notifications
+#define ESP_PUSHOVER_NOTIFICATION	1
+#define ESP_EMAIL_NOTIFICATION		2
+#define ESP_LINE_NOTIFICATION		3
+
+#ifdef SDCARD_FEATURE
+#define DEFAULT_IS_DIRECT_SD 1
+#else
 #define DEFAULT_IS_DIRECT_SD 0
+#endif
 
 //SD Card reader speed
 //possible values are :SPI_FULL_SPEED, SPI_DIV3_SPEED,
@@ -386,7 +408,7 @@ const int DEFAULT_DHT_INTERVAL =			30;
 //SPI_EIGHTH_SPEED, SPI_SIXTEENTH_SPEED
 //Decrease if reader give error
 #ifdef ARDUINO_ARCH_ESP8266
-#define DEFAULT_SDREADER_SPEED SPI_HALF_SPEED
+#define DEFAULT_SDREADER_SPEED 2
 #else
 #define DEFAULT_SDREADER_SPEED 4
 #endif
@@ -467,6 +489,14 @@ const uint16_t Setting[][2] = {
 #define MIN_HOSTNAME_LENGTH		1
 #define WL_MAC_ADDR_LENGTH 6
 
+//EEPROM Version
+#define EEPROM_V0 0
+#define EEPROM_V1 1
+#define EEPROM_V2 2
+
+#define EEPROM_CURRENT_VERSION EEPROM_V2
+
+
 #if defined(ASYNCWEBSERVER)
 class AsyncResponseStream;
 typedef  AsyncResponseStream ESPResponseStream; 
@@ -512,13 +542,16 @@ public:
     static uint8_t GetFirmwareTarget();
     static const char* GetFirmwareTargetName();
     static const char* GetFirmwareTargetShortName();
+    static uint8_t get_EEPROM_version();
+    static bool set_EEPROM_version(uint8_t v);
+    static bool adjust_EEPROM_settings();
     static bool isHostnameValid (const char * hostname);
     static bool isSSIDValid (const char * ssid);
     static bool isPasswordValid (const char * password);
     static bool isLocalPasswordValid (const char * password);
     static bool isIPValid (const char * IP);
     static char * intTostr (int value);
-    static String formatBytes (uint32_t bytes);
+    static String formatBytes (uint64_t bytes);
     static char * mac2str (uint8_t mac [WL_MAC_ADDR_LENGTH]);
     static byte split_ip (const char * ptr, byte * part);
     static void esp_restart (bool async = false);

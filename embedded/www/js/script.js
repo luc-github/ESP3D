@@ -43,6 +43,7 @@ function compareStrings(a, b) {
 function dispatchfilestatus(jsonresponse)
 {
 var content ="";
+var display_message = false;
 content ="&nbsp;&nbsp;Status: "+jsonresponse.status;
 content +="&nbsp;&nbsp;|&nbsp;&nbsp;Total space: "+jsonresponse.total;
 content +="&nbsp;&nbsp;|&nbsp;&nbsp;Used space: "+jsonresponse.used;
@@ -56,6 +57,9 @@ if (currentpath!="/")
      var previouspath = currentpath.slice(0,pos+1);
      content +="<tr style='cursor:hand;' onclick=\"currentpath='"+previouspath+"'; SendCommand('list','all');\"><td >"+back_icon()+"</td><td colspan='4'> Up..</td></tr>";
     }
+if (currentpath=="/") {
+    display_message = true;
+}
 jsonresponse.files.sort(function(a, b) {
     return compareStrings(a.name, b.name);
 });
@@ -68,6 +72,9 @@ if (String(jsonresponse.files[i1].size) != "-1")
     content +="<line x1='5' y1='10' x2='13' y2='10' stroke='black' stroke-width='1'/>	<line x1='5' y1='14' x2='13' y2='14' stroke='black' stroke-width='1'/>	<line x1='5' y1='18' x2='13' y2='18' stroke='black' stroke-width='1'/></svg></td>";
     content +="<TD class='btnimg' style=\"padding:0px;\"><a href=\""+jsonresponse.path+jsonresponse.files[i1].name+"\" target=_blank><div class=\"blacklink\">";
     content +=jsonresponse.files[i1].name;
+    if ((jsonresponse.files[i1].name == "index.html.gz")||(jsonresponse.files[i1].name == "index.html")){
+        display_message = false;
+    }
     content +="</div></a></TD><TD>";
     content +=jsonresponse.files[i1].size;
     content +="</TD><TD width='0%'><div class=\"btnimg\" onclick=\"Delete('"+jsonresponse.files[i1].name+"')\">";
@@ -89,6 +96,12 @@ if (String(jsonresponse.files[i2].size) == "-1")
     content +="</div></TD><td></td></TR>";
     }
 }
+if (display_message) {
+    
+    document.getElementById('MSG').innerHTML = "File index.html.gz is missing, please upload it";
+ } else {
+     document.getElementById('MSG').innerHTML = "<a href='/' class= 'btn btn-primary'>Go to ESP3D interface</a>";
+ }
 
  document.getElementById('file_list').innerHTML=content;
  document.getElementById('path').innerHTML=navbar();}
@@ -116,7 +129,7 @@ xmlhttp.onreadystatechange = function() {
         var jsonresponse = JSON.parse(xmlhttp.responseText);
         document.getElementById('loader').style.visibility="hidden";
         dispatchfilestatus(jsonresponse);}
-        else SubmitRequest ()
+        else SubmitRequest ();
     }
 };
 xmlhttp.open("GET", url, true);
@@ -171,8 +184,7 @@ var files = document.getElementById('fw-select').files;
 if (files.length==0)return;
 document.getElementById('uploadfw-button').style.visibility = 'hidden';
 document.getElementById('fw-select').style.visibility = 'hidden';
-document.getElementById('msg').style.visibility = "visible";
-document.getElementById('msg').innerHTML="";
+document.getElementById('MSG').innerHTML="";
 document.getElementById('SPIFFS').style.display = "none";
 document.getElementById('prgfw').style.visibility = "visible";
 var formData = new FormData();
@@ -191,7 +203,7 @@ function updateProgress (oEvent) {
   if (oEvent.lengthComputable) {
     var percentComplete = (oEvent.loaded / oEvent.total)*100;
     document.getElementById('prgfw').value=percentComplete;
-   document.getElementById('msg').innerHTML = "Uploading ..." + percentComplete.toFixed(0)+"%" ;
+   document.getElementById('MSG').innerHTML = "Uploading ..." + percentComplete.toFixed(0)+"%" ;
   } else {
     // Impossible because size is unknown
   }
@@ -199,7 +211,7 @@ function updateProgress (oEvent) {
 xmlhttp.onload = function () {
  if (xmlhttp.status === 200) {
 document.getElementById('uploadfw-button').value = 'Upload';
-document.getElementById('msg').innerHTML="Restarting, please wait....";
+document.getElementById('MSG').innerHTML="Restarting, please wait....";
 document.getElementById('counter').style.visibility = "visible";
 document.getElementById('uploadfw-button').style.visibility = 'hidden';
 document.getElementById('uploadfw-button').style.width = '0px';
@@ -220,7 +232,9 @@ else if (jsonresponse.status=='3')
 		i5=i5+1;
 		var x = document.getElementById("prgfw");
 		x.value=i5;
-        document.getElementById('counter').innerHTML=41-i5;
+		var st =  41-i5;
+		st = st + " seconds";
+        document.getElementById('counter').innerHTML=st;
 		if (i5>40)
 			{
 			clearInterval(interval);

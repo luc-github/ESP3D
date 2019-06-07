@@ -43,6 +43,11 @@ int ChannelAttached2Pin[16]={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
 #include "DHTesp.h"
 extern DHTesp dht;
 #endif 
+
+#ifdef NOTIFICATION_FEATURE
+#include "notifications_service.h"
+#endif
+
 String COMMAND::buffer_serial;
 String COMMAND::buffer_tcp;
 
@@ -441,6 +446,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
     //restart time client
     case 114: {
         CONFIG::init_time_client();
+        ESPCOM::println (OK_CMD_MSG, output, espresponse);
         LOG ("restart time client\r\n")
     }
     break;
@@ -462,7 +468,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
         stmp += String(tmstruct.tm_min) + ":";
         if (tmstruct.tm_sec < 10) stmp +="0";
         stmp += String(tmstruct.tm_sec);
-        ESPCOM::println(stmp.c_str(), output);
+        ESPCOM::println(stmp.c_str(), output, espresponse);
     }
     break;
 #endif
@@ -694,6 +700,13 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
 		}
 		break;
 #endif
+    //display ESP3D EEPROM version detected
+    case 300:
+    {
+        uint8_t v = CONFIG::get_EEPROM_version();
+        ESPCOM::println (String(v).c_str(), output, espresponse);
+    }
+    break;
     //Get full EEPROM settings content
     //[ESP400]
     case 400: {
@@ -1077,7 +1090,6 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
             ESPCOM::print (F ("\",\"H\":\"AP Static Gateway\"}"), output, espresponse);
 #if defined(TIMESTAMP_FEATURE)
             ESPCOM::println (F (","), output, espresponse);
-
             //26-Time zone
             ESPCOM::print (F ("{\"F\":\"network\",\"P\":\""), output, espresponse);
             ESPCOM::print ( (const char *) CONFIG::intTostr (EP_TIMEZONE), output, espresponse);
@@ -1160,6 +1172,71 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
             ESPCOM::print ( (const char *) CONFIG::intTostr (MIN_DATA_LENGTH), output, espresponse);
             ESPCOM::print (F ("\"}"), output, espresponse);
 #endif
+
+#ifdef NOTIFICATION_FEATURE
+            ESPCOM::println (F (","), output, espresponse);
+            //Notification type
+            ESPCOM::print (F ("{\"F\":\"network\",\"P\":\""), output, espresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (ESP_NOTIFICATION_TYPE), output, espresponse);
+            ESPCOM::print (F("\",\"T\":\"B\",\"V\":\""), output, espresponse);
+            if (!CONFIG::read_byte (ESP_NOTIFICATION_TYPE, &bbuf ) ) {
+                ESPCOM::print ("???", output, espresponse);
+            } else {
+                ESPCOM::print ( (const char *) CONFIG::intTostr (bbuf), output, espresponse);
+            }
+            ESPCOM::print (F("\",\"H\":\"Notification\",\"O\":[{\"None\":\"0\"},{\"Pushover\":\""), output, espresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (ESP_PUSHOVER_NOTIFICATION), output, espresponse);
+            ESPCOM::print (F("\"},{\"Email\":\""), output, espresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (ESP_EMAIL_NOTIFICATION), output, espresponse);
+            ESPCOM::print (F("\"},{\"Line\":\""), output, espresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (ESP_LINE_NOTIFICATION), output, espresponse);
+            ESPCOM::print (F("\"}]}"), output, espresponse);
+            ESPCOM::println (F (","), output, espresponse);
+            //Token 1
+            ESPCOM::print (F("{\"F\":\"network\",\"P\":\""), output, espresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (ESP_NOTIFICATION_TOKEN1), output, espresponse);
+            ESPCOM::print ( F("\",\"T\":\"S\",\"V\":\""), output, espresponse);
+            if (!CONFIG::read_string (ESP_NOTIFICATION_TOKEN1, sbuf, MAX_NOTIFICATION_TOKEN_LENGTH) ) {
+                ESPCOM::print ("???", output, espresponse);
+            } else {
+                ESPCOM::print ("********", output, espresponse);
+            }
+            ESPCOM::print ( F("\",\"S\":\""), output, espresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (MAX_NOTIFICATION_TOKEN_LENGTH), output, espresponse);
+            ESPCOM::print ( F ("\",\"H\":\"Token 1\",\"M\":\""), output, espresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (MIN_NOTIFICATION_TOKEN_LENGTH), output, espresponse);
+            ESPCOM::print ( F("\"}"), output, espresponse);
+            ESPCOM::println (F (","), output, espresponse);
+            //Token 2
+            ESPCOM::print (F("{\"F\":\"network\",\"P\":\""), output, espresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (ESP_NOTIFICATION_TOKEN2), output, espresponse);
+            ESPCOM::print ( F("\",\"T\":\"S\",\"V\":\""), output, espresponse);
+            if (!CONFIG::read_string (ESP_NOTIFICATION_TOKEN2, sbuf, MAX_NOTIFICATION_TOKEN_LENGTH) ) {
+                ESPCOM::print ("???", output, espresponse);
+            } else {
+                ESPCOM::print ("********", output, espresponse);
+            }
+            ESPCOM::print ( F("\",\"S\":\""), output, espresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (MAX_NOTIFICATION_TOKEN_LENGTH), output, espresponse);
+            ESPCOM::print ( F ("\",\"H\":\"Token 2\",\"M\":\""), output, espresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (MIN_NOTIFICATION_TOKEN_LENGTH), output, espresponse);
+            ESPCOM::print ( F("\"}"), output, espresponse);
+            ESPCOM::println (F (","), output, espresponse);
+            //Notifications Settings
+            ESPCOM::print (F("{\"F\":\"network\",\"P\":\""), output, espresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (ESP_NOTIFICATION_SETTINGS), output, espresponse);
+            ESPCOM::print ( F("\",\"T\":\"S\",\"V\":\""), output, espresponse);
+            if (!CONFIG::read_string (ESP_NOTIFICATION_SETTINGS, sbuf, MAX_NOTIFICATION_TOKEN_LENGTH) ) {
+                ESPCOM::print ("???", output, espresponse);
+            } else {
+                ESPCOM::print (sbuf, output, espresponse);
+            }
+            ESPCOM::print ( F("\",\"S\":\""), output, espresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (MAX_NOTIFICATION_SETTINGS_LENGTH), output, espresponse);
+            ESPCOM::print ( F ("\",\"H\":\"Notifications Settings\",\"M\":\""), output, espresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (MIN_NOTIFICATION_SETTINGS_LENGTH), output, espresponse);
+            ESPCOM::print ( F("\"}"), output, espresponse);
+#endif //NOTIFICATION_FEATURE
         }
 
         if (cmd_params == "printer" || cmd_params == "") {
@@ -1470,6 +1547,46 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
             }
         }
         break;
+    //[ESP500]<gcode>
+    case 500: { //send GCode with check sum caching right line numbering
+        //be sure serial is locked
+        if ( (web_interface->blockserial) ) {
+            break;
+        }
+        int32_t linenb = 1;
+        cmd_params.trim() ;
+        if (sendLine2Serial (cmd_params, linenb,  &linenb))ESPCOM::println (OK_CMD_MSG, output, espresponse);
+        else { //it may failed because of skip if repetier so let's reset numbering first
+            if ( ( CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER) ) {
+                //reset numbering
+                String cmd = "M110 N0";
+                if (sendLine2Serial (cmd, -1,  NULL)){
+                    linenb = 1;
+                    //if success let's try again to send the command
+                    if (sendLine2Serial (cmd_params, linenb,  &linenb))ESPCOM::println (OK_CMD_MSG, output, espresponse);
+                    else {
+                        ESPCOM::println (ERROR_CMD_MSG, output, espresponse);
+                        response = false;
+                    }
+                } else {
+                    ESPCOM::println (ERROR_CMD_MSG, output, espresponse);
+                    response = false;
+                }
+            } else {
+                
+                ESPCOM::println (ERROR_CMD_MSG, output, espresponse);
+                response = false;
+            }
+        }
+    }
+        break;
+    //[ESP501]<line>
+    case 501: { //send line checksum
+        cmd_params.trim();
+        int8_t chk = Checksum(cmd_params.c_str(),cmd_params.length());
+        String schecksum = "Checksum: " + String(chk);
+        ESPCOM::println (schecksum, output, espresponse);
+    }
 #ifdef AUTHENTICATION_FEATURE
     //Change / Reset user password
     //[ESP555]<password>pwd=<admin password>
@@ -1503,47 +1620,119 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
         break;
     }
 #endif
-    //[ESP600]<gcode>
-    case 600: { //send GCode with check sum caching right line numbering
-        //be sure serial is locked
-        if ( (web_interface->blockserial) ) {
-            break;
+#ifdef NOTIFICATION_FEATURE
+    //Send Notification
+    //[ESP600]msg [pwd=<admin password>]
+    case 600:
+#ifdef AUTHENTICATION_FEATURE
+        if (auth_type == LEVEL_GUEST) {
+            ESPCOM::println (INCORRECT_CMD_MSG, output, espresponse);
+            return false;
         }
-        int32_t linenb = 1;
-        cmd_params.trim() ;
-        if (sendLine2Serial (cmd_params, linenb,  &linenb))ESPCOM::println (OK_CMD_MSG, output, espresponse);
-        else { //it may failed because of skip if repetier so let's reset numbering first
-            if ( ( CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER) ) {
-                //reset numbering
-                String cmd = "M110 N0";
-                if (sendLine2Serial (cmd, -1,  NULL)){
-                    linenb = 1;
-                    //if success let's try again to send the command
-                    if (sendLine2Serial (cmd_params, linenb,  &linenb))ESPCOM::println (OK_CMD_MSG, output, espresponse);
-                    else {
-                        ESPCOM::println (ERROR_CMD_MSG, output, espresponse);
-                        response = false;
-                    }
-                } else {
-                    ESPCOM::println (ERROR_CMD_MSG, output, espresponse);
-                    response = false;
+#endif
+        parameter = get_param (cmd_params, "", true);
+        if (parameter.length() == 0) {
+            ESPCOM::println (INCORRECT_CMD_MSG, output, espresponse);
+            return false;
+        }
+        if (notificationsservice.sendMSG("ESP3D Notification", parameter.c_str())) {
+            ESPCOM::println (OK_CMD_MSG, output, espresponse);
+        } else {
+            ESPCOM::println (ERROR_CMD_MSG, output, espresponse);
+            response = false;
+        }
+        break;
+    //Set/Get Notification settings
+    //[ESP610]type=<NONE/PUSHOVER/EMAIL/LINE> T1=<token1> T2=<token2> TS=<Settings> [pwd=<admin password>]
+    //Get will give type and settings only not the protected T1/T2
+    case 610:
+#ifdef AUTHENTICATION_FEATURE
+        if (auth_type == LEVEL_GUEST) {
+            ESPCOM::println (INCORRECT_CMD_MSG, output, espresponse);
+            return false;
+        }
+#endif
+        parameter = get_param (cmd_params, "", false);
+        //get
+        if (parameter.length() == 0) {
+            uint8_t Ntype =  0;
+            if (!CONFIG::read_byte (ESP_NOTIFICATION_TYPE, &Ntype ) ){
+                Ntype =0;
+            }
+            char sbuf[MAX_DATA_LENGTH + 1];
+            static String tmp;
+            tmp = (Ntype == ESP_PUSHOVER_NOTIFICATION)?"PUSHOVER":(Ntype == ESP_EMAIL_NOTIFICATION)?"EMAIL":(Ntype == ESP_LINE_NOTIFICATION)?"LINE":"NONE";
+            if (CONFIG::read_string (ESP_NOTIFICATION_SETTINGS, sbuf, MAX_NOTIFICATION_SETTINGS_LENGTH) ) {
+                tmp+= " ";
+                tmp += sbuf;
                 }
+            ESPCOM::println (tmp.c_str(), output, espresponse);
+        } else {
+            response = false;
+            //type
+            parameter = get_param (cmd_params, "type=");
+            if (parameter.length() > 0) {
+                uint8_t Ntype;
+                parameter.toUpperCase();
+                if (parameter == "NONE") {
+                    Ntype = 0;
+                } else if (parameter == "PUSHOVER") {
+                    Ntype = ESP_PUSHOVER_NOTIFICATION;
+                } else if (parameter == "EMAIL") {
+                    Ntype = ESP_EMAIL_NOTIFICATION;
+                } else if (parameter == "LINE") {
+                    Ntype = ESP_LINE_NOTIFICATION;
+                } else {
+                    ESPCOM::println (INCORRECT_CMD_MSG, output, espresponse);
+                    return false;
+                }
+                if (!CONFIG::write_byte (ESP_NOTIFICATION_TYPE, Ntype) ) {
+                    ESPCOM::println (ERROR_CMD_MSG, output, espresponse);
+                    return false;
+                } else {
+                    response = true;
+                }
+            }
+            //Settings
+            parameter = get_param (cmd_params, "TS=");
+            if (parameter.length() > 0) {
+                if (!CONFIG::write_string (ESP_NOTIFICATION_SETTINGS, parameter.c_str() ) ) {
+                     ESPCOM::println (ERROR_CMD_MSG, output, espresponse);
+                    return false;
+                } else {
+                    response = true;
+                }
+            }
+            //Token1
+            parameter = get_param (cmd_params, "T1=");
+            if (parameter.length() > 0) {
+                if (!CONFIG::write_string (ESP_NOTIFICATION_TOKEN1, parameter.c_str() ) ) {
+                     ESPCOM::println (ERROR_CMD_MSG, output, espresponse);
+                    return false;
+                } else {
+                    response = true;
+                }
+            }
+            //Token2
+            parameter = get_param (cmd_params, "T2=");
+            if (parameter.length() > 0) {
+                if (!CONFIG::write_string (ESP_NOTIFICATION_TOKEN2, parameter.c_str() ) ) {
+                     ESPCOM::println (ERROR_CMD_MSG, output, espresponse);
+                    return false;
+                } else {
+                    response = true;
+                }
+            }
+            if (response) {
+                //Restart service
+                notificationsservice.begin();
+                ESPCOM::println (OK_CMD_MSG, output, espresponse);
             } else {
-                
                 ESPCOM::println (ERROR_CMD_MSG, output, espresponse);
-                response = false;
             }
         }
-    }
         break;
-    //[ESP601]<line>
-    case 601: { //send line checksum
-        cmd_params.trim();
-        int8_t chk = Checksum(cmd_params.c_str(),cmd_params.length());
-        String schecksum = "Checksum: " + String(chk);
-        ESPCOM::println (schecksum, output, espresponse);
-    }
-        break;
+#endif
     //[ESP700]<filename>
     case 700: { //read local file
         //be sure serial is locked
@@ -1747,6 +1936,9 @@ bool COMMAND::check_command (String buffer, tpipe output, bool handlelockserial,
     if (executecmd) {
         String ESP_Command;
         int ESPpos = buffer.indexOf ("[ESP");
+        if (ESPpos == -1 && (CONFIG::GetFirmwareTarget() == SMOOTHIEWARE)){
+            ESPpos = buffer.indexOf ("[esp");
+        }
         if (ESPpos > -1) {
             //is there the second part?
             int ESPpos2 = buffer.indexOf ("]", ESPpos);

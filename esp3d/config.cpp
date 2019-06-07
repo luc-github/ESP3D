@@ -43,6 +43,10 @@ extern "C" {
 extern DHTesp dht;
 #endif 
 
+#ifdef NOTIFICATION_FEATURE
+#include "notifications_service.h"
+#endif
+
 uint8_t CONFIG::FirmwareTarget = UNKNOWN_FW;
 byte CONFIG::output_flag = DEFAULT_OUTPUT_FLAG;
 
@@ -206,7 +210,7 @@ bool CONFIG::InitBaudrate(long value)
 #endif
 
     wifi_config.baud_rate = baud_rate;
-    delay (1000);
+    delay (100);
     return true;
 }
 
@@ -228,8 +232,9 @@ void CONFIG::esp_restart (bool async)
 {
     LOG ("Restarting\r\n")
     ESPCOM::flush (DEFAULT_PRINTER_PIPE);
+    SPIFFS.end();
     if (!async) {
-        delay (100);
+        delay (1000);
     }
 #ifdef ARDUINO_ARCH_ESP8266
 	//ESP8266  has only serial
@@ -435,16 +440,16 @@ char * CONFIG::intTostr (int value)
     return result;
 }
 
-String CONFIG::formatBytes (uint32_t bytes)
+String CONFIG::formatBytes (uint64_t bytes)
 {
     if (bytes < 1024) {
-        return String (bytes) + " B";
+        return String ((uint16_t)bytes) + " B";
     } else if (bytes < (1024 * 1024) ) {
-        return String (bytes / 1024.0) + " KB";
+        return String ((float)(bytes / 1024.0)) + " KB";
     } else if (bytes < (1024 * 1024 * 1024) ) {
-        return String (bytes / 1024.0 / 1024.0) + " MB";
+        return String ((float)(bytes / 1024.0 / 1024.0)) + " MB";
     } else {
-        return String (bytes / 1024.0 / 1024.0 / 1024.0) + " GB";
+        return String ((float)(bytes / 1024.0 / 1024.0 / 1024.0)) + " GB";
     }
 }
 
@@ -496,6 +501,64 @@ char * CONFIG::mac2str (uint8_t mac [WL_MAC_ADDR_LENGTH])
     return macstr;
 }
 
+
+bool CONFIG::set_EEPROM_version(uint8_t v){
+    byte byte_buffer[6];
+    byte_buffer[0]='E';
+    byte_buffer[1]='S';
+    byte_buffer[2]='P';
+    byte_buffer[3]='3';
+    byte_buffer[4]='D';
+    byte_buffer[5]=v;
+    return CONFIG::write_buffer (EP_EEPROM_VERSION, byte_buffer, 6);
+}
+
+uint8_t CONFIG::get_EEPROM_version(){
+    byte byte_buffer[6];
+    long baud_rate;
+    if (!CONFIG::read_buffer (EP_EEPROM_VERSION, byte_buffer, 6)) return EEPROM_V0;
+    if ((byte_buffer[0]=='E') && (byte_buffer[1]=='S') && (byte_buffer[2]=='P')&& (byte_buffer[3]=='3') && (byte_buffer[4]=='D')){
+        return byte_buffer[5];
+    }
+    
+    if ( !CONFIG::read_buffer (EP_BAUD_RATE,  (byte *) &baud_rate, INTEGER_LENGTH) ) {
+			return EEPROM_V0;
+		}
+    if ((baud_rate == 9600 || baud_rate == 19200 || baud_rate == 38400 || baud_rate == 57600 || baud_rate == 115200 || baud_rate == 230400 || baud_rate == 250000 || baud_rate == 500000 || baud_rate == 921600 ) ) {
+        return EEPROM_V1;
+    }
+    return EEPROM_V0;
+}
+
+bool CONFIG::adjust_EEPROM_settings(){
+    uint8_t v = get_EEPROM_version();
+    bool bdone =false;
+    if (v == EEPROM_CURRENT_VERSION) return true;
+    if (v == 1) {
+        bdone =true;
+#ifdef SDCARD_FEATURE
+        if (!CONFIG::write_byte (EP_SD_SPEED_DIV, DEFAULT_SDREADER_SPEED) ) {
+            bdone =false;
+        }
+#endif
+#ifdef DHT_FEATURE
+        if (!CONFIG::write_buffer (EP_DHT_INTERVAL, (const byte *) &DEFAULT_DHT_INTERVAL, INTEGER_LENGTH) ) {
+            bdone =false;
+        }
+        
+        if (!CONFIG::write_byte (EP_DHT_TYPE, DEFAULT_DHT_TYPE) ) {
+            bdone =false;
+        }
+#endif
+     if (!CONFIG::write_byte (EP_OUTPUT_FLAG, DEFAULT_OUTPUT_FLAG) ) {
+            bdone =false;
+        }
+    }
+    if (bdone){
+        set_EEPROM_version(EEPROM_CURRENT_VERSION);
+    }
+    return bdone;
+}
 
 //read a string
 //a string is multibyte + \0, this is won't work if 1 char is multibyte like chinese char
@@ -617,6 +680,13 @@ bool CONFIG::write_string (int pos, const char * byte_buffer)
     case EP_TIME_SERVER2:
     case EP_TIME_SERVER3:
         maxsize = MAX_DATA_LENGTH;
+        break;
+    case ESP_NOTIFICATION_TOKEN1:
+    case ESP_NOTIFICATION_TOKEN2:
+        maxsize = MAX_NOTIFICATION_TOKEN_LENGTH;
+        break;
+    case ESP_NOTIFICATION_SETTINGS:
+        maxsize = MAX_NOTIFICATION_SETTINGS_LENGTH;
         break;
     default:
         maxsize = EEPROM_SIZE;
@@ -789,7 +859,23 @@ bool CONFIG::reset_config()
         return false;
     }
 #endif
-    return true;
+    
+#ifdef NOTIFICATION_FEATURE
+    if (!CONFIG::write_byte (ESP_NOTIFICATION_TYPE, DEFAULT_NOTIFICATION_TYPE) ) {
+        return false;
+    }
+    if (!CONFIG::write_string (ESP_NOTIFICATION_TOKEN1, DEFAULT_NOTIFICATION_TOKEN1 ) ) {
+        return false;
+    }
+    if (!CONFIG::write_string (ESP_NOTIFICATION_TOKEN2, DEFAULT_NOTIFICATION_TOKEN2 ) ) {
+        return false;
+    }
+    if (!CONFIG::write_string (ESP_NOTIFICATION_SETTINGS, DEFAULT_NOTIFICATION_SETTINGS ) ) {
+        return false;
+    }
+#endif
+    
+    return set_EEPROM_version(EEPROM_CURRENT_VERSION);
 }
 
 void CONFIG::print_config (tpipe output, bool plaintext, ESPResponseStream  *espresponse)
@@ -1678,6 +1764,30 @@ void CONFIG::print_config (tpipe output, bool plaintext, ESPResponseStream  *esp
     {
         ESPCOM::print (F ("\n"), output, espresponse);
     }
+#ifdef NOTIFICATION_FEATURE
+if (!plaintext)
+    {
+        ESPCOM::print (F ("\"Notifications\":\""), output, espresponse);
+    } else
+    {
+        ESPCOM::print (F ("Notifications: "), output, espresponse);
+    }
+    if (notificationsservice.started())
+    {
+        ESPCOM::print (notificationsservice.getTypeString(), output, espresponse);
+    } else
+    {
+        ESPCOM::print (F ("Disabled"), output, espresponse);
+    }
+
+    if (!plaintext)
+    {
+        ESPCOM::print (F ("\","), output, espresponse);
+    } else
+    {
+        ESPCOM::print (F ("\n"), output, espresponse);
+    }
+#endif
     
     //Flag Oled
 #ifdef ESP_OLED_FEATURE

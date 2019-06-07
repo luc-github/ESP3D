@@ -94,15 +94,20 @@ Esp3D::Esp3D() {
 void Esp3D::begin(uint16_t startdelayms, uint16_t recoverydelayms)
 {
     // init:
+    //WiFi.disconnect();
+    WiFi.mode (WIFI_OFF);
+    wifi_config.WiFi_on = false;
+    //check EEPROM Version
 #if defined( DEBUG_ESP3D) && defined(DEBUG_OUTPUT_SERIAL)
     CONFIG::InitBaudrate(DEFAULT_BAUD_RATE);
     delay (2000);
     LOG ("\r\nDebug Serial set\r\n")
 #endif
-CONFIG::InitOutput();
+    CONFIG::adjust_EEPROM_settings();
+    CONFIG::InitOutput();
 #ifdef ESP_OLED_FEATURE
-OLED_DISPLAY::begin();
-OLED_DISPLAY::splash();
+    OLED_DISPLAY::begin();
+    OLED_DISPLAY::splash();
 #endif
 #ifdef ARDUINO_ARCH_ESP8266
     struct	rst_info	*rtc_info	=	system_get_rst_info();
@@ -116,9 +121,6 @@ OLED_DISPLAY::splash();
     data_server = NULL;
 #endif
 
-    //WiFi.disconnect();
-    WiFi.mode (WIFI_OFF);
-    wifi_config.WiFi_on = false;
 #ifdef ESP_OLED_FEATURE
 	uint32_t start_display_time = millis();
 	uint32_t now = millis();
@@ -132,7 +134,6 @@ OLED_DISPLAY::splash();
 #else
     delay (startdelayms);
 #endif
-    
     CONFIG::InitDirectSD();
     CONFIG::InitPins();
 #ifdef RECOVERY_FEATURE
@@ -147,7 +148,6 @@ OLED_DISPLAY::splash();
         breset_config = true;  //cannot access to config settings=> reset settings
         LOG ("Error no EEPROM access\r\n")
     }
-
     //reset is requested
     if (breset_config) {
         //update EEPROM with default settings
@@ -180,13 +180,27 @@ OLED_DISPLAY::splash();
 #endif
     //get target FW
     CONFIG::InitFirmwareTarget();
+    delay(100);
     //Update is done if any so should be Ok
 #ifdef ARDUINO_ARCH_ESP32
     SPIFFS.begin (true);
 #else
     SPIFFS.begin();
 #endif
-
+//basic autostart
+	if(SPIFFS.exists("/autostart.g")){
+		FS_FILE file = SPIFFS.open("/autostart.g", SPIFFS_FILE_READ);
+        if (file){
+			String autoscript = file.readString();
+			if (autoscript.length() > 0){
+				//clean line
+				autoscript.replace("\n","");
+				autoscript.replace("\r","");
+				ESPCOM::println (autoscript.c_str(), DEFAULT_PRINTER_PIPE);
+			}
+			file.close();
+		}
+	}
     //setup wifi according settings
     if (!wifi_config.Setup() ) {
         ESPCOM::println (F ("Safe mode 1"), PRINTER_PIPE);
@@ -196,7 +210,7 @@ OLED_DISPLAY::splash();
             wifi_config.Safe_Setup();
         }
     }
-    delay (1000);
+    delay (100);
     //setup servers
     if (!wifi_config.Enable_servers() ) {
         ESPCOM::println (F ("Error enabling servers"), PRINTER_PIPE);

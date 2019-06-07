@@ -256,8 +256,6 @@ bool sendLine2Serial (String &  line, int32_t linenb,  int32_t * newlinenb)
     return false;
 }
 
-
-
 //send M29 / M30 command to close file on SD////////////////////////////
 void CloseSerialUpload (bool iserror, String & filename , int32_t linenb)
 {

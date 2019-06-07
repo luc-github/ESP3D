@@ -67,6 +67,10 @@ extern "C" {
 #include "esp_oled.h"
 #endif
 
+#ifdef NOTIFICATION_FEATURE
+#include "notifications_service.h"
+#endif
+
 #if defined (ASYNCWEBSERVER)
 #include "asyncwebserver.h"
 #else
@@ -644,6 +648,10 @@ bool WIFI_CONFIG::Enable_servers()
 #endif
     }
 #endif
+#if defined(NOTIFICATION_FEATURE)
+    notificationsservice.begin();
+#endif
+    
     return true;
 }
 
@@ -662,6 +670,9 @@ bool WIFI_CONFIG::Disable_servers()
     if (WiFi.getMode() != WIFI_AP ) {
         NBNS.end();
     }
+#endif
+#if defined(NOTIFICATION_FEATURE)
+    notificationsservice.end();
 #endif
     return true;
 }
