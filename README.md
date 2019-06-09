@@ -29,7 +29,7 @@ Arduino ide 1.8.9 with 2.5.2 version of ESP8266 or git version ESP32 for 100% su
 
 ## Donate
 Every support is welcome: [<img src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG_global.gif" border="0" alt="PayPal – The safer, easier way to pay online.">](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Y8FFE7NA4LJWQ)    
-Especially if need to buy new modules for testing.
+Especially because need to buy new ESP modules and devices for developing and testing.
 
 ## Features
 * Serial/Wifi bridge using configurable port 8888, here to enable/disable [TCP_IP_DATA_FEATURE](https://github.com/luc-github/ESP3D/blob/master/esp3d/config.h)
