@@ -121,6 +121,9 @@ void Esp3D::begin(uint16_t startdelayms, uint16_t recoverydelayms)
     data_server = NULL;
 #endif
 
+#ifdef MKS_TFT_FEATURE
+    startdelayms = 1000; 
+#endif
 #ifdef ESP_OLED_FEATURE
 	uint32_t start_display_time = millis();
 	uint32_t now = millis();

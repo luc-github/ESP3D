@@ -1935,7 +1935,29 @@ bool COMMAND::check_command (String buffer, tpipe output, bool handlelockserial,
 #ifdef SERIAL_COMMAND_FEATURE
     if (executecmd) {
         String ESP_Command;
-        int ESPpos = buffer.indexOf ("[ESP");
+        int ESPpos = -1;
+#ifdef MKS_TFT_FEATURE
+        if (buffer.startsWith("at+")){
+            //echo
+            ESPCOM::print (buffer, output);
+            ESPCOM::print ("\r\r\n", output);
+            if (buffer.startsWith("at+net_wanip=?")){
+                String ipstr;
+                if (WiFi.getMode() == WIFI_STA) {
+                    ipstr = WiFi.localIP().toString() + "," + WiFi.subnetMask().toString()+ "," + WiFi.gatewayIP().toString()+"\r\n";
+                } else {
+                    ipstr = WiFi.softAPIP().toString() + ",255.255.255.0," + WiFi.softAPIP().toString()+"\r\n";
+                }
+                ESPCOM::print (ipstr, output);
+            } else if (buffer.startsWith("at+wifi_ConState=?")){
+                ESPCOM::print ("Connected\r\n", output);
+            } else{
+                ESPCOM::print ("ok\r\n", output);
+            }
+            return false;
+        }
+#endif
+        ESPpos = buffer.indexOf ("[ESP");
         if (ESPpos == -1 && (CONFIG::GetFirmwareTarget() == SMOOTHIEWARE)){
             ESPpos = buffer.indexOf ("[esp");
         }
