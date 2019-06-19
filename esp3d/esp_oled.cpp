@@ -75,7 +75,7 @@ const char  ESP3D_Logo[]  = {
 
 void OLED_DISPLAY::splash(){
    if ( CONFIG::is_locked(FLAG_BLOCK_OLED))return;
-	esp_display.drawXbm(33, 10, ESP3D_Logo_width, ESP3D_Logo_height, ESP3D_Logo);
+	esp_display.drawXbm(33, 10, ESP3D_Logo_width, ESP3D_Logo_height, (uint8_t *)ESP3D_Logo);
 	update_lcd();
 }
 
