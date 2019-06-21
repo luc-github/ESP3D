@@ -88,17 +88,21 @@ Check wiki : https://github.com/luc-github/ESP3D/wiki/Direct-ESP3D-commands
 Feedback on 2.0 was : ESP3D being a library is not really useful and make setup more complex, so now we are back to simple application.   
 
 1. Please follow installation of the ESP core you want to use : [ESP8266 core version](https://github.com/esp8266/Arduino)  or [ESP32 core version](https://github.com/espressif/arduino-esp32)   
-2.  Add manually libraries present in libraries directory -these versions are verified to work with ESP3D, any others (newer version) may cause untested behavior).   
+2.  Add manually libraries present in libraries directory -these versions are verified to work with ESP3D, any others (newer version) may cause untested behavior.  
+
+For async webserver support(currently not recommended as not stable) 
 * ESPAsyncWebServer from @me-no-dev   
 if you target ESP8266  
 * ESPAsyncTCP from @me-no-dev   
 if you target ESP32:      
 * AsyncTCP from @me-no-dev 
+
+If you want sync webserver support (recommended as stable):  
+* arduinoWebSockets from @Links2004  
+ 
+Generic ones:      
 Specific for ESP32    
 * ESP32SSDP
-If you want sync webserver (recommended as stable):  
-* arduinoWebSockets from @Links2004    
-
 If you want OLED support:  
 * oled-ssd1306 from @squix78    
 
