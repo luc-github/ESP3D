@@ -27,7 +27,7 @@
 #define ESP8266_MODEL_URL "http://espressif.com/en/products/esp8266/"
 #define ESP32_MODEL_NAME "ESP32"
 #define ESP32_MODEL_URL "https://www.espressif.com/en/products/hardware/esp-wroom-32/overview"
-#define ESP_MODEL_NUMBER "ESP3D 2.1" 
+#define ESP_MODEL_NUMBER "ESP3D 2.1"
 #define ESP_MANUFACTURER_NAME "Espressif Systems"
 #define ESP_MANUFACTURER_URL "http://espressif.com"
 //default name if no mac address is valid
@@ -120,7 +120,7 @@
 #define ESP_DHT_PIN 2
 #endif
 
-//Pins where the screen is connected 
+//Pins where the screen is connected
 #ifdef ESP_OLED_FEATURE
 #define OLED_DISPLAY_SSD1306  // OLED Display Type: SSD1306(OLED_DISPLAY_SSD1306) / SH1106(OLED_DISPLAY_SH1106), comment this line out to disable oled
 #define OLED_PIN_SDA  4  //5 //SDA;  // i2c SDA Pin
@@ -502,13 +502,17 @@ const uint16_t Setting[][2] = {
 
 #if defined(ASYNCWEBSERVER)
 class AsyncResponseStream;
-typedef  AsyncResponseStream ESPResponseStream; 
+typedef  AsyncResponseStream ESPResponseStream;
 #else
-class ESPResponseStream{
-	public:
-	bool header_sent;
-	String buffer_web;
-	ESPResponseStream(){header_sent=false;};
+class ESPResponseStream
+{
+public:
+    bool header_sent;
+    String buffer_web;
+    ESPResponseStream()
+    {
+        header_sent=false;
+    };
 };
 #endif
 

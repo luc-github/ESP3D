@@ -310,11 +310,11 @@ bool NotificationsService::sendLineMSG(const char * title, const char * message)
 //Email#serveraddress:port
 bool NotificationsService::getPortFromSettings()
 {
-   String tmp ;
+    String tmp ;
     char sbuf[MAX_DATA_LENGTH + 1];
     if (CONFIG::read_string (ESP_NOTIFICATION_SETTINGS, sbuf, MAX_NOTIFICATION_SETTINGS_LENGTH) ) {
         tmp = sbuf;
-    } 
+    }
     int pos = tmp.lastIndexOf(':');
     if (pos == -1) {
         return false;
@@ -334,7 +334,7 @@ bool NotificationsService::getServerAddressFromSettings()
     char sbuf[MAX_DATA_LENGTH + 1];
     if (CONFIG::read_string (ESP_NOTIFICATION_SETTINGS, sbuf, MAX_NOTIFICATION_SETTINGS_LENGTH) ) {
         tmp = sbuf;
-    } 
+    }
     int pos1 = tmp.indexOf('#');
     int pos2 = tmp.lastIndexOf(':');
     if ((pos1 == -1) || (pos2 == -1)) {
@@ -371,7 +371,7 @@ bool NotificationsService::begin()
     end();
     byte bbuf = 0;
     char sbuf[MAX_DATA_LENGTH + 1];
-    if (CONFIG::read_byte (ESP_NOTIFICATION_TYPE, &bbuf ) ){
+    if (CONFIG::read_byte (ESP_NOTIFICATION_TYPE, &bbuf ) ) {
         _notificationType =bbuf;
     }
     switch(_notificationType) {
@@ -379,27 +379,27 @@ bool NotificationsService::begin()
         return true;
     case ESP_PUSHOVER_NOTIFICATION:
         if (CONFIG::read_string (ESP_NOTIFICATION_TOKEN1, sbuf, MAX_NOTIFICATION_TOKEN_LENGTH) ) {
-        _token1 = sbuf;
+            _token1 = sbuf;
         }
         if (CONFIG::read_string (ESP_NOTIFICATION_TOKEN2, sbuf, MAX_NOTIFICATION_TOKEN_LENGTH) ) {
-        _token2 = sbuf;
+            _token2 = sbuf;
         }
         _port = PUSHOVERPORT;
         _serveraddress = PUSHOVERSERVER;
         break;
     case ESP_LINE_NOTIFICATION:
         if (CONFIG::read_string (ESP_NOTIFICATION_TOKEN1, sbuf, MAX_NOTIFICATION_TOKEN_LENGTH) ) {
-        _token1 = sbuf;
+            _token1 = sbuf;
         }
         _port = LINEPORT;
         _serveraddress = LINESERVER;
         break;
     case ESP_EMAIL_NOTIFICATION:
         if (CONFIG::read_string (ESP_NOTIFICATION_TOKEN1, sbuf, MAX_NOTIFICATION_TOKEN_LENGTH) ) {
-        _token1 = sbuf;
+            _token1 = sbuf;
         }
         if (CONFIG::read_string (ESP_NOTIFICATION_TOKEN2, sbuf, MAX_NOTIFICATION_TOKEN_LENGTH) ) {
-        _token2 = sbuf;
+            _token2 = sbuf;
         }
         //log_esp3d("%s",Settings_ESP3D::read_string(ESP_NOTIFICATION_TOKEN1));
         //log_esp3d("%s",Settings_ESP3D::read_string(ESP_NOTIFICATION_TOKEN2));

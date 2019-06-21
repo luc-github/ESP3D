@@ -77,7 +77,7 @@ extern DNSServer dnsServer;
 #ifdef DHT_FEATURE
 #include "DHTesp.h"
 DHTesp dht;
-#endif 
+#endif
 
 #if defined (ASYNCWEBSERVER)
 #include "asyncwebserver.h"
@@ -86,8 +86,9 @@ DHTesp dht;
 #endif
 
 //Contructor
-Esp3D::Esp3D() {
-	
+Esp3D::Esp3D()
+{
+
 }
 
 //Begin which setup everything
@@ -111,7 +112,7 @@ void Esp3D::begin(uint16_t startdelayms, uint16_t recoverydelayms)
 #endif
 #ifdef ARDUINO_ARCH_ESP8266
     struct	rst_info	*rtc_info	=	system_get_rst_info();
-#else 
+#else
     RESET_REASON reason_0 = rtc_get_reset_reason(0);
     RESET_REASON reason_1 = rtc_get_reset_reason(1);
 #endif
@@ -122,18 +123,18 @@ void Esp3D::begin(uint16_t startdelayms, uint16_t recoverydelayms)
 #endif
 
 #ifdef MKS_TFT_FEATURE
-    startdelayms = 1000; 
+    startdelayms = 1000;
 #endif
 #ifdef ESP_OLED_FEATURE
-	uint32_t start_display_time = millis();
-	uint32_t now = millis();
-	while ( now - start_display_time < startdelayms){
-		int v = (100 * (millis() - start_display_time)) / startdelayms;
-		OLED_DISPLAY::display_mini_progress(v);
-		OLED_DISPLAY::update_lcd();
-		delay(100);
-		now = millis();
-	}
+    uint32_t start_display_time = millis();
+    uint32_t now = millis();
+    while ( now - start_display_time < startdelayms) {
+        int v = (100 * (millis() - start_display_time)) / startdelayms;
+        OLED_DISPLAY::display_mini_progress(v);
+        OLED_DISPLAY::update_lcd();
+        delay(100);
+        now = millis();
+    }
 #else
     delay (startdelayms);
 #endif
@@ -191,19 +192,19 @@ void Esp3D::begin(uint16_t startdelayms, uint16_t recoverydelayms)
     SPIFFS.begin();
 #endif
 //basic autostart
-	if(SPIFFS.exists("/autostart.g")){
-		FS_FILE file = SPIFFS.open("/autostart.g", SPIFFS_FILE_READ);
-        if (file){
-			String autoscript = file.readString();
-			if (autoscript.length() > 0){
-				//clean line
-				autoscript.replace("\n","");
-				autoscript.replace("\r","");
-				ESPCOM::println (autoscript.c_str(), DEFAULT_PRINTER_PIPE);
-			}
-			file.close();
-		}
-	}
+    if(SPIFFS.exists("/autostart.g")) {
+        FS_FILE file = SPIFFS.open("/autostart.g", SPIFFS_FILE_READ);
+        if (file) {
+            String autoscript = file.readString();
+            if (autoscript.length() > 0) {
+                //clean line
+                autoscript.replace("\n","");
+                autoscript.replace("\r","");
+                ESPCOM::println (autoscript.c_str(), DEFAULT_PRINTER_PIPE);
+            }
+            file.close();
+        }
+    }
     //setup wifi according settings
     if (!wifi_config.Setup() ) {
         ESPCOM::println (F ("Safe mode 1"), PRINTER_PIPE);
@@ -218,33 +219,33 @@ void Esp3D::begin(uint16_t startdelayms, uint16_t recoverydelayms)
     if (!wifi_config.Enable_servers() ) {
         ESPCOM::println (F ("Error enabling servers"), PRINTER_PIPE);
     }
-/*#ifdef ARDUINO_ARCH_ESP8266
-    if	(rtc_info->reason	==	REASON_WDT_RST	||
+    /*#ifdef ARDUINO_ARCH_ESP8266
+        if	(rtc_info->reason	==	REASON_WDT_RST	||
 
-            rtc_info->reason	==	REASON_EXCEPTION_RST	||
+                rtc_info->reason	==	REASON_EXCEPTION_RST	||
 
-            rtc_info->reason	==	REASON_SOFT_WDT_RST)	{
-			String s = "reset ";
-			s+= String(rtc_info->reason);
-  
-        if	(rtc_info->reason	==	REASON_EXCEPTION_RST)	{
-			s+=" except ";
-			s+=String(rtc_info->exccause);
+                rtc_info->reason	==	REASON_SOFT_WDT_RST)	{
+    			String s = "reset ";
+    			s+= String(rtc_info->reason);
 
-        } 
-        ESPCOM::println (s, PRINTER_PIPE);
-    }
-#else
-    if((( reason_0< 17) || ( reason_1< 17)) && !(((reason_0 == 1) && (reason_1 == 14)) || ((reason_0 == 16) && (reason_1 == 14))))
-    {
-		String s = "reset ";
-		ESPCOM::println (s, PRINTER_PIPE);
-		s+=String(reason_0);
-		s+="/";
-		s+=String(reason_1);
-		
-	}
-#endif*/
+            if	(rtc_info->reason	==	REASON_EXCEPTION_RST)	{
+    			s+=" except ";
+    			s+=String(rtc_info->exccause);
+
+            }
+            ESPCOM::println (s, PRINTER_PIPE);
+        }
+    #else
+        if((( reason_0< 17) || ( reason_1< 17)) && !(((reason_0 == 1) && (reason_1 == 14)) || ((reason_0 == 16) && (reason_1 == 14))))
+        {
+    		String s = "reset ";
+    		ESPCOM::println (s, PRINTER_PIPE);
+    		s+=String(reason_0);
+    		s+="/";
+    		s+=String(reason_1);
+
+    	}
+    #endif*/
 
 #ifdef ASYNCWEBSERVER
     if (WiFi.getMode() != WIFI_AP) {
@@ -269,66 +270,77 @@ void Esp3D::process()
             dnsServer.processNextRequest();
         }
 #endif
-     //TODO use config
-	CONFIG::wait(0);
+        //TODO use config
+        CONFIG::wait(0);
     }
 //read / bridge all input
-   ESPCOM::bridge();
+    ESPCOM::bridge();
 //in case of restart requested
     if (web_interface->restartmodule) {
         CONFIG::esp_restart();
     }
 
-#ifdef ESP_OLED_FEATURE  
-	static uint32_t last_oled_update= 0;
-    if ( !CONFIG::is_locked(FLAG_BLOCK_OLED)){
+#ifdef ESP_OLED_FEATURE
+    static uint32_t last_oled_update= 0;
+    if ( !CONFIG::is_locked(FLAG_BLOCK_OLED)) {
         uint32_t now_oled = millis();
         if (now_oled - last_oled_update > 1000) {
             last_oled_update = now_oled;
             //refresh signal
-            if ((WiFi.getMode() == WIFI_OFF) || !wifi_config.WiFi_on) OLED_DISPLAY::display_signal(-1);
-            else OLED_DISPLAY::display_signal(wifi_config.getSignal (WiFi.RSSI ()));
+            if ((WiFi.getMode() == WIFI_OFF) || !wifi_config.WiFi_on) {
+                OLED_DISPLAY::display_signal(-1);
+            } else {
+                OLED_DISPLAY::display_signal(wifi_config.getSignal (WiFi.RSSI ()));
+            }
             //if line 0 is > 85 refresh
-            if(OLED_DISPLAY::L0_size >85)OLED_DISPLAY::display_text(OLED_DISPLAY::L0.c_str(), 0, 0, 85);
+            if(OLED_DISPLAY::L0_size >85) {
+                OLED_DISPLAY::display_text(OLED_DISPLAY::L0.c_str(), 0, 0, 85);
+            }
             //if line 1 is > 128 refresh
-            if(OLED_DISPLAY::L1_size >128) OLED_DISPLAY::display_text(OLED_DISPLAY::L1.c_str(), 0, 16, 128);
+            if(OLED_DISPLAY::L1_size >128) {
+                OLED_DISPLAY::display_text(OLED_DISPLAY::L1.c_str(), 0, 16, 128);
+            }
             //if line 2 is > 128 refresh
-            if(OLED_DISPLAY::L2_size >128) OLED_DISPLAY::display_text(OLED_DISPLAY::L2.c_str(), 0, 32, 128);
+            if(OLED_DISPLAY::L2_size >128) {
+                OLED_DISPLAY::display_text(OLED_DISPLAY::L2.c_str(), 0, 32, 128);
+            }
             //if line 3 is > 128 refresh
-            if(OLED_DISPLAY::L3_size >128) OLED_DISPLAY::display_text(OLED_DISPLAY::L3.c_str(), 0, 48, 128);
+            if(OLED_DISPLAY::L3_size >128) {
+                OLED_DISPLAY::display_text(OLED_DISPLAY::L3.c_str(), 0, 48, 128);
+            }
             OLED_DISPLAY::update_lcd();
         }
     }
 #endif
 
 #ifdef DHT_FEATURE
-     if (CONFIG::DHT_type  != 255) {
-         static uint32_t last_dht_update= 0;
-         uint32_t now_dht = millis();
-         if (now_dht - last_dht_update > (CONFIG::DHT_interval * 1000)) {
-                 last_dht_update = now_dht;
-                  float humidity = dht.getHumidity();
-                  float temperature = dht.getTemperature();
-                  if (strcmp(dht.getStatusString(),"OK") == 0) {
-                      String s = String(temperature,2);
-                      String s2 = s + " " +String(humidity,2);
-    #if defined (ASYNCWEBSERVER)
-					  web_interface->web_events.send( s2.c_str(),"DHT", millis());
-	#else
-					  s = "DHT:" + s2;
-                      socket_server->sendTXT(ESPCOM::current_socket_id, s);
-    #endif                         
-    #ifdef ESP_OLED_FEATURE  
-                      if ( !CONFIG::is_locked(FLAG_BLOCK_OLED)){
-                          s = String(temperature,2);
-                          s +="°C";
-                          OLED_DISPLAY::display_text(s.c_str(), 84, 16);
-                      }
-    #endif
-                    }
-              }
-          }
+    if (CONFIG::DHT_type  != 255) {
+        static uint32_t last_dht_update= 0;
+        uint32_t now_dht = millis();
+        if (now_dht - last_dht_update > (CONFIG::DHT_interval * 1000)) {
+            last_dht_update = now_dht;
+            float humidity = dht.getHumidity();
+            float temperature = dht.getTemperature();
+            if (strcmp(dht.getStatusString(),"OK") == 0) {
+                String s = String(temperature,2);
+                String s2 = s + " " +String(humidity,2);
+#if defined (ASYNCWEBSERVER)
+                web_interface->web_events.send( s2.c_str(),"DHT", millis());
+#else
+                s = "DHT:" + s2;
+                socket_server->sendTXT(ESPCOM::current_socket_id, s);
+#endif
+#ifdef ESP_OLED_FEATURE
+                if ( !CONFIG::is_locked(FLAG_BLOCK_OLED)) {
+                    s = String(temperature,2);
+                    s +="°C";
+                    OLED_DISPLAY::display_text(s.c_str(), 84, 16);
+                }
+#endif
+            }
+        }
+    }
 #endif
 //todo use config
-	CONFIG::wait(0);
+    CONFIG::wait(0);
 }

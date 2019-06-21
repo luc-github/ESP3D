@@ -48,11 +48,11 @@
 #include "espcom.h"
 
 #ifdef SSDP_FEATURE
-    #ifdef ARDUINO_ARCH_ESP32
-    #include <ESP32SSDP.h>
-    #else
-    #include <ESP8266SSDP.h>
-    #endif
+#ifdef ARDUINO_ARCH_ESP32
+#include <ESP32SSDP.h>
+#else
+#include <ESP8266SSDP.h>
+#endif
 #endif
 
 //embedded response file if no files on SPIFFS
@@ -61,7 +61,7 @@ bool can_process_serial = true;
 
 extern bool  deleteRecursive(String path);
 extern bool sendLine2Serial (String &  line, int32_t linenb,  int32_t * newlinenb);
-extern void CloseSerialUpload (bool iserror, String & filename , int32_t linenb);
+extern void CloseSerialUpload (bool iserror, String & filename, int32_t linenb);
 extern bool purge_serial();
 extern long id_connection;
 
@@ -87,8 +87,8 @@ void handle_login(AsyncWebServerRequest *request)
 {
 #ifdef AUTHENTICATION_FEATURE
 #else
-	AsyncWebServerResponse * response = request->beginResponse (200, "application/json", "{\"status\":\"Ok\",\"authentication_lvl\":\"admin\"}");
-	response->addHeader("Cache-Control","no-cache");
+    AsyncWebServerResponse * response = request->beginResponse (200, "application/json", "{\"status\":\"Ok\",\"authentication_lvl\":\"admin\"}");
+    response->addHeader("Cache-Control","no-cache");
     request->send(response);
 #endif
 }
@@ -396,7 +396,7 @@ void SPIFFSFileupload (AsyncWebServerRequest *request, String filename, size_t i
     LOG ("Uploading: ")
     LOG (filename)
     LOG ("\n")
-     //get authentication status
+    //get authentication status
     level_authenticate_type auth_level= web_interface->is_authenticated();
     //Guest cannot upload - only admin
     if (auth_level == LEVEL_GUEST) {
@@ -414,9 +414,9 @@ void SPIFFSFileupload (AsyncWebServerRequest *request, String filename, size_t i
         LOG ("\n")
     }
     if(auth_level != LEVEL_ADMIN) {
-		String filename = upload_filename;
+        String filename = upload_filename;
         upload_filename = "/user" + filename;
-        }
+    }
     //Upload start
     //**************
     if (!index) {
@@ -461,8 +461,8 @@ void SPIFFSFileupload (AsyncWebServerRequest *request, String filename, size_t i
             if (request->arg (sizeargname.c_str()) != String(filesize)) {
                 web_interface->_upload_status = UPLOAD_STATUS_FAILED;
                 SPIFFS.remove (upload_filename);
-                }
-            } 
+            }
+        }
         LOG ("Close file\n")
         if (web_interface->_upload_status == UPLOAD_STATUS_ONGOING) {
             web_interface->_upload_status = UPLOAD_STATUS_SUCCESSFUL;
@@ -569,12 +569,12 @@ void WebUpdateUpload (AsyncWebServerRequest *request, String filename, size_t in
         String  sizeargname  = filename + "S";
         if (request->hasArg (sizeargname.c_str()) ) {
             ESPCOM::println (F ("Check integrity"), PRINTER_PIPE);
-             if (request->arg (sizeargname.c_str()) != String(totalSize)) {
-                 web_interface->_upload_status = UPLOAD_STATUS_FAILED;
-                 ESPCOM::println (F ("Update Error"), PRINTER_PIPE);
-                 Update.end();
-                 request->client()->abort();
-             }
+            if (request->arg (sizeargname.c_str()) != String(totalSize)) {
+                web_interface->_upload_status = UPLOAD_STATUS_FAILED;
+                ESPCOM::println (F ("Update Error"), PRINTER_PIPE);
+                Update.end();
+                request->client()->abort();
+            }
         }
         if (Update.end (true) ) { //true to set the size to the current progress
             //Update is done
@@ -584,7 +584,7 @@ void WebUpdateUpload (AsyncWebServerRequest *request, String filename, size_t in
                 ESPCOM::println (F ("Update 100%"), PRINTER_PIPE);
             }
             web_interface->_upload_status = UPLOAD_STATUS_SUCCESSFUL;
-        } 
+        }
     }
 }
 #endif
@@ -628,13 +628,13 @@ void handle_not_found (AsyncWebServerRequest *request)
 //Handle web command query and send answer//////////////////////////////
 void handle_web_command (AsyncWebServerRequest *request)
 {
-     //to save time if already disconnected
-     if (request->hasArg ("PAGEID") ) {
+    //to save time if already disconnected
+    if (request->hasArg ("PAGEID") ) {
         if (request->arg ("PAGEID").length() > 0 ) {
-           if (request->arg ("PAGEID").toInt() != id_connection) {
-           request->send (200, "text/plain", "Invalid command");
-           return;
-           }
+            if (request->arg ("PAGEID").toInt() != id_connection) {
+                request->send (200, "text/plain", "Invalid command");
+                return;
+            }
         }
     }
     level_authenticate_type auth_level = web_interface->is_authenticated();
@@ -709,8 +709,10 @@ void handle_web_command (AsyncWebServerRequest *request)
             LOG ("Start PurgeSerial\r\n")
             ESPCOM::processFromSerial (true);
             LOG ("End PurgeSerial\r\n")
-			can_process_serial = false;
-			request->onDisconnect([request](){can_process_serial = true;});
+            can_process_serial = false;
+            request->onDisconnect([request]() {
+                can_process_serial = true;
+            });
             //send command
             LOG ("Send Command\r\n")
             ESPCOM::println (cmd, DEFAULT_PRINTER_PIPE);
@@ -982,10 +984,10 @@ void handle_web_command_silent (AsyncWebServerRequest *request)
     //to save time if already disconnected
     if (request->hasArg ("PAGEID") ) {
         if (request->arg ("PAGEID").length() > 0 ) {
-           if (request->arg ("PAGEID").toInt() != id_connection) {
-           request->send (200, "text/plain", "Invalid command");
-           return;
-           }
+            if (request->arg ("PAGEID").toInt() != id_connection) {
+                request->send (200, "text/plain", "Invalid command");
+                return;
+            }
         }
     }
     level_authenticate_type auth_level = web_interface->is_authenticated();
@@ -1052,7 +1054,7 @@ void handle_web_command_silent (AsyncWebServerRequest *request)
             LOG ("Send Command\r\n")
             //send command
             ESPCOM::println (cmd, DEFAULT_PRINTER_PIPE);
-            
+
             request->send (200, "text/plain", "ok");
         } else {
             request->send (200, "text/plain", "Serial is busy, retry later!");
@@ -1109,16 +1111,18 @@ void SDFile_serial_upload (AsyncWebServerRequest *request, String filename, size
     //Upload start
     //**************
     if (!index) {
-		LOG("Upload Start\r\n")
+        LOG("Upload Start\r\n")
         String command = "M29";
         String resetcmd = "M110 N0";
-        if (CONFIG::GetFirmwareTarget() == SMOOTHIEWARE)resetcmd = "N0 M110";
+        if (CONFIG::GetFirmwareTarget() == SMOOTHIEWARE) {
+            resetcmd = "N0 M110";
+        }
         lineNb=1;
         //close any ongoing upload and get current line number
-        if(!sendLine2Serial (command,1, &lineNb)){
+        if(!sendLine2Serial (command,1, &lineNb)) {
             //it can failed for repetier
             if ( ( CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER) ) {
-                if(!sendLine2Serial (command,-1, NULL)){
+                if(!sendLine2Serial (command,-1, NULL)) {
                     LOG("Start Upload failed")
                     web_interface->_upload_status= UPLOAD_STATUS_FAILED;
                     return;
@@ -1131,13 +1135,13 @@ void SDFile_serial_upload (AsyncWebServerRequest *request, String filename, size
         }
         //Mount SD card
         command = "M21";
-        if(!sendLine2Serial (command,-1, NULL)){
+        if(!sendLine2Serial (command,-1, NULL)) {
             LOG("Mounting SD failed")
             web_interface->_upload_status= UPLOAD_STATUS_FAILED;
             return;
         }
         //Reset line numbering
-        if(!sendLine2Serial (resetcmd,-1, NULL)){
+        if(!sendLine2Serial (resetcmd,-1, NULL)) {
             LOG("Reset Numbering failed")
             web_interface->_upload_status= UPLOAD_STATUS_FAILED;
             return;
@@ -1158,16 +1162,16 @@ void SDFile_serial_upload (AsyncWebServerRequest *request, String filename, size
         command = "M28 " + current_filename;
         //send start upload
         //no correction allowed because it means reset numbering was failed
-        if (sendLine2Serial(command, lineNb, NULL)){
+        if (sendLine2Serial(command, lineNb, NULL)) {
             CONFIG::wait(1200);
             //additional purge, in case it is slow to answer
             purge_serial();
             web_interface->_upload_status= UPLOAD_STATUS_ONGOING;
             LOG("Creation Ok\r\n")
-            
+
         } else  {
             web_interface->_upload_status= UPLOAD_STATUS_FAILED;
-           LOG("Creation failed\r\n");
+            LOG("Creation failed\r\n");
         }
     }
     //Upload write
@@ -1184,12 +1188,12 @@ void SDFile_serial_upload (AsyncWebServerRequest *request, String filename, size
             }
             //it is an end line
             else  if ( (data[pos] == 13) || (data[pos] == 10) ) {
-				is_comment = false;
+                is_comment = false;
                 //does line fit the buffer ?
                 if (current_line.length() < 126) {
                     //do we have something in buffer ?
                     if (current_line.length() > 0 ) {
-						lineNb++;
+                        lineNb++;
                         if (!sendLine2Serial (current_line, lineNb, NULL) ) {
                             LOG ("Error sending line\n")
                             CloseSerialUpload (true, current_filename,lineNb);
@@ -1251,19 +1255,20 @@ void SDFile_serial_upload (AsyncWebServerRequest *request, String filename, size
 
 
 //on event connect function
-void handle_onevent_connect(AsyncEventSourceClient *client) 
-{       
-        if (!client->lastId()){
-            //Init active ID
-            id_connection++;
-            client->send(String(id_connection).c_str(), "InitID", id_connection, 1000);
-            //Dispatch who is active ID
-            web_interface->web_events.send( String(id_connection).c_str(),"ActiveID");        
-            }
+void handle_onevent_connect(AsyncEventSourceClient *client)
+{
+    if (!client->lastId()) {
+        //Init active ID
+        id_connection++;
+        client->send(String(id_connection).c_str(), "InitID", id_connection, 1000);
+        //Dispatch who is active ID
+        web_interface->web_events.send( String(id_connection).c_str(),"ActiveID");
+    }
 }
 
-void handle_Websocket_Event(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len){
-  //Handle WebSocket event
+void handle_Websocket_Event(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len)
+{
+    //Handle WebSocket event
 }
 
 #endif

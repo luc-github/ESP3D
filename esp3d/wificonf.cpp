@@ -41,11 +41,11 @@ DNSServer dnsServer;
 const byte DNS_PORT = 53;
 #endif
 #ifdef SSDP_FEATURE
-    #ifdef ARDUINO_ARCH_ESP8266
-    #include <ESP8266SSDP.h>
-    #else
-    #include <ESP32SSDP.h>
-    #endif
+#ifdef ARDUINO_ARCH_ESP8266
+#include <ESP8266SSDP.h>
+#else
+#include <ESP32SSDP.h>
+#endif
 #endif
 #ifdef NETBIOS_FEATURE
 #ifdef ARDUINO_ARCH_ESP8266
@@ -134,7 +134,7 @@ const char * WIFI_CONFIG::get_default_hostname()
     uint8_t mac [WL_MAC_ADDR_LENGTH];
     WiFi.macAddress (mac);
 #if defined (ESP_HOST_NAME)
-	strcpy (hostname, ESP_DEFAULT_NAME);
+    strcpy (hostname, ESP_DEFAULT_NAME);
 #else
     if (0 > sprintf (hostname, "ESP_%02X%02X%02X", mac[3], mac[4], mac[5]) ) {
         strcpy (hostname, ESP_DEFAULT_NAME);
@@ -164,66 +164,67 @@ void  WIFI_CONFIG::Safe_Setup()
     WiFi.softAPConfig ( local_ip,  gateway,  subnet);
     CONFIG::wait (1000);
 #ifdef ESP_OLED_FEATURE
-		OLED_DISPLAY::display_signal(100);
-        OLED_DISPLAY::setCursor(0, 0);
-		ESPCOM::print(ssid.c_str(), OLED_PIPE);
-		OLED_DISPLAY::setCursor(0, 16);
-		ESPCOM::print(local_ip.toString().c_str(), OLED_PIPE);
+    OLED_DISPLAY::display_signal(100);
+    OLED_DISPLAY::setCursor(0, 0);
+    ESPCOM::print(ssid.c_str(), OLED_PIPE);
+    OLED_DISPLAY::setCursor(0, 16);
+    ESPCOM::print(local_ip.toString().c_str(), OLED_PIPE);
 #endif
     ESPCOM::println (F ("Safe mode started"), PRINTER_PIPE);
 }
 
 
 //wifi event
-void onWiFiEvent(WiFiEvent_t event){
+void onWiFiEvent(WiFiEvent_t event)
+{
 
-	switch (event) {
-		case WIFI_EVENT_STAMODE_CONNECTED:
+    switch (event) {
+    case WIFI_EVENT_STAMODE_CONNECTED:
 #ifndef MKS_TFT_FEATURE
-			ESPCOM::println (F ("Connected"), PRINTER_PIPE);
+        ESPCOM::println (F ("Connected"), PRINTER_PIPE);
 #endif
 #ifdef ESP_OLED_FEATURE
-			OLED_DISPLAY::display_signal(wifi_config.getSignal (WiFi.RSSI ()));
-			OLED_DISPLAY::setCursor(0, 0);
-			ESPCOM::print("", OLED_PIPE);
+        OLED_DISPLAY::display_signal(wifi_config.getSignal (WiFi.RSSI ()));
+        OLED_DISPLAY::setCursor(0, 0);
+        ESPCOM::print("", OLED_PIPE);
 #endif
-			break;
-		case WIFI_EVENT_STAMODE_DISCONNECTED:
-			ESPCOM::println (F ("Disconnected"), PRINTER_PIPE);
+        break;
+    case WIFI_EVENT_STAMODE_DISCONNECTED:
+        ESPCOM::println (F ("Disconnected"), PRINTER_PIPE);
 #ifdef ESP_OLED_FEATURE
-			OLED_DISPLAY::display_signal(-1);
-			OLED_DISPLAY::setCursor(0, 16);
-			ESPCOM::print("", OLED_PIPE);
-			OLED_DISPLAY::setCursor(0, 48);
+        OLED_DISPLAY::display_signal(-1);
+        OLED_DISPLAY::setCursor(0, 16);
+        ESPCOM::print("", OLED_PIPE);
+        OLED_DISPLAY::setCursor(0, 48);
 #endif
-			break;
-		case WIFI_EVENT_STAMODE_GOT_IP:
+        break;
+    case WIFI_EVENT_STAMODE_GOT_IP:
 #ifndef MKS_TFT_FEATURE
-			ESPCOM::println (WiFi.localIP().toString().c_str(), PRINTER_PIPE);
+        ESPCOM::println (WiFi.localIP().toString().c_str(), PRINTER_PIPE);
 #endif
 #ifdef ESP_OLED_FEATURE
-			OLED_DISPLAY::setCursor(0, 16);
-			ESPCOM::print(WiFi.localIP().toString().c_str(), OLED_PIPE);
-			OLED_DISPLAY::setCursor(0, 48);
-			ESPCOM::print("", OLED_PIPE);
+        OLED_DISPLAY::setCursor(0, 16);
+        ESPCOM::print(WiFi.localIP().toString().c_str(), OLED_PIPE);
+        OLED_DISPLAY::setCursor(0, 48);
+        ESPCOM::print("", OLED_PIPE);
 #endif
-			break;
-		case WIFI_EVENT_SOFTAPMODE_STACONNECTED:
-			ESPCOM::println (F ("New client"), PRINTER_PIPE);
-			break;
+        break;
+    case WIFI_EVENT_SOFTAPMODE_STACONNECTED:
+        ESPCOM::println (F ("New client"), PRINTER_PIPE);
+        break;
 #ifdef ARDUINO_ARCH_ESP32
-		case SYSTEM_EVENT_STA_LOST_IP:
-			break;
-		case SYSTEM_EVENT_ETH_CONNECTED:
-			break;
-		case SYSTEM_EVENT_ETH_DISCONNECTED:
-			break;
-		case SYSTEM_EVENT_ETH_GOT_IP:
-			break;     
+    case SYSTEM_EVENT_STA_LOST_IP:
+        break;
+    case SYSTEM_EVENT_ETH_CONNECTED:
+        break;
+    case SYSTEM_EVENT_ETH_DISCONNECTED:
+        break;
+    case SYSTEM_EVENT_ETH_GOT_IP:
+        break;
 #endif
-		default:
-			break;
-	}
+    default:
+        break;
+    }
 
 }
 
@@ -240,7 +241,7 @@ bool WIFI_CONFIG::Setup (bool force_ap)
 #ifdef ARDUINO_ARCH_ESP8266
     WiFi.onEvent(onWiFiEvent, WIFI_EVENT_ANY);
 #else
-	WiFi.onEvent(onWiFiEvent);
+    WiFi.onEvent(onWiFiEvent);
 #endif
     //system_update_cpu_freq(SYS_CPU_160MHZ);
     //set the sleep mode
@@ -249,11 +250,11 @@ bool WIFI_CONFIG::Setup (bool force_ap)
         return false;
     }
 #ifdef ESP_OLED_FEATURE
-	OLED_DISPLAY::clear_lcd();
+    OLED_DISPLAY::clear_lcd();
 #endif
 
     sleep_mode = bflag;
-    if (force_ap){
+    if (force_ap) {
         bmode = AP_MODE;
     } else {
         //AP or client ?
@@ -275,10 +276,10 @@ bool WIFI_CONFIG::Setup (bool force_ap)
             return false;
         }
 #ifdef ESP_OLED_FEATURE
-		OLED_DISPLAY::display_signal(100);
+        OLED_DISPLAY::display_signal(100);
         OLED_DISPLAY::setCursor(0, 0);
 
-		ESPCOM::print(sbuf, OLED_PIPE);
+        ESPCOM::print(sbuf, OLED_PIPE);
 #else
 #ifndef MKS_TFT_FEATURE
         ESPCOM::println (sbuf, PRINTER_PIPE);
@@ -346,9 +347,9 @@ bool WIFI_CONFIG::Setup (bool force_ap)
         delay (50);
         WiFi.softAP (sbuf, pwd);
 #ifdef ESP_OLED_FEATURE
-		OLED_DISPLAY::display_signal(100);
+        OLED_DISPLAY::display_signal(100);
         OLED_DISPLAY::setCursor(0, 0);
-		ESPCOM::print(sbuf, OLED_PIPE);
+        ESPCOM::print(sbuf, OLED_PIPE);
 #endif
         delay (100);
 #ifdef ARDUINO_ARCH_ESP8266
@@ -417,14 +418,14 @@ bool WIFI_CONFIG::Setup (bool force_ap)
         if (!CONFIG::read_string (EP_STA_PASSWORD, pwd, MAX_PASSWORD_LENGTH) ) {
             return false;
         }
-        
+
 #ifndef MKS_TFT_FEATURE
-       ESPCOM::println (sbuf, PRINTER_PIPE);
+        ESPCOM::println (sbuf, PRINTER_PIPE);
 #endif
 #ifdef ESP_OLED_FEATURE
-		OLED_DISPLAY::display_signal(-1);
+        OLED_DISPLAY::display_signal(-1);
         OLED_DISPLAY::setCursor(0, 0);
-		ESPCOM::print(sbuf, OLED_PIPE);
+        ESPCOM::print(sbuf, OLED_PIPE);
 #endif
         LOG ("SSID ")
         LOG (sbuf)
@@ -467,18 +468,20 @@ bool WIFI_CONFIG::Setup (bool force_ap)
 #else
         esp_wifi_set_protocol (ESP_IF_WIFI_STA, bflag);
 #endif
-        if (strlen(pwd) > 0){
+        if (strlen(pwd) > 0) {
             WiFi.begin (sbuf, pwd);
         } else {
             WiFi.begin (sbuf);
         }
         delay (100);
 #ifdef ARDUINO_ARCH_ESP8266
-		WiFi.setSleepMode ( (WiFiSleepType_t) sleep_mode);
+        WiFi.setSleepMode ( (WiFiSleepType_t) sleep_mode);
 #else
-		//for backward compatibility
-		if ((wifi_ps_type_t) sleep_mode == WIFI_PS_MAX_MODEM)sleep_mode=WIFI_PS_MIN_MODEM;
-		esp_wifi_set_ps ( (wifi_ps_type_t) sleep_mode);
+        //for backward compatibility
+        if ((wifi_ps_type_t) sleep_mode == WIFI_PS_MAX_MODEM) {
+            sleep_mode=WIFI_PS_MIN_MODEM;
+        }
+        esp_wifi_set_ps ( (wifi_ps_type_t) sleep_mode);
 #endif
         delay (100);
         byte i = 0;
@@ -490,16 +493,16 @@ bool WIFI_CONFIG::Setup (bool force_ap)
             switch (WiFi.status() ) {
             case 1:
 #ifdef ESP_OLED_FEATURE
-				OLED_DISPLAY::display_signal(-1);
+                OLED_DISPLAY::display_signal(-1);
 #endif
-				if ((dot == 0) || last!=WiFi.status()) {
+                if ((dot == 0) || last!=WiFi.status()) {
                     msg = F ("No SSID");
                     last=WiFi.status();
                 }
                 break;
 
             case 4:
-                 if ((dot == 0) || last!=WiFi.status()) {
+                if ((dot == 0) || last!=WiFi.status()) {
                     msg = F ("No Connection");
                     last=WiFi.status();
                 }
@@ -507,26 +510,26 @@ bool WIFI_CONFIG::Setup (bool force_ap)
 
             default:
 #ifdef ESP_OLED_FEATURE
-				OLED_DISPLAY::display_signal(wifi_config.getSignal (WiFi.RSSI ()));
+                OLED_DISPLAY::display_signal(wifi_config.getSignal (WiFi.RSSI ()));
 #endif
-				if ((dot == 0) || last!=WiFi.status()) {
-					msg = F ("Connecting");
-					last=WiFi.status();
-				}
-				break;
-		   }
-			dot++;
-			msg.trim();
-			msg += F (".");
-			//for smoothieware to keep position
-			for (byte i = 0; i < 4 - dot; i++) {
-				msg += F (" ");
-			}
-			if (dot == 4) {
-				dot = 0;
-			}
+                if ((dot == 0) || last!=WiFi.status()) {
+                    msg = F ("Connecting");
+                    last=WiFi.status();
+                }
+                break;
+            }
+            dot++;
+            msg.trim();
+            msg += F (".");
+            //for smoothieware to keep position
+            for (byte i = 0; i < 4 - dot; i++) {
+                msg += F (" ");
+            }
+            if (dot == 4) {
+                dot = 0;
+            }
 #ifndef MKS_TFT_FEATURE
-			ESPCOM::println (msg, PRINTER_PIPE);
+            ESPCOM::println (msg, PRINTER_PIPE);
 #endif
 
             delay (500);
@@ -547,23 +550,24 @@ bool WIFI_CONFIG::Setup (bool force_ap)
 
     //Get IP
     if (WiFi.getMode()== WIFI_AP) {
-		currentIP = WiFi.softAPIP();
-		ESPCOM::println (currentIP.toString().c_str(), PRINTER_PIPE);
+        currentIP = WiFi.softAPIP();
+        ESPCOM::println (currentIP.toString().c_str(), PRINTER_PIPE);
 #ifdef ESP_OLED_FEATURE
         OLED_DISPLAY::setCursor(0, 16);
-		ESPCOM::print(currentIP.toString().c_str(), OLED_PIPE);
+        ESPCOM::print(currentIP.toString().c_str(), OLED_PIPE);
 #endif
-		}
+    }
 #ifdef ESP_OLED_FEATURE
-		OLED_DISPLAY::setCursor(0, 48);
-		if (force_ap){
-			ESPCOM::print("Safe mode 1", OLED_PIPE);
-		} else if ((WiFi.getMode() == WIFI_STA) && (WiFi.status() == WL_CONNECTED)) {
-			ESPCOM::print("Connected", OLED_PIPE);
-			OLED_DISPLAY::setCursor(0, 0);
-			ESPCOM::print(sbuf, OLED_PIPE);
-		}
-		else if (WiFi.getMode() != WIFI_STA) ESPCOM::print("AP Ready", OLED_PIPE);
+    OLED_DISPLAY::setCursor(0, 48);
+    if (force_ap) {
+        ESPCOM::print("Safe mode 1", OLED_PIPE);
+    } else if ((WiFi.getMode() == WIFI_STA) && (WiFi.status() == WL_CONNECTED)) {
+        ESPCOM::print("Connected", OLED_PIPE);
+        OLED_DISPLAY::setCursor(0, 0);
+        ESPCOM::print(sbuf, OLED_PIPE);
+    } else if (WiFi.getMode() != WIFI_STA) {
+        ESPCOM::print("AP Ready", OLED_PIPE);
+    }
 #endif
     ESPCOM::flush (DEFAULT_PRINTER_PIPE);
     return true;
@@ -596,7 +600,7 @@ bool WIFI_CONFIG::Enable_servers()
     data_server->setNoDelay (true);
 #endif
 #if !defined (ASYNCWEBSERVER)
-	socket_server = new WebSocketsServer (wifi_config.iweb_port+1);
+    socket_server = new WebSocketsServer (wifi_config.iweb_port+1);
     socket_server->begin();
     socket_server->onEvent(webSocketEvent);
 #endif
@@ -630,15 +634,15 @@ bool WIFI_CONFIG::Enable_servers()
     SSDP.setSchemaURL ("description.xml");
     SSDP.setHTTPPort ( wifi_config.iweb_port);
     SSDP.setName (shost.c_str() );
-    #if defined(ARDUINO_ARCH_ESP8266)
+#if defined(ARDUINO_ARCH_ESP8266)
     stmp = String (ESP.getChipId() );
     SSDP.setModelName (ESP8266_MODEL_NAME);
     SSDP.setModelURL (ESP8266_MODEL_URL);
-    #else
+#else
     stmp =  String ( (uint16_t) (ESP.getEfuseMac() >> 32) );
     SSDP.setModelName (ESP32_MODEL_NAME);
     SSDP.setModelURL (ESP32_MODEL_URL);
-    #endif
+#endif
     SSDP.setSerialNumber (stmp.c_str() );
     SSDP.setURL ("/");
     SSDP.setModelNumber (ESP_MODEL_NUMBER);
@@ -668,7 +672,7 @@ bool WIFI_CONFIG::Enable_servers()
 #if defined(NOTIFICATION_FEATURE)
     notificationsservice.begin();
 #endif
-    
+
     return true;
 }
 

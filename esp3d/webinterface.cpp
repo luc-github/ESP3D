@@ -56,11 +56,11 @@
 #include "espcom.h"
 
 #ifdef SSDP_FEATURE
-    #ifdef ARDUINO_ARCH_ESP32
-    #include <ESP32SSDP.h>
-    #else
-    #include <ESP8266SSDP.h>
-    #endif
+#ifdef ARDUINO_ARCH_ESP32
+#include <ESP32SSDP.h>
+#else
+#include <ESP8266SSDP.h>
+#endif
 #endif
 
 #if defined(ASYNCWEBSERVER)
@@ -76,24 +76,28 @@ long id_connection = 0;
 uint8_t Checksum(const char * line, uint16_t lineSize)
 {
     uint8_t checksum_val =0;
-    for (uint16_t i=0; i < lineSize; i++) checksum_val = checksum_val ^ ((uint8_t)line[i]);
+    for (uint16_t i=0; i < lineSize; i++) {
+        checksum_val = checksum_val ^ ((uint8_t)line[i]);
+    }
     return checksum_val;
 }
 
-String CheckSumLine(const char* line, uint32_t linenb){
-	String linechecksum = "N" + String(linenb)+ " " + line;
+String CheckSumLine(const char* line, uint32_t linenb)
+{
+    String linechecksum = "N" + String(linenb)+ " " + line;
     uint8_t crc = Checksum(linechecksum.c_str(), linechecksum.length());
     linechecksum+="*"+String(crc);
     return linechecksum;
 }
 
-bool purge_serial(){
+bool purge_serial()
+{
     uint32_t start = millis();
     uint8_t buf [51];
     ESPCOM::flush (DEFAULT_PRINTER_PIPE);
     CONFIG::wait (5);
     LOG("Purge Serial\r\n")
-    while (ESPCOM::available(DEFAULT_PRINTER_PIPE) > 0 ){
+    while (ESPCOM::available(DEFAULT_PRINTER_PIPE) > 0 ) {
         if ((millis() - start ) > 2000) {
             LOG("Purge timeout\r\n")
             return false;
@@ -106,32 +110,38 @@ bool purge_serial(){
         if ( ( CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER) ) {
             String s = (const char *)buf;
             //repetier never stop sending data so no need to wait if have 'wait' or 'busy'
-            if((s.indexOf ("wait") > -1) || (s.indexOf ("busy") > -1))return true;
+            if((s.indexOf ("wait") > -1) || (s.indexOf ("busy") > -1)) {
+                return true;
+            }
             LOG("Purge interrupted\r\n")
         }
         CONFIG::wait (5);
-     }
+    }
     CONFIG::wait (0);
     LOG("Purge done\r\n")
-    return true; 
+    return true;
 }
 
-size_t wait_for_data(uint32_t timeout){
+size_t wait_for_data(uint32_t timeout)
+{
     uint32_t start = millis();
-    while ((ESPCOM::available(DEFAULT_PRINTER_PIPE) < 2) && ((millis()-start) < timeout))CONFIG::wait (10);
+    while ((ESPCOM::available(DEFAULT_PRINTER_PIPE) < 2) && ((millis()-start) < timeout)) {
+        CONFIG::wait (10);
+    }
     return ESPCOM::available(DEFAULT_PRINTER_PIPE);
 }
 
-uint32_t Get_lineNumber(String & response){
+uint32_t Get_lineNumber(String & response)
+{
     int32_t l = 0;
     String sresend = "Resend:";
-    if ( CONFIG::GetFirmwareTarget() == SMOOTHIEWARE){
+    if ( CONFIG::GetFirmwareTarget() == SMOOTHIEWARE) {
         sresend = "rs N";
     }
     int pos = response.indexOf(sresend);
     if (pos == -1 ) {
         return -1;
-        }
+    }
     pos+=sresend.length();
     int pos2 = response.indexOf("\n", pos);
     String snum = response.substring(pos, pos2);
@@ -156,12 +166,20 @@ bool sendLine2Serial (String &  line, int32_t linenb,  int32_t * newlinenb)
     String line2send;
     String sok = "ok";
     String sresend = "Resend:";
-    if (newlinenb) *newlinenb = linenb;
-    if ( CONFIG::GetFirmwareTarget() == SMOOTHIEWARE)sresend = "rs N";
+    if (newlinenb) {
+        *newlinenb = linenb;
+    }
+    if ( CONFIG::GetFirmwareTarget() == SMOOTHIEWARE) {
+        sresend = "rs N";
+    }
     if (linenb != -1) {
-        if ( ( CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER) ) sok+=" " + String(linenb);
+        if ( ( CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER) ) {
+            sok+=" " + String(linenb);
+        }
         line2send = CheckSumLine(line.c_str(),linenb);
-    } else line2send = line;
+    } else {
+        line2send = line;
+    }
     //purge serial as nothing is supposed to interfere with upload
     purge_serial();
     LOG ("Send line ")
@@ -182,14 +200,14 @@ bool sendLine2Serial (String &  line, int32_t linenb,  int32_t * newlinenb)
             //get size of buffer
             if (len > 0) {
                 uint8_t * sbuf = (uint8_t *)malloc(len+1);
-                if(!sbuf){
+                if(!sbuf) {
                     return false;
                 }
                 //read buffer
                 ESPCOM::readBytes (DEFAULT_PRINTER_PIPE, sbuf, len);
                 //convert buffer to zero end array
                 sbuf[len] = '\0';
-                //use string because easier to handle and allow to re-assemble cutted answer 
+                //use string because easier to handle and allow to re-assemble cutted answer
                 response += (const char*) sbuf;
                 LOG ("Response:\r\n************\r\n")
                 LOG (response)
@@ -197,16 +215,16 @@ bool sendLine2Serial (String &  line, int32_t linenb,  int32_t * newlinenb)
                 //in that case there is no way to know what is the right number to use and so send should be failed
                 if (( ( CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER) ) && (response.indexOf ("skip") != -1)) {
                     LOG ("Wrong line requested\r\n")
-                    count = 5;  
+                    count = 5;
                 }
                 //it is resend ?
                 int pos = response.indexOf (sresend);
                 //be sure we get full line to be able to process properly
-                if (( pos > -1) && (response.lastIndexOf("\n") > pos)){
+                if (( pos > -1) && (response.lastIndexOf("\n") > pos)) {
                     LOG ("Resend detected\r\n")
                     uint32_t line_number = Get_lineNumber(response);
                     //this part is only if have newlinenb variable
-                    if (newlinenb != nullptr){ 
+                    if (newlinenb != nullptr) {
                         *newlinenb = line_number;
                         free(sbuf);
                         //no need newlinenb in this one in theory, but just in case...
@@ -233,31 +251,31 @@ bool sendLine2Serial (String &  line, int32_t linenb,  int32_t * newlinenb)
                     ESPCOM::flush (DEFAULT_PRINTER_PIPE);
                     wait_for_data(1000);
                     timeout = millis();
-                    
+
                 } else {
                     if ( (response.indexOf (sok) > -1) ) { //we have ok so it is done
                         free(sbuf);
-                    LOG ("Got ok\r\n")
-                    purge_serial();
-                    return true;
+                        LOG ("Got ok\r\n")
+                        purge_serial();
+                        return true;
                     }
                 }
                 free(sbuf);
             }
             //no answer or over buffer  exit
-            if ( (millis() - timeout > 2000) ||  (response.length() >200)){ 
+            if ( (millis() - timeout > 2000) ||  (response.length() >200)) {
                 LOG ("Time out\r\n")
                 done = true;
             }
             CONFIG::wait (5);
         }
     }
-    LOG ("Send line error\r\n") 
+    LOG ("Send line error\r\n")
     return false;
 }
 
 //send M29 / M30 command to close file on SD////////////////////////////
-void CloseSerialUpload (bool iserror, String & filename , int32_t linenb)
+void CloseSerialUpload (bool iserror, String & filename, int32_t linenb)
 {
     purge_serial();
     String command = "M29";
@@ -289,20 +307,20 @@ void CloseSerialUpload (bool iserror, String & filename , int32_t linenb)
 
 
 //constructor
-WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port) : web_server (port) 
+WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port) : web_server (port)
 #if defined(ASYNCWEBSERVER)
-													, web_events("/events")
+    , web_events("/events")
 #ifdef WS_DATA_FEATURE
-													, web_socket("/ws")
+    , web_socket("/ws")
 #endif
 #endif
 {
     //that handle "/" and default index.html.gz
 #if defined(ASYNCWEBSERVER)
-	//trick to catch command line on "/" before file being processed
+    //trick to catch command line on "/" before file being processed
     web_server.serveStatic ("/", SPIFFS, "/").setDefaultFile ("index.html").setFilter (filterOnRoot);
     web_server.serveStatic ("/", SPIFFS, "/Nowhere");
-	//events functions
+    //events functions
     web_events.onConnect(handle_onevent_connect);
     //events management
     web_server.addHandler(&web_events);
@@ -312,16 +330,16 @@ WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port) : web_server (port)
     //Websocket management
     web_server.addHandler(&web_socket);
 #endif
-#else 
-	web_server.on("/",HTTP_ANY, handle_web_interface_root);
+#else
+    web_server.on("/",HTTP_ANY, handle_web_interface_root);
 #endif
-	//need to be there even no authentication to say to UI no authentication
-	web_server.on("/login", HTTP_ANY, handle_login);
+    //need to be there even no authentication to say to UI no authentication
+    web_server.on("/login", HTTP_ANY, handle_login);
 #ifdef SSDP_FEATURE
     web_server.on ("/description.xml", HTTP_GET, handle_SSDP);
 #endif
 #ifdef CAPTIVE_PORTAL_FEATURE
-	#if defined(ASYNCWEBSERVER)
+#if defined(ASYNCWEBSERVER)
     web_server.on ("/generate_204", HTTP_ANY,  [] (AsyncWebServerRequest * request) {
         request->redirect ("/");
     });
@@ -332,12 +350,12 @@ WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port) : web_server (port)
     web_server.on ("/fwlink/", HTTP_ANY,  [] (AsyncWebServerRequest * request) {
         request->redirect ("/");
     });
-    #else
+#else
     web_server.on("/generate_204",HTTP_ANY, handle_web_interface_root);
     web_server.on("/gconnectivitycheck.gstatic.com",HTTP_ANY, handle_web_interface_root);
-    //do not forget the / at the end 
+    //do not forget the / at the end
     web_server.on("/fwlink/",HTTP_ANY, handle_web_interface_root);
-    #endif
+#endif
 #endif
     //SPIFFS
     web_server.on ("/files", HTTP_ANY, handleFileList, SPIFFSFileupload);
@@ -348,9 +366,9 @@ WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port) : web_server (port)
     web_server.onNotFound ( handle_not_found);
     //web commands
     web_server.on ("/command", HTTP_ANY, handle_web_command);
-	web_server.on ("/command_silent", HTTP_ANY, handle_web_command_silent);
-	//Serial SD management
-	web_server.on ("/upload_serial", HTTP_ANY, handle_serial_SDFileList, SDFile_serial_upload);
+    web_server.on ("/command_silent", HTTP_ANY, handle_web_command_silent);
+    //Serial SD management
+    web_server.on ("/upload_serial", HTTP_ANY, handle_serial_SDFileList, SDFile_serial_upload);
 
     blockserial = false;
     restartmodule = false;

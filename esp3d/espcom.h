@@ -29,12 +29,12 @@ extern WiFiServer * data_server;
 class ESPCOM
 {
 public:
-	static size_t  write(tpipe output, uint8_t d);
-	static long readBytes (tpipe output, uint8_t * sbuf, size_t len);
-	static long baudRate(tpipe output);
-	static size_t available(tpipe output);
-	static void flush(tpipe output, ESPResponseStream  *espresponse = NULL);
-	static void bridge(bool async = false);
+    static size_t  write(tpipe output, uint8_t d);
+    static long readBytes (tpipe output, uint8_t * sbuf, size_t len);
+    static long baudRate(tpipe output);
+    static size_t available(tpipe output);
+    static void flush(tpipe output, ESPResponseStream  *espresponse = NULL);
+    static void bridge(bool async = false);
     static bool processFromSerial (bool async = false);
     static void print (const __FlashStringHelper *data, tpipe output, ESPResponseStream  *espresponse = NULL);
     static void print (String & data, tpipe output, ESPResponseStream  *espresponse = NULL);
@@ -47,11 +47,11 @@ public:
     static void processFromTCP2Serial();
     static void send2TCP (const __FlashStringHelper *data, bool async = false);
     static void send2TCP (String data, bool async = false);
-    static void send2TCP (const char * data, bool async = false);   
+    static void send2TCP (const char * data, bool async = false);
 #endif
-	static bool block_2_printer;
+    static bool block_2_printer;
 #ifdef ESP_OLED_FEATURE
-	static bool block_2_oled;
+    static bool block_2_oled;
 #endif
 };
 #endif

@@ -47,11 +47,11 @@
 #include "espcom.h"
 
 #ifdef SSDP_FEATURE
-    #ifdef ARDUINO_ARCH_ESP32
-    #include <ESP32SSDP.h>
-    #else
-    #include <ESP8266SSDP.h>
-    #endif
+#ifdef ARDUINO_ARCH_ESP32
+#include <ESP32SSDP.h>
+#else
+#include <ESP8266SSDP.h>
+#endif
 #endif
 
 //embedded response file if no files on SPIFFS
@@ -59,42 +59,42 @@
 #include "syncwebserver.h"
 WebSocketsServer * socket_server;
 
-void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
+void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length)
+{
 
     switch(type) {
-        case WStype_DISCONNECTED:
-            //USE_SERIAL.printf("[%u] Disconnected!\n", num);
-            break;
-        case WStype_CONNECTED:
-            {
-                IPAddress ip = socket_server->remoteIP(num);
-                //USE_SERIAL.printf("[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
-				String s = "CURRENT_ID:" + String(num);
-				// send message to client
-				ESPCOM::current_socket_id = num;
-				socket_server->sendTXT(ESPCOM::current_socket_id, s);
-				s = "ACTIVE_ID:" + String(ESPCOM::current_socket_id);
-				socket_server->broadcastTXT(s);
-            }
-            break;
-        case WStype_TEXT:
-            //USE_SERIAL.printf("[%u] get Text: %s\n", num, payload);
+    case WStype_DISCONNECTED:
+        //USE_SERIAL.printf("[%u] Disconnected!\n", num);
+        break;
+    case WStype_CONNECTED: {
+        IPAddress ip = socket_server->remoteIP(num);
+        //USE_SERIAL.printf("[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
+        String s = "CURRENT_ID:" + String(num);
+        // send message to client
+        ESPCOM::current_socket_id = num;
+        socket_server->sendTXT(ESPCOM::current_socket_id, s);
+        s = "ACTIVE_ID:" + String(ESPCOM::current_socket_id);
+        socket_server->broadcastTXT(s);
+    }
+    break;
+    case WStype_TEXT:
+        //USE_SERIAL.printf("[%u] get Text: %s\n", num, payload);
 
-            // send message to client
-            // webSocket.sendTXT(num, "message here");
+        // send message to client
+        // webSocket.sendTXT(num, "message here");
 
-            // send data to all connected clients
-            // webSocket.broadcastTXT("message here");
-            break;
-        case WStype_BIN:
-            //USE_SERIAL.printf("[%u] get binary length: %u\n", num, length);
-            //hexdump(payload, length);
+        // send data to all connected clients
+        // webSocket.broadcastTXT("message here");
+        break;
+    case WStype_BIN:
+        //USE_SERIAL.printf("[%u] get binary length: %u\n", num, length);
+        //hexdump(payload, length);
 
-            // send message to client
-            // webSocket.sendBIN(num, payload, length);
-            break;
-        default:
-			break;
+        // send message to client
+        // webSocket.sendBIN(num, payload, length);
+        break;
+    default:
+        break;
     }
 
 }
@@ -121,7 +121,7 @@ void handle_web_interface_root()
         if(SPIFFS.exists(pathWithGz)) {
             path = pathWithGz;
         }
-		FS_FILE file = SPIFFS.open(path, SPIFFS_FILE_READ);
+        FS_FILE file = SPIFFS.open(path, SPIFFS_FILE_READ);
         web_interface->web_server.streamFile(file, contentType);
         file.close();
         return;
@@ -148,7 +148,7 @@ void handle_login()
         if (pos!= -1) {
             int pos2 = cookie.indexOf(";",pos);
             sessionID = cookie.substring(pos+strlen("ESPSESSIONID="),pos2);
-            }
+        }
         web_interface->ClearAuthIP(web_interface->web_server.client().remoteIP(), sessionID.c_str());
         web_interface->web_server.sendHeader("Set-Cookie","ESPSESSIONID=0");
         web_interface->web_server.sendHeader("Cache-Control","no-cache");
@@ -159,10 +159,15 @@ void handle_login()
     }
 
     level_authenticate_type auth_level= web_interface->is_authenticated();
-   if (auth_level == LEVEL_GUEST) auths = F("guest");
-    else if (auth_level == LEVEL_USER) auths = F("user");
-    else if (auth_level == LEVEL_ADMIN) auths = F("admin");
-    else auths = F("???");
+    if (auth_level == LEVEL_GUEST) {
+        auths = F("guest");
+    } else if (auth_level == LEVEL_USER) {
+        auths = F("user");
+    } else if (auth_level == LEVEL_ADMIN) {
+        auths = F("admin");
+    } else {
+        auths = F("???");
+    }
 
     //check is it is a submission or a query
     if (web_interface->web_server.hasArg("SUBMIT")) {
@@ -207,12 +212,15 @@ void handle_login()
             String newpassword =  web_interface->web_server.arg("NEWPASSWORD");
             if (CONFIG::isLocalPasswordValid(newpassword.c_str())) {
                 int pos=0;
-                if(sUser==FPSTR(DEFAULT_ADMIN_LOGIN)) pos = EP_ADMIN_PWD;
-                else pos = EP_USER_PWD;
-                if (!CONFIG::write_string(pos,newpassword.c_str())){
-                     msg_alert_error=true;
-                     smsg = F("Error: Cannot apply changes");
-                     code = 500;
+                if(sUser==FPSTR(DEFAULT_ADMIN_LOGIN)) {
+                    pos = EP_ADMIN_PWD;
+                } else {
+                    pos = EP_USER_PWD;
+                }
+                if (!CONFIG::write_string(pos,newpassword.c_str())) {
+                    msg_alert_error=true;
+                    smsg = F("Error: Cannot apply changes");
+                    code = 500;
                 }
             } else {
                 msg_alert_error=true;
@@ -220,77 +228,79 @@ void handle_login()
                 code = 500;
             }
         }
-   if ((code == 200) || (code == 500)) {
-       level_authenticate_type current_auth_level;
-      if(sUser == FPSTR(DEFAULT_ADMIN_LOGIN)) {
-            current_auth_level = LEVEL_ADMIN;
-        } else  if(sUser == FPSTR(DEFAULT_USER_LOGIN)){
-            current_auth_level = LEVEL_USER;
-        } else {
-            current_auth_level = LEVEL_GUEST;
-        }
-        //create Session
-        if ((current_auth_level != auth_level) || (auth_level== LEVEL_GUEST)) {
-            auth_ip * current_auth = new auth_ip;
-            current_auth->level = current_auth_level;
-            current_auth->ip=web_interface->web_server.client().remoteIP();
-            strcpy(current_auth->sessionID,web_interface->create_session_ID());
-            strcpy(current_auth->userID,sUser.c_str());
-            current_auth->last_time=millis();
-            if (web_interface->AddAuthIP(current_auth)) {
-                String tmps ="ESPSESSIONID=";
-                tmps+=current_auth->sessionID;
-                web_interface->web_server.sendHeader("Set-Cookie",tmps);
-                web_interface->web_server.sendHeader("Cache-Control","no-cache");
-                switch(current_auth->level) {
+        if ((code == 200) || (code == 500)) {
+            level_authenticate_type current_auth_level;
+            if(sUser == FPSTR(DEFAULT_ADMIN_LOGIN)) {
+                current_auth_level = LEVEL_ADMIN;
+            } else  if(sUser == FPSTR(DEFAULT_USER_LOGIN)) {
+                current_auth_level = LEVEL_USER;
+            } else {
+                current_auth_level = LEVEL_GUEST;
+            }
+            //create Session
+            if ((current_auth_level != auth_level) || (auth_level== LEVEL_GUEST)) {
+                auth_ip * current_auth = new auth_ip;
+                current_auth->level = current_auth_level;
+                current_auth->ip=web_interface->web_server.client().remoteIP();
+                strcpy(current_auth->sessionID,web_interface->create_session_ID());
+                strcpy(current_auth->userID,sUser.c_str());
+                current_auth->last_time=millis();
+                if (web_interface->AddAuthIP(current_auth)) {
+                    String tmps ="ESPSESSIONID=";
+                    tmps+=current_auth->sessionID;
+                    web_interface->web_server.sendHeader("Set-Cookie",tmps);
+                    web_interface->web_server.sendHeader("Cache-Control","no-cache");
+                    switch(current_auth->level) {
                     case LEVEL_ADMIN:
                         auths = "admin";
                         break;
-                     case LEVEL_USER:
+                    case LEVEL_USER:
                         auths = "user";
                         break;
                     default:
                         auths = "guest";
                         break;
                     }
-            } else {
-                delete current_auth;
-                msg_alert_error=true;
-                code = 500;
-                smsg = F("Error: Too many connections");
+                } else {
+                    delete current_auth;
+                    msg_alert_error=true;
+                    code = 500;
+                    smsg = F("Error: Too many connections");
+                }
             }
         }
-   }
-    if (code == 200) smsg = F("Ok");
+        if (code == 200) {
+            smsg = F("Ok");
+        }
 
-    //build  JSON
-    String buffer2send = "{\"status\":\"" + smsg + "\",\"authentication_lvl\":\"";
-    buffer2send += auths;
-    buffer2send += "\"}";
-    web_interface->web_server.send(code, "application/json", buffer2send);
+        //build  JSON
+        String buffer2send = "{\"status\":\"" + smsg + "\",\"authentication_lvl\":\"";
+        buffer2send += auths;
+        buffer2send += "\"}";
+        web_interface->web_server.send(code, "application/json", buffer2send);
     } else {
-    if (auth_level != LEVEL_GUEST) {
-        String cookie = web_interface->web_server.header("Cookie");
-        int pos = cookie.indexOf("ESPSESSIONID=");
-        String sessionID;
-        if (pos!= -1) {
-            int pos2 = cookie.indexOf(";",pos);
-            sessionID = cookie.substring(pos+strlen("ESPSESSIONID="),pos2);
-            auth_ip * current_auth_info = web_interface->GetAuth(web_interface->web_server.client().remoteIP(), sessionID.c_str());
-            if (current_auth_info != NULL){
+        if (auth_level != LEVEL_GUEST) {
+            String cookie = web_interface->web_server.header("Cookie");
+            int pos = cookie.indexOf("ESPSESSIONID=");
+            String sessionID;
+            if (pos!= -1) {
+                int pos2 = cookie.indexOf(";",pos);
+                sessionID = cookie.substring(pos+strlen("ESPSESSIONID="),pos2);
+                auth_ip * current_auth_info = web_interface->GetAuth(web_interface->web_server.client().remoteIP(), sessionID.c_str());
+                if (current_auth_info != NULL) {
                     sUser = current_auth_info->userID;
                 }
+            }
         }
-    }
-    String buffer2send = "{\"status\":\"200\",\"authentication_lvl\":\"";
-    buffer2send += auths;
-    buffer2send += "\",\"user\":\"";
-    buffer2send += sUser;
-    buffer2send +="\"}";
-    web_interface->web_server.send(code, "application/json", buffer2send);
+        String buffer2send = "{\"status\":\"200\",\"authentication_lvl\":\"";
+        buffer2send += auths;
+        buffer2send += "\",\"user\":\"";
+        buffer2send += sUser;
+        buffer2send +="\"}";
+        web_interface->web_server.send(code, "application/json", buffer2send);
     }
 #else
-	web_interface->web_server.sendHeader("Cache-Control","no-cache");
+    web_interface->web_server.sendHeader("Cache-Control","no-cache");
     web_interface->web_server.send(200, "application/json", "{\"status\":\"Ok\",\"authentication_lvl\":\"admin\"}");
 #endif
 }
@@ -352,12 +362,12 @@ void handleFileList()
                     FS_DIR dir = SPIFFS.openDir(path);
                     if (!dir.next()) {
 #else
-					String ptmp = path;
-					if ( (path != "/") && (path[path.length() - 1] = '/') ) {
+                    String ptmp = path;
+                    if ( (path != "/") && (path[path.length() - 1] = '/') ) {
                         ptmp = path.substring (0, path.length() - 1);
                     }
-					FS_FILE dir = SPIFFS.open (ptmp);
-					FS_FILE dircontent = dir.openNextFile();
+                    FS_FILE dir = SPIFFS.open (ptmp);
+                    FS_FILE dircontent = dir.openNextFile();
                     if (!dircontent) {
 #endif
                         //keep directory alive even empty
@@ -387,23 +397,23 @@ void handleFileList()
                 {
                     while (dir.next()) {
 #else
-				FS_FILE dir = SPIFFS.open(path + shortname);
+                FS_FILE dir = SPIFFS.open(path + shortname);
                 {
-					FS_FILE file2deleted = dir.openNextFile();
+                    FS_FILE file2deleted = dir.openNextFile();
                     while (file2deleted) {
 #endif
 #if defined ( ARDUINO_ARCH_ESP8266)
                         String fullpath = dir.fileName();
 #else
-						String fullpath = file2deleted.name();
+                        String fullpath = file2deleted.name();
 #endif
                         if (!SPIFFS.remove(fullpath)) {
                             delete_error = true;
                             status = F("Cannot deleted ") ;
                             status+=fullpath;
                         }
-#if defined(ARDUINO_ARCH_ESP32)     
-                     file2deleted = dir.openNextFile();
+#if defined(ARDUINO_ARCH_ESP32)
+                        file2deleted = dir.openNextFile();
 #endif
                     }
                 }
@@ -438,11 +448,11 @@ void handleFileList()
 #if defined ( ARDUINO_ARCH_ESP8266 )
     FS_DIR dir = SPIFFS.openDir(path);
 #else
-	String ptmp = path;
-	if ( (path != "/") && (path[path.length() - 1] = '/') ) {
+    String ptmp = path;
+    if ( (path != "/") && (path[path.length() - 1] = '/') ) {
         ptmp = path.substring (0, path.length() - 1);
     }
-	FS_FILE dir = SPIFFS.open(ptmp);
+    FS_FILE dir = SPIFFS.open(ptmp);
 #endif
     jsonfile+="\"files\":[";
     bool firstentry=true;
@@ -451,8 +461,8 @@ void handleFileList()
     while (dir.next()) {
         String filename = dir.fileName();
 #else
-	File fileparsed = dir.openNextFile();
-	while (fileparsed) {
+    File fileparsed = dir.openNextFile();
+    while (fileparsed) {
         String filename = fileparsed.name();
 #endif
         String size ="";
@@ -482,9 +492,9 @@ void handleFileList()
 #if defined ( ARDUINO_ARCH_ESP8266)
                 size = CONFIG::formatBytes(dir.fileSize());
 #else
-				size = CONFIG::formatBytes(fileparsed.size());
+                size = CONFIG::formatBytes(fileparsed.size());
 #endif
-                
+
             } else {
                 addtolist = false;
             }
@@ -518,7 +528,7 @@ void handleFileList()
     totalBytes = info.totalBytes;
     usedBytes = info.usedBytes;
 #else
-	totalBytes = SPIFFS.totalBytes();
+    totalBytes = SPIFFS.totalBytes();
     usedBytes = SPIFFS.usedBytes();
 #endif
     jsonfile+="\"total\":\"" + CONFIG::formatBytes(totalBytes) + "\",";
@@ -536,7 +546,7 @@ void handleFileList()
 //SPIFFS files uploader handle
 void SPIFFSFileupload()
 {
-	static FS_FILE fsUploadFile = (FS_FILE)0;
+    static FS_FILE fsUploadFile = (FS_FILE)0;
     //get authentication status
     level_authenticate_type auth_level= web_interface->is_authenticated();
     //Guest cannot upload
@@ -545,8 +555,8 @@ void SPIFFSFileupload()
         ESPCOM::println (F ("Upload rejected"), PRINTER_PIPE);
 #if defined ( ARDUINO_ARCH_ESP8266)
         web_interface->web_server.client().stopAll();
-#else 
-		web_interface->web_server.client().stop();
+#else
+        web_interface->web_server.client().stop();
 #endif
         return;
     }
@@ -557,16 +567,19 @@ void SPIFFSFileupload()
     //Upload start
     //**************
     if(upload.status == UPLOAD_FILE_START) {
-		String upload_filename = upload.filename;
-		String  sizeargname  = upload_filename + "S";
-		if (upload_filename[0] != '/') filename = "/" + upload_filename;
-		else filename = upload.filename;
+        String upload_filename = upload.filename;
+        String  sizeargname  = upload_filename + "S";
+        if (upload_filename[0] != '/') {
+            filename = "/" + upload_filename;
+        } else {
+            filename = upload.filename;
+        }
         //according User or Admin the root is different as user is isolate to /user when admin has full access
         if(auth_level != LEVEL_ADMIN) {
-			upload_filename = filename;
+            upload_filename = filename;
             filename = "/user" + upload_filename;
         }
-        
+
         if (SPIFFS.exists (filename) ) {
             SPIFFS.remove (filename);
         }
@@ -574,7 +587,7 @@ void SPIFFSFileupload()
             fsUploadFile.close();
         }
         //create file
-		fsUploadFile = SPIFFS.open(filename, SPIFFS_FILE_WRITE);
+        fsUploadFile = SPIFFS.open(filename, SPIFFS_FILE_WRITE);
         //check If creation succeed
         if (fsUploadFile) {
             //if yes upload is started
@@ -584,9 +597,9 @@ void SPIFFSFileupload()
             web_interface->_upload_status=UPLOAD_STATUS_CANCELLED;
             ESPCOM::println (F ("Error ESP create"), PRINTER_PIPE);
 #if defined ( ARDUINO_ARCH_ESP8266)
-			web_interface->web_server.client().stopAll();
-#else 
-			web_interface->web_server.client().stop();
+            web_interface->web_server.client().stopAll();
+#else
+            web_interface->web_server.client().stop();
 #endif
         }
         //Upload write
@@ -600,11 +613,11 @@ void SPIFFSFileupload()
             //we have a problem set flag UPLOAD_STATUS_CANCELLED
             web_interface->_upload_status=UPLOAD_STATUS_CANCELLED;
 #if defined ( ARDUINO_ARCH_ESP8266)
-			web_interface->web_server.client().stopAll();
-#else 
-			web_interface->web_server.client().stop();
+            web_interface->web_server.client().stopAll();
+#else
+            web_interface->web_server.client().stop();
 #endif
-             ESPCOM::println (F ("Error ESP write"), PRINTER_PIPE);
+            ESPCOM::println (F ("Error ESP write"), PRINTER_PIPE);
         }
         //Upload end
         //**************
@@ -614,30 +627,30 @@ void SPIFFSFileupload()
             //close it
             fsUploadFile.close();
             if (web_interface->_upload_status == UPLOAD_STATUS_ONGOING) {
-				web_interface->_upload_status = UPLOAD_STATUS_SUCCESSFUL;
-			}
+                web_interface->_upload_status = UPLOAD_STATUS_SUCCESSFUL;
+            }
         } else {
             //we have a problem set flag UPLOAD_STATUS_CANCELLED
             web_interface->_upload_status=UPLOAD_STATUS_CANCELLED;
 #if defined ( ARDUINO_ARCH_ESP8266)
-			web_interface->web_server.client().stopAll();
-#else 
-			web_interface->web_server.client().stop();
+            web_interface->web_server.client().stopAll();
+#else
+            web_interface->web_server.client().stop();
 #endif
             if (SPIFFS.exists (filename) ) {
-				SPIFFS.remove (filename);
-				}
+                SPIFFS.remove (filename);
+            }
             ESPCOM::println (F ("Error ESP close"), PRINTER_PIPE);
-            
+
         }
         //Upload cancelled
         //**************
     } else {
-			if (web_interface->_upload_status == UPLOAD_STATUS_ONGOING) {
-				web_interface->_upload_status = UPLOAD_STATUS_CANCELLED;
-			}
-			ESPCOM::println (F ("Error ESP upload"), PRINTER_PIPE);
-			return;
+        if (web_interface->_upload_status == UPLOAD_STATUS_ONGOING) {
+            web_interface->_upload_status = UPLOAD_STATUS_CANCELLED;
+        }
+        ESPCOM::println (F ("Error ESP upload"), PRINTER_PIPE);
+        return;
     }
     CONFIG::wait(0);
 }
@@ -653,8 +666,8 @@ void WebUpdateUpload()
         web_interface->_upload_status=UPLOAD_STATUS_CANCELLED;
 #if defined ( ARDUINO_ARCH_ESP8266)
         web_interface->web_server.client().stopAll();
-#else 
-		web_interface->web_server.client().stop();
+#else
+        web_interface->web_server.client().stop();
 #endif
         ESPCOM::println (F ("Update failed"), PRINTER_PIPE);
         LOG("Web Update failed\r\n");
@@ -668,25 +681,28 @@ void WebUpdateUpload()
         ESPCOM::println (F ("Update Firmware"), PRINTER_PIPE);
         web_interface->_upload_status= UPLOAD_STATUS_ONGOING;
 #if defined ( ARDUINO_ARCH_ESP8266)
-		WiFiUDP::stopAll();
+        WiFiUDP::stopAll();
 #endif
 #if defined ( ARDUINO_ARCH_ESP8266)
-                maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
-#else 
+        maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+#else
 //Not sure can do OTA on 2Mb board
-				maxSketchSpace = (ESP.getFlashChipSize()>0x20000)?0x140000:0x140000/2;
+        maxSketchSpace = (ESP.getFlashChipSize()>0x20000)?0x140000:0x140000/2;
 #endif
         last_upload_update = 0;
         if(!Update.begin(maxSketchSpace)) { //start with max available size
             web_interface->_upload_status=UPLOAD_STATUS_CANCELLED;
 #if defined ( ARDUINO_ARCH_ESP8266)
-        web_interface->web_server.client().stopAll();
-#else 
-		web_interface->web_server.client().stop();
+            web_interface->web_server.client().stopAll();
+#else
+            web_interface->web_server.client().stop();
 #endif
         } else {
-        if (( CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER)) ESPCOM::println (F ("Update 0%%"), PRINTER_PIPE);
-        else ESPCOM::println (F ("Update 0%"), PRINTER_PIPE);
+            if (( CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER)) {
+                ESPCOM::println (F ("Update 0%%"), PRINTER_PIPE);
+            } else {
+                ESPCOM::println (F ("Update 0%"), PRINTER_PIPE);
+            }
         }
         //Upload write
         //**************
@@ -699,7 +715,9 @@ void WebUpdateUpload()
                 String s = "Update ";
                 s+= String(last_upload_update);
                 s+= "%";
-                if (( CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER)) s+= "%";
+                if (( CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER)) {
+                    s+= "%";
+                }
                 ESPCOM::println (s.c_str(), PRINTER_PIPE);
             }
             if(Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
@@ -711,8 +729,11 @@ void WebUpdateUpload()
     } else if(upload.status == UPLOAD_FILE_END) {
         if(Update.end(true)) { //true to set the size to the current progress
             //Now Reboot
-            if (( CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER)) ESPCOM::println (F("Update 100%%"), PRINTER_PIPE);
-            else ESPCOM::println (F("Update 100%"), PRINTER_PIPE);
+            if (( CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER)) {
+                ESPCOM::println (F("Update 100%%"), PRINTER_PIPE);
+            } else {
+                ESPCOM::println (F("Update 100%"), PRINTER_PIPE);
+            }
             web_interface->_upload_status=UPLOAD_STATUS_SUCCESSFUL;
         }
     } else if(upload.status == UPLOAD_FILE_ABORTED) {
@@ -727,7 +748,7 @@ void handleUpdate()
 {
     level_authenticate_type auth_level = web_interface->is_authenticated();
     if (auth_level != LEVEL_ADMIN) {
-		web_interface->_upload_status=UPLOAD_STATUS_NONE;
+        web_interface->_upload_status=UPLOAD_STATUS_NONE;
         web_interface->web_server.send(403,"text/plain","Not allowed, log in first!\n");
         return;
     }
@@ -739,7 +760,7 @@ void handleUpdate()
     web_interface->web_server.send(200, "application/json", jsonfile);
     //if success restart
     if (web_interface->_upload_status==UPLOAD_STATUS_SUCCESSFUL) {
-		CONFIG::wait(2000);
+        CONFIG::wait(2000);
         web_interface->restartmodule=true;
     } else {
         web_interface->_upload_status=UPLOAD_STATUS_NONE;
@@ -777,17 +798,17 @@ void handle_not_found()
     LOG("type:")
     LOG(contentType)
     LOG("\r\n")
-        if(SPIFFS.exists(pathWithGz) || SPIFFS.exists(path)) {
-            if(SPIFFS.exists(pathWithGz)) {
-                path = pathWithGz;
-            }
-            FS_FILE file = SPIFFS.open(path, SPIFFS_FILE_READ);
-            web_interface->web_server.streamFile(file, contentType);
-            file.close();
-            return;
-        } else {
-            page_not_found = true;
+    if(SPIFFS.exists(pathWithGz) || SPIFFS.exists(path)) {
+        if(SPIFFS.exists(pathWithGz)) {
+            path = pathWithGz;
         }
+        FS_FILE file = SPIFFS.open(path, SPIFFS_FILE_READ);
+        web_interface->web_server.streamFile(file, contentType);
+        file.close();
+        return;
+    } else {
+        page_not_found = true;
+    }
 
     if (page_not_found ) {
 #ifdef CAPTIVE_PORTAL_FEATURE
@@ -802,7 +823,7 @@ void handle_not_found()
                 stmp+=CONFIG::intTostr(wifi_config.iweb_port);
             }
             contentType.replace(KEY_IP,stmp);
-             contentType.replace(KEY_IP,stmp);
+            contentType.replace(KEY_IP,stmp);
             contentType.replace(KEY_QUERY,web_interface->web_server.uri());
             web_interface->web_server.send(200,"text/html",contentType);
             //web_interface->web_server.sendContent_P(NOT_AUTH_NF);
@@ -821,7 +842,7 @@ void handle_not_found()
             FS_FILE file = SPIFFS.open(path, SPIFFS_FILE_READ);
             web_interface->web_server.streamFile(file, contentType);
             file.close();
-           
+
         } else {
             //if not template use default page
             contentType=FPSTR(PAGE_404);
@@ -849,10 +870,10 @@ void handle_not_found()
 void handle_web_command()
 {
     level_authenticate_type auth_level= web_interface->is_authenticated();
-  /*  if (auth_level == LEVEL_GUEST) {
-        web_interface->web_server.send(403,"text/plain","Not allowed, log in first!\n");
-        return;
-    }*/
+    /*  if (auth_level == LEVEL_GUEST) {
+          web_interface->web_server.send(403,"text/plain","Not allowed, log in first!\n");
+          return;
+      }*/
     String buffer2send = "";
     ESPResponseStream espresponse;
     LOG(String (web_interface->web_server.args()))
@@ -893,7 +914,7 @@ void handle_web_command()
             String cmd_part1=cmd.substring(ESPpos+4,ESPpos2);
             String cmd_part2="";
             //only [ESP800] is allowed login free if authentication is enabled
-             if ((auth_level == LEVEL_GUEST)  && (cmd_part1.toInt()!=800)) {
+            if ((auth_level == LEVEL_GUEST)  && (cmd_part1.toInt()!=800)) {
                 web_interface->web_server.send(401,"text/plain","Authentication failed!\n");
                 return;
             }
@@ -909,10 +930,10 @@ void handle_web_command()
             //if not is not a valid [ESPXXX] command
         }
     } else {
-         if (auth_level == LEVEL_GUEST) {
-        web_interface->web_server.send(401,"text/plain","Authentication failed!\n");
-        return;
-    }
+        if (auth_level == LEVEL_GUEST) {
+            web_interface->web_server.send(401,"text/plain","Authentication failed!\n");
+            return;
+        }
         //send command to serial as no need to transfer ESP command
         //to avoid any pollution if Uploading file to SDCard
         if ((web_interface->blockserial) == false) {
@@ -977,14 +998,14 @@ void handle_web_command()
                         LOG(current_line)
                         LOG("\r\n")
                         //check command
-                        if ((CONFIG::GetFirmwareTarget() == REPETIER) || (CONFIG::GetFirmwareTarget() == REPETIER4DV)){
+                        if ((CONFIG::GetFirmwareTarget() == REPETIER) || (CONFIG::GetFirmwareTarget() == REPETIER4DV)) {
                             //save time no need to continue
                             if (current_line.indexOf("busy:") > -1) {
                                 temp_counter++;
                             } else if (COMMAND::check_command(current_line, NO_PIPE, false)) {
-                                    temp_counter ++ ;
-                                }
-                        }else {
+                                temp_counter ++ ;
+                            }
+                        } else {
                             if (COMMAND::check_command(current_line, NO_PIPE, false)) {
                                 temp_counter ++ ;
                             }
@@ -993,11 +1014,10 @@ void handle_web_command()
                             break;
                         }
                         if ((CONFIG::GetFirmwareTarget()  == REPETIER) || (CONFIG::GetFirmwareTarget() == REPETIER4DV)) {
-                            if (!current_line.startsWith( "ok "))
-                                {
-                                    buffer2send +=current_line;
-                                    buffer2send +="\n";
-                                }
+                            if (!current_line.startsWith( "ok ")) {
+                                buffer2send +=current_line;
+                                buffer2send +="\n";
+                            }
                         } else {
                             buffer2send +=current_line;
                             buffer2send +="\n";
@@ -1163,9 +1183,9 @@ void SDFile_serial_upload()
         LOG("SD upload rejected\r\n");
         LOG("Need to stop");
 #if defined ( ARDUINO_ARCH_ESP8266)
-		web_interface->web_server.client().stopAll();
-#else 
-		web_interface->web_server.client().stop();
+        web_interface->web_server.client().stopAll();
+#else
+        web_interface->web_server.client().stop();
 #endif
         return;
     }
@@ -1177,13 +1197,15 @@ void SDFile_serial_upload()
         LOG("Upload Start\r\n")
         String command = "M29";
         String resetcmd = "M110 N0";
-        if (CONFIG::GetFirmwareTarget() == SMOOTHIEWARE)resetcmd = "N0 M110";
+        if (CONFIG::GetFirmwareTarget() == SMOOTHIEWARE) {
+            resetcmd = "N0 M110";
+        }
         lineNb=1;
         //close any ongoing upload and get current line number
-        if(!sendLine2Serial (command,1, &lineNb)){
+        if(!sendLine2Serial (command,1, &lineNb)) {
             //it can failed for repetier
             if ( ( CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER) ) {
-                if(!sendLine2Serial (command,-1, NULL)){
+                if(!sendLine2Serial (command,-1, NULL)) {
                     LOG("Start Upload failed")
                     web_interface->_upload_status= UPLOAD_STATUS_FAILED;
                     return;
@@ -1196,13 +1218,13 @@ void SDFile_serial_upload()
         }
         //Mount SD card
         command = "M21";
-        if(!sendLine2Serial (command,-1, NULL)){
+        if(!sendLine2Serial (command,-1, NULL)) {
             LOG("Mounting SD failed")
             web_interface->_upload_status= UPLOAD_STATUS_FAILED;
             return;
         }
         //Reset line numbering
-        if(!sendLine2Serial (resetcmd,-1, NULL)){
+        if(!sendLine2Serial (resetcmd,-1, NULL)) {
             LOG("Reset Numbering failed")
             web_interface->_upload_status= UPLOAD_STATUS_FAILED;
             return;
@@ -1223,94 +1245,94 @@ void SDFile_serial_upload()
         command = "M28 " + upload.filename;
         //send start upload
         //no correction allowed because it means reset numbering was failed
-        if (sendLine2Serial(command, lineNb, NULL)){
+        if (sendLine2Serial(command, lineNb, NULL)) {
             CONFIG::wait(1200);
             //additional purge, in case it is slow to answer
             purge_serial();
             web_interface->_upload_status= UPLOAD_STATUS_ONGOING;
             LOG("Creation Ok\r\n")
-            
+
         } else  {
             web_interface->_upload_status= UPLOAD_STATUS_FAILED;
-           LOG("Creation failed\r\n");
+            LOG("Creation failed\r\n");
         }
         //Upload write
         //**************
         //upload is on going with data coming by 2K blocks
     } else if(upload.status == UPLOAD_FILE_WRITE) { //if com error no need to send more data to serial
         if (web_interface->_upload_status == UPLOAD_STATUS_ONGOING) {
-        for (int pos = 0; pos < upload.currentSize; pos++) { //parse full post data
-            //feed watchdog
-            CONFIG::wait(0);
-            //it is a comment
-            if (upload.buf[pos] == ';') {
-                LOG ("Comment\r\n")
-                is_comment = true;
-            }
-            //it is an end line
-            else  if ( (upload.buf[pos] == 13) || (upload.buf[pos] == 10) ) {
-				//if comment line then reset
-                is_comment = false;
-                //does line fit the buffer ?
-                if (current_line.length() < 126) {
-                    //do we have something in buffer ?
-                    if (current_line.length() > 0 ) {
-                        lineNb++;
-                        if (!sendLine2Serial (current_line, lineNb, NULL) ) {
-                            LOG ("Error sending line\n")
-                            CloseSerialUpload (true, current_filename,lineNb);
+            for (int pos = 0; pos < upload.currentSize; pos++) { //parse full post data
+                //feed watchdog
+                CONFIG::wait(0);
+                //it is a comment
+                if (upload.buf[pos] == ';') {
+                    LOG ("Comment\r\n")
+                    is_comment = true;
+                }
+                //it is an end line
+                else  if ( (upload.buf[pos] == 13) || (upload.buf[pos] == 10) ) {
+                    //if comment line then reset
+                    is_comment = false;
+                    //does line fit the buffer ?
+                    if (current_line.length() < 126) {
+                        //do we have something in buffer ?
+                        if (current_line.length() > 0 ) {
+                            lineNb++;
+                            if (!sendLine2Serial (current_line, lineNb, NULL) ) {
+                                LOG ("Error sending line\n")
+                                CloseSerialUpload (true, current_filename,lineNb);
 #if defined ( ARDUINO_ARCH_ESP8266)
-					web_interface->web_server.client().stopAll();
-#else 
-					web_interface->web_server.client().stop();
+                                web_interface->web_server.client().stopAll();
+#else
+                                web_interface->web_server.client().stop();
 #endif
-                            return;
-                        }
-                        //reset line
-                        current_line = "";
+                                return;
+                            }
+                            //reset line
+                            current_line = "";
 
+                        } else {
+                            LOG ("Empy line\n")
+                        }
                     } else {
-                        LOG ("Empy line\n")
+                        //error buffer overload
+                        LOG ("Error over buffer\n")
+                        lineNb++;
+                        CloseSerialUpload (true, current_filename, lineNb);
+#if defined ( ARDUINO_ARCH_ESP8266)
+                        web_interface->web_server.client().stopAll();
+#else
+                        web_interface->web_server.client().stop();
+#endif
+                        return;
                     }
-                } else {
-                    //error buffer overload
-                    LOG ("Error over buffer\n")
-                    lineNb++;
-                    CloseSerialUpload (true, current_filename, lineNb);
+                } else if (!is_comment) {
+                    if (current_line.length() < 126) {
+                        current_line += char (upload.buf[pos]);  //copy current char to buffer to send/resend
+                    } else {
+                        LOG ("Error over buffer\n")
+                        lineNb++;
+                        CloseSerialUpload (true, current_filename, lineNb);
 #if defined ( ARDUINO_ARCH_ESP8266)
-					web_interface->web_server.client().stopAll();
-#else 
-					web_interface->web_server.client().stop();
+                        web_interface->web_server.client().stopAll();
+#else
+                        web_interface->web_server.client().stop();
 #endif
-                    return;
-                }
-            } else if (!is_comment) {
-                if (current_line.length() < 126) {
-                    current_line += char (upload.buf[pos]);  //copy current char to buffer to send/resend
-                } else {
-                    LOG ("Error over buffer\n")
-                    lineNb++;
-                    CloseSerialUpload (true, current_filename, lineNb);
-#if defined ( ARDUINO_ARCH_ESP8266)
-					web_interface->web_server.client().stopAll();
-#else 
-					web_interface->web_server.client().stop();
-#endif
-                    return;
+                        return;
+                    }
                 }
             }
-        }
         } else {
-                    LOG ("Error upload\n")
-                    web_interface->_upload_status = UPLOAD_STATUS_FAILED;
-                    lineNb++;
-                    CloseSerialUpload (true, current_filename, lineNb);
+            LOG ("Error upload\n")
+            web_interface->_upload_status = UPLOAD_STATUS_FAILED;
+            lineNb++;
+            CloseSerialUpload (true, current_filename, lineNb);
 #if defined ( ARDUINO_ARCH_ESP8266)
-					web_interface->web_server.client().stopAll();
-#else 
-					web_interface->web_server.client().stop();
+            web_interface->web_server.client().stopAll();
+#else
+            web_interface->web_server.client().stop();
 #endif
-                    return;
+            return;
         }
         //Upload end
         //**************
@@ -1323,9 +1345,9 @@ void SDFile_serial_upload()
                 lineNb++;
                 CloseSerialUpload (true, current_filename, lineNb);
 #if defined ( ARDUINO_ARCH_ESP8266)
-				web_interface->web_server.client().stopAll();
-#else 
-				web_interface->web_server.client().stop();
+                web_interface->web_server.client().stopAll();
+#else
+                web_interface->web_server.client().stop();
 #endif
                 return;
             }
@@ -1338,11 +1360,11 @@ void SDFile_serial_upload()
     } else { //UPLOAD_FILE_ABORTED
         LOG("Error, Something happened\r\n");
         lineNb++;
-		CloseSerialUpload (true, current_filename, lineNb);
+        CloseSerialUpload (true, current_filename, lineNb);
 #if defined ( ARDUINO_ARCH_ESP8266)
-		web_interface->web_server.client().stopAll();
-#else 
-		web_interface->web_server.client().stop();
+        web_interface->web_server.client().stopAll();
+#else
+        web_interface->web_server.client().stop();
 #endif
     }
 }

@@ -63,11 +63,11 @@ public:
     AsyncWebServer web_server;
     AsyncEventSource web_events;
 #else
-	#ifdef ARDUINO_ARCH_ESP8266
-	ESP8266WebServer web_server;
-	#else
-	WebServer web_server;
-	#endif
+#ifdef ARDUINO_ARCH_ESP8266
+    ESP8266WebServer web_server;
+#else
+    WebServer web_server;
+#endif
 #endif
 #ifdef WS_DATA_FEATURE
 #if defined(ASYNCWEBSERVER)

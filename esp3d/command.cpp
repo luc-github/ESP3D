@@ -28,7 +28,7 @@
 #if defined(ARDUINO_ARCH_ESP32)
 #include "SPIFFS.h"
 #define MAX_GPIO 37
-int ChannelAttached2Pin[16]={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
+int ChannelAttached2Pin[16]= {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
 #else
 #define MAX_GPIO 16
 #endif
@@ -42,7 +42,7 @@ int ChannelAttached2Pin[16]={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
 #ifdef DHT_FEATURE
 #include "DHTesp.h"
 extern DHTesp dht;
-#endif 
+#endif
 
 #ifdef NOTIFICATION_FEATURE
 #include "notifications_service.h"
@@ -140,7 +140,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
     bool response = true;
     level_authenticate_type auth_type = auth_level;
 #ifdef AUTHENTICATION_FEATURE
-    
+
     if (isadmin(cmd_params)) {
         auth_type = LEVEL_ADMIN;
         LOG("you are Admin\r\n");
@@ -150,20 +150,15 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
         LOG("you are User\r\n");
     }
 #ifdef DEBUG_ESP3D
-    if ( auth_type == LEVEL_ADMIN)  
-        {
-            LOG("admin identified\r\n");
+    if ( auth_type == LEVEL_ADMIN) {
+        LOG("admin identified\r\n");
+    } else  {
+        if( auth_type == LEVEL_USER) {
+            LOG("user identified\r\n");
+        } else {
+            LOG("guest identified\r\n");
         }
-    else  {
-        if( auth_type == LEVEL_USER)  
-            {
-                LOG("user identified\r\n");
-            }
-        else  
-            {
-                LOG("guest identified\r\n");
-            }
-        }
+    }
 #endif
 #endif
     //manage parameters
@@ -381,13 +376,13 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
                         //disable wifi
                         ESPCOM::println ("Disabling Wifi", output, espresponse);
 #ifdef ESP_OLED_FEATURE
-						OLED_DISPLAY::display_signal(-1);
-						OLED_DISPLAY::setCursor(0, 0);
-						ESPCOM::print("", OLED_PIPE);
-						OLED_DISPLAY::setCursor(0, 16);
-						ESPCOM::print("", OLED_PIPE);
-						OLED_DISPLAY::setCursor(0, 48);
-						ESPCOM::print("Wifi disabled", OLED_PIPE);
+                        OLED_DISPLAY::display_signal(-1);
+                        OLED_DISPLAY::setCursor(0, 0);
+                        ESPCOM::print("", OLED_PIPE);
+                        OLED_DISPLAY::setCursor(0, 16);
+                        ESPCOM::print("", OLED_PIPE);
+                        OLED_DISPLAY::setCursor(0, 48);
+                        ESPCOM::print("Wifi disabled", OLED_PIPE);
 #endif
                         WiFi.disconnect(true);
                         WiFi.enableSTA (false);
@@ -458,15 +453,25 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
         time(&now);
         localtime_r(&now, &tmstruct);
         stmp = String((tmstruct.tm_year)+1900) + "-";
-        if (((tmstruct.tm_mon)+1) < 10) stmp +="0";
+        if (((tmstruct.tm_mon)+1) < 10) {
+            stmp +="0";
+        }
         stmp += String(( tmstruct.tm_mon)+1) + "-";
-        if (tmstruct.tm_mday < 10) stmp +="0";
+        if (tmstruct.tm_mday < 10) {
+            stmp +="0";
+        }
         stmp += String(tmstruct.tm_mday) + " ";
-        if (tmstruct.tm_hour < 10) stmp +="0";
+        if (tmstruct.tm_hour < 10) {
+            stmp +="0";
+        }
         stmp += String(tmstruct.tm_hour) + ":";
-        if (tmstruct.tm_min < 10) stmp +="0";
+        if (tmstruct.tm_min < 10) {
+            stmp +="0";
+        }
         stmp += String(tmstruct.tm_min) + ":";
-        if (tmstruct.tm_sec < 10) stmp +="0";
+        if (tmstruct.tm_sec < 10) {
+            stmp +="0";
+        }
         stmp += String(tmstruct.tm_sec);
         ESPCOM::println(stmp.c_str(), output, espresponse);
     }
@@ -495,11 +500,11 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
                 response = false;
             } else {
                 int pin = parameter.toInt();
-                //check pin is valid 
+                //check pin is valid
                 if ((pin >= 0) && (pin <= MAX_GPIO)) {
                     //check if analog or digital
                     bool isdigital = true;
-                    
+
                     parameter = get_param (cmd_params, "ANALOG=", false);
                     if (parameter == "YES") {
                         LOG ("Set as analog\r\n")
@@ -507,8 +512,8 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
 #ifdef ARDUINO_ARCH_ESP32
                         parameter = get_param (cmd_params, "CLEARCHANNELS=", false);
                         if (parameter == "YES") {
-                            for (uint8_t p = 0; p < 16;p++){
-                                if(ChannelAttached2Pin[p] != -1){
+                            for (uint8_t p = 0; p < 16; p++) {
+                                if(ChannelAttached2Pin[p] != -1) {
                                     ledcDetachPin(ChannelAttached2Pin[p]);
                                     ChannelAttached2Pin[p] = -1;
                                 }
@@ -535,21 +540,21 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
                                         LOG ("Set as input pull up\r\n")
                                         pinMode (pin, INPUT_PULLUP);
                                     }
-    #ifdef ARDUINO_ARCH_ESP8266
+#ifdef ARDUINO_ARCH_ESP8266
                                     else {
                                         LOG ("Set as input pull down 16\r\n")
                                         pinMode (pin, INPUT_PULLDOWN_16);
                                     }
-    #endif
-                                }  
+#endif
+                                }
                             }
                             value = digitalRead (pin);
                         } else {
-    #ifdef ARDUINO_ARCH_ESP8266 //only one ADC on ESP8266 A0
+#ifdef ARDUINO_ARCH_ESP8266 //only one ADC on ESP8266 A0
                             value = analogRead (A0);
-    #else
+#else
                             value = analogRead (pin);
-    #endif
+#endif
                         }
                         LOG ("Read:");
                         LOG (String (value).c_str() )
@@ -584,56 +589,56 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
                                 LOG ("Set:")
                                 LOG (String ( value) )
                                 LOG ("\r\n")
-    #ifdef ARDUINO_ARCH_ESP8266
-                                
+#ifdef ARDUINO_ARCH_ESP8266
+
                                 analogWriteRange(analog_range);
                                 pinMode(pin, OUTPUT);
                                 analogWrite(pin, value);
-    #else
+#else
                                 int channel  = -1;
-                                for (uint8_t p = 0; p < 16;p++){
-                                    if(ChannelAttached2Pin[p] == pin){
+                                for (uint8_t p = 0; p < 16; p++) {
+                                    if(ChannelAttached2Pin[p] == pin) {
                                         channel = p;
                                     }
                                 }
-                                if (channel==-1){
-                                   for (uint8_t p = 0; p < 16;p++){
-                                    if(ChannelAttached2Pin[p] == -1){
-                                        channel = p;
-                                        ChannelAttached2Pin[p] = pin;
-                                        p  = 16;
+                                if (channel==-1) {
+                                    for (uint8_t p = 0; p < 16; p++) {
+                                        if(ChannelAttached2Pin[p] == -1) {
+                                            channel = p;
+                                            ChannelAttached2Pin[p] = pin;
+                                            p  = 16;
                                         }
-                                    } 
+                                    }
                                 }
                                 uint8_t resolution = 0;
                                 analog_range++;
-                                switch(analog_range){
-                                    case 8191:
-                                        resolution=13;
-                                        break;
-                                    case 1024:
-                                        resolution=10;
-                                        break;
-                                    case 2047:
-                                        resolution=11;
-                                        break;
-                                    case 4095:
-                                        resolution=12;
-                                        break;
-                                    default:
-                                        resolution=8;
-                                        analog_range = 255;
-                                        break;
+                                switch(analog_range) {
+                                case 8191:
+                                    resolution=13;
+                                    break;
+                                case 1024:
+                                    resolution=10;
+                                    break;
+                                case 2047:
+                                    resolution=11;
+                                    break;
+                                case 4095:
+                                    resolution=12;
+                                    break;
+                                default:
+                                    resolution=8;
+                                    analog_range = 255;
+                                    break;
                                 }
-                                if ((channel==-1) || (value > (analog_range-1))){
+                                if ((channel==-1) || (value > (analog_range-1))) {
                                     ESPCOM::println (INCORRECT_CMD_MSG, output, espresponse);
-                                    return false; 
+                                    return false;
                                 }
                                 ledcSetup(channel, 1000, resolution);
                                 ledcAttachPin(pin, channel);
                                 ledcWrite(channel, value);
-    #endif
-                            } else{
+#endif
+                            } else {
                                 ESPCOM::println (INCORRECT_CMD_MSG, output, espresponse);
                                 response = false;
                             }
@@ -650,7 +655,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
 
 
 #ifdef ESP_OLED_FEATURE
-    //Output to oled 
+    //Output to oled
     //[ESP210]<Text>
     case 210: {
         parameter = get_param (cmd_params, "C=", false);
@@ -658,51 +663,50 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
         parameter = get_param (cmd_params, "L=", false);
         int l = parameter.toInt();
         parameter = get_param (cmd_params, "T=", true);
-		OLED_DISPLAY::setCursor(c, l);
-		ESPCOM::print(parameter.c_str(), OLED_PIPE);
-		ESPCOM::println (OK_CMD_MSG, output, espresponse);
-		}
-		break;
+        OLED_DISPLAY::setCursor(c, l);
+        ESPCOM::print(parameter.c_str(), OLED_PIPE);
+        ESPCOM::println (OK_CMD_MSG, output, espresponse);
+    }
+    break;
     //Output to oled line 1
     //[ESP211]<Text>
     case 211: {
-		parameter = get_param (cmd_params, "", true);
-		OLED_DISPLAY::setCursor(0, 0);
-		ESPCOM::print(parameter.c_str(), OLED_PIPE);
-		ESPCOM::println (OK_CMD_MSG, output, espresponse);
-		}
-		break;
+        parameter = get_param (cmd_params, "", true);
+        OLED_DISPLAY::setCursor(0, 0);
+        ESPCOM::print(parameter.c_str(), OLED_PIPE);
+        ESPCOM::println (OK_CMD_MSG, output, espresponse);
+    }
+    break;
     //Output to oled line 2
     //[ESP212]<Text>
     case 212: {
-		parameter = get_param (cmd_params, "", true);
-		OLED_DISPLAY::setCursor(0, 16);
-		ESPCOM::print(parameter.c_str(), OLED_PIPE);
-		ESPCOM::println (OK_CMD_MSG, output, espresponse);
-		}
-		break;
+        parameter = get_param (cmd_params, "", true);
+        OLED_DISPLAY::setCursor(0, 16);
+        ESPCOM::print(parameter.c_str(), OLED_PIPE);
+        ESPCOM::println (OK_CMD_MSG, output, espresponse);
+    }
+    break;
     //Output to oled line 3
     //[ESP213]<Text>
     case 213: {
-		parameter = get_param (cmd_params, "", true);
-		OLED_DISPLAY::setCursor(0, 32);
-		ESPCOM::print(parameter.c_str(), OLED_PIPE);
-		ESPCOM::println (OK_CMD_MSG, output, espresponse);
-		}
-		break;
+        parameter = get_param (cmd_params, "", true);
+        OLED_DISPLAY::setCursor(0, 32);
+        ESPCOM::print(parameter.c_str(), OLED_PIPE);
+        ESPCOM::println (OK_CMD_MSG, output, espresponse);
+    }
+    break;
     //Output to oled line 4
     //[ESP214]<Text>
     case 214: {
-		parameter = get_param (cmd_params, "", true);
-		OLED_DISPLAY::setCursor(0, 48);
-		ESPCOM::print(parameter.c_str(), OLED_PIPE);
-		ESPCOM::println (OK_CMD_MSG, output, espresponse);
-		}
-		break;
+        parameter = get_param (cmd_params, "", true);
+        OLED_DISPLAY::setCursor(0, 48);
+        ESPCOM::print(parameter.c_str(), OLED_PIPE);
+        ESPCOM::println (OK_CMD_MSG, output, espresponse);
+    }
+    break;
 #endif
     //display ESP3D EEPROM version detected
-    case 300:
-    {
+    case 300: {
         uint8_t v = CONFIG::get_EEPROM_version();
         ESPCOM::println (String(v).c_str(), output, espresponse);
     }
@@ -1268,8 +1272,8 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
             ESPCOM::print ( (const char *) CONFIG::intTostr (UNKNOWN_FW), output, espresponse);
             ESPCOM::print (F ("\"}]}"), output, espresponse);
             ESPCOM::println (F (","), output, espresponse);
-            
-             //Output flag
+
+            //Output flag
             ESPCOM::print (F ("{\"F\":\"printer\",\"P\":\""), output, espresponse);
             ESPCOM::print ( (const char *) CONFIG::intTostr (EP_OUTPUT_FLAG), output, espresponse);
             ESPCOM::print (F ("\",\"T\":\"F\",\"V\":\""), output, espresponse);
@@ -1283,7 +1287,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
             s+= "\"}";
 #ifdef ESP_OLED_FEATURE
             s+=",{\"Oled\":\"";
-             s+= CONFIG::intTostr(FLAG_BLOCK_OLED);
+            s+= CONFIG::intTostr(FLAG_BLOCK_OLED);
             s+="\"}";
 #endif
             s+=",{\"Serial\":\"";
@@ -1318,11 +1322,11 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
             ESPCOM::print ( (const char *) CONFIG::intTostr (DHTesp::DHT22), output, espresponse);
             ESPCOM::print (F ("\"},{\"AM2302\":\""), output, espresponse);
             ESPCOM::print ( (const char *) CONFIG::intTostr (DHTesp::RHT03), output, espresponse);
-             ESPCOM::print (F ("\"},{\"RHT03\":\""), output, espresponse);
+            ESPCOM::print (F ("\"},{\"RHT03\":\""), output, espresponse);
             ESPCOM::print ( (const char *) CONFIG::intTostr (DHTesp::AM2302), output, espresponse);
             ESPCOM::print (F ("\"}]}"), output, espresponse);
-            
-             //DHT interval
+
+            //DHT interval
             ESPCOM::println (F (","), output, espresponse);
             ESPCOM::print (F ("{\"F\":\"printer\",\"P\":\""), output, espresponse);
             ESPCOM::print ( (const char *) CONFIG::intTostr (EP_DHT_INTERVAL), output, espresponse);
@@ -1334,7 +1338,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
             ESPCOM::print ( (const char *) CONFIG::intTostr (0), output, espresponse);
             ESPCOM::print (F ("\"}"), output, espresponse);
 #endif
-           
+
         }
 
         //end JSON
@@ -1357,7 +1361,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
         if (! (styp == "B" || styp == "S" || styp == "A" || styp == "I" || styp == "F") ) {
             response = false;
         }
-        if ((sval.length() == 0) && !((pos==EP_AP_PASSWORD) || (pos==EP_STA_PASSWORD))){
+        if ((sval.length() == 0) && !((pos==EP_AP_PASSWORD) || (pos==EP_STA_PASSWORD))) {
             response = false;
         }
 
@@ -1378,13 +1382,13 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
         }
 #endif
         if (response) {
-            if ((styp == "B")  ||  (styp == "F")){
+            if ((styp == "B")  ||  (styp == "F")) {
                 byte bbuf = sval.toInt();
                 if (!CONFIG::write_byte (pos, bbuf) ) {
                     response = false;
                 } else {
                     //dynamique refresh is better than restart the board
-                    if (pos == EP_OUTPUT_FLAG){
+                    if (pos == EP_OUTPUT_FLAG) {
                         CONFIG::output_flag = bbuf;
                     }
                     if (pos == EP_TARGET_FW) {
@@ -1444,22 +1448,22 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
     case 410: {
         parameter = get_param (cmd_params, "", true);
         bool plain = (parameter == "plain");
-        
-#if defined(ASYNCWEBSERVER) 
-		if (!plain) {
-				ESPCOM::print (F ("{\"AP_LIST\":["), output, espresponse);
-				}
+
+#if defined(ASYNCWEBSERVER)
+        if (!plain) {
+            ESPCOM::print (F ("{\"AP_LIST\":["), output, espresponse);
+        }
         int n = WiFi.scanComplete();
         if (n == -2) {
             WiFi.scanNetworks (ESP_USE_ASYNC);
         } else if (n) {
 #else
-		int n =  WiFi.scanNetworks ();
-		if (!plain) {
-				ESPCOM::print (F ("{\"AP_LIST\":["), output, espresponse);
-				}
+        int n =  WiFi.scanNetworks ();
+        if (!plain) {
+            ESPCOM::print (F ("{\"AP_LIST\":["), output, espresponse);
+        }
 #endif
-	
+
             for (int i = 0; i < n; ++i) {
                 if (i > 0) {
                     if (!plain) {
@@ -1500,7 +1504,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
                 }
             }
             WiFi.scanDelete();
-#if defined(ASYNCWEBSERVER)       
+#if defined(ASYNCWEBSERVER)
             if (WiFi.scanComplete() == -2) {
                 WiFi.scanNetworks (ESP_USE_ASYNC);
             }
@@ -1555,16 +1559,18 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
         }
         int32_t linenb = 1;
         cmd_params.trim() ;
-        if (sendLine2Serial (cmd_params, linenb,  &linenb))ESPCOM::println (OK_CMD_MSG, output, espresponse);
-        else { //it may failed because of skip if repetier so let's reset numbering first
+        if (sendLine2Serial (cmd_params, linenb,  &linenb)) {
+            ESPCOM::println (OK_CMD_MSG, output, espresponse);
+        } else { //it may failed because of skip if repetier so let's reset numbering first
             if ( ( CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER) ) {
                 //reset numbering
                 String cmd = "M110 N0";
-                if (sendLine2Serial (cmd, -1,  NULL)){
+                if (sendLine2Serial (cmd, -1,  NULL)) {
                     linenb = 1;
                     //if success let's try again to send the command
-                    if (sendLine2Serial (cmd_params, linenb,  &linenb))ESPCOM::println (OK_CMD_MSG, output, espresponse);
-                    else {
+                    if (sendLine2Serial (cmd_params, linenb,  &linenb)) {
+                        ESPCOM::println (OK_CMD_MSG, output, espresponse);
+                    } else {
                         ESPCOM::println (ERROR_CMD_MSG, output, espresponse);
                         response = false;
                     }
@@ -1573,13 +1579,13 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
                     response = false;
                 }
             } else {
-                
+
                 ESPCOM::println (ERROR_CMD_MSG, output, espresponse);
                 response = false;
             }
         }
     }
-        break;
+    break;
     //[ESP501]<line>
     case 501: { //send line checksum
         cmd_params.trim();
@@ -1656,7 +1662,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
         //get
         if (parameter.length() == 0) {
             uint8_t Ntype =  0;
-            if (!CONFIG::read_byte (ESP_NOTIFICATION_TYPE, &Ntype ) ){
+            if (!CONFIG::read_byte (ESP_NOTIFICATION_TYPE, &Ntype ) ) {
                 Ntype =0;
             }
             char sbuf[MAX_DATA_LENGTH + 1];
@@ -1665,7 +1671,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
             if (CONFIG::read_string (ESP_NOTIFICATION_SETTINGS, sbuf, MAX_NOTIFICATION_SETTINGS_LENGTH) ) {
                 tmp+= " ";
                 tmp += sbuf;
-                }
+            }
             ESPCOM::println (tmp.c_str(), output, espresponse);
         } else {
             response = false;
@@ -1697,7 +1703,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
             parameter = get_param (cmd_params, "TS=");
             if (parameter.length() > 0) {
                 if (!CONFIG::write_string (ESP_NOTIFICATION_SETTINGS, parameter.c_str() ) ) {
-                     ESPCOM::println (ERROR_CMD_MSG, output, espresponse);
+                    ESPCOM::println (ERROR_CMD_MSG, output, espresponse);
                     return false;
                 } else {
                     response = true;
@@ -1707,7 +1713,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
             parameter = get_param (cmd_params, "T1=");
             if (parameter.length() > 0) {
                 if (!CONFIG::write_string (ESP_NOTIFICATION_TOKEN1, parameter.c_str() ) ) {
-                     ESPCOM::println (ERROR_CMD_MSG, output, espresponse);
+                    ESPCOM::println (ERROR_CMD_MSG, output, espresponse);
                     return false;
                 } else {
                     response = true;
@@ -1717,7 +1723,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
             parameter = get_param (cmd_params, "T2=");
             if (parameter.length() > 0) {
                 if (!CONFIG::write_string (ESP_NOTIFICATION_TOKEN2, parameter.c_str() ) ) {
-                     ESPCOM::println (ERROR_CMD_MSG, output, espresponse);
+                    ESPCOM::println (ERROR_CMD_MSG, output, espresponse);
                     return false;
                 } else {
                     response = true;
@@ -1778,7 +1784,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
                         //flush to be sure send buffer is empty
                         ESPCOM::flush (DEFAULT_PRINTER_PIPE);
                     }
-                CONFIG::wait (1);
+                    CONFIG::wait (1);
                 }
             }
             currentfile.close();
@@ -1876,7 +1882,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
 #else
         ESPCOM::print (F ("no"), output, espresponse);
 #endif
- ESPCOM::print (F (" # webcommunication:"), output, espresponse);
+        ESPCOM::print (F (" # webcommunication:"), output, espresponse);
 #if defined (ASYNCWEBSERVER)
         ESPCOM::print (F ("Async"), output, espresponse);
 #else
@@ -1884,10 +1890,12 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
         String sp = String(wifi_config.iweb_port+1);
         ESPCOM::print (sp.c_str(), output, espresponse);
 #endif
-		
+
         ESPCOM::print (F (" # hostname:"), output, espresponse);
-		ESPCOM::print (shost, output, espresponse);
-		if (WiFi.getMode() == WIFI_AP) ESPCOM::print (F("(AP mode)"), output, espresponse);
+        ESPCOM::print (shost, output, espresponse);
+        if (WiFi.getMode() == WIFI_AP) {
+            ESPCOM::print (F("(AP mode)"), output, espresponse);
+        }
 
         ESPCOM::println ("", output, espresponse);
     }
@@ -1901,7 +1909,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
     case 810:
         web_interface->blockserial = false;
         break;
-    
+
     default:
         ESPCOM::println (INCORRECT_CMD_MSG, output, espresponse);
         response = false;
@@ -1937,11 +1945,11 @@ bool COMMAND::check_command (String buffer, tpipe output, bool handlelockserial,
         String ESP_Command;
         int ESPpos = -1;
 #ifdef MKS_TFT_FEATURE
-        if (buffer.startsWith("at+")){
+        if (buffer.startsWith("at+")) {
             //echo
             ESPCOM::print (buffer, output);
             ESPCOM::print ("\r\r\n", output);
-            if (buffer.startsWith("at+net_wanip=?")){
+            if (buffer.startsWith("at+net_wanip=?")) {
                 String ipstr;
                 if (WiFi.getMode() == WIFI_STA) {
                     ipstr = WiFi.localIP().toString() + "," + WiFi.subnetMask().toString()+ "," + WiFi.gatewayIP().toString()+"\r\n";
@@ -1949,16 +1957,16 @@ bool COMMAND::check_command (String buffer, tpipe output, bool handlelockserial,
                     ipstr = WiFi.softAPIP().toString() + ",255.255.255.0," + WiFi.softAPIP().toString()+"\r\n";
                 }
                 ESPCOM::print (ipstr, output);
-            } else if (buffer.startsWith("at+wifi_ConState=?")){
+            } else if (buffer.startsWith("at+wifi_ConState=?")) {
                 ESPCOM::print ("Connected\r\n", output);
-            } else{
+            } else {
                 ESPCOM::print ("ok\r\n", output);
             }
             return false;
         }
 #endif
         ESPpos = buffer.indexOf ("[ESP");
-        if (ESPpos == -1 && (CONFIG::GetFirmwareTarget() == SMOOTHIEWARE)){
+        if (ESPpos == -1 && (CONFIG::GetFirmwareTarget() == SMOOTHIEWARE)) {
             ESPpos = buffer.indexOf ("[esp");
         }
         if (ESPpos > -1) {

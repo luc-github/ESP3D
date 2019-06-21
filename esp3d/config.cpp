@@ -41,7 +41,7 @@ extern "C" {
 #ifdef DHT_FEATURE
 #include "DHTesp.h"
 extern DHTesp dht;
-#endif 
+#endif
 
 #ifdef NOTIFICATION_FEATURE
 #include "notifications_service.h"
@@ -73,7 +73,7 @@ void CONFIG::wait (uint32_t milliseconds)
         wdtFeed();
     }
 #else
-	delay(milliseconds);
+    delay(milliseconds);
 #endif
 }
 
@@ -124,7 +124,7 @@ const char* CONFIG::GetFirmwareTargetShortName()
         response = F ("marlinkimbra");
     } else if ( CONFIG::FirmwareTarget == SMOOTHIEWARE) {
         response = F ("smoothieware");
-     } else if ( CONFIG::FirmwareTarget == GRBL) {
+    } else if ( CONFIG::FirmwareTarget == GRBL) {
         response = F ("grbl");
     } else {
         response = F ("???");
@@ -142,7 +142,8 @@ void CONFIG::InitFirmwareTarget()
         SetFirmwareTarget (UNKNOWN_FW) ;
     }
 }
-void CONFIG::InitOutput(){
+void CONFIG::InitOutput()
+{
     byte bflag = 0;
     if (!CONFIG::read_byte (EP_OUTPUT_FLAG, &bflag ) ) {
         bflag = 0;
@@ -150,7 +151,8 @@ void CONFIG::InitOutput(){
     CONFIG::output_flag = bflag;
 }
 
-bool  CONFIG::is_locked(byte flag){
+bool  CONFIG::is_locked(byte flag)
+{
     return ((CONFIG::output_flag & flag) == flag);
 }
 
@@ -163,12 +165,13 @@ void CONFIG::InitDirectSD()
 bool CONFIG::InitBaudrate(long value)
 {
     long baud_rate = 0;
-    if (value > 0)baud_rate = value;
-    else {
-		if ( !CONFIG::read_buffer (EP_BAUD_RATE,  (byte *) &baud_rate, INTEGER_LENGTH) ) {
-			return false;
-		}
-	}
+    if (value > 0) {
+        baud_rate = value;
+    } else {
+        if ( !CONFIG::read_buffer (EP_BAUD_RATE,  (byte *) &baud_rate, INTEGER_LENGTH) ) {
+            return false;
+        }
+    }
     if ( ! (baud_rate == 9600 || baud_rate == 19200 || baud_rate == 38400 || baud_rate == 57600 || baud_rate == 115200 || baud_rate == 230400 || baud_rate == 250000 || baud_rate == 500000 || baud_rate == 921600 ) ) {
         return false;
     }
@@ -178,28 +181,28 @@ bool CONFIG::InitBaudrate(long value)
 #ifdef USE_SERIAL_0
     if (Serial.baudRate() != baud_rate) {
 #ifdef ARDUINO_ARCH_ESP8266
-	Serial.begin (baud_rate);
+        Serial.begin (baud_rate);
 #else
-	Serial.begin (baud_rate, ESP_SERIAL_PARAM, ESP_RX_PIN, ESP_TX_PIN);
+        Serial.begin (baud_rate, ESP_SERIAL_PARAM, ESP_RX_PIN, ESP_TX_PIN);
 #endif
-        
+
     }
 #endif
 #ifdef USE_SERIAL_1
     if (Serial1.baudRate() != baud_rate) {
 #ifdef ARDUINO_ARCH_ESP8266
-	Serial1.begin (baud_rate);
+        Serial1.begin (baud_rate);
 #else
-	Serial1.begin (baud_rate, ESP_SERIAL_PARAM, ESP_RX_PIN, ESP_TX_PIN);
+        Serial1.begin (baud_rate, ESP_SERIAL_PARAM, ESP_RX_PIN, ESP_TX_PIN);
 #endif
     }
 #endif
 #ifdef USE_SERIAL_2
     if (Serial2.baudRate() != baud_rate) {
 #ifdef ARDUINO_ARCH_ESP8266
-	Serial2.begin (baud_rate);
+        Serial2.begin (baud_rate);
 #else
-	Serial2.begin (baud_rate, ESP_SERIAL_PARAM, ESP_RX_PIN, ESP_TX_PIN);
+        Serial2.begin (baud_rate, ESP_SERIAL_PARAM, ESP_RX_PIN, ESP_TX_PIN);
 #endif
     }
 #endif
@@ -237,7 +240,7 @@ void CONFIG::esp_restart (bool async)
         delay (1000);
     }
 #ifdef ARDUINO_ARCH_ESP8266
-	//ESP8266  has only serial
+    //ESP8266  has only serial
     Serial.swap();
 #endif
     ESP.restart();
@@ -248,20 +251,23 @@ void CONFIG::esp_restart (bool async)
     };
 }
 #ifdef DHT_FEATURE
-void  CONFIG::InitDHT(bool refresh) {
+void  CONFIG::InitDHT(bool refresh)
+{
     if (!refresh) {
         byte bflag = DEFAULT_DHT_TYPE;
-         int ibuf = DEFAULT_DHT_INTERVAL;
+        int ibuf = DEFAULT_DHT_INTERVAL;
         if (!CONFIG::read_byte (EP_DHT_TYPE, &bflag ) ) {
             bflag = DEFAULT_DHT_TYPE;
         }
         CONFIG::DHT_type = bflag;
-         if (!CONFIG::read_buffer (EP_DHT_INTERVAL,  (byte *) &ibuf, INTEGER_LENGTH) ) {
-             ibuf = DEFAULT_DHT_INTERVAL;
-         }
-         CONFIG::DHT_interval = ibuf;
+        if (!CONFIG::read_buffer (EP_DHT_INTERVAL,  (byte *) &ibuf, INTEGER_LENGTH) ) {
+            ibuf = DEFAULT_DHT_INTERVAL;
+        }
+        CONFIG::DHT_interval = ibuf;
     }
-    if (CONFIG::DHT_type != 255) dht.setup(ESP_DHT_PIN,(DHTesp::DHT_MODEL_t)CONFIG::DHT_type); // Connect DHT sensor to GPIO ESP_DHT_PIN
+    if (CONFIG::DHT_type != 255) {
+        dht.setup(ESP_DHT_PIN,(DHTesp::DHT_MODEL_t)CONFIG::DHT_type);    // Connect DHT sensor to GPIO ESP_DHT_PIN
+    }
 }
 #endif
 void  CONFIG::InitPins()
@@ -299,13 +305,13 @@ void CONFIG::init_time_client()
     configTime (3600 * (t1), d1 * 3600, s1.c_str(), s2.c_str(), s3.c_str() );
     time_t now = time(nullptr);
     if (WiFi.getMode() == WIFI_STA) {
-		int nb = 0;
-		while ((now < 8 * 3600 * 2) && (nb < 6)) {
-			wait(500);
-			nb++;
-			now = time(nullptr);
-			}
-		}
+        int nb = 0;
+        while ((now < 8 * 3600 * 2) && (nb < 6)) {
+            wait(500);
+            nb++;
+            now = time(nullptr);
+        }
+    }
 }
 #endif
 
@@ -502,7 +508,8 @@ char * CONFIG::mac2str (uint8_t mac [WL_MAC_ADDR_LENGTH])
 }
 
 
-bool CONFIG::set_EEPROM_version(uint8_t v){
+bool CONFIG::set_EEPROM_version(uint8_t v)
+{
     byte byte_buffer[6];
     byte_buffer[0]='E';
     byte_buffer[1]='S';
@@ -513,27 +520,33 @@ bool CONFIG::set_EEPROM_version(uint8_t v){
     return CONFIG::write_buffer (EP_EEPROM_VERSION, byte_buffer, 6);
 }
 
-uint8_t CONFIG::get_EEPROM_version(){
+uint8_t CONFIG::get_EEPROM_version()
+{
     byte byte_buffer[6];
     long baud_rate;
-    if (!CONFIG::read_buffer (EP_EEPROM_VERSION, byte_buffer, 6)) return EEPROM_V0;
-    if ((byte_buffer[0]=='E') && (byte_buffer[1]=='S') && (byte_buffer[2]=='P')&& (byte_buffer[3]=='3') && (byte_buffer[4]=='D')){
+    if (!CONFIG::read_buffer (EP_EEPROM_VERSION, byte_buffer, 6)) {
+        return EEPROM_V0;
+    }
+    if ((byte_buffer[0]=='E') && (byte_buffer[1]=='S') && (byte_buffer[2]=='P')&& (byte_buffer[3]=='3') && (byte_buffer[4]=='D')) {
         return byte_buffer[5];
     }
-    
+
     if ( !CONFIG::read_buffer (EP_BAUD_RATE,  (byte *) &baud_rate, INTEGER_LENGTH) ) {
-			return EEPROM_V0;
-		}
+        return EEPROM_V0;
+    }
     if ((baud_rate == 9600 || baud_rate == 19200 || baud_rate == 38400 || baud_rate == 57600 || baud_rate == 115200 || baud_rate == 230400 || baud_rate == 250000 || baud_rate == 500000 || baud_rate == 921600 ) ) {
         return EEPROM_V1;
     }
     return EEPROM_V0;
 }
 
-bool CONFIG::adjust_EEPROM_settings(){
+bool CONFIG::adjust_EEPROM_settings()
+{
     uint8_t v = get_EEPROM_version();
     bool bdone =false;
-    if (v == EEPROM_CURRENT_VERSION) return true;
+    if (v == EEPROM_CURRENT_VERSION) {
+        return true;
+    }
     if (v == 1) {
         bdone =true;
 #ifdef SDCARD_FEATURE
@@ -545,16 +558,16 @@ bool CONFIG::adjust_EEPROM_settings(){
         if (!CONFIG::write_buffer (EP_DHT_INTERVAL, (const byte *) &DEFAULT_DHT_INTERVAL, INTEGER_LENGTH) ) {
             bdone =false;
         }
-        
+
         if (!CONFIG::write_byte (EP_DHT_TYPE, DEFAULT_DHT_TYPE) ) {
             bdone =false;
         }
 #endif
-     if (!CONFIG::write_byte (EP_OUTPUT_FLAG, DEFAULT_OUTPUT_FLAG) ) {
+        if (!CONFIG::write_byte (EP_OUTPUT_FLAG, DEFAULT_OUTPUT_FLAG) ) {
             bdone =false;
         }
     }
-    if (bdone){
+    if (bdone) {
         set_EEPROM_version(EEPROM_CURRENT_VERSION);
     }
     return bdone;
@@ -696,12 +709,12 @@ bool CONFIG::write_string (int pos, const char * byte_buffer)
         LOG ("Error write string\r\n")
         return false;
     }
-    
+
     if (!((pos == EP_STA_PASSWORD) || (pos == EP_AP_PASSWORD))) {
-       if((size_buffer == 0 ) || (byte_buffer == NULL )){
+        if((size_buffer == 0 ) || (byte_buffer == NULL )) {
             LOG ("Error write string\r\n")
             return false;
-       } 
+        }
     }
     //copy the value(s)
     EEPROM.begin (EEPROM_SIZE);
@@ -817,11 +830,11 @@ bool CONFIG::reset_config()
     if (!CONFIG::write_buffer (EP_DATA_PORT, (const byte *) &DEFAULT_DATA_PORT, INTEGER_LENGTH) ) {
         return false;
     }
-    
+
     if (!CONFIG::write_string (EP_HOSTNAME, wifi_config.get_default_hostname() ) ) {
         return false;
     }
-    
+
     if (!CONFIG::write_string (EP_ADMIN_PWD, FPSTR (DEFAULT_ADMIN_PWD) ) ) {
         return false;
     }
@@ -839,9 +852,9 @@ bool CONFIG::reset_config()
 
     if (!CONFIG::write_byte (EP_TIME_ISDST, DEFAULT_TIME_DST) ) {
         return false;
-    }    
-    
-        if (!CONFIG::write_string (EP_TIME_SERVER1, FPSTR (DEFAULT_TIME_SERVER1) ) ) {
+    }
+
+    if (!CONFIG::write_string (EP_TIME_SERVER1, FPSTR (DEFAULT_TIME_SERVER1) ) ) {
         return false;
     }
 
@@ -853,7 +866,7 @@ bool CONFIG::reset_config()
         return false;
     }
 #endif
-    
+
     if (!CONFIG::write_byte (EP_OUTPUT_FLAG, DEFAULT_OUTPUT_FLAG) ) {
         return false;
     }
@@ -861,12 +874,12 @@ bool CONFIG::reset_config()
     if (!CONFIG::write_buffer (EP_DHT_INTERVAL, (const byte *) &DEFAULT_DHT_INTERVAL, INTEGER_LENGTH) ) {
         return false;
     }
-    
+
     if (!CONFIG::write_byte (EP_DHT_TYPE, DEFAULT_DHT_TYPE) ) {
         return false;
     }
 #endif
-    
+
 #ifdef NOTIFICATION_FEATURE
     if (!CONFIG::write_byte (ESP_NOTIFICATION_TYPE, DEFAULT_NOTIFICATION_TYPE) ) {
         return false;
@@ -881,7 +894,7 @@ bool CONFIG::reset_config()
         return false;
     }
 #endif
-    
+
     return set_EEPROM_version(EEPROM_CURRENT_VERSION);
 }
 
@@ -983,11 +996,10 @@ void CONFIG::print_config (tpipe output, bool plaintext, ESPResponseStream  *esp
     SPIFFS.info (info);
     //if higher than 1MB take out SPIFFS
     if (flashsize > 1024 * 1024) {
-		flashsize = (1024 * 1024)-ESP.getSketchSize()-1024;
-		}
-	else {
-		flashsize = flashsize - ESP.getSketchSize()-info.totalBytes-1024;
-		}
+        flashsize = (1024 * 1024)-ESP.getSketchSize()-1024;
+    } else {
+        flashsize = flashsize - ESP.getSketchSize()-info.totalBytes-1024;
+    }
     ESPCOM::print(formatBytes(flashsize).c_str(), output, espresponse);
     if (!plaintext) {
         ESPCOM::print (F ("\","), output, espresponse);
@@ -1017,7 +1029,7 @@ void CONFIG::print_config (tpipe output, bool plaintext, ESPResponseStream  *esp
         ESPCOM::print (F ("Available Size for update: "), output, espresponse);
     }
     uint32_t  flashsize = ESP.getFlashChipSize();
-   //Not OTA on 2Mb board per spec
+    //Not OTA on 2Mb board per spec
     if (flashsize > 0x20000) {
         flashsize = 0x140000;
     } else {
@@ -1748,7 +1760,7 @@ void CONFIG::print_config (tpipe output, bool plaintext, ESPResponseStream  *esp
     {
         ESPCOM::print (F ("\n"), output, espresponse);
     }
-   //flag M117
+    //flag M117
     if (!plaintext)
     {
         ESPCOM::print (F ("\"M117_output\":\""), output, espresponse);
@@ -1772,7 +1784,7 @@ void CONFIG::print_config (tpipe output, bool plaintext, ESPResponseStream  *esp
         ESPCOM::print (F ("\n"), output, espresponse);
     }
 #ifdef NOTIFICATION_FEATURE
-if (!plaintext)
+    if (!plaintext)
     {
         ESPCOM::print (F ("\"Notifications\":\""), output, espresponse);
     } else
@@ -1795,7 +1807,7 @@ if (!plaintext)
         ESPCOM::print (F ("\n"), output, espresponse);
     }
 #endif
-    
+
     //Flag Oled
 #ifdef ESP_OLED_FEATURE
     if (!plaintext)
@@ -1845,7 +1857,7 @@ if (!plaintext)
     {
         ESPCOM::print (F ("\n"), output, espresponse);
     }
-    
+
 #ifdef WS_DATA_FEATURE
     //flag websocket
     if (!plaintext)
@@ -1870,7 +1882,7 @@ if (!plaintext)
     {
         ESPCOM::print (F ("\n"), output, espresponse);
     }
-#endif 
+#endif
 #ifdef TCP_IP_DATA_FEATURE
     //flag tcp
     if (!plaintext)
@@ -1933,11 +1945,11 @@ if (!plaintext)
         ESPCOM::print (F ("FW version: "), output, espresponse);
     }
     ESPCOM::print (FW_VERSION, output, espresponse);
-    #ifdef ARDUINO_ARCH_ESP8266
-        ESPCOM::print (" ESP8266/8586", output, espresponse);
-    #else
-         ESPCOM::print (" ESP32", output, espresponse);
-    #endif
+#ifdef ARDUINO_ARCH_ESP8266
+    ESPCOM::print (" ESP8266/8586", output, espresponse);
+#else
+    ESPCOM::print (" ESP32", output, espresponse);
+#endif
     if (!plaintext)
     {
         ESPCOM::print (F ("\"}"), output, espresponse);

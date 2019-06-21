@@ -30,7 +30,7 @@
 
 #ifdef ESP_OLED_FEATURE
 #include "esp_oled.h"
- bool  ESPCOM::block_2_oled = false;
+bool  ESPCOM::block_2_oled = false;
 #endif
 
 uint8_t  ESPCOM::current_socket_id=0;
@@ -45,25 +45,25 @@ bool ESPCOM::block_2_printer = false;
 void ESPCOM::bridge(bool async)
 {
 #if defined (ASYNCWEBSERVER)
-	if(can_process_serial) {
+    if(can_process_serial) {
 #endif
 //be sure wifi is on to proceed wifi function
-    if ((WiFi.getMode() != WIFI_OFF) || wifi_config.WiFi_on) {
+        if ((WiFi.getMode() != WIFI_OFF) || wifi_config.WiFi_on) {
 //read tcp port input
 #ifdef TCP_IP_DATA_FEATURE
-        ESPCOM::processFromTCP2Serial();
+            ESPCOM::processFromTCP2Serial();
 #endif
-    }
+        }
 //read serial input
-ESPCOM::processFromSerial();
+        ESPCOM::processFromSerial();
 #if defined (ASYNCWEBSERVER)
-	}
+    }
 #endif
 }
 
 long ESPCOM::readBytes (tpipe output, uint8_t * sbuf, size_t len)
 {
-	 switch (output) {
+    switch (output) {
 #ifdef USE_SERIAL_0
     case SERIAL_PIPE:
         return Serial.readBytes(sbuf,len);
@@ -79,15 +79,15 @@ long ESPCOM::readBytes (tpipe output, uint8_t * sbuf, size_t len)
         return Serial2.readBytes(sbuf,len);
         break;
 #endif
-	default: 
-		return 0;
-		break;
-	}
+    default:
+        return 0;
+        break;
+    }
 }
 long ESPCOM::baudRate(tpipe output)
 {
-	long br = 0;
-	 switch (output) {
+    long br = 0;
+    switch (output) {
 #ifdef USE_SERIAL_0
     case SERIAL_PIPE:
         br = Serial.baudRate();
@@ -103,10 +103,10 @@ long ESPCOM::baudRate(tpipe output)
         br = Serial2.baudRate();
         break;
 #endif
-	default: 
-		return 0;
-		break;
-	}
+    default:
+        return 0;
+        break;
+    }
 #ifdef ARDUINO_ARCH_ESP32
     //workaround for ESP32
     if (br == 115201) {
@@ -116,10 +116,11 @@ long ESPCOM::baudRate(tpipe output)
         br = 230400;
     }
 #endif
-return br;
+    return br;
 }
-size_t ESPCOM::available(tpipe output){
-	 switch (output) {
+size_t ESPCOM::available(tpipe output)
+{
+    switch (output) {
 #ifdef USE_SERIAL_0
     case SERIAL_PIPE:
         return Serial.available();
@@ -135,15 +136,20 @@ size_t ESPCOM::available(tpipe output){
         return Serial2.available();
         break;
 #endif
-	default: 
-		return 0;
-		break;
-	}
+    default:
+        return 0;
+        break;
+    }
 }
-size_t   ESPCOM::write(tpipe output, uint8_t d){
-	if ((DEFAULT_PRINTER_PIPE == output) && (block_2_printer || CONFIG::is_locked(FLAG_BLOCK_SERIAL))) return 0;
-    if ((SERIAL_PIPE == output) && CONFIG::is_locked(FLAG_BLOCK_SERIAL))return 0;
- switch (output) {
+size_t   ESPCOM::write(tpipe output, uint8_t d)
+{
+    if ((DEFAULT_PRINTER_PIPE == output) && (block_2_printer || CONFIG::is_locked(FLAG_BLOCK_SERIAL))) {
+        return 0;
+    }
+    if ((SERIAL_PIPE == output) && CONFIG::is_locked(FLAG_BLOCK_SERIAL)) {
+        return 0;
+    }
+    switch (output) {
 #ifdef USE_SERIAL_0
     case SERIAL_PIPE:
         return Serial.write(d);
@@ -159,14 +165,14 @@ size_t   ESPCOM::write(tpipe output, uint8_t d){
         return Serial2.write(d);
         break;
 #endif
-	default:
-		return 0;
-		break;
-	}	
+    default:
+        return 0;
+        break;
+    }
 }
 void ESPCOM::flush (tpipe output, ESPResponseStream  *espresponse)
 {
-	 switch (output) {
+    switch (output) {
 #ifdef USE_SERIAL_0
     case SERIAL_PIPE:
         Serial.flush();
@@ -183,23 +189,23 @@ void ESPCOM::flush (tpipe output, ESPResponseStream  *espresponse)
         break;
 #endif
 #if !defined (ASYNCWEBSERVER)
-  case WEB_PIPE:
-		if (espresponse) {
-			if(espresponse->header_sent) {
-				//send data
-				web_interface->web_server.sendContent(espresponse->buffer_web);
-				//close line
-				web_interface->web_server.sendContent("");
-			}
-			espresponse->header_sent = false;
-			espresponse->buffer_web = String();
-		}
+    case WEB_PIPE:
+        if (espresponse) {
+            if(espresponse->header_sent) {
+                //send data
+                web_interface->web_server.sendContent(espresponse->buffer_web);
+                //close line
+                web_interface->web_server.sendContent("");
+            }
+            espresponse->header_sent = false;
+            espresponse->buffer_web = String();
+        }
         break;
 #endif
-	default:
-		break;
+    default:
+        break;
 
-	}
+    }
 }
 
 void ESPCOM::print (const __FlashStringHelper *data, tpipe output, ESPResponseStream  *espresponse)
@@ -213,16 +219,26 @@ void ESPCOM::print (String & data, tpipe output, ESPResponseStream  *espresponse
 }
 void ESPCOM::print (const char * data, tpipe output, ESPResponseStream  *espresponse)
 {
-	if ((DEFAULT_PRINTER_PIPE == output) && ( block_2_printer || CONFIG::is_locked(FLAG_BLOCK_SERIAL))) return;
-    if ((SERIAL_PIPE == output) && CONFIG::is_locked(FLAG_BLOCK_SERIAL))return;
+    if ((DEFAULT_PRINTER_PIPE == output) && ( block_2_printer || CONFIG::is_locked(FLAG_BLOCK_SERIAL))) {
+        return;
+    }
+    if ((SERIAL_PIPE == output) && CONFIG::is_locked(FLAG_BLOCK_SERIAL)) {
+        return;
+    }
 #ifdef TCP_IP_DATA_FEATURE
-    if ((TCP_PIPE == output) && CONFIG::is_locked(FLAG_BLOCK_TCP))return;
+    if ((TCP_PIPE == output) && CONFIG::is_locked(FLAG_BLOCK_TCP)) {
+        return;
+    }
 #endif
 #ifdef WS_DATA_FEATURE
-    if ((WS_PIPE == output) && CONFIG::is_locked(FLAG_BLOCK_WSOCKET))return;
+    if ((WS_PIPE == output) && CONFIG::is_locked(FLAG_BLOCK_WSOCKET)) {
+        return;
+    }
 #endif
 #ifdef ESP_OLED_FEATURE
-    if ((OLED_PIPE == output) && CONFIG::is_locked(FLAG_BLOCK_OLED))return;
+    if ((OLED_PIPE == output) && CONFIG::is_locked(FLAG_BLOCK_OLED)) {
+        return;
+    }
 #endif
     switch (output) {
 #ifdef USE_SERIAL_0
@@ -248,61 +264,62 @@ void ESPCOM::print (const char * data, tpipe output, ESPResponseStream  *espresp
     case WEB_PIPE:
         if (espresponse != NULL) {
 #if defined(ASYNCWEBSERVER)
-			 espresponse->print (data);
+            espresponse->print (data);
 #else
-			if (!espresponse->header_sent) {
-            web_interface->web_server.setContentLength(CONTENT_LENGTH_UNKNOWN);
-            web_interface->web_server.sendHeader("Content-Type","text/html");
-            web_interface->web_server.sendHeader("Cache-Control","no-cache");
-            web_interface->web_server.send(200);
-            espresponse->header_sent = true;
-			}
-			espresponse->buffer_web+=data;
-			if (espresponse->buffer_web.length() > 1200) {
-				//send data
-				web_interface->web_server.sendContent(espresponse->buffer_web);
-				//reset buffer
-				espresponse->buffer_web="";
-			}
+            if (!espresponse->header_sent) {
+                web_interface->web_server.setContentLength(CONTENT_LENGTH_UNKNOWN);
+                web_interface->web_server.sendHeader("Content-Type","text/html");
+                web_interface->web_server.sendHeader("Cache-Control","no-cache");
+                web_interface->web_server.send(200);
+                espresponse->header_sent = true;
+            }
+            espresponse->buffer_web+=data;
+            if (espresponse->buffer_web.length() > 1200) {
+                //send data
+                web_interface->web_server.sendContent(espresponse->buffer_web);
+                //reset buffer
+                espresponse->buffer_web="";
+            }
 #endif
         }
         break;
 #ifdef WS_DATA_FEATURE
-    case WS_PIPE:
-		{
+    case WS_PIPE: {
 #if defined(ASYNCWEBSERVER)
 //Todo
 #else
-		socket_server->sendBIN(current_socket_id,(const uint8_t *)data,strlen(data));
+        socket_server->sendBIN(current_socket_id,(const uint8_t *)data,strlen(data));
 #endif
-        }
-        break;
+    }
+    break;
 #endif
 
 #ifdef ESP_OLED_FEATURE
-    case OLED_PIPE:
-		{
-		if (!ESPCOM::block_2_oled) {
-			if(!(!strcmp(data,"\n")||!strcmp(data,"\r")||!strcmp(data,"\r\n"))) {
-				OLED_DISPLAY::print(data);
-				OLED_DISPLAY::update_lcd();	
-				}
-			}
+    case OLED_PIPE: {
+        if (!ESPCOM::block_2_oled) {
+            if(!(!strcmp(data,"\n")||!strcmp(data,"\r")||!strcmp(data,"\r\n"))) {
+                OLED_DISPLAY::print(data);
+                OLED_DISPLAY::update_lcd();
+            }
         }
-        break;
+    }
+    break;
 #endif
-	case PRINTER_PIPE:
-		{
+    case PRINTER_PIPE: {
 #ifdef ESP_OLED_FEATURE
-		OLED_DISPLAY::setCursor(0, 48);
-		if(!(!strcmp(data,"\n")||!strcmp(data,"\r")||!strcmp(data,"\r\n")))ESPCOM::print(data, OLED_PIPE);
-#endif
-		if (!CONFIG::is_locked(FLAG_BLOCK_M117)){
-			if(!(!strcmp(data,"\n")||!strcmp(data,"\r")||!strcmp(data,"\r\n")))ESPCOM::print ("M117 ", DEFAULT_PRINTER_PIPE);
-			ESPCOM::print (data, DEFAULT_PRINTER_PIPE);
-			}
+        OLED_DISPLAY::setCursor(0, 48);
+        if(!(!strcmp(data,"\n")||!strcmp(data,"\r")||!strcmp(data,"\r\n"))) {
+            ESPCOM::print(data, OLED_PIPE);
         }
-        break;
+#endif
+        if (!CONFIG::is_locked(FLAG_BLOCK_M117)) {
+            if(!(!strcmp(data,"\n")||!strcmp(data,"\r")||!strcmp(data,"\r\n"))) {
+                ESPCOM::print ("M117 ", DEFAULT_PRINTER_PIPE);
+            }
+            ESPCOM::print (data, DEFAULT_PRINTER_PIPE);
+        }
+    }
+    break;
     default:
         break;
     }
@@ -363,7 +380,7 @@ bool ESPCOM::processFromSerial (bool async)
     if (ESPCOM::available(DEFAULT_PRINTER_PIPE)) {
         size_t len = ESPCOM::available(DEFAULT_PRINTER_PIPE);
         uint8_t * sbuf = (uint8_t *)malloc(len+1);
-        if(!sbuf){
+        if(!sbuf) {
             return false;
         }
         sbuf[len] = '\0';
@@ -382,13 +399,17 @@ bool ESPCOM::processFromSerial (bool async)
         }
 #endif
 #ifdef WS_DATA_FEATURE
-         
+
 #if defined (ASYNCWEBSERVER)
-			 if (!CONFIG::is_locked(FLAG_BLOCK_WSOCKET)) web_interface->web_socket.textAll(sbuf, len);
+        if (!CONFIG::is_locked(FLAG_BLOCK_WSOCKET)) {
+            web_interface->web_socket.textAll(sbuf, len);
+        }
 #else
-			 if (!CONFIG::is_locked(FLAG_BLOCK_WSOCKET) && socket_server)socket_server->sendBIN(current_socket_id,sbuf,len);
+        if (!CONFIG::is_locked(FLAG_BLOCK_WSOCKET) && socket_server) {
+            socket_server->sendBIN(current_socket_id,sbuf,len);
+        }
 #endif
-			 
+
 #endif
         //process data if any
         COMMAND::read_buffer_serial (sbuf, len);
