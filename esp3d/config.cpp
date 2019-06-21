@@ -692,9 +692,16 @@ bool CONFIG::write_string (int pos, const char * byte_buffer)
         maxsize = EEPROM_SIZE;
         break;
     }
-    if ( (size_buffer == 0 ) ||  pos + size_buffer + 1 > EEPROM_SIZE || size_buffer > maxsize  || byte_buffer == NULL) {
+    if ( pos + size_buffer + 1 > EEPROM_SIZE || size_buffer > maxsize  ) {
         LOG ("Error write string\r\n")
         return false;
+    }
+    
+    if (!((pos == EP_STA_PASSWORD) || (pos == EP_AP_PASSWORD))) {
+       if((size_buffer == 0 ) || (byte_buffer == NULL )){
+            LOG ("Error write string\r\n")
+            return false;
+       } 
     }
     //copy the value(s)
     EEPROM.begin (EEPROM_SIZE);

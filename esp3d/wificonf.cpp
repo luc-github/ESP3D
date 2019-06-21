@@ -467,7 +467,11 @@ bool WIFI_CONFIG::Setup (bool force_ap)
 #else
         esp_wifi_set_protocol (ESP_IF_WIFI_STA, bflag);
 #endif
-        WiFi.begin (sbuf, pwd);
+        if (strlen(pwd) > 0){
+            WiFi.begin (sbuf, pwd);
+        } else {
+            WiFi.begin (sbuf);
+        }
         delay (100);
 #ifdef ARDUINO_ARCH_ESP8266
 		WiFi.setSleepMode ( (WiFiSleepType_t) sleep_mode);

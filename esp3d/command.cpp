@@ -1357,7 +1357,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
         if (! (styp == "B" || styp == "S" || styp == "A" || styp == "I" || styp == "F") ) {
             response = false;
         }
-        if (sval.length() == 0) {
+        if ((sval.length() == 0) && !((pos==EP_AP_PASSWORD) || (pos==EP_STA_PASSWORD))){
             response = false;
         }
 
