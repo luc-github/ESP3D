@@ -24,8 +24,10 @@ A clear and concise description of what you expected to happen.
 If applicable, add screenshots to help explain your problem.
 
 **ESP3D Firmware:**
-- Version:[e.g 2.1]
-- Wifi mode:[e.g. STA]
+- Version:[e.g 2.1b4]
+- Web UI Version:[e.g 2.1b14]  
+- Wifi mode:[e.g. STA]  
+- Any change done in FW  
 
 **Target Firmware:**
  - Name: [e.g. Marlin]
