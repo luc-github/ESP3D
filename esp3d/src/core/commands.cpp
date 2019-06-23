@@ -36,14 +36,21 @@ Commands::~Commands()
 void Commands::process(uint8_t * sbuf, size_t len, ESP3DOutput * output, level_authenticate_type auth, ESP3DOutput * outputonly )
 {
     if(is_esp_command(sbuf,len)) {
-
+        size_t slen = len;
+        String tmpbuf = (const char*)sbuf;
+        if (tmpbuf.startsWith("echo: ")){
+            tmpbuf.replace("echo: ", "");
+            slen = tmpbuf.length();
+        }
+        
         uint8_t cmd[4];
-        cmd[0] = sbuf[4];
-        cmd[1] = sbuf[5];
-        cmd[2] = sbuf[6];
+        cmd[0] = tmpbuf[4];
+        cmd[1] = tmpbuf[5];
+        cmd[2] = tmpbuf[6];
         cmd[3] = 0x0;
+        
         //log_esp3d("Authentication = %d client %d", auth, output->client());
-        execute_internal_command (String((const char *)cmd).toInt(), (len > 8)?(const char*)&sbuf[8]:"", auth, (outputonly == nullptr)?output:outputonly);
+        execute_internal_command (String((const char*)cmd).toInt(), (slen > 8)?(const char*)&tmpbuf[8]:"", auth, (outputonly == nullptr)?output:outputonly);
     } else {
         //Dispatch to all clients but current or to define output
         if ((output->client() == ESP_HTTP_CLIENT) && (outputonly == nullptr)) {
@@ -72,6 +79,13 @@ bool Commands::is_esp_command(uint8_t * sbuf, size_t len)
     }
     if ((char(sbuf[0]) == '[') && (char(sbuf[1]) == 'E') && (char(sbuf[2]) == 'S') && (char(sbuf[3]) == 'P') && (char(sbuf[7]) == ']')) {
         return true;
+    }
+    if((char(sbuf[0]) == 'e') && (char(sbuf[1]) == 'c') && (char(sbuf[2]) == 'h') && (char(sbuf[3]) == 'o') && (char(sbuf[4]) == ':') && (char(sbuf[5]) == ' ') && (char(sbuf[6]) == '[') && (char(sbuf[7]) == 'E')) {
+        if (len >= 14){
+            if ((char(sbuf[8]) == 'S') && (char(sbuf[9]) == 'P') && (char(sbuf[13]) == ']')){
+                return true;
+            }
+        }
     }
     return false;
 }

@@ -69,7 +69,7 @@ private:
 class ESP_FileSystem
 {
 public:
-    static String & formatBytes (uint32_t bytes);
+    static String & formatBytes (uint64_t bytes);
     ESP_FileSystem();
     ~ESP_FileSystem();
     static bool begin();

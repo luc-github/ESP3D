@@ -54,17 +54,17 @@ ESP_FileSystem::~ESP_FileSystem()
 }
 
 //helper to format size to readable string
-String & ESP_FileSystem::formatBytes (uint32_t bytes)
+String & ESP_FileSystem::formatBytes (uint64_t bytes)
 {
     static String res;
     if (bytes < 1024) {
-        res = String (bytes) + " B";
+        res = String ((uint16_t)bytes) + " B";
     } else if (bytes < (1024 * 1024) ) {
-        res = String (bytes / 1024.0) + " KB";
+        res = String ((float)(bytes / 1024.0),2) + " KB";
     } else if (bytes < (1024 * 1024 * 1024) ) {
-        res = String (bytes / 1024.0 / 1024.0) + " MB";
+        res = String ((float)(bytes / 1024.0 / 1024.0),2) + " MB";
     } else {
-        res = String (bytes / 1024.0 / 1024.0 / 1024.0) + " GB";
+        res = String ((float)(bytes / 1024.0 / 1024.0 / 1024.0),2) + " GB";
     }
     return res;
 }

@@ -842,7 +842,7 @@ bool Settings_ESP3D::write_string (int pos, const char * byte_buffer)
     String p = "P_" + String(pos);
     uint8_t r = prefs.putString(p.c_str(), byte_buffer);
     prefs.end();
-    if (r == 0) {
+    if (r != size_buffer) {
         log_esp3d("Error commit %s", p.c_str());
         return false;
     }
