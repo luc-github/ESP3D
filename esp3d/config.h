@@ -19,7 +19,7 @@
 */
 
 //version and sources location
-#define FW_VERSION "2.1.0.b29"
+#define FW_VERSION "2.1.0.b30"
 #define REPOSITORY "https://github.com/luc-github/ESP3D"
 
 //Customize ESP3D ////////////////////////////////////////////////////////////////////////
@@ -92,6 +92,9 @@
 //#define TIMESTAMP_FEATURE
 
 //Extra features /////////////////////////////////////////////////////////////////////////
+
+//Workaround for Marlin 2.X coldstart
+//#define DISABLE_CONNECTING_MSG
 
 //Serial rx buffer size is 256 but can be extended
 #define SERIAL_RX_BUFFER_SIZE 512

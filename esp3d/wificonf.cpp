@@ -529,7 +529,9 @@ bool WIFI_CONFIG::Setup (bool force_ap)
                 dot = 0;
             }
 #ifndef MKS_TFT_FEATURE
+#ifndef DISABLE_CONNECTING_MSG
             ESPCOM::println (msg, PRINTER_PIPE);
+#endif
 #endif
 
             delay (500);
