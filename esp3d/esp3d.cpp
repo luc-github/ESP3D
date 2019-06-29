@@ -110,12 +110,6 @@ void Esp3D::begin(uint16_t startdelayms, uint16_t recoverydelayms)
     OLED_DISPLAY::begin();
     OLED_DISPLAY::splash();
 #endif
-#ifdef ARDUINO_ARCH_ESP8266
-    struct	rst_info	*rtc_info	=	system_get_rst_info();
-#else
-    RESET_REASON reason_0 = rtc_get_reset_reason(0);
-    RESET_REASON reason_1 = rtc_get_reset_reason(1);
-#endif
     bool breset_config = false;
     web_interface = NULL;
 #ifdef TCP_IP_DATA_FEATURE
