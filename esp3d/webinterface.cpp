@@ -473,7 +473,7 @@ bool WEBINTERFACE_CLASS::ClearAuthIP (IPAddress ip, const char * sessionID)
 auth_ip * WEBINTERFACE_CLASS::GetAuth (IPAddress ip, const char * sessionID)
 {
     auth_ip * current = _head;
-    auth_ip * previous = NULL;
+    //auth_ip * previous = NULL;
     //get time
     //uint32_t now = millis();
     while (current) {
@@ -483,7 +483,7 @@ auth_ip * WEBINTERFACE_CLASS::GetAuth (IPAddress ip, const char * sessionID)
                 return current;
             }
         }
-        previous = current;
+        //previous = current;
         current = current->_next;
     }
     return NULL;
