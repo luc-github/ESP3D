@@ -36,6 +36,7 @@ void setup() {
     SSDP.setModelURL("http://www.meethue.com");
     SSDP.setManufacturer("Royal Philips Electronics");
     SSDP.setManufacturerURL("http://www.philips.com");
+    SSDP.setDeviceType("upnp:rootdevice"); //to appear as root device
     SSDP.begin();
 
     Serial.printf("Ready!\n");
