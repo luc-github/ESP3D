@@ -22,12 +22,10 @@ before_script:
   - cd esp32/tools
   - python get.py
   - mv $TRAVIS_BUILD_DIR/libraries/ESP32SSDP $HOME/arduino_ide/libraries/
-  - mv $TRAVIS_BUILD_DIR/libraries/arduinoWebSockets $HOME/arduino_ide/libraries/
+  - mv $TRAVIS_BUILD_DIR/libraries/arduinoWebSockets-2.1.4 $HOME/arduino_ide/libraries/
   - mv $TRAVIS_BUILD_DIR/libraries/DHT_sensor_library_for_ESPx $HOME/arduino_ide/libraries/
   - mv $TRAVIS_BUILD_DIR/libraries/oled-ssd1306 $HOME/arduino_ide/libraries/
   - mv $TRAVIS_BUILD_DIR/libraries/TFT_eSPI $HOME/arduino_ide/libraries/
-  - echo "patch esp8266 core to revert pgmspace commit"
-  - cp -f $TRAVIS_BUILD_DIR/patch/pgmspace.h $HOME/arduino_ide/hardware/esp8266com/esp8266/tools/sdk/libc/xtensa-lx106-elf/include/sys/pgmspace.h
 
 script:
   - cd $TRAVIS_BUILD_DIR
