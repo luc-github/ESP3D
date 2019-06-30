@@ -1,31 +1,38 @@
 /*
- * WebSocketClientSocketIO.ino
+ * WebSocketClientSSL.ino
  *
- *  Created on: 06.06.2016
+ *  Created on: 10.12.2015
+ *
+ *  note SSL is only possible with the ESP8266
  *
  */
 
 #include <Arduino.h>
 
-#include <ESP8266WiFi.h>
-#include <ESP8266WiFiMulti.h>
+#include <WiFi.h>
+#include <WiFiMulti.h>
+#include <WiFiClientSecure.h>
 
 #include <WebSocketsClient.h>
 
-#include <Hash.h>
 
-ESP8266WiFiMulti WiFiMulti;
+WiFiMulti WiFiMulti;
 WebSocketsClient webSocket;
-
 
 #define USE_SERIAL Serial1
 
-#define MESSAGE_INTERVAL 30000
-#define HEARTBEAT_INTERVAL 25000
-
-uint64_t messageTimestamp = 0;
-uint64_t heartbeatTimestamp = 0;
-bool isConnected = false;
+void hexdump(const void *mem, uint32_t len, uint8_t cols = 16) {
+	const uint8_t* src = (const uint8_t*) mem;
+	USE_SERIAL.printf("\n[HEXDUMP] Address: 0x%08X len: 0x%X (%d)", (ptrdiff_t)src, len, len);
+	for(uint32_t i = 0; i < len; i++) {
+		if(i % cols == 0) {
+			USE_SERIAL.printf("\n[0x%08X] 0x%08X: ", (ptrdiff_t)src, i);
+		}
+		USE_SERIAL.printf("%02X ", *src);
+		src++;
+	}
+	USE_SERIAL.printf("\n");
+}
 
 void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
 
@@ -33,16 +40,13 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
     switch(type) {
         case WStype_DISCONNECTED:
             USE_SERIAL.printf("[WSc] Disconnected!\n");
-            isConnected = false;
             break;
         case WStype_CONNECTED:
             {
                 USE_SERIAL.printf("[WSc] Connected to url: %s\n",  payload);
-                isConnected = true;
 
 			    // send message to server when Connected
-                // socket.io upgrade confirmation message (required)
-				webSocket.sendTXT("5");
+				webSocket.sendTXT("Connected");
             }
             break;
         case WStype_TEXT:
@@ -58,6 +62,12 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
             // send data to server
             // webSocket.sendBIN(payload, length);
             break;
+		case WStype_ERROR:			
+		case WStype_FRAGMENT_TEXT_START:
+		case WStype_FRAGMENT_BIN_START:
+		case WStype_FRAGMENT:
+		case WStype_FRAGMENT_FIN:
+			break;
     }
 
 }
@@ -86,28 +96,11 @@ void setup() {
         delay(100);
     }
 
-    webSocket.beginSocketIO("192.168.0.123", 81);
-    //webSocket.setAuthorization("user", "Password"); // HTTP Basic Authorization
+    webSocket.beginSSL("192.168.0.123", 81);
     webSocket.onEvent(webSocketEvent);
 
 }
 
 void loop() {
     webSocket.loop();
-
-    if(isConnected) {
-
-        uint64_t now = millis();
-
-        if(now - messageTimestamp > MESSAGE_INTERVAL) {
-            messageTimestamp = now;
-            // example socket.io message with type "messageType" and JSON payload
-            webSocket.sendTXT("42[\"messageType\",{\"greeting\":\"hello\"}]");
-        }
-        if((now - heartbeatTimestamp) > HEARTBEAT_INTERVAL) {
-            heartbeatTimestamp = now;
-            // socket.io heartbeat message
-            webSocket.sendTXT("2");
-        }
-    }
 }

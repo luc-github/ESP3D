@@ -157,7 +157,10 @@ bool NotificationsService::sendPushoverMSG(const char * title, const char * mess
     String data;
     String postcmd;
     bool res;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     TSecureClient Notificationclient;
+#pragma GCC diagnostic pop   
 #if defined(ARDUINO_ARCH_ESP8266) && !defined(USING_AXTLS)
     Notificationclient.setInsecure();
 #endif //ARDUINO_ARCH_ESP8266 && !USING_AXTLS
@@ -190,7 +193,10 @@ bool NotificationsService::sendPushoverMSG(const char * title, const char * mess
 }
 bool NotificationsService::sendEmailMSG(const char * title, const char * message)
 {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     TSecureClient Notificationclient;
+#pragma GCC diagnostic pop
 #if defined(ARDUINO_ARCH_ESP8266) && !defined(USING_AXTLS)
     Notificationclient.setInsecure();
 #endif //ARDUINO_ARCH_ESP8266 && !USING_AXTLS
@@ -283,7 +289,10 @@ bool NotificationsService::sendLineMSG(const char * title, const char * message)
     String data;
     String postcmd;
     bool res;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     TSecureClient Notificationclient;
+#pragma GCC diagnostic pop
 #if defined(ARDUINO_ARCH_ESP8266) && !defined(USING_AXTLS)
     Notificationclient.setInsecure();
 #endif //ARDUINO_ARCH_ESP8266 && !USING_AXTLS

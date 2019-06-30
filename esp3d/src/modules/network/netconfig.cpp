@@ -212,8 +212,10 @@ bool NetConfig::begin()
     //setup events
     if(!_events_registered) {
 #ifdef ARDUINO_ARCH_ESP8266
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
         WiFi.onEvent(NetConfig::onWiFiEvent, WIFI_EVENT_ANY);
-
+#pragma GCC diagnostic pop
 #endif
 #ifdef ARDUINO_ARCH_ESP32
         WiFi.onEvent(NetConfig::onWiFiEvent);
