@@ -43,22 +43,26 @@
 #define TELNET_FEATURE
 
 //WS_DATA_FEATURE: allow to connect serial from Websocket
-//#define WS_DATA_FEATURE
+#define WS_DATA_FEATURE
 
 //DISPLAY_DEVICE: allow screen output
 //OLED_I2C_SSD1306    		1
 //OLED_I2C_SSDSH1106  		2
 //TFT_SPI_ILI9341_320X240 	3
-//#define DISPLAY_DEVICE TFT_SPI_ILI9341_320X240
+#define DISPLAY_DEVICE OLED_I2C_SSD1306
 
 #if defined (DISPLAY_DEVICE)
 //for ILI9143 edit User_Setup.h of TFT_eSPI library
+#if (DISPLAY_DEVICE == OLED_I2C_SSD1306) || (DISPLAY_DEVICE == OLED_I2C_SSDSH1106)
 #define DISPLAY_I2C_PIN_SDA         4
 #define DISPLAY_I2C_PIN_SCL         15
 #define DISPLAY_I2C_PIN_RST         16 //comment if not applicable
 #define DISPLAY_I2C_ADDR	        0x3c
+#endif //(DISPLAY_DEVICE == OLED_I2C_SSD1306) || (DISPLAY_DEVICE == OLED_I2C_SSDSH1106)
 #define DISPLAY_FLIP_VERTICALY      1 //comment to disable
+#if DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240
 #define DISPLAY_TOUCH_DRIVER		XPT2046_SPI
+#endif //DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240
 #endif //DISPLAY_DEVICE
 
 //INPUT_DEVICE: allow input

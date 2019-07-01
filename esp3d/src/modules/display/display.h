@@ -57,8 +57,8 @@ private:
     void fillRect(int16_t x, int16_t y, int16_t width, int16_t height, int16_t color);
     void setTextFont(uint8_t font);
     void drawString(const char *string, int32_t poX, int32_t poY, int16_t color);
-    void drawXbm(int16_t x, int16_t y, int16_t width, int16_t height, int16_t color, const unsigned char *xbm);
-    void drawXbm(int16_t x, int16_t y, int16_t width, int16_t height, uint16_t fgcolor, uint16_t bgcolor, const unsigned char *xbm);
+    void drawXbm(int16_t x, int16_t y, int16_t width, int16_t height, int16_t color, const uint8_t *xbm);
+    void drawXbm(int16_t x, int16_t y, int16_t width, int16_t height, uint16_t fgcolor, uint16_t bgcolor, const uint8_t *xbm);
     uint16_t getStringWidth(const char* text);
     String _status;
 };

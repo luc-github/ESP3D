@@ -28,13 +28,13 @@
 #include "Wire.h"
 #include "esp3d_logo.h"
 #if DISPLAY_DEVICE == OLED_I2C_SSD1306
-#include <SSD1306.h>
-SSD1306  esp3d_screen(DISPLAY_I2C_ADDR, DISPLAY_I2C_PIN_SDA, DISPLAY_I2C_PIN_SCL);
+#include <SSD1306Wire.h>
+SSD1306Wire  esp3d_screen(DISPLAY_I2C_ADDR, DISPLAY_I2C_PIN_SDA, DISPLAY_I2C_PIN_SCL);
 #include "OLED_SSD1306.h"
 #endif //DISPLAY_DEVICE == OLED_I2C_SSD1306
 #if DISPLAY_DEVICE == OLED_I2C_SSDSH1106
-#include <SH1106.h>
-SH1106  esp3d_screen(DISPLAY_I2C_ADDR, (DISPLAY_I2C_PIN_SDA==-1)?SDA:DISPLAY_I2C_PIN_SDA, (DISPLAY_I2C_PIN_SCL==-1)?SCL:DISPLAY_I2C_PIN_SCL);
+#include <SH1106Wire.h>
+SH1106Wire  esp3d_screen(DISPLAY_I2C_ADDR, (DISPLAY_I2C_PIN_SDA==-1)?SDA:DISPLAY_I2C_PIN_SDA, (DISPLAY_I2C_PIN_SCL==-1)?SCL:DISPLAY_I2C_PIN_SCL);
 #include "OLED_SSDSH1106.h"
 #endif //DISPLAY_DEVICE == OLED_I2C_SSDSH1106
 #endif //DISPLAY_DEVICE == OLED_I2C_SSD1306 || DISPLAY_DEVICE == OLED_I2C_SSDSH1106
@@ -127,9 +127,11 @@ bool Display::showStatus(bool force)
         refresh_status = true;
         status+=" ";
         //log_esp3d("current %s", status.c_str());
-        if (status_shift > status.length()) {
+        if (status_shift != -1){
+            if( (uint16_t)(status_shift)> status.length()) {
             status_shift = -1;
-        }
+            }
+         }
         //log_esp3d("shift %d", status_shift);
         if (status_shift > 0) {
             status.remove(0,status_shift);
@@ -202,8 +204,10 @@ bool Display::display_signal(bool force)
             static int label_shift = -1;
             label+=" ";
             //log_esp3d("current %s", label.c_str());
-            if (label_shift > label.length()) {
-                label_shift = -1;
+            if (label_shift != -1) {
+                if((uint16_t)(label_shift)> label.length()) {
+                    label_shift = -1;
+                }
             }
             //log_esp3d("shift %d", label_shift);
             if (label_shift > 0) {
@@ -665,21 +669,21 @@ void Display::drawString(const char *string, int32_t poX, int32_t poY, int16_t c
 }
 
 // Draw a XBM
-void Display::drawXbm(int16_t x, int16_t y, int16_t width, int16_t height, int16_t color, const unsigned char *xbm)
+void Display::drawXbm(int16_t x, int16_t y, int16_t width, int16_t height, int16_t color, const uint8_t *xbm)
 {
     if ( !ESP3DOutput::isOutput(ESP_SCREEN_CLIENT)) {
         return;
     }
 #if DISPLAY_DEVICE == OLED_I2C_SSD1306 || DISPLAY_DEVICE == OLED_I2C_SSDSH1106
     (void)color;
-    esp3d_screen.drawXbm(x, y, width, height, (const char *)xbm);
+    esp3d_screen.drawXbm(x, y, width, height, xbm);
 #endif //#if DISPLAY_DEVICE == OLED_I2C_SSD1306 || DISPLAY_DEVICE == OLED_I2C_SSDSH1106
 #if DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240
     esp3d_screen.drawXBitmap(x, y, xbm, width, height,color);
 #endif //TFT_SPI_ILI9341_240X320
 }
 
-void Display::drawXbm(int16_t x, int16_t y, int16_t width, int16_t height, uint16_t fgcolor, uint16_t bgcolor, const unsigned char *xbm)
+void Display::drawXbm(int16_t x, int16_t y, int16_t width, int16_t height, uint16_t fgcolor, uint16_t bgcolor, const uint8_t *xbm)
 {
     if ( !ESP3DOutput::isOutput(ESP_SCREEN_CLIENT)) {
         return;
@@ -687,7 +691,7 @@ void Display::drawXbm(int16_t x, int16_t y, int16_t width, int16_t height, uint1
 #if DISPLAY_DEVICE == OLED_I2C_SSD1306 || DISPLAY_DEVICE == OLED_I2C_SSDSH1106
     (void)fgcolor;
     (void)bgcolor;
-    esp3d_screen.drawXbm(x, y, width, height, (const char *)xbm);
+    esp3d_screen.drawXbm(x, y, width, height, xbm);
 #endif //#if DISPLAY_DEVICE == OLED_I2C_SSD1306 || DISPLAY_DEVICE == OLED_I2C_SSDSH1106
 #if DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240
     esp3d_screen.drawXBitmap(x, y, xbm, width, height, fgcolor, bgcolor);
