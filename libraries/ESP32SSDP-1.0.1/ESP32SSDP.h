@@ -25,7 +25,7 @@ License (MIT license):
   THE SOFTWARE.
 
 */
-
+#ifdef ARDUINO_ARCH_ESP32
 #ifndef ESP32SSDP_H
 #define ESP32SSDP_H
 
@@ -125,4 +125,5 @@ class SSDPClass{
 extern SSDPClass SSDP;
 #endif
 
+#endif
 #endif

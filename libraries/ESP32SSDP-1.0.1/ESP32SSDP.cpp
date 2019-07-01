@@ -25,7 +25,7 @@ License (MIT license):
   THE SOFTWARE.
 
 */
-
+#ifdef ARDUINO_ARCH_ESP32
 #include <functional>
 #include "ESP32SSDP.h"
 #include "WiFiUdp.h"
@@ -474,4 +474,6 @@ void SSDPClass::_stopTimer() {
 
 #if !defined(NO_GLOBAL_INSTANCES) && !defined(NO_GLOBAL_SSDP)
 SSDPClass SSDP;
+#endif
+
 #endif
