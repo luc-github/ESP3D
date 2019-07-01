@@ -24,8 +24,8 @@ before_script:
   - mv $TRAVIS_BUILD_DIR/libraries/ESP32SSDP-1.0.1 $HOME/arduino_ide/libraries/
   - mv $TRAVIS_BUILD_DIR/libraries/arduinoWebSockets-2.1.4 $HOME/arduino_ide/libraries/
   - mv $TRAVIS_BUILD_DIR/libraries/DHT_sensor_library_for_ESPx-1.0.6 $HOME/arduino_ide/libraries/
-  - mv $TRAVIS_BUILD_DIR/libraries/oled-ssd1306 $HOME/arduino_ide/libraries/
-  - mv $TRAVIS_BUILD_DIR/libraries/TFT_eSPI $HOME/arduino_ide/libraries/
+  - mv $TRAVIS_BUILD_DIR/libraries/esp8266-oled-ssd1306-4.0.0 $HOME/arduino_ide/libraries/
+  - mv $TRAVIS_BUILD_DIR/libraries/TFT_eSPI-1.4.11 $HOME/arduino_ide/libraries/
 
 script:
   - cd $TRAVIS_BUILD_DIR
