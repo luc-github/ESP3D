@@ -396,10 +396,10 @@ bool NotificationsService::begin()
         break;
     case ESP_EMAIL_NOTIFICATION:
         if (CONFIG::read_string (ESP_NOTIFICATION_TOKEN1, sbuf, MAX_NOTIFICATION_TOKEN_LENGTH) ) {
-            _token1 = sbuf;
+            _token1 = base64::encode(sbuf);
         }
         if (CONFIG::read_string (ESP_NOTIFICATION_TOKEN2, sbuf, MAX_NOTIFICATION_TOKEN_LENGTH) ) {
-            _token2 = sbuf;
+            _token2 = base64::encode(sbuf);
         }
         //log_esp3d("%s",Settings_ESP3D::read_string(ESP_NOTIFICATION_TOKEN1));
         //log_esp3d("%s",Settings_ESP3D::read_string(ESP_NOTIFICATION_TOKEN2));
