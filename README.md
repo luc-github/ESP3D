@@ -1,5 +1,7 @@
 # ESP3D 2.0 [![Code Climate](https://codeclimate.com/github/luc-github/ESP3D/badges/gpa.svg)](https://codeclimate.com/github/luc-github/ESP3D)
 
+# Please use 2.1 instead, 2.0 is no more supported
+
 Firmware for ESP8266/ESP8285  and ESP32 used with 3D printer using [ESP8266 core version](https://github.com/esp8266/Arduino)  and [ESP32 core version](https://github.com/espressif/arduino-esp32)   
 
 This firmware allows not only to have a cheap bridge between Wifi and serial, but also to have a web UI to configure wifi, to monitor 3D printer and even control it, and to make things easy,
@@ -88,7 +90,7 @@ Check wiki : https://github.com/luc-github/ESP3D/wiki/Direct-ESP3D-commands
 1. Please follow installation of the ESP core you want to use : [ESP8266 core version](https://github.com/esp8266/Arduino)  or [ESP32 core version](https://github.com/espressif/arduino-esp32)   
 2.  Add libraries 
 * ESP3D because it is now a library so copy project to your arduino library folder.   
-If you want async webserver (currently not recommended for ESP8266, suggested for ESP32):   
+If you want async webserver (currently not recommended for ESP8266, neither for ESP32 due to stability issue, should be ok if you do not try to upload, but not recommended):   
 * ESPAsyncWebServer from @me-no-dev   
 if you target ESP8266  
 * ESPAsyncTCP from @me-no-dev   
