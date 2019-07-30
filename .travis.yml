@@ -21,7 +21,7 @@ before_script:
   - cd $HOME/arduino_ide/hardware
   - mkdir esp8266com
   - cd esp8266com
-  - git clone -b 2.5.2 https://github.com/esp8266/Arduino.git esp8266
+  - git clone https://github.com/esp8266/Arduino.git esp8266
   - cd esp8266/tools
   - python get.py
   - cd $HOME/arduino_ide/hardware
