@@ -5,9 +5,22 @@ function build_sketch()
 	local sketch=$1
     local target=$2
     local ide=$3
+    local bt=$4
+    local auth=$5
     if [[ "$3" == "arduino" ]];
     then
     rm -f $HOME/.arduino15/preferences.txt
+    #be sure everything is enabled by default as reference
+    sed -i "s/\/\/#define AUTHENTICATION_FEATURE /#define AUTHENTICATION_FEATURE/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
+    sed -i "s/\/\/#define BLUETOOTH_FEATURE /#define AUTHENTICATION_FEATURE/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
+    if [[ "$4" == "no" ]];
+    then
+        sed -i "s/#define AUTHENTICATION_FEATURE /\/\/#define AUTHENTICATION_FEATURE/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
+    fi
+    if [[ "$5" == "no" ]];
+    then
+        sed -i "s/#define BLUETOOTH_FEATURE /\/\/#define BLUETOOTH_FEATURE/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
+    fi
     if [[ "$2" == "esp32" ]];
     then
         echo "setup for esp32"

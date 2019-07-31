@@ -18,9 +18,11 @@ install:
   - pip install -U platformio
 
 env:
-  - TARGET=esp32 PLATFORM=arduino
-  - TARGET=esp8266 PLATFORM=arduino
-  - TARGET=all PLATFORM=PIO
+  - TARGET=esp32 PLATFORM=arduino BT=yes AUTHENTICATION=yes
+  - TARGET=esp32 PLATFORM=arduino BT=yes AUTHENTICATION=no
+  - TARGET=esp8266 PLATFORM=arduino BT=no AUTHENTICATION=yes
+  - TARGET=esp8266 PLATFORM=arduino BT=no AUTHENTICATION=no
+  - TARGET=all PLATFORM=PIO BT=yes AUTHENTICATION=yes
 
 before_script:
   - platformio update
@@ -49,7 +51,7 @@ before_script:
   - export PATH="$HOME/arduino_ide:$PATH"
     
 script:
-  - build_sketch  $TRAVIS_BUILD_DIR/esp3d/esp3d.ino $TARGET $PLATFORM
+  - build_sketch  $TRAVIS_BUILD_DIR/esp3d/esp3d.ino $TARGET $PLATFORM $BT $AUTHENTICATION
 
 notifications:
   email:
