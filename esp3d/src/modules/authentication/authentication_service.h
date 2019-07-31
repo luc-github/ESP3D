@@ -48,7 +48,7 @@ class WebServer;
 typedef  WebServer Authwebserver;
 #endif //ARDUINO_ARCH_ESP32
 #if defined (ARDUINO_ARCH_ESP8266)
-class ESP8266WebServer;
+#include <ESP8266WebServer.h>
 typedef  ESP8266WebServer Authwebserver;
 #endif //ARDUINO_ARCH_ESP8266
 #else

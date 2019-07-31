@@ -40,7 +40,7 @@ class WebServer;
 #define WEBSERVER WebServer
 #endif //ARDUINO_ARCH_ESP32
 #if defined (ARDUINO_ARCH_ESP8266)
-class ESP8266WebServer;
+#include <ESP8266WebServer.h>
 #define WEBSERVER ESP8266WebServer
 #endif //ARDUINO_ARCH_ESP8266
 #endif //HTTP_FEATURE
