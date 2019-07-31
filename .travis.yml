@@ -1,18 +1,31 @@
-sudo: false
+dist: xenial
+sudo: require
 
-language: bash
+language: python
+
+python:
+  - "3.7"
 
 os:
   - linux
   
+cache:
+  pip: true
+  directories:
+  - "~/.platformio"
+  
+install:
+  - pip install -U platformio
+
 before_script:
-  - wget http://downloads.arduino.cc/arduino-1.8.8-linux64.tar.xz
-  - tar xf arduino-1.8.8-linux64.tar.xz
-  - mv arduino-1.8.8 $HOME/arduino_ide
+  - platformio update
+  - wget http://downloads.arduino.cc/arduino-1.8.5-linux64.tar.xz
+  - tar xf arduino-1.8.5-linux64.tar.xz
+  - mv arduino-1.8.5 $HOME/arduino_ide
   - cd $HOME/arduino_ide/hardware
   - mkdir esp8266com
   - cd esp8266com
-  - git clone -b 2.5.2 https://github.com/esp8266/Arduino.git esp8266
+  - git clone https://github.com/esp8266/Arduino.git esp8266
   - cd esp8266/tools
   - python get.py
   - cd $HOME/arduino_ide/hardware
@@ -21,26 +34,37 @@ before_script:
   - git clone https://github.com/espressif/arduino-esp32.git esp32
   - cd esp32/tools
   - python get.py
-  - mv $TRAVIS_BUILD_DIR/libraries/ESP32SSDP-1.0.1 $HOME/arduino_ide/libraries/
-  - mv $TRAVIS_BUILD_DIR/libraries/arduinoWebSockets-2.1.4 $HOME/arduino_ide/libraries/
-  - mv $TRAVIS_BUILD_DIR/libraries/DHT_sensor_library_for_ESPx-1.0.6 $HOME/arduino_ide/libraries/
-  - mv $TRAVIS_BUILD_DIR/libraries/esp8266-oled-ssd1306-4.0.0 $HOME/arduino_ide/libraries/
-  - mv $TRAVIS_BUILD_DIR/libraries/TFT_eSPI-1.4.11 $HOME/arduino_ide/libraries/
-
+  - cp -r $TRAVIS_BUILD_DIR/libraries/ESP32SSDP-1.0.1 $HOME/arduino_ide/libraries/
+  - cp -r $TRAVIS_BUILD_DIR/libraries/arduinoWebSockets-2.1.4 $HOME/arduino_ide/libraries/
+  - cp -r $TRAVIS_BUILD_DIR/libraries/DHT_sensor_library_for_ESPx-1.0.6 $HOME/arduino_ide/libraries/
+  - cp -r $TRAVIS_BUILD_DIR/libraries/esp8266-oled-ssd1306-4.0.0 $HOME/arduino_ide/libraries/
+  - cp -r $TRAVIS_BUILD_DIR/libraries/TFT_eSPI-1.4.11 $HOME/arduino_ide/libraries/
+    
 script:
   - cd $TRAVIS_BUILD_DIR
   - source command.sh
   - export PATH="$HOME/arduino_ide:$PATH"
   - rm -f $HOME/.arduino15/preferences.txt
   - arduino --board esp8266com:esp8266:generic:eesz=4M3M,xtal=160,FlashMode=dio,FlashFreq=40,sdk=nonosdk221,ip=lm2f,dbg=Disabled,vt=flash,exception=disabled,ssl=basic --save-prefs
-  - build_sketch  esp3d/esp3d.ino
+  - build_sketch  $TRAVIS_BUILD_DIR/esp3d/esp3d.ino
   - rm -f $HOME/.arduino15/preferences.txt
   - arduino --board esp32:esp32:esp32:PartitionScheme=min_spiffs,FlashFreq=80,PSRAM=disabled,CPUFreq=240,FlashMode=qio,FlashSize=4M,DebugLevel=none --pref compiler.warning_level=all --save-prefs
+  - build_sketch  $TRAVIS_BUILD_DIR/esp3d/esp3d.ino
   - sed -i "s/\/\/#define BLUETOOTH_FEATURE/#define BLUETOOTH_FEATURE/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
-  - build_sketch  esp3d/esp3d.ino
-  
+  - build_sketch  $TRAVIS_BUILD_DIR/esp3d/esp3d.ino
+  - sed -i "s/\/\/#define AUTHENTICATION_FEATURE /#define AUTHENTICATION_FEATURE/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
+  - rm -f $HOME/.arduino15/preferences.txt
+  - arduino --board esp8266com:esp8266:generic:eesz=4M3M,xtal=160,FlashMode=dio,FlashFreq=40,sdk=nonosdk221,ip=lm2f,dbg=Disabled,vt=flash,exception=disabled,ssl=basic --save-prefs
+  - sed -i "s/#define BLUETOOTH_FEATURE/\/\/#define BLUETOOTH_FEATURE/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
+  - build_sketch  $TRAVIS_BUILD_DIR/esp3d/esp3d.ino
+  - rm -f $HOME/.arduino15/preferences.txt
+  - arduino --board esp32:esp32:esp32:PartitionScheme=min_spiffs,FlashFreq=80,PSRAM=disabled,CPUFreq=240,FlashMode=qio,FlashSize=4M,DebugLevel=none --pref compiler.warning_level=all --save-prefs
+  - build_sketch  $TRAVIS_BUILD_DIR/esp3d/esp3d.ino
+  - rm -fr $HOME/arduino_ide
+  - rm -fr $HOME/.arduino15
+  - platformio run
   
 notifications:
   email:
-    on_success: always
-    on_failure: always
+    on_success: change
+    on_failure: change
