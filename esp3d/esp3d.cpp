@@ -41,6 +41,7 @@
 #include "webinterface.h"
 #include "command.h"
 #ifdef ARDUINO_ARCH_ESP8266
+#include <FS.h>
 #include "ESP8266WiFi.h"
 #if defined (ASYNCWEBSERVER)
 #include <ESPAsyncTCP.h>
