@@ -26,6 +26,9 @@
 */
 #include "esp3d.h"
 #include <EEPROM.h>
+#ifdef ARDUINO_ARCH_ESP8266
+#include <FS.h>
+#endif
 #ifndef FS_NO_GLOBALS
 #define FS_NO_GLOBALS
 #endif
@@ -41,7 +44,6 @@
 #include "webinterface.h"
 #include "command.h"
 #ifdef ARDUINO_ARCH_ESP8266
-#include <FS.h>
 #include "ESP8266WiFi.h"
 #if defined (ASYNCWEBSERVER)
 #include <ESPAsyncTCP.h>
