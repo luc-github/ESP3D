@@ -9,17 +9,22 @@ function build_sketch()
     local auth=$5
     if [[ "$3" == "arduino" ]];
     then
+    echo "Setup for Arduino"
     rm -f $HOME/.arduino15/preferences.txt
     #be sure everything is enabled by default as reference
+    echo "Authentication is enabled"
     sed -i "s/\/\/#define AUTHENTICATION_FEATURE /#define AUTHENTICATION_FEATURE/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
-    sed -i "s/\/\/#define BLUETOOTH_FEATURE /#define AUTHENTICATION_FEATURE/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
+    echo "Bluetooth is enabled"
+    sed -i "s/\/\/#define BLUETOOTH_FEATURE /#define BLUETOOTH_FEATURE/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
     if [[ "$4" == "no" ]];
     then
-        sed -i "s/#define AUTHENTICATION_FEATURE /\/\/#define AUTHENTICATION_FEATURE/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
+        echo "Disable Bluetooth"
+        sed -i "s/#define BLUETOOTH_FEATURE /\/\/#define BLUETOOTH_FEATURE/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
     fi
     if [[ "$5" == "no" ]];
     then
-        sed -i "s/#define BLUETOOTH_FEATURE /\/\/#define BLUETOOTH_FEATURE/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
+        echo "Disable Authentication"
+        sed -i "s/#define AUTHENTICATION_FEATURE /\/\/#define AUTHENTICATION_FEATURE/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
     fi
     if [[ "$2" == "esp32" ]];
     then
