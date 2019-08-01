@@ -49,7 +49,7 @@ extern DHTesp dht;
 
 uint8_t CONFIG::FirmwareTarget = UNKNOWN_FW;
 byte CONFIG::output_flag = DEFAULT_OUTPUT_FLAG;
-
+bool  CONFIG::is_com_enabled = false;
 #ifdef DHT_FEATURE
 byte CONFIG::DHT_type  = DEFAULT_DHT_TYPE;
 int CONFIG::DHT_interval = DEFAULT_DHT_INTERVAL;
@@ -162,6 +162,21 @@ void CONFIG::InitDirectSD()
 
 }
 
+bool CONFIG::DisableSerial()
+{
+#ifdef USE_SERIAL_0
+Serial.end();
+#endif
+#ifdef USE_SERIAL_1
+Serial1.end();
+#endif
+#ifdef USE_SERIAL_2
+Serial2.end();
+#endif
+CONFIG::is_com_enabled = false;
+return true;
+}
+
 bool CONFIG::InitBaudrate(long value)
 {
     long baud_rate = 0;
@@ -214,6 +229,7 @@ bool CONFIG::InitBaudrate(long value)
 
     wifi_config.baud_rate = baud_rate;
     delay (100);
+    CONFIG::is_com_enabled = true;
     return true;
 }
 

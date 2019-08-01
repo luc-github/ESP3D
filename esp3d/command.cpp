@@ -1909,6 +1909,37 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
     case 810:
         web_interface->blockserial = false;
         break;
+    case 900:
+        parameter = get_param (cmd_params, "", true);
+#ifdef AUTHENTICATION_FEATURE
+        if (auth_type == LEVEL_GUEST) {
+            ESPCOM::println (INCORRECT_CMD_MSG, output, espresponse);
+            response = false;
+        }
+#endif
+        if (parameter.length() == 0) {
+            if (CONFIG::is_com_enabled) {
+                ESPCOM::print (F ("ENABLED"), output, espresponse);
+            } else {
+                ESPCOM::print (F ("DISABLED"), output, espresponse);
+            }
+        } else {
+            if (parameter == "ENABLE") {
+                CONFIG::DisableSerial();
+                 if (!CONFIG::InitBaudrate()){
+                     ESPCOM::print (F ("Cannot enable serial communication"), output, espresponse);
+                 } else {
+                     ESPCOM::print (F ("Enable serial communication"), output, espresponse);
+                 }
+            } else if (parameter == "DISABLE") {
+                ESPCOM::print (F ("Disable serial communication"), output, espresponse);
+                CONFIG::DisableSerial();
+            } else {
+                ESPCOM::println (INCORRECT_CMD_MSG, output, espresponse);
+                response = false;
+            }
+        }
+        break;
 
     default:
         ESPCOM::println (INCORRECT_CMD_MSG, output, espresponse);

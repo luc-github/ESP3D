@@ -19,7 +19,7 @@
 */
 
 //version and sources location
-#define FW_VERSION "2.1.0.b32"
+#define FW_VERSION "2.1.0.b33"
 #define REPOSITORY "https://github.com/luc-github/ESP3D"
 
 //Customize ESP3D ////////////////////////////////////////////////////////////////////////
@@ -530,6 +530,7 @@ public:
     static int DHT_interval;
     static void InitDHT(bool refresh = false);
 #endif
+    static bool is_com_enabled;
     static bool is_locked(byte flag);
     static bool is_direct_sd;
     static bool read_string (int pos, char byte_buffer[], int size_max);
@@ -548,6 +549,7 @@ public:
     static void InitDirectSD();
     static void InitPins();
     static bool InitBaudrate(long value = 0);
+    static bool DisableSerial();
     static bool InitExternalPorts();
     static uint8_t GetFirmwareTarget();
     static const char* GetFirmwareTargetName();

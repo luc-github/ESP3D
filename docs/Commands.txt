@@ -165,5 +165,8 @@ Get will give type and settings only not the protected T1/T2
 * Get fw target
 [ESP801]<header answer>
 
+* Get state / Set Enable / Disable Serial Communication
+[ESP900]<ENABLE/DISABLE>
+
 
 
