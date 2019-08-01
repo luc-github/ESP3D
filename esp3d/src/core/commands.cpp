@@ -436,12 +436,19 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
         break;
 #endif //FILESYSTEM_FEATURE
 
-    //get fw version firmare target and fw version
+    //Get fw version firmare target and fw version
     //output is JSON or plain text according parameter
     //[ESP800]<plain>
     case 800:
         response = ESP800(cmd_params, auth_type, output);
         break;
+        
+    //Get state / Set Enable / Disable Serial Communication
+    //[ESP900]<ENABLE/DISABLE>
+    case 900:
+        response = ESP900(cmd_params, auth_type, output);
+        break;
+
     default:
         output->printERROR ("Invalid Command");
         response = false;

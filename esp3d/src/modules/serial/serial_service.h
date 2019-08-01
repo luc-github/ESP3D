@@ -65,8 +65,12 @@ public:
     }
     int read();
     size_t readBytes (uint8_t * sbuf, size_t len);
-
+    inline bool started()
+    {
+        return _started;
+    }
 private:
+    bool _started;
     uint32_t _lastflush;
     uint8_t _buffer[ESP3D_SERIAL_BUFFER_SIZE + 1]; //keep space of 0x0 terminal
     size_t _buffer_size;

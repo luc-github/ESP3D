@@ -107,6 +107,7 @@ public:
     bool ESP720(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #endif //FILESYSTEM_FEATURE
     bool ESP800(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+    bool ESP900(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 };
 
 extern Commands esp3d_commands;

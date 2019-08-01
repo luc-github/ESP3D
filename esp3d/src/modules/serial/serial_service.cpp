@@ -45,6 +45,7 @@ const long SupportedBaudList[] = {9600, 19200, 38400, 57600, 74880, 115200, 2304
 SerialService::SerialService()
 {
     _buffer_size = 0;
+    _started = false;
 }
 
 //Destructor
@@ -76,6 +77,7 @@ bool SerialService::begin()
 #endif //ARDUINO_ARCH_ESP32
     }
     ESP3D_SERIAL.setRxBufferSize (SERIAL_RX_BUFFER_SIZE);
+    _started = true;
     return true;
 }
 //End serial
@@ -86,6 +88,7 @@ bool SerialService::end()
     swap();
     ESP3D_SERIAL.end();
     _buffer_size = 0;
+    _started = false;
     return true;
 }
 
