@@ -40,7 +40,7 @@ bool Commands::ESP900(const char* cmd_params, level_authenticate_type auth_type,
     parameter = get_param (cmd_params, "");
     //get
     if (parameter.length() == 0) {
-        if (serial_service.started()){
+        if (serial_service.started()) {
             output->printMSG("ENABLED");
         } else {
             output->printMSG("DISABLED");
@@ -57,8 +57,8 @@ bool Commands::ESP900(const char* cmd_params, level_authenticate_type auth_type,
             output->printMSG ("Serial communication disabled");
             serial_service.end();
         } else {
-                output->printERROR("Cannot enable serial communication!", 500);
-                response = false; 
+            output->printERROR("Cannot enable serial communication!", 500);
+            response = false;
         }
     }
     return response;

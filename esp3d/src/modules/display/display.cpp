@@ -127,11 +127,11 @@ bool Display::showStatus(bool force)
         refresh_status = true;
         status+=" ";
         //log_esp3d("current %s", status.c_str());
-        if (status_shift != -1){
+        if (status_shift != -1) {
             if( (uint16_t)(status_shift)> status.length()) {
-            status_shift = -1;
+                status_shift = -1;
             }
-         }
+        }
         //log_esp3d("shift %d", status_shift);
         if (status_shift > 0) {
             status.remove(0,status_shift);
