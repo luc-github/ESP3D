@@ -30,6 +30,9 @@
 #ifdef DHT_DEVICE
 #include "../dht/dht.h"
 #endif //DHT_DEVICE
+#ifdef BUZZER_DEVICE
+#include "../buzzer/buzzer.h"
+#endif //BUZZER_DEVICE
 #ifdef RECOVERY_FEATURE
 #include "../recovery/recovery_service.h"
 #endif //RECOVERY_FEATURE
@@ -60,6 +63,12 @@ bool DevicesServices::begin()
         res = false;
     }
 #endif //DHT_DEVICE
+#ifdef BUZZER_DEVICE
+    if (!esp3d_buzzer.begin()) {
+        log_esp3d("Error starting buzzer device");
+        res = false;
+    }
+#endif //BUZZER_DEVICE
 #ifdef RECOVERY_FEATURE
     if (!recovery_service.begin()) {
         log_esp3d("Error starting recorery service");
@@ -81,6 +90,9 @@ void DevicesServices::end()
 #ifdef RECOVERY_FEATURE
     recovery_service.end();
 #endif //RECOVERY_FEATURE
+#ifdef BUZZER_DEVICE
+    esp3d_buzzer.end();
+#endif //BUZZER_DEVICE
 #ifdef DISPLAY_DEVICE
     esp3d_display.end();
 #endif //DISPLAY_DEVICE
@@ -98,6 +110,9 @@ void DevicesServices::handle()
 #ifdef DHT_DEVICE
         esp3d_DHT.handle();
 #endif //DHT_DEVICE
+#ifdef BUZZER_DEVICE
+        esp3d_buzzer.handle();
+#endif //BUZZER_DEVICE
 #ifdef RECOVERY_FEATURE
         recovery_service.handle();
 #endif //RECOVERY_FEATURE

@@ -25,6 +25,9 @@
 #ifdef DHT_DEVICE
 #include "../../modules/dht/dht.h"
 #endif //DHT_DEVICE
+#ifdef BUZZER_DEVICE
+#include "../../modules/buzzer/buzzer.h"
+#endif //BUZZER_DEVICE
 //Set EEPROM setting
 //[ESP401]P=<position> T=<type> V=<value> pwd=<user/admin password>
 bool Commands::ESP401(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
@@ -66,6 +69,15 @@ bool Commands::ESP401(const char* cmd_params, level_authenticate_type auth_type,
                     esp3d_DHT.begin();
                     break;
 #endif //DHT_DEVICE
+#ifdef BUZZER_DEVICE
+                case ESP_BUZZER:
+                    if (sval.toInt() == 1) {
+                        esp3d_buzzer.begin();
+                    } else if (sval.toInt() == 0) {
+                        esp3d_buzzer.end();
+                    }
+                    break;
+#endif //BUZZER_DEVICE
                 default:
                     break;
                 }

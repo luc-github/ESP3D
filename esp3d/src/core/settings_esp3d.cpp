@@ -75,7 +75,9 @@
 #endif //ETH_FEATURE
 #endif //BLUETOOTH_FEATURE
 #endif //WIFI_FEATURE
-
+#ifdef BUZZER_DEVICE
+#define DEFAULT_BUZZER_STATE 1
+#endif //BUZZER_DEVICE
 
 #define DEFAULT_ESP_BYTE        0
 #define DEFAULT_ESP_STRING_SIZE 0
@@ -219,6 +221,11 @@ uint8_t Settings_ESP3D::get_default_byte_value(int pos)
     case ESP_RADIO_MODE:
         res = DEFAULT_ESP_RADIO_MODE;
         break;
+#ifdef BUZZER_DEVICE
+    case ESP_BUZZER:
+        res = DEFAULT_BUZZER_STATE;
+        break;
+#endif //BUZZER_DEVICE
 #ifdef NOTIFICATION_FEATURE
     case ESP_NOTIFICATION_TYPE:
         res = DEFAULT_NOTIFICATION_TYPE;
@@ -975,7 +982,10 @@ bool Settings_ESP3D::reset()
     Settings_ESP3D::write_uint32 (ESP_CALIBRATION_4, Settings_ESP3D::get_default_int32_value(ESP_CALIBRATION_4));
     Settings_ESP3D::write_uint32 (ESP_CALIBRATION_5, Settings_ESP3D::get_default_int32_value(ESP_CALIBRATION_5));
 #endif // DISPLAY_DEVICE && DISPLAY_TOUCH_DRIVER
-
+#ifdef BUZZER_DEVICE
+    //Buzzer state
+    Settings_ESP3D::write_byte(ESP_BUZZER,Settings_ESP3D::get_default_byte_value(ESP_BUZZER));
+#endif //BUZZER_DEVICE
 #if defined (WIFI_FEATURE) || defined (BLUETOOTH_FEATURE) || defined (ETH_FEATURE)
     //Hostname
     Settings_ESP3D::write_string(ESP_HOSTNAME,Settings_ESP3D::get_default_string_value(ESP_HOSTNAME).c_str());

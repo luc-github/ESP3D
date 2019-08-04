@@ -1,5 +1,5 @@
 /*
- ESP900.cpp - ESP3D command class
+ ESP910.cpp - ESP3D command class
 
  Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -22,10 +22,10 @@
 #include "../esp3doutput.h"
 #include "../settings_esp3d.h"
 #include "../../modules/authentication/authentication_service.h"
-#include "../../modules/serial/serial_service.h"
-//Get state / Set Enable / Disable Serial Communication
-//[ESP900]<ENABLE/DISABLE>[pwd=<admin password>]
-bool Commands::ESP900(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
+#include "../../modules/buzzer/buzzer.h"
+//Get state / Set Enable / Disable buzzer
+//[ESP910]<ENABLE/DISABLE>[pwd=<admin password>]
+bool Commands::ESP910(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
     bool response = true;
     String parameter;
@@ -40,22 +40,27 @@ bool Commands::ESP900(const char* cmd_params, level_authenticate_type auth_type,
     parameter = get_param (cmd_params, "");
     //get
     if (parameter.length() == 0) {
-        if (serial_service.started()) {
+        if (esp3d_buzzer.started()) {
             output->printMSG("ENABLED");
         } else {
             output->printMSG("DISABLED");
         }
     } else { //set
+        if (!Settings_ESP3D::write_byte (ESP_BUZZER, (parameter == "ENABLE")?1:0)) {
+            output->printERROR ("Set failed!");
+            response = false;
+        }
         if (parameter == "ENABLE" ) {
-            if (!serial_service.begin()) {
-                output->printMSG ("Serial communication enabled");
+
+            if (esp3d_buzzer.begin()) {
+                output->printMSG ("Buzzer enabled");
             } else {
-                output->printERROR("Cannot enable serial communication!", 500);
+                output->printERROR("Cannot enable buzzer!", 500);
                 response = false;
             }
         } else  if (parameter == "DISABLE" ) {
-            output->printMSG ("Serial communication disabled");
-            serial_service.end();
+            output->printMSG ("Buzzer disabled");
+            esp3d_buzzer.end();
         } else {
             output->printERROR("Incorrect command!");
             response = false;

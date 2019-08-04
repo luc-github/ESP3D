@@ -38,8 +38,9 @@ public:
     {
         return _started;
     }
-    void begin();
+    bool begin();
     void end();
+    void handle();
     tone_data * getNextTone();
     bool isPlaying();
     void waitWhilePlaying();
@@ -53,5 +54,5 @@ private:
     void no_tone();
 
 };
-extern BuzzerDevice buzzer;
+extern BuzzerDevice esp3d_buzzer;
 #endif //_BUZZER_H

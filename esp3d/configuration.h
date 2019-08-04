@@ -51,6 +51,10 @@
 //TFT_SPI_ILI9341_320X240 	3
 #define DISPLAY_DEVICE OLED_I2C_SSD1306
 
+//BUZZER_DEVICE: allow to connect passive buzzer
+#define BUZZER_DEVICE
+
+
 #if defined (DISPLAY_DEVICE)
 //for ILI9143 edit User_Setup.h of TFT_eSPI library
 #if (DISPLAY_DEVICE == OLED_I2C_SSD1306) || (DISPLAY_DEVICE == OLED_I2C_SSDSH1106)
@@ -71,6 +75,10 @@
 
 //DHT_DEVICE: send update of temperature / humidity based on DHT 11/22
 //#define DHT_DEVICE
+
+#ifdef BUZZER_DEVICE
+#define ESP3D_BUZZER_PIN 5
+#endif //BUZZER_DEVICE
 
 #ifdef DHT_DEVICE
 #define ESP3D_DHT_PIN 22

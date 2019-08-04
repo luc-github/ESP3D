@@ -76,6 +76,10 @@ Flash pins (6~11) cannot be used
 * Touch Calibration 
 [ESP215]<CALIBRATE>[pwd=<user password>]
 
+* Play sound  
+No parameter just play beep
+[ESP250]F=<frequency> D=<duration> [pwd=<user password>]
+
 * Get full EEPROM settings content
 but do not give any passwords
 [ESP400] pwd=<admin password>
@@ -95,7 +99,7 @@ ESP_BAUD_RATE           112     //4  bytes = int
 ESP_NOTIFICATION_TYPE   116     //1 byte = flag
 ESP_CALIBRATION         117     //1 byte = flag
 ESP_AP_CHANNEL          118     //1 byte = flag
-FREE                    119     //1 byte = flag
+ESP_BUZZER              119     //1 byte = flag 
 FREE                    120     //1 byte = flag
 ESP_HTTP_PORT           121     //4  bytes = int
 ESP_TELNET_PORT         125     //4  bytes = int
@@ -168,3 +172,9 @@ Get will give type and settings only, not the protected T1/T2
 
 * FW Informations
 [ESP800]<plain> pwd=<admin password>
+
+* Get state / Set Enable / Disable Serial Communication
+[ESP900]<ENABLE/DISABLE>[pwd=<admin/user password>]
+
+* Get state / Set Enable / Disable buzzer
+[ESP910]<ENABLE/DISABLE>[pwd=<admin/user password>]

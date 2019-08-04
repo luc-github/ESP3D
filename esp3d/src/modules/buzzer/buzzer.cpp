@@ -20,10 +20,11 @@
 
 #include "../../include/esp3d_config.h"
 
-#ifdef BUZZER_FEATURE
+#ifdef BUZZER_DEVICE
 #include <Ticker.h>
 #include "buzzer.h"
-BuzzerDevice buzzer;
+#include "../../core/settings_esp3d.h"
+BuzzerDevice esp3d_buzzer;
 Ticker buzzer_tick;
 #define BUZZER_CHANNEL   1
 #define BEEP_DURATION    200
@@ -34,11 +35,11 @@ extern void tone(uint8_t _pin, unsigned int frequency, unsigned long duration);
 
 void process()
 {
-    if (buzzer.started()) {
-        tone_data * current = buzzer.getNextTone();
+    if (esp3d_buzzer.started()) {
+        tone_data * current = esp3d_buzzer.getNextTone();
         if (current) {
 #if defined(ARDUINO_ARCH_ESP8266)
-            tone(BUZZER_PIN, (unsigned int)current->frequency, (unsigned long) current->duration);
+            tone(ESP3D_BUZZER_PIN, (unsigned int)current->frequency, (unsigned long) current->duration);
 #endif //ARDUINO_ARCH_ESP8266
 #if defined(ARDUINO_ARCH_ESP32)
             ledcWriteTone(BUZZER_CHANNEL, current->frequency);
@@ -52,23 +53,39 @@ BuzzerDevice::BuzzerDevice()
 {
     _head = nullptr;
     _tail = nullptr;
+    _started = false;
 }
 
-void BuzzerDevice::begin()
+bool BuzzerDevice::begin()
 {
-    _started = true;
+    if(_started) {
+        end();
+    }
+    if (Settings_ESP3D::read_byte(ESP_BUZZER) == 1) {
+        _started = true;
 #if defined(ARDUINO_ARCH_ESP32)
-    ledcAttachPin(BUZZER_PIN, BUZZER_CHANNEL);
+        ledcAttachPin(ESP3D_BUZZER_PIN, BUZZER_CHANNEL);
 #endif //ARDUINO_ARCH_ESP32
-
+    }
+    return _started;
 }
 void BuzzerDevice::end()
 {
+    if(!_started) {
+        return;
+    }
     purgeData();
-    no_tone();
+    //no_tone();
+    _started = false;
 #if defined(ARDUINO_ARCH_ESP32)
-    ledcDetachPin(BUZZER_PIN);
+    ledcDetachPin(ESP3D_BUZZER_PIN);
 #endif //ARDUINO_ARCH_ESP32
+}
+
+
+void BuzzerDevice::handle()
+{
+    //Nothing to do as handled by ticker
 }
 
 void BuzzerDevice::beep(int count, int delay, int frequency)
@@ -86,7 +103,7 @@ void BuzzerDevice::beep(int count, int delay, int frequency)
 void BuzzerDevice::no_tone()
 {
 #if defined(ARDUINO_ARCH_ESP8266)
-    tone(BUZZER_PIN, 0, 0);
+    tone(ESP3D_BUZZER_PIN, 0, 0);
 #endif //ARDUINO_ARCH_ESP8266
 #if defined(ARDUINO_ARCH_ESP32)
     ledcWrite(BUZZER_CHANNEL, 0);
@@ -169,4 +186,4 @@ void BuzzerDevice::playsound(int frequency, int duration)
     }
 }
 
-#endif //BUZZER_FEATURE
+#endif //BUZZER_DEVICE

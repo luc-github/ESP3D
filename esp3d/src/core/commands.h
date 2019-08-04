@@ -108,6 +108,10 @@ public:
 #endif //FILESYSTEM_FEATURE
     bool ESP800(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     bool ESP900(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+#ifdef BUZZER_DEVICE
+    bool ESP910(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+    bool ESP250(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+#endif //BUZZER_DEVICE
 };
 
 extern Commands esp3d_commands;

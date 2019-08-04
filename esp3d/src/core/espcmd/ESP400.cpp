@@ -385,6 +385,14 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (Settings_ESP3D::get_min_string_size(ESP_NOTIFICATION_SETTINGS));
     output->printLN ("\"}");
 #endif //NOTIFICATION_FEATURE
+#ifdef BUZZER_DEVICE
+    //Buzzer state
+    output->print (",{\"F\":\"printer\",\"P\":\"");
+    output->print (ESP_BUZZER);
+    output->print ("\",\"T\":\"B\",\"V\":\"");
+    output->print (Settings_ESP3D::read_byte(ESP_BUZZER));
+    output->printLN ("\",\"H\":\"Buzzer\",\"O\":[{\"No\":\"0\"},{\"Yes\":\"1\"}]}");
+#endif //BUZZER_DEVICE
     //Target FW
     output->print (",{\"F\":\"printer\",\"P\":\"");
     output->print (ESP_TARGET_FW);

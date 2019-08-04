@@ -366,6 +366,13 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
         response = ESP215(cmd_params, auth_type, output);
         break;
 #endif //DISPLAY_TOUCH_DRIVER
+#ifdef BUZZER_DEVICE
+    //Play sound
+    //[ESP250]F=<frequency> D=<duration> [pwd=<user password>]
+    case 250:
+        response = ESP250(cmd_params, auth_type, output);
+        break;
+#endif //BUZZER_DEVICE
 #endif //DISPLAY_DEVICE
     //Get full ESP3D settings
     //[ESP400]<pwd=admin>
@@ -448,7 +455,13 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
     case 900:
         response = ESP900(cmd_params, auth_type, output);
         break;
-
+#ifdef BUZZER_DEVICE
+    //Get state / Set Enable / Disable buzzer
+    //[ESP910]<ENABLE/DISABLE>
+    case 910:
+        response = ESP910(cmd_params, auth_type, output);
+        break;
+#endif //BUZZER_DEVICE
     default:
         output->printERROR ("Invalid Command");
         response = false;

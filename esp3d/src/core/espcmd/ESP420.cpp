@@ -56,6 +56,10 @@
 #ifdef NOTIFICATION_FEATURE
 #include "../../modules/notifications/notifications_service.h"
 #endif //NOTIFICATION_FEATURE
+#ifdef BUZZER_DEVICE
+#include "../../modules/buzzer/buzzer.h"
+#endif //BUZZER_DEVICE
+
 //Get ESP current status
 //output is JSON or plain text according parameter
 //[ESP420]<plain>
@@ -974,6 +978,21 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         output->printLN("");
     }
 #endif //TIMESTAMP_FEATURE
+    if (!plain) {
+        output->print (",{\"id\":\"");
+    }
+    output->print ("Serial communication");
+    if (!plain) {
+        output->print ("\",\"value\":\"");
+    } else {
+        output->print (": ");
+    }
+    output->print (serial_service.started()?"Enabled":"Disabled");
+    if (!plain) {
+        output->print ("\"}");
+    } else {
+        output->printLN("");
+    }
 #if defined (NOTIFICATION_FEATURE)
     if (!plain) {
         output->print (",{\"id\":\"");
@@ -1016,6 +1035,23 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         output->printLN("");
     }
 #endif //DHT_DEVICE
+#if defined (BUZZER_DEVICE)
+    if (!plain) {
+        output->print (",{\"id\":\"");
+    }
+    output->print ("Buzzer");
+    if (!plain) {
+        output->print ("\",\"value\":\"");
+    } else {
+        output->print (": ");
+    }
+    output->print (esp3d_buzzer.started()?"Enabled":"Disabled");
+    if (!plain) {
+        output->print ("\"}");
+    } else {
+        output->printLN("");
+    }
+#endif //BUZZER_DEVICE
 #if defined (ESP_DEBUG_FEATURE)
     //debug
     if (!plain) {

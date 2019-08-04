@@ -1,5 +1,5 @@
 /*
- ESP900.cpp - ESP3D command class
+ ESP250.cpp - ESP3D command class
 
  Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -18,14 +18,15 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "../../include/esp3d_config.h"
+#if defined (BUZZER_DEVICE)
 #include "../commands.h"
 #include "../esp3doutput.h"
 #include "../settings_esp3d.h"
 #include "../../modules/authentication/authentication_service.h"
-#include "../../modules/serial/serial_service.h"
-//Get state / Set Enable / Disable Serial Communication
-//[ESP900]<ENABLE/DISABLE>[pwd=<admin password>]
-bool Commands::ESP900(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
+#include "../../modules/buzzer/buzzer.h"
+//Play sound
+//[ESP250]F=<frequency> D=<duration> [pwd=<user password>]
+bool Commands::ESP250(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
     bool response = true;
     String parameter;
@@ -37,29 +38,33 @@ bool Commands::ESP900(const char* cmd_params, level_authenticate_type auth_type,
 #else
     (void)auth_type;
 #endif //AUTHENTICATION_FEATURE
+    if (!esp3d_buzzer.started()) {
+        output->printERROR ("Buzzer disabled");
+        return false;
+    }
     parameter = get_param (cmd_params, "");
     //get
     if (parameter.length() == 0) {
-        if (serial_service.started()) {
-            output->printMSG("ENABLED");
-        } else {
-            output->printMSG("DISABLED");
+        esp3d_buzzer.beep();
+    } else {
+        int f,d;
+        //frequency
+        parameter = get_param (cmd_params, "F=");
+        if (parameter.length() == 0) {
+            output->printERROR ("No frequency");
+            return false;
         }
-    } else { //set
-        if (parameter == "ENABLE" ) {
-            if (!serial_service.begin()) {
-                output->printMSG ("Serial communication enabled");
-            } else {
-                output->printERROR("Cannot enable serial communication!", 500);
-                response = false;
-            }
-        } else  if (parameter == "DISABLE" ) {
-            output->printMSG ("Serial communication disabled");
-            serial_service.end();
-        } else {
-            output->printERROR("Incorrect command!");
-            response = false;
+        f = parameter.toInt();
+        parameter = get_param (cmd_params, "D=");
+        if (parameter.length() == 0) {
+            output->printERROR ("No duration");
+            return false;
         }
+        d = parameter.toInt();
+        esp3d_buzzer.playsound(f,d);
     }
+    output->printMSG ("ok");
     return response;
 }
+
+#endif //BUZZER_DEVICE
