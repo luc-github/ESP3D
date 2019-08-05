@@ -80,6 +80,7 @@ void BuzzerDevice::end()
 #if defined(ARDUINO_ARCH_ESP32)
     ledcDetachPin(ESP3D_BUZZER_PIN);
 #endif //ARDUINO_ARCH_ESP32
+    no_tone();
 }
 
 
@@ -90,13 +91,15 @@ void BuzzerDevice::handle()
 
 void BuzzerDevice::beep(int count, int delay, int frequency)
 {
-    while (count > 0) {
-        playsound(frequency,BEEP_DURATION);
-        if (delay > 0 ) {
-            playsound(0,delay);
+    if (_started) {
+        while (count > 0) {
+            playsound(frequency,BEEP_DURATION);
+            if (delay > 0 ) {
+                playsound(0,delay);
+            }
+            waitWhilePlaying();
+            count--;
         }
-        waitWhilePlaying();
-        count--;
     }
 }
 
