@@ -144,7 +144,10 @@ size_t ESP_FileSystem::max_update_size()
 #if defined (ARDUINO_ARCH_ESP32)
     //Is OTA available ?
     if (esp_ota_get_running_partition()) {
-        flashsize = ESP.getFreeSketchSpace() + ESP.getSketchSize();
+        const esp_partition_t* partition = esp_ota_get_next_update_partition(NULL);
+        if (partition){
+            flashsize = partition->size;
+        }
     }  else {
         flashsize = 0;
     }
