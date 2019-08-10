@@ -36,17 +36,17 @@ function build_sketch()
         echo "setup for esp8266"
         arduino --board esp8266com:esp8266:generic:eesz=4M3M,xtal=160,FlashMode=dio,FlashFreq=40,sdk=nonosdk221,ip=lm2f,dbg=Disabled,vt=flash,exception=disabled,ssl=basic --save-prefs
     fi
-    if [[ "$6" == "SPIFFS" ]];
+    if [[ "$fs" == "SPIFFS" ]];
     then
         echo "Set Filesystem to SPIFFS"
-        sed -i "s/\/\/#define FILESYSTEM_FEATURE ESP_FAT_FILESYSTEM/#define FILESYSTEM_FEATURE ESP_SPIFFS_FILESYSTEM/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
-        sed -i "s/\/\/#define FILESYSTEM_FEATURE ESP_LITTLEFS_FILESYSTEM/#define FILESYSTEM_FEATURE ESP_SPIFFS_FILESYSTEM/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
+        sed -i "s/#define FILESYSTEM_FEATURE ESP_FAT_FILESYSTEM/#define FILESYSTEM_FEATURE ESP_SPIFFS_FILESYSTEM/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
+        sed -i "s/#define FILESYSTEM_FEATURE ESP_LITTLEFS_FILESYSTEM/#define FILESYSTEM_FEATURE ESP_SPIFFS_FILESYSTEM/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
     fi
-    if [[ "$6" == "FAT" ]];
+    if [[ "$fs" == "FAT" ]];
     then
         echo "Set Filesystem to FAT"
-        sed -i "s/\/\/#define FILESYSTEM_FEATURE ESP_SPIFFS_FILESYSTEM/#define FILESYSTEM_FEATURE ESP_FAT_FILESYSTEM/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
-        sed -i "s/\/\/#define FILESYSTEM_FEATURE ESP_LITTLEFS_FILESYSTEM/#define FILESYSTEM_FEATURE ESP_FAT_FILESYSTEM/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
+        sed -i "s/#define FILESYSTEM_FEATURE ESP_SPIFFS_FILESYSTEM/#define FILESYSTEM_FEATURE ESP_FAT_FILESYSTEM/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
+        sed -i "s/#define FILESYSTEM_FEATURE ESP_LITTLEFS_FILESYSTEM/#define FILESYSTEM_FEATURE ESP_FAT_FILESYSTEM/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
     fi
     echo "Display configuration"
     cat $TRAVIS_BUILD_DIR/esp3d/configuration.h
@@ -64,8 +64,8 @@ function build_sketch()
 	fi
     else
         echo "setup for platformIO"
-        sed -i "s/\/\/#define FILESYSTEM_FEATURE ESP_FAT_FILESYSTEM/#define FILESYSTEM_FEATURE ESP_SPIFFS_FILESYSTEM/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
-        sed -i "s/\/\/#define FILESYSTEM_FEATURE ESP_LITTLEFS_FILESYSTEM/#define FILESYSTEM_FEATURE ESP_SPIFFS_FILESYSTEM/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
+        sed -i "s/#define FILESYSTEM_FEATURE ESP_FAT_FILESYSTEM/#define FILESYSTEM_FEATURE ESP_SPIFFS_FILESYSTEM/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
+        sed -i "s/#define FILESYSTEM_FEATURE ESP_LITTLEFS_FILESYSTEM/#define FILESYSTEM_FEATURE ESP_SPIFFS_FILESYSTEM/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
         rm -fr $HOME/arduino_ide
         rm -fr $HOME/.arduino15
         platformio run

@@ -128,6 +128,7 @@ bool AuthenticationService::begin(Authwebserver * webserver)
 #if defined (HTTP_FEATURE)
     _webserver = webserver;
 #endif //HTTP_FEATURE
+    return true;
 }
 void AuthenticationService::end()
 {
