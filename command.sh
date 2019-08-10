@@ -7,7 +7,7 @@ function build_sketch()
     local ide=$3
     local bt=$4
     local auth=$5
-    local filessystem=$6
+    local fs=$6
     
     if [[ "$ide" == "arduino" ]];
     then
@@ -15,18 +15,18 @@ function build_sketch()
     rm -f $HOME/.arduino15/preferences.txt
     #be sure everything is enabled by default as reference
     echo "Authentication is enabled"
-    sed -i "s/\/\/#define AUTHENTICATION_FEATURE /#define AUTHENTICATION_FEATURE/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
+    sed -i "s/\/\/#define AUTHENTICATION_FEATURE/#define AUTHENTICATION_FEATURE/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
     echo "Bluetooth is enabled"
-    sed -i "s/\/\/#define BLUETOOTH_FEATURE /#define BLUETOOTH_FEATURE/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
+    sed -i "s/\/\/#define BLUETOOTH_FEATURE/#define BLUETOOTH_FEATURE/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
     if [[ "$bt" == "no" ]];
     then
         echo "Disable Bluetooth"
-        sed -i "s/#define BLUETOOTH_FEATURE /\/\/#define BLUETOOTH_FEATURE/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
+        sed -i "s/#define BLUETOOTH_FEATURE/\/\/#define BLUETOOTH_FEATURE/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
     fi
     if [[ "$auth" == "no" ]];
     then
         echo "Disable Authentication"
-        sed -i "s/#define AUTHENTICATION_FEATURE /\/\/#define AUTHENTICATION_FEATURE/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
+        sed -i "s/#define AUTHENTICATION_FEATURE/\/\/#define AUTHENTICATION_FEATURE/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
     fi
     if [[ "$target" == "esp32" ]];
     then
@@ -36,13 +36,13 @@ function build_sketch()
         echo "setup for esp8266"
         arduino --board esp8266com:esp8266:generic:eesz=4M3M,xtal=160,FlashMode=dio,FlashFreq=40,sdk=nonosdk221,ip=lm2f,dbg=Disabled,vt=flash,exception=disabled,ssl=basic --save-prefs
     fi
-    if [[ "$filessystem" == "SPIFFS" ]];
+    if [[ "$6" == "SPIFFS" ]];
     then
         echo "Set Filesystem to SPIFFS"
         sed -i "s/\/\/#define FILESYSTEM_FEATURE ESP_FAT_FILESYSTEM/#define FILESYSTEM_FEATURE ESP_SPIFFS_FILESYSTEM/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
         sed -i "s/\/\/#define FILESYSTEM_FEATURE ESP_LITTLEFS_FILESYSTEM/#define FILESYSTEM_FEATURE ESP_SPIFFS_FILESYSTEM/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
     fi
-    if [[ "$filessystem" == "FAT" ]];
+    if [[ "$6" == "FAT" ]];
     then
         echo "Set Filesystem to FAT"
         sed -i "s/\/\/#define FILESYSTEM_FEATURE ESP_SPIFFS_FILESYSTEM/#define FILESYSTEM_FEATURE ESP_FAT_FILESYSTEM/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h

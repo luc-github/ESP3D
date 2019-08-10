@@ -51,7 +51,7 @@ before_script:
   - export PATH="$HOME/arduino_ide:$PATH"
     
 script:
-  - build_sketch  $TRAVIS_BUILD_DIR/esp3d/esp3d.ino $TARGET $PLATFORM $BT $AUTHENTICATION
+  - build_sketch  $TRAVIS_BUILD_DIR/esp3d/esp3d.ino $TARGET $PLATFORM $BT $AUTHENTICATION $FILESYSTEM
 
 notifications:
   email:
