@@ -38,14 +38,18 @@ function build_sketch()
     fi
     if [[ "$filessystem" == "SPIFFS" ]];
     then
+        echo "Set Filesystem to SPIFFS"
         sed -i "s/\/\/#define FILESYSTEM_FEATURE ESP_FAT_FILESYSTEM/#define FILESYSTEM_FEATURE ESP_SPIFFS_FILESYSTEM/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
         sed -i "s/\/\/#define FILESYSTEM_FEATURE ESP_LITTLEFS_FILESYSTEM/#define FILESYSTEM_FEATURE ESP_SPIFFS_FILESYSTEM/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
     fi
     if [[ "$filessystem" == "FAT" ]];
     then
+        echo "Set Filesystem to FAT"
         sed -i "s/\/\/#define FILESYSTEM_FEATURE ESP_SPIFFS_FILESYSTEM/#define FILESYSTEM_FEATURE ESP_FAT_FILESYSTEM/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
         sed -i "s/\/\/#define FILESYSTEM_FEATURE ESP_LITTLEFS_FILESYSTEM/#define FILESYSTEM_FEATURE ESP_FAT_FILESYSTEM/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
     fi
+    echo "Display configuration"
+    cat $TRAVIS_BUILD_DIR/esp3d/configuration.h
 	# build sketch with arduino ide
 	echo -e "\n Build $sketch \n"
 	arduino --verbose --verify $sketch
