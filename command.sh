@@ -7,7 +7,9 @@ function build_sketch()
     local ide=$3
     local bt=$4
     local auth=$5
-    if [[ "$3" == "arduino" ]];
+    local filessystem=$6
+    
+    if [[ "$ide" == "arduino" ]];
     then
     echo "Setup for Arduino"
     rm -f $HOME/.arduino15/preferences.txt
@@ -16,23 +18,33 @@ function build_sketch()
     sed -i "s/\/\/#define AUTHENTICATION_FEATURE /#define AUTHENTICATION_FEATURE/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
     echo "Bluetooth is enabled"
     sed -i "s/\/\/#define BLUETOOTH_FEATURE /#define BLUETOOTH_FEATURE/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
-    if [[ "$4" == "no" ]];
+    if [[ "$bt" == "no" ]];
     then
         echo "Disable Bluetooth"
         sed -i "s/#define BLUETOOTH_FEATURE /\/\/#define BLUETOOTH_FEATURE/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
     fi
-    if [[ "$5" == "no" ]];
+    if [[ "$auth" == "no" ]];
     then
         echo "Disable Authentication"
         sed -i "s/#define AUTHENTICATION_FEATURE /\/\/#define AUTHENTICATION_FEATURE/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
     fi
-    if [[ "$2" == "esp32" ]];
+    if [[ "$target" == "esp32" ]];
     then
         echo "setup for esp32"
         arduino --board esp32:esp32:esp32:PartitionScheme=min_spiffs,FlashFreq=80,PSRAM=disabled,CPUFreq=240,FlashMode=qio,FlashSize=4M,DebugLevel=none --pref compiler.warning_level=all --save-prefs
     else
         echo "setup for esp8266"
         arduino --board esp8266com:esp8266:generic:eesz=4M3M,xtal=160,FlashMode=dio,FlashFreq=40,sdk=nonosdk221,ip=lm2f,dbg=Disabled,vt=flash,exception=disabled,ssl=basic --save-prefs
+    fi
+    if [[ "$filessystem" == "SPIFFS" ]];
+    then
+        sed -i "s/\/\/#define FILESYSTEM_FEATURE ESP_FAT_FILESYSTEM/#define FILESYSTEM_FEATURE ESP_SPIFFS_FILESYSTEM/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
+        sed -i "s/\/\/#define FILESYSTEM_FEATURE ESP_LITTLEFS_FILESYSTEM/#define FILESYSTEM_FEATURE ESP_SPIFFS_FILESYSTEM/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
+    fi
+    if [[ "$filessystem" == "FAT" ]];
+    then
+        sed -i "s/\/\/#define FILESYSTEM_FEATURE ESP_SPIFFS_FILESYSTEM/#define FILESYSTEM_FEATURE ESP_FAT_FILESYSTEM/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
+        sed -i "s/\/\/#define FILESYSTEM_FEATURE ESP_LITTLEFS_FILESYSTEM/#define FILESYSTEM_FEATURE ESP_FAT_FILESYSTEM/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
     fi
 	# build sketch with arduino ide
 	echo -e "\n Build $sketch \n"
@@ -48,6 +60,8 @@ function build_sketch()
 	fi
     else
         echo "setup for platformIO"
+        sed -i "s/\/\/#define FILESYSTEM_FEATURE ESP_FAT_FILESYSTEM/#define FILESYSTEM_FEATURE ESP_SPIFFS_FILESYSTEM/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
+        sed -i "s/\/\/#define FILESYSTEM_FEATURE ESP_LITTLEFS_FILESYSTEM/#define FILESYSTEM_FEATURE ESP_SPIFFS_FILESYSTEM/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
         rm -fr $HOME/arduino_ide
         rm -fr $HOME/.arduino15
         platformio run
