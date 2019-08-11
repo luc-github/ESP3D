@@ -44,6 +44,13 @@
 #define TFT_SPI_ILI9341_320X240 3
 #define TFT_SPI_ILI9488_480X320 4
 
+//UI type for display
+#define UI_TYPE_BASIC      1
+#define UI_TYPE_ADVANCED   2
+#define UI_COLORED         1
+#define UI_MONOCHROME      2
+
+
 //Touch
 #define XPT2046_SPI		1
 

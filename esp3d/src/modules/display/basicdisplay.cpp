@@ -1,5 +1,5 @@
 /*
-  display.cpp -  display functions class
+  advanceddisplay.cpp -  display functions class
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -19,8 +19,9 @@
 */
 
 #include "../../include/esp3d_config.h"
-#if defined (DISPLAY_DEVICE)
-#include "display.h"
+#if defined (DISPLAY_DEVICE) && (DISPLAY_UI_TYPE == UI_TYPE_BASIC)
+
+#include "basicdisplay.h"
 #include "../../core/settings_esp3d.h"
 #include "../../core/esp3doutput.h"
 
@@ -30,12 +31,12 @@
 #if DISPLAY_DEVICE == OLED_I2C_SSD1306
 #include <SSD1306Wire.h>
 SSD1306Wire  esp3d_screen(DISPLAY_I2C_ADDR, DISPLAY_I2C_PIN_SDA, DISPLAY_I2C_PIN_SCL);
-#include "OLED_SSD1306.h"
+#include "basic_SSD1306.h"
 #endif //DISPLAY_DEVICE == OLED_I2C_SSD1306
 #if DISPLAY_DEVICE == OLED_I2C_SSDSH1106
 #include <SH1106Wire.h>
 SH1106Wire  esp3d_screen(DISPLAY_I2C_ADDR, (DISPLAY_I2C_PIN_SDA==-1)?SDA:DISPLAY_I2C_PIN_SDA, (DISPLAY_I2C_PIN_SCL==-1)?SCL:DISPLAY_I2C_PIN_SCL);
-#include "OLED_SSDSH1106.h"
+#include "basic_SSDSH1106.h"
 #endif //DISPLAY_DEVICE == OLED_I2C_SSDSH1106
 #endif //DISPLAY_DEVICE == OLED_I2C_SSD1306 || DISPLAY_DEVICE == OLED_I2C_SSDSH1106
 #if (DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240) || (DISPLAY_DEVICE == TFT_SPI_ILI9488_480X320)
@@ -43,10 +44,10 @@ SH1106Wire  esp3d_screen(DISPLAY_I2C_ADDR, (DISPLAY_I2C_PIN_SDA==-1)?SDA:DISPLAY
 TFT_eSPI esp3d_screen = TFT_eSPI();
 #include "esp3d_logob.h"
 #if (DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240)
-#include "TFT_ILI9341_320X240.h"
+#include "basic_ILI9341_320X240.h"
 #endif //(DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240)
 #if (DISPLAY_DEVICE == TFT_SPI_ILI9488_480X320)
-#include "TFT_ILI9488_480X320.h"
+#include "basic_ILI9488_480X320.h"
 #endif //(DISPLAY_DEVICE == TFT_SPI_ILI9488_480X320)
 #endif //(DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240) || (DISPLAY_DEVICE == TFT_SPI_ILI9488_480X320)
 #if defined (WIFI_FEATURE)
@@ -63,7 +64,6 @@ TFT_eSPI esp3d_screen = TFT_eSPI();
 #endif //WIFI_FEATURE || ETH_FEATURE) ||BLUETOOTH_FEATURE
 #define DISPLAY_REFRESH_TIME 1000
 
-Display esp3d_display;
 
 bool Display::startCalibration()
 {
@@ -98,6 +98,8 @@ bool Display::startCalibration()
 #endif //DISPLAY_TOUCH_DRIVER
     return res;
 }
+
+Display esp3d_display;
 
 bool Display::splash()
 {
