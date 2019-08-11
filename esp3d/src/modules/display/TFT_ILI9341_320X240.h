@@ -1,5 +1,5 @@
 /*
-  OLED_SSD1306.h - ESP3D display data file
+  TFT_ILI9341_320X240.h - ESP3D display data file
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 

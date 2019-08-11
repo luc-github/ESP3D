@@ -38,12 +38,17 @@ SH1106Wire  esp3d_screen(DISPLAY_I2C_ADDR, (DISPLAY_I2C_PIN_SDA==-1)?SDA:DISPLAY
 #include "OLED_SSDSH1106.h"
 #endif //DISPLAY_DEVICE == OLED_I2C_SSDSH1106
 #endif //DISPLAY_DEVICE == OLED_I2C_SSD1306 || DISPLAY_DEVICE == OLED_I2C_SSDSH1106
-#if DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240
+#if (DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240) || (DISPLAY_DEVICE == TFT_SPI_ILI9488_480X320)
 #include <TFT_eSPI.h>
 TFT_eSPI esp3d_screen = TFT_eSPI();
 #include "esp3d_logob.h"
-#include "TFT_ILI9341_240X320.h"
-#endif //TFT_SPI_ILI9341_240X320
+#if (DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240)
+#include "TFT_ILI9341_320X240.h"
+#endif //(DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240)
+#if (DISPLAY_DEVICE == TFT_SPI_ILI9488_480X320)
+#include "TFT_ILI9488_480X320.h"
+#endif //(DISPLAY_DEVICE == TFT_SPI_ILI9488_480X320)
+#endif //(DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240) || (DISPLAY_DEVICE == TFT_SPI_ILI9488_480X320)
 #if defined (WIFI_FEATURE)
 #include "../wifi/wificonfig.h"
 #endif // WIFI_FEATURE
@@ -492,7 +497,7 @@ bool Display::begin()
     esp3d_screen.flipScreenVertically();
 #endif
 #endif //DISPLAY_DEVICE == OLED_I2C_SSD1306 || DISPLAY_DEVICE == OLED_I2C_SSDSH1106
-#if DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240
+#if (DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240) || (DISPLAY_DEVICE == TFT_SPI_ILI9488_480X320)
     esp3d_screen.begin();               // Initialise the display
 #if defined(DISPLAY_FLIP_VERTICALY)
     esp3d_screen.setRotation(3);
@@ -500,7 +505,7 @@ bool Display::begin()
     esp3d_screen.setRotation(1);
 #endif
     esp3d_screen.fillScreen(SCREEN_BG); // Black screen fill
-#endif //TFT_SPI_ILI9341_320X240 
+#endif //(DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240) || (DISPLAY_DEVICE == TFT_SPI_ILI9488_480X320) 
     show_screenID(SPLASH_SCREEN);
     update_screen();
 #if defined(DISPLAY_TOUCH_DRIVER)
@@ -543,10 +548,10 @@ void Display::clear_screen()
 #if DISPLAY_DEVICE == OLED_I2C_SSD1306 || DISPLAY_DEVICE == OLED_I2C_SSDSH1106
     esp3d_screen.clear();
 #endif //#if DISPLAY_DEVICE == OLED_I2C_SSD1306 || DISPLAY_DEVICE == OLED_I2C_SSDSH1106
-#if DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240
+#if (DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240) || (DISPLAY_DEVICE == TFT_SPI_ILI9488_480X320)
     //log_esp3d("Fill black");
     esp3d_screen.fillScreen(SCREEN_BG); // Black screen fill
-#endif //TFT_SPI_ILI9341_240X320
+#endif //(DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240) || (DISPLAY_DEVICE == TFT_SPI_ILI9488_480X320)
 }
 
 void Display::update_screen(bool force)
@@ -601,9 +606,9 @@ void Display::drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t c
     esp3d_screen.setColor((color == TFT_BLACK)?BLACK:WHITE);
     esp3d_screen.drawLine(x0, y0, x1, y1);
 #endif //#if DISPLAY_DEVICE == OLED_I2C_SSD1306 || DISPLAY_DEVICE == OLED_I2C_SSDSH1106
-#if DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240
+#if (DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240) || (DISPLAY_DEVICE == TFT_SPI_ILI9488_480X320)
     esp3d_screen.drawLine(x0, y0, x1, y1, color);
-#endif //TFT_SPI_ILI9341_240X320
+#endif (DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240) || (DISPLAY_DEVICE == TFT_SPI_ILI9488_480X320)
 }
 
 // Draw the border of a rectangle at the given location
@@ -616,9 +621,9 @@ void Display::drawRect(int16_t x, int16_t y, int16_t width, int16_t height, int1
     esp3d_screen.setColor((color == TFT_BLACK)?BLACK:WHITE);
     esp3d_screen.drawRect(x, y, width, height);
 #endif //#if DISPLAY_DEVICE == OLED_I2C_SSD1306 || DISPLAY_DEVICE == OLED_I2C_SSDSH1106
-#if DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240
+#if (DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240) || (DISPLAY_DEVICE == TFT_SPI_ILI9488_480X320)
     esp3d_screen.drawRect(x, y, width, height, color);
-#endif //TFT_SPI_ILI9341_240X320
+#endif //(DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240) || (DISPLAY_DEVICE == TFT_SPI_ILI9488_480X320)
 }
 
 // Fill the rectangle
@@ -631,9 +636,9 @@ void Display::fillRect(int16_t x, int16_t y, int16_t width, int16_t height, int1
     esp3d_screen.setColor((color == TFT_BLACK)?BLACK:WHITE);
     esp3d_screen.fillRect(x, y, width, height);
 #endif //#if DISPLAY_DEVICE == OLED_I2C_SSD1306 || DISPLAY_DEVICE == OLED_I2C_SSDSH1106
-#if DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240
+#if (DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240) || (DISPLAY_DEVICE == TFT_SPI_ILI9488_480X320)
     esp3d_screen.fillRect(x, y, width, height, color);
-#endif //TFT_SPI_ILI9341_240X320
+#endif //(DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240) || (DISPLAY_DEVICE == TFT_SPI_ILI9488_480X320)
 }
 
 void Display::setTextFont(uint8_t font)
@@ -648,9 +653,9 @@ void Display::setTextFont(uint8_t font)
         esp3d_screen.setFont(ArialMT_Plain_10);
     }
 #endif //#if DISPLAY_DEVICE == OLED_I2C_SSD1306 || DISPLAY_DEVICE == OLED_I2C_SSDSH1106
-#if DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240
+#if (DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240) || (DISPLAY_DEVICE == TFT_SPI_ILI9488_480X320)
     esp3d_screen.setTextFont(font);
-#endif //TFT_SPI_ILI9341_240X320
+#endif //(DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240) || (DISPLAY_DEVICE == TFT_SPI_ILI9488_480X320)
 }
 
 void Display::drawString(const char *string, int32_t poX, int32_t poY, int16_t color)
@@ -662,10 +667,10 @@ void Display::drawString(const char *string, int32_t poX, int32_t poY, int16_t c
     esp3d_screen.setColor((color == TFT_BLACK)?BLACK:WHITE);
     esp3d_screen.drawString(poX, poY, string);
 #endif //#if DISPLAY_DEVICE == OLED_I2C_SSD1306 || DISPLAY_DEVICE == OLED_I2C_SSDSH1106
-#if DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240
+#if (DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240) || (DISPLAY_DEVICE == TFT_SPI_ILI9488_480X320)
     esp3d_screen.setTextColor(color);
     esp3d_screen.drawString(string, poX, poY);
-#endif //TFT_SPI_ILI9341_240X320
+#endif //(DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240) || (DISPLAY_DEVICE == TFT_SPI_ILI9488_480X320)
 }
 
 // Draw a XBM
@@ -678,9 +683,9 @@ void Display::drawXbm(int16_t x, int16_t y, int16_t width, int16_t height, int16
     (void)color;
     esp3d_screen.drawXbm(x, y, width, height, xbm);
 #endif //#if DISPLAY_DEVICE == OLED_I2C_SSD1306 || DISPLAY_DEVICE == OLED_I2C_SSDSH1106
-#if DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240
+#if (DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240) || (DISPLAY_DEVICE == TFT_SPI_ILI9488_480X320)
     esp3d_screen.drawXBitmap(x, y, xbm, width, height,color);
-#endif //TFT_SPI_ILI9341_240X320
+#endif //(DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240) || (DISPLAY_DEVICE == TFT_SPI_ILI9488_480X320)
 }
 
 void Display::drawXbm(int16_t x, int16_t y, int16_t width, int16_t height, uint16_t fgcolor, uint16_t bgcolor, const uint8_t *xbm)
@@ -693,9 +698,9 @@ void Display::drawXbm(int16_t x, int16_t y, int16_t width, int16_t height, uint1
     (void)bgcolor;
     esp3d_screen.drawXbm(x, y, width, height, xbm);
 #endif //#if DISPLAY_DEVICE == OLED_I2C_SSD1306 || DISPLAY_DEVICE == OLED_I2C_SSDSH1106
-#if DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240
+#if (DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240) || (DISPLAY_DEVICE == TFT_SPI_ILI9488_480X320)
     esp3d_screen.drawXBitmap(x, y, xbm, width, height, fgcolor, bgcolor);
-#endif //TFT_SPI_ILI9341_240X320
+#endif //(DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240) || (DISPLAY_DEVICE == TFT_SPI_ILI9488_480X320)
 }
 
 uint16_t Display::getStringWidth(const char* text)
@@ -703,9 +708,9 @@ uint16_t Display::getStringWidth(const char* text)
 #if DISPLAY_DEVICE == OLED_I2C_SSD1306 || DISPLAY_DEVICE == OLED_I2C_SSDSH1106
     return  esp3d_screen.getStringWidth(text, strlen(text));
 #endif //#if DISPLAY_DEVICE == OLED_I2C_SSD1306 || DISPLAY_DEVICE == OLED_I2C_SSDSH1106
-#if DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240
+#if (DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240) || (DISPLAY_DEVICE == TFT_SPI_ILI9488_480X320)
     return esp3d_screen.textWidth(text);
-#endif //TFT_SPI_ILI9341_240X320
+#endif //(DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240) || (DISPLAY_DEVICE == TFT_SPI_ILI9488_480X320)
 }
 
 void Display::progress(uint8_t v)

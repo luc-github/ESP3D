@@ -42,6 +42,7 @@
 #define OLED_I2C_SSD1306    	1
 #define OLED_I2C_SSDSH1106  	2
 #define TFT_SPI_ILI9341_320X240 3
+#define TFT_SPI_ILI9488_480X320 4
 
 //Touch
 #define XPT2046_SPI		1
