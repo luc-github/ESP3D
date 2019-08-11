@@ -498,6 +498,10 @@ bool Display::begin()
 #endif
 #endif //DISPLAY_DEVICE == OLED_I2C_SSD1306 || DISPLAY_DEVICE == OLED_I2C_SSDSH1106
 #if (DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240) || (DISPLAY_DEVICE == TFT_SPI_ILI9488_480X320)
+#if defined (DISPLAY_LED_PIN) && (DISPLAY_LED_PIN!=-1)
+    pinMode(DISPLAY_LED_PIN, OUTPUT);    // sets the digital pin 13 as output
+    digitalWrite(DISPLAY_LED_PIN, HIGH);
+#endif //DISPLAY_LED_PIN
     esp3d_screen.begin();               // Initialise the display
 #if defined(DISPLAY_FLIP_VERTICALY)
     esp3d_screen.setRotation(3);
