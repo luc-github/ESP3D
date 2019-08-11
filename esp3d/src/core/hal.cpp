@@ -77,6 +77,38 @@ void Hal::pinMode(uint8_t pin, uint8_t mode)
     pinMode(pin, mode);
 }
 
+void Hal::toneESP(uint8_t pin, unsigned int frequency, unsigned int duration, bool sync)
+{
+#if defined(ARDUINO_ARCH_ESP8266)
+    (void) sync; //useless for esp8266
+    tone(pin, frequency, duration);
+#endif //ARDUINO_ARCH_ESP8266
+#if defined(ARDUINO_ARCH_ESP32)
+        int channel = getAnalogWriteChannel(pin);
+        if (channel  != -1){
+            ledcAttachPin(pin, channel);
+            ledcWriteTone(channel,frequency);
+            if (sync) {
+                wait(duration);
+                ledcWriteTone(pin,0);
+            }
+        }
+        
+#endif //ARDUINO_ARCH_ESP32
+}
+void Hal::no_tone(uint8_t pin)
+{
+#if defined(ARDUINO_ARCH_ESP8266)
+    tone(pin, 0, 0);
+#endif //ARDUINO_ARCH_ESP8266
+#if defined(ARDUINO_ARCH_ESP32)
+    int channel = getAnalogWriteChannel(pin);
+    if (channel  != -1){
+        ledcWrite(channel, 0);
+    }
+#endif //ARDUINO_ARCH_ESP32
+}
+
 int Hal::analogRead(uint8_t pin)
 {
 #ifdef ARDUINO_ARCH_ESP8266 //only one ADC on ESP8266 A0
@@ -87,7 +119,26 @@ int Hal::analogRead(uint8_t pin)
 #endif
 }
 
-bool  Hal::analogWrite(uint8_t pin, uint value)
+#if defined(ARDUINO_ARCH_ESP32)
+int Hal::getAnalogWriteChannel(uint8_t pin)
+{
+    for (uint8_t p = 0; p < 16; p++) {
+        if(ChannelAttached2Pin[p] == pin) {
+            return p;
+        }
+    }
+    for (uint8_t p = 0; p < 16; p++) {
+        if(ChannelAttached2Pin[p] == -1) {
+            ChannelAttached2Pin[p] = pin;
+           return p;
+        }
+    }
+    
+    return -1;
+}
+#endif //ARDUINO_ARCH_ESP32
+
+bool Hal::analogWrite(uint8_t pin, uint value)
 {
     if (value > (_analogWriteRange-1)) {
         return false;
@@ -96,21 +147,7 @@ bool  Hal::analogWrite(uint8_t pin, uint value)
     analogWrite(pin, value);
 #endif //ARDUINO_ARCH_ESP8266
 #ifdef ARDUINO_ARCH_ESP32
-    int channel  = -1;
-    for (uint8_t p = 0; p < 16; p++) {
-        if(ChannelAttached2Pin[p] == pin) {
-            channel = p;
-        }
-    }
-    if (channel==-1) {
-        for (uint8_t p = 0; p < 16; p++) {
-            if(ChannelAttached2Pin[p] == -1) {
-                channel = p;
-                ChannelAttached2Pin[p] = pin;
-                p  = 16;
-            }
-        }
-    }
+    int channel  = getAnalogWriteChannel(pin);
     if (channel==-1) {
         return false;
     }
@@ -133,7 +170,6 @@ bool  Hal::analogWrite(uint8_t pin, uint value)
         _analogWriteRange = 255;
         break;
     }
-
     ledcSetup(channel, _analogWriteFreq, resolution);
     ledcAttachPin(pin, channel);
     ledcWrite(channel, value);
@@ -170,6 +206,9 @@ bool Hal::begin()
 //End ESP3D
 void Hal::end()
 {
+#if defined(ARDUINO_ARCH_ESP32)
+    clearAnalogChannels();
+#endif //ARDUINO_ARCH_ESP32
 }
 
 //Watchdog feeder
