@@ -238,7 +238,7 @@ bool Display::display_network_status(bool force)
         }
         //display connection speed
         if(ETH.linkUp()) {
-            String tmp = ETH.linkSpeed();
+            String tmp = String(ETH.linkSpeed());
             tmp+= "Mbps";
             if (label != tmp) {
                 label = tmp;
@@ -269,8 +269,6 @@ bool Display::display_network_status(bool force)
             label = bt_service.hostname();
         }
         if( refresh_label || force) {
-            //clear area
-            fillRect(SSID_AREA_X, SSID_AREA_Y, SSID_AREA_W, SSID_AREA_H, SCREEN_BG);
             if (label.length()>0) {
                 lv_label_set_text(esp_lv_network_label, label.c_str());
             }

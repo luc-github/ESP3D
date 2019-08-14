@@ -26,9 +26,9 @@
 #endif //ARDUINO_ARCH_ESP32
 #ifdef ARDUINO_ARCH_ESP8266
 #endif //ARDUINO_ARCH_ESP8266
-#include "esp3doutput.h"
-#include "settings_esp3d.h"
-#include "netconfig.h"
+#include "../../core/esp3doutput.h"
+#include "../../core/settings_esp3d.h"
+#include "../network/netconfig.h"
 #include "ethconfig.h"
 bool EthConfig::_started = false;
 const uint8_t DEFAULT_AP_MASK_VALUE[]  =      {255, 255, 255, 0};
