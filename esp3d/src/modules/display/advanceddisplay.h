@@ -18,9 +18,9 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#define SPLASH_SCREEN       0
-#define MAIN_SCREEN         1
-#define CALIBRATION_SCREEN	2
+#define SPLASH_SCREEN        0
+#define CALIBRATION_SCREEN	 1
+#define MAIN_SCREEN          2
 
 #ifndef _ADVANCEDDISPLAY_H
 #define _ADVANCEDDISPLAY_H
@@ -34,6 +34,8 @@ public:
     bool begin();
     void end();
     void handle();
+    bool display_IP(bool force = false);
+    bool display_network_status(bool force = false);
     void show_screenID(uint8_t screenID);
     void update_screen(bool force=false);
     void clear_screen();
@@ -41,18 +43,14 @@ public:
     void SetStatus(const char * status);
     bool startCalibration();
 private:
-    bool splash();
-    bool showStatus(bool force = false);
     bool _started;
     uint8_t _screenID;
-    bool _splash_displayed;
     uint _screenwidth;
     uint _screenheight;
     String _status;
 };
 
 extern Display esp3d_display;
-extern void display_progress(uint8_t v);
 
 #endif //_ADVANCEDDISPLAY_H
 

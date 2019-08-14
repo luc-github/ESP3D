@@ -30,13 +30,12 @@ class BootDelay
 public:
     BootDelay();
     ~BootDelay();
-    bool begin(progress_t* fn = nullptr);
+    bool begin();
     void end();
     void handle();
     bool started();
 private:
     bool _started;
-    progress_t * _callbackfn;
     uint32_t _startdelay;
     uint32_t _totalduration;
 };

@@ -20,51 +20,8 @@
 //Screen size
 #define SCREEN_WIDTH	320
 #define SCREEN_HEIGHT	240
-
-//Colors
-#define SPLASH_FG	TFT_BLACK
-#define SPLASH_BG	TFT_WHITE
 #define SCREEN_BG	TFT_BLACK
-#define PROGRESS_FG	TFT_WHITE
-#define SIGNAL_FG	TFT_WHITE
-#define SSID_FG	TFT_WHITE
-#define IP_FG	TFT_WHITE
-#define STATUS_FG	TFT_WHITE
+
 #define CALIBRATION_BG TFT_BLACK
 #define CALIBRATION_FG TFT_GREEN
 #define CALIBRATION_CORNER TFT_RED
-
-//Fonts
-#define FONTSIGNAL 2
-#define FONTSSID	 2
-#define FONTIP	 2
-#define FONTSTATUS	 2
-#define FONTCALIBRATION 2
-
-//Positions
-#define SIGNAL_X 320-34
-#define SIGNAL_Y 0
-#define SIGNAL_W 34
-#define SIGNAL_H 16
-
-#define SIGNAL_ICON_X 320-50
-#define SIGNAL_ICON_Y 2
-#define SIGNAL_ICON_W 15
-#define SIGNAL_ICON_H 10
-#define SIGNAL_ICON_W_BAR 3
-#define SIGNAL_ICON_SPACER_X 1
-
-#define SSID_AREA_X 0
-#define SSID_AREA_Y 0
-#define SSID_AREA_W 269
-#define SSID_AREA_H 16
-
-#define IP_AREA_X 0
-#define IP_AREA_Y 16
-#define IP_AREA_W 320
-#define IP_AREA_H 16
-
-#define STATUS_AREA_X 0
-#define STATUS_AREA_Y 223
-#define STATUS_AREA_W 320
-#define STATUS_AREA_H 16

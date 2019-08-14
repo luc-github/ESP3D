@@ -147,6 +147,7 @@ bool WiFiConfig::ConnectSTA2AP()
             dot++;
             break;
         }
+        ESP3DGlobalOutput::SetStatus(msg.c_str());
         output.printMSG(msg.c_str());
         output.flush();
         Hal::wait (500);

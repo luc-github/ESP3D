@@ -135,30 +135,21 @@ void NetConfig::onWiFiEvent(WiFiEvent_t event)
     case WIFI_EVENT_STAMODE_DISCONNECTED: {
         if(_started) {
             output.printMSG ("Disconnected");
-#if defined (DISPLAY_DEVICE)
-            ESP3DOutput outputscr(ESP_SCREEN_CLIENT);
-#endif //DISPLAY_DEVICE
+            ESP3DGlobalOutput::SetStatus("Disconnected");
             _needReconnect2AP = true;
         }
     }
     break;
     case WIFI_EVENT_STAMODE_GOT_IP: {
         output.printMSG ("Connected");
-#if defined (DISPLAY_DEVICE)
-        {
-            ESP3DOutput outputscr(ESP_SCREEN_CLIENT);
-            outputscr.printMSG("Connected");
-        }
-#endif //DISPLAY_DEVICE
+        ESP3DGlobalOutput::SetStatus("Connected");
+        ESP3DGlobalOutput::display_IP();
         output.printMSG (WiFi.localIP().toString().c_str());
     }
     break;
     case WIFI_EVENT_SOFTAPMODE_STACONNECTED: {
         output.printMSG ("New client");
-#if defined (DISPLAY_DEVICE)
-        ESP3DOutput outputscr(ESP_SCREEN_CLIENT);
-        outputscr.printMSG("New client");
-#endif //DISPLAY_DEVICE
+        ESP3DGlobalOutput::SetStatus("New client");
     }
     break;
 #ifdef ARDUINO_ARCH_ESP32
@@ -170,22 +161,17 @@ void NetConfig::onWiFiEvent(WiFiEvent_t event)
 #ifdef ETH_FEATURE
     case SYSTEM_EVENT_ETH_CONNECTED: {
         output.printMSG ("Cable connected");
-#if defined (DISPLAY_DEVICE)
-        ESP3DOutput outputscr(ESP_SCREEN_CLIENT);
-        outputscr.printMSG("Cable connected");
-#endif //DISPLAY_DEVICE
+        ESP3DGlobalOutput::SetStatus("Cable connected");
     }
     break;
     case SYSTEM_EVENT_ETH_DISCONNECTED: {
         output.printMSG ("Cable disconnected");
-#if defined (DISPLAY_DEVICE)
-        ESP3DOutput outputscr(ESP_SCREEN_CLIENT);
-        outputscr.printMSG("Cable disconnected");
-#endif //DISPLAY_DEVICE
+         ESP3DGlobalOutput::SetStatus("Cable disconnected");
     }
     break;
     case SYSTEM_EVENT_ETH_GOT_IP:
         output.printMSG (ETH.localIP().toString().c_str());
+        ESP3DGlobalOutput::display_IP();
         break;
 #endif //ETH_FEATURE
 #endif //ARDUINO_ARCH_ESP32
@@ -228,6 +214,7 @@ bool NetConfig::begin()
     int8_t espMode =Settings_ESP3D::read_byte(ESP_RADIO_MODE);
     _mode = espMode;
     if (espMode == NO_NETWORK) {
+        ESP3DGlobalOutput::display_IP();
         return true;
     }
 #if defined (WIFI_FEATURE)
@@ -277,6 +264,7 @@ bool NetConfig::begin()
     } else {
         end();
     }
+    ESP3DGlobalOutput::display_IP();
     return res;
 }
 

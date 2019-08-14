@@ -74,14 +74,9 @@ bool Esp3D::begin()
         res = false;
     }
 #endif //CONNECTED_DEVICES_FEATURE
-    //delayto avoid to disturb printer
-#ifdef DISPLAY_DEVICE
-    bd.begin(&display_progress);
-#else
+    //delay to avoid to disturb printer
     bd.begin();
-#endif //DISPLAY_DEVICE 
     log_esp3d("Mode %d", WiFi.getMode());
-
     if (!Settings_ESP3D::begin()) {
         log_esp3d("Need reset settings");
         reset();
@@ -101,6 +96,10 @@ bool Esp3D::begin()
         res = false;
     }
 #endif //FILESYSTEM_FEATURE
+#ifdef DISPLAY_DEVICE
+    esp3d_display.show_screenID(MAIN_SCREEN);
+    log_esp3d("Main screen");
+#endif //DISPLAY_DEVICE
     //Setup Network
 #if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
     if (!NetConfig::begin()) {
@@ -108,10 +107,6 @@ bool Esp3D::begin()
         res = false;
     }
 #endif //WIFI_FEATURE
-#ifdef DISPLAY_DEVICE
-    esp3d_display.show_screenID(MAIN_SCREEN);
-    log_esp3d("Main screen");
-#endif //DISPLAY_DEVICE
     return res;
 }
 

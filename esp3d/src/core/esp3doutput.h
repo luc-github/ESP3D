@@ -98,5 +98,13 @@ private:
     static uint8_t _outputflags;
 };
 
+class ESP3DGlobalOutput 
+{
+public:
+    static void SetStatus(const char * status);
+    static void display_progress(uint8_t v);
+    static void display_IP(bool force = false);
+};
+
 #endif //_ESP3DOUTPUT_H
 

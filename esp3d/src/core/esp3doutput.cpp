@@ -417,3 +417,24 @@ size_t ESP3DOutput::write(const uint8_t *buffer, size_t size)
     }
     return 0;
 }
+
+void ESP3DGlobalOutput::SetStatus(const char * status)
+{
+#ifdef DISPLAY_DEVICE
+    esp3d_display.SetStatus(status);
+#endif //DISPLAY_DEVICE
+}
+void ESP3DGlobalOutput::display_progress(uint8_t v)
+{
+#ifdef DISPLAY_DEVICE
+    esp3d_display.progress(v);
+#endif //DISPLAY_DEVICE
+}
+
+void ESP3DGlobalOutput::display_IP(bool force)
+{
+#ifdef DISPLAY_DEVICE
+    esp3d_display.display_IP(force);
+#endif //DISPLAY_DEVICE
+}
+
