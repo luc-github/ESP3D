@@ -34,6 +34,8 @@ function build_sketch()
         arduino --board esp32:esp32:esp32:PartitionScheme=min_spiffs,FlashFreq=80,PSRAM=disabled,CPUFreq=240,FlashMode=qio,FlashSize=4M,DebugLevel=none --pref compiler.warning_level=all --save-prefs
     else
         echo "setup for esp8266"
+        sed -i "s/#define DISPLAY_DEVICE/\/\/#define DISPLAY_DEVICE/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
+        sed -i "s/#define ETH_FEATURE/\/\/#define ETH_FEATURE/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
         arduino --board esp8266com:esp8266:generic:eesz=4M3M,xtal=160,FlashMode=dio,FlashFreq=40,sdk=nonosdk221,ip=lm2f,dbg=Disabled,vt=flash,exception=disabled,ssl=basic --save-prefs
     fi
     if [[ "$fs" == "SPIFFS" ]];
@@ -64,6 +66,8 @@ function build_sketch()
 	fi
     else
         echo "setup for platformIO"
+        sed -i "s/#define DISPLAY_DEVICE/\/\/#define DISPLAY_DEVICE/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
+        sed -i "s/#define ETH_FEATURE/\/\/#define ETH_FEATURE/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
         sed -i "s/#define FILESYSTEM_FEATURE ESP_FAT_FILESYSTEM/#define FILESYSTEM_FEATURE ESP_SPIFFS_FILESYSTEM/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
         sed -i "s/#define FILESYSTEM_FEATURE ESP_LITTLEFS_FILESYSTEM/#define FILESYSTEM_FEATURE ESP_SPIFFS_FILESYSTEM/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
         rm -fr $HOME/arduino_ide
