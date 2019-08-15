@@ -66,6 +66,7 @@ function build_sketch()
 	fi
     else
         echo "setup for platformIO"
+        sed -i "s/#define BLUETOOTH_FEATURE/\/\/#define BLUETOOTH_FEATURE/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
         sed -i "s/#define DISPLAY_DEVICE/\/\/#define DISPLAY_DEVICE/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
         sed -i "s/#define ETH_FEATURE/\/\/#define ETH_FEATURE/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
         sed -i "s/#define FILESYSTEM_FEATURE ESP_FAT_FILESYSTEM/#define FILESYSTEM_FEATURE ESP_SPIFFS_FILESYSTEM/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
