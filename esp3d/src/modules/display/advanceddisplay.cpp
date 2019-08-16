@@ -146,12 +146,13 @@ bool Display::startCalibration()
 #if defined(DISPLAY_TOUCH_DRIVER)
 #if DISPLAY_TOUCH_DRIVER == XPT2046_SPI
     uint16_t calibrationData[5];
-    clear_screen();
+    show_screenID(CALIBRATION_SCREEN);
+    update_screen(true);
     //display instructions
     /*uint size = getStringWidth("Touch corners as indicated");
     setTextFont(FONTCALIBRATION);
     drawString("Touch corners as indicated", (SCREEN_WIDTH-size)/2, (SCREEN_HEIGHT-16)/2, CALIBRATION_FG);*/
-    esp3d_screen.calibrateTouch(calibrationData, CALIBRATION_CORNER, CALIBRATION_BG, 15);
+    esp3d_screen.calibrateTouch(calibrationData, CALIBRATION_CORNER, CALIBRATION_BG, 20);
     res = true;
     for (uint8_t i = 0; i < 5; i++) {
         if(!Settings_ESP3D::write_uint32 (ESP_CALIBRATION_1+(4*i), calibrationData[i])) {
@@ -161,13 +162,12 @@ bool Display::startCalibration()
     if (!Settings_ESP3D::write_byte (ESP_CALIBRATION, 1)) {
         res= false;
     }
-    clear_screen();
     if(res) {
         SetStatus("Calibration done");
     } else {
         SetStatus("Calibration error");
     }
-    update_screen(true);
+    show_screenID(MAIN_SCREEN);
 #endif //XPT2046_SPI 
 
 #endif //DISPLAY_TOUCH_DRIVER
@@ -387,8 +387,15 @@ void Display::show_screenID(uint8_t screenID)
                      //status label
                      esp_lv_status_label = lv_label_create(esp_lv_bottom_container, NULL);
                      lv_label_set_text(esp_lv_status_label, _status.c_str());
-                     lv_obj_align(esp_lv_status_label, NULL, LV_ALIGN_OUT_LEFT_MID, 10,-5);
+                     lv_obj_align(esp_lv_status_label, NULL, LV_ALIGN_IN_LEFT_MID, 10,-5);
                     
+                }
+                break;
+            case CALIBRATION_SCREEN:
+                {
+                    lv_obj_t * labeltouch = lv_label_create(esp_lv_screen, NULL);
+                    lv_label_set_text(labeltouch, "Touch corners when requested.");
+                    lv_obj_align(labeltouch, NULL, LV_ALIGN_CENTER, 0, 0);
                 }
                 break;
             default:
@@ -541,7 +548,7 @@ void Display::SetStatus(const char * status)
     } 
 }
 
-void Display::clear_screen()
+void Display::clear_screen(bool force)
 {
     //clear all objects on screen
     if(esp_lv_screen != nullptr){
@@ -559,7 +566,7 @@ void Display::clear_screen()
     lv_obj_set_size(esp_lv_screen, SCREEN_WIDTH, SCREEN_HEIGHT);
     lv_obj_set_style(esp_lv_screen, &lv_style_scr);
     //update screen
-    update_screen(true);
+    update_screen(force);
 }
 
 void Display::update_screen(bool force)
@@ -577,6 +584,8 @@ void Display::update_screen(bool force)
 #if DISPLAY_DEVICE == OLED_I2C_SSD1306 || DISPLAY_DEVICE == OLED_I2C_SSDSH1106
             esp3d_screen.display();
 #endif //DISPLAY_DEVICE == OLED_I2C_SSD1306 || DISPLAY_DEVICE == OLED_I2C_SSDSH1106
+        delay(100);
+        lv_task_handler();
     }
 }
 

@@ -38,7 +38,7 @@ public:
     bool display_network_status(bool force = false);
     void show_screenID(uint8_t screenID);
     void update_screen(bool force=false);
-    void clear_screen();
+    void clear_screen(bool force=false);
     void progress(uint8_t v);
     void SetStatus(const char * status);
     bool startCalibration();
