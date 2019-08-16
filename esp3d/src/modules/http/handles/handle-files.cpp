@@ -190,8 +190,14 @@ void HTTP_Server::handleFSFileList ()
         }
     }
     buffer2send += "],\"path\":\"" + path + "\",";
+    
+    if (ESP_FileSystem::totalBytes()>0) {
+        buffer2send += "\"occupation\":\"" + String(100*ESP_FileSystem::usedBytes()/ESP_FileSystem::totalBytes()) + "\",";
+    } else {
+        status = "FileSystem Error";
+        buffer2send += "\"occupation\":\"0\",";
+    }
     buffer2send += "\"status\":\"" + status + "\",";
-    buffer2send += "\"occupation\":\"" + String(100*ESP_FileSystem::usedBytes()/ESP_FileSystem::totalBytes()) + "\",";
     buffer2send += "\"total\":\"" + ESP_FileSystem::formatBytes (ESP_FileSystem::totalBytes()) + "\",";
     buffer2send += "\"used\":\"" + ESP_FileSystem::formatBytes (ESP_FileSystem::usedBytes()) + "\"}";
     path = "";
