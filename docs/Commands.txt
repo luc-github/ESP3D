@@ -76,6 +76,9 @@ Flash pins (6~11) cannot be used
 * Touch Calibration 
 [ESP215]<CALIBRATE>[pwd=<user password>]
 
+* Take screen snapshot
+[ESP216]<SNAP>[pwd=<user password>]
+
 * Play sound  
 No parameter just play beep
 [ESP250]F=<frequency> D=<duration> [pwd=<user password>]

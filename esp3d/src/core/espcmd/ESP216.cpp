@@ -1,5 +1,5 @@
 /*
- ESP215.cpp - ESP3D command class
+ ESP216.cpp - ESP3D command class
 
  Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -18,15 +18,15 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "../../include/esp3d_config.h"
-#if defined(DISPLAY_DEVICE) && defined(DISPLAY_TOUCH_DRIVER)
+#if defined(DISPLAY_SNAPSHOT_FEATURE)
 #include "../commands.h"
 #include "../esp3doutput.h"
 #include "../settings_esp3d.h"
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/display/display.h"
-//Touch Calibration
-//[ESP215]<CALIBRATE>[pwd=<user password>]
-bool Commands::ESP215(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
+//Take screen snapshot
+//[ESP216]<SNAP>[pwd=<user password>]
+bool Commands::ESP216(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
     bool response = true;
     String parameter;
@@ -41,12 +41,18 @@ bool Commands::ESP215(const char* cmd_params, level_authenticate_type auth_type,
     parameter = get_param (cmd_params, "");
     //get
     if (parameter.length() == 0) {
-        output->printMSG((Settings_ESP3D::read_byte(ESP_CALIBRATION)==1)?"Done":"Not done");
+        output->printERROR("Invalid parameter!");
+        response = false;
     } else { //set
         parameter.toUpperCase();
-        if (parameter == "CALIBRATE") {
-            output->printMSG("Please follow screen instructions");
-            esp3d_display.startCalibration();
+        if (parameter == "SNAP") {
+             output->printMSG("Creating snapshot");
+            if(esp3d_display.snapshot()){
+                output->printMSG("Snapshot saved");
+            } else {
+                output->printERROR("Error!");
+                response = false;
+            }
         } else {
             output->printERROR("Invalid parameter!");
             response = false;
@@ -55,4 +61,4 @@ bool Commands::ESP215(const char* cmd_params, level_authenticate_type auth_type,
     return response;
 }
 
-#endif //DISPLAY_DEVICE && DISPLAY_TOUCH_DRIVER
+#endif //DISPLAY_SNAPSHOT_FEATURE

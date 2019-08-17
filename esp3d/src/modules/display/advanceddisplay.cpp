@@ -21,9 +21,17 @@
 #include "../../include/esp3d_config.h"
 #if defined (DISPLAY_DEVICE) && (DISPLAY_UI_TYPE == UI_TYPE_ADVANCED)
 
+//to get bmp file use ImageMagick
+//Under Windows:
+//ImageMagick-7.0.8-Q16>magick.exe -size 480x320 -depth 8 bgra:snapshot.bin snap.bmp
+//On others systems:
+//convert -size 480x320 -depth 8 bgra:snapshot.bin snap.bmp
+#define SNAPFILENAME "/snapshot.bin"
+
 #include "advanceddisplay.h"
 #include "../../core/settings_esp3d.h"
 #include "../../core/esp3doutput.h"
+#include "../filesystem/esp_filesystem.h"
 #include <lvgl.h>
 #include <Ticker.h>
 #include "lv_flash_drv.h"
@@ -33,6 +41,11 @@ lv_obj_t * esp_lv_bar_progression;
 lv_obj_t * esp_lv_status_label;
 lv_obj_t * esp_lv_IP_label;
 lv_obj_t * esp_lv_network_label;
+
+#if defined(DISPLAY_SNAPSHOT_FEATURE)
+static ESP_File fsSnapFile;
+static bool bSnapshot;
+#endif //DISPLAY_SNAPSHOT_FEATURE
 
 #if DISPLAY_DEVICE == OLED_I2C_SSD1306 || DISPLAY_DEVICE == OLED_I2C_SSDSH1106
 #include "Wire.h"
@@ -95,6 +108,12 @@ void esp_lv_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *c
     for (int x = area->x1; x <= area->x2; x++) {
       c = color_p->full;
       esp3d_screen.writeColor(c, 1);
+#if defined(DISPLAY_SNAPSHOT_FEATURE)
+      if(bSnapshot) { 
+          uint32_t data = lv_color_to32(*color_p);
+          fsSnapFile.write((const uint8_t *)(&data), sizeof(uint32_t));
+      }
+#endif //DISPLAY_SNAPSHOT_FEATURE
       color_p++;
     }
   }
@@ -142,6 +161,7 @@ return false;
 
 bool Display::startCalibration()
 {
+    //TODO add better calibration page with sound and contextual text
     bool res = false;
 #if defined(DISPLAY_TOUCH_DRIVER)
 #if DISPLAY_TOUCH_DRIVER == XPT2046_SPI
@@ -418,6 +438,7 @@ Display::Display()
     esp_lv_bar_progression = nullptr;
     esp_lv_IP_label = nullptr;
     esp_lv_network_label = nullptr;
+    bSnapshot = false;
 }
 
 Display::~Display()
@@ -605,6 +626,27 @@ void Display::progress(uint8_t v)
         lv_bar_set_value(esp_lv_bar_progression, v, LV_ANIM_OFF);
         update_screen();
     }
+}
+
+
+
+bool Display::snapshot()
+{
+  bool res = false; 
+#if defined(DISPLAY_SNAPSHOT_FEATURE)
+  fsSnapFile = ESP_FileSystem::open(SNAPFILENAME, ESP_FILE_WRITE);
+  if (!fsSnapFile) {
+    return false;
+  }
+
+  bSnapshot = true;
+  lv_obj_invalidate(lv_scr_act());
+  lv_refr_now(lv_disp_get_default());                    /* Will call our disp_drv.disp_flush function */
+  bSnapshot = false;
+  fsSnapFile.close();
+  return true;
+#endif //DISPLAY_SNAPSHOT_FEATURE
+  return res;
 }
 
 #endif //DISPLAY_DEVICE

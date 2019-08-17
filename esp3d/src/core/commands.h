@@ -83,6 +83,9 @@ public:
 #if defined(DISPLAY_TOUCH_DRIVER)
     bool ESP215(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #endif //DISPLAY_TOUCH_DRIVER
+#if defined(DISPLAY_SNAPSHOT_FEATURE)
+    bool ESP216(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+#endif //DISPLAY_TOUCH_DRIVER
 #endif //DISPLAY_DEVICE
 #ifdef DHT_DEVICE
     bool ESP210(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
