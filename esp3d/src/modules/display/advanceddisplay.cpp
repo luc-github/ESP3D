@@ -168,10 +168,6 @@ bool Display::startCalibration()
     uint16_t calibrationData[5];
     show_screenID(CALIBRATION_SCREEN);
     update_screen(true);
-    //display instructions
-    /*uint size = getStringWidth("Touch corners as indicated");
-    setTextFont(FONTCALIBRATION);
-    drawString("Touch corners as indicated", (SCREEN_WIDTH-size)/2, (SCREEN_HEIGHT-16)/2, CALIBRATION_FG);*/
     esp3d_screen.calibrateTouch(calibrationData, CALIBRATION_CORNER, CALIBRATION_BG, 20);
     res = true;
     for (uint8_t i = 0; i < 5; i++) {
@@ -353,6 +349,13 @@ bool Display::display_IP(bool force)
 void Display::show_screenID(uint8_t screenID)
 {
     if (_screenID != screenID){
+#if defined(AUTO_SNAPSHOT_FEATURE)
+        if (_screenID != -1){
+            String s = "/snap" + String(_screenID);
+            s+=".bin";
+            snapshot((char *)s.c_str());
+        }
+#endif //AUTO_SNAPSHOT_FEATURE
         _screenID = screenID;
         clear_screen();
         switch (screenID) {
@@ -630,11 +633,15 @@ void Display::progress(uint8_t v)
 
 
 
-bool Display::snapshot()
+bool Display::snapshot(char * filename)
 {
   bool res = false; 
 #if defined(DISPLAY_SNAPSHOT_FEATURE)
-  fsSnapFile = ESP_FileSystem::open(SNAPFILENAME, ESP_FILE_WRITE);
+  if(filename) {
+        fsSnapFile = ESP_FileSystem::open(filename, ESP_FILE_WRITE);
+    }else {
+        fsSnapFile = ESP_FileSystem::open(SNAPFILENAME, ESP_FILE_WRITE);
+    } 
   if (!fsSnapFile) {
     return false;
   }

@@ -34,7 +34,7 @@
 #define ETH_FEATURE
 
 //BLUETOOTH_FEATURE : enable BT Serial function
-#define BLUETOOTH_FEATURE
+//#define BLUETOOTH_FEATURE
 
 //HTTP_FEATURE : enable HTTP function
 #define HTTP_FEATURE
@@ -161,6 +161,7 @@
 #if defined (DISPLAY_DEVICE) && (DISPLAY_UI_TYPE == UI_TYPE_ADVANCED)
 //allows to use [ESP216]SNAP to do screen capture
 #define DISPLAY_SNAPSHOT_FEATURE
+#define AUTO_SNAPSHOT_FEATURE
 #endif //DISPLAY_DEVICE
 
 /************************************

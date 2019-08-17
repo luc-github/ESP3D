@@ -42,7 +42,7 @@ public:
     void progress(uint8_t v);
     void SetStatus(const char * status);
     bool startCalibration();
-    bool snapshot();
+    bool snapshot(char * filename = nullptr);
 private:
     bool _started;
     uint8_t _screenID;

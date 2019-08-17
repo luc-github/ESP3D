@@ -41,7 +41,7 @@
 #define LV_COLOR_SCREEN_TRANSP    0
 
 /*Images pixels with this color will not be drawn (with chroma keying)*/
-#define LV_COLOR_TRANSP    LV_COLOR_MAKE( 0x00, 0xFF, 0x00) 
+#define LV_COLOR_TRANSP    LV_COLOR_MAKE(  0xFF, 0x00, 0xFF) 
 
 /* Enable anti-aliasing (lines, and radiuses will be smoothed) */
 #define LV_ANTIALIAS        1
