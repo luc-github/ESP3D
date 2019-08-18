@@ -24,9 +24,11 @@ A clear and concise description of what you expected to happen.
 If applicable, add screenshots to help explain your problem.
 
 **ESP3D Firmware:**
+- ESP core version: [2.5.2]
 - Version:[e.g 2.1b4]
 - Web UI Version:[e.g 2.1b14]  
 - Wifi mode:[e.g. STA]  
+- WebUI version: [e.g. 2.0b4]
 - Any change done in FW  
 
 **Target Firmware:**
