@@ -7,7 +7,6 @@
  *      INCLUDES
  *********************/
 #include "lv_fs.h"
-#include <Arduino.h>
 #if LV_USE_FILESYSTEM
 
 #include "lv_ll.h"
@@ -119,8 +118,8 @@ lv_fs_res_t lv_fs_open(lv_fs_file_t * file_p, const char * path, lv_fs_mode_t mo
     }
 
     const char * real_path = lv_fs_get_real_path(path);
-    
     lv_fs_res_t res        = file_p->drv->open_cb(file_p->drv, file_p->file_d, real_path, mode);
+
     if(res != LV_FS_RES_OK) {
         lv_mem_free(file_p->file_d);
         file_p->file_d = NULL;
@@ -194,6 +193,7 @@ lv_fs_res_t lv_fs_read(lv_fs_file_t * file_p, void * buf, uint32_t btr, uint32_t
     if(br != NULL) *br = 0;
     if(file_p->drv == NULL) return LV_FS_RES_INV_PARAM;
     if(file_p->drv->read_cb == NULL) return LV_FS_RES_NOT_IMP;
+
     uint32_t br_tmp = 0;
     lv_fs_res_t res = file_p->drv->read_cb(file_p->drv, file_p->file_d, buf, btr, &br_tmp);
     if(br != NULL) *br = br_tmp;

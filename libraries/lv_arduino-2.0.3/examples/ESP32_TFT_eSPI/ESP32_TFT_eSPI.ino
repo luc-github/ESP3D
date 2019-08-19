@@ -4,9 +4,6 @@
 
 #define LVGL_TICK_PERIOD 20
 
-//Declare image source
-LV_IMG_DECLARE(logost) 
-
 Ticker tick; /* timer for interrupt handler */
 TFT_eSPI tft = TFT_eSPI(); /* TFT instance */
 static lv_disp_buf_t disp_buf;
@@ -101,9 +98,6 @@ void setup() {
   lv_obj_t *label = lv_label_create(lv_scr_act(), NULL);
   lv_label_set_text(label, "Hello Arduino! (V6.0)");
   lv_obj_align(label, NULL, LV_ALIGN_CENTER, 0, 0);
-  //Add image
-  lv_obj_t * icon = lv_img_create(lv_scr_act(), NULL);
-  lv_img_set_src(icon, &logost);
 }
 
 

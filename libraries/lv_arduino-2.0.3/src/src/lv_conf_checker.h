@@ -46,9 +46,9 @@
 #endif
 
 /*Images pixels with this color will not be drawn (with chroma keying)*/
-//#ifndef LV_COLOR_TRANSP
-#define LV_COLOR_TRANSP    LV_COLOR_MAKE(0xFF, 0x00, 0xFF)         
-//#endif
+#ifndef LV_COLOR_TRANSP
+#define LV_COLOR_TRANSP    LV_COLOR_LIME         /*LV_COLOR_LIME: pure green*/
+#endif
 
 /* Enable anti-aliasing (lines, and radiuses will be smoothed) */
 #ifndef LV_ANTIALIAS
