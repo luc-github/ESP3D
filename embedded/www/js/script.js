@@ -104,7 +104,8 @@ if (display_message) {
  }
 
  document.getElementById('file_list').innerHTML=content;
- document.getElementById('path').innerHTML=navbar();}
+ document.getElementById('path').innerHTML=navbar();
+}
 function Delete(filename){
 if (confirm("Confirm deletion of file: " + filename))SendCommand("delete",filename);
 }
@@ -152,26 +153,33 @@ var xmlhttp = new XMLHttpRequest();
 xmlhttp.open('POST', '/files', true);
 //progress upload event
 xmlhttp.upload.addEventListener("progress", updateProgress, false);
-//progress function
-function updateProgress (oEvent) {
-  if (oEvent.lengthComputable) {
-    var percentComplete = (oEvent.loaded / oEvent.total)*100;
-    document.getElementById('prg').value=percentComplete;
-    document.getElementById('upload-button').value = "Uploading ..." + percentComplete.toFixed(0)+"%" ;
-  } else {
-    // Impossible because size is unknown
-  }
-}
+    //progress function
+    function updateProgress (oEvent) {
+    if (oEvent.lengthComputable) {
+        var percentComplete = (oEvent.loaded / oEvent.total)*100;
+        document.getElementById('prg').value=percentComplete;
+        document.getElementById('upload-button').value = "Uploading ..." + percentComplete.toFixed(0)+"%" ;
+    } else {
+        // Impossible because size is unknown
+    }
+    }
 
 xmlhttp.onload = function () {
- if (xmlhttp.status === 200) {
-document.getElementById('upload-button').value = 'Upload';
-document.getElementById('prg').style.visibility = "hidden";
-document.getElementById('file-select').value="";
-var jsonresponse = JSON.parse(xmlhttp.responseText);
-dispatchfilestatus(jsonresponse);
- } else alert('An error occurred!');
-};
+    if (xmlhttp.status === 200) {
+    document.getElementById('upload-button').value = 'Upload';
+    document.getElementById('prg').style.visibility = "hidden";
+    document.getElementById('file-select').value="";
+    var jsonresponse = JSON.parse(xmlhttp.responseText);
+    dispatchfilestatus(jsonresponse);
+    } else alert('An error occurred!');
+    };
+xmlhttp.onerror = function () {
+        document.getElementById('upload-button').value = 'Upload';
+        document.getElementById('prg').style.visibility = "hidden";
+        document.getElementById('file-select').value="";
+        alert("Upload file failed");
+        // Status line will be as before the upload request - so no need to refresh
+    };    
 xmlhttp.send(formData);
 }
 

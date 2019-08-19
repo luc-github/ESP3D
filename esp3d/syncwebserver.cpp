@@ -607,8 +607,21 @@ void SPIFFSFileupload()
     } else if(upload.status == UPLOAD_FILE_WRITE) {
         //check if file is available and no error
         if(fsUploadFile && web_interface->_upload_status == UPLOAD_STATUS_ONGOING) {
-            //no error so write post date
-            fsUploadFile.write(upload.buf, upload.currentSize);
+            //no error so write post data to SPIFFS file
+            if(upload.currentSize != fsUploadFile.write(upload.buf, upload.currentSize))
+            {
+                // Failed to write file, so clean up
+                fsUploadFile.close();
+                fsUploadFile = (FS_FILE)0;
+                SPIFFS.remove (filename);
+                filename = "";
+                web_interface->_upload_status=UPLOAD_STATUS_FAILED;
+#if defined ( ARDUINO_ARCH_ESP8266)
+                web_interface->web_server.client().stopAll();
+#else
+                web_interface->web_server.client().stop();
+#endif
+            }
         } else {
             //we have a problem set flag UPLOAD_STATUS_CANCELLED
             web_interface->_upload_status=UPLOAD_STATUS_CANCELLED;
