@@ -161,7 +161,14 @@ function updateProgress (oEvent) {
   } else {
     // Impossible because size is unknown
   }
-}
+};
+xmlhttp.onerror = function () {
+document.getElementById('upload-button').value = 'Upload';
+document.getElementById('prg').style.visibility = "hidden";
+document.getElementById('file-select').value="";
+document.getElementById('status').innerHTML="Status: Upload failed"
+alert("Upload file failed");
+};   
 
 xmlhttp.onload = function () {
  if (xmlhttp.status === 200) {
@@ -208,6 +215,10 @@ function updateProgress (oEvent) {
     // Impossible because size is unknown
   }
 }
+xmlhttp.onerror = function () {
+alert("Upload file failed");
+location.reload();
+}; 
 xmlhttp.onload = function () {
  if (xmlhttp.status === 200) {
 document.getElementById('uploadfw-button').value = 'Upload';

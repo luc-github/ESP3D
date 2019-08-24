@@ -169,7 +169,7 @@ void handleFileList (AsyncWebServerRequest *request)
     }
     String path ;
     String status = "Ok";
-    if ( (web_interface->_upload_status == UPLOAD_STATUS_FAILED) || (web_interface->_upload_status == UPLOAD_STATUS_CANCELLED) ) {
+    if ( (web_interface->_upload_status == UPLOAD_STATUS_FAILED) || (web_interface->_upload_status == UPLOAD_STATUS_FAILED) ) {
         status = "Upload failed";
     }
     //be sure root is correct according authentication
@@ -400,7 +400,7 @@ void SPIFFSFileupload (AsyncWebServerRequest *request, String filename, size_t i
     level_authenticate_type auth_level= web_interface->is_authenticated();
     //Guest cannot upload - only admin
     if (auth_level == LEVEL_GUEST) {
-        web_interface->_upload_status = UPLOAD_STATUS_CANCELLED;
+        web_interface->_upload_status = UPLOAD_STATUS_FAILED;
         ESPCOM::println (F ("Upload rejected"), PRINTER_PIPE);
         LOG ("Upload rejected\r\n");
         request->client()->abort();
@@ -503,7 +503,7 @@ void WebUpdateUpload (AsyncWebServerRequest *request, String filename, size_t in
     static uint32_t maxSketchSpace ;
     //only admin can update FW
     if (web_interface->is_authenticated() != LEVEL_ADMIN) {
-        web_interface->_upload_status = UPLOAD_STATUS_CANCELLED;
+        web_interface->_upload_status = UPLOAD_STATUS_FAILED;
         request->client()->abort();
         ESPCOM::println (F ("Update rejected"), PRINTER_PIPE);
         LOG ("Update failed\r\n");
@@ -527,7 +527,7 @@ void WebUpdateUpload (AsyncWebServerRequest *request, String filename, size_t in
         last_upload_update = 0;
         totalSize = 0;
         if (!Update.begin (maxSketchSpace) ) { //start with max available size
-            web_interface->_upload_status = UPLOAD_STATUS_CANCELLED;
+            web_interface->_upload_status = UPLOAD_STATUS_FAILED;
             ESPCOM::println (F ("Update Cancelled"), PRINTER_PIPE);
             request->client()->abort();
             return;
@@ -557,7 +557,7 @@ void WebUpdateUpload (AsyncWebServerRequest *request, String filename, size_t in
             ESPCOM::println (s, PRINTER_PIPE);
         }
         if (Update.write (data, len) != len) {
-            web_interface->_upload_status = UPLOAD_STATUS_CANCELLED;
+            web_interface->_upload_status = UPLOAD_STATUS_FAILED;
             ESPCOM::println(F("Update Error"), PRINTER_PIPE);
             Update.end();
             request->client()->abort();
@@ -1073,7 +1073,7 @@ void handle_serial_SDFileList (AsyncWebServerRequest *request)
     }
     LOG ("serial SD upload done\r\n")
     String sstatus = "Ok";
-    if ( (web_interface->_upload_status == UPLOAD_STATUS_FAILED) || (web_interface->_upload_status == UPLOAD_STATUS_CANCELLED) ) {
+    if ( (web_interface->_upload_status == UPLOAD_STATUS_FAILED) || (web_interface->_upload_status == UPLOAD_STATUS_FAILED) ) {
         sstatus = "Upload failed";
         web_interface->_upload_status = UPLOAD_STATUS_NONE;
     }
@@ -1102,7 +1102,7 @@ void SDFile_serial_upload (AsyncWebServerRequest *request, String filename, size
     String response;
     //Guest cannot upload - only admin and user
     if (web_interface->is_authenticated() == LEVEL_GUEST) {
-        web_interface->_upload_status = UPLOAD_STATUS_CANCELLED;
+        web_interface->_upload_status = UPLOAD_STATUS_FAILED;
         ESPCOM::println (F ("SD upload rejected"), PRINTER_PIPE);
         LOG ("SD upload rejected\r\n");
         request->client()->abort();

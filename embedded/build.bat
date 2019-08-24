@@ -1,4 +1,5 @@
 cd %~dp0
+cmd.exe /c npm install
 cmd.exe /c gulp package
 cmd.exe /c bin2c -o nofile.h -m tool.html.gz
 cat header.txt > out.h
