@@ -48,7 +48,7 @@
 #define ESP_CALIBRATION         117     //1 byte = flag
 #define ESP_AP_CHANNEL          118     //1 byte = flag
 #define ESP_BUZZER              119     //1 byte = flag
-//#define ESP_SSID_VISIBLE        120     //1 byte = flag
+#define ESP_INTERNET_TIME       120     //1  byte = flag
 #define ESP_HTTP_PORT           121     //4  bytes = int
 #define ESP_TELNET_PORT         125     //4  bytes = int
 #define ESP_OUTPUT_FLAG         129     //1  bytes = flag

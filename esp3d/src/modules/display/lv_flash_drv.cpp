@@ -1,5 +1,5 @@
 /*
-  lv_flash_drv.cpp - ESP3D flash (spiffs/Fat/etc) driver for lvgl 
+  lv_flash_drv.cpp - ESP3D flash (spiffs/Fat/etc) driver for lvgl
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -25,13 +25,13 @@
 #endif
 #if FILESYSTEM_FEATURE == ESP_SPIFFS_FILESYSTEM
 #include "SPIFFS.h"
-#else 
+#else
 #if FILESYSTEM_FEATURE == ESP_FAT_FILESYSTEM
 #include "FFat.h"
 #else
 #error Unknow FileSystem defined
 #endif
-#endif 
+#endif
 
 //Driver wrote based on lvg 6.0.3 documentation
 
@@ -48,9 +48,13 @@ lv_fs_res_t esp_flash_open(lv_fs_drv_t * drv, void * file_p, const char * fn, lv
 {
     (void) drv; /*Unused*/
     const char * flags = "";
-    if(mode == LV_FS_MODE_WR) flags = "w";
-    else if(mode == LV_FS_MODE_RD) flags = "r";
-    else if(mode == (LV_FS_MODE_WR | LV_FS_MODE_RD)) flags = "a";
+    if(mode == LV_FS_MODE_WR) {
+        flags = "w";
+    } else if(mode == LV_FS_MODE_RD) {
+        flags = "r";
+    } else if(mode == (LV_FS_MODE_WR | LV_FS_MODE_RD)) {
+        flags = "a";
+    }
     char buf[256];
     sprintf(buf, "/%s", fn);
     File * f= new File();
@@ -64,8 +68,7 @@ lv_fs_res_t esp_flash_open(lv_fs_drv_t * drv, void * file_p, const char * fn, lv
 #endif
     if(!(*f)) {
         return LV_FS_RES_UNKNOWN;
-    }
-    else {
+    } else {
         f->seek(0);
         file_t * ft = (file_t *)file_p;
         ft->fileobjecthandle = f;
@@ -85,7 +88,7 @@ lv_fs_res_t esp_flash_close(lv_fs_drv_t * drv, void * file_p)
 {
     (void) drv; /*Unused*/
     file_t * ft = (file_t *)file_p;
-    if(ft->fileobjecthandle){
+    if(ft->fileobjecthandle) {
         (ft->fileobjecthandle)->close();
         delete(ft->fileobjecthandle);
         ft->fileobjecthandle = nullptr;
@@ -107,7 +110,7 @@ lv_fs_res_t esp_flash_read(lv_fs_drv_t * drv, void * file_p, void * buf, uint32_
 {
     (void) drv; /*Unused*/
     file_t * ft = (file_t *)file_p;
-    if(ft->fileobjecthandle){
+    if(ft->fileobjecthandle) {
         *br =  (ft->fileobjecthandle)->read((uint8_t*)buf,btr);
         return LV_FS_RES_OK;
     } else {
@@ -127,7 +130,7 @@ lv_fs_res_t esp_flash_seek(lv_fs_drv_t * drv, void * file_p, uint32_t pos)
 {
     (void) drv; /*Unused*/
     file_t * ft = (file_t *)file_p;
-    if(ft->fileobjecthandle){
+    if(ft->fileobjecthandle) {
         (ft->fileobjecthandle)->seek(pos);
         return LV_FS_RES_OK;
     } else {
@@ -147,7 +150,7 @@ lv_fs_res_t esp_flash_tell(lv_fs_drv_t * drv, void * file_p, uint32_t * pos_p)
 {
     (void) drv; /*Unused*/
     file_t * ft = (file_t *)file_p;
-    if(ft->fileobjecthandle){
+    if(ft->fileobjecthandle) {
         *pos_p = (ft->fileobjecthandle)->position();
         return LV_FS_RES_OK;
     } else {

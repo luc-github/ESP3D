@@ -35,8 +35,10 @@ public:
     const char * current_time();
     bool setTime(const char* stime);
     bool started();
+    bool is_internet_time(bool readfromsettings = false);
 private:
     bool _started;
+    bool _is_internet_time;
 };
 
 extern TimeServer timeserver;

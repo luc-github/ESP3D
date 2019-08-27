@@ -59,6 +59,8 @@ public:
         return _port;
     }
 private:
+    static void pushError(int code, const char * st);
+    static void cancelUpload();
     static bool _started;
     static WEBSERVER * _webserver;
     static uint16_t _port;

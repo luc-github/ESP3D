@@ -145,7 +145,7 @@ size_t ESP_FileSystem::max_update_size()
     //Is OTA available ?
     if (esp_ota_get_running_partition()) {
         const esp_partition_t* partition = esp_ota_get_next_update_partition(NULL);
-        if (partition){
+        if (partition) {
             flashsize = partition->size;
         }
     }  else {

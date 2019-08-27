@@ -87,7 +87,9 @@ bool NetServices::begin()
 #ifdef TIMESTAMP_FEATURE
     if (WiFi.getMode() != WIFI_AP) {
         if(!timeserver.begin()) {
-            output.printERROR("Failed contact time servers!");
+            if(timeserver.is_internet_time()) {
+                output.printERROR("Failed contact time servers!");
+            }
         } else {
             String tmp = "Time set :";
             tmp+=timeserver.current_time();

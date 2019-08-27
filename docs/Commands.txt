@@ -50,8 +50,8 @@ Note:
 * Get/Set Telnet port 
 [ESP131]<port>pwd=<admin password>
 
-* Init / Get current time
-[ESP140]<INIT> <srv1=XXXXX> <srv2=XXXXX> <srv3=XXXXX> <zone=xxx> <dst=YES/NO> <time=YYYY-MM-DD#H24:MM:SS> pwd=<admin password>
+* Sync / Set / Get current time
+[ESP140]<SYNC> <srv1=XXXXX> <srv2=XXXXX> <srv3=XXXXX> <zone=xxx> <dst=YES/NO> <time=YYYY-MM-DD#H24:MM:SS> pwd=<admin password>
 
 * Get/Set boot delay
 [ESP150]<time in milliseconds>[pwd=<admin password>]
@@ -83,6 +83,9 @@ Flash pins (6~11) cannot be used
 No parameter just play beep
 [ESP250]F=<frequency> D=<duration> [pwd=<user password>]
 
+* Delay command
+[ESP290]<delay in ms>[pwd=<user password>]
+
 * Get full EEPROM settings content
 but do not give any passwords
 [ESP400] pwd=<admin password>
@@ -103,7 +106,7 @@ ESP_NOTIFICATION_TYPE   116     //1 byte = flag
 ESP_CALIBRATION         117     //1 byte = flag
 ESP_AP_CHANNEL          118     //1 byte = flag
 ESP_BUZZER              119     //1 byte = flag 
-FREE                    120     //1 byte = flag
+ESP_INTERNET_TIME       120     //1  byte = flag
 ESP_HTTP_PORT           121     //4  bytes = int
 ESP_TELNET_PORT         125     //4  bytes = int
 ESP_OUTPUT_FLAG         129     //1  bytes = flag

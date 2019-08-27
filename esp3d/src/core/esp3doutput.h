@@ -98,7 +98,7 @@ private:
     static uint8_t _outputflags;
 };
 
-class ESP3DGlobalOutput 
+class ESP3DGlobalOutput
 {
 public:
     static void SetStatus(const char * status);

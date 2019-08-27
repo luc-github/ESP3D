@@ -46,8 +46,8 @@ bool Commands::ESP216(const char* cmd_params, level_authenticate_type auth_type,
     } else { //set
         parameter.toUpperCase();
         if (parameter == "SNAP") {
-             output->printMSG("Creating snapshot");
-            if(esp3d_display.snapshot()){
+            output->printMSG("Creating snapshot");
+            if(esp3d_display.snapshot()) {
                 output->printMSG("Snapshot saved");
             } else {
                 output->printERROR("Error!");

@@ -190,7 +190,7 @@ void HTTP_Server::handleFSFileList ()
         }
     }
     buffer2send += "],\"path\":\"" + path + "\",";
-    
+
     if (ESP_FileSystem::totalBytes()>0) {
         buffer2send += "\"occupation\":\"" + String(100*ESP_FileSystem::usedBytes()/ESP_FileSystem::totalBytes()) + "\",";
     } else {

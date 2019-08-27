@@ -3,11 +3,16 @@ var authentication = false;
 var webupdate = false;
 var filesystem = false;
 var websocket_port = 0;
+var websocket_IP = "";
 var async_webcommunication = false;
 var page_id = "";
 var ws_source;
 var log_off =false;
 var websocket_started =false;
+var esp_error_message ="";
+var esp_error_code = 0;
+var xmlhttpupload;
+var typeupload = 0;
 function navbar(){
     var content="<table><tr>";
     var tlist = currentpath.split("/");
@@ -83,7 +88,7 @@ for (var i1=0;i1 <jsonresponse.files.length;i1++){
 if (String(jsonresponse.files[i1].size) != "-1")
     {
     content +="<TR>";
-    content +="<td><svg height='24' width='24' viewBox='0 0 24 24' >	<path d='M1,2 L1,21 L2,22 L16,22 L17,21 L17,6 L12,6 L12,1  L2,1 z' stroke='black' fill='white' /><line x1='12' y1='1' x2='17' y2='6' stroke='black' stroke-width='1'/>";
+    content +="<td><svg height='24' width='24' viewBox='0 0 24 24' >    <path d='M1,2 L1,21 L2,22 L16,22 L17,21 L17,6 L12,6 L12,1  L2,1 z' stroke='black' fill='white' /><line x1='12' y1='1' x2='17' y2='6' stroke='black' stroke-width='1'/>";
     content +="</svg></td>";
     content +="<TD class='btnimg' style=\"padding:0px;\"><a href=\""+jsonresponse.path+jsonresponse.files[i1].name+"\" target=_blank><div class=\"blacklink\">";
     content +=jsonresponse.files[i1].name;
@@ -94,13 +99,13 @@ if (String(jsonresponse.files[i1].size) != "-1")
     content +=jsonresponse.files[i1].size;
     content +="</TD>";
     if (jsonresponse.files[i1].hasOwnProperty('time')){
-		display_time = true;
-		content +="<TD>";
-		content += jsonresponse.files[i1].time;
-		content +="</TD>";
-	} else {
-	content +="<TD></TD>";	
-	}
+        display_time = true;
+        content +="<TD>";
+        content += jsonresponse.files[i1].time;
+        content +="</TD>";
+    } else {
+    content +="<TD></TD>";    
+    }
     content +="<TD width='0%'><div class=\"btnimg\" onclick=\"Delete('"+jsonresponse.files[i1].name+"')\">";
     content +=trash_icon();
     content +="</div></TD><td></td></TR>";
@@ -115,17 +120,17 @@ if (String(jsonresponse.files[i2].size) == "-1")
     content +=jsonresponse.files[i2].name;
     content +="</TD><TD></TD><TD></TD>";
     if (typeof jsonresponse.files[i2].hasOwnProperty('time')){
-		display_time = true;
-	}
+        display_time = true;
+    }
     content +="<TD width='0%'><div class=\"btnimg\" onclick=\"Deletedir('"+jsonresponse.files[i2].name+"')\">";
     content +=trash_icon();
     content +="</div></TD><td></td></TR>";
     }
 }
 if(display_time){
-	document.getElementById('FS_time').innerHTML = "";
+    document.getElementById('FS_time').innerHTML = "";
 } else {
-	document.getElementById('FS_time').innerHTML = "Time";
+    document.getElementById('FS_time').innerHTML = "Time";
 }
  if (display_message) {
     
@@ -150,6 +155,7 @@ if (filename != null) {
    SendCommand("createdir",filename.trim());
     }
 }
+
 function SendCommand(action,filename){
 var xmlhttp = new XMLHttpRequest();
 var url = "/files?action="+action;
@@ -188,10 +194,10 @@ var arg = currentpath + file.name + "S";
  //append file size first to check updload is complete
  formData.append(arg, file.size);
  formData.append('myfiles[]', file, currentpath+file.name);}
-var xmlhttp = new XMLHttpRequest();
-xmlhttp.open('POST', '/files', true);
+xmlhttpupload = new XMLHttpRequest();
+xmlhttpupload.open('POST', '/files', true);
 //progress upload event
-xmlhttp.upload.addEventListener("progress", updateProgress, false);
+xmlhttpupload.upload.addEventListener("progress", updateProgress, false);
 //progress function
 function updateProgress (oEvent) {
   if (oEvent.lengthComputable) {
@@ -202,17 +208,28 @@ function updateProgress (oEvent) {
     // Impossible because size is unknown
   }
 }
-
-xmlhttp.onload = function () {
- if (xmlhttp.status === 200) {
+typeupload = 1;
+xmlhttpupload.onload = function () {
+ if (xmlhttpupload.status === 200) {
 document.getElementById('upload-button').value = 'Upload';
 document.getElementById('prg').style.visibility = "hidden";
 document.getElementById('file-select').value="";
-var jsonresponse = JSON.parse(xmlhttp.responseText);
+var jsonresponse = JSON.parse(xmlhttpupload.responseText);
 dispatchfilestatus(jsonresponse);
- } else alert('An error occurred!');
+ } else uploadError();
 };
-xmlhttp.send(formData);
+
+xmlhttpupload.send(formData);
+}
+
+function padNumber(num, size) {
+    var s = num.toString();
+    while (s.length < size) s = "0" + s;
+        return s;
+}
+function getPCTime(){
+    var d = new Date();
+    return d.getFullYear() + "-" + padNumber(d.getMonth() + 1 ,2) + "-" + padNumber(d.getDate(),2) + "-" + padNumber(d.getHours(),2) + "-" + padNumber(d.getMinutes(),2) + "-" + padNumber(d.getSeconds(),2); 
 }
 
 function HideAll(msg){
@@ -230,6 +247,7 @@ function HideAll(msg){
 function FWError(){
     HideAll("Failed to communicate with FW!");
 }
+
 function FWOk(){
     document.getElementById('MSG').innerHTML = "Connected";
     if (filesystem){
@@ -242,7 +260,7 @@ function FWOk(){
 
 function InitUI(){
 var xmlhttp = new XMLHttpRequest();
-var url = "/command?cmd="+encodeURI("[ESP800]");
+var url = "/command?cmd="+encodeURI("[ESP800]"+"time=" + getPCTime());
 authentication = false;
 async_webcommunication = false;
 xmlhttp.onreadystatechange = function() {
@@ -250,26 +268,28 @@ xmlhttp.onreadystatechange = function() {
         var error = false;
         if(xmlhttp.status == 200) {
         var jsonresponse = JSON.parse(xmlhttp.responseText);
-            if ((typeof jsonresponse.FWVersion === "undefined")|| (typeof jsonresponse.Hostname === "undefined") || (typeof jsonresponse.WebUpdate === "undefined") || (typeof jsonresponse.WebSocketport === "undefined") || (typeof jsonresponse.WebCommunication === "undefined") || (typeof jsonresponse.Filesystem === "undefined") ||  (typeof jsonresponse.Authentication === "undefined")) {
+            if ((typeof jsonresponse.FWVersion === "undefined")|| (typeof jsonresponse.Hostname === "undefined") || (typeof jsonresponse.WebUpdate === "undefined") || (typeof jsonresponse.WebSocketport === "undefined") || (typeof jsonresponse.WebSocketIP === "undefined")  ||  (typeof jsonresponse.WebCommunication === "undefined") || (typeof jsonresponse.Filesystem === "undefined") ||  (typeof jsonresponse.Authentication === "undefined")) {
                 error = true;
             } else {
                 document.getElementById('FWVERSION').innerHTML = "v"+jsonresponse.FWVersion;
                 if (jsonresponse.Filesystem != "None"){
                     filesystem = true;
-                    console.log(jsonresponse.Filesystem);
+                    //console.log(jsonresponse.Filesystem);
                 }
 
                 if (jsonresponse.WebUpdate != "Disabled"){
                     webupdate = true;
-                    console.log(jsonresponse.WebUpdate);
+                    //console.log(jsonresponse.WebUpdate);
                 }
                 //websocket port
                 websocket_port = jsonresponse.WebSocketport;
-                console.log(websocket_port);
+                //websocket IP
+                websocket_IP = jsonresponse.WebSocketIP;
+                //console.log(websocket_port);
                 //async communications
                 if (jsonresponse.WebCommunication != "Synchronous") {
                     async_webcommunication = true;
-                    console.log(jsonresponse.WebCommunication);
+                    //console.log(jsonresponse.WebCommunication);
                 }
                 FWOk();
                 startSocket();
@@ -277,7 +297,7 @@ xmlhttp.onreadystatechange = function() {
                 if (filesystem)SendCommand('list','all');
                if (jsonresponse.Authentication != "Disabled"){
                     authentication = true;
-                    console.log(jsonresponse.Authentication);
+                    //console.log(jsonresponse.Authentication);
                 }
             }
         } else if (xmlhttp.status == 401){
@@ -295,18 +315,17 @@ xmlhttp.open("GET", url, true);
 xmlhttp.send();
 }
 
-
 function startSocket(){
       if (websocket_started){
           ws_source.close();
       }
-	  if(async_webcommunication){
-		ws_source = new WebSocket('ws://'+document.location.host+'/ws',['arduino']);
-		}
-	  else {
-		  //console.log("Socket port is :" + websocket_port);
-		  ws_source = new WebSocket('ws://'+document.location.hostname+':' + websocket_port,['arduino']);
-	  }
+      if(async_webcommunication){
+        ws_source = new WebSocket('ws://'+websocket_IP + ':' + websocket_port +'/ws',['arduino']);
+        }
+      else {
+          //console.log("Socket port is :" + websocket_port);
+          ws_source = new WebSocket('ws://'+websocket_IP + ':' + websocket_port,['arduino']);
+      }
       ws_source.binaryType = "arraybuffer";
       ws_source.onopen = function(e){
         console.log("WS");
@@ -328,17 +347,24 @@ function startSocket(){
         if(!(e.data instanceof ArrayBuffer)){
           msg = e.data;
           var tval = msg.split(":");
-          if (tval.length == 2) {
-		  if (tval[0] == 'currentID') {
-			  page_id = tval[1];
-			  console.log("ID " + page_id); 
-		  }
-		  if (tval[0] == 'activeID') {
-			  if(page_id != tval[1]) {
-				HideAll("It seems you are connect from another location, your are now disconnected");
-				}
-			}
-		  }
+          if (tval.length >= 2) {
+          if (tval[0] == 'currentID') {
+              page_id = tval[1];
+              console.log("ID " + page_id); 
+          }
+          if (tval[0] == 'activeID') {
+              if(page_id != tval[1]) {
+                HideAll("It seems you are connect from another location, your are now disconnected");
+                }
+            }
+         if (tval[0] == 'ERROR') {
+              esp_error_message = tval[2];
+              esp_error_code = tval[1];
+              console.log(tval[2] + " code:" +  tval[1]);
+              uploadError();
+              xmlhttpupload.abort();
+            }
+          }
           
         }
         //console.log(msg);
@@ -349,6 +375,26 @@ function startSocket(){
 window.onload = function() {
 InitUI();
 };
+
+function uploadError()
+{
+    if (esp_error_code != 0) {
+        alert('Update failed(' + esp_error_code + '): ' + esp_error_message);
+        esp_error_code = 0;
+    } else {
+        alert('Update failed!');
+    }
+    
+    if (typeupload == 1) {
+        //location.reload();
+        document.getElementById('upload-button').value = 'Upload';
+        document.getElementById('prg').style.visibility = "hidden";
+        document.getElementById('file-select').value="";
+        SendCommand('list', 'all');
+    } else {
+        location.reload();
+    }
+}
 
 function Uploadfile(){
 if (!confirm("Confirm Firmware Update ?"))return;
@@ -367,10 +413,11 @@ var arg =  "/" + file.name + "S";
  //append file size first to check updload is complete
  formData.append(arg, file.size);
  formData.append('myfile[]', file, "/"+file.name);}
-var xmlhttp = new XMLHttpRequest();
-xmlhttp.open('POST', '/updatefw', true);
+typeupload = 0;
+xmlhttpupload = new XMLHttpRequest();
+xmlhttpupload.open('POST', '/updatefw', true);
 //progress upload event
-xmlhttp.upload.addEventListener("progress", updateProgress, false);
+xmlhttpupload.addEventListener("progress", updateProgress, false);
 //progress function
 function updateProgress (oEvent) {
   if (oEvent.lengthComputable) {
@@ -381,8 +428,8 @@ function updateProgress (oEvent) {
     // Impossible because size is unknown
   }
 }
-xmlhttp.onload = function () {
- if (xmlhttp.status === 200) {
+xmlhttpupload.onload = function () {
+ if (xmlhttpupload.status === 200) {
 document.getElementById('ubut').value = 'Upload';
 document.getElementById('msg').innerHTML="Restarting, please wait....";
 document.getElementById('counter').style.visibility = "visible";
@@ -392,32 +439,33 @@ document.getElementById('fw-select').value="";
 document.getElementById('fw-select').style.visibility = 'hidden';
 document.getElementById('fw-select').style.width = '0px';
 
-var jsonresponse = JSON.parse(xmlhttp.responseText);
-if (jsonresponse.status=='1' || jsonresponse.status=='4' || jsonresponse.status=='1')alert("Update failed");
+var jsonresponse = JSON.parse(xmlhttpupload.responseText);
+if (jsonresponse.status=='1' || jsonresponse.status=='4' || jsonresponse.status=='1')uploadError();
 if (jsonresponse.status=='2')alert('Update canceled!');
 else if (jsonresponse.status=='3')
 {
-	var i5 = 0;
-	var interval;
-	var x = document.getElementById("prgfw");
-	x.max=40;
-	interval = setInterval(function(){
-		i5=i5+1;
-		var x = document.getElementById("prgfw");
-		x.value=i5;
+    var i5 = 0;
+    var interval;
+    var x = document.getElementById("prgfw");
+    x.max=40;
+    interval = setInterval(function(){
+        i5=i5+1;
+        var x = document.getElementById("prgfw");
+        x.value=i5;
         document.getElementById('counter').innerHTML=41-i5;
-		if (i5>40)
-			{
-			clearInterval(interval);
-			location.reload();
-			}
-		},1000);
+        if (i5>40)
+            {
+            clearInterval(interval);
+            location.reload();
+            }
+        },1000);
 }
-else alert('Update failed!');
- } else alert('An error occurred!');
+else uploadError()
+ } else uploadError()
 };
-xmlhttp.send(formData);
+xmlhttpupload.send(formData);
 }
+
 
 function RL(){
     document.getElementById('loginpage').style.display='block';

@@ -32,6 +32,7 @@
 #include "../authentication/authentication_service.h"
 #include "../../core/settings_esp3d.h"
 #include "../filesystem/esp_filesystem.h"
+#include "../websocket/websocket_server.h"
 
 bool HTTP_Server::_started = false;
 uint16_t HTTP_Server::_port = 0;
@@ -111,6 +112,35 @@ bool HTTP_Server::StreamFSFile(const char* filename, const char * contentType)
     }
     return true;
 }
+
+void HTTP_Server::pushError(int code, const char * st)
+{
+    if (websocket_terminal_server.started() && st) {
+        String s = "ERROR:" + String(code) + ":";
+        s+=st;
+        websocket_terminal_server.pushMSG(websocket_terminal_server.get_currentID(), s.c_str());
+
+        uint32_t t = millis();
+        while (millis() - t < 1000) {
+            websocket_terminal_server.handle();
+            Hal::wait(10);
+        }
+    }
+}
+
+void HTTP_Server::cancelUpload()
+{
+    HTTPUpload& upload = _webserver->upload();
+    upload.status = UPLOAD_FILE_ABORTED;
+#if defined ( ARDUINO_ARCH_ESP8266)
+    _webserver->client().stopAll();
+#else
+    //errno = 128;
+    _webserver->client().stop();
+#endif
+    Hal::wait(100);
+}
+
 
 bool HTTP_Server::begin()
 {

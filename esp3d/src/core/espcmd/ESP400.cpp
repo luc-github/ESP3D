@@ -191,38 +191,7 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     }
     output->printLN ("]}");
 #endif  //WIFI_FEATURE
-    //15 - AP Network Mode (PHY)
-    //output->print (",{\"F\":\"network\",\"P\":\"");
-    //output->print (ESP_AP_PHY_MODE);
-    //output->print ("\",\"T\":\"B\",\"V\":\"");
-    //output->print (Settings_ESP3D::read_byte(ESP_AP_PHY_MODE));
-    //output->print ("\",\"H\":\"AP Network Mode\",\"O\":[{\"11b\":\"");
-    //output->print (WIFI_PHY_MODE_11B);
-    //output->print ("\"},{\"11g\":\"");
-    //output->print (WIFI_PHY_MODE_11G);
-    //output->printLN ("\"}]}");
 
-    //16-AP Authentication
-    //output->print (",{\"F\":\"network\",\"P\":\"");
-    //output->print (ESP_AP_AUTH_TYPE);
-    //output->print ("\",\"T\":\"B\",\"V\":\"");
-    //output->print (Settings_ESP3D::read_byte(ESP_AP_AUTH_TYPE));
-    //output->print ("\",\"H\":\"Authentication\",\"O\":[{\"Open\":\"");
-    //output->print (AUTH_OPEN);
-    //output->print ("\"},{\"WPA\":\"");
-    //output->print (AUTH_WPA_PSK);
-    //output->print ("\"},{\"WPA2\":\"");
-    //output->print (AUTH_WPA2_PSK);
-    //output->print ("\"},{\"WPA/WPA2\":\"");
-    //output->print (AUTH_WPA_WPA2_PSK);
-    //output->printLN ("\"}]}");
-
-    //17-AP SSID visibility
-    //output->print (",{\"F\":\"network\",\"P\":\"");
-    //output->print (ESP_SSID_VISIBLE);
-    //output->print ("\",\"T\":\"B\",\"V\":\"");
-    //output->print (Settings_ESP3D::read_byte(ESP_SSID_VISIBLE));
-    //output->printLN ("\",\"H\":\"SSID Visible\",\"O\":[{\"No\":\"0\"},{\"Yes\":\"1\"}]}");
 #ifdef HTTP_FEATURE
     //18-HTTP On
     output->print (",{\"F\":\"network\",\"P\":\"");
@@ -288,7 +257,15 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
 #endif //AUTHENTICATION_FEATURE
 
 #ifdef TIMESTAMP_FEATURE
-    //24-Time zone
+
+    //24a-Time zone
+    output->print (",{\"F\":\"network\",\"P\":\"");
+    output->print (ESP_INTERNET_TIME);
+    output->print("\",\"T\":\"B\",\"V\":\"");
+    output->print ((int8_t)Settings_ESP3D::read_byte(ESP_INTERNET_TIME));
+    output->printLN("\",\"H\":\"Internet Time\",\"O\":[{\"No\":\"0\"},{\"Yes\":\"1\"}]}");
+
+    //24b-Time zone
     output->print (",{\"F\":\"network\",\"P\":\"");
     output->print (ESP_TIMEZONE);
     output->print("\",\"T\":\"B\",\"V\":\"");
@@ -301,6 +278,7 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
         output->printf("{\"%d\":\"%d\"}", i, i);
     }
     output->printLN("]}");
+
     //25- DST
     output->print (",{\"F\":\"network\",\"P\":\"");
     output->print (ESP_TIME_IS_DST);

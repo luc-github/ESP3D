@@ -35,9 +35,13 @@
 #ifdef HTTP_FEATURE
 #include "../../modules/http/http_server.h"
 #endif //HTTP_FEATURE
+#ifdef TIMESTAMP_FEATURE
+#include "../../modules/time/time_server.h"
+#endif //TIMESTAMP_FEATURE
 //get fw version firmare target and fw version
+//eventually set time with pc time
 //output is JSON or plain text according parameter
-//[ESP800]<plain>
+//[ESP800]<plain><time=YYYY-MM-DD-HH-MM-SS>
 bool Commands::ESP800(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
     bool response = true;
@@ -51,6 +55,19 @@ bool Commands::ESP800(const char* cmd_params, level_authenticate_type auth_type,
     (void)auth_type;
 #endif //AUTHENTICATION_FEATURE
     bool plain = hastag(cmd_params,"plain");
+#ifdef TIMESTAMP_FEATURE
+    String newtime = get_param (cmd_params, "time=");
+    String tparm = (timeserver.is_internet_time())?"Auto":"Manual";
+    if (!timeserver.is_internet_time() && (newtime.length() > 0)) {
+        if (!timeserver.setTime(newtime.c_str())) {
+            tparm="Failed to set";
+        }
+    } else {
+        if (!timeserver.is_internet_time() && (newtime.length() == 0)) {
+            tparm="Not set";
+        }
+    }
+#endif //TIMESTAMP_FEATURE
     //FW version
     if (plain) {
         output->print("FW version:");
@@ -128,18 +145,35 @@ bool Commands::ESP800(const char* cmd_params, level_authenticate_type auth_type,
     } else {
         output->print("\"");
     }
+    //WebSocket IP
+    if (plain) {
+        output->print("Web Socket IP:");
+    } else {
+        output->print(",\"WebSocketIP\":\"");
+    }
+    output->print(NetConfig::localIP().c_str());
+    if(plain) {
+        output->printLN("");
+    } else {
+        output->print("\"");
+    }
     //WebSocket Port
     if (plain) {
         output->print("Web Socket port:");
     } else {
         output->print(",\"WebSocketport\":\"");
     }
+#if defined (ASYNCWEBSERVER_FEATURE)
+    output->print(HTTP_Server::port());
+#else
     output->print(HTTP_Server::port() +1);
+#endif
     if(plain) {
         output->printLN("");
     } else {
         output->print("\"");
     }
+
 #endif // (WIFI_FEATURE) || ETH_FEATURE) && HTTP_FEATURE)
 #if defined(WIFI_FEATURE) || defined(ETH_FEATURE) || defined(BT_FEATURE)
     //Hostname
@@ -201,6 +235,22 @@ bool Commands::ESP800(const char* cmd_params, level_authenticate_type auth_type,
 #else
     output->print("None");
 #endif //FILESYSTEM_FEATURE
+    if(plain) {
+        output->printLN("");
+    } else {
+        output->print("\"");
+    }
+//time server
+    if (plain) {
+        output->print("Time:");
+    } else {
+        output->print(",\"Time\":\"");
+    }
+#ifdef TIMESTAMP_FEATURE
+    output->print(tparm.c_str());
+#else
+    output->print("None");
+#endif //TIMESTAMP_FEATURE
     if(plain) {
         output->printLN("");
     } else {

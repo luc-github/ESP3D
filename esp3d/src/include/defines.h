@@ -73,4 +73,19 @@
 #define USE_CELSIUS		1
 #define USE_FAHRENHEIT	2
 
+//Errors code
+#define ESP_ERROR_AUTHENTICATION    1
+#define ESP_ERROR_FILE_CREATION     2
+#define ESP_ERROR_FILE_WRITE        3
+#define ESP_ERROR_UPLOAD            4
+#define ESP_ERROR_NOT_ENOUGH_SPACE  5
+#define ESP_ERROR_UPLOAD_CANCELLED  6
+#define ESP_ERROR_FILE_CLOSE        7
+#define ESP_ERROR_NO_SD             8
+#define ESP_ERROR_MOUNT_SD          9
+#define ESP_ERROR_RESET_NUMBERING   10
+#define ESP_ERROR_BUFFER_OVERFLOW   11
+#define ESP_ERROR_START_UPLOAD      12
+#define ESP_ERROR_SIZE              13
+
 #endif //_DEFINES_ESP3D_H

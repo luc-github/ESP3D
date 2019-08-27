@@ -27,7 +27,7 @@
  **********************/
 typedef struct {
     File * fileobjecthandle;
-}file_t;
+} file_t;
 
 /**********************
  *  PROTOTYPES

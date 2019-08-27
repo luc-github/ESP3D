@@ -316,8 +316,8 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
         break;
 #endif //TELNET_FEATURE
 #ifdef TIMESTAMP_FEATURE
-    //Init / Get current time
-    //[ESP140]<INIT>  <srv1=XXXXX> <srv2=XXXXX> <srv3=XXXXX> <zone=xxx> <dst=YES/NO> <time=YYYY-MM-DD#H24:MM:SS> pwd=<admin password>
+    //Sync / Set / Get current time
+    //[ESP140]<SYNC>  <srv1=XXXXX> <srv2=XXXXX> <srv3=XXXXX> <zone=xxx> <dst=YES/NO> <time=YYYY-MM-DD#H24:MM:SS> pwd=<admin password>
     case 140:
         response = ESP140(cmd_params, auth_type, output);
         break;
@@ -381,6 +381,11 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
         break;
 #endif //BUZZER_DEVICE
 #endif //DISPLAY_DEVICE
+    //Delay command
+    //[ESP290]<delay in ms>[pwd=<user password>]
+    case 290:
+        response = ESP290(cmd_params, auth_type, output);
+        break;
     //Get full ESP3D settings
     //[ESP400]<pwd=admin>
     case 400:
@@ -451,8 +456,9 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
 #endif //FILESYSTEM_FEATURE
 
     //Get fw version firmare target and fw version
+    //eventually set time with pc time
     //output is JSON or plain text according parameter
-    //[ESP800]<plain>
+    //[ESP800]<plain><time=YYYY-MM-DD-HH-MM-SS>
     case 800:
         response = ESP800(cmd_params, auth_type, output);
         break;

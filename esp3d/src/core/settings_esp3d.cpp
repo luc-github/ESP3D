@@ -78,6 +78,9 @@
 #ifdef BUZZER_DEVICE
 #define DEFAULT_BUZZER_STATE 1
 #endif //BUZZER_DEVICE
+#ifdef TIMESTAMP_FEATURE
+#define DEFAULT_INTERNET_TIME       0
+#endif //TIMESTAMP_FEATURE
 
 #define DEFAULT_ESP_BYTE        0
 #define DEFAULT_ESP_STRING_SIZE 0
@@ -221,6 +224,11 @@ uint8_t Settings_ESP3D::get_default_byte_value(int pos)
     case ESP_RADIO_MODE:
         res = DEFAULT_ESP_RADIO_MODE;
         break;
+#ifdef TIMESTAMP_FEATURE
+    case ESP_INTERNET_TIME:
+        res = DEFAULT_INTERNET_TIME;
+        break;
+#endif //TIMESTAMP_FEATURE
 #ifdef BUZZER_DEVICE
     case ESP_BUZZER:
         res = DEFAULT_BUZZER_STATE;
@@ -1071,6 +1079,8 @@ bool Settings_ESP3D::reset()
 #endif //SDCARD_FEATURE
 
 #ifdef TIMESTAMP_FEATURE
+    //Internet time
+    Settings_ESP3D::write_byte(ESP_INTERNET_TIME,Settings_ESP3D::get_default_byte_value(ESP_INTERNET_TIME));
     //Time Zone
     Settings_ESP3D::write_byte(ESP_TIMEZONE,Settings_ESP3D::get_default_byte_value(ESP_TIMEZONE));
     //Is DST Time Zone

@@ -36,98 +36,116 @@ void HTTP_Server::FSFileupload ()
     //Guest cannot upload - only admin
     if (auth_level == LEVEL_GUEST) {
         _webserver->send (401, "text/plain", "Wrong authentication!");
-        return;
+        pushError(ESP_ERROR_AUTHENTICATION, "Upload rejected");
+        _upload_status=UPLOAD_STATUS_FAILED;
     }
     static String filename;
     static ESP_File fsUploadFile;
-
-    HTTPUpload& upload = _webserver->upload();
-    //Upload start
-    if(upload.status == UPLOAD_FILE_START) {
-        String upload_filename = upload.filename;
-        if (upload_filename[0] != '/') {
-            filename = "/" + upload_filename;
-        } else {
-            filename = upload.filename;
-        }
-
-        if (ESP_FileSystem::exists (filename.c_str()) ) {
-            ESP_FileSystem::remove (filename.c_str());
-        }
-        if (fsUploadFile.isOpen() ) {
-            fsUploadFile.close();
-        }
-        //create file
-        fsUploadFile = ESP_FileSystem::open(filename.c_str(), ESP_FILE_WRITE);
-        //check If creation succeed
-        if (fsUploadFile) {
-            //if yes upload is started
-            _upload_status= UPLOAD_STATUS_ONGOING;
-        } else {
-            //if no set cancel flag
-            _upload_status=UPLOAD_STATUS_CANCELLED;
-            _webserver->send (500, "text/plain", "Cannot create file!");
-            _webserver->client().stop();
-        }
-        //Upload write
-    } else if(upload.status == UPLOAD_FILE_WRITE) {
-//check if file is available and no error
-        if(fsUploadFile && _upload_status == UPLOAD_STATUS_ONGOING) {
-            //no error so write post date
-            fsUploadFile.write(upload.buf, upload.currentSize);
-        } else {
-            //we have a problem set flag UPLOAD_STATUS_CANCELLED
-            _upload_status=UPLOAD_STATUS_CANCELLED;
-            fsUploadFile.close();
-            if (ESP_FileSystem::exists (filename.c_str())) {
-                ESP_FileSystem::remove (filename.c_str());
-            }
-            _webserver->send (500, "text/plain", "Cannot write file!");
-            _webserver->client().stop();
-        }
-//Upload end
-    } else if(upload.status == UPLOAD_FILE_END) {
-        //check if file is still open
-        if(fsUploadFile) {
-            //close it
-            fsUploadFile.close();
-            //check size
-            String  sizeargname  = upload.filename + "S";
-            //fsUploadFile = ESP_FileSystem::open (filename, ESP_FILE_READ);
-            uint32_t filesize = fsUploadFile.size();
-            //fsUploadFile.close();
-            if (_webserver->hasArg (sizeargname.c_str()) ) {
-                if (_webserver->arg (sizeargname.c_str()) != String(filesize)) {
-                    _upload_status = UPLOAD_STATUS_FAILED;
-                    ESP_FileSystem::remove (filename.c_str());
-                }
-            }
-            if (_upload_status == UPLOAD_STATUS_ONGOING) {
-                _upload_status = UPLOAD_STATUS_SUCCESSFUL;
+    if (_upload_status != UPLOAD_STATUS_FAILED) {
+        HTTPUpload& upload = _webserver->upload();
+        //Upload start
+        if(upload.status == UPLOAD_FILE_START) {
+            String upload_filename = upload.filename;
+            if (upload_filename[0] != '/') {
+                filename = "/" + upload_filename;
             } else {
-                _webserver->send (500, "text/plain", "Upload error!");
+                filename = upload.filename;
             }
-        } else {
-            //we have a problem set flag UPLOAD_STATUS_CANCELLED
-            _upload_status=UPLOAD_STATUS_CANCELLED;
-            _webserver->client().stop();
+            //Sanity check
             if (ESP_FileSystem::exists (filename.c_str()) ) {
                 ESP_FileSystem::remove (filename.c_str());
             }
+            if (fsUploadFile.isOpen() ) {
+                fsUploadFile.close();
+            }
+            String  sizeargname  = upload.filename + "S";
+            if (_webserver->hasArg (sizeargname.c_str()) ) {
+                size_t freespace = ESP_FileSystem::totalBytes() - ESP_FileSystem::usedBytes();
+                size_t filesize = _webserver->arg (sizeargname.c_str()).toInt();
+                if (freespace < filesize ) {
+                    _upload_status=UPLOAD_STATUS_FAILED;
+                    _webserver->send (500, "text/plain", "Not enough space!");
+                    pushError(ESP_ERROR_NOT_ENOUGH_SPACE, "Upload rejected");
+                }
+            }
+            if (_upload_status!=UPLOAD_STATUS_FAILED) {
+                //create file
+                fsUploadFile = ESP_FileSystem::open(filename.c_str(), ESP_FILE_WRITE);
+                //check If creation succeed
+                if (fsUploadFile) {
+                    //if yes upload is started
+                    _upload_status= UPLOAD_STATUS_ONGOING;
+                } else {
+                    //if no set cancel flag
+                    _upload_status=UPLOAD_STATUS_FAILED;
+                    _webserver->send (500, "text/plain", "Cannot create file!");
+                    pushError(ESP_ERROR_FILE_CREATION, "File creation failed");
+                }
+
+            }
+            //Upload write
+        } else if(upload.status == UPLOAD_FILE_WRITE) {
+            //check if file is available and no error
+            if(fsUploadFile && _upload_status == UPLOAD_STATUS_ONGOING) {
+                //no error so write post date
+                if(upload.currentSize != fsUploadFile.write(upload.buf, upload.currentSize)) {
+                    //we have a problem set flag UPLOAD_STATUS_FAILED
+                    _upload_status=UPLOAD_STATUS_FAILED;
+                    _webserver->send (500, "text/plain", "Cannot write file!");
+                    pushError(ESP_ERROR_FILE_WRITE, "File write failed");
+                }
+            } else {
+                //we have a problem set flag UPLOAD_STATUS_FAILED
+                _upload_status=UPLOAD_STATUS_FAILED;
+                _webserver->send (500, "text/plain", "Cannot write file!");
+                pushError(ESP_ERROR_FILE_WRITE, "File write failed");
+            }
+            //Upload end
+        } else if(upload.status == UPLOAD_FILE_END) {
+            //check if file is still open
+            if(fsUploadFile) {
+                //close it
+                fsUploadFile.close();
+                //check size
+                String  sizeargname  = upload.filename + "S";
+                //fsUploadFile = ESP_FileSystem::open (filename, ESP_FILE_READ);
+                uint32_t filesize = fsUploadFile.size();
+                _upload_status = UPLOAD_STATUS_SUCCESSFUL;
+                if (_webserver->hasArg (sizeargname.c_str()) ) {
+                    if (_webserver->arg (sizeargname.c_str()) != String(filesize)) {
+                        _upload_status = UPLOAD_STATUS_FAILED;
+                        _webserver->send (500, "text/plain", "Upload error!");
+                        pushError(ESP_ERROR_SIZE, "File upload failed");
+                    }
+                }
+                if (_upload_status == UPLOAD_STATUS_ONGOING) {
+                    _upload_status = UPLOAD_STATUS_SUCCESSFUL;
+                }
+            } else {
+                //we have a problem set flag UPLOAD_STATUS_FAILED
+                _upload_status=UPLOAD_STATUS_FAILED;
+                _webserver->send (500, "text/plain", "Upload error!");
+                pushError(ESP_ERROR_FILE_CLOSE, "File close failed");
+            }
+            //Upload cancelled
+        } else {
+            if (_upload_status == UPLOAD_STATUS_ONGOING) {
+                _upload_status = UPLOAD_STATUS_FAILED;
+            }
             _webserver->send (500, "text/plain", "Upload error!");
         }
-        //Upload cancelled
-    } else {
-        if (_upload_status == UPLOAD_STATUS_ONGOING) {
-            _upload_status = UPLOAD_STATUS_CANCELLED;
-        }
+    }
+
+    if(_upload_status == UPLOAD_STATUS_FAILED) {
+        cancelUpload();
         if(fsUploadFile) {
             fsUploadFile.close();
         }
-        if (ESP_FileSystem::exists (filename.c_str()) ) {
-            ESP_FileSystem::remove (filename.c_str());
+        if (auth_level != LEVEL_GUEST) {
+            if (ESP_FileSystem::exists (filename.c_str())) {
+                ESP_FileSystem::remove (filename.c_str());
+            }
         }
-        _webserver->send (500, "text/plain", "Upload error!");
     }
 }
 #endif //HTTP_FEATURE && FILESYSTEM_FEATURE

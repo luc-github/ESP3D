@@ -84,16 +84,16 @@ void Hal::toneESP(uint8_t pin, unsigned int frequency, unsigned int duration, bo
     tone(pin, frequency, duration);
 #endif //ARDUINO_ARCH_ESP8266
 #if defined(ARDUINO_ARCH_ESP32)
-        int channel = getAnalogWriteChannel(pin);
-        if (channel  != -1){
-            ledcAttachPin(pin, channel);
-            ledcWriteTone(channel,frequency);
-            if (sync) {
-                wait(duration);
-                ledcWriteTone(pin,0);
-            }
+    int channel = getAnalogWriteChannel(pin);
+    if (channel  != -1) {
+        ledcAttachPin(pin, channel);
+        ledcWriteTone(channel,frequency);
+        if (sync) {
+            wait(duration);
+            ledcWriteTone(pin,0);
         }
-        
+    }
+
 #endif //ARDUINO_ARCH_ESP32
 }
 void Hal::no_tone(uint8_t pin)
@@ -103,7 +103,7 @@ void Hal::no_tone(uint8_t pin)
 #endif //ARDUINO_ARCH_ESP8266
 #if defined(ARDUINO_ARCH_ESP32)
     int channel = getAnalogWriteChannel(pin);
-    if (channel  != -1){
+    if (channel  != -1) {
         ledcWrite(channel, 0);
     }
 #endif //ARDUINO_ARCH_ESP32
@@ -130,10 +130,10 @@ int Hal::getAnalogWriteChannel(uint8_t pin)
     for (uint8_t p = 0; p < 16; p++) {
         if(ChannelAttached2Pin[p] == -1) {
             ChannelAttached2Pin[p] = pin;
-           return p;
+            return p;
         }
     }
-    
+
     return -1;
 }
 #endif //ARDUINO_ARCH_ESP32

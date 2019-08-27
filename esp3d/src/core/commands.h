@@ -90,6 +90,7 @@ public:
 #ifdef DHT_DEVICE
     bool ESP210(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #endif //DHT_DEVICE
+    bool ESP290(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     bool ESP400(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     bool ESP401(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #if defined (WIFI_FEATURE)

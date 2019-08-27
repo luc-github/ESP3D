@@ -94,37 +94,37 @@ Ticker esp_lv_tick; /* timer for interrupt handler */
 #define ESP_FLASH_LETTER_DRIVE 'F'
 //#define ESP_SD_LETTER_DRIVE 'S'
 
- //Logo
-LV_IMG_DECLARE(esplogo) 
+//Logo
+LV_IMG_DECLARE(esplogo)
 
 /* Display flushing */
 void esp_lv_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)
 {
-  //TODO: need to write version for oled with big resolution
-  uint16_t c;
-  esp3d_screen.startWrite(); /* Start new TFT transaction */
-  esp3d_screen.setAddrWindow(area->x1, area->y1, (area->x2 - area->x1 + 1), (area->y2 - area->y1 + 1)); /* set the working window */
-  for (int y = area->y1; y <= area->y2; y++) {
-    for (int x = area->x1; x <= area->x2; x++) {
-      c = color_p->full;
-      esp3d_screen.writeColor(c, 1);
+    //TODO: need to write version for oled with big resolution
+    uint16_t c;
+    esp3d_screen.startWrite(); /* Start new TFT transaction */
+    esp3d_screen.setAddrWindow(area->x1, area->y1, (area->x2 - area->x1 + 1), (area->y2 - area->y1 + 1)); /* set the working window */
+    for (int y = area->y1; y <= area->y2; y++) {
+        for (int x = area->x1; x <= area->x2; x++) {
+            c = color_p->full;
+            esp3d_screen.writeColor(c, 1);
 #if defined(DISPLAY_SNAPSHOT_FEATURE)
-      if(bSnapshot) { 
-          uint32_t data = lv_color_to32(*color_p);
-          fsSnapFile.write((const uint8_t *)(&data), sizeof(uint32_t));
-      }
+            if(bSnapshot) {
+                uint32_t data = lv_color_to32(*color_p);
+                fsSnapFile.write((const uint8_t *)(&data), sizeof(uint32_t));
+            }
 #endif //DISPLAY_SNAPSHOT_FEATURE
-      color_p++;
+            color_p++;
+        }
     }
-  }
-  esp3d_screen.endWrite(); /* terminate TFT transaction */
-  lv_disp_flush_ready(disp); /* tell lvgl that flushing is done */
+    esp3d_screen.endWrite(); /* terminate TFT transaction */
+    lv_disp_flush_ready(disp); /* tell lvgl that flushing is done */
 }
 
 /* Interrupt driven periodic handler */
 static void esp_lv_tick_handler(void)
 {
-  lv_tick_inc(LVGL_TICK_PERIOD);
+    lv_tick_inc(LVGL_TICK_PERIOD);
 }
 
 #if USE_LV_LOG != 0
@@ -132,8 +132,8 @@ static void esp_lv_tick_handler(void)
 void esp_lv_print(lv_log_level_t level, const char * file, uint32_t line, const char * dsc)
 {
 
-  Serial.printf("%s@%d->%s\r\n", file, line, dsc);
-  delay(100);
+    Serial.printf("%s@%d->%s\r\n", file, line, dsc);
+    delay(100);
 }
 #endif
 
@@ -141,21 +141,21 @@ void esp_lv_print(lv_log_level_t level, const char * file, uint32_t line, const 
 bool esp_lv_touch_read(lv_indev_drv_t * indev, lv_indev_data_t * data)
 {
 // Use TFT_eSPI for touch events
-  uint8_t bPressed = 0;
-  uint16_t nX=0;
-  uint16_t nY=0;
-  static lv_coord_t last_x = 0;
-  static lv_coord_t last_y = 0;
-  if (esp3d_screen.getTouch(&nX,&nY) > 0) {
-    last_x = nX;
-    last_y = nY;
-    data->state = LV_INDEV_STATE_PR;
-  } else {
-    data->state = LV_INDEV_STATE_REL;      
- }
-  data->point.x = last_x;
-  data->point.y = last_y;
-return false;
+    uint8_t bPressed = 0;
+    uint16_t nX=0;
+    uint16_t nY=0;
+    static lv_coord_t last_x = 0;
+    static lv_coord_t last_y = 0;
+    if (esp3d_screen.getTouch(&nX,&nY) > 0) {
+        last_x = nX;
+        last_y = nY;
+        data->state = LV_INDEV_STATE_PR;
+    } else {
+        data->state = LV_INDEV_STATE_REL;
+    }
+    data->point.x = last_x;
+    data->point.y = last_y;
+    return false;
 }
 #endif //DISPLAY_TOUCH_DRIVER
 
@@ -193,7 +193,9 @@ bool Display::startCalibration()
 
 bool Display::display_network_status(bool force)
 {
-    if (esp_lv_network_label == nullptr)return false;
+    if (esp_lv_network_label == nullptr) {
+        return false;
+    }
     static int sig = -1;
     bool refresh_signal = false;
     bool refresh_label = false;
@@ -233,7 +235,7 @@ bool Display::display_network_status(bool force)
         }
         if ( force || refresh_signal || refresh_label) {
             String s ;
-            if (sig == -1){
+            if (sig == -1) {
                 s = LV_SYMBOL_CLOSE;
             } else {
                 s = LV_SYMBOL_WIFI;
@@ -297,60 +299,60 @@ bool Display::display_network_status(bool force)
 
 bool Display::display_IP(bool force)
 {
-  if (esp_lv_IP_label != nullptr) {
-    bool refresh_label = force;
-    static String label;
+    if (esp_lv_IP_label != nullptr) {
+        bool refresh_label = force;
+        static String label;
 #if defined (WIFI_FEATURE) || defined (ETH_FEATURE) || defined (BLUETOOTH_FEATURE)
-    if (NetConfig::started()) {
-        String s;
-        switch(NetConfig::getMode()) {
+        if (NetConfig::started()) {
+            String s;
+            switch(NetConfig::getMode()) {
 #if defined (WIFI_FEATURE)
-        case ESP_WIFI_STA:
-            s = WiFi.localIP().toString();
-            break;
-        case ESP_WIFI_AP:
-            s = WiFi.softAPIP().toString();
-            break;
+            case ESP_WIFI_STA:
+                s = WiFi.localIP().toString();
+                break;
+            case ESP_WIFI_AP:
+                s = WiFi.softAPIP().toString();
+                break;
 #endif //WIFI_FEATURE	
 #if defined (ETH_FEATURE)
-        case ESP_ETH_STA:
-            s = ETH.localIP().toString();
-            break;
+            case ESP_ETH_STA:
+                s = ETH.localIP().toString();
+                break;
 #endif //ETH_FEATURE
 #if defined (BLUETOOTH_FEATURE)
-        case ESP_BT:
-            s = bt_service.isConnected()?"Connected":"";
-            break;
+            case ESP_BT:
+                s = bt_service.isConnected()?"Connected":"";
+                break;
 #endif //BLUETOOTH_FEATURE
-        default:
-            s="";
-            break;
-        }
-        if (s!= label) {
-            label = s;
-            refresh_label = true;
-        }
-        if (refresh_label) {
-            if (label.length()>0) {
-               lv_label_set_text(esp_lv_IP_label, label.c_str()); 
+            default:
+                s="";
+                break;
+            }
+            if (s!= label) {
+                label = s;
+                refresh_label = true;
+            }
+            if (refresh_label) {
+                if (label.length()>0) {
+                    lv_label_set_text(esp_lv_IP_label, label.c_str());
+                }
+            }
+        } else {
+            if (label != "") {
+                lv_label_set_text(esp_lv_IP_label, "");
             }
         }
-    } else {
-        if (label != "") {
-            lv_label_set_text(esp_lv_IP_label, ""); 
-        }
-    }
 #endif //WIFI_FEATURE || ETH_FEATURE || BLUETOOTH_FEATURE
-    return refresh_label;
+        return refresh_label;
     }
-  return false;
+    return false;
 }
 
 void Display::show_screenID(uint8_t screenID)
 {
-    if (_screenID != screenID){
+    if (_screenID != screenID) {
 #if defined(AUTO_SNAPSHOT_FEATURE)
-        if (_screenID != -1){
+        if (_screenID != -1) {
             String s = "/snap" + String(_screenID);
             s+=".bin";
             snapshot((char *)s.c_str());
@@ -359,74 +361,71 @@ void Display::show_screenID(uint8_t screenID)
         _screenID = screenID;
         clear_screen();
         switch (screenID) {
-            case SPLASH_SCREEN:
-                {
-                    lv_obj_t * img_splash = lv_img_create(esp_lv_screen, NULL);
-                    lv_img_set_src(img_splash, &esplogo); 
-                    lv_obj_align(img_splash, NULL, LV_ALIGN_CENTER, 0, -20);
-                    esp_lv_bar_progression = lv_bar_create(esp_lv_screen, NULL);
-                    lv_obj_set_size(esp_lv_bar_progression, 200, 30);
-                    lv_obj_align(esp_lv_bar_progression, NULL, LV_ALIGN_CENTER, 0, 80);
-                    lv_bar_set_range(esp_lv_bar_progression, 0, 90);
-                    lv_obj_t * labelsplash = lv_label_create(esp_lv_screen, NULL);
-                    lv_label_set_text(labelsplash, "Please wait...");
-                    lv_obj_align(labelsplash, NULL, LV_ALIGN_CENTER, 0, 120);
-                }
-                break;
-            case MAIN_SCREEN:
-                {
-                     lv_obj_t * esp_lv_top_container;
-                     lv_obj_t * esp_lv_main_container;
-                     lv_obj_t * esp_lv_bottom_container;
-                     //top
-                     esp_lv_top_container = lv_obj_create(esp_lv_screen, NULL);
-                     lv_obj_set_pos(esp_lv_top_container, 0,-10);
-                     lv_obj_set_size(esp_lv_top_container, SCREEN_WIDTH, 40);
-                     lv_obj_set_style(esp_lv_top_container, &lv_style_pretty_color);
-                     
-                     esp_lv_IP_label = lv_label_create(esp_lv_top_container, NULL);
-                     lv_label_set_text(esp_lv_IP_label, "0.0.0.0");
-                     lv_obj_align(esp_lv_IP_label, NULL, LV_ALIGN_IN_LEFT_MID, 10,+5);
-                     display_IP(true);
-                     
-                     esp_lv_network_label = lv_label_create(esp_lv_top_container, NULL);
-                     lv_label_set_text(esp_lv_network_label, LV_SYMBOL_CLOSE);
-                     lv_coord_t w = lv_obj_get_width(esp_lv_network_label);
-                     lv_obj_set_pos(esp_lv_network_label, SCREEN_WIDTH-w-5,+15);
-                     display_network_status(true);
-                     
-                     //main window
-                     esp_lv_main_container = lv_obj_create(esp_lv_screen, NULL);
-                     lv_obj_set_pos(esp_lv_main_container, 0,30);
-                     lv_obj_set_size(esp_lv_main_container, SCREEN_WIDTH, SCREEN_HEIGHT - (2*30));
-                     lv_obj_set_style(esp_lv_main_container, &lv_style_scr);
-                     
-                     //bottom
-                     esp_lv_bottom_container = lv_obj_create(esp_lv_screen, NULL);
-                     lv_obj_set_pos(esp_lv_bottom_container, 0,SCREEN_HEIGHT-30);
-                     lv_obj_set_size(esp_lv_bottom_container, SCREEN_WIDTH, 40);
-                     lv_obj_set_style(esp_lv_bottom_container, &lv_style_pretty_color);
-                     
-                     //status label
-                     esp_lv_status_label = lv_label_create(esp_lv_bottom_container, NULL);
-                     lv_label_set_text(esp_lv_status_label, _status.c_str());
-                     lv_obj_align(esp_lv_status_label, NULL, LV_ALIGN_IN_LEFT_MID, 10,-5);
-                    
-                }
-                break;
-            case CALIBRATION_SCREEN:
-                {
-                    lv_obj_t * labeltouch = lv_label_create(esp_lv_screen, NULL);
-                    lv_label_set_text(labeltouch, "Touch corners when requested.");
-                    lv_obj_align(labeltouch, NULL, LV_ALIGN_CENTER, 0, 0);
-                }
-                break;
-            default:
-                break;
+        case SPLASH_SCREEN: {
+            lv_obj_t * img_splash = lv_img_create(esp_lv_screen, NULL);
+            lv_img_set_src(img_splash, &esplogo);
+            lv_obj_align(img_splash, NULL, LV_ALIGN_CENTER, 0, -20);
+            esp_lv_bar_progression = lv_bar_create(esp_lv_screen, NULL);
+            lv_obj_set_size(esp_lv_bar_progression, 200, 30);
+            lv_obj_align(esp_lv_bar_progression, NULL, LV_ALIGN_CENTER, 0, 80);
+            lv_bar_set_range(esp_lv_bar_progression, 0, 90);
+            lv_obj_t * labelsplash = lv_label_create(esp_lv_screen, NULL);
+            lv_label_set_text(labelsplash, "Please wait...");
+            lv_obj_align(labelsplash, NULL, LV_ALIGN_CENTER, 0, 120);
+        }
+        break;
+        case MAIN_SCREEN: {
+            lv_obj_t * esp_lv_top_container;
+            lv_obj_t * esp_lv_main_container;
+            lv_obj_t * esp_lv_bottom_container;
+            //top
+            esp_lv_top_container = lv_obj_create(esp_lv_screen, NULL);
+            lv_obj_set_pos(esp_lv_top_container, 0,-10);
+            lv_obj_set_size(esp_lv_top_container, SCREEN_WIDTH, 40);
+            lv_obj_set_style(esp_lv_top_container, &lv_style_pretty_color);
+
+            esp_lv_IP_label = lv_label_create(esp_lv_top_container, NULL);
+            lv_label_set_text(esp_lv_IP_label, "0.0.0.0");
+            lv_obj_align(esp_lv_IP_label, NULL, LV_ALIGN_IN_LEFT_MID, 10,+5);
+            display_IP(true);
+
+            esp_lv_network_label = lv_label_create(esp_lv_top_container, NULL);
+            lv_label_set_text(esp_lv_network_label, LV_SYMBOL_CLOSE);
+            lv_coord_t w = lv_obj_get_width(esp_lv_network_label);
+            lv_obj_set_pos(esp_lv_network_label, SCREEN_WIDTH-w-5,+15);
+            display_network_status(true);
+
+            //main window
+            esp_lv_main_container = lv_obj_create(esp_lv_screen, NULL);
+            lv_obj_set_pos(esp_lv_main_container, 0,30);
+            lv_obj_set_size(esp_lv_main_container, SCREEN_WIDTH, SCREEN_HEIGHT - (2*30));
+            lv_obj_set_style(esp_lv_main_container, &lv_style_scr);
+
+            //bottom
+            esp_lv_bottom_container = lv_obj_create(esp_lv_screen, NULL);
+            lv_obj_set_pos(esp_lv_bottom_container, 0,SCREEN_HEIGHT-30);
+            lv_obj_set_size(esp_lv_bottom_container, SCREEN_WIDTH, 40);
+            lv_obj_set_style(esp_lv_bottom_container, &lv_style_pretty_color);
+
+            //status label
+            esp_lv_status_label = lv_label_create(esp_lv_bottom_container, NULL);
+            lv_label_set_text(esp_lv_status_label, _status.c_str());
+            lv_obj_align(esp_lv_status_label, NULL, LV_ALIGN_IN_LEFT_MID, 10,-5);
+
+        }
+        break;
+        case CALIBRATION_SCREEN: {
+            lv_obj_t * labeltouch = lv_label_create(esp_lv_screen, NULL);
+            lv_label_set_text(labeltouch, "Touch corners when requested.");
+            lv_obj_align(labeltouch, NULL, LV_ALIGN_CENTER, 0, 0);
+        }
+        break;
+        default:
+            break;
         }
     } else {
     }
-    
+
     update_screen(true);
 }
 
@@ -496,7 +495,7 @@ bool Display::begin()
     esp_lv_disp_drv.flush_cb = esp_lv_disp_flush;
     esp_lv_disp_drv.buffer = &esp_lv_disp_buf;
     lv_disp_drv_register(&esp_lv_disp_drv);
-    
+
     //Register Flash driver for images
     lv_fs_drv_t esp_lv_flash_drv;                         /*A driver descriptor*/
     memset(&esp_lv_flash_drv, 0, sizeof(lv_fs_drv_t));    /*Initialization*/
@@ -508,9 +507,9 @@ bool Display::begin()
     esp_lv_flash_drv.seek_cb = esp_flash_seek;
     esp_lv_flash_drv.tell_cb = esp_flash_tell;
     lv_fs_drv_register(&esp_lv_flash_drv);
-    
+
     //TODO: Register SD card driver for images
-    
+
 #if defined(DISPLAY_LED_PIN) && (DISPLAY_LED_PIN != -1)
     pinMode(DISPLAY_LED_PIN, OUTPUT);    // sets the digital pin as output
     digitalWrite(DISPLAY_LED_PIN, HIGH); //switch on the led
@@ -524,7 +523,7 @@ bool Display::begin()
         }
         esp3d_screen.setTouch(calibrationData);
     }
-    
+
     /*Register the touch pad*/
     lv_indev_drv_t esp_lv_indev_drv;
     lv_indev_drv_init(&esp_lv_indev_drv);
@@ -538,7 +537,7 @@ bool Display::begin()
     lv_theme_set_current(th);
 #endif //DISPLAY_UI_COLOR == UI_MONOCHROME
 
-     /*Initialize the graphics library's tick*/
+    /*Initialize the graphics library's tick*/
     esp_lv_tick.attach_ms(LVGL_TICK_PERIOD, esp_lv_tick_handler);
     show_screenID(SPLASH_SCREEN);
     res = true;
@@ -569,13 +568,13 @@ void Display::SetStatus(const char * status)
     if (esp_lv_status_label != nullptr) {
         lv_label_set_text(esp_lv_status_label, status);
         update_screen();
-    } 
+    }
 }
 
 void Display::clear_screen(bool force)
 {
     //clear all objects on screen
-    if(esp_lv_screen != nullptr){
+    if(esp_lv_screen != nullptr) {
         lv_obj_del(esp_lv_screen);
     }
     //reset global object
@@ -583,7 +582,7 @@ void Display::clear_screen(bool force)
     esp_lv_bar_progression = nullptr;
     esp_lv_IP_label = nullptr;
     esp_lv_network_label = nullptr;
-    
+
     //create enpty screen
     esp_lv_screen = lv_obj_create(lv_scr_act(), NULL);
     lv_obj_set_pos(esp_lv_screen, 0,0);
@@ -606,7 +605,7 @@ void Display::update_screen(bool force)
     lv_task_handler();
     if(force) {
 #if DISPLAY_DEVICE == OLED_I2C_SSD1306 || DISPLAY_DEVICE == OLED_I2C_SSDSH1106
-            esp3d_screen.display();
+        esp3d_screen.display();
 #endif //DISPLAY_DEVICE == OLED_I2C_SSD1306 || DISPLAY_DEVICE == OLED_I2C_SSDSH1106
         delay(100);
         lv_task_handler();
@@ -635,25 +634,25 @@ void Display::progress(uint8_t v)
 
 bool Display::snapshot(char * filename)
 {
-  bool res = false; 
+    bool res = false;
 #if defined(DISPLAY_SNAPSHOT_FEATURE)
-  if(filename) {
+    if(filename) {
         fsSnapFile = ESP_FileSystem::open(filename, ESP_FILE_WRITE);
-    }else {
+    } else {
         fsSnapFile = ESP_FileSystem::open(SNAPFILENAME, ESP_FILE_WRITE);
-    } 
-  if (!fsSnapFile) {
-    return false;
-  }
+    }
+    if (!fsSnapFile) {
+        return false;
+    }
 
-  bSnapshot = true;
-  lv_obj_invalidate(lv_scr_act());
-  lv_refr_now(lv_disp_get_default());                    /* Will call our disp_drv.disp_flush function */
-  bSnapshot = false;
-  fsSnapFile.close();
-  return true;
+    bSnapshot = true;
+    lv_obj_invalidate(lv_scr_act());
+    lv_refr_now(lv_disp_get_default());                    /* Will call our disp_drv.disp_flush function */
+    bSnapshot = false;
+    fsSnapFile.close();
+    return true;
 #endif //DISPLAY_SNAPSHOT_FEATURE
-  return res;
+    return res;
 }
 
 #endif //DISPLAY_DEVICE

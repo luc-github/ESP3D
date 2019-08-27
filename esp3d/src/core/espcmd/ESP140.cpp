@@ -24,8 +24,8 @@
 #include "../settings_esp3d.h"
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/time/time_server.h"
-//Init / Get current time
-//[ESP140]<INIT> <srv1=XXXXX> <srv2=XXXXX> <srv3=XXXXX> <zone=xxx> <dst=YES/NO> <time=YYYY-MM-DD#H24:MM:SS> pwd=<admin password>
+//Sync / Set / Get current time
+//[ESP140]<SYNC> <srv1=XXXXX> <srv2=XXXXX> <srv3=XXXXX> <zone=xxx> <dst=YES/NO> <time=YYYY-MM-DD#H24:MM:SS> pwd=<admin password>
 bool Commands::ESP140(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
     bool response = true;
@@ -84,13 +84,20 @@ bool Commands::ESP140(const char* cmd_params, level_authenticate_type auth_type,
             output->printMSG("Setting time");
             if(!timeserver.setTime(s.c_str())) {
                 output->printERROR("Set time failed!");
+                response = false;
             }
         }
 
-        if (hastag(parameter.c_str(), "INIT")) {
-            output->printMSG("Contacting time servers");
-            if(!timeserver.begin()) {
-                output->printERROR("Init time failed!");
+        if (hastag(parameter.c_str(), "SYNC")) {
+            if (timeserver.is_internet_time()) {
+                output->printMSG("Contacting time servers");
+                if(!timeserver.begin()) {
+                    output->printERROR("Init time failed!");
+                    response = false;
+                }
+            } else {
+                output->printERROR("Time is manual!");
+                response = false;
             }
         }
     }

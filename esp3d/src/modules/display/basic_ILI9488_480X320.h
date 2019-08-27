@@ -44,7 +44,7 @@
 #define FONTCALIBRATION 2
 
 //Positions
-#define SIGNAL_X SCREEN_WIDTH-34 
+#define SIGNAL_X SCREEN_WIDTH-34
 #define SIGNAL_Y 0
 #define SIGNAL_W 34
 #define SIGNAL_H 16

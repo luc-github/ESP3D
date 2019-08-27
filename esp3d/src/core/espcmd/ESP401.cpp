@@ -28,6 +28,9 @@
 #ifdef BUZZER_DEVICE
 #include "../../modules/buzzer/buzzer.h"
 #endif //BUZZER_DEVICE
+#ifdef TIMESTAMP_FEATURE
+#include "../../modules/time/time_server.h"
+#endif //TIMESTAMP_FEATURE
 //Set EEPROM setting
 //[ESP401]P=<position> T=<type> V=<value> pwd=<user/admin password>
 bool Commands::ESP401(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
@@ -64,6 +67,11 @@ bool Commands::ESP401(const char* cmd_params, level_authenticate_type auth_type,
                 case ESP_TARGET_FW:
                     Settings_ESP3D::GetFirmwareTarget(true);
                     break;
+#ifdef TIMESTAMP_FEATURE
+                case ESP_INTERNET_TIME:
+                    timeserver.begin();
+                    break;
+#endif //TIMESTAMP_FEATURE
 #ifdef DHT_DEVICE
                 case ESP_DHT_TYPE:
                     esp3d_DHT.begin();

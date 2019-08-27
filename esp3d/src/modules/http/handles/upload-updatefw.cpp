@@ -40,87 +40,91 @@ void HTTP_Server::WebUpdateUpload ()
     ESP3DOutput  output(ESP_ALL_CLIENTS);
     //only admin can update FW
     if (AuthenticationService::authenticated_level() != LEVEL_ADMIN) {
-        _upload_status = UPLOAD_STATUS_CANCELLED;
+        _upload_status = UPLOAD_STATUS_FAILED;
         _webserver->send (401, "text/plain", "Wrong authentication!");
-        return;
+        pushError(ESP_ERROR_AUTHENTICATION, "Upload rejected");
     }
-    //get current file ID
-    HTTPUpload& upload = _webserver->upload();
-    //Upload start
-    if(upload.status == UPLOAD_FILE_START) {
-        output.printMSG("Update Firmware");
-        _upload_status= UPLOAD_STATUS_ONGOING;
-        String  sizeargname  = upload.filename + "S";
-        if (_webserver->hasArg (sizeargname.c_str()) ) {
-            downloadsize = _webserver->arg (sizeargname).toInt();
-        } else {
-            downloadsize = 0;
-        }
-        if (downloadsize > ESP_FileSystem::max_update_size()) {
-            _upload_status=UPLOAD_STATUS_CANCELLED;
-            output.printERROR("Update oversized!");
-            _webserver->send (500, "text/plain", "Update oversized!");
-            return;
-        }
-        last_upload_update = 0;
-        if(!Update.begin(UPDATE_SIZE)) { //start with unknown = max available size
-            _upload_status=UPLOAD_STATUS_CANCELLED;
-            output.printERROR("Update canceled!");
-            _webserver->send (500, "text/plain", "Update canceled!");
-            return;
-        } else {
-            output.printMSG("Update 0%");
-        }
-        //Upload write
-
-    } else if(upload.status == UPLOAD_FILE_WRITE) {
-//check if no error
-        if (_upload_status == UPLOAD_STATUS_ONGOING) {
-            //we do not know the total file size yet but we know the available space so let's use it
-            if (downloadsize != 0) {
-                if ( ((100 * upload.totalSize) / downloadsize) !=last_upload_update) {
-                    if ( downloadsize > 0) {
-                        last_upload_update = (100 * upload.totalSize) / downloadsize;
-                    } else {
-                        last_upload_update = upload.totalSize;
-                    }
-                    String s = "Update ";
-                    s+= String(last_upload_update);
-                    s+="%";
-                    output.printMSG(s.c_str());
+    if (_upload_status != UPLOAD_STATUS_FAILED) {
+        //get current file ID
+        HTTPUpload& upload = _webserver->upload();
+        //Upload start
+        if(upload.status == UPLOAD_FILE_START) {
+            output.printMSG("Update Firmware");
+            _upload_status= UPLOAD_STATUS_ONGOING;
+            String  sizeargname  = upload.filename + "S";
+            if (_webserver->hasArg (sizeargname.c_str()) ) {
+                downloadsize = _webserver->arg (sizeargname).toInt();
+            } else {
+                downloadsize = 0;
+            }
+            if (downloadsize > ESP_FileSystem::max_update_size()) {
+                _upload_status=UPLOAD_STATUS_FAILED;
+                _webserver->send (500, "text/plain", "Update oversized!");
+                pushError(ESP_ERROR_NOT_ENOUGH_SPACE, "Upload rejected");
+            }
+            last_upload_update = 0;
+            if (_upload_status != UPLOAD_STATUS_FAILED) {
+                if(!Update.begin(UPDATE_SIZE)) { //start with unknown = max available size
+                    _upload_status=UPLOAD_STATUS_FAILED;
+                    output.printERROR("Update rejected!",500);
+                    pushError(ESP_ERROR_NOT_ENOUGH_SPACE, "Upload rejected");
+                } else {
+                    output.printMSG("Update 0%");
                 }
             }
-            if(Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
-                _upload_status=UPLOAD_STATUS_CANCELLED;
-                output.printERROR("Update write failed!");
-                _webserver->send (500, "text/plain", "Update write failed!");
-                return;
+            //Upload write
+        } else if(upload.status == UPLOAD_FILE_WRITE) {
+            //check if no error
+            if (_upload_status == UPLOAD_STATUS_ONGOING) {
+                //we do not know the total file size yet but we know the available space so let's use it
+                if (downloadsize != 0) {
+                    if ( ((100 * upload.totalSize) / downloadsize) !=last_upload_update) {
+                        if ( downloadsize > 0) {
+                            last_upload_update = (100 * upload.totalSize) / downloadsize;
+                        } else {
+                            last_upload_update = upload.totalSize;
+                        }
+                        String s = "Update ";
+                        s+= String(last_upload_update);
+                        s+="%";
+                        output.printMSG(s.c_str());
+                    }
+                }
+                if(Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
+                    _upload_status=UPLOAD_STATUS_FAILED;
+                    output.printERROR("Update write failed!",500);
+                    pushError(ESP_ERROR_FILE_WRITE, "File write failed");
+                }
             }
-        }
-//Upload end
+            //Upload end
 
-    } else if(upload.status == UPLOAD_FILE_END) {
-        if ((downloadsize!=0) && (downloadsize < upload.totalSize)) {
-            _upload_status=UPLOAD_STATUS_CANCELLED;
-        }
-        if (_upload_status == UPLOAD_STATUS_ONGOING) {
-            if(Update.end(true)) { //true to set the size to the current progress
-                //Now Reboot
-                output.printMSG("Update 100%");
-                _upload_status=UPLOAD_STATUS_SUCCESSFUL;
+        } else if(upload.status == UPLOAD_FILE_END) {
+            if ((downloadsize!=0) && (downloadsize < upload.totalSize)) {
+                _upload_status=UPLOAD_STATUS_FAILED;
+            }
+            if (_upload_status == UPLOAD_STATUS_ONGOING) {
+                if(Update.end(true)) { //true to set the size to the current progress
+                    //Now Reboot
+                    output.printMSG("Update 100%");
+                    _upload_status=UPLOAD_STATUS_SUCCESSFUL;
+                } else {
+                    output.printERROR("Update failed!",500);
+                    _upload_status=UPLOAD_STATUS_FAILED;
+                    pushError(ESP_ERROR_FILE_CLOSE, "File close failed");
+                }
             } else {
-                output.printERROR("Update failed!");
-                _webserver->send (500, "text/plain", "Update failed!");
+                _upload_status=UPLOAD_STATUS_FAILED;
+                output.printERROR("Update failed!", 500);
+                pushError(ESP_ERROR_FILE_CLOSE, "File close failed");
             }
         } else {
-            output.printERROR("Update failed!");
-            _webserver->send (500, "text/plain", "Update failed!");
+            output.printERROR("Update failed!",500);
+            _upload_status=UPLOAD_STATUS_FAILED;
         }
-    } else if(upload.status == UPLOAD_FILE_ABORTED) {
-        output.printERROR("Update failed!");
-        _webserver->send (500, "text/plain", "Update failed!");
+    }
+    if(_upload_status == UPLOAD_STATUS_FAILED) {
+        cancelUpload();
         Update.end();
-        _upload_status=UPLOAD_STATUS_CANCELLED;
     }
 }
 #endif //HTTP_FEATURE && WEB_UPDATE_FEATURE

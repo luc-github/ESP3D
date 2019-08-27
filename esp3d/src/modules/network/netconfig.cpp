@@ -114,6 +114,30 @@ bool NetConfig::isHostnameValid (const char * hostname)
 }
 
 /**
+ * Get IP string what ever is enabled
+ */
+String NetConfig::localIP()
+{
+    static String currentIP = "";
+#if defined( WIFI_FEATURE)
+    if (WiFi.getMode() == WIFI_STA) {
+        currentIP = WiFi.localIP().toString();
+    } else if (WiFi.getMode() == WIFI_AP) {
+        currentIP = WiFi.softAPIP().toString();
+    }
+#endif //WIFI_FEATURE
+#if defined (ETH_FEATURE)
+    if (EthConfig::started()) {
+        currentIP = ETH.localIP().toString();
+    }
+#endif //ETH_FEATURE
+    if (currentIP.length() == 0) {
+        currentIP = "0.0.0.0";
+    }
+    return currentIP;
+}
+
+/**
  * Check if IP string is valid
  */
 
@@ -166,7 +190,7 @@ void NetConfig::onWiFiEvent(WiFiEvent_t event)
     break;
     case SYSTEM_EVENT_ETH_DISCONNECTED: {
         output.printMSG ("Cable disconnected");
-         ESP3DGlobalOutput::SetStatus("Cable disconnected");
+        ESP3DGlobalOutput::SetStatus("Cable disconnected");
     }
     break;
     case SYSTEM_EVENT_ETH_GOT_IP:
