@@ -705,12 +705,31 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
     }
     break;
 #endif
+    //Command delay
+    case 290: {
+        parameter = get_param (cmd_params, "", true);
+#ifdef AUTHENTICATION_FEATURE
+        if (auth_type == LEVEL_GUEST) {
+            ESPCOM::println (INCORRECT_CMD_MSG, output, espresponse);
+            response = false;
+        } else
+#endif
+        {
+            if (parameter.length() != 0) {
+                ESPCOM::println ("Pause", output, espresponse);
+                CONFIG::wait(parameter.toInt());
+                }
+            ESPCOM::println (OK_CMD_MSG, output, espresponse);
+        }
+    }
+    break;
     //display ESP3D EEPROM version detected
     case 300: {
         uint8_t v = CONFIG::get_EEPROM_version();
         ESPCOM::println (String(v).c_str(), output, espresponse);
     }
     break;
+    
     //Get full EEPROM settings content
     //[ESP400]
     case 400: {

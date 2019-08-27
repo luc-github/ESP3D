@@ -73,6 +73,9 @@ if RAW=YES do not set pinmode just read value
 * Output to oled line 4
 [ESP214]<Text>
 
+* Delay command
+[ESP290]<delay in ms>[pwd=<user password>]
+
 * Give EEPROM Version detected
 [ESP300]
 
