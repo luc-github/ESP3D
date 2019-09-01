@@ -1907,6 +1907,14 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
 #else
         ESPCOM::print (F ("Sync:"), output, espresponse);
         String sp = String(wifi_config.iweb_port+1);
+        sp += ":";
+        if (WiFi.getMode() == WIFI_STA) {
+             sp += WiFi.localIP().toString();
+        } else if ((WiFi.getMode() == WIFI_AP) || (WiFi.getMode() == WIFI_AP_STA)) {
+             sp += WiFi.softAPIP().toString();
+        } else {
+             sp += "0.0.0.0";
+        }
         ESPCOM::print (sp.c_str(), output, espresponse);
 #endif
 

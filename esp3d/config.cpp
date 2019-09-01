@@ -29,7 +29,9 @@
 extern "C" {
 #include "user_interface.h"
 }
-#else
+#endif
+#ifdef ARDUINO_ARCH_ESP32
+#include <esp_ota_ops.h>
 #include "Update.h"
 #include "esp_wifi.h"
 #endif
@@ -1044,13 +1046,13 @@ void CONFIG::print_config (tpipe output, bool plaintext, ESPResponseStream  *esp
     } else {
         ESPCOM::print (F ("Available Size for update: "), output, espresponse);
     }
-    uint32_t  flashsize = ESP.getFlashChipSize();
-    //Not OTA on 2Mb board per spec
-    if (flashsize > 0x20000) {
-        flashsize = 0x140000;
-    } else {
-        flashsize = 0x0;
-    }
+     size_t flashsize = 0;
+    if (esp_ota_get_running_partition()) {
+        const esp_partition_t* partition = esp_ota_get_next_update_partition(NULL);
+        if (partition) {
+            flashsize = partition->size;
+        }
+    } 
     ESPCOM::print (formatBytes (flashsize).c_str(), output, espresponse);
     if (!plaintext) {
         ESPCOM::print (F ("\","), output, espresponse);

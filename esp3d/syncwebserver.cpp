@@ -35,11 +35,13 @@
 #if defined ( ARDUINO_ARCH_ESP8266)
 #include "ESP8266WiFi.h"
 #include <ESP8266WebServer.h>
-#else //ESP32
+#endif
+#if defined ( ARDUINO_ARCH_ESP32)
 #include <WiFi.h>
 #include <WebServer.h>
 #include "SPIFFS.h"
 #include "Update.h"
+#include <esp_ota_ops.h>
 #endif
 
 #include "GenLinkedList.h"
@@ -72,16 +74,41 @@ WebSocketsServer * socket_server;
 #define ESP_ERROR_BUFFER_OVERFLOW 11
 #define ESP_ERROR_START_UPLOAD 12
 
-void pushError(int code, const char * st){
+void pushError(int code, const char * st, bool web_error = 500, uint16_t timeout = 1000){
     if (socket_server && st) {
         String s = "ERROR:" + String(code) + ":";
         s+=st;
         socket_server->sendTXT(ESPCOM::current_socket_id, s);
+        if (web_error != 0) {
+            if (web_interface) {
+                if (web_interface->web_server.client().available() > 0) {
+                    web_interface->web_server.send (500, "text/xml", st);
+                }
+            }
+        }
+        uint32_t t = millis();
+        while (millis() - t < timeout) {
+            socket_server->loop();
+            delay(10);
+        }
     }
-    uint32_t t = millis();
-    while (millis() - t < 1000) {
-        socket_server->loop();
-        delay(10);
+} 
+
+//abort reception of packages
+void cancelUpload(){  
+    if (web_interface) {
+        if (web_interface->web_server.client().available() > 0) {
+            HTTPUpload& upload = (web_interface->web_server).upload();
+            upload.status = UPLOAD_FILE_ABORTED;
+#if defined (ARDUINO_ARCH_ESP8266)
+            web_interface->web_server.client().stopAll();
+#endif
+#if defined (ARDUINO_ARCH_ESP32) 
+            errno = ECONNABORTED;
+            web_interface->web_server.client().stop();
+#endif
+            delay(100);
+        } 
     }
 }
 
@@ -134,18 +161,6 @@ extern bool purge_serial();
 const uint8_t PAGE_404 [] PROGMEM = "<HTML>\n<HEAD>\n<title>Redirecting...</title> \n</HEAD>\n<BODY>\n<CENTER>Unknown page : $QUERY$- you will be redirected...\n<BR><BR>\nif not redirected, <a href='http://$WEB_ADDRESS$'>click here</a>\n<BR><BR>\n<PROGRESS name='prg' id='prg'></PROGRESS>\n\n<script>\nvar i = 0; \nvar x = document.getElementById(\"prg\"); \nx.max=5; \nvar interval=setInterval(function(){\ni=i+1; \nvar x = document.getElementById(\"prg\"); \nx.value=i; \nif (i>5) \n{\nclearInterval(interval);\nwindow.location.href='/';\n}\n},1000);\n</script>\n</CENTER>\n</BODY>\n</HTML>\n\n";
 const uint8_t PAGE_CAPTIVE [] PROGMEM = "<HTML>\n<HEAD>\n<title>Captive Portal</title> \n</HEAD>\n<BODY>\n<CENTER>Captive Portal page : $QUERY$- you will be redirected...\n<BR><BR>\nif not redirected, <a href='http://$WEB_ADDRESS$'>click here</a>\n<BR><BR>\n<PROGRESS name='prg' id='prg'></PROGRESS>\n\n<script>\nvar i = 0; \nvar x = document.getElementById(\"prg\"); \nx.max=5; \nvar interval=setInterval(function(){\ni=i+1; \nvar x = document.getElementById(\"prg\"); \nx.value=i; \nif (i>5) \n{\nclearInterval(interval);\nwindow.location.href='/';\n}\n},1000);\n</script>\n</CENTER>\n</BODY>\n</HTML>\n\n";
 #define  CONTENT_TYPE_HTML "text/html"
-
-void cancelUpload(){ 
-    HTTPUpload& upload = (web_interface->web_server).upload(); 
-    upload.status = UPLOAD_FILE_ABORTED;
-#if defined ( ARDUINO_ARCH_ESP8266)
-    web_interface->web_server.client().stopAll();
-#else 
-    errno = ECONNABORTED;
-    web_interface->web_server.client().stop();
-#endif
-    delay(100);
-}
 
 //Root of Webserver/////////////////////////////////////////////////////
 
@@ -236,6 +251,8 @@ void handle_login()
                         ((sUser==FPSTR(DEFAULT_USER_LOGIN)) && (strcmp(sPassword.c_str(),suserPassword.c_str()) == 0)))) {
                     msg_alert_error=true;
                     smsg=F("Error: Incorrect password");
+                    Serial.println(sPassword.c_str());
+                    Serial.println(sadminPassword.c_str());
                     code = 401;
                 }
             }
@@ -363,6 +380,7 @@ void handleFileList()
     String status = "Ok";
     if ((web_interface->_upload_status == UPLOAD_STATUS_FAILED) || (web_interface->_upload_status == UPLOAD_STATUS_FAILED)) {
         status = "Upload failed";
+        web_interface->_upload_status=UPLOAD_STATUS_NONE;
     }
     //be sure root is correct according authentication
     if (auth_level == LEVEL_ADMIN) {
@@ -615,17 +633,35 @@ void SPIFFSFileupload()
             if (fsUploadFile ) {
                 fsUploadFile.close();
             }
-            //create file
-            fsUploadFile = SPIFFS.open(filename, SPIFFS_FILE_WRITE);
-            //check If creation succeed
-            if (fsUploadFile) {
-                //if yes upload is started
-                web_interface->_upload_status= UPLOAD_STATUS_ONGOING;
-            } else {
-                //if no set cancel flag
-                web_interface->_upload_status=UPLOAD_STATUS_FAILED;
-                ESPCOM::println (F ("Error ESP create"), PRINTER_PIPE);
-                pushError(ESP_ERROR_FILE_CREATION, "File creation failed");
+            if ((web_interface->web_server).hasArg (sizeargname.c_str()) ) {
+                uint32_t filesize = (web_interface->web_server).arg (sizeargname.c_str()).toInt();
+#if defined ( ARDUINO_ARCH_ESP8266)
+                fs::FSInfo info;
+                SPIFFS.info(info);
+                 uint32_t freespace = info.totalBytes- info.usedBytes;
+#endif
+#if defined ( ARDUINO_ARCH_ESP32)
+                uint32_t freespace = SPIFFS.totalBytes() - SPIFFS.usedBytes();
+#endif
+                
+                if (filesize > freespace) {
+                    web_interface->_upload_status=UPLOAD_STATUS_FAILED;
+                    pushError(ESP_ERROR_NOT_ENOUGH_SPACE, "Upload rejected, not enough space");
+                }
+            }
+            if (web_interface->_upload_status != UPLOAD_STATUS_FAILED) {
+                //create file
+                fsUploadFile = SPIFFS.open(filename, SPIFFS_FILE_WRITE);
+                //check If creation succeed
+                if (fsUploadFile) {
+                    //if yes upload is started
+                    web_interface->_upload_status= UPLOAD_STATUS_ONGOING;
+                } else {
+                    //if no set cancel flag
+                    web_interface->_upload_status=UPLOAD_STATUS_FAILED;
+                    ESPCOM::println (F ("Error ESP create"), PRINTER_PIPE);
+                    pushError(ESP_ERROR_FILE_CREATION, "File creation failed");
+                }
             }
             //Upload write
             //**************
@@ -697,22 +733,41 @@ void WebUpdateUpload()
         if(upload.status == UPLOAD_FILE_START) {
             ESPCOM::println (F ("Update Firmware"), PRINTER_PIPE);
             web_interface->_upload_status= UPLOAD_STATUS_ONGOING;
+            String  sizeargname  = upload.filename + "S";
+            
 #if defined ( ARDUINO_ARCH_ESP8266)
             WiFiUDP::stopAll();
 #endif
+            size_t flashsize = 0;
 #if defined ( ARDUINO_ARCH_ESP8266)
-            maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+            flashsize = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
 #else 
-    //Not sure can do OTA on 2Mb board
-            maxSketchSpace = (ESP.getFlashChipSize()>0x20000)?0x140000:0x140000/2;
+            
+            if (esp_ota_get_running_partition()) {
+                const esp_partition_t* partition = esp_ota_get_next_update_partition(NULL);
+                if (partition) {
+                    flashsize = partition->size;
+                }
+            }  
 #endif
-            last_upload_update = 0;
-            if(!Update.begin(maxSketchSpace)) { //start with max available size
+            if ((web_interface->web_server).hasArg (sizeargname.c_str()) ) {
+                maxSketchSpace = (web_interface->web_server).arg (sizeargname).toInt();
+            } else {
+                maxSketchSpace = flashsize;
+            }
+            if ((flashsize > flashsize) || (flashsize == 0)) {
                 web_interface->_upload_status=UPLOAD_STATUS_FAILED;
                 pushError(ESP_ERROR_NOT_ENOUGH_SPACE, "Upload rejected");
-            } else {
-                if (( CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER)) ESPCOM::println (F ("Update 0%%"), PRINTER_PIPE);
-                else ESPCOM::println (F ("Update 0%"), PRINTER_PIPE);
+            }
+            if (web_interface->_upload_status != UPLOAD_STATUS_FAILED) {
+                last_upload_update = 0;
+                if(!Update.begin(maxSketchSpace)) { //start with max available size
+                    web_interface->_upload_status=UPLOAD_STATUS_FAILED;
+                    pushError(ESP_ERROR_NOT_ENOUGH_SPACE, "Upload rejected");
+                } else {
+                    if (( CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER)) ESPCOM::println (F ("Update 0%%"), PRINTER_PIPE);
+                    else ESPCOM::println (F ("Update 0%"), PRINTER_PIPE);
+                }
             }
             //Upload write
             //**************
@@ -745,12 +800,13 @@ void WebUpdateUpload()
         } else if(upload.status == UPLOAD_FILE_ABORTED) {
             ESPCOM::println (F("Update Failed"), PRINTER_PIPE);
             web_interface->_upload_status=UPLOAD_STATUS_FAILED;
-            pushError(ESP_ERROR_UPLOAD_CANCELLED, "Upload cancelled");
+            //pushError(ESP_ERROR_UPLOAD_CANCELLED, "Upload cancelled");
         }
     }
     
     if (web_interface->_upload_status==UPLOAD_STATUS_FAILED) {
         cancelUpload();
+        Update.end();
     }
     
     CONFIG::wait(0);
@@ -1337,7 +1393,7 @@ void SDFile_serial_upload()
         } else { //UPLOAD_FILE_ABORTED
             LOG("Error, Something happened\r\n");
             web_interface->_upload_status= UPLOAD_STATUS_FAILED;
-            pushError(ESP_ERROR_UPLOAD_CANCELLED, "Upload cancelled");
+            //pushError(ESP_ERROR_UPLOAD_CANCELLED, "Upload cancelled");
         }
     }
     
