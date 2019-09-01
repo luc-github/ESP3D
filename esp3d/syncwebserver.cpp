@@ -610,7 +610,7 @@ void SPIFFSFileupload()
     if (auth_level == LEVEL_GUEST) {
         web_interface->_upload_status=UPLOAD_STATUS_FAILED;
         ESPCOM::println (F ("Upload rejected"), PRINTER_PIPE);
-        pushError(ESP_ERROR_AUTHENTICATION, "Upload rejected");
+        pushError(ESP_ERROR_AUTHENTICATION, "Upload rejected", 401);
     } else {
         //get current file ID
         HTTPUpload& upload = (web_interface->web_server).upload();
@@ -724,7 +724,7 @@ void WebUpdateUpload()
         web_interface->_upload_status=UPLOAD_STATUS_FAILED;
         ESPCOM::println (F ("Update failed"), PRINTER_PIPE);
         LOG("Web Update failed\r\n");
-        pushError(ESP_ERROR_AUTHENTICATION, "Upload rejected");
+        pushError(ESP_ERROR_AUTHENTICATION, "Upload rejected",401);
     } else {
         //get current file ID
         HTTPUpload& upload = (web_interface->web_server).upload();
@@ -1232,7 +1232,7 @@ void handle_serial_SDFileList()
 }
 
 #define NB_RETRY 5
-#define MAX_RESEND_BUFFER 128
+#define MAX_RESEND_BUFFER 228
 #define SERIAL_CHECK_TIMEOUT 2000
 //SD file upload by serial
 void SDFile_serial_upload()
@@ -1246,7 +1246,7 @@ void SDFile_serial_upload()
     if(web_interface->is_authenticated() == LEVEL_GUEST) {
         web_interface->_upload_status=UPLOAD_STATUS_FAILED;
         ESPCOM::println (F ("SD upload rejected"), PRINTER_PIPE);
-        pushError(ESP_ERROR_AUTHENTICATION, "Upload rejected");
+        pushError(ESP_ERROR_AUTHENTICATION, "Upload rejected", 401);
         LOG("SD upload rejected\r\n");
     } else {
         //retrieve current file id
@@ -1337,7 +1337,7 @@ void SDFile_serial_upload()
                     //if comment line then reset
                     is_comment = false;
                     //does line fit the buffer ?
-                    if (current_line.length() < 126) {
+                    if (current_line.length() < MAX_RESEND_BUFFER) {
                         //do we have something in buffer ?
                         if (current_line.length() > 0 ) {
                             lineNb++;
@@ -1361,7 +1361,7 @@ void SDFile_serial_upload()
                         pushError(ESP_ERROR_BUFFER_OVERFLOW, "Error buffer overflow");
                     }
                 } else if (!is_comment) {
-                    if (current_line.length() < 126) {
+                    if (current_line.length() < MAX_RESEND_BUFFER) {
                         current_line += char (upload.buf[pos]);  //copy current char to buffer to send/resend
                     } else {
                         LOG ("Error over buffer\n")
