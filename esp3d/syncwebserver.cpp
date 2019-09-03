@@ -614,94 +614,97 @@ void SPIFFSFileupload()
     } else {
         //get current file ID
         HTTPUpload& upload = (web_interface->web_server).upload();
-        //Upload start
-        //**************
-        if(upload.status == UPLOAD_FILE_START) {
-            String upload_filename = upload.filename;
-            String  sizeargname  = upload_filename + "S";
-            if (upload_filename[0] != '/') filename = "/" + upload_filename;
-            else filename = upload.filename;
-            //according User or Admin the root is different as user is isolate to /user when admin has full access
-            if(auth_level != LEVEL_ADMIN) {
-                upload_filename = filename;
-                filename = "/user" + upload_filename;
-            }
-            
-            if (SPIFFS.exists (filename) ) {
-                SPIFFS.remove (filename);
-            }
-            if (fsUploadFile ) {
-                fsUploadFile.close();
-            }
-            if ((web_interface->web_server).hasArg (sizeargname.c_str()) ) {
-                uint32_t filesize = (web_interface->web_server).arg (sizeargname.c_str()).toInt();
-#if defined ( ARDUINO_ARCH_ESP8266)
-                fs::FSInfo info;
-                SPIFFS.info(info);
-                 uint32_t freespace = info.totalBytes- info.usedBytes;
-#endif
-#if defined ( ARDUINO_ARCH_ESP32)
-                uint32_t freespace = SPIFFS.totalBytes() - SPIFFS.usedBytes();
-#endif
-                
-                if (filesize > freespace) {
-                    web_interface->_upload_status=UPLOAD_STATUS_FAILED;
-                    pushError(ESP_ERROR_NOT_ENOUGH_SPACE, "Upload rejected, not enough space");
-                }
-            }
-            if (web_interface->_upload_status != UPLOAD_STATUS_FAILED) {
-                //create file
-                fsUploadFile = SPIFFS.open(filename, SPIFFS_FILE_WRITE);
-                //check If creation succeed
-                if (fsUploadFile) {
-                    //if yes upload is started
-                    web_interface->_upload_status= UPLOAD_STATUS_ONGOING;
-                } else {
-                    //if no set cancel flag
-                    web_interface->_upload_status=UPLOAD_STATUS_FAILED;
-                    ESPCOM::println (F ("Error ESP create"), PRINTER_PIPE);
-                    pushError(ESP_ERROR_FILE_CREATION, "File creation failed");
-                }
-            }
-            //Upload write
+        if ((web_interface->_upload_status != UPLOAD_STATUS_FAILED) || (upload.status == UPLOAD_FILE_START)) {
+            //Upload start
             //**************
-        } else if(upload.status == UPLOAD_FILE_WRITE) {
-            //check if file is available and no error
-            if(fsUploadFile && web_interface->_upload_status == UPLOAD_STATUS_ONGOING) {
-                //no error so write post date
-                if (upload.currentSize != fsUploadFile.write(upload.buf, upload.currentSize)){
+            if(upload.status == UPLOAD_FILE_START) {
+                web_interface->_upload_status= UPLOAD_STATUS_ONGOING;
+                String upload_filename = upload.filename;
+                String  sizeargname  = upload_filename + "S";
+                if (upload_filename[0] != '/') filename = "/" + upload_filename;
+                else filename = upload.filename;
+                //according User or Admin the root is different as user is isolate to /user when admin has full access
+                if(auth_level != LEVEL_ADMIN) {
+                    upload_filename = filename;
+                    filename = "/user" + upload_filename;
+                }
+                
+                if (SPIFFS.exists (filename) ) {
+                    SPIFFS.remove (filename);
+                }
+                if (fsUploadFile ) {
+                    fsUploadFile.close();
+                }
+                if ((web_interface->web_server).hasArg (sizeargname.c_str()) ) {
+                    uint32_t filesize = (web_interface->web_server).arg (sizeargname.c_str()).toInt();
+    #if defined ( ARDUINO_ARCH_ESP8266)
+                    fs::FSInfo info;
+                    SPIFFS.info(info);
+                     uint32_t freespace = info.totalBytes- info.usedBytes;
+    #endif
+    #if defined ( ARDUINO_ARCH_ESP32)
+                    uint32_t freespace = SPIFFS.totalBytes() - SPIFFS.usedBytes();
+    #endif
+                    
+                    if (filesize > freespace) {
+                        web_interface->_upload_status=UPLOAD_STATUS_FAILED;
+                        pushError(ESP_ERROR_NOT_ENOUGH_SPACE, "Upload rejected, not enough space");
+                    }
+                }
+                if (web_interface->_upload_status != UPLOAD_STATUS_FAILED) {
+                    //create file
+                    fsUploadFile = SPIFFS.open(filename, SPIFFS_FILE_WRITE);
+                    //check If creation succeed
+                    if (fsUploadFile) {
+                        //if yes upload is started
+                        web_interface->_upload_status= UPLOAD_STATUS_ONGOING;
+                    } else {
+                        //if no set cancel flag
+                        web_interface->_upload_status=UPLOAD_STATUS_FAILED;
+                        ESPCOM::println (F ("Error ESP create"), PRINTER_PIPE);
+                        pushError(ESP_ERROR_FILE_CREATION, "File creation failed");
+                    }
+                }
+                //Upload write
+                //**************
+            } else if(upload.status == UPLOAD_FILE_WRITE) {
+                //check if file is available and no error
+                if(fsUploadFile && web_interface->_upload_status == UPLOAD_STATUS_ONGOING) {
+                    //no error so write post date
+                    if (upload.currentSize != fsUploadFile.write(upload.buf, upload.currentSize)){
+                        web_interface->_upload_status=UPLOAD_STATUS_FAILED;
+                        ESPCOM::println (F ("Error ESP write"), PRINTER_PIPE);
+                        pushError(ESP_ERROR_FILE_WRITE, "File write failed");
+                        }
+                } else {
+                    //we have a problem set flag UPLOAD_STATUS_FAILED
                     web_interface->_upload_status=UPLOAD_STATUS_FAILED;
                     ESPCOM::println (F ("Error ESP write"), PRINTER_PIPE);
-                    pushError(ESP_ERROR_FILE_WRITE, "File write failed");
-                    }
-            } else {
-                //we have a problem set flag UPLOAD_STATUS_FAILED
-                web_interface->_upload_status=UPLOAD_STATUS_FAILED;
-                ESPCOM::println (F ("Error ESP write"), PRINTER_PIPE);
-            }
-            //Upload end
-            //**************
-        } else if(upload.status == UPLOAD_FILE_END) {
-            //check if file is still open
-            if(fsUploadFile) {
-                //close it
-                fsUploadFile.close();
-                if (web_interface->_upload_status == UPLOAD_STATUS_ONGOING) {
-                    web_interface->_upload_status = UPLOAD_STATUS_SUCCESSFUL;
                 }
+                //Upload end
+                //**************
+            } else if(upload.status == UPLOAD_FILE_END) {
+                //check if file is still open
+                if(fsUploadFile) {
+                    //close it
+                    fsUploadFile.close();
+                    if (web_interface->_upload_status == UPLOAD_STATUS_ONGOING) {
+                        web_interface->_upload_status = UPLOAD_STATUS_SUCCESSFUL;
+                    }
+                } else {
+                    //we have a problem set flag UPLOAD_STATUS_FAILED
+                    web_interface->_upload_status=UPLOAD_STATUS_FAILED;
+                    ESPCOM::println (F ("Error ESP close"), PRINTER_PIPE);
+                    pushError(ESP_ERROR_FILE_CLOSE, "File close failed");
+                }
+                //Upload cancelled
+                //**************
             } else {
-                //we have a problem set flag UPLOAD_STATUS_FAILED
-                web_interface->_upload_status=UPLOAD_STATUS_FAILED;
-                ESPCOM::println (F ("Error ESP close"), PRINTER_PIPE);
-                pushError(ESP_ERROR_FILE_CLOSE, "File close failed");
+                    web_interface->_upload_status = UPLOAD_STATUS_FAILED;
+                    return;
+                    //ESPCOM::println (F ("Error ESP upload"), PRINTER_PIPE);
+                    //pushError(ESP_ERROR_UPLOAD, "File upload failed");
             }
-            //Upload cancelled
-            //**************
-        } else {
-                web_interface->_upload_status = UPLOAD_STATUS_FAILED;
-                return;
-                //ESPCOM::println (F ("Error ESP upload"), PRINTER_PIPE);
-                //pushError(ESP_ERROR_UPLOAD, "File upload failed");
         }
     }
     if (web_interface->_upload_status == UPLOAD_STATUS_FAILED) {
@@ -728,79 +731,81 @@ void WebUpdateUpload()
     } else {
         //get current file ID
         HTTPUpload& upload = (web_interface->web_server).upload();
-        //Upload start
-        //**************
-        if(upload.status == UPLOAD_FILE_START) {
-            ESPCOM::println (F ("Update Firmware"), PRINTER_PIPE);
-            web_interface->_upload_status= UPLOAD_STATUS_ONGOING;
-            String  sizeargname  = upload.filename + "S";
-            
-#if defined ( ARDUINO_ARCH_ESP8266)
-            WiFiUDP::stopAll();
-#endif
-            size_t flashsize = 0;
-#if defined ( ARDUINO_ARCH_ESP8266)
-            flashsize = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
-#else 
-            
-            if (esp_ota_get_running_partition()) {
-                const esp_partition_t* partition = esp_ota_get_next_update_partition(NULL);
-                if (partition) {
-                    flashsize = partition->size;
+        if ((web_interface->_upload_status != UPLOAD_STATUS_FAILED) || (upload.status == UPLOAD_FILE_START)) {
+            //Upload start
+            //**************
+            if(upload.status == UPLOAD_FILE_START) {
+                ESPCOM::println (F ("Update Firmware"), PRINTER_PIPE);
+                web_interface->_upload_status= UPLOAD_STATUS_ONGOING;
+                String  sizeargname  = upload.filename + "S";
+                
+    #if defined ( ARDUINO_ARCH_ESP8266)
+                WiFiUDP::stopAll();
+    #endif
+                size_t flashsize = 0;
+    #if defined ( ARDUINO_ARCH_ESP8266)
+                flashsize = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+    #else 
+                
+                if (esp_ota_get_running_partition()) {
+                    const esp_partition_t* partition = esp_ota_get_next_update_partition(NULL);
+                    if (partition) {
+                        flashsize = partition->size;
+                    }
+                }  
+    #endif
+                if ((web_interface->web_server).hasArg (sizeargname.c_str()) ) {
+                    maxSketchSpace = (web_interface->web_server).arg (sizeargname).toInt();
+                } else {
+                    maxSketchSpace = flashsize;
                 }
-            }  
-#endif
-            if ((web_interface->web_server).hasArg (sizeargname.c_str()) ) {
-                maxSketchSpace = (web_interface->web_server).arg (sizeargname).toInt();
-            } else {
-                maxSketchSpace = flashsize;
-            }
-            if ((flashsize > flashsize) || (flashsize == 0)) {
-                web_interface->_upload_status=UPLOAD_STATUS_FAILED;
-                pushError(ESP_ERROR_NOT_ENOUGH_SPACE, "Upload rejected");
-            }
-            if (web_interface->_upload_status != UPLOAD_STATUS_FAILED) {
-                last_upload_update = 0;
-                if(!Update.begin(maxSketchSpace)) { //start with max available size
+                if ((flashsize > flashsize) || (flashsize == 0)) {
                     web_interface->_upload_status=UPLOAD_STATUS_FAILED;
                     pushError(ESP_ERROR_NOT_ENOUGH_SPACE, "Upload rejected");
-                } else {
-                    if (( CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER)) ESPCOM::println (F ("Update 0%%"), PRINTER_PIPE);
-                    else ESPCOM::println (F ("Update 0%"), PRINTER_PIPE);
                 }
-            }
-            //Upload write
-            //**************
-        } else if(upload.status == UPLOAD_FILE_WRITE) {
-            //check if no error
-            if (web_interface->_upload_status == UPLOAD_STATUS_ONGOING) {
-                //we do not know the total file size yet but we know the available space so let's use it
-                if ( ((100 * upload.totalSize) / maxSketchSpace) !=last_upload_update) {
-                    last_upload_update = (100 * upload.totalSize) / maxSketchSpace;
-                    String s = "Update ";
-                    s+= String(last_upload_update);
-                    s+= "%";
-                    if (( CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER)) s+= "%";
-                    ESPCOM::println (s.c_str(), PRINTER_PIPE);
+                if (web_interface->_upload_status != UPLOAD_STATUS_FAILED) {
+                    last_upload_update = 0;
+                    if(!Update.begin(maxSketchSpace)) { //start with max available size
+                        web_interface->_upload_status=UPLOAD_STATUS_FAILED;
+                        pushError(ESP_ERROR_NOT_ENOUGH_SPACE, "Upload rejected");
+                    } else {
+                        if (( CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER)) ESPCOM::println (F ("Update 0%%"), PRINTER_PIPE);
+                        else ESPCOM::println (F ("Update 0%"), PRINTER_PIPE);
+                    }
                 }
-                if(Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
-                    web_interface->_upload_status=UPLOAD_STATUS_FAILED;
-                    pushError(ESP_ERROR_FILE_WRITE, "File write failed");
+                //Upload write
+                //**************
+            } else if(upload.status == UPLOAD_FILE_WRITE) {
+                //check if no error
+                if (web_interface->_upload_status == UPLOAD_STATUS_ONGOING) {
+                    //we do not know the total file size yet but we know the available space so let's use it
+                    if ( ((100 * upload.totalSize) / maxSketchSpace) !=last_upload_update) {
+                        last_upload_update = (100 * upload.totalSize) / maxSketchSpace;
+                        String s = "Update ";
+                        s+= String(last_upload_update);
+                        s+= "%";
+                        if (( CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER)) s+= "%";
+                        ESPCOM::println (s.c_str(), PRINTER_PIPE);
+                    }
+                    if(Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
+                        web_interface->_upload_status=UPLOAD_STATUS_FAILED;
+                        pushError(ESP_ERROR_FILE_WRITE, "File write failed");
+                    }
                 }
+                //Upload end
+                //**************
+            } else if(upload.status == UPLOAD_FILE_END) {
+                if(Update.end(true)) { //true to set the size to the current progress
+                    //Now Reboot
+                    if (( CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER)) ESPCOM::println (F("Update 100%%"), PRINTER_PIPE);
+                    else ESPCOM::println (F("Update 100%"), PRINTER_PIPE);
+                    web_interface->_upload_status=UPLOAD_STATUS_SUCCESSFUL;
+                }
+            } else if(upload.status == UPLOAD_FILE_ABORTED) {
+                ESPCOM::println (F("Update Failed"), PRINTER_PIPE);
+                web_interface->_upload_status=UPLOAD_STATUS_FAILED;
+                //pushError(ESP_ERROR_UPLOAD_CANCELLED, "Upload cancelled");
             }
-            //Upload end
-            //**************
-        } else if(upload.status == UPLOAD_FILE_END) {
-            if(Update.end(true)) { //true to set the size to the current progress
-                //Now Reboot
-                if (( CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER)) ESPCOM::println (F("Update 100%%"), PRINTER_PIPE);
-                else ESPCOM::println (F("Update 100%"), PRINTER_PIPE);
-                web_interface->_upload_status=UPLOAD_STATUS_SUCCESSFUL;
-            }
-        } else if(upload.status == UPLOAD_FILE_ABORTED) {
-            ESPCOM::println (F("Update Failed"), PRINTER_PIPE);
-            web_interface->_upload_status=UPLOAD_STATUS_FAILED;
-            //pushError(ESP_ERROR_UPLOAD_CANCELLED, "Upload cancelled");
         }
     }
     
@@ -1251,149 +1256,152 @@ void SDFile_serial_upload()
     } else {
         //retrieve current file id
         HTTPUpload& upload = (web_interface->web_server).upload();
-        //Upload start
-        //**************
-        if(upload.status == UPLOAD_FILE_START) {
-            LOG("Upload Start\r\n")
-            String command = "M29";
-            String resetcmd = "M110 N0";
-            if (CONFIG::GetFirmwareTarget() == SMOOTHIEWARE)resetcmd = "N0 M110";
-            lineNb=1;
-            //close any ongoing upload and get current line number
-            if(!sendLine2Serial (command,1, &lineNb)){
-                //it can failed for repetier
-                if ( ( CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER) ) {
-                    if(!sendLine2Serial (command,-1, NULL)){
+        if((web_interface->_upload_status != UPLOAD_STATUS_FAILED) || (upload.status == UPLOAD_FILE_START)) {
+            //Upload start
+            //**************
+            if(upload.status == UPLOAD_FILE_START) {
+                web_interface->_upload_status= UPLOAD_STATUS_ONGOING;
+                LOG("Upload Start\r\n")
+                String command = "M29";
+                String resetcmd = "M110 N0";
+                if (CONFIG::GetFirmwareTarget() == SMOOTHIEWARE)resetcmd = "N0 M110";
+                lineNb=1;
+                //close any ongoing upload and get current line number
+                if(!sendLine2Serial (command,1, &lineNb)){
+                    //it can failed for repetier
+                    if ( ( CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER) ) {
+                        if(!sendLine2Serial (command,-1, NULL)){
+                            LOG("Start Upload failed")
+                            web_interface->_upload_status= UPLOAD_STATUS_FAILED;
+                            pushError(ESP_ERROR_START_UPLOAD, "Upload rejected");
+                        }
+                    } else {
                         LOG("Start Upload failed")
                         web_interface->_upload_status= UPLOAD_STATUS_FAILED;
                         pushError(ESP_ERROR_START_UPLOAD, "Upload rejected");
                     }
                 } else {
-                    LOG("Start Upload failed")
-                    web_interface->_upload_status= UPLOAD_STATUS_FAILED;
-                    pushError(ESP_ERROR_START_UPLOAD, "Upload rejected");
-                }
-            } else {
-                //Mount SD card
-                command = "M21";
-                if(!sendLine2Serial (command,-1, NULL)){
-                    LOG("Mounting SD failed")
-                    web_interface->_upload_status= UPLOAD_STATUS_FAILED;
-                    pushError(ESP_ERROR_MOUNT_SD, "Mounting SD failed");
-                }
-                if (web_interface->_upload_status != UPLOAD_STATUS_FAILED) {
-                    //Reset line numbering
-                    if(!sendLine2Serial (resetcmd,-1, NULL)){
-                        LOG("Reset Numbering failed")
+                    //Mount SD card
+                    command = "M21";
+                    if(!sendLine2Serial (command,-1, NULL)){
+                        LOG("Mounting SD failed")
                         web_interface->_upload_status= UPLOAD_STATUS_FAILED;
-                        pushError(ESP_ERROR_RESET_NUMBERING, "Reset Numbering failed");
+                        pushError(ESP_ERROR_MOUNT_SD, "Mounting SD failed");
                     }
-                }
-                if (web_interface->_upload_status != UPLOAD_STATUS_FAILED) {
-                    lineNb=1;
-                    //need to lock serial out to avoid garbage in file
-                    (web_interface->blockserial) = true;
-                    current_line ="";
-                    current_filename = upload.filename;
-                    is_comment = false;
-                    String response;
-                    ESPCOM::println (F ("Uploading..."), PRINTER_PIPE);
-                    //Clear all serial
-                    ESPCOM::flush (DEFAULT_PRINTER_PIPE);
-                    purge_serial();
-                    //besure nothing left again
-                    purge_serial();
-                    command = "M28 " + upload.filename;
-                    //send start upload
-                    //no correction allowed because it means reset numbering was failed
-                    if (sendLine2Serial(command, lineNb, NULL)){
-                        CONFIG::wait(1200);
-                        //additional purge, in case it is slow to answer
-                        purge_serial();
-                        web_interface->_upload_status= UPLOAD_STATUS_ONGOING;
-                        LOG("Creation Ok\r\n")
-                        
-                    } else  {
-                        web_interface->_upload_status= UPLOAD_STATUS_FAILED;
-                        LOG("Creation failed\r\n");
-                        pushError(ESP_ERROR_FILE_CREATION, "File creation failed");
-                    }
-                }
-            }
-            //Upload write
-            //**************
-            //upload is on going with data coming by 2K blocks
-        } else if(upload.status == UPLOAD_FILE_WRITE) { //if com error no need to send more data to serial
-            for (int pos = 0;( pos < upload.currentSize) && (web_interface->_upload_status == UPLOAD_STATUS_ONGOING); pos++) { //parse full post data
-                //feed watchdog
-                CONFIG::wait(0);
-                //it is a comment
-                if (upload.buf[pos] == ';') {
-                    LOG ("Comment\r\n")
-                    is_comment = true;
-                }
-                //it is an end line
-                else  if ( (upload.buf[pos] == 13) || (upload.buf[pos] == 10) ) {
-                    //if comment line then reset
-                    is_comment = false;
-                    //does line fit the buffer ?
-                    if (current_line.length() < MAX_RESEND_BUFFER) {
-                        //do we have something in buffer ?
-                        if (current_line.length() > 0 ) {
-                            lineNb++;
-                            if (!sendLine2Serial (current_line, lineNb, NULL) ) {
-                                LOG ("Error sending line\n")
-                                CloseSerialUpload (true, current_filename,lineNb);
-                                web_interface->_upload_status= UPLOAD_STATUS_FAILED;
-                                pushError(ESP_ERROR_FILE_WRITE, "File write failed");
-                            }
-                            //reset line
-                            current_line = "";
-
-                        } else {
-                            LOG ("Empy line\n")
+                    if (web_interface->_upload_status != UPLOAD_STATUS_FAILED) {
+                        //Reset line numbering
+                        if(!sendLine2Serial (resetcmd,-1, NULL)){
+                            LOG("Reset Numbering failed")
+                            web_interface->_upload_status= UPLOAD_STATUS_FAILED;
+                            pushError(ESP_ERROR_RESET_NUMBERING, "Reset Numbering failed");
                         }
-                    } else {
-                        //error buffer overload
-                        LOG ("Error over buffer\n")
-                        lineNb++;
-                        web_interface->_upload_status= UPLOAD_STATUS_FAILED;
-                        pushError(ESP_ERROR_BUFFER_OVERFLOW, "Error buffer overflow");
                     }
-                } else if (!is_comment) {
-                    if (current_line.length() < MAX_RESEND_BUFFER) {
-                        current_line += char (upload.buf[pos]);  //copy current char to buffer to send/resend
-                    } else {
-                        LOG ("Error over buffer\n")
-                        lineNb++;
-                        web_interface->_upload_status= UPLOAD_STATUS_FAILED;
-                        pushError(ESP_ERROR_BUFFER_OVERFLOW, "Error buffer overflow");
+                    if (web_interface->_upload_status != UPLOAD_STATUS_FAILED) {
+                        lineNb=1;
+                        //need to lock serial out to avoid garbage in file
+                        (web_interface->blockserial) = true;
+                        current_line ="";
+                        current_filename = upload.filename;
+                        is_comment = false;
+                        String response;
+                        ESPCOM::println (F ("Uploading..."), PRINTER_PIPE);
+                        //Clear all serial
+                        ESPCOM::flush (DEFAULT_PRINTER_PIPE);
+                        purge_serial();
+                        //besure nothing left again
+                        purge_serial();
+                        command = "M28 " + upload.filename;
+                        //send start upload
+                        //no correction allowed because it means reset numbering was failed
+                        if (sendLine2Serial(command, lineNb, NULL)){
+                            CONFIG::wait(1200);
+                            //additional purge, in case it is slow to answer
+                            purge_serial();
+                            web_interface->_upload_status= UPLOAD_STATUS_ONGOING;
+                            LOG("Creation Ok\r\n")
+                            
+                        } else  {
+                            web_interface->_upload_status= UPLOAD_STATUS_FAILED;
+                            LOG("Creation failed\r\n");
+                            pushError(ESP_ERROR_FILE_CREATION, "File creation failed");
+                        }
                     }
                 }
-            }
-            //Upload end
-            //**************
-        } else if(upload.status == UPLOAD_FILE_END && web_interface->_upload_status == UPLOAD_STATUS_ONGOING) {
-            //if last part does not have '\n'
-            if (current_line.length()  > 0) {
-                lineNb++;
-                if (!sendLine2Serial (current_line, lineNb, NULL) ) {
-                    LOG ("Error sending buffer\n")
+                //Upload write
+                //**************
+                //upload is on going with data coming by 2K blocks
+            } else if(upload.status == UPLOAD_FILE_WRITE) { //if com error no need to send more data to serial
+                for (int pos = 0;( pos < upload.currentSize) && (web_interface->_upload_status == UPLOAD_STATUS_ONGOING); pos++) { //parse full post data
+                    //feed watchdog
+                    CONFIG::wait(0);
+                    //it is a comment
+                    if (upload.buf[pos] == ';') {
+                        LOG ("Comment\r\n")
+                        is_comment = true;
+                    }
+                    //it is an end line
+                    else  if ( (upload.buf[pos] == 13) || (upload.buf[pos] == 10) ) {
+                        //if comment line then reset
+                        is_comment = false;
+                        //does line fit the buffer ?
+                        if (current_line.length() < MAX_RESEND_BUFFER) {
+                            //do we have something in buffer ?
+                            if (current_line.length() > 0 ) {
+                                lineNb++;
+                                if (!sendLine2Serial (current_line, lineNb, NULL) ) {
+                                    LOG ("Error sending line\n")
+                                    CloseSerialUpload (true, current_filename,lineNb);
+                                    web_interface->_upload_status= UPLOAD_STATUS_FAILED;
+                                    pushError(ESP_ERROR_FILE_WRITE, "File write failed");
+                                }
+                                //reset line
+                                current_line = "";
+
+                            } else {
+                                LOG ("Empy line\n")
+                            }
+                        } else {
+                            //error buffer overload
+                            LOG ("Error over buffer\n")
+                            lineNb++;
+                            web_interface->_upload_status= UPLOAD_STATUS_FAILED;
+                            pushError(ESP_ERROR_BUFFER_OVERFLOW, "Error buffer overflow");
+                        }
+                    } else if (!is_comment) {
+                        if (current_line.length() < MAX_RESEND_BUFFER) {
+                            current_line += char (upload.buf[pos]);  //copy current char to buffer to send/resend
+                        } else {
+                            LOG ("Error over buffer\n")
+                            lineNb++;
+                            web_interface->_upload_status= UPLOAD_STATUS_FAILED;
+                            pushError(ESP_ERROR_BUFFER_OVERFLOW, "Error buffer overflow");
+                        }
+                    }
+                }
+                //Upload end
+                //**************
+            } else if(upload.status == UPLOAD_FILE_END && web_interface->_upload_status == UPLOAD_STATUS_ONGOING) {
+                //if last part does not have '\n'
+                if (current_line.length()  > 0) {
                     lineNb++;
-                    CloseSerialUpload (true, current_filename, lineNb);
-                    web_interface->_upload_status= UPLOAD_STATUS_FAILED;
-                    pushError(ESP_ERROR_FILE_WRITE, "File write failed");
+                    if (!sendLine2Serial (current_line, lineNb, NULL) ) {
+                        LOG ("Error sending buffer\n")
+                        lineNb++;
+                        CloseSerialUpload (true, current_filename, lineNb);
+                        web_interface->_upload_status= UPLOAD_STATUS_FAILED;
+                        pushError(ESP_ERROR_FILE_WRITE, "File write failed");
+                    }
                 }
+                LOG ("Upload finished ");
+                lineNb++;
+                CloseSerialUpload (false, current_filename, lineNb);
+                //Upload cancelled
+                //**************
+            } else { //UPLOAD_FILE_ABORTED
+                LOG("Error, Something happened\r\n");
+                web_interface->_upload_status= UPLOAD_STATUS_FAILED;
+                //pushError(ESP_ERROR_UPLOAD_CANCELLED, "Upload cancelled");
             }
-            LOG ("Upload finished ");
-            lineNb++;
-            CloseSerialUpload (false, current_filename, lineNb);
-            //Upload cancelled
-            //**************
-        } else { //UPLOAD_FILE_ABORTED
-            LOG("Error, Something happened\r\n");
-            web_interface->_upload_status= UPLOAD_STATUS_FAILED;
-            //pushError(ESP_ERROR_UPLOAD_CANCELLED, "Upload cancelled");
         }
     }
     

@@ -19,7 +19,7 @@
 */
 
 //version and sources location
-#define FW_VERSION "2.1.0.b36"
+#define FW_VERSION "2.1.0.b37"
 #define REPOSITORY "https://github.com/luc-github/ESP3D"
 
 //Customize ESP3D ////////////////////////////////////////////////////////////////////////
@@ -39,7 +39,7 @@
 
 //FEATURES - comment to disable //////////////////////////////////////////////////////////
 
-//Do we use async webserver or not
+//Do we use async webserver or not (currntly deprecated do not enable it yet)
 //#define ASYNCWEBSERVER
 
 //SERIAL_COMMAND_FEATURE: allow to send command by serial

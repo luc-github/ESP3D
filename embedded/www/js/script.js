@@ -277,8 +277,14 @@ xmlhttp.onreadystatechange = function() {
                  nbitem++;
              }
              if (sublist[0].trim() == "authentication"){
-                 if (sublist[1].trim() == "no") authentication = false;
-                 else authentication = true;
+                 if (sublist[1].trim() == "no") {
+                     authentication = false;
+                     document.getElementById('loginicon').style.visibility = "hidden";
+                 }
+                 else {
+                     authentication = true;
+                     document.getElementById('loginicon').style.visibility = "visible";
+                 }
                  nbitem++;
              }
              if (sublist[0].trim() == "webcommunication"){
