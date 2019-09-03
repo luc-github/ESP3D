@@ -42,6 +42,7 @@ void HTTP_Server::handleFSFileList ()
     String status = "ok";
     if ( (_upload_status == UPLOAD_STATUS_FAILED) || (_upload_status == UPLOAD_STATUS_CANCELLED) ) {
         status = "Upload failed";
+        _upload_status = UPLOAD_STATUS_NONE;
     }
     if (_webserver->hasArg ("quiet")) {
         if(_webserver->arg ("quiet") == "yes") {

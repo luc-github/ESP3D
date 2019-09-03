@@ -113,15 +113,21 @@ bool HTTP_Server::StreamFSFile(const char* filename, const char * contentType)
     return true;
 }
 
-void HTTP_Server::pushError(int code, const char * st)
+void HTTP_Server::pushError(int code, const char * st, bool web_error, uint16_t timeout)
 {
     if (websocket_terminal_server.started() && st) {
         String s = "ERROR:" + String(code) + ":";
         s+=st;
         websocket_terminal_server.pushMSG(websocket_terminal_server.get_currentID(), s.c_str());
-
+        if (web_error != 0) {
+            if (_webserver) {
+                if (_webserver->client().available() > 0) {
+                    _webserver->send (web_error, "text/xml", st);
+                }
+            }
+        }
         uint32_t t = millis();
-        while (millis() - t < 1000) {
+        while (millis() - t < timeout) {
             websocket_terminal_server.handle();
             Hal::wait(10);
         }
@@ -135,7 +141,7 @@ void HTTP_Server::cancelUpload()
 #if defined ( ARDUINO_ARCH_ESP8266)
     _webserver->client().stopAll();
 #else
-    //errno = 128;
+    errno = ECONNABORTED;
     _webserver->client().stop();
 #endif
     Hal::wait(100);

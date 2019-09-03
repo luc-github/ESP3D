@@ -298,6 +298,9 @@ xmlhttp.onreadystatechange = function() {
                if (jsonresponse.Authentication != "Disabled"){
                     authentication = true;
                     //console.log(jsonresponse.Authentication);
+                    document.getElementById('loginicon').style.visibility = "visible";
+                } else {
+                    document.getElementById('loginicon').style.visibility = "hidden";
                 }
             }
         } else if (xmlhttp.status == 401){
