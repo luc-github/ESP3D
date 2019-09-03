@@ -82,7 +82,7 @@ void pushError(int code, const char * st, bool web_error = 500, uint16_t timeout
         if (web_error != 0) {
             if (web_interface) {
                 if (web_interface->web_server.client().available() > 0) {
-                    web_interface->web_server.send (500, "text/xml", st);
+                    web_interface->web_server.send (web_error, "text/xml", st);
                 }
             }
         }
