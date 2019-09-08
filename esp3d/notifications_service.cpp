@@ -424,7 +424,7 @@ bool NotificationsService::begin()
         return false;
         break;
     }
-    if (CONFIG::read_byte (ESP_NOTIFICATION_TYPE, &bbuf ) ) {
+    if (CONFIG::read_byte (ESP_AUTO_NOTIFICATION, &bbuf ) ) {
         _autonotification = (bbuf == 0) ? false: true;
     }
     if (!res) {
