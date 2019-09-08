@@ -18,6 +18,7 @@ The web interface files are present in data directory but UI has it's own reposi
 [![Build Status](https://travis-ci.org/luc-github/ESP3D.svg?branch=master)](https://travis-ci.org/luc-github/ESP3D)     
 [V2.0](https://github.com/luc-github/ESP3D/releases/tag/2.0) : please use Arduino ide 1.8.5 with with 2.5.2 version of ESP8266 and git version ESP32 [![Build Status](https://travis-ci.org/luc-github/ESP3D.svg?branch=2.0)](https://travis-ci.org/luc-github/ESP3D)   
 [V2.1](https://github.com/luc-github/ESP3D/releases/tag/2.1RC1) : please use Arduino ide 1.8.9 with 2.5.2 version of ESP8266 or git version ESP32 : [![Build Status](https://travis-ci.org/luc-github/ESP3D.svg?branch=2.1)](https://travis-ci.org/luc-github/ESP3D)  
+
 <u>Development version:</u>   
 [V3.0](https://github.com/luc-github/ESP3D/tree/3.0) : please use Arduino ide 1.8.9 with 2.5.2 version of ESP8266 (to be updated) or git version ESP32 : [![Build Status](https://travis-ci.org/luc-github/ESP3D.svg?branch=3.0)](https://travis-ci.org/luc-github/ESP3D)
 
@@ -92,7 +93,8 @@ If you want DHT11/22 support:
 or
 * Using embedded uploader (you may need to format SPIFFS using : [ESP710]FORMAT on ESP8266 first)    
 if embedded uploader does not show up you can force it ti display using : http://your_IP_address?forcefallback=yes    
-<img src=https://github.com/luc-github/ESP3D/blob/2.1/images/docs/embedded.png><br>
+<img src=https://raw.githubusercontent.com/luc-github/ESP3D/2.1/images/docs/embedded.png><br>
+
 
 ## Update
 * Generate a binary using the export binary menu from Arduino IDE and upload it using ESP-WEBUI or embedded interface  
