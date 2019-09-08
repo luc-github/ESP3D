@@ -911,6 +911,9 @@ bool CONFIG::reset_config()
     if (!CONFIG::write_string (ESP_NOTIFICATION_SETTINGS, DEFAULT_NOTIFICATION_SETTINGS ) ) {
         return false;
     }
+    if (!CONFIG::write_byte (ESP_AUTO_NOTIFICATION, DEFAULT_AUTO_NOTIFICATION_STATE) ) {
+        return false;
+    }
 #endif
 
     return set_EEPROM_version(EEPROM_CURRENT_VERSION);

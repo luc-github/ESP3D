@@ -673,6 +673,7 @@ bool WIFI_CONFIG::Enable_servers()
 #endif
 #if defined(NOTIFICATION_FEATURE)
     notificationsservice.begin();
+    notificationsservice.sendAutoNotification(NOTIFICATION_ESP_ONLINE);
 #endif
 
     return true;

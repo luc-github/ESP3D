@@ -19,7 +19,7 @@
 */
 
 //version and sources location
-#define FW_VERSION "2.1.0.b37"
+#define FW_VERSION "2.1.0.b38"
 #define REPOSITORY "https://github.com/luc-github/ESP3D"
 
 //Customize ESP3D ////////////////////////////////////////////////////////////////////////
@@ -316,7 +316,8 @@ typedef enum {
 #define EP_HOSTNAME				130//33 bytes 32+1 = string  ; warning does not support multibyte char like chinese
 #define EP_DHT_INTERVAL		    164//4  bytes = int
 #define ESP_NOTIFICATION_TYPE   168     //1 byte = flag
-#define EP_FREE_INT2		    169//3  bytes = int
+#define ESP_AUTO_NOTIFICATION   170//1  bytes = flag
+#define EP_FREE_BYTE1		    171//1  bytes = flag
 #define EP_FREE_INT3		    172//4  bytes = int
 #define EP_ADMIN_PWD		    176//21  bytes 20+1 = string  ; warning does not support multibyte char like chinese
 #define EP_USER_PWD		    197//21  bytes 20+1 = string  ; warning does not support multibyte char like chinese
@@ -396,6 +397,8 @@ const int DEFAULT_DHT_INTERVAL = 30;
 #define DEFAULT_NOTIFICATION_TOKEN1 ""
 #define DEFAULT_NOTIFICATION_TOKEN2 ""
 #define DEFAULT_NOTIFICATION_SETTINGS ""
+#define DEFAULT_AUTO_NOTIFICATION_STATE 1
+#define NOTIFICATION_ESP_ONLINE "Hi, %ESP_NAME% is now online at %ESP_IP%"
 
 //Notifications
 #define ESP_PUSHOVER_NOTIFICATION	1

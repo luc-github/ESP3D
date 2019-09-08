@@ -1259,6 +1259,19 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
             ESPCOM::print ( F ("\",\"H\":\"Notifications Settings\",\"M\":\""), output, espresponse);
             ESPCOM::print ( (const char *) CONFIG::intTostr (MIN_NOTIFICATION_SETTINGS_LENGTH), output, espresponse);
             ESPCOM::print ( F("\"}"), output, espresponse);
+            ESPCOM::println (F (","), output, espresponse);
+            //Auto Notification
+            ESPCOM::print (F ("{\"F\":\"network\",\"P\":\""), output, espresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (ESP_AUTO_NOTIFICATION), output, espresponse);
+            ESPCOM::print (F ("\",\"T\":\"B\",\"V\":\""), output, espresponse);
+            if (!CONFIG::read_byte (ESP_AUTO_NOTIFICATION, &bbuf ) ) {
+                ESPCOM::print ("???", output, espresponse);
+            } else {
+                ESPCOM::print ( (const char *) CONFIG::intTostr (bbuf), output, espresponse);
+            }
+            ESPCOM::print (F ("\",\"H\":\"Auto notification\",\"O\":[{\"No\":\"0\"},{\"Yes\":\"1\"}]}"), output, espresponse);
+            
+            
 #endif //NOTIFICATION_FEATURE
         }
 
@@ -1417,6 +1430,11 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
                     if (pos == EP_DHT_TYPE) {
                         CONFIG::DHT_type = bbuf;
                         CONFIG::InitDHT(true);
+                    }
+#endif
+#ifdef NOTIFICATION_FEATURE
+                    if (pos == ESP_AUTO_NOTIFICATION) {
+                        notificationsservice.setAutonotification ((bbuf == 0)? false: true);
                     }
 #endif
 #if defined(TIMESTAMP_FEATURE)

@@ -35,9 +35,13 @@ public:
     bool sendMSG(const char * title, const char * message);
     const char * getTypeString();
     bool started();
+    bool isAutonotification() { return _autonotification;};
+    void setAutonotification(bool value) { _autonotification = value;};
+    bool sendAutoNotification(const char * msg);
 private:
     bool _started;
     uint8_t _notificationType;
+    bool _autonotification;
     String _token1;
     String _token2;
     String _settings;
