@@ -81,11 +81,12 @@
 #define ESP_DIRECT_SD_CHECK     853//1  bytes = flag
 #define ESP_SD_CHECK_UPDATE_AT_BOOT   854//1  bytes = flag
 #define ESP_NOTIFICATION_SETTINGS 855//128 bytes 127+1 = string  ; warning does not support multibyte char like chinese
-#define ESP_CALIBRATION_1       983
-#define ESP_CALIBRATION_2       987
-#define ESP_CALIBRATION_3       991
-#define ESP_CALIBRATION_4       995
-#define ESP_CALIBRATION_5       999
+#define ESP_CALIBRATION_1       983  //4  bytes = int
+#define ESP_CALIBRATION_2       987  //4  bytes = int
+#define ESP_CALIBRATION_3       991  //4  bytes = int 
+#define ESP_CALIBRATION_4       995  //4  bytes = int
+#define ESP_CALIBRATION_5       999  //4  bytes = int
+#define ESP_AUTO_NOTIFICATION   1004 //1 byte = flag
 
 //Hidden password
 #define HIDDEN_PASSWORD "********"

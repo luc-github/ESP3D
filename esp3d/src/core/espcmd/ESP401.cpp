@@ -31,6 +31,9 @@
 #ifdef TIMESTAMP_FEATURE
 #include "../../modules/time/time_server.h"
 #endif //TIMESTAMP_FEATURE
+#ifdef NOTIFICATION_FEATURE
+#include "../../modules/notifications/notifications_service.h"
+#endif //NOTIFICATION_FEATURE
 //Set EEPROM setting
 //[ESP401]P=<position> T=<type> V=<value> pwd=<user/admin password>
 bool Commands::ESP401(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
@@ -72,6 +75,11 @@ bool Commands::ESP401(const char* cmd_params, level_authenticate_type auth_type,
                     timeserver.begin();
                     break;
 #endif //TIMESTAMP_FEATURE
+#ifdef NOTIFICATION_FEATURE
+                case ESP_AUTO_NOTIFICATION:
+                    notificationsservice.setAutonotification((sval.toInt() == 0)?false:true);
+                    break;
+#endif //NOTIFICATION_FEATURE
 #ifdef DHT_DEVICE
                 case ESP_DHT_TYPE:
                     esp3d_DHT.begin();

@@ -244,6 +244,10 @@ bool NetConfig::begin()
 #if defined (WIFI_FEATURE)
     if ((espMode == ESP_WIFI_AP) || (espMode == ESP_WIFI_STA)) {
         res = WiFiConfig::begin();
+        //in case STA failed and fallback to AP mode
+        if (WiFi.getMode() == WIFI_AP) {
+            _mode = ESP_WIFI_AP;
+        }
     }
 #endif //WIFI_FEATURE
 #if defined (ETH_FEATURE)
@@ -259,6 +263,7 @@ bool NetConfig::begin()
 #endif //BLUETOOTH_FEATURE
     //if network is up, let's start services
     if (res) {
+        _started = true;
         bool start_services = false;
 #if defined (ETH_FEATURE)
         if (EthConfig::started()) {
@@ -271,6 +276,7 @@ bool NetConfig::begin()
         }
 #endif //WIFI_FEATURE
         if (start_services) {
+            log_esp3d("Starting service");
             res = NetServices::begin();
         }
     }
@@ -284,9 +290,10 @@ bool NetConfig::begin()
 #endif //ARDUINO_ARCH_ESP32
     DEBUG_ESP3D_NETWORK_INIT
     if (res) {
-        _started = true;
+        log_esp3d("Network config started");
     } else {
         end();
+        log_esp3d("Network config failed");
     }
     ESP3DGlobalOutput::display_IP();
     return res;

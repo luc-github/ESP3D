@@ -139,11 +139,12 @@ ESP_SECONDARY_SD        852//1  bytes = flag
 ESP_DIRECT_SD_CHECK     853//1  bytes = flag
 ESP_SD_CHECK_UPDATE_AT_BOOT   854//1  bytes = flag
 ESP_NOTIFICATION_SETTINGS 855//128 bytes 127+1 = string  ; warning does not support multibyte char like chinese
-ESP_CALIBRATION_1       983
-ESP_CALIBRATION_2       987
-ESP_CALIBRATION_3       991
-ESP_CALIBRATION_4       995
-ESP_CALIBRATION_5       999
+ESP_CALIBRATION_1       983  //4  bytes = int
+ESP_CALIBRATION_2       987  //4  bytes = int
+ESP_CALIBRATION_3       991  //4  bytes = int 
+ESP_CALIBRATION_4       995  //4  bytes = int
+ESP_CALIBRATION_5       999  //4  bytes = int
+ESP_AUTO_NOTIFICATION   1004 //1 byte = flag
 
 *Get available AP list (limited to 30)
 output is JSON or plain text according parameter

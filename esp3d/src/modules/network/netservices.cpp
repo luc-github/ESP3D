@@ -250,6 +250,7 @@ bool NetServices::begin()
 #endif //SSDP_FEATURE
 #ifdef NOTIFICATION_FEATURE
     notificationsservice.begin();
+    notificationsservice.sendAutoNotification(NOTIFICATION_ESP_ONLINE);
 #endif //NOTIFICATION_FEATURE
     if (!res) {
         end();

@@ -110,6 +110,7 @@
 #define DEFAULT_NOTIFICATION_TOKEN1 ""
 #define DEFAULT_NOTIFICATION_TOKEN2 ""
 #define DEFAULT_NOTIFICATION_SETTINGS ""
+#define DEFAULT_AUTO_NOTIFICATION_STATE 1
 
 
 //default int values
@@ -237,6 +238,9 @@ uint8_t Settings_ESP3D::get_default_byte_value(int pos)
 #ifdef NOTIFICATION_FEATURE
     case ESP_NOTIFICATION_TYPE:
         res = DEFAULT_NOTIFICATION_TYPE;
+        break;
+    case ESP_AUTO_NOTIFICATION:
+        res = DEFAULT_AUTO_NOTIFICATION_STATE;
         break;
 #endif //NOTIFICATION_FEATURE
 #if defined (WIFI_FEATURE) || defined (ETH_FEATURE)
@@ -999,6 +1003,8 @@ bool Settings_ESP3D::reset()
     Settings_ESP3D::write_string(ESP_HOSTNAME,Settings_ESP3D::get_default_string_value(ESP_HOSTNAME).c_str());
 #endif //WIFI_FEATURE ||  BLUETOOTH_FEATURE || ETH_FEATURE
 #ifdef NOTIFICATION_FEATURE
+    //Auto Notification
+    Settings_ESP3D::write_byte(ESP_AUTO_NOTIFICATION,Settings_ESP3D::get_default_byte_value(ESP_AUTO_NOTIFICATION));
     //Notification Type
     Settings_ESP3D::write_byte(ESP_NOTIFICATION_TYPE,Settings_ESP3D::get_default_byte_value(ESP_NOTIFICATION_TYPE));
     //Notification Token1

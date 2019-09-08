@@ -95,6 +95,27 @@ bool Wait4Answer(TSecureClient & client, const char * linetrigger, const char * 
     return false;
 }
 
+bool NotificationsService::sendAutoNotification(const char * msg)
+{
+    if (!(NetConfig::started()) || (NetConfig::getMode() != ESP_WIFI_STA)|| (!_started) || (!_autonotification)) {
+        log_esp3d("Auto notification rejected");
+        return false;
+    }
+    String msgtpl = msg;
+    //check if has variable to change
+    if (msgtpl.indexOf("%") != -1) {
+        msgtpl.replace("%ESP_IP%", WiFi.localIP().toString().c_str());
+        msgtpl.replace("%ESP_NAME%", NetConfig::hostname());
+    }
+    if (!sendMSG(ESP_NOTIFICATION_TITLE, msgtpl.c_str())) {
+        log_esp3d("Auto notification failed");
+        return false;
+    } else {
+        log_esp3d("Auto notification sent");
+        return true;
+    }
+}
+
 NotificationsService::NotificationsService()
 {
     _started = false;
@@ -397,7 +418,7 @@ bool NotificationsService::begin()
         return false;
         break;
     }
-
+    _autonotification = (Settings_ESP3D::read_byte(ESP_AUTO_NOTIFICATION) == 0) ? false: true;
     if (!res) {
         end();
     }

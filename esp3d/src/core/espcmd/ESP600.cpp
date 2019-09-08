@@ -45,7 +45,7 @@ bool Commands::ESP600(const char* cmd_params, level_authenticate_type auth_type,
         return false;
     } else {
         parameter = get_param (cmd_params, "");
-        if (notificationsservice.sendMSG("ESP3D Notification", parameter.c_str())) {
+        if (notificationsservice.sendMSG(ESP_NOTIFICATION_TITLE, parameter.c_str())) {
             output->printMSG ("ok");
         } else {
             output->printERROR ("Cannot send message!");

@@ -320,6 +320,12 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->printLN ("\"}");
 #endif //TIMESTAMP_FEATURE
 #ifdef NOTIFICATION_FEATURE
+    //Auto notification
+    output->print (",{\"F\":\"network\",\"P\":\"");
+    output->print (ESP_AUTO_NOTIFICATION);
+    output->print("\",\"T\":\"B\",\"V\":\"");
+    output->print (Settings_ESP3D::read_byte(ESP_AUTO_NOTIFICATION));
+    output->printLN("\",\"H\":\"Auto notification\",\"O\":[{\"No\":\"0\"},{\"Yes\":\"1\"}]}");
     //Notification type
     output->print (",{\"F\":\"network\",\"P\":\"");
     output->print (ESP_NOTIFICATION_TYPE);
