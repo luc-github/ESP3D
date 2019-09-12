@@ -291,8 +291,6 @@ bool WiFiConfig::begin()
             res = StartAP();
         }
     }
-    //prepare the scan
-    //WiFi.scanNetworks (true);
     return res;
 }
 
@@ -320,6 +318,12 @@ void WiFiConfig::end()
 
 void WiFiConfig::handle()
 {
+    //to avoid mixed mode
+    if (WiFi.getMode() == WIFI_AP_STA) {
+        if (WiFi.scanComplete() != WIFI_SCAN_RUNNING) {
+            WiFi.enableSTA (false);
+        }
+    }
 }
 
 const char* WiFiConfig::getSleepModeString ()
