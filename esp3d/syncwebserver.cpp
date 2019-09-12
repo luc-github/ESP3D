@@ -603,7 +603,6 @@ void SPIFFSFileupload()
 {
 	static FS_FILE fsUploadFile = (FS_FILE)0;
     static String filename;
-    static uint8_t errorcode = 0;
     //get authentication status
     level_authenticate_type auth_level= web_interface->is_authenticated();
     //Guest cannot upload
