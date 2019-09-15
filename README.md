@@ -124,7 +124,7 @@ and https://youtu.be/XoWW0aU6DGE?t=76
 
 * Custom version (not this repository) is used on azteeg mini wifi : http://www.panucatt.com/azteeg_X5_mini_reprap_3d_printer_controller_p/ax5mini.htm    
 and Wifi boards for 3D printers : https://www.panucatt.com/ProductDetails.asp?ProductCode=WB8266,   
-<h2>:warning: Do not use this repository for these boards, you will lose several features.</h2> 
+<h2>:warning: Do not use this repository for boards using custom firmware, you will lose several features.</h2> 
 
 * More to come...
 
