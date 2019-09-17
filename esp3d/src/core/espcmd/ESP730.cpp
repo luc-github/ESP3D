@@ -78,10 +78,9 @@ bool Commands::ESP730(const char* cmd_params, level_authenticate_type auth_type,
            output->printMSG ("no");
        }
        return response;
-    } else {
-        output->printERROR ("Incorrect command!");
-        response = false;
     }
+    output->printERROR ("Incorrect command!");
+    response = false;
 }
 
 #endif //FILESYSTEM_FEATURE
