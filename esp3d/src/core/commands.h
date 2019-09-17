@@ -109,6 +109,7 @@ public:
 #if defined(FILESYSTEM_FEATURE)
     bool ESP710(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     bool ESP720(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+    bool ESP730(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #endif //FILESYSTEM_FEATURE
     bool ESP800(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     bool ESP900(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);

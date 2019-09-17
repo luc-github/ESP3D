@@ -1,3 +1,6 @@
+#include "../../include/esp3d_config.h"
+#if defined (DISPLAY_DEVICE) && (DISPLAY_UI_TYPE == UI_TYPE_ADVANCED)
+extern "C" {
 #include "lvgl.h"
 
 #ifndef LV_ATTRIBUTE_MEM_ALIGN
@@ -627,3 +630,7 @@ lv_img_dsc_t esplogo = {
   .header.cf = LV_IMG_CF_TRUE_COLOR_CHROMA_KEYED,
   .data = esplogo_map,
 };
+
+};
+
+#endif //defined (DISPLAY_DEVICE) && (DISPLAY_UI_TYPE == UI_TYPE_ADVANCED)

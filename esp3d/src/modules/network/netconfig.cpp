@@ -217,8 +217,9 @@ bool NetConfig::begin()
     bool res = false;
     //clear everything
     end();
+    int8_t espMode =Settings_ESP3D::read_byte(ESP_RADIO_MODE);
     ESP3DOutput output(ESP_ALL_CLIENTS);
-    output.printMSG("Starting Network");
+    if (espMode != NO_NETWORK)output.printMSG("Starting Network");
     //setup events
     if(!_events_registered) {
 #ifdef ARDUINO_ARCH_ESP8266
@@ -235,7 +236,6 @@ bool NetConfig::begin()
     }
     //Get hostname
     _hostname = Settings_ESP3D::read_string(ESP_HOSTNAME);
-    int8_t espMode =Settings_ESP3D::read_byte(ESP_RADIO_MODE);
     _mode = espMode;
     if (espMode == NO_NETWORK) {
         ESP3DGlobalOutput::display_IP();

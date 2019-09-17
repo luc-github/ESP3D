@@ -28,11 +28,13 @@
 #define ESP_FILE_WRITE      1
 #define ESP_FILE_APPEND     2
 
+#define ESP_MAX_OPENHANDLE 4
+
 class ESP_File
 {
 public:
     ESP_File(void *  handle = nullptr, bool isdir =false, bool iswritemode = false, const char * path = nullptr);
-    ESP_File(const char * name, const char * filename, bool isdir = true);
+    ESP_File(const char * name, const char * filename, bool isdir = true, size_t size =0);
     ~ESP_File();
     operator bool() const;
     bool isDirectory();
@@ -86,6 +88,7 @@ public:
     static bool rmdir(const char *path);
     static void closeAll();
 private:
+    static bool _started;
 };
 
 
