@@ -177,6 +177,10 @@ Get will give type and settings only, not the protected T1/T2
 * List ESP Filesystem
 [ESP720]<Root> pwd=<admin password>
 
+* Action on ESP Filesystem
+rmdir / remove / mkdir / exists
+[ESP730]<Action>=<path> pwd=<admin password>
+
 * FW Informations
 [ESP800]<plain> pwd=<admin password>
 

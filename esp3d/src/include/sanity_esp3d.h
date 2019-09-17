@@ -88,5 +88,8 @@
 #if FILESYSTEM_FEATURE == ESP_FAT_FILESYSTEM && defined( ARDUINO_ARCH_ESP8266)
 #error Fat FS is not available in ESP8266
 #endif
+#if FILESYSTEM_FEATURE == ESP_LITTLEFS_FILESYSTEM && defined( ARDUINO_ARCH_ESP32)
+#error LittleFS is not available in ESP32
+#endif
 
 #endif //SANITY_ESP3D_H 
