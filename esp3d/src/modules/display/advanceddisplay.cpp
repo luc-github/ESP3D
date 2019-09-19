@@ -89,6 +89,9 @@ Display esp3d_display;
 static lv_disp_buf_t esp_lv_disp_buf;
 static lv_color_t lv_buf1[LV_HOR_RES_MAX * 10];
 static lv_color_t lv_buf2[LV_HOR_RES_MAX * 10];
+#if defined(DISPLAY_SNAPSHOT_FEATURE)
+static uint8_t error_snapshot = 0;
+#endif //DISPLAY_SNAPSHOT_FEATURE
 Ticker esp_lv_tick; /* timer for interrupt handler */
 #define LVGL_TICK_PERIOD 10
 #define ESP_FLASH_LETTER_DRIVE 'F'
@@ -111,7 +114,13 @@ void esp_lv_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *c
 #if defined(DISPLAY_SNAPSHOT_FEATURE)
             if(bSnapshot) {
                 uint32_t data = lv_color_to32(*color_p);
-                fsSnapFile.write((const uint8_t *)(&data), sizeof(uint32_t));
+                //to handle any write issue
+                if (fsSnapFile.write((const uint8_t *)(&data), sizeof(uint32_t)) !=  sizeof(uint32_t)){
+                    //if error we stop to dump
+                    bSnapshot = false;
+                    //raise error
+                    error_snapshot = 1;
+                }
             }
 #endif //DISPLAY_SNAPSHOT_FEATURE
             color_p++;
@@ -636,6 +645,11 @@ bool Display::snapshot(char * filename)
 {
     bool res = false;
 #if defined(DISPLAY_SNAPSHOT_FEATURE)
+    //sanity check to avoid to corrupt FS with capacity overload
+    error_snapshot = 0;
+    if (ESP_FileSystem::freeBytes() < SNAP_SIZE) {
+        return false;
+    }
     if(filename) {
         fsSnapFile = ESP_FileSystem::open(filename, ESP_FILE_WRITE);
     } else {
@@ -650,7 +664,10 @@ bool Display::snapshot(char * filename)
     lv_refr_now(lv_disp_get_default());                    /* Will call our disp_drv.disp_flush function */
     bSnapshot = false;
     fsSnapFile.close();
-    return true;
+    //if any snapshot error
+    if (error_snapshot == 0) {
+        res = true;
+    }
 #endif //DISPLAY_SNAPSHOT_FEATURE
     return res;
 }
