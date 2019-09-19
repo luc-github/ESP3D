@@ -88,6 +88,11 @@ bool Commands::ESP720(const char* cmd_params, level_authenticate_type auth_type,
             f.close();
             output->printf("%d file%s, %d dir%s", countf, (countf > 1)?"(s)":"", countd, (countd > 1)?"(s)":"");
             output->printLN("");
+            String t = ESP_FileSystem::formatBytes(ESP_FileSystem::totalBytes());
+            String u = ESP_FileSystem::formatBytes(ESP_FileSystem::usedBytes());
+            String f = ESP_FileSystem::formatBytes(ESP_FileSystem::freeBytes());
+            output->printf("Total %s, Used %s, Available: %s", t.c_str(), u.c_str(),f.c_str());
+            output->printLN("");
         } else {
             output->printERROR ("Invalid directory!");
         }
