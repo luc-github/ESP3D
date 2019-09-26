@@ -17,7 +17,7 @@ The web interface files are present in data directory but UI has it's own reposi
 [V1.0](https://github.com/luc-github/ESP3D/releases/tag/1.0) : please use Arduino ide 1.8.5 with stable [2.4.0](http://arduino.esp8266.com/versions/2.4.0/package_esp8266com_index.json) from ESP8266
 [![Build Status](https://travis-ci.org/luc-github/ESP3D.svg?branch=master)](https://travis-ci.org/luc-github/ESP3D)     
 [V2.0](https://github.com/luc-github/ESP3D/releases/tag/2.0) : please use Arduino ide 1.8.5 with with 2.5.2 version of ESP8266 and git version ESP32 [![Build Status](https://travis-ci.org/luc-github/ESP3D.svg?branch=2.0)](https://travis-ci.org/luc-github/ESP3D)   
-[V2.1](https://github.com/luc-github/ESP3D/releases/tag/2.1) : please use Arduino ide 1.8.9 with 2.5.2 version of ESP8266 or git version ESP32 : [![Build Status](https://travis-ci.org/luc-github/ESP3D.svg?branch=2.1)](https://travis-ci.org/luc-github/ESP3D)  
+[V2.1](https://github.com/luc-github/ESP3D/releases/tag/2.1) : please use Arduino ide 1.8.9 with git version of ESP8266 or git version ESP32 : [![Build Status](https://travis-ci.org/luc-github/ESP3D.svg?branch=2.1)](https://travis-ci.org/luc-github/ESP3D)  
 
 <u>Development version:</u>   
 [V3.0](https://github.com/luc-github/ESP3D/tree/3.0) : please use Arduino ide 1.8.9 with 2.5.2 version of ESP8266 (to be updated) or git version ESP32 : [![Build Status](https://travis-ci.org/luc-github/ESP3D.svg?branch=3.0)](https://travis-ci.org/luc-github/ESP3D)
