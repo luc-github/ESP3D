@@ -144,6 +144,9 @@ bool WebSocket_Server::begin(uint16_t port, bool debug)
         _port = Settings_ESP3D::read_uint32(ESP_HTTP_PORT) +1;
     } else {
         _port  = port;
+        if (Settings_ESP3D::read_byte(ESP_WEBSOCKET_ON) == 0) {
+            return true;
+        }
     }
     _isdebug = debug;
     _websocket_server = new WebSocketsServer(_port);

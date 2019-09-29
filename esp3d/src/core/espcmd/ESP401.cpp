@@ -22,6 +22,9 @@
 #include "../esp3doutput.h"
 #include "../settings_esp3d.h"
 #include "../../modules/authentication/authentication_service.h"
+#ifdef CAMERA_DEVICE
+#include "../../modules/camera/camera.h"
+#endif //CAMERA_DEVICE
 #ifdef DHT_DEVICE
 #include "../../modules/dht/dht.h"
 #endif //DHT_DEVICE
@@ -111,6 +114,11 @@ bool Commands::ESP401(const char* cmd_params, level_authenticate_type auth_type,
                     esp3d_DHT.setInterval(sval.toInt());
                     break;
 #endif //DHT_DEVICE
+#ifdef CAMERA_DEVICE
+                case ESP_CAMERA_PORT:
+                    //esp3d_camera.begin();
+                    break;
+#endif //CAMERA_DEVICE
                 default:
                     break;
                 }

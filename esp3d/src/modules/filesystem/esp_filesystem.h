@@ -78,7 +78,10 @@ public:
     static void end();
     static size_t totalBytes();
     static size_t usedBytes();
-    static size_t freeBytes(){return totalBytes()-usedBytes();};
+    static size_t freeBytes()
+    {
+        return totalBytes()-usedBytes();
+    };
     static size_t max_update_size();
     static const char * FilesystemName();
     static bool format();

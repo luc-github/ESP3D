@@ -59,6 +59,9 @@
 #ifdef BUZZER_DEVICE
 #include "../../modules/buzzer/buzzer.h"
 #endif //BUZZER_DEVICE
+#ifdef CAMERA_DEVICE
+#include "../../modules/camera/camera.h"
+#endif //CAMERA_DEVICE
 
 //Get ESP current status
 //output is JSON or plain text according parameter
@@ -415,6 +418,43 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         }
     }
 #endif //WS_DATA_FEATURE
+#if defined (CAMERA_DEVICE)
+    if (esp3d_camera.started()) {
+        //camera name
+        if (!plain) {
+            output->print (",{\"id\":\"");
+        }
+        output->print ("camera name");
+        if (!plain) {
+            output->print ("\",\"value\":\"");
+        } else {
+            output->print (": ");
+        }
+        output->printf ("%s(%d)",esp3d_camera.GetModelString(),esp3d_camera.GetModel());
+        if (!plain) {
+            output->print ("\"}");
+        } else {
+            output->printLN("");
+        }
+        //camera port
+        if (!plain) {
+            output->print (",{\"id\":\"");
+        }
+        output->print ("camera ports");
+        if (!plain) {
+            output->print ("\",\"value\":\"");
+        } else {
+            output->print (": ");
+        }
+        output->printf ("%d - %d",esp3d_camera.port(), esp3d_camera.port()+1);
+        if (!plain) {
+            output->print ("\"}");
+        } else {
+            output->printLN("");
+        }
+    }
+#endif //CAMERA_DEVICE
+
 #if defined (BLUETOOTH_FEATURE)
     if (bt_service.started()) {
         //BT mode

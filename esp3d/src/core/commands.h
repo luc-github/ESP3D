@@ -34,6 +34,7 @@ public:
     bool execute_internal_command(int cmd, const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     int get_space_pos(const char * string, uint from = 0);
     const char* get_param (const char * cmd_params, const char * label);
+    const char* get_label (const char * cmd_params, const char * labelseparator, uint8_t startindex = 0);
     bool hastag (const char * cmd_params, const char * tag);
 #if defined (WIFI_FEATURE)
     bool ESP100(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
@@ -75,6 +76,11 @@ public:
     bool ESP160(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     bool ESP161(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #endif //WS_DATA_FEATURE
+#if defined(CAMERA_DEVICE)
+    bool ESP170(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+    bool ESP171(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+    bool ESP172(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+#endif //CAMERA_DEVICE
 #ifdef DIRECT_PIN_FEATURE
     bool ESP201(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #endif //DIRECT_PIN_FEATURE

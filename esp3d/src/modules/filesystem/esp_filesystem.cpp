@@ -72,7 +72,7 @@ size_t ESP_FileSystem::max_update_size()
         //max OTA partition is 1019Kb
         if (flashsize > 1024 * 1024) {
             flashsize = (1024 * 1024) - 1024;
-            }
+        }
     }
 #endif //ARDUINO_ARCH_ESP8266
 #if defined (ARDUINO_ARCH_ESP32)

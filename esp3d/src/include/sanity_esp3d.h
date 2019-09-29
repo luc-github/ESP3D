@@ -79,7 +79,7 @@
  * Time
  * ***********************/
 #if defined(FILESYSTEM_TIMESTAMP_FEATURE) && defined( ARDUINO_ARCH_ESP8266)
-#error SPIFFS time is not available in ESP8266
+#error Filesystem time is not available in ESP8266 yet
 #endif
 
 /**************************
@@ -90,6 +90,13 @@
 #endif
 #if FILESYSTEM_FEATURE == ESP_LITTLEFS_FILESYSTEM && defined( ARDUINO_ARCH_ESP32)
 #error LittleFS is not available in ESP32
+#endif
+
+/**************************
+ * Camera
+ * ***********************/
+#if defined(CAMERA_DEVICE) && defined( ARDUINO_ARCH_ESP8266)
+#error Camera is not available in ESP8266
 #endif
 
 #endif //SANITY_ESP3D_H 

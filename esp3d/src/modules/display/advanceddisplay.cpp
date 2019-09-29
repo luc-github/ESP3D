@@ -115,7 +115,7 @@ void esp_lv_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *c
             if(bSnapshot) {
                 uint32_t data = lv_color_to32(*color_p);
                 //to handle any write issue
-                if (fsSnapFile.write((const uint8_t *)(&data), sizeof(uint32_t)) !=  sizeof(uint32_t)){
+                if (fsSnapFile.write((const uint8_t *)(&data), sizeof(uint32_t)) !=  sizeof(uint32_t)) {
                     //if error we stop to dump
                     bSnapshot = false;
                     //raise error

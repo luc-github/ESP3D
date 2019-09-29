@@ -36,6 +36,9 @@
 #ifdef RECOVERY_FEATURE
 #include "../recovery/recovery_service.h"
 #endif //RECOVERY_FEATURE
+#ifdef CAMERA_DEVICE
+#include "../camera/camera.h"
+#endif //CAMERA_DEVICE
 
 bool DevicesServices::_started = false;
 
@@ -71,10 +74,16 @@ bool DevicesServices::begin()
 #endif //BUZZER_DEVICE
 #ifdef RECOVERY_FEATURE
     if (!recovery_service.begin()) {
-        log_esp3d("Error starting recorery service");
+        log_esp3d("Error starting recovery service");
         res = false;
     }
 #endif //RECOVERY_FEATURE
+#ifdef CAMERA_DEVICE
+    if (!esp3d_camera.initHardware()) {
+        log_esp3d("Error camera intialization failed");
+        res = false;
+    }
+#endif //CAMERA_DEVICE
     if (!res) {
         end();
     }
@@ -87,6 +96,9 @@ void DevicesServices::end()
         return;
     }
     _started = false;
+#ifdef CAMERA_DEVICE
+    esp3d_camera.stopHardware();
+#endif //CAMERA_DEVICE
 #ifdef RECOVERY_FEATURE
     recovery_service.end();
 #endif //RECOVERY_FEATURE

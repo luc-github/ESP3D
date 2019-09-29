@@ -66,9 +66,11 @@ DNSServer dnsServer;
 #ifdef NOTIFICATION_FEATURE
 #include "../notifications/notifications_service.h"
 #endif //NOTIFICATION_FEATURE
-
+#ifdef CAMERA_DEVICE
+#include "../camera/camera.h"
+#endif //CAMERA_DEVICE
 bool NetServices::_started = false;
-
+bool NetServices::_restart = false;
 NetServices::NetServices()
 {
 }
@@ -211,8 +213,10 @@ bool NetServices::begin()
     if (!websocket_data_server.begin(Settings_ESP3D::read_uint32(ESP_WEBSOCKET_PORT))) {
         output.printMSG("Failed start Terminal Web Socket");
     } else {
-        String stmp = "Websocket server started port " + String(websocket_data_server.port());
-        output.printMSG(stmp.c_str());
+        if (websocket_data_server.started()) {
+            String stmp = "Websocket server started port " + String(websocket_data_server.port());
+            output.printMSG(stmp.c_str());
+        }
     }
 #endif //WS_DATA_FEATURE
 #if defined(HTTP_FEATURE)
@@ -252,6 +256,11 @@ bool NetServices::begin()
     notificationsservice.begin();
     notificationsservice.sendAutoNotification(NOTIFICATION_ESP_ONLINE);
 #endif //NOTIFICATION_FEATURE
+#ifdef CAMERA_DEVICE
+    if (!esp3d_camera.begin()) {
+        output.printMSG("Failed start camera streaming server");
+    }
+#endif //CAMERA_DEVICE
     if (!res) {
         end();
     }
@@ -260,10 +269,14 @@ bool NetServices::begin()
 }
 void NetServices::end()
 {
+    _restart = false;
     if(!_started) {
         return;
     }
     _started = false;
+#ifdef CAMERA_DEVICE
+    esp3d_camera.end();
+#endif //CAMERA_DEVICE
 #ifdef NOTIFICATION_FEATURE
     notificationsservice.end();
 #endif //NOTIFICATION_FEATURE
@@ -339,6 +352,9 @@ void NetServices::handle()
 #ifdef NOTIFICATION_FEATURE
         notificationsservice.handle();
 #endif //NOTIFICATION_FEATURE
+    }
+    if (_restart) {
+        begin();
     }
 }
 

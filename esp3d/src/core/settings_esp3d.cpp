@@ -118,6 +118,7 @@
 #define DEFAULT_BAUD_RATE       115200L
 #define DEFAULT_HTTP_PORT       80L
 #define DEFAULT_WEBSOCKET_PORT  8282L
+#define DEFAULT_CAMERA_PORT     9600L
 #define DEFAULT_TELNET_PORT     23L
 #define DEFAULT_DHT_INTERVAL    30000L
 #define DEFAULT_BOOT_DELAY	    10000L
@@ -265,7 +266,7 @@ uint8_t Settings_ESP3D::get_default_byte_value(int pos)
         //case ESP_SSID_VISIBLE:
         //    res = DEFAULT_SSID_VISIBLE;
         //    break;
-#endif //WIFI_FEATURE 
+#endif //WIFI_FEATURE
     case ESP_OUTPUT_FLAG:
         res = DEFAULT_OUTPUT_FLAG;
         break;
@@ -379,11 +380,16 @@ uint32_t Settings_ESP3D::get_default_int32_value(int pos)
         res = DEFAULT_WEBSOCKET_PORT;
         break;
 #endif //WS_DATA_FEATURE
+#ifdef CAMERA_DEVICE
+    case ESP_CAMERA_PORT:
+        res = DEFAULT_CAMERA_PORT;
+        break;
+#endif //CAMERA_DEVICE
 #if defined(DHT_DEVICE)
     case ESP_DHT_INTERVAL:
         res = DEFAULT_DHT_INTERVAL;
         break;
-#endif //DHT_DEVICE        
+#endif //DHT_DEVICE
     default:
         res = DEFAULT_ESP_INT;
     }
@@ -398,6 +404,11 @@ uint32_t Settings_ESP3D::get_max_int32_value(int pos)
     case ESP_BOOT_DELAY:
         res = MAX_BOOT_DELAY;
         break;
+#ifdef CAMERA_DEVICE
+    case ESP_CAMERA_PORT:
+        res = MAX_HTTP_PORT;
+        break;
+#endif //CAMERA_DEVICE
 #ifdef HTTP_FEATURE
     case ESP_HTTP_PORT:
         res = MAX_HTTP_PORT;
@@ -432,6 +443,11 @@ uint32_t Settings_ESP3D::get_min_int32_value(int pos)
     case ESP_BOOT_DELAY:
         res = MIN_BOOT_DELAY;
         break;
+#ifdef CAMERA_DEVICE
+    case ESP_CAMERA_PORT:
+        res =MIN_HTTP_PORT;
+        break;
+#endif //CAMERA_DEVICE
 #ifdef HTTP_FEATURE
     case ESP_HTTP_PORT:
         res = MIN_HTTP_PORT;
@@ -451,7 +467,7 @@ uint32_t Settings_ESP3D::get_min_int32_value(int pos)
     case ESP_DHT_INTERVAL:
         res = MIN_DHT_INTERVAL;
         break;
-#endif //DHT_DEVICE        
+#endif //DHT_DEVICE
     default:
         res = DEFAULT_ESP_INT;
     }
@@ -486,7 +502,7 @@ uint8_t Settings_ESP3D::get_min_byte(int pos)
     case ESP_AP_CHANNEL:
         res = MIN_CHANNEL;
         break;
-#endif //WIFI_FEATURE 
+#endif //WIFI_FEATURE
 #ifdef TIMESTAMP_FEATURE
     case ESP_TIMEZONE:
         res= -12;
@@ -549,7 +565,7 @@ const String & Settings_ESP3D::get_default_string_value(int pos)
     case ESP_AP_PASSWORD:
         res = DEFAULT_AP_PASSWORD;
         break;
-#endif //WIFI_FEATURE 
+#endif //WIFI_FEATURE
 #ifdef AUTHENTICATION_FEATURE
     case ESP_ADMIN_PWD:
         res = DEFAULT_ADMIN_PWD;
@@ -602,7 +618,7 @@ uint8_t Settings_ESP3D::get_max_string_size(int pos)
     case ESP_AP_PASSWORD:
         res = MAX_PASSWORD_LENGTH;
         break;
-#endif //WIFI_FEATURE 
+#endif //WIFI_FEATURE
 #ifdef AUTHENTICATION_FEATURE
     case ESP_ADMIN_PWD:
     case ESP_USER_PWD:
@@ -729,7 +745,7 @@ bool Settings_ESP3D::write_byte (int pos, const uint8_t value)
         log_esp3d("Error commit %s", p.c_str());
         return false;
     }
-#endif //SETTINGS_IN_PREFERENCES 
+#endif //SETTINGS_IN_PREFERENCES
     return true;
 }
 
@@ -978,7 +994,7 @@ bool Settings_ESP3D::reset()
     }
     res = prefs.clear();
     prefs.end();
-#endif //SETTINGS_IN_PREFERENCES 
+#endif //SETTINGS_IN_PREFERENCES
 
 //for EEPROM need to overwrite all settings
 #if ESP_SAVE_SETTINGS == SETTINGS_IN_EEPROM
@@ -1063,6 +1079,11 @@ bool Settings_ESP3D::reset()
     Settings_ESP3D::write_uint32 (ESP_TELNET_PORT, Settings_ESP3D::get_default_int32_value(ESP_TELNET_PORT));
 #endif //TELNET
 
+#ifdef CAMERA_DEVICE
+    //Camera Port
+    Settings_ESP3D::write_uint32 (ESP_CAMERA_PORT, Settings_ESP3D::get_default_int32_value(ESP_CAMERA_PORT));
+#endif //CAMERA_DEVICE
+
 #ifdef WS_DATA_FEATURE
     //Websocket On
     Settings_ESP3D::write_byte(ESP_WEBSOCKET_ON,Settings_ESP3D::get_default_byte_value(ESP_WEBSOCKET_ON));
@@ -1103,7 +1124,7 @@ bool Settings_ESP3D::reset()
     Settings_ESP3D::write_byte(ESP_DHT_TYPE,Settings_ESP3D::get_default_byte_value(ESP_DHT_TYPE));
     //DHT query interval
     Settings_ESP3D::write_uint32 (ESP_DHT_INTERVAL, Settings_ESP3D::get_default_int32_value(ESP_DHT_INTERVAL));
-#endif //DHT_DEVICE  
+#endif //DHT_DEVICE
     //Start Delay
     Settings_ESP3D::write_uint32 (ESP_BOOT_DELAY, Settings_ESP3D::get_default_int32_value(ESP_BOOT_DELAY));
 #endif //SETTINGS_IN_EEPROM

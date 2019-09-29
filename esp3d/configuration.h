@@ -61,7 +61,7 @@
 #define DISPLAY_UI_COLOR UI_COLORED
 
 //BUZZER_DEVICE: allow to connect passive buzzer
-#define BUZZER_DEVICE
+//#define BUZZER_DEVICE
 
 
 #if defined (DISPLAY_DEVICE)
@@ -115,7 +115,7 @@
 #define DIRECT_PIN_FEATURE
 
 //TIMESTAMP_FEATURE: set time system
-#define TIMESTAMP_FEATURE
+//#define TIMESTAMP_FEATURE
 
 //FILESYSTEM_TIMESTAMP_FEATURE: allow to get last write time from FILESYSTEM files
 //#define FILESYSTEM_TIMESTAMP_FEATURE
@@ -132,13 +132,25 @@
 #define CAPTIVE_PORTAL_FEATURE
 
 //OTA_FEATURE: this feature is arduino update over the air
-#define OTA_FEATURE
+//#define OTA_FEATURE
 
 //WEB_UPDATE_FEATURE: allow to flash fw using web UI
 #define WEB_UPDATE_FEATURE
 
 //NOTIFICATION_FEATURE : allow to push notifications
 #define NOTIFICATION_FEATURE
+
+//CAMERA_DEVICE: Enable the support of connected camera
+//CAMERA_MODEL_CUSTOM           0 //Edit the pins in include/pins.h
+//CAMERA_MODEL_ESP_EYE          1
+//CAMERA_MODEL_M5STACK_PSRAM    2
+//CAMERA_MODEL_M5STACK_WIDE     3
+//CAMERA_MODEL_AI_THINKER       4 e.g. used by ESP32-CAM
+//CAMERA_MODEL_WROVER_KIT       5
+#define CAMERA_DEVICE CAMERA_MODEL_AI_THINKER
+//#define CAMERA_DEVICE_FLIP_VERTICALY  //comment to disable
+//#define CAMERA_DEVICE_FLIP_HORIZONTALY//comment to disable
+#define CUSTOM_CAMERA_NAME "ESP32-CAM"
 
 //Extra features /////////////////////////////////////////////////////////////////////////
 /************************************

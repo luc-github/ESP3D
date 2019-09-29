@@ -171,6 +171,6 @@ void Esp3D::restart_now()
     ESP.restart();
     while (1) {
         delay (1);
-    };
+    }
 }
 

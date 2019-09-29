@@ -38,6 +38,9 @@
 #ifdef TIMESTAMP_FEATURE
 #include "../../modules/time/time_server.h"
 #endif //TIMESTAMP_FEATURE
+#ifdef CAMERA_DEVICE
+#include "../../modules/camera/camera.h"
+#endif //CAMERA_DEVICE
 //get fw version firmare target and fw version
 //eventually set time with pc time
 //output is JSON or plain text according parameter
@@ -256,7 +259,44 @@ bool Commands::ESP800(const char* cmd_params, level_authenticate_type auth_type,
     } else {
         output->print("\"");
     }
-
+#ifdef CAMERA_DEVICE
+    //camera port
+    if (plain) {
+        output->print("Camera port:");
+    } else {
+        output->print(",\"Cam_port\":\"");
+    }
+    output->print(esp3d_camera.port());
+    if(plain) {
+        output->printLN("");
+    } else {
+        output->print("\"");
+    }
+    //camera ID
+    if (plain) {
+        output->print("Camera ID:");
+    } else {
+        output->print(",\"Cam_ID\":\"");
+    }
+    output->print(esp3d_camera.GetModel());
+    if(plain) {
+        output->printLN("");
+    } else {
+        output->print("\"");
+    }
+    //camera Name
+    if (plain) {
+        output->print("Camera Name:");
+    } else {
+        output->print(",\"Cam_name\":\"");
+    }
+    output->print(esp3d_camera.GetModelString());
+    if(plain) {
+        output->printLN("");
+    } else {
+        output->print("\"");
+    }
+#endif //CAMERA_DEVICE
     //final
     if(!plain) {
         output->printLN("}");

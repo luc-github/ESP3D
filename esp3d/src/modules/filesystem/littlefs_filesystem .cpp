@@ -76,12 +76,12 @@ ESP_File ESP_FileSystem::open(const char* path, uint8_t mode)
     File ftmp = LittleFS.open(path, (mode == ESP_FILE_READ)?"r":(mode == ESP_FILE_WRITE)?"w":"a");
     if(ftmp) {
         log_esp3d("Success openening: %s", path);
-        if (ftmp.isFile()){
+        if (ftmp.isFile()) {
             log_esp3d("It is a file");
             ESP_File esptmp(&ftmp, false,(mode == ESP_FILE_READ)?false:true, path);
             return esptmp;
         }
-        if (ftmp.isDirectory()){
+        if (ftmp.isDirectory()) {
             log_esp3d("It is a Directory");
         }
         ftmp.close();
@@ -128,7 +128,7 @@ bool ESP_FileSystem::mkdir(const char *path)
 
 bool ESP_FileSystem::rmdir(const char *path)
 {
-     if (!exists(path)) {
+    if (!exists(path)) {
         return false;
     }
     bool res = true;
@@ -137,7 +137,8 @@ bool ESP_FileSystem::rmdir(const char *path)
     spath.trim();
     if (spath[spath.length()-1] != '/') {
         spath+="/";
-    }if (spath[0] != '/') {
+    }
+    if (spath[0] != '/') {
         spath ="/" + spath;
     }
     pathlist.push(spath);
@@ -162,7 +163,7 @@ bool ESP_FileSystem::rmdir(const char *path)
             if (spath !="/") {
                 if (spath[spath.length()-1] == '/') {
                     spath.remove(spath.length()-1);
-                    }
+                }
                 if (LittleFS.exists(spath.c_str()))  {
                     res = LittleFS.rmdir(spath.c_str());
                 }
@@ -234,8 +235,8 @@ ESP_File::ESP_File(void* handle, bool isdir, bool iswritemode, const char * path
             _filename = tFile_handle[i].name();
             if (_isdir) {
                 if (!((_filename[_filename.length()-1] == '/') || (_filename == "/"))) {
-                        _filename+="/";
-                    }
+                    _filename+="/";
+                }
             }
             //name
             if (_filename == "/") {
@@ -302,17 +303,19 @@ ESP_File  ESP_File::openNextFile()
         log_esp3d("Getting next file from %s", _filename.c_str());
         log_esp3d("name :%s %s", name.c_str(), (tDir_handle[_index].isDirectory())?"isDir":"isFile");
         String  s = _filename;
-        if(s[s.length()-1]!='/')s+="/";
+        if(s[s.length()-1]!='/') {
+            s+="/";
+        }
         s+=name.c_str();
         if (tDir_handle[_index].isFile()) {
             ESP_File esptmp(name.c_str(), s.c_str(), false, tDir_handle[_index].fileSize()) ;
             return esptmp;
         } else {
-                log_esp3d("Found dir  name: %s filename:%s",name.c_str(), s.c_str());
-                ESP_File esptmp = ESP_File(name.c_str(), s.c_str());
-                return esptmp;
-            }
-           
+            log_esp3d("Found dir  name: %s filename:%s",name.c_str(), s.c_str());
+            ESP_File esptmp = ESP_File(name.c_str(), s.c_str());
+            return esptmp;
+        }
+
     }
     return  ESP_File();
 }

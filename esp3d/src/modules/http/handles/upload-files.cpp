@@ -43,7 +43,7 @@ void HTTP_Server::FSFileupload ()
         HTTPUpload& upload = _webserver->upload();
         String upload_filename = upload.filename;
         if ((_upload_status != UPLOAD_STATUS_FAILED) || (upload.status == UPLOAD_FILE_START)) {
-            
+
             //Upload start
             if (upload.status == UPLOAD_FILE_START) {
                 _upload_status = UPLOAD_STATUS_ONGOING;

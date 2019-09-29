@@ -113,6 +113,50 @@ int Commands::get_space_pos(const char * string, uint from)
     return  -1;
 }
 
+//return first label but pwd using labelseparator (usualy =) like mylabel=myvalue will return mylabel
+const char* Commands::get_label (const char * cmd_params, const char * labelseparator, uint8_t startindex)
+{
+    static String res;
+    String tmp = "";
+    res = "";
+    int start = 1;
+    int end = -1;
+    res = cmd_params;
+    res.replace("\r ", "");
+    res.replace("\n ", "");
+    res.trim();
+    if ((res.length() == 0) || (startindex >=res.length())) {
+        return res.c_str();
+    }
+
+    if (strlen(labelseparator) > 0) {
+        end = res.indexOf(labelseparator, startindex);
+        if (end == -1) {
+            return "";
+        }
+        start = end;
+        for (int8_t p = end; p >= startindex ; p--, start--) {
+            if (res[p]==' ') {
+                p = -1;
+                start+=2;
+            }
+        }
+        if(start==-1) {
+            start=0;
+        }
+        if (start > end) {
+            return "";
+        }
+        tmp = res.substring(start,end);
+        if (tmp == "pwd") {
+            res = get_label (cmd_params, labelseparator,end+1);
+        } else {
+            res = tmp;
+        }
+    }
+    return res.c_str();
+}
+
 //extract parameter with corresponding label
 //if label is empty give whole line without authentication label/parameter
 const char * Commands::get_param (const char * cmd_params, const char * label)
@@ -126,10 +170,11 @@ const char * Commands::get_param (const char * cmd_params, const char * label)
     res = cmd_params;
     res.replace("\r ", "");
     res.replace("\n ", "");
+    res.trim();
     if (res.length() == 0) {
         return res.c_str();
     }
-    res.trim();
+
     tmp = " " + res;
     slabel += label;
     if (strlen(label) > 0) {
@@ -339,6 +384,19 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
         response = ESP161(cmd_params, auth_type, output);
         break;
 #endif //WS_DATA_FEATURE
+#ifdef CAMERA_DEVICE
+    //Set carmera server state which can be ON, OFF
+    //[ESP170]<state>pwd=<admin password>
+    case 170:
+        response = ESP170(cmd_params, auth_type, output);
+        break;
+    case 171:
+        response = ESP171(cmd_params, auth_type, output);
+        break;
+    case 172:
+        response = ESP172(cmd_params, auth_type, output);
+        break;
+#endif //CAMERA_DEVICE
 #ifdef DIRECT_PIN_FEATURE
     //Get/Set pin value
     //[ESP201]P<pin> V<value> [PULLUP=YES RAW=YES]pwd=<admin password>
@@ -456,7 +514,7 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
     //Action on ESP Filesystem
     //rmdir / remove / mkdir / exists
     //[ESP730]<Action>=<path> pwd=<admin password>
-     case 730:
+    case 730:
         response = ESP730(cmd_params, auth_type, output);
         break;
 #endif //FILESYSTEM_FEATURE

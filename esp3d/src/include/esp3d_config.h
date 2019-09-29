@@ -22,6 +22,7 @@
 #define _ESP3D_CONFIG_H
 #include <Arduino.h>
 #include "../include/defines.h"
+#include "../include/pins.h"
 #include "../../configuration.h"
 #include "../include/sanity_esp3d.h"
 #include "../core/hal.h"
@@ -39,7 +40,7 @@
 #define RECOVERY_FEATURE
 #endif //PIN_RESET_FEATURE || SD_RECOVERY_FEATURE
 
-#if defined(DISPLAY_DEVICE) || defined(DHT_DEVICE) || defined(RECOVERY_FEATURE) || defined(BUZZER_DEVICE)
+#if defined(DISPLAY_DEVICE) || defined(DHT_DEVICE) || defined(RECOVERY_FEATURE) || defined(BUZZER_DEVICE) || defined(CAMERA_DEVICE)
 #define CONNECTED_DEVICES_FEATURE
 #endif //DISPLAY_DEVICE || DHT_DEVICE
 

@@ -232,6 +232,19 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->printLN ("\"}");
 #endif //TELNET
 
+#ifdef CAMERA_DEVICE
+    //Camera Port
+    output->print (",{\"F\":\"network\",\"P\":\"");
+    output->print (ESP_CAMERA_PORT);
+    output->print ("\",\"T\":\"I\",\"V\":\"");
+    output->print (Settings_ESP3D::read_uint32(ESP_CAMERA_PORT));
+    output->print ("\",\"H\":\"Camera Port\",\"S\":\"");
+    output->print (Settings_ESP3D::get_max_int32_value(ESP_CAMERA_PORT));
+    output->print ("\",\"M\":\"");
+    output->print (Settings_ESP3D::get_min_int32_value(ESP_CAMERA_PORT));
+    output->printLN ("\"}");
+#endif //CAMERA_DEVICE
+
 #ifdef AUTHENTICATION_FEATURE
     //22-Admin password
     output->print (",{\"F\":\"network\",\"P\":\"");

@@ -26,10 +26,10 @@
 #define SETTINGS_IN_PREFERENCES 2
 
 //Debug
-#define DEBUG_OUTPUT_SERIAL0 1
-#define DEBUG_OUTPUT_SERIAL1 2
-#define DEBUG_OUTPUT_SERIAL2 3
-#define DEBUG_OUTPUT_TELNET  4
+#define DEBUG_OUTPUT_SERIAL0    1
+#define DEBUG_OUTPUT_SERIAL1    2
+#define DEBUG_OUTPUT_SERIAL2    3
+#define DEBUG_OUTPUT_TELNET     4
 #define DEBUG_OUTPUT_WEBSOCKET  5
 
 
@@ -39,8 +39,8 @@
 #define USE_SERIAL_2 3
 
 //Display
-#define OLED_I2C_SSD1306    	1
-#define OLED_I2C_SSDSH1106  	2
+#define OLED_I2C_SSD1306        1
+#define OLED_I2C_SSDSH1106      2
 #define TFT_SPI_ILI9341_320X240 3
 #define TFT_SPI_ILI9488_480X320 4
 
@@ -52,10 +52,10 @@
 
 
 //Touch
-#define XPT2046_SPI		1
+#define XPT2046_SPI     1
 
 //Input
-#define ROTARY_ENCODER	1
+#define ROTARY_ENCODER  1
 
 //File systems
 #define ESP_SPIFFS_FILESYSTEM       1
@@ -63,15 +63,23 @@
 #define ESP_LITTLEFS_FILESYSTEM     3
 
 //Notifications
-#define ESP_PUSHOVER_NOTIFICATION	1
-#define ESP_EMAIL_NOTIFICATION		2
-#define ESP_LINE_NOTIFICATION		3
+#define ESP_PUSHOVER_NOTIFICATION   1
+#define ESP_EMAIL_NOTIFICATION      2
+#define ESP_LINE_NOTIFICATION       3
 
 //DHT
-#define DHT11_DEVICE 1
-#define DHT22_DEVICE 2
-#define USE_CELSIUS		1
-#define USE_FAHRENHEIT	2
+#define DHT11_DEVICE    1
+#define DHT22_DEVICE    2
+#define USE_CELSIUS     1
+#define USE_FAHRENHEIT  2
+
+//Camera
+#define CAMERA_MODEL_CUSTOM           0
+#define CAMERA_MODEL_ESP_EYE          1
+#define CAMERA_MODEL_M5STACK_PSRAM    2
+#define CAMERA_MODEL_M5STACK_WIDE     3
+#define CAMERA_MODEL_AI_THINKER       4
+#define CAMERA_MODEL_WROVER_KIT       5
 
 //Errors code
 #define ESP_ERROR_AUTHENTICATION    1

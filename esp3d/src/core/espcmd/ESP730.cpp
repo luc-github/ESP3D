@@ -42,42 +42,42 @@ bool Commands::ESP730(const char* cmd_params, level_authenticate_type auth_type,
 #endif //AUTHENTICATION_FEATURE
     parameter = get_param (cmd_params, "mkdir=");
     if (parameter.length() != 0) {
-       if (ESP_FileSystem::mkdir(parameter.c_str())) {
-           output->printMSG ("ok");
-       } else {
-           output->printERROR ("failed!");
-           response = false;
-       }
-       return response;
-    } 
+        if (ESP_FileSystem::mkdir(parameter.c_str())) {
+            output->printMSG ("ok");
+        } else {
+            output->printERROR ("failed!");
+            response = false;
+        }
+        return response;
+    }
     parameter = get_param (cmd_params, "rmdir=");
     if (parameter.length() != 0) {
-       if (ESP_FileSystem::rmdir(parameter.c_str())) {
-           output->printMSG ("ok");
-       } else {
-           output->printERROR ("failed!");
-           response = false;
-       }
-       return response;
-    } 
-     parameter = get_param (cmd_params, "remove=");
+        if (ESP_FileSystem::rmdir(parameter.c_str())) {
+            output->printMSG ("ok");
+        } else {
+            output->printERROR ("failed!");
+            response = false;
+        }
+        return response;
+    }
+    parameter = get_param (cmd_params, "remove=");
     if (parameter.length() != 0) {
-       if (ESP_FileSystem::remove(parameter.c_str())) {
-           output->printMSG ("ok");
-       } else {
-           output->printERROR ("failed!");
-           response = false;
-       }
-       return response;
-    } 
+        if (ESP_FileSystem::remove(parameter.c_str())) {
+            output->printMSG ("ok");
+        } else {
+            output->printERROR ("failed!");
+            response = false;
+        }
+        return response;
+    }
     parameter = get_param (cmd_params, "exists=");
     if (parameter.length() != 0) {
-       if (ESP_FileSystem::exists(parameter.c_str())) {
-           output->printMSG ("yes");
-       } else {
-           output->printMSG ("no");
-       }
-       return response;
+        if (ESP_FileSystem::exists(parameter.c_str())) {
+            output->printMSG ("yes");
+        } else {
+            output->printMSG ("no");
+        }
+        return response;
     }
     output->printERROR ("Incorrect command!");
     return false;

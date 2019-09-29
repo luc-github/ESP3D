@@ -1,5 +1,5 @@
 /*
- ESP910.cpp - ESP3D command class
+ ESP171.cpp - ESP3D command class
 
  Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -18,15 +18,14 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "../../include/esp3d_config.h"
-#if defined (BUZZER_DEVICE)
+#if defined (CAMERA_DEVICE)
 #include "../commands.h"
 #include "../esp3doutput.h"
 #include "../settings_esp3d.h"
 #include "../../modules/authentication/authentication_service.h"
-#include "../../modules/buzzer/buzzer.h"
-//Get state / Set Enable / Disable buzzer
-//[ESP910]<ENABLE/DISABLE>[pwd=<admin password>]
-bool Commands::ESP910(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
+//Set Camera port
+//[ESP171]<port>pwd=<admin password>
+bool Commands::ESP171(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
     bool response = true;
     String parameter;
@@ -41,32 +40,27 @@ bool Commands::ESP910(const char* cmd_params, level_authenticate_type auth_type,
     parameter = get_param (cmd_params, "");
     //get
     if (parameter.length() == 0) {
-        if (esp3d_buzzer.started()) {
-            output->printMSG("ENABLED");
-        } else {
-            output->printMSG("DISABLED");
-        }
+        output->printMSG(String(Settings_ESP3D::read_uint32(ESP_CAMERA_PORT)).c_str());
     } else { //set
-        if (!Settings_ESP3D::write_byte (ESP_BUZZER, (parameter == "ENABLE")?1:0)) {
+#ifdef AUTHENTICATION_FEATURE
+        if (auth_type != LEVEL_ADMIN) {
+            output->printERROR("Wrong authentication!", 401);
+            return false;
+        }
+#endif //AUTHENTICATION_FEATURE
+        uint ibuf = parameter.toInt();
+        if ((ibuf > Settings_ESP3D::get_max_int32_value(ESP_CAMERA_PORT)) || (ibuf < Settings_ESP3D::get_min_int32_value(ESP_CAMERA_PORT))) {
+            output->printERROR ("Incorrect port!");
+            return false;
+        }
+        if (!Settings_ESP3D::write_uint32 (ESP_CAMERA_PORT, ibuf)) {
             output->printERROR ("Set failed!");
             response = false;
-        }
-        if (parameter == "ENABLE" ) {
-
-            if (esp3d_buzzer.begin()) {
-                output->printMSG ("Buzzer enabled");
-            } else {
-                output->printERROR("Cannot enable buzzer!", 500);
-                response = false;
-            }
-        } else  if (parameter == "DISABLE" ) {
-            output->printMSG ("Buzzer disabled");
-            esp3d_buzzer.end();
         } else {
-            output->printERROR("Incorrect command!");
-            response = false;
+            output->printMSG ("ok");
         }
     }
     return response;
 }
-#endif //BUZZER_DEVICE
+
+#endif //CAMERA_DEVICE

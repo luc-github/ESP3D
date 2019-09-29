@@ -80,6 +80,7 @@ private:
     bool _started;
     uint16_t _port;
     bool _isdebug;
+    bool _isdata;
     uint32_t _lastTXflush;
     uint32_t _lastRXflush;
     WebSocketsServer * _websocket_server;

@@ -1,5 +1,5 @@
 /*
-  netservices.h -  network services functions class
+  camera.h -  camera functions class
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -20,31 +20,50 @@
 
 
 
-#ifndef _NET_SERVICES_H
-#define _NET_SERVICES_H
+#ifndef _CAMERA_H
+#define _CAMERA_H
 
-
-class NetServices
+class Camera
 {
 public:
-    NetServices();
-    ~NetServices();
-    static bool begin();
-    static void end();
-    static void handle();
-    static bool started()
+    Camera();
+    ~Camera();
+    bool initHardware(bool forceinit = false);
+    bool begin(bool forceinit = false);
+    void end();
+    void handle();
+    int command(const char * param, const char * value);
+    uint8_t GetModel();
+    const char *GetModelString();
+    bool started()
     {
         return _started;
     }
-    static void start()
+    bool initialised()
     {
-        _restart=true;
-        Serial.println("Restarting netservices");
+        return _initialised;
+    }
+    bool stopHardware();
+    void connect(bool status)
+    {
+        _connected = status;
+    }
+    bool isconnected()
+    {
+        return _connected;
+    }
+    uint16_t port()
+    {
+        return _port;
     }
 private:
-    static bool _started;
-    static bool _restart;
+    bool _initialised;
+    bool _started;
+    bool _connected;
+    uint16_t _port;
 };
 
-#endif //_NET_SERVICES_H
+extern Camera esp3d_camera;
+
+#endif //_CAMERA_H
 
