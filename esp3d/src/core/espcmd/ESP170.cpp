@@ -25,7 +25,7 @@
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/network/netservices.h"
 #include "../../modules/camera/camera.h"
-//Set carmera server state which can be ON, OFF
+//Set camera server state which can be ON, OFF
 //[ESP170]<state>pwd=<admin password>
 bool Commands::ESP170(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {

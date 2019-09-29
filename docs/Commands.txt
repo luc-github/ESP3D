@@ -62,6 +62,16 @@ Note:
 * Get/Set WebSocket port 
 [ESP161]<port>pwd=<admin password>
 
+* Get/Set camera server state which can be ON, OFF, but not saved in EEPROM
+[ESP170]<state>pwd=<admin password>
+
+* Get/Set Camera port
+[ESP171]<port>pwd=<admin password>
+
+* Get/Set Camera command value / list all values in JSON/plain
+label can be: light/framesize/quality/contrast/brightness/saturation/gainceiling/colorbar/awb/agc/aec/hmirror/vflip/awb_gain/agc_gain/aec_value/aec2/cw/bpc/wpc/raw_gma/lenc/special_effect/wb_mode/ae_level
+[ESP172]<plain><label=value> pwd=<admin password>
+
 *Get/Set pin value
 [ESP201]P<pin> V<value> [PULLUP=YES RAW=YES]pwd=<admin password>
 if no V<value> get P<pin> value
