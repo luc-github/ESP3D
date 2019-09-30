@@ -152,6 +152,13 @@
 //#define CAMERA_DEVICE_FLIP_HORIZONTALY//comment to disable
 #define CUSTOM_CAMERA_NAME "ESP32-CAM"
 
+//Allow remote access by enabling cross origin access
+//check https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
+//this should be enabled only in specific cases 
+//like show the camera in web page different than device web server
+//if you do not know what is that then better left it commented
+//#define ESP_ACCESS_CONTROL_ALLOW_ORIGIN
+
 //Extra features /////////////////////////////////////////////////////////////////////////
 /************************************
  *

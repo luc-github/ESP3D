@@ -54,6 +54,9 @@ static esp_err_t stream_handler(httpd_req_t *req)
         return ESP_FAIL;
     }
     esp3d_camera.connect(true);
+#ifdef ESP_ACCESS_CONTROL_ALLOW_ORIGIN
+     httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+#endif //ESP_ACCESS_CONTROL_ALLOw_ORIGIN
     camera_fb_t * fb = NULL;
     esp_err_t res = ESP_OK;
     size_t _jpg_buf_len = 0;
