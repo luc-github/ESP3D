@@ -199,6 +199,9 @@ size_t ESP3DOutput::printMSG(const char * s)
         if (_webserver) {
             if (!_headerSent && !_footerSent) {
                 _webserver->sendHeader("Cache-Control","no-cache");
+#ifdef ESP_ACCESS_CONTROL_ALLOW_ORIGIN
+                _webserver->sendHeader("Access-Control-Allow-Origin", "*");
+#endif //ESP_ACCESS_CONTROL_ALLOw_ORIGIN
                 _webserver->send (_code, "text/plain", s);
                 _headerSent = true;
                 _footerSent = true;
