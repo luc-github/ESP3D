@@ -407,6 +407,7 @@ document.getElementById('ubut').style.visibility = 'hidden';
 document.getElementById('fw-select').style.visibility = 'hidden';
 document.getElementById('msg').style.visibility = "visible";
 document.getElementById('msg').innerHTML="";
+document.getElementById('MSG').innerHTML="Please wait";
 document.getElementById('FILESYSTEM').style.display = "none";
 document.getElementById('prgfw').style.visibility = "visible";
 var formData = new FormData();
@@ -420,7 +421,7 @@ typeupload = 0;
 xmlhttpupload = new XMLHttpRequest();
 xmlhttpupload.open('POST', '/updatefw', true);
 //progress upload event
-xmlhttpupload.addEventListener("progress", updateProgress, false);
+xmlhttpupload.upload.addEventListener("progress", updateProgress, false);
 //progress function
 function updateProgress (oEvent) {
   if (oEvent.lengthComputable) {
@@ -434,7 +435,7 @@ function updateProgress (oEvent) {
 xmlhttpupload.onload = function () {
  if (xmlhttpupload.status === 200) {
 document.getElementById('ubut').value = 'Upload';
-document.getElementById('msg').innerHTML="Restarting, please wait....";
+document.getElementById('msg').innerHTML="Restarting....";
 document.getElementById('counter').style.visibility = "visible";
 document.getElementById('ubut').style.visibility = 'hidden';
 document.getElementById('ubut').style.width = '0px';
@@ -463,8 +464,8 @@ else if (jsonresponse.status=='3')
             }
         },1000);
 }
-else uploadError()
- } else uploadError()
+else uploadError();
+ } else uploadError();
 };
 xmlhttpupload.send(formData);
 }
