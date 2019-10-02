@@ -159,6 +159,9 @@
 //if you do not know what is that then better left it commented
 //#define ESP_ACCESS_CONTROL_ALLOW_ORIGIN
 
+//ESP_GCODE_HOST_FEATURE : allow to send GCODE with ack
+#define ESP_GCODE_HOST_FEATURE
+
 //Extra features /////////////////////////////////////////////////////////////////////////
 /************************************
  *
