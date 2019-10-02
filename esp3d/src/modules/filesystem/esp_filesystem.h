@@ -28,6 +28,8 @@
 #define ESP_FILE_WRITE      1
 #define ESP_FILE_APPEND     2
 
+#define ESP_FLASH_FS_HEADER "/FS:"
+
 #define ESP_MAX_OPENHANDLE 4
 
 class ESP_File

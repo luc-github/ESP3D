@@ -23,6 +23,10 @@
 #ifndef _GCODE_HOST_H
 #define _GCODE_HOST_H
 
+#include <Arduino.h>
+#include "../authentication/authentication_service.h"
+class ESP3DOutput;
+
 #define DEFAULT_TIMOUT 2000
 #define MAX_TRY_2_SEND 5
 #define ERROR_NO_ERROR          0
@@ -44,20 +48,34 @@ public:
     void end();
     void handle();
     bool sendCommand(const char* command, bool checksum = false, bool wait4ack = true, const char * ack=nullptr);
-    uint16_t currentCommandNumber(){return _commandnumber;}
-    void setCommandNumber(uint16_t n){_commandnumber = n;}
+    uint32_t currentCommandNumber()
+    {
+        return _commandnumber;
+    }
+    void setCommandNumber(uint32_t n)
+    {
+        _commandnumber = n;
+    }
     bool resetCommandNumbering();
-    uint8_t Checksum(const char * command, uint16_t commandSize);
-    String CheckSumCommand(const char* command, uint16_t commandnb);
+    uint8_t Checksum(const char * command, uint32_t commandSize);
+    String CheckSumCommand(const char* command, uint32_t commandnb);
     size_t wait_for_data(uint32_t timeout = DEFAULT_TIMOUT);
     bool wait_for_ack(uint32_t timeout = DEFAULT_TIMOUT, bool checksum=false, const char * ack=nullptr);
     bool purge(uint32_t timeout = DEFAULT_TIMOUT);
-    uint16_t Get_commandNumber(String & response);
-    bool waitWhenIdle(){ return _waitwhenidle;}
-    uint8_t getErrorNum(){ return _error;}
+    uint32_t Get_commandNumber(String & response);
+    bool waitWhenIdle()
+    {
+        return _waitwhenidle;
+    }
+    uint8_t getErrorNum()
+    {
+        return _error;
+    }
+    bool processFile(const char * filename, level_authenticate_type auth_type, ESP3DOutput * output);
+    bool processFSFile(const char * filename, level_authenticate_type auth_type, ESP3DOutput * output);
 private:
-    uint16_t _commandnumber;
-    uint16_t _needcommandnumber;
+    uint32_t _commandnumber;
+    uint32_t _needcommandnumber;
     bool _waitwhenidle;
     uint8_t _error;
 };

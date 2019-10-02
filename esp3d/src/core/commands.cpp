@@ -499,11 +499,18 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
         response = ESP610(cmd_params, auth_type, output);
         break;
 #endif //NOTIFICATION_FEATURE
-#ifdef FILESYSTEM_FEATURE
+#if defined(FILESYSTEM_FEATURE)
     //Format ESP Filesystem
     //[ESP710]FORMAT pwd=<admin password>
     case 710:
         response = ESP710(cmd_params, auth_type, output);
+        break;
+#endif //FILESYSTEM_FEATURE 
+#ifdef FILESYSTEM_FEATURE
+    //Open local file
+    //[ESP700]<filname>
+    case 700:
+        response = ESP700(cmd_params, auth_type, output);
         break;
 
     //List ESP Filesystem

@@ -18,6 +18,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "../../include/esp3d_config.h"
+#ifdef FILESYSTEM_FEATURE
 #include "esp_filesystem.h"
 #include "../../core/genLinkedList.h"
 #ifdef FILESYSTEM_TIMESTAMP_FEATURE
@@ -215,3 +216,5 @@ ESP_File& ESP_File::operator=(const ESP_File & other)
 #endif //FILESYSTEM_TIMESTAMP_FEATURE
     return *this;
 }
+
+#endif //FILESYSTEM_FEATURE
