@@ -506,7 +506,7 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
         response = ESP710(cmd_params, auth_type, output);
         break;
 #endif //FILESYSTEM_FEATURE 
-#ifdef FILESYSTEM_FEATURE
+#if defined(FILESYSTEM_FEATURE) && defined(ESP_GCODE_HOST_FEATURE)
     //Open local file
     //[ESP700]<filname>
     case 700:

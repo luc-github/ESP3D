@@ -18,7 +18,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "../../include/esp3d_config.h"
-#if defined (FILESYSTEM_FEATURE)
+#if defined (FILESYSTEM_FEATURE) && defined(ESP_GCODE_HOST_FEATURE)
 #include "../commands.h"
 #include "../esp3doutput.h"
 #include "../settings_esp3d.h"
@@ -47,4 +47,4 @@ bool Commands::ESP700(const char* cmd_params, level_authenticate_type auth_type,
     return response;
 }
 
-#endif //FILESYSTEM_FEATURE
+#endif //FILESYSTEM_FEATURE && ESP_GCODE_HOST_FEATURE

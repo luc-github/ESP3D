@@ -112,7 +112,7 @@ public:
     bool ESP600(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     bool ESP610(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #endif //NOTIFICATION_FEATURE
-#if defined(FILESYSTEM_FEATURE)
+#if defined(FILESYSTEM_FEATURE) && defined(ESP_GCODE_HOST_FEATURE)
     bool ESP700(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #endif //FILESYSTEM_FEATURE
 #if defined(FILESYSTEM_FEATURE)

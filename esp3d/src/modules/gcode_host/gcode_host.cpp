@@ -23,6 +23,7 @@
 #include "gcode_host.h"
 #include "../../core/settings_esp3d.h"
 #include "../../core/commands.h"
+#include "../../core/esp3doutput.h"
 #include "../serial/serial_service.h"
 #include "../filesystem/esp_filesystem.h"
 
@@ -321,6 +322,7 @@ bool GcodeHost::processFSFile(const char * filename, level_authenticate_type aut
                         if (!sendCommand(cmd.c_str(),false, true)) {
                             log_esp3d("Error sending command");
                             //To stop instead of continue may need some trigger
+                            res = false;
                         }
                     }
                 }
@@ -332,6 +334,55 @@ bool GcodeHost::processFSFile(const char * filename, level_authenticate_type aut
         }
     }
     f.close();
+    return res;
+}
+
+bool GcodeHost::processscript(const char * line)
+{
+    bool res = true;
+    String s = line;
+    s.trim();
+    ESP3DOutput output(ESP_ALL_CLIENTS);
+    if (s.startsWith(ESP_FLASH_FS_HEADER)) {
+        res = processFile(line, LEVEL_ADMIN, &output);
+    } else {
+        res = processLine(line, LEVEL_ADMIN, &output);
+    }
+    return res;
+}
+
+//split line of command separated by '\n'
+bool GcodeHost::processLine(const char * line, level_authenticate_type auth_type, ESP3DOutput * output)
+{
+    bool res = true;
+    String s = "";
+    for (uint p = 0; p < strlen(line); p++) {
+        if ((line[p]==10) || (line[p]==13) || (p == (strlen(line)-1))) {
+            if (!((line[p]==10) || (line[p]==13)) && (p == (strlen(line)-1))) {
+                s+=line[p];
+            }
+            s.trim();
+            if (s.length()>0) {
+                //ignore  comments
+                if (s[0]!=';') {
+                    //it is internal or not ?
+                    if(esp3d_commands.is_esp_command((uint8_t *)s.c_str(), s.length())) {
+                        esp3d_commands.process((uint8_t *)s.c_str(), s.length(), output, auth_type);
+                    } else {
+                        //no check sum no ack
+                        if (!sendCommand(s.c_str(),false, false)) {
+                            log_esp3d("Error sending command");
+                            //To stop instead of continue may need some trigger
+                            res = false;
+                        }
+                    }
+                }
+            }
+            s = "";
+        } else {
+            s+=line[p];
+        }
+    }
     return res;
 }
 

@@ -40,7 +40,9 @@
 #ifdef DISPLAY_DEVICE
 #include "../modules/display/display.h"
 #endif //DISPLAY_DEVICE
-
+#ifdef ESP_GCODE_HOST_FEATURE
+#include "../modules/gcode_host/gcode_host.h"
+#endif //ESP_GCODE_HOST_FEATURE
 #include "esp3doutput.h"
 #include "../modules/boot_delay/boot_delay.h"
 
@@ -107,6 +109,9 @@ bool Esp3D::begin()
         res = false;
     }
 #endif //WIFI_FEATURE
+#if defined(ESP_AUTOSTART_SCRIPT)
+    esp3d_gcode_host.processscript(ESP_AUTOSTART_SCRIPT);
+#endif //ESP_AUTOSTART_FEATURE
     return res;
 }
 

@@ -73,6 +73,8 @@ public:
     }
     bool processFile(const char * filename, level_authenticate_type auth_type, ESP3DOutput * output);
     bool processFSFile(const char * filename, level_authenticate_type auth_type, ESP3DOutput * output);
+    bool processLine(const char * line, level_authenticate_type auth_type, ESP3DOutput * output);
+    bool processscript(const char * line);
 private:
     uint32_t _commandnumber;
     uint32_t _needcommandnumber;

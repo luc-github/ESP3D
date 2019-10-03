@@ -162,6 +162,11 @@
 //ESP_GCODE_HOST_FEATURE : allow to send GCODE with ack
 #define ESP_GCODE_HOST_FEATURE
 
+//ESP_AUTOSTART_SCRIPT : to do some actions / send GCODE at start, need ESP_GCODE_HOST_FEATURE enabled
+//can be  a line od several GCODES separated by `\n` e.g. "M21\nM117 SD mounted\n"
+//can be  a file name, if exists, commands inside will be processed, e.g "/FS:/autostart.esp"
+#define ESP_AUTOSTART_SCRIPT "M117 Mouning SD\nM21\n"
+
 //Extra features /////////////////////////////////////////////////////////////////////////
 /************************************
  *
