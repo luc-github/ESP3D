@@ -1,7 +1,5 @@
 <img src="https://github.com/luc-github/ESP3D/blob/2.1/images/ESP3D.png" width="200px"/>  
 
-# ESP3D 2.1 [![Code Climate](https://codeclimate.com/github/luc-github/ESP3D/badges/gpa.svg)](https://codeclimate.com/github/luc-github/ESP3D)
-
 Firmware for ESP8266/ESP8285  and ESP32 used with 3D printer using [ESP8266 core version](https://github.com/esp8266/Arduino)  and [ESP32 core version](https://github.com/espressif/arduino-esp32)   
 
 This firmware allows not only to have a cheap bridge between Wifi and serial, but also to have a web UI to configure wifi, to monitor 3D printer and even control it, and to make things easy,
@@ -13,15 +11,12 @@ I currently use it with my personnal flavor of [repetier for Due based boards](h
 The web interface files are present in data directory but UI has it's own repository [ESP3D-WEBUI](https://github.com/luc-github/ESP3D-WEBUI).
 * Be aware  ESP3D-WEBUI is for firmware 0.9.99 minimum - previous released version use tpl files which are no more used.
 * Note for ESP8266 1MB flash : FW is now too big will all features you need to chose strip the FW and select only some features, also WebUI is now also too big for full multilanguage support to fit the 128K SPIFFS so please use pack with limited language (en +another) https://github.com/luc-github/ESP3D-WEBUI/tree/2.1/languages
+    
+[Latest stable release ![Release Version](https://img.shields.io/github/release/luc-github/ESP3D.svg?style=plastic) ![Release Date](https://img.shields.io/github/release-date/luc-github/ESP3D.svg?style=plastic)](https://github.com/espressif/arduino-esp32/releases/latest/) ![Travis (.org) branch](https://img.shields.io/travis/luc-github/ESP3D/2.1?style=plastic)   
+please use Arduino ide 1.8.9 with git version of ESP8266 or git version ESP32 
 
-<u>Stable versions:</u>   
-[V1.0](https://github.com/luc-github/ESP3D/releases/tag/1.0) : please use Arduino ide 1.8.5 with stable [2.4.0](http://arduino.esp8266.com/versions/2.4.0/package_esp8266com_index.json) from ESP8266
-[![Build Status](https://travis-ci.org/luc-github/ESP3D.svg?branch=master)](https://travis-ci.org/luc-github/ESP3D)     
-[V2.0](https://github.com/luc-github/ESP3D/releases/tag/2.0) : please use Arduino ide 1.8.5 with with 2.5.2 version of ESP8266 and git version ESP32 [![Build Status](https://travis-ci.org/luc-github/ESP3D.svg?branch=2.0)](https://travis-ci.org/luc-github/ESP3D)   
-[V2.1](https://github.com/luc-github/ESP3D/releases/tag/2.1) : please use Arduino ide 1.8.9 with git version of ESP8266 or git version ESP32 : [![Build Status](https://travis-ci.org/luc-github/ESP3D.svg?branch=2.1)](https://travis-ci.org/luc-github/ESP3D)  
-
-<u>Development version:</u>   
-[V3.0](https://github.com/luc-github/ESP3D/tree/3.0) : please use Arduino ide 1.8.9 with 2.5.2 version of ESP8266 (to be updated) or git version ESP32 : [![Build Status](https://travis-ci.org/luc-github/ESP3D.svg?branch=3.0)](https://travis-ci.org/luc-github/ESP3D)
+[Latest development version ![Development Version](https://img.shields.io/badge/Devt-v3.0-yellow?style=plastic) ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/luc-github/ESP3D/3.0?style=plastic)](https://github.com/luc-github/ESP3D/tree/3.0) ![Travis (.org) branch](https://img.shields.io/travis/luc-github/ESP3D/3.0?style=plastic)   
+please use Arduino ide 1.8.9 with git version of ESP8266 or git version of ESP32
 
 [All releases](https://github.com/luc-github/ESP3D/wiki)
 
