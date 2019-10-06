@@ -3,8 +3,7 @@
 <H1>Coming Soon!</H1>
 <H1>Do not use it, unless you know what you are doing !</H1>
 
-[![Build Status](https://travis-ci.org/luc-github/ESP3D.svg?branch=3.0)](https://travis-ci.org/luc-github/ESP3D)
+[Latest development version ![Development Version](https://img.shields.io/badge/Devt-v3.0-yellow?style=plastic) ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/luc-github/ESP3D/3.0?style=plastic)](https://github.com/luc-github/ESP3D/tree/3.0) ![Travis (.org) branch](https://img.shields.io/travis/luc-github/ESP3D/3.0?style=plastic)   
+please use Arduino ide 1.8.9 with git version of ESP8266 or git version of ESP32
 
-The esp8266 core need to be 2.6 at least.   
-The esp32 core need to be 1.0.4 at least.  
-So currently only git version of both cores should compile. 
+
