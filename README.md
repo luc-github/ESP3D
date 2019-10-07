@@ -1,5 +1,5 @@
-<table><tr><td><img src="https://github.com/luc-github/ESP3D/blob/2.1/images/ESP3D.png" width="200px"/> </td><td>Firmware for ESP8266/ESP8285  and ESP32 used with 3D printer </td></tr></table>
-   
+<span align="left"><img src="https://github.com/luc-github/ESP3D/blob/2.1/images/ESP3D.png" width="200px"/></span><span align="left">Firmware for ESP8266/ESP8285  and ESP32 used with 3D printer</span>
+
 
 This firmware allows not only to have a cheap bridge between Wifi and serial, but also to have a web UI to configure wifi, to monitor 3D printer and even control it, and to make things easy,
 UI is fully customizable without reflashing FW.
