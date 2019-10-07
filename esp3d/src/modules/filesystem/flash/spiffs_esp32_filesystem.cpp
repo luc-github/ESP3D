@@ -1,5 +1,5 @@
 /*
-fat_filesystem.cpp - ESP3D fat filesystem configuration class
+  spiffs_esp32_filesystem.cpp - ESP3D filesystem configuration class
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -17,46 +17,44 @@ fat_filesystem.cpp - ESP3D fat filesystem configuration class
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#include "../../include/esp3d_config.h"
-#if (FILESYSTEM_FEATURE == ESP_FAT_FILESYSTEM)
-#include "esp_filesystem.h"
-#include "../../core/genLinkedList.h"
+#include "../../../include/esp3d_config.h"
+#if (FILESYSTEM_FEATURE == ESP_SPIFFS_FILESYSTEM) && defined(ARDUINO_ARCH_ESP32)
+#include "../esp_filesystem.h"
+#include "../../../core/genLinkedList.h"
 #include <FS.h>
-#include "FFat.h"
-
+#include <SPIFFS.h>
 extern File tFile_handle[ESP_MAX_OPENHANDLE];
 
 bool ESP_FileSystem::begin()
 {
-    _started = FFat.begin();
+    _started = SPIFFS.begin(true);
     return _started;
 }
-
 void ESP_FileSystem::end()
 {
-    FFat.end();
     _started = false;
+    SPIFFS.end();
 }
 
 size_t ESP_FileSystem::totalBytes()
 {
-    return FFat.totalBytes();
+    return SPIFFS.totalBytes();
 }
 
 size_t ESP_FileSystem::usedBytes()
 {
-    return (FFat.totalBytes() - FFat.freeBytes());
+    return SPIFFS.usedBytes();
 }
 
 
 const char * ESP_FileSystem::FilesystemName()
 {
-    return "FAT";
+    return "SPIFFS";
 }
 
 bool ESP_FileSystem::format()
 {
-    return FFat.format();
+    return SPIFFS.format();
 }
 
 ESP_File ESP_FileSystem::open(const char* path, uint8_t mode)
@@ -69,16 +67,8 @@ ESP_File ESP_FileSystem::open(const char* path, uint8_t mode)
     if (path[0] != '/') {
         return ESP_File();
     }
-    if (mode != ESP_FILE_READ) {
-        //check container exists
-        String p = path;
-        p.remove(p.lastIndexOf('/') +1);
-        if (!exists(p.c_str())) {
-            log_esp3d("Error opening: %s", path);
-            return ESP_File();
-        }
-    }
-    File tmp = FFat.open(path, (mode == ESP_FILE_READ)?FILE_READ:(mode == ESP_FILE_WRITE)?FILE_WRITE:FILE_APPEND);
+    //TODO add support if path = /DIR1/ <- with last /
+    File tmp = SPIFFS.open(path, (mode == ESP_FILE_READ)?FILE_READ:(mode == ESP_FILE_WRITE)?FILE_WRITE:FILE_APPEND);
     ESP_File esptmp(&tmp, tmp.isDirectory(),(mode == ESP_FILE_READ)?false:true, path);
     return esptmp;
 }
@@ -90,11 +80,33 @@ bool ESP_FileSystem::exists(const char* path)
     if (strcmp(path, "/") == 0) {
         return _started;
     }
-    res = FFat.exists(path);
+    String spath = path;
+    spath.trim();
+    if (spath[spath.length()-1] == '/') {
+        if (spath!="/") {
+            spath.remove(spath.length()-1);
+        }
+    }
+    res = SPIFFS.exists(spath.c_str());
     if (!res) {
-        ESP_File root = ESP_FileSystem::open(path, ESP_FILE_READ);
-        if (root) {
-            res = root.isDirectory();
+        String newpath = spath;
+        if (newpath[newpath.length()-1] != '/') {
+            newpath+="/";
+        }
+        newpath+=".";
+        //log_esp3d("Check %s", newpath.c_str());
+        res = SPIFFS.exists(newpath);
+        if (!res) {
+            ESP_File f = ESP_FileSystem::open(path, ESP_FILE_READ);
+            if (f) {
+                //Check directories
+                ESP_File sub = f.openNextFile();
+                if (sub) {
+                    sub.close();
+                    res = true;
+                }
+                f.close();
+            }
         }
     }
     return res;
@@ -102,51 +114,54 @@ bool ESP_FileSystem::exists(const char* path)
 
 bool ESP_FileSystem::remove(const char *path)
 {
-    return FFat.remove(path);
+    return SPIFFS.remove(path);
 }
 
 bool ESP_FileSystem::mkdir(const char *path)
 {
-    return FFat.mkdir(path);
+    //Use file named . to simulate directory
+    String p = path;
+    if (p[p.length()-1] != '/') {
+        p+="/";
+    }
+    p+=".";
+    //log_esp3d("Dir create : %s", p.c_str());
+    ESP_File f = open(p.c_str(), ESP_FILE_WRITE);
+    if (f) {
+        f.close();
+        return true;
+    } else {
+        return false;
+    }
 }
 
 bool ESP_FileSystem::rmdir(const char *path)
 {
-    if (!exists(path)) {
+    String spath = path;
+    spath.trim();
+    if (spath[spath.length()-1] == '/') {
+        if (spath!="/") {
+            spath.remove(spath.length()-1);
+        }
+    }
+    log_esp3d("Deleting : %s",spath.c_str());
+    File ftmp = SPIFFS.open(spath.c_str());
+    if (ftmp) {
+        File pfile = ftmp.openNextFile();
+        while (pfile) {
+            //log_esp3d("File: %s",pfile.name());
+            if (!SPIFFS.remove(pfile.name())) {
+                pfile.close();
+                return false;
+            }
+            pfile.close();
+            pfile = ftmp.openNextFile();
+        }
+        ftmp.close();
+        return true;
+    } else {
         return false;
     }
-    bool res = true;
-    GenLinkedList<String > pathlist;
-    String p = path;
-    pathlist.push(p);
-    while (pathlist.count() > 0) {
-        File dir = FFat.open(pathlist.getLast().c_str());
-        File f = dir.openNextFile();
-        bool candelete = true;
-        while (f) {
-            if (f.isDirectory()) {
-                candelete = false;
-                String newdir = f.name();
-                pathlist.push(newdir);
-                f.close();
-                f = File();
-            } else {
-                FFat.remove(f.name());
-                f.close();
-                f = dir.openNextFile();
-            }
-        }
-        if (candelete) {
-            if (pathlist.getLast() !="/") {
-                res = FFat.rmdir(pathlist.getLast().c_str());
-            }
-            pathlist.pop();
-        }
-        dir.close();
-    }
-    p = String();
-    log_esp3d("count %d", pathlist.count());
-    return res;
 }
 
 void ESP_FileSystem::closeAll()
@@ -231,7 +246,7 @@ void ESP_File::close()
         //reopen if mode = write
         //udate size + date
         if (_iswritemode && !_isdir) {
-            File ftmp = FFat.open(_filename.c_str());
+            File ftmp = SPIFFS.open(_filename.c_str());
             if (ftmp) {
                 _size = ftmp.size();
 #ifdef FILESYSTEM_TIMESTAMP_FEATURE
@@ -254,7 +269,7 @@ ESP_File  ESP_File::openNextFile()
     }
     File tmp = tFile_handle[_index].openNextFile();
     while (tmp) {
-        log_esp3d("tmp name :%s %s", tmp.name(), (tmp.isDirectory())?"isDir":"isFile");
+        //log_esp3d("tmp name :%s %s", tmp.name(), (tmp.isDirectory())?"isDir":"isFile");
         ESP_File esptmp(&tmp, tmp.isDirectory());
         esptmp.close();
         String sub = esptmp.filename();
@@ -285,10 +300,9 @@ ESP_File  ESP_File::openNextFile()
                 return esptmp;
             }
         }
-
     }
     return  ESP_File();
 }
 
 
-#endif //ESP_FAT_FILESYSTEM
+#endif //ESP_SPIFFS_FILESYSTEM
