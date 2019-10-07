@@ -167,6 +167,9 @@
 //can be  a file name, if exists, commands inside will be processed, e.g "/FS:/autostart.esp"
 #define ESP_AUTOSTART_SCRIPT "M117 Mouning SD\nM21\n"
 
+//ESP_LUA_INTERPRETER_FEATURE : add lua scripting feature
+#define ESP_LUA_INTERPRETER_FEATURE
+
 //Extra features /////////////////////////////////////////////////////////////////////////
 /************************************
  *

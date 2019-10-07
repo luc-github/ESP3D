@@ -43,6 +43,9 @@
 #ifdef ESP_GCODE_HOST_FEATURE
 #include "../modules/gcode_host/gcode_host.h"
 #endif //ESP_GCODE_HOST_FEATURE
+#ifdef ESP_LUA_INTERPRETER_FEATURE
+#include "../modules/lua_interpreter/lua_interpreter_service.h"
+#endif //#ifdef 
 #include "esp3doutput.h"
 #include "../modules/boot_delay/boot_delay.h"
 
