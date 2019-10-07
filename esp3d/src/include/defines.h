@@ -62,6 +62,11 @@
 #define ESP_FAT_FILESYSTEM          2
 #define ESP_LITTLEFS_FILESYSTEM     3
 
+//SD
+#define ESP_SD_NATIVE               1
+#define ESP_SDIO                    2
+#define ESP_SDFAT                   3
+
 //Notifications
 #define ESP_PUSHOVER_NOTIFICATION   1
 #define ESP_EMAIL_NOTIFICATION      2
