@@ -397,6 +397,13 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
         response = ESP172(cmd_params, auth_type, output);
         break;
 #endif //CAMERA_DEVICE
+#if defined (SD_DEVICE)
+    //Get SD Card Status
+    //[ESP200] pwd=<user/admin password>
+    case 200:
+        response = ESP200(cmd_params, auth_type, output);
+        break;
+#endif //SD_DEVICE
 #ifdef DIRECT_PIN_FEATURE
     //Get/Set pin value
     //[ESP201]P<pin> V<value> [PULLUP=YES RAW=YES]pwd=<admin password>
@@ -525,7 +532,19 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
         response = ESP730(cmd_params, auth_type, output);
         break;
 #endif //FILESYSTEM_FEATURE
-
+#if defined (SD_DEVICE)
+    //List SD Filesystem
+    //[ESP740]<Root> pwd=<admin password>
+    case 740:
+        response = ESP740(cmd_params, auth_type, output);
+        break;
+    //Action on SD Filesystem
+    //rmdir / remove / mkdir / exists
+    //[ESP750]<Action>=<path> pwd=<admin password>
+    case 750:
+        response = ESP750(cmd_params, auth_type, output);
+        break;
+#endif //SD_DEVICE
     //Get fw version firmare target and fw version
     //eventually set time with pc time
     //output is JSON or plain text according parameter

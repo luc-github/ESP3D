@@ -1,5 +1,5 @@
 /*
- ESP720.cpp - ESP3D command class
+ ESP740.cpp - ESP3D command class
 
  Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -18,15 +18,15 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "../../include/esp3d_config.h"
-#if defined (FILESYSTEM_FEATURE)
+#if defined (SD_DEVICE)
 #include "../commands.h"
 #include "../esp3doutput.h"
 #include "../settings_esp3d.h"
 #include "../../modules/authentication/authentication_service.h"
-#include "../../modules/filesystem/esp_filesystem.h"
-//List ESP Filesystem
-//[ESP720]<Root> pwd=<admin password>
-bool Commands::ESP720(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
+#include "../../modules/filesystem/esp_sd.h"
+//List SD Filesystem
+//[ESP740]<Root> pwd=<admin password>
+bool Commands::ESP740(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
     bool response = true;
     String parameter;
@@ -42,15 +42,26 @@ bool Commands::ESP720(const char* cmd_params, level_authenticate_type auth_type,
     if (parameter.length() == 0) {
         parameter = "/";
     }
-    output->printf("Directory on FS : %s", parameter.c_str());
+    int8_t state = ESP_SD::getState(false);
+    if (state != ESP_SDCARD_IDLE){
+         state = ESP_SD::getState(true);
+    }
+    if (state == ESP_SDCARD_NOT_PRESENT) {
+        output->printERROR ("No SD card");
+        return false;
+    } else if (state != ESP_SDCARD_IDLE) {
+        output->printERROR ("Busy");
+        return false;
+    }
+    output->printf("Directory on SD : %s", parameter.c_str());
     output->printLN("");
-    if (ESP_FileSystem::exists(parameter.c_str())) {
-        ESP_File f = ESP_FileSystem::open(parameter.c_str(), ESP_FILE_READ);
+    if (ESP_SD::exists(parameter.c_str())) {
+        ESP_SDFile f = ESP_SD::open(parameter.c_str(), ESP_SD_FILE_READ);
         uint countf = 0;
         uint countd = 0;
         if (f) {
             //Check directories
-            ESP_File sub = f.openNextFile();
+            ESP_SDFile sub = f.openNextFile();
             while (sub) {
                 if (sub.isDirectory()) {
                     countd++;
@@ -63,7 +74,7 @@ bool Commands::ESP720(const char* cmd_params, level_authenticate_type auth_type,
                 sub = f.openNextFile();
             }
             f.close();
-            f = ESP_FileSystem::open(parameter.c_str(), ESP_FILE_READ);
+            f = ESP_SD::open(parameter.c_str(), ESP_SD_FILE_READ);
             //Check files
             sub = f.openNextFile();
             while (sub) {
@@ -72,14 +83,14 @@ bool Commands::ESP720(const char* cmd_params, level_authenticate_type auth_type,
                     output->print("      \t");
                     output->print(sub.name());
                     output->print(" \t");
-                    output->print(ESP_FileSystem::formatBytes(sub.size()).c_str());
+                    output->print(ESP_SD::formatBytes(sub.size()).c_str());
                     output->print(" \t");
-#ifdef FILESYSTEM_TIMESTAMP_FEATURE
+#ifdef SD_TIMESTAMP_FEATURE
                     time_t t = sub.getLastWrite();
                     struct tm * tmstruct = localtime(&t);
                     output->printf("%d-%02d-%02d %02d:%02d:%02d",(tmstruct->tm_year)+1900,( tmstruct->tm_mon)+1, tmstruct->tm_mday,tmstruct->tm_hour, tmstruct->tm_min, tmstruct->tm_sec);
                     output->print(" \t");
-#endif //FILESYSTEM_TIMESTAMP_FEATURE              
+#endif //SD_TIMESTAMP_FEATURE              
                     output->printLN("");
                 }
                 sub.close();
@@ -88,9 +99,9 @@ bool Commands::ESP720(const char* cmd_params, level_authenticate_type auth_type,
             f.close();
             output->printf("%d file%s, %d dir%s", countf, (countf > 1)?"(s)":"", countd, (countd > 1)?"(s)":"");
             output->printLN("");
-            String t = ESP_FileSystem::formatBytes(ESP_FileSystem::totalBytes());
-            String u = ESP_FileSystem::formatBytes(ESP_FileSystem::usedBytes());
-            String f = ESP_FileSystem::formatBytes(ESP_FileSystem::freeBytes());
+            String t = ESP_SD::formatBytes(ESP_SD::totalBytes());
+            String u = ESP_SD::formatBytes(ESP_SD::usedBytes());
+            String f = ESP_SD::formatBytes(ESP_SD::freeBytes());
             output->printf("Total %s, Used %s, Available: %s", t.c_str(), u.c_str(),f.c_str());
             output->printLN("");
         } else {
@@ -103,4 +114,4 @@ bool Commands::ESP720(const char* cmd_params, level_authenticate_type auth_type,
     return response;
 }
 
-#endif //FILESYSTEM_FEATURE
+#endif //SD_DEVICE

@@ -68,14 +68,14 @@ bool ESP_SD::begin()
     SPI.begin(ESP_SD_SCK_PIN, ESP_SD_MISO_PIN, ESP_SD_MOSI_PIN, ESP_SD_CS_PIN);
 #endif
     _started = true;
-    _state = ESP_SDCARD_IDLE;
+    _state = ESP_SDCARD_NOT_PRESENT;
     return _started;
 }
 
 void ESP_SD::end()
 {
     SD.end();
-    _state = ESP_SDCARD_IDLE;
+    _state = ESP_SDCARD_NOT_PRESENT;
     _started = false;
 }
 
@@ -89,7 +89,7 @@ uint64_t ESP_SD::usedBytes()
     return SD.usedBytes();
 }
 
-uint64_t freeBytes()
+uint64_t ESP_SD::freeBytes()
 {
     return (SD.totalBytes() - SD.usedBytes());
 };

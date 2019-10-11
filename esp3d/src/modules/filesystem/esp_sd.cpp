@@ -31,7 +31,7 @@
 File tSDFile_handle[ESP_MAX_SD_OPENHANDLE];
 
 bool ESP_SD::_started = false;
-uint8_t ESP_SD::_state = ESP_SDCARD_IDLE;
+uint8_t ESP_SD::_state = ESP_SDCARD_NOT_PRESENT;
 
 uint8_t ESP_SD::setState(uint8_t flag)
 {

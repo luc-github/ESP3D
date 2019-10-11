@@ -81,6 +81,9 @@ public:
     bool ESP171(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     bool ESP172(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #endif //CAMERA_DEVICE
+#if defined (SD_DEVICE)
+    bool ESP200(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+#endif //SD_DEVICE
 #ifdef DIRECT_PIN_FEATURE
     bool ESP201(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #endif //DIRECT_PIN_FEATURE
@@ -120,6 +123,10 @@ public:
     bool ESP720(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     bool ESP730(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #endif //FILESYSTEM_FEATURE
+#if defined (SD_DEVICE)
+    bool ESP750(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+    bool ESP740(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+#endif //SD_DEVICE
     bool ESP800(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     bool ESP900(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #ifdef BUZZER_DEVICE

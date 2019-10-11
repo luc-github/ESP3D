@@ -72,6 +72,9 @@ Note:
 label can be: light/framesize/quality/contrast/brightness/saturation/gainceiling/colorbar/awb/agc/aec/hmirror/vflip/awb_gain/agc_gain/aec_value/aec2/cw/bpc/wpc/raw_gma/lenc/special_effect/wb_mode/ae_level
 [ESP172]<plain><label=value> pwd=<admin password>
 
+* Get SD Card Status
+[ESP200] pwd=<user/admin password>
+
 *Get/Set pin value
 [ESP201]P<pin> V<value> [PULLUP=YES RAW=YES]pwd=<admin password>
 if no V<value> get P<pin> value
@@ -190,6 +193,13 @@ Get will give type and settings only, not the protected T1/T2
 * Action on ESP Filesystem
 rmdir / remove / mkdir / exists
 [ESP730]<Action>=<path> pwd=<admin password>
+
+* List SD Filesystem
+[ESP740]<Root> pwd=<admin password>
+
+* Action on SD Filesystem
+rmdir / remove / mkdir / exists
+[ESP750]<Action>=<path> pwd=<admin password>
 
 * FW Informations
 [ESP800]<plain> pwd=<admin password>
