@@ -104,10 +104,10 @@
 #endif //PIN_RESET_FEATURE
 
 //SD_DEVICE: to access SD Card files directly instead of access by serial using printer Board FW
-//ESP_SD_NATIVE               1
-//ESP_SDIO                    2
-//ESP_SDFAT                   3
-#define SD_DEVICE    ESP_SD_NATIVE
+//ESP_SD_NATIVE               1 //esp32 only
+//ESP_SDIO                    2 //Not available yet
+//ESP_SDFAT                   3 //Not available yet
+//#define SD_DEVICE    ESP_SD_NATIVE
 
 //pin if reader has insert detection feature
 //let -1 or comment if none
