@@ -62,10 +62,15 @@
 #define ESP_FAT_FILESYSTEM          2
 #define ESP_LITTLEFS_FILESYSTEM     3
 
-//SD
+//SD READER FS type supported
 #define ESP_SD_NATIVE               1
 #define ESP_SDIO                    2
 #define ESP_SDFAT                   3
+
+//SD state
+#define ESP_SDCARD_IDLE             0
+#define ESP_SDCARD_NOT_PRESENT      1
+#define ESP_SDCARD_BUSY             2
 
 //Notifications
 #define ESP_PUSHOVER_NOTIFICATION   1

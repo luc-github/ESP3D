@@ -18,7 +18,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "../../include/esp3d_config.h"
-#ifdef SD_FEATURE
+#ifdef SD_DEVICE
 #include "esp_sd.h"
 #include "../../core/genLinkedList.h"
 #ifdef SD_TIMESTAMP_FEATURE
@@ -31,6 +31,14 @@
 File tSDFile_handle[ESP_MAX_SD_OPENHANDLE];
 
 bool ESP_SD::_started = false;
+uint8_t ESP_SD::_state = ESP_SDCARD_IDLE;
+
+uint8_t ESP_SD::setState(uint8_t flag)
+{
+    _state =  flag;
+    return _state;
+}
+
 
 //constructor
 ESP_SD::ESP_SD()
@@ -40,6 +48,11 @@ ESP_SD::ESP_SD()
 //destructor
 ESP_SD::~ESP_SD()
 {
+}
+
+void ESP_SD::handle()
+{
+
 }
 
 //helper to format size to readable string
@@ -185,4 +198,4 @@ ESP_SDFile& ESP_SDFile::operator=(const ESP_SDFile & other)
     return *this;
 }
 
-#endif //SD_FEATURE
+#endif //SD_DEVICE

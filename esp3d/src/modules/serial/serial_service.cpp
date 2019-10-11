@@ -24,6 +24,9 @@
 #include "../../core/esp3doutput.h"
 #include "../../core/commands.h"
 
+//Serial Parameters
+#define ESP_SERIAL_PARAM SERIAL_8N1
+
 #if ESP_SERIAL_OUTPUT == USE_SERIAL_0
 #define ESP3D_SERIAL Serial
 #endif //USE_SERIAL_0

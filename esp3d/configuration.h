@@ -102,8 +102,18 @@
 #if defined (PIN_RESET_FEATURE)
 #define ESP3D_RESET_PIN 2
 #endif //PIN_RESET_FEATURE
-//SDCARD_FEATURE: to access SD Card files directly instead of access by serial using printer Board FW
-//#define SDCARD_FEATURE
+
+//SD_DEVICE: to access SD Card files directly instead of access by serial using printer Board FW
+//ESP_SD_NATIVE               1
+//ESP_SDIO                    2
+//ESP_SDFAT                   3
+#define SD_DEVICE    ESP_SD_NATIVE
+
+//pin if reader has insert detection feature
+//let -1 or comment if none
+#define ESP_SD_DETECT_PIN       -1
+//value expected for ESP_SD_DETECT_PIN
+#define ESP_SD_DETECT_VALUE      1
 
 //FILESYSTEM_FEATURE: to host some files on flash
 //ESP_SPIFFS_FILESYSTEM       0
@@ -208,16 +218,6 @@
 
 //Serial rx buffer size is 256 but can be extended
 #define SERIAL_RX_BUFFER_SIZE 512
-
-//Serial Parameters
-#define ESP_SERIAL_PARAM SERIAL_8N1
-
-//Serial Pins
-//-1 means use default pins of your board what ever the serial you choose
-//   * UART 0 possible options are (1, 3), (2, 3) or (15, 13)
-//   * UART 1 allows only TX on 2 if UART 0 is not (2, 3)
-#define ESP_RX_PIN -1
-#define ESP_TX_PIN -1
 
 /************************************
  *

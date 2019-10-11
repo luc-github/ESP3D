@@ -20,7 +20,6 @@
 #include "../../include/esp3d_config.h"
 #ifdef FILESYSTEM_FEATURE
 #include "esp_filesystem.h"
-#include "../../core/genLinkedList.h"
 #ifdef FILESYSTEM_TIMESTAMP_FEATURE
 #include <time.h>
 #endif //FILESYSTEM_TIMESTAMP_FEATURE

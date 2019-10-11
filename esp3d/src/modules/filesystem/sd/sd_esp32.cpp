@@ -18,58 +18,104 @@ sd_native_esp32.cpp - ESP3D sd support class
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "../../../include/esp3d_config.h"
-#if defined (ARCH_ESP32) && defined(SD_FEATURE)
-#if (SD_FEATURE == ESP_SD_NATIVE)
+#if defined (ARDUINO_ARCH_ESP32) && defined(SD_DEVICE)
+#if (SD_DEVICE == ESP_SD_NATIVE)
 #include "../esp_sd.h"
+#include "../../../core/genLinkedList.h"
 #include "FS.h"
 #include "SD.h"
 
+#define ESP_SPI_FREQ  4000000
+
+//TODO read this from EEPROM/Preferences
+#define ESP_SD_SPEED_DIVIDER     1
+
 extern File tSDFile_handle[ESP_MAX_SD_OPENHANDLE];
 
-bool ESP_SDFileSystem::begin()
+uint8_t ESP_SD::getState(bool refresh)
 {
-    _started = SD.begin();
+#if defined(ESP_SD_DETECT_PIN) && ESP_SD_DETECT_PIN != -1
+    //no need to go further if SD detect is not correct
+    if (!((digitalRead (ESP_SD_DETECT_PIN) == ESP_SD_DETECT_VALUE) ? true : false)) {
+        _state = ESP_SDCARD_NOT_PRESENT;
+        return _state;
+    }
+#endif  //ESP_SD_DETECT_PIN
+    //if busy doing something return state
+    if (!((_state == ESP_SDCARD_NOT_PRESENT) || _state == ESP_SDCARD_IDLE)) {
+        return _state;
+    }
+    if (!refresh) {
+        return _state;  //to avoid refresh=true + busy to reset SD and waste time
+    }
+//SD is idle or not detected, let see if still the case
+
+    SD.end();
+    _state = ESP_SDCARD_NOT_PRESENT;
+//using default value for speed ? should be parameter
+//refresh content if card was removed
+    if (SD.begin((ESP_SD_CS_PIN == -1)?SS:ESP_SD_CS_PIN, SPI, ESP_SPI_FREQ / ESP_SD_SPEED_DIVIDER)) {
+        if ( SD.cardSize() > 0 ) {
+            _state = ESP_SDCARD_IDLE;
+        }
+    }
+    return _state;
+}
+
+bool ESP_SD::begin()
+{
+#if (ESP_SD_CS_PIN != -1) || (ESP_SD_MISO_PIN != -1) || (ESP_SD_MOSI_PIN != -1) || (ESP_SD_SCK_PIN != -1)
+    SPI.begin(ESP_SD_SCK_PIN, ESP_SD_MISO_PIN, ESP_SD_MOSI_PIN, ESP_SD_CS_PIN);
+#endif
+    _started = true;
+    _state = ESP_SDCARD_IDLE;
     return _started;
 }
 
-void ESP_SDFileSystem::end()
+void ESP_SD::end()
 {
     SD.end();
+    _state = ESP_SDCARD_IDLE;
     _started = false;
 }
 
-size_t ESP_SDFileSystem::totalBytes()
+uint64_t ESP_SD::totalBytes()
 {
     return SD.totalBytes();
 }
 
-size_t ESP_SDFileSystem::usedBytes()
+uint64_t ESP_SD::usedBytes()
 {
-    return (SD.totalBytes() - SD.freeBytes());
+    return SD.usedBytes();
 }
 
-
-const char * ESP_SDFileSystem::FilesystemName()
+uint64_t freeBytes()
 {
-    return "FAT";
+    return (SD.totalBytes() - SD.usedBytes());
+};
+
+const char * ESP_SD::FilesystemName()
+{
+    return "SD Native";
 }
 
-bool ESP_SDFileSystem::format()
+bool ESP_SD::format()
 {
-    return SD.format();
+    //not available yet
+    return false;
 }
 
-ESP_SDFile ESP_SDFileSystem::open(const char* path, uint8_t mode)
+ESP_SDFile ESP_SD::open(const char* path, uint8_t mode)
 {
     //do some check
-    if(((strcmp(path,"/") == 0) && ((mode == ESP_FILE_WRITE) || (mode == ESP_FILE_APPEND))) || (strlen(path) == 0)) {
+    if(((strcmp(path,"/") == 0) && ((mode == ESP_SD_FILE_WRITE) || (mode == ESP_SD_FILE_APPEND))) || (strlen(path) == 0)) {
         return ESP_SDFile();
     }
     // path must start by '/'
     if (path[0] != '/') {
         return ESP_SDFile();
     }
-    if (mode != ESP_FILE_READ) {
+    if (mode != ESP_SD_FILE_READ) {
         //check container exists
         String p = path;
         p.remove(p.lastIndexOf('/') +1);
@@ -78,12 +124,12 @@ ESP_SDFile ESP_SDFileSystem::open(const char* path, uint8_t mode)
             return ESP_SDFile();
         }
     }
-    File tmp = SD.open(path, (mode == ESP_FILE_READ)?FILE_READ:(mode == ESP_FILE_WRITE)?FILE_WRITE:FILE_APPEND);
-    ESP_SDFile esptmp(&tmp, tmp.isDirectory(),(mode == ESP_FILE_READ)?false:true, path);
+    File tmp = SD.open(path, (mode == ESP_SD_FILE_READ)?FILE_READ:(mode == ESP_SD_FILE_WRITE)?FILE_WRITE:FILE_APPEND);
+    ESP_SDFile esptmp(&tmp, tmp.isDirectory(),(mode == ESP_SD_FILE_READ)?false:true, path);
     return esptmp;
 }
 
-bool ESP_SDFileSystem::exists(const char* path)
+bool ESP_SD::exists(const char* path)
 {
     bool res = false;
     //root should always be there if started
@@ -92,7 +138,7 @@ bool ESP_SDFileSystem::exists(const char* path)
     }
     res = SD.exists(path);
     if (!res) {
-        ESP_SDFile root = ESP_SDFileSystem::open(path, ESP_FILE_READ);
+        ESP_SDFile root = ESP_SD::open(path, ESP_SD_FILE_READ);
         if (root) {
             res = root.isDirectory();
         }
@@ -100,17 +146,17 @@ bool ESP_SDFileSystem::exists(const char* path)
     return res;
 }
 
-bool ESP_SDFileSystem::remove(const char *path)
+bool ESP_SD::remove(const char *path)
 {
     return SD.remove(path);
 }
 
-bool ESP_SDFileSystem::mkdir(const char *path)
+bool ESP_SD::mkdir(const char *path)
 {
     return SD.mkdir(path);
 }
 
-bool ESP_SDFileSystem::rmdir(const char *path)
+bool ESP_SD::rmdir(const char *path)
 {
     if (!exists(path)) {
         return false;
@@ -149,9 +195,9 @@ bool ESP_SDFileSystem::rmdir(const char *path)
     return res;
 }
 
-void ESP_SDFileSystem::closeAll()
+void ESP_SD::closeAll()
 {
-    for (uint8_t i = 0; i < ESP_MAX_OPENHANDLE; i++) {
+    for (uint8_t i = 0; i < ESP_MAX_SD_OPENHANDLE; i++) {
         tSDFile_handle[i].close();
         tSDFile_handle[i] = File();
     }
@@ -174,7 +220,7 @@ ESP_SDFile::ESP_SDFile(void* handle, bool isdir, bool iswritemode, const char * 
         return ;
     }
     bool set =false;
-    for (uint8_t i=0; (i < ESP_MAX_OPENHANDLE) && !set; i++) {
+    for (uint8_t i=0; (i < ESP_MAX_SD_OPENHANDLE) && !set; i++) {
         if (!tSDFile_handle[i]) {
             tSDFile_handle[i] = *((File*)handle);
             //filename
@@ -291,5 +337,5 @@ ESP_SDFile  ESP_SDFile::openNextFile()
 }
 
 
-#endif //SD_FEATURE == ESP_SD_NATIVE
-#endif //ARCH_ESP32 && SD_FEATURE
+#endif //SD_DEVICE == ESP_SD_NATIVE
+#endif //ARCH_ESP32 && SD_DEVICE

@@ -18,8 +18,14 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-//Pins for the support of connected camera
+//Serial Pins
+//-1 means use default pins of your board what ever the serial you choose
+//   * UART 0 possible options are (1, 3), (2, 3) or (15, 13)
+//   * UART 1 allows only TX on 2 if UART 0 is not (2, 3)
+#define ESP_RX_PIN -1
+#define ESP_TX_PIN -1
 
+//Pins for the support of connected camera
 #if CAMERA_DEVICE == CAMERA_MODEL_CUSTOM
 #define CAM_LED_PIN       4
 #define CAM_PULLUP1       -1
@@ -157,3 +163,10 @@
 #define HREF_GPIO_NUM     23
 #define PCLK_GPIO_NUM     22
 #endif //CAMERA_MODEL_AI_THINKER
+
+//Pins for the support of SD Card Reader
+//-1 means use default pins of your board defined core
+#define ESP_SD_CS_PIN           13 //-1
+#define ESP_SD_MISO_PIN         2  //-1
+#define ESP_SD_MOSI_PIN         15 //-1
+#define ESP_SD_SCK_PIN          14 //-1

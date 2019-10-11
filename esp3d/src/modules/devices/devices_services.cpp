@@ -39,6 +39,9 @@
 #ifdef CAMERA_DEVICE
 #include "../camera/camera.h"
 #endif //CAMERA_DEVICE
+#ifdef SD_DEVICE
+#include "../filesystem/esp_sd.h"
+#endif //SD_DEVICE
 
 bool DevicesServices::_started = false;
 
@@ -84,6 +87,12 @@ bool DevicesServices::begin()
         res = false;
     }
 #endif //CAMERA_DEVICE
+#ifdef SD_DEVICE
+    if (!ESP_SD::begin()) {
+        log_esp3d("Error sd intialization failed");
+        res = false;
+    }
+#endif //SD_DEVICE
     if (!res) {
         end();
     }
@@ -96,6 +105,9 @@ void DevicesServices::end()
         return;
     }
     _started = false;
+#ifdef SD_DEVICE
+    ESP_SD::end();
+#endif //SD_DEVICE
 #ifdef CAMERA_DEVICE
     esp3d_camera.stopHardware();
 #endif //CAMERA_DEVICE
@@ -128,6 +140,9 @@ void DevicesServices::handle()
 #ifdef RECOVERY_FEATURE
         recovery_service.handle();
 #endif //RECOVERY_FEATURE
+#ifdef SD_DEVICE
+        ESP_SD::handle();
+#endif //SD_DEVICE
     }
 }
 

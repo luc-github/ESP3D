@@ -77,16 +77,16 @@ public:
     ESP_SD();
     ~ESP_SD();
     static bool begin();
+    static void handle();
     static void end();
-    static size_t totalBytes();
-    static size_t usedBytes();
-    static size_t freeBytes()
-    {
-        return totalBytes()-usedBytes();
-    };
+    static uint8_t getState(bool refresh);
+    static uint8_t setState(uint8_t state);
+    static uint64_t totalBytes();
+    static uint64_t usedBytes();
+    static uint64_t freeBytes();
     static const char * FilesystemName();
     static bool format();
-    static ESP_File open(const char* path, uint8_t mode = ESP_SD_FILE_READ);
+    static ESP_SDFile open(const char* path, uint8_t mode = ESP_SD_FILE_READ);
     static bool exists(const char* path);
     static bool remove(const char *path);
     static bool mkdir(const char *path);
@@ -94,6 +94,7 @@ public:
     static void closeAll();
 private:
     static bool _started;
+    static uint8_t _state;
 };
 
 
