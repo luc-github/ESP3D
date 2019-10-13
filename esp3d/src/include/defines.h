@@ -50,6 +50,15 @@
 #define UI_COLORED         1
 #define UI_MONOCHROME      2
 
+//SD connection
+#define ESP_NO_SD       0
+#define ESP_DIRECT_SD   1
+#define ESP_SHARED_SD   2
+
+//SD mount point
+#define ESP_SD_ROOT     1
+#define ESP_SD_SUB_SD   2
+#define ESP_SD_SUB_EXT   3
 
 //Touch
 #define XPT2046_SPI     1
@@ -78,6 +87,7 @@
 #define ESP_LINE_NOTIFICATION       3
 
 //DHT
+#define NO_DHT_DEVICE   0
 #define DHT11_DEVICE    1
 #define DHT22_DEVICE    2
 #define USE_CELSIUS     1

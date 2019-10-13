@@ -92,9 +92,15 @@ public:
     static bool mkdir(const char *path);
     static bool rmdir(const char *path);
     static void closeAll();
+    static uint8_t getSPISpeedDivider()
+    {
+        return _spi_speed_divider;
+    }
+    static bool setSPISpeedDivider(uint8_t speeddivider);
 private:
     static bool _started;
     static uint8_t _state;
+    static uint8_t _spi_speed_divider;
 };
 
 

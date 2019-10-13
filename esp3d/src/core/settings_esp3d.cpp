@@ -97,12 +97,11 @@
 #define DEFAULT_FW              UNKNOWN_FW
 #define DEFAULT_TIME_ZONE       0
 #define DEFAULT_TIME_DST        0
-#define DEFAULT_PRIMARY_SD      2
-#define DEFAULT_SECONDARY_SD    1
+#define DEFAULT_SD_MOUNT        ESP_SD_ROOT
 #define DEFAULT_DIRECT_SD_CHECK 0
 #define DEFAULT_SD_CHECK_UPDATE_AT_BOOT 1
-#define DEFAULT_DHT_TYPE        0
-#define DEFAULT_IS_DIRECT_SD    0
+#define DEFAULT_DHT_TYPE        NO_DHT_DEVICE
+#define DEFAULT_SD_DEVICE_TYPE  ESP_NO_SD
 #define DEFAULT_HTTP_ON         1
 #define DEFAULT_TELNET_ON       1
 #define DEFAULT_WEBSOCKET_ON    1
@@ -156,7 +155,7 @@ const uint8_t DEFAULT_ADDRESS_VALUE[]   =  {0, 0, 0, 0};
 #endif //WIFI_FEATURE || ETH_FEATURE
 
 uint8_t Settings_ESP3D::_FirmwareTarget = UNKNOWN_FW;
-bool Settings_ESP3D::_directSD = false;
+bool Settings_ESP3D::_SDdevice = ESP_NO_SD;
 
 Settings_ESP3D::Settings_ESP3D()
 {
@@ -172,8 +171,8 @@ bool Settings_ESP3D::begin()
     }
     //get target FW
     Settings_ESP3D::GetFirmwareTarget(true);
-    //is direct SD
-    Settings_ESP3D::isDirectSD(true);
+    //get SD device if any
+    Settings_ESP3D::GetSDDevice(true);
     return true;
 }
 
@@ -185,16 +184,16 @@ uint8_t Settings_ESP3D::GetFirmwareTarget(bool fromsettings)
     return _FirmwareTarget;
 }
 
-bool Settings_ESP3D::isDirectSD(bool fromsettings)
+uint8_t Settings_ESP3D::GetSDDevice(bool fromsettings)
 {
     if(fromsettings) {
-#ifdef SDCARD_FEATURE
-        _directSD = read_byte (ESP_IS_DIRECT_SD);
-#else // !SDCARD_FEATURE
-        _directSD = false;
-#endif //SDCARD_FEATURE
+#ifdef SD_DEVICE
+        _SDdevice = read_byte (ESP_SD_DEVICE_TYPE);
+#else // !SD_DEVICE
+        _SDdevice = ESP_NO_SD;
+#endif //SD_DEVICE
     }
-    return _directSD;
+    return _SDdevice;
 }
 
 const char* Settings_ESP3D::GetFirmwareTargetShortName()
@@ -285,15 +284,12 @@ uint8_t Settings_ESP3D::get_default_byte_value(int pos)
         res = DEFAULT_WEBSOCKET_ON;
         break;
 #endif //WS_DATA_FEATURE
-#ifdef SDCARD_FEATURE
+#ifdef SD_DEVICE
     case ESP_SD_SPEED_DIV:
         res = DEFAULT_SDREADER_SPEED;
         break;
-    case ESP_PRIMARY_SD:
-        res = DEFAULT_PRIMARY_SD;
-        break;
-    case ESP_SECONDARY_SD:
-        res = DEFAULT_SECONDARY_SD;
+    case ESP_SD_MOUNT:
+        res = DEFAULT_SD_MOUNT;
         break;
     case ESP_DIRECT_SD_CHECK:
         res = DEFAULT_DIRECT_SD_CHECK;
@@ -301,10 +297,10 @@ uint8_t Settings_ESP3D::get_default_byte_value(int pos)
     case ESP_SD_CHECK_UPDATE_AT_BOOT:
         res = DEFAULT_SD_CHECK_UPDATE_AT_BOOT;
         break;
-    case ESP_IS_DIRECT_SD:
-        res = DEFAULT_IS_DIRECT_SD;
+    case ESP_SD_DEVICE_TYPE:
+        res = DEFAULT_SD_DEVICE_TYPE;
         break;
-#endif //SDCARD_FEATURE
+#endif //SD_DEVICE
     case ESP_TARGET_FW:
         res = DEFAULT_FW;
         break;
@@ -1100,10 +1096,12 @@ bool Settings_ESP3D::reset()
     Settings_ESP3D::write_byte(ESP_TARGET_FW,Settings_ESP3D::get_default_byte_value(ESP_TARGET_FW));
     //Output flag
     Settings_ESP3D::write_byte(ESP_OUTPUT_FLAG,Settings_ESP3D::get_default_byte_value(ESP_OUTPUT_FLAG));
-#ifdef SDCARD_FEATURE
+#ifdef SD_DEVICE
     //Direct SD
-    Settings_ESP3D::write_byte(ESP_IS_DIRECT_SD,Settings_ESP3D::get_default_byte_value(ESP_IS_DIRECT_SD));
-#endif //SDCARD_FEATURE
+    Settings_ESP3D::write_byte(ESP_SD_DEVICE_TYPE,Settings_ESP3D::get_default_byte_value(ESP_SD_DEVICE_TYPE));
+    //SPI SD Divider
+    Settings_ESP3D::write_byte(ESP_SD_SPEED_DIV,Settings_ESP3D::get_default_byte_value(ESP_SD_SPEED_DIV));
+#endif //SD_DEVICE
 
 #ifdef TIMESTAMP_FEATURE
     //Internet time

@@ -102,18 +102,17 @@ bool Commands::ESP800(const char* cmd_params, level_authenticate_type auth_type,
     } else {
         output->print(",\"SDConnection\":\"");
     }
-    output->print((Settings_ESP3D::isDirectSD())?"Direct":"Serial");
+    if (Settings_ESP3D::GetSDDevice() == ESP_DIRECT_SD) {
+        output->print("direct");
+    } else if (Settings_ESP3D::GetSDDevice() == ESP_SHARED_SD) {
+        output->print("shared");
+    } else {
+        output->print("None");
+    }
     if(plain) {
         output->printLN("");
     } else {
         output->print("\"");
-    }
-    if (Settings_ESP3D::isDirectSD()) {
-        //TODO
-        //Primary SD
-
-        //TODO
-        //Secondary SD
     }
     //Authentication
     if (plain) {

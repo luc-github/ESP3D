@@ -37,6 +37,9 @@
 #ifdef NOTIFICATION_FEATURE
 #include "../../modules/notifications/notifications_service.h"
 #endif //NOTIFICATION_FEATURE
+#ifdef SD_DEVICE
+#include "../../modules/filesystem/esp_sd.h"
+#endif //SD_DEVICE
 //Set EEPROM setting
 //[ESP401]P=<position> T=<type> V=<value> pwd=<user/admin password>
 bool Commands::ESP401(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
@@ -73,6 +76,14 @@ bool Commands::ESP401(const char* cmd_params, level_authenticate_type auth_type,
                 case ESP_TARGET_FW:
                     Settings_ESP3D::GetFirmwareTarget(true);
                     break;
+#ifdef SD_DEVICE
+                case ESP_SD_DEVICE_TYPE:
+                    Settings_ESP3D::GetSDDevice(true);
+                    break;
+                case ESP_SD_SPEED_DIV:
+                    ESP_SD::setSPISpeedDivider(sval.toInt());
+                    break;
+#endif //SD_DEVICE
 #ifdef TIMESTAMP_FEATURE
                 case ESP_INTERNET_TIME:
                     timeserver.begin();

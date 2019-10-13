@@ -41,8 +41,8 @@ bool Commands::ESP750(const char* cmd_params, level_authenticate_type auth_type,
     (void)auth_type;
 #endif //AUTHENTICATION_FEATURE
     int8_t state = ESP_SD::getState(false);
-    if (state != ESP_SDCARD_IDLE){
-         state = ESP_SD::getState(true);
+    if (state != ESP_SDCARD_IDLE) {
+        state = ESP_SD::getState(true);
     }
     if (state == ESP_SDCARD_NOT_PRESENT) {
         output->printERROR ("No SD card");

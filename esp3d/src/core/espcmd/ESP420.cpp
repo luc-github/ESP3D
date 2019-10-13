@@ -62,6 +62,9 @@
 #ifdef CAMERA_DEVICE
 #include "../../modules/camera/camera.h"
 #endif //CAMERA_DEVICE
+#ifdef SD_DEVICE
+#include "../../modules/filesystem/esp_sd.h"
+#endif //SD_DEVICE
 
 //Get ESP current status
 //output is JSON or plain text according parameter
@@ -1055,6 +1058,26 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         output->printLN("");
     }
 #endif //NOTIFICATION_FEATURE
+#ifdef SD_DEVICE
+    if (!plain) {
+        output->print (",{\"id\":\"");
+    }
+    output->print ("SD Card");
+    if (!plain) {
+        output->print ("\",\"value\":\"");
+    } else {
+        output->print (": ");
+    }
+    output->print ((Settings_ESP3D::GetSDDevice() == ESP_DIRECT_SD)?"Direct":(Settings_ESP3D::GetSDDevice() == ESP_SHARED_SD)?"Shared":"None");
+    output->print ("(");
+    output->print (ESP_SD::FilesystemName());
+    output->print (")");
+    if (!plain) {
+        output->print ("\"}");
+    } else {
+        output->printLN("");
+    }
+#endif //SD_DEVICE
 #if defined (DHT_DEVICE)
     if (!plain) {
         output->print (",{\"id\":\"");

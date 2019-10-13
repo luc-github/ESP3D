@@ -107,7 +107,7 @@
 //ESP_SD_NATIVE               1 //esp32 only
 //ESP_SDIO                    2 //Not available yet
 //ESP_SDFAT                   3 //Not available yet
-//#define SD_DEVICE    ESP_SD_NATIVE
+#define SD_DEVICE    ESP_SD_NATIVE
 
 //pin if reader has insert detection feature
 //let -1 or comment if none
@@ -175,7 +175,7 @@
 //ESP_AUTOSTART_SCRIPT : to do some actions / send GCODE at start, need ESP_GCODE_HOST_FEATURE enabled
 //can be  a line od several GCODES separated by `\n` e.g. "M21\nM117 SD mounted\n"
 //can be  a file name, if exists, commands inside will be processed, e.g "/FS:/autostart.esp"
-#define ESP_AUTOSTART_SCRIPT "M117 Mouning SD\nM21\n"
+//#define ESP_AUTOSTART_SCRIPT "M117 Mouning SD\nM21\n"
 
 //ESP_LUA_INTERPRETER_FEATURE : add lua scripting feature
 //#define ESP_LUA_INTERPRETER_FEATURE

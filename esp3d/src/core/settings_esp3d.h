@@ -75,9 +75,9 @@
 #define ESP_TIME_SERVER1        464     //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese
 #define ESP_TIME_SERVER2        593     //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese
 #define ESP_TIME_SERVER3        722     //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese
-#define ESP_IS_DIRECT_SD        850     //1  bytes = flag
-#define ESP_PRIMARY_SD          851     //1  bytes = flag
-#define ESP_SECONDARY_SD        852     //1  bytes = flag
+#define ESP_SD_DEVICE_TYPE      850     //1  bytes = flag
+#define ESP_SD_MOUNT            851     //1  bytes = flag
+#define ESP_FREE_BYTE           852     //1  bytes = flag
 #define ESP_DIRECT_SD_CHECK     853     //1  bytes = flag
 #define ESP_SD_CHECK_UPDATE_AT_BOOT   854//1  bytes = flag
 #define ESP_NOTIFICATION_SETTINGS 855   //128 bytes 127+1 = string  ; warning does not support multibyte char like chinese
@@ -124,7 +124,7 @@ public:
     static bool reset();
     static int8_t GetSettingsVersion();
     static uint8_t GetFirmwareTarget(bool fromsettings = false);
-    static bool isDirectSD(bool fromsettings = false);
+    static uint8_t GetSDDevice(bool fromsettings = false);
     static const char* GetFirmwareTargetShortName();
     static String IPtoString(uint32_t ip_int);
     static uint32_t StringtoIP(const char *s);
@@ -133,7 +133,7 @@ public:
 private:
     static bool is_string(const char * s, uint len);
     static uint8_t _FirmwareTarget;
-    static bool _directSD;
+    static bool _SDdevice;
 };
 
 

@@ -463,14 +463,21 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->printf (",{\"Telnet\":\"%d\"}", ESP_TELNET_CLIENT);
 #endif //TELNET_FEATURE
     output->printLN ("]}");
-#ifdef SDCARD_FEATURE
+#ifdef SD_DEVICE
     //Direct SD
     output->print(",{\"F\":\"printer\",\"P\":\"");
-    output->print(ESP_IS_DIRECT_SD);
+    output->print(ESP_SD_DEVICE_TYPE);
     output->print("\",\"T\":\"B\",\"V\":\"");
-    output->print (Settings_ESP3D::read_byte(ESP_IS_DIRECT_SD));
-    output->print("\",\"H\":\"Direct SD access\",\"O\":[{\"No\":\"0\"},{\"Yes\":\"1\"}]}");
-#endif //SDCARD_FEATURE      
+    output->print (Settings_ESP3D::read_byte(ESP_SD_DEVICE_TYPE));
+    //hard coded for readibility but should use ESP_NO_SD / ESP_DIRECT_SD / ESP_SHARED_SD
+    output->printLN("\",\"H\":\"SD Device\",\"O\":[{\"None\":\"0\"},{\"Direct\":\"1\"},{\"Shared\":\"2\"}]}");
+    //SPI SD Divider
+    output->print(",{\"F\":\"printer\",\"P\":\"");
+    output->print(ESP_SD_SPEED_DIV);
+    output->print("\",\"T\":\"B\",\"V\":\"");
+    output->print (Settings_ESP3D::read_byte(ESP_SD_SPEED_DIV));
+    output->print("\",\"H\":\"SD speed divider\",\"O\":[{\"1\":\"1\"},{\"2\":\"2\"},{\"3\":\"3\"},{\"4\":\"4\"},{\"6\":\"6\"},{\"8\":\"8\"},{\"16\":\"16\"},{\"32\":\"32\"}]}");
+#endif //SD_DEVICE      
 
     output->printLN ("]}");
 

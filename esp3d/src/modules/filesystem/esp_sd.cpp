@@ -32,6 +32,7 @@ File tSDFile_handle[ESP_MAX_SD_OPENHANDLE];
 
 bool ESP_SD::_started = false;
 uint8_t ESP_SD::_state = ESP_SDCARD_NOT_PRESENT;
+uint8_t ESP_SD::_spi_speed_divider = 1;
 
 uint8_t ESP_SD::setState(uint8_t flag)
 {
@@ -196,6 +197,15 @@ ESP_SDFile& ESP_SDFile::operator=(const ESP_SDFile & other)
     memcpy(&_lastwrite, &(other._lastwrite), sizeof (time_t));
 #endif //SD_TIMESTAMP_FEATURE
     return *this;
+}
+
+bool ESP_SD::setSPISpeedDivider(uint8_t speeddivider)
+{
+    if (speeddivider > 0) {
+        _spi_speed_divider = speeddivider;
+        return true;
+    }
+    return false;
 }
 
 #endif //SD_DEVICE

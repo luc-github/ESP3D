@@ -22,13 +22,11 @@ sd_native_esp32.cpp - ESP3D sd support class
 #if (SD_DEVICE == ESP_SD_NATIVE)
 #include "../esp_sd.h"
 #include "../../../core/genLinkedList.h"
+#include "../../../core/settings_esp3d.h"
 #include "FS.h"
 #include "SD.h"
 
 #define ESP_SPI_FREQ  4000000
-
-//TODO read this from EEPROM/Preferences
-#define ESP_SD_SPEED_DIVIDER     1
 
 extern File tSDFile_handle[ESP_MAX_SD_OPENHANDLE];
 
@@ -54,7 +52,7 @@ uint8_t ESP_SD::getState(bool refresh)
     _state = ESP_SDCARD_NOT_PRESENT;
 //using default value for speed ? should be parameter
 //refresh content if card was removed
-    if (SD.begin((ESP_SD_CS_PIN == -1)?SS:ESP_SD_CS_PIN, SPI, ESP_SPI_FREQ / ESP_SD_SPEED_DIVIDER)) {
+    if (SD.begin((ESP_SD_CS_PIN == -1)?SS:ESP_SD_CS_PIN, SPI, ESP_SPI_FREQ / _spi_speed_divider)) {
         if ( SD.cardSize() > 0 ) {
             _state = ESP_SDCARD_IDLE;
         }
@@ -69,6 +67,11 @@ bool ESP_SD::begin()
 #endif
     _started = true;
     _state = ESP_SDCARD_NOT_PRESENT;
+    _spi_speed_divider = Settings_ESP3D::read_byte(ESP_SD_SPEED_DIV);
+    //sanity check
+    if (_spi_speed_divider <= 0) {
+        _spi_speed_divider = 1;
+    }
     return _started;
 }
 
@@ -93,11 +96,6 @@ uint64_t ESP_SD::freeBytes()
 {
     return (SD.totalBytes() - SD.usedBytes());
 };
-
-const char * ESP_SD::FilesystemName()
-{
-    return "SD Native";
-}
 
 bool ESP_SD::format()
 {
@@ -336,6 +334,10 @@ ESP_SDFile  ESP_SDFile::openNextFile()
     return  ESP_SDFile();
 }
 
+const char * ESP_SD::FilesystemName()
+{
+    return "SD native";
+}
 
 #endif //SD_DEVICE == ESP_SD_NATIVE
 #endif //ARCH_ESP32 && SD_DEVICE
