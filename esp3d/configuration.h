@@ -107,7 +107,10 @@
 //ESP_SD_NATIVE               1 //esp32 only
 //ESP_SDIO                    2 //Not available yet
 //ESP_SDFAT                   3 //Not available yet
-#define SD_DEVICE    ESP_SD_NATIVE
+//#define SD_DEVICE    ESP_SD_NATIVE
+
+//FILESYSTEM_TIMESTAMP_FEATURE: allow to get last write time from FILESYSTEM files
+//#define SD_TIMESTAMP_FEATURE
 
 //pin if reader has insert detection feature
 //let -1 or comment if none
