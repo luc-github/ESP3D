@@ -104,10 +104,10 @@
 #endif //PIN_RESET_FEATURE
 
 //SD_DEVICE: to access SD Card files directly instead of access by serial using printer Board FW
-//ESP_SD_NATIVE               1 //esp32 only
-//ESP_SDIO                    2 //Not available yet
+//ESP_SD_NATIVE               1 //esp32 only for the momment
+//ESP_SDIO                    2 //esp32 only
 //ESP_SDFAT                   3 //Not available yet
-//#define SD_DEVICE    ESP_SD_NATIVE
+//#define SD_DEVICE    ESP_SDIO
 
 //FILESYSTEM_TIMESTAMP_FEATURE: allow to get last write time from FILESYSTEM files
 //#define SD_TIMESTAMP_FEATURE

@@ -170,3 +170,15 @@
 #define ESP_SD_MISO_PIN         2  //-1
 #define ESP_SD_MOSI_PIN         15 //-1
 #define ESP_SD_SCK_PIN          14 //-1
+
+// For SDIO Connect the SD card to the following pins:
+//SD Card | ESP32
+//    D2       12
+//    D3       13
+//    CMD      15
+//    VSS      GND
+//    VDD      3.3V
+//    CLK      14
+//    VSS      GND
+//    D0       2  (add 1K pull up after flashing)
+//    D1       4

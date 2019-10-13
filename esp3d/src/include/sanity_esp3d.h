@@ -99,4 +99,13 @@
 #error Camera is not available in ESP8266
 #endif
 
+/**************************
+ * SD
+ * ***********************/
+#if defined(SD_DEVICE) && defined( ARDUINO_ARCH_ESP8266)
+#if SD_DEVICE == ESP_SDIO
+#error SDIO is not available in ESP8266
+#endif
+#endif
+
 #endif //SANITY_ESP3D_H 
