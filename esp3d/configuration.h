@@ -107,7 +107,7 @@
 //ESP_SD_NATIVE               1 //esp32 only for the momment
 //ESP_SDIO                    2 //esp32 only
 //ESP_SDFAT                   3 //Not available yet
-//#define SD_DEVICE    ESP_SDIO
+#define SD_DEVICE    ESP_SD_NATIVE
 
 //FILESYSTEM_TIMESTAMP_FEATURE: allow to get last write time from FILESYSTEM files
 //#define SD_TIMESTAMP_FEATURE

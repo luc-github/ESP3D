@@ -101,6 +101,7 @@ private:
     static bool _started;
     static uint8_t _state;
     static uint8_t _spi_speed_divider;
+    static bool _sizechanged;
 };
 
 

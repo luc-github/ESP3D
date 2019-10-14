@@ -166,10 +166,12 @@
 
 //Pins for the support of SD Card Reader
 //-1 means use default pins of your board defined core
-#define ESP_SD_CS_PIN           13 //-1
-#define ESP_SD_MISO_PIN         2  //-1
-#define ESP_SD_MOSI_PIN         15 //-1
-#define ESP_SD_SCK_PIN          14 //-1
+#define ESP_SD_CS_PIN           -1
+//These are hardcoded on ESP8266 to 12/13/14 
+//so modifications are ignored on ESP8266
+#define ESP_SD_MISO_PIN         -1
+#define ESP_SD_MOSI_PIN         -1
+#define ESP_SD_SCK_PIN          -1
 
 // For SDIO Connect the SD card to the following pins:
 //SD Card | ESP32
