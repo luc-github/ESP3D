@@ -245,35 +245,19 @@ ESP_SDFile::ESP_SDFile(void* handle, bool isdir, bool iswritemode, const char * 
             char tmp[255];
             tSDFile_handle[i].getName(tmp,254);
             _filename = tmp;
-            //if root
-            if (_filename == "/") {
-                _filename = "/.";
-            }
-            if (_isdir) {
-                if (_filename[_filename.length()-1] != '.') {
-                    if (_filename[_filename.length()-2] != '/') {
-                        _filename+="/";
-                    }
-                    _filename+=".";
-                }
-            }
             //name
-            if (_filename == "/.") {
-                _name = "/";
-            } else {
-                _name = _filename;
-                if (_name.endsWith("/.")) {
-                    _name.remove( _name.length() - 2,2);
-                    _isfakedir = true;
-                    _isdir = true;
-                }
-                if (_name[0] == '/') {
-                    _name.remove( 0, 1);
-                }
-                int pos = _name.lastIndexOf('/');
-                if (pos != -1) {
-                    _name.remove( 0, pos+1);
-                }
+            _name = _filename;
+            if (_name.endsWith("/")) {
+                _name.remove( _name.length() - 1,1);
+                _isfakedir = true;
+                _isdir = true;
+            }
+            if (_name[0] == '/') {
+                _name.remove( 0, 1);
+            }
+            int pos = _name.lastIndexOf('/');
+            if (pos != -1) {
+                _name.remove( 0, pos+1);
             }
             //size
             _size = tSDFile_handle[i].size();
