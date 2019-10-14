@@ -28,6 +28,7 @@
 //[ESP200] pwd=<user/admin password>
 bool Commands::ESP200(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
+    (void)cmd_params;
 #ifdef AUTHENTICATION_FEATURE
     if (auth_type == LEVEL_GUEST) {
         output->printERROR("Wrong authentication!", 401);

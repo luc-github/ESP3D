@@ -425,12 +425,16 @@ void ESP3DGlobalOutput::SetStatus(const char * status)
 {
 #ifdef DISPLAY_DEVICE
     esp3d_display.SetStatus(status);
+#else
+    (void)status;
 #endif //DISPLAY_DEVICE
 }
 void ESP3DGlobalOutput::display_progress(uint8_t v)
 {
 #ifdef DISPLAY_DEVICE
     esp3d_display.progress(v);
+#else
+    (void)v;
 #endif //DISPLAY_DEVICE
 }
 
@@ -438,6 +442,8 @@ void ESP3DGlobalOutput::display_IP(bool force)
 {
 #ifdef DISPLAY_DEVICE
     esp3d_display.display_IP(force);
+#else
+    (void)force;
 #endif //DISPLAY_DEVICE
 }
 

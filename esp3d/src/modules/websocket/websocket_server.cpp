@@ -101,11 +101,11 @@ void handle_Websocket_Terminal_Event(uint8_t num, uint8_t type, uint8_t * payloa
     break;
     case WStype_TEXT:
         //we do not expect any input
-        log_esp3d("[IGNORED][%u] get Text: %s  port %d", num, payload, num,websocket_terminal_server.port());
+        log_esp3d("[IGNORED][%u] get Text: %s  port %d", num, payload, websocket_terminal_server.port());
         break;
     case WStype_BIN:
         //we do not expect any input
-        log_esp3d("[IGNORED][%u] get binary length: %u  port %d", num, length, num,websocket_terminal_server.port());
+        log_esp3d("[IGNORED][%u] get binary length: %u  port %d", num, length, websocket_terminal_server.port());
         break;
     default:
         break;
