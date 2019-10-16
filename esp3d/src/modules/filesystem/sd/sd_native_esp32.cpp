@@ -336,6 +336,12 @@ ESP_SDFile  ESP_SDFile::openNextFile()
     return  ESP_SDFile();
 }
 
+//TODO need to find reliable way
+const char* ESP_SDFile::shortname() const
+{
+    return _name.c_str();
+}
+
 const char * ESP_SD::FilesystemName()
 {
     return "SD native";

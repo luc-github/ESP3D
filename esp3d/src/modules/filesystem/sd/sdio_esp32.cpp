@@ -330,5 +330,11 @@ const char * ESP_SD::FilesystemName()
     return "SDIO";
 }
 
+//TODO need to find reliable way
+const char* ESP_SDFile::shortname() const
+{
+    return _name.c_str();
+}
+
 #endif //SD_DEVICE == ESP_SDIO
 #endif //ARCH_ESP32 && SD_DEVICE

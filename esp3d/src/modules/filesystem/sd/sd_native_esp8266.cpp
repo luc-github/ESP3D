@@ -244,9 +244,9 @@ ESP_SDFile::ESP_SDFile(void* handle, bool isdir, bool iswritemode, const char * 
             //filename
             char tmp[255];
             tSDFile_handle[i].getName(tmp,254);
-            _filename = tmp;
+            _filename = path;
             //name
-            _name = _filename;
+            _name = tmp;
             if (_name.endsWith("/")) {
                 _name.remove( _name.length() - 1,1);
                 _isfakedir = true;
@@ -270,6 +270,13 @@ ESP_SDFile::ESP_SDFile(void* handle, bool isdir, bool iswritemode, const char * 
             set = true;
         }
     }
+}
+
+const char* ESP_SDFile::shortname() const
+{
+    //static char shorname[13];
+    //entry.getSFN(tmps);
+    return _filename.c_str();
 }
 
 void ESP_SDFile::close()
@@ -303,12 +310,13 @@ ESP_SDFile  ESP_SDFile::openNextFile()
     }
     sdfat::File tmp = tSDFile_handle[_index].openNextFile();
     if (tmp){
-       #if defined(ESP_DEBUG_FEATURE)
         char tmps[255];
         tmp.getName(tmps,254);
         log_esp3d("tmp name :%s %s", tmps, (tmp.isDir())?"isDir":"isFile");
-#endif //ESP_DEBUG_FEATURE
-        ESP_SDFile esptmp(&tmp, tmp.isDir());
+        String s = _filename ;
+        if (s!="/")s+="/";
+        s += tmps;
+        ESP_SDFile esptmp(&tmp, tmp.isDir(),false, s.c_str());
         esptmp.close(); 
         return esptmp;
     }

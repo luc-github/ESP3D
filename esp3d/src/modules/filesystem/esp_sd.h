@@ -41,6 +41,7 @@ public:
     operator bool() const;
     bool isDirectory();
     const char* name() const;
+    const char* shortname() const;
     const char* filename() const;
     void close();
     bool isOpen();
