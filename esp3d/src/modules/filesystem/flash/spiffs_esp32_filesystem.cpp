@@ -36,6 +36,11 @@ void ESP_FileSystem::end()
     SPIFFS.end();
 }
 
+size_t ESP_FileSystem::freeBytes()
+{
+    return totalBytes() - usedBytes();
+}
+
 size_t ESP_FileSystem::totalBytes()
 {
     return SPIFFS.totalBytes();

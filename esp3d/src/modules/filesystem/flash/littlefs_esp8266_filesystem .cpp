@@ -38,6 +38,11 @@ void ESP_FileSystem::end()
     LittleFS.end();
 }
 
+size_t ESP_FileSystem::freeBytes()
+{
+    return totalBytes() - usedBytes();
+}
+
 size_t ESP_FileSystem::totalBytes()
 {
     fs::FSInfo info;

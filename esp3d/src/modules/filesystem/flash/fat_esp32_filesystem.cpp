@@ -38,6 +38,11 @@ void ESP_FileSystem::end()
     _started = false;
 }
 
+size_t ESP_FileSystem::freeBytes()
+{
+    return FFat.freeBytes();
+}
+
 size_t ESP_FileSystem::totalBytes()
 {
     return FFat.totalBytes();
