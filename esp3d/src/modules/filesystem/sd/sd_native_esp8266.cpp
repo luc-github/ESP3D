@@ -226,9 +226,6 @@ ESP_SDFile::ESP_SDFile(void* handle, bool isdir, bool iswritemode, const char * 
     _index = -1;
     _filename = "";
     _name = "";
-    //TODO: FIXME
-    //forget  what is for
-    (void)path;
 #ifdef FILESYSTEM_TIMESTAMP_FEATURE
     memset (&_lastwrite,0,sizeof(time_t));
 #endif //FILESYSTEM_TIMESTAMP_FEATURE 
@@ -317,7 +314,7 @@ ESP_SDFile  ESP_SDFile::openNextFile()
         if (s!="/")s+="/";
         s += tmps;
         ESP_SDFile esptmp(&tmp, tmp.isDir(),false, s.c_str());
-        esptmp.close(); 
+        esptmp.close();
         return esptmp;
     }
     return  ESP_SDFile();

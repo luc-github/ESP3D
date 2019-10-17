@@ -213,37 +213,19 @@ ESP_SDFile::ESP_SDFile(void* handle, bool isdir, bool iswritemode, const char * 
         if (!tSDFile_handle[i]) {
             tSDFile_handle[i] = *((File*)handle);
             //filename
-            _filename = tSDFile_handle[i].name();
-
-            //if root
-            if (_filename == "/") {
-                _filename = "/.";
+            _name = tSDFile_handle[i].name();
+            _filename = path;
+            if (_name.endsWith("/")) {
+                _name.remove( _name.length() - 1,1);
+                _isfakedir = true;
+                _isdir = true;
             }
-            if (_isdir) {
-                if (_filename[_filename.length()-1] != '.') {
-                    if (_filename[_filename.length()-2] != '/') {
-                        _filename+="/";
-                    }
-                    _filename+=".";
-                }
+            if (_name[0] == '/') {
+                _name.remove( 0, 1);
             }
-            //name
-            if (_filename == "/.") {
-                _name = "/";
-            } else {
-                _name = _filename;
-                if (_name.endsWith("/.")) {
-                    _name.remove( _name.length() - 2,2);
-                    _isfakedir = true;
-                    _isdir = true;
-                }
-                if (_name[0] == '/') {
-                    _name.remove( 0, 1);
-                }
-                int pos = _name.lastIndexOf('/');
-                if (pos != -1) {
-                    _name.remove( 0, pos+1);
-                }
+            int pos = _name.lastIndexOf('/');
+            if (pos != -1) {
+                _name.remove( 0, pos+1);
             }
             //size
             _size = tSDFile_handle[i].size();
@@ -288,46 +270,16 @@ ESP_SDFile  ESP_SDFile::openNextFile()
         return ESP_SDFile();
     }
     File tmp = tSDFile_handle[_index].openNextFile();
-    while (tmp) {
-        log_esp3d("tmp name :%s %s", tmp.name(), (tmp.isDirectory())?"isDir":"isFile");
-        ESP_SDFile esptmp(&tmp, tmp.isDirectory());
+    if (tmp) {
+        log_esp3d("tmp name :%s %s %s", tmp.name(), (tmp.isDirectory())?"isDir":"isFile", _filename.c_str());
+        String s = tmp.name() ;
+        //if (s!="/")s+="/";
+        //s += tmp.name();
+        ESP_SDFile esptmp(&tmp, tmp.isDirectory(),false, s.c_str());
         esptmp.close();
-        String sub = esptmp.filename();
-        sub.remove(0,_filename.length()-1);
-        int pos = sub.indexOf("/");
-        if (pos!=-1) {
-            //is subdir
-            sub = sub.substring(0,pos);
-            //log_esp3d("file name:%s name: %s %s  sub:%s root:%s", esptmp.filename(), esptmp.name(), (esptmp.isDirectory())?"isDir":"isFile", sub.c_str(), _filename.c_str());
-            String tag = "*" + sub + "*";
-            //test if already in directory list
-            if (_dirlist.indexOf(tag) == -1) {//not in list so add it and return the info
-                _dirlist+= tag;
-                String fname = _filename.substring(0,_filename.length()-1) + sub + "/.";
-                //log_esp3d("Found dir  name: %s filename:%s", sub.c_str(), fname.c_str());
-                esptmp = ESP_SDFile(sub.c_str(), fname.c_str());
-                return esptmp;
-            } else { //already in list so ignore it
-                //log_esp3d("Dir name: %s already in list", sub.c_str());
-                tmp = tSDFile_handle[_index].openNextFile();
-            }
-        } else { //is file
-            //log_esp3d("file name:%s name: %s %s  sub:%s root:%s", esptmp.filename(), esptmp.name(), (esptmp.isDirectory())?"isDir":"isFile", sub.c_str(), _filename.c_str());
-            if (sub == ".") {
-                //log_esp3d("Dir tag, ignore it");
-                tmp = tSDFile_handle[_index].openNextFile();
-            } else {
-                return esptmp;
-            }
-        }
-
+        return esptmp;
     }
     return  ESP_SDFile();
-}
-
-const char * ESP_SD::FilesystemName()
-{
-    return "SDIO";
 }
 
 //TODO need to find reliable way
@@ -336,5 +288,9 @@ const char* ESP_SDFile::shortname() const
     return _name.c_str();
 }
 
+const char * ESP_SD::FilesystemName()
+{
+    return "SDIO";
+}
 #endif //SD_DEVICE == ESP_SDIO
 #endif //ARCH_ESP32 && SD_DEVICE
