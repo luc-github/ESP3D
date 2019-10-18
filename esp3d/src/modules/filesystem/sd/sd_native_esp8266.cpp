@@ -19,7 +19,7 @@ sd_native_esp8266.cpp - ESP3D sd support class
 */
 #include "../../../include/esp3d_config.h"
 #if defined (ARDUINO_ARCH_ESP8266) && defined(SD_DEVICE)
-#if (SD_DEVICE == ESP_SD_NATIVE)
+#if (SD_DEVICE == ESP_SD_NATIVE) || (SD_DEVICE == ESP_SDFAT)
 #define FS_NO_GLOBALS
 #include "../esp_sd.h"
 #include "../../../core/genLinkedList.h"
@@ -70,7 +70,7 @@ bool ESP_SD::begin()
     if (_spi_speed_divider <= 0) {
         _spi_speed_divider = 1;
     }
-    if (getState(true) == ESP_SDCARD_IDLE){
+    if (getState(true) == ESP_SDCARD_IDLE) {
         freeBytes();
     }
     return _started;
@@ -97,7 +97,7 @@ uint64_t ESP_SD::usedBytes()
 uint64_t ESP_SD::freeBytes()
 {
     static uint64_t volFree;
-    if (_sizechanged){
+    if (_sizechanged) {
         volFree = SD.vol()->freeClusterCount();
         _sizechanged = false;
     }
@@ -268,12 +268,16 @@ ESP_SDFile::ESP_SDFile(void* handle, bool isdir, bool iswritemode, const char * 
         }
     }
 }
-
+//todo need also to add short filename
 const char* ESP_SDFile::shortname() const
 {
-    //static char shorname[13];
-    //entry.getSFN(tmps);
-    return _filename.c_str();
+    static char sname[13];
+    File ftmp = SD.open(_filename.c_str());
+    if (ftmp) {
+        ftmp.getSFN(sname);
+        ftmp.close();
+        return sname;
+    } else return _name.c_str();
 }
 
 void ESP_SDFile::close()
@@ -306,12 +310,14 @@ ESP_SDFile  ESP_SDFile::openNextFile()
         return ESP_SDFile();
     }
     sdfat::File tmp = tSDFile_handle[_index].openNextFile();
-    if (tmp){
+    if (tmp) {
         char tmps[255];
         tmp.getName(tmps,254);
         log_esp3d("tmp name :%s %s", tmps, (tmp.isDir())?"isDir":"isFile");
         String s = _filename ;
-        if (s!="/")s+="/";
+        if (s!="/") {
+            s+="/";
+        }
         s += tmps;
         ESP_SDFile esptmp(&tmp, tmp.isDir(),false, s.c_str());
         esptmp.close();
