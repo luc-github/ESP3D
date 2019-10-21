@@ -114,14 +114,26 @@ bool TimeServer::begin()
     return _started;
 }
 
-const char * TimeServer::current_time()
+const char * TimeServer::current_time(time_t t)
 {
     static String stmp;
     struct tm  tmstruct;
     time_t now;
     stmp = "";
-    time(&now);
-    localtime_r(&now, &tmstruct);
+    //get current time
+    if (t == 0) {
+        time(&now);
+        localtime_r(&now, &tmstruct);
+    } else {
+        /* struct tm * tmstructtmp = localtime(&t);
+         tmstruct.tm_year = tmstructtmp->tm_year;
+         tmstruct.tm_mon = tmstructtmp->tm_mon;
+         tmstruct.tm_mday = tmstructtmp->tm_mday;
+         tmstruct.tm_hour = tmstructtmp->tm_hour;
+         tmstruct.tm_min = tmstructtmp->tm_min;
+         tmstruct.tm_sec = tmstructtmp->tm_sec;*/
+        localtime_r(&t, &tmstruct);
+    }
     stmp = String((tmstruct.tm_year)+1900) + "-";
     if (((tmstruct.tm_mon)+1) < 10) {
         stmp +="0";

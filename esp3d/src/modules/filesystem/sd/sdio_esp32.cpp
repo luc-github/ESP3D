@@ -196,13 +196,12 @@ ESP_SDFile::ESP_SDFile(void* handle, bool isdir, bool iswritemode, const char * 
 {
     _isdir = isdir;
     _dirlist = "";
-    _isfakedir = false;
     _index = -1;
     _filename = "";
     _name = "";
-#ifdef FILESYSTEM_TIMESTAMP_FEATURE
+#ifdef SD_TIMESTAMP_FEATURE
     memset (&_lastwrite,0,sizeof(time_t));
-#endif //FILESYSTEM_TIMESTAMP_FEATURE 
+#endif //SD_TIMESTAMP_FEATURE 
     _iswritemode = iswritemode;
     _size = 0;
     if (!handle) {
@@ -217,7 +216,6 @@ ESP_SDFile::ESP_SDFile(void* handle, bool isdir, bool iswritemode, const char * 
             _filename = path;
             if (_name.endsWith("/")) {
                 _name.remove( _name.length() - 1,1);
-                _isfakedir = true;
                 _isdir = true;
             }
             if (_name[0] == '/') {
@@ -230,9 +228,9 @@ ESP_SDFile::ESP_SDFile(void* handle, bool isdir, bool iswritemode, const char * 
             //size
             _size = tSDFile_handle[i].size();
             //time
-#ifdef FILESYSTEM_TIMESTAMP_FEATURE
+#ifdef SD_TIMESTAMP_FEATURE
             _lastwrite =  tSDFile_handle[i].getLastWrite();
-#endif //FILESYSTEM_TIMESTAMP_FEATURE
+#endif //SD_TIMESTAMP_FEATURE
             _index = i;
             //log_esp3d("Opening File at index %d",_index);
             set = true;
@@ -251,9 +249,9 @@ void ESP_SDFile::close()
             File ftmp = SD_MMC.open(_filename.c_str());
             if (ftmp) {
                 _size = ftmp.size();
-#ifdef FILESYSTEM_TIMESTAMP_FEATURE
+#ifdef SD_TIMESTAMP_FEATURE
                 _lastwrite = ftmp.getLastWrite();
-#endif //FILESYSTEM_TIMESTAMP_FEATURE
+#endif //SD_TIMESTAMP_FEATURE
                 ftmp.close();
             }
         }

@@ -25,7 +25,7 @@
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/filesystem/esp_sd.h"
 // Action on SD Filesystem
-//rmdir / remove / mkdir / exists
+//rmdir / remove / mkdir / exists /create
 //[ESP750]<Action>=<path> pwd=<admin password>
 bool Commands::ESP750(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
@@ -87,6 +87,18 @@ bool Commands::ESP750(const char* cmd_params, level_authenticate_type auth_type,
             output->printMSG ("yes");
         } else {
             output->printMSG ("no");
+        }
+        return response;
+    }
+    parameter = get_param (cmd_params, "create=");
+    if (parameter.length() != 0) {
+        ESP_SDFile f = ESP_SD::open(parameter.c_str(), ESP_SD_FILE_WRITE);
+        if (f.isOpen()) {
+            f.close();
+            output->printMSG ("ok");
+        } else {
+            output->printERROR ("failed!");
+            response = false;
         }
         return response;
     }

@@ -98,7 +98,7 @@ ESP_File::ESP_File(const char * name, const char * filename, bool isdir, size_t 
     _filename = filename;
     _name = name;
 #ifdef FILESYSTEM_TIMESTAMP_FEATURE
-    memset (&_lastwrite,0,sizeof(time_t));
+    _lastwrite = 0;
 #endif //FILESYSTEM_TIMESTAMP_FEATURE 
     _iswritemode = false;
     _size = size;
@@ -211,7 +211,7 @@ ESP_File& ESP_File::operator=(const ESP_File & other)
     _iswritemode = other._iswritemode;
     _dirlist = other._dirlist;
 #ifdef FILESYSTEM_TIMESTAMP_FEATURE
-    memcpy(&_lastwrite, &(other._lastwrite), sizeof (time_t));
+    _lastwrite = other._lastwrite;
 #endif //FILESYSTEM_TIMESTAMP_FEATURE
     return *this;
 }

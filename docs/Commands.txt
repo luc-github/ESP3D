@@ -191,14 +191,14 @@ Get will give type and settings only, not the protected T1/T2
 [ESP720]<Root> pwd=<admin password>
 
 * Action on ESP Filesystem
-rmdir / remove / mkdir / exists
+rmdir / remove / mkdir / exists / create
 [ESP730]<Action>=<path> pwd=<admin password>
 
 * List SD Filesystem
 [ESP740]<Root> pwd=<admin password>
 
 * Action on SD Filesystem
-rmdir / remove / mkdir / exists
+rmdir / remove / mkdir / exists / create
 [ESP750]<Action>=<path> pwd=<admin password>
 
 * FW Informations

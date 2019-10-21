@@ -60,7 +60,6 @@ public:
 private:
     String _dirlist;
     bool _isdir;
-    bool _isfakedir;
     bool _iswritemode;
     int8_t _index;
     String _filename;

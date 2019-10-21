@@ -85,12 +85,11 @@ ESP_SDFile::ESP_SDFile(const char * name, const char * filename, bool isdir, siz
 {
     _isdir = isdir;
     _dirlist = "";
-    _isfakedir = isdir;
     _index = -1;
     _filename = filename;
     _name = name;
 #ifdef SD_TIMESTAMP_FEATURE
-    memset (&_lastwrite,0,sizeof(time_t));
+    _lastwrite  = 0;
 #endif //SD_TIMESTAMP_FEATURE 
     _iswritemode = false;
     _size = size;
@@ -195,7 +194,6 @@ ESP_SDFile& ESP_SDFile::operator=(const ESP_SDFile & other)
 {
     //log_esp3d("Copy %s", other._filename.c_str());
     _isdir = other._isdir;
-    _isfakedir = other._isfakedir;
     _index = other._index;
     _filename = other._filename;
     _name = other._name;
@@ -203,7 +201,7 @@ ESP_SDFile& ESP_SDFile::operator=(const ESP_SDFile & other)
     _iswritemode = other._iswritemode;
     _dirlist = other._dirlist;
 #ifdef SD_TIMESTAMP_FEATURE
-    memcpy(&_lastwrite, &(other._lastwrite), sizeof (time_t));
+    _lastwrite = other._lastwrite;
 #endif //SD_TIMESTAMP_FEATURE
     return *this;
 }

@@ -23,6 +23,7 @@
 #ifndef _TIME_SERVER_H
 #define _TIME_SERVER_H
 
+#include <time.h>
 
 class TimeServer
 {
@@ -32,7 +33,7 @@ public:
     bool begin();
     void end();
     void handle();
-    const char * current_time();
+    const char * current_time(time_t t = 0);
     bool setTime(const char* stime);
     bool started();
     bool is_internet_time(bool readfromsettings = false);

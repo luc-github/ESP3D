@@ -29,8 +29,46 @@ sd_native_esp8266.cpp - ESP3D sd support class
 extern sdfat::File tSDFile_handle[ESP_MAX_SD_OPENHANDLE];
 using namespace sdfat;
 
-
 SdFat SD;
+
+#ifdef SD_TIMESTAMP_FEATURE
+void dateTime (uint16_t* date, uint16_t* dtime)
+{
+    struct tm  tmstruct;
+    time_t now;
+    time (&now);
+    localtime_r (&now, &tmstruct);
+    *date = FAT_DATE ( (tmstruct.tm_year) + 1900, ( tmstruct.tm_mon) + 1, tmstruct.tm_mday);
+    *dtime = FAT_TIME (tmstruct.tm_hour, tmstruct.tm_min, tmstruct.tm_sec);
+}
+
+time_t getDateTimeFile(File & filehandle)
+{
+    time_t dt = 0;
+    struct tm timefile;
+    memset((void *)&timefile, 0, sizeof(tm));
+    dir_t d;
+    if (filehandle.dirEntry(&d)) {
+        timefile.tm_year = FAT_YEAR(d.lastWriteDate) - 1900;
+        timefile.tm_mon = FAT_MONTH(d.lastWriteDate) - 1;
+        timefile.tm_mday = FAT_DAY(d.lastWriteDate);
+        timefile.tm_hour = FAT_HOUR(d.lastWriteTime);
+        timefile.tm_min = FAT_MINUTE(d.lastWriteTime);
+        timefile.tm_sec = FAT_SECOND(d.lastWriteTime);
+        timefile.tm_isdst = -1;
+        if (mktime(&timefile) != -1) {
+            dt =  mktime(&timefile);
+        } else {
+            log_esp3d("mktime failed");
+        }
+    } else {
+        log_esp3d("stat file failed");
+    }
+    return dt;
+}
+
+
+#endif //SD_TIMESTAMP_FEATURE
 
 uint8_t ESP_SD::getState(bool refresh)
 {
@@ -70,6 +108,10 @@ bool ESP_SD::begin()
     if (_spi_speed_divider <= 0) {
         _spi_speed_divider = 1;
     }
+#ifdef SD_TIMESTAMP_FEATURE
+    //set callback to get time on files on SD
+    SdFile::dateTimeCallback (dateTime);
+#endif //SD_TIMESTAMP_FEATURE
     if (getState(true) == ESP_SDCARD_IDLE) {
         freeBytes();
     }
@@ -108,6 +150,7 @@ uint64_t ESP_SD::freeBytes()
 bool ESP_SD::format()
 {
     //not available yet
+    //SDFat has a feature for this
     return false;
 }
 
@@ -222,13 +265,12 @@ ESP_SDFile::ESP_SDFile(void* handle, bool isdir, bool iswritemode, const char * 
 {
     _isdir = isdir;
     _dirlist = "";
-    _isfakedir = false;
     _index = -1;
     _filename = "";
     _name = "";
-#ifdef FILESYSTEM_TIMESTAMP_FEATURE
+#ifdef SD_TIMESTAMP_FEATURE
     memset (&_lastwrite,0,sizeof(time_t));
-#endif //FILESYSTEM_TIMESTAMP_FEATURE 
+#endif //SD_TIMESTAMP_FEATURE 
     _iswritemode = iswritemode;
     _size = 0;
     if (!handle) {
@@ -246,7 +288,6 @@ ESP_SDFile::ESP_SDFile(void* handle, bool isdir, bool iswritemode, const char * 
             _name = tmp;
             if (_name.endsWith("/")) {
                 _name.remove( _name.length() - 1,1);
-                _isfakedir = true;
                 _isdir = true;
             }
             if (_name[0] == '/') {
@@ -259,9 +300,15 @@ ESP_SDFile::ESP_SDFile(void* handle, bool isdir, bool iswritemode, const char * 
             //size
             _size = tSDFile_handle[i].size();
             //time
-#ifdef FILESYSTEM_TIMESTAMP_FEATURE
-            _lastwrite =  tSDFile_handle[i].getLastWrite();
-#endif //FILESYSTEM_TIMESTAMP_FEATURE
+#ifdef SD_TIMESTAMP_FEATURE
+            if (!_isdir) {
+                _lastwrite = getDateTimeFile(tSDFile_handle[i]);
+
+            } else {
+                //no need date time for directory
+                _lastwrite = 0;
+            }
+#endif //SD_TIMESTAMP_FEATURE
             _index = i;
             //log_esp3d("Opening File at index %d",_index);
             set = true;
@@ -277,7 +324,9 @@ const char* ESP_SDFile::shortname() const
         ftmp.getSFN(sname);
         ftmp.close();
         return sname;
-    } else return _name.c_str();
+    } else {
+        return _name.c_str();
+    }
 }
 
 void ESP_SDFile::close()
@@ -291,9 +340,9 @@ void ESP_SDFile::close()
             sdfat::File ftmp = SD.open(_filename.c_str());
             if (ftmp) {
                 _size = ftmp.size();
-#ifdef FILESYSTEM_TIMESTAMP_FEATURE
-                _lastwrite = ftmp.getLastWrite();
-#endif //FILESYSTEM_TIMESTAMP_FEATURE
+#ifdef SD_TIMESTAMP_FEATURE
+                _lastwrite = getDateTimeFile(ftmp);
+#endif //SD_TIMESTAMP_FEATURE
                 ftmp.close();
             }
         }
@@ -328,7 +377,7 @@ ESP_SDFile  ESP_SDFile::openNextFile()
 
 const char * ESP_SD::FilesystemName()
 {
-    return "SD native";
+    return "SDFat";
 }
 
 #endif //SD_DEVICE == ESP_SD_NATIVE
