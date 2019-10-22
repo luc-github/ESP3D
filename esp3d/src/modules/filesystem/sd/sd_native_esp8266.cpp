@@ -42,7 +42,7 @@ void dateTime (uint16_t* date, uint16_t* dtime)
     *dtime = FAT_TIME (tmstruct.tm_hour, tmstruct.tm_min, tmstruct.tm_sec);
 }
 
-time_t getDateTimeFile(File & filehandle)
+time_t getDateTimeFile(sdfat::File & filehandle)
 {
     time_t dt = 0;
     struct tm timefile;
@@ -750,7 +750,7 @@ ESP_SDFile::ESP_SDFile(void* handle, bool isdir, bool iswritemode, const char * 
 const char* ESP_SDFile::shortname() const
 {
     static char sname[13];
-    File ftmp = SD.open(_filename.c_str());
+    sdfat::File ftmp = SD.open(_filename.c_str());
     if (ftmp) {
         ftmp.getSFN(sname);
         ftmp.close();

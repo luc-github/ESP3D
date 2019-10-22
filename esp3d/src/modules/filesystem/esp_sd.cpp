@@ -17,6 +17,7 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+
 #include "../../include/esp3d_config.h"
 #ifdef SD_DEVICE
 #include "esp_sd.h"
@@ -29,10 +30,10 @@
 #if ((SD_DEVICE == ESP_SD_NATIVE) || (SD_DEVICE == ESP_SDFAT)) && defined (ARDUINO_ARCH_ESP8266)
 #define FS_NO_GLOBALS
 #define NO_GLOBAL_SD
-#include "SdFat.h"
+#include <SdFat.h>
 sdfat::File tSDFile_handle[ESP_MAX_SD_OPENHANDLE];
 #elif (SD_DEVICE == ESP_SDFAT) && defined (ARDUINO_ARCH_ESP32)
-#include "SdFat.h"
+#include <SdFat.h>
 File tSDFile_handle[ESP_MAX_SD_OPENHANDLE];
 #else
 #include <FS.h>
