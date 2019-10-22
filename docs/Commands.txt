@@ -187,6 +187,9 @@ Get will give type and settings only, not the protected T1/T2
 * Format ESP Filesystem
 [ESP710]FORMAT pwd=<admin password>
 
+* Format SD Filesystem
+[ESP715]FORMATSD pwd=<admin password>
+
 * List ESP Filesystem
 [ESP720]<Root> pwd=<admin password>
 

@@ -124,6 +124,7 @@ public:
     bool ESP730(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #endif //FILESYSTEM_FEATURE
 #if defined (SD_DEVICE)
+    bool ESP715(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     bool ESP750(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     bool ESP740(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #endif //SD_DEVICE

@@ -88,9 +88,12 @@ uint64_t ESP_SD::freeBytes()
     return (SD_MMC.totalBytes() - SD_MMC.usedBytes());
 };
 
-bool ESP_SD::format()
+bool ESP_SD::format(ESP3DOutput * output)
 {
     //not available yet
+    if (output) {
+        output->printERROR ("Not implemented!");
+    }
     return false;
 }
 

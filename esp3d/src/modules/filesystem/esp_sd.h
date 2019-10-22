@@ -21,6 +21,7 @@
 #ifndef _ESP_SD_H
 #define _ESP_SD_H
 #include "../../include/esp3d_config.h"
+#include "../../core/esp3doutput.h"
 #ifdef SD_TIMESTAMP_FEATURE
 #include <time.h>
 #endif //SD_TIMESTAMP_FEATURE
@@ -85,7 +86,7 @@ public:
     static uint64_t usedBytes();
     static uint64_t freeBytes();
     static const char * FilesystemName();
-    static bool format();
+    static bool format(ESP3DOutput * output = nullptr);
     static ESP_SDFile open(const char* path, uint8_t mode = ESP_SD_FILE_READ);
     static bool exists(const char* path);
     static bool remove(const char *path);

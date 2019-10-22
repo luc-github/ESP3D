@@ -187,7 +187,7 @@ size_t ESP3DOutput::printLN(const char * s)
     return println(s);
 }
 
-size_t ESP3DOutput::printMSG(const char * s)
+size_t ESP3DOutput::printMSG(const char * s, bool withNL)
 {
     if (!isOutput(_client)) {
         return 0;
@@ -237,7 +237,11 @@ size_t ESP3DOutput::printMSG(const char * s)
         display = ";";
         display += s;
     }
-    return printLN(display.c_str());
+    if(withNL) {
+        return printLN(display.c_str());
+    } else {
+        return print(display.c_str());
+    }
 }
 
 size_t ESP3DOutput::printERROR(const char * s, int code_error)

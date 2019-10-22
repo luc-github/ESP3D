@@ -513,9 +513,16 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
         response = ESP710(cmd_params, auth_type, output);
         break;
 #endif //FILESYSTEM_FEATURE 
+#if defined(SD_DEVICE)
+    //Format ESP Filesystem
+    //[ESP715]FORMATSD pwd=<admin password>
+    case 715:
+        response = ESP715(cmd_params, auth_type, output);
+        break;
+#endif //SD_DEVICE 
 #if defined(FILESYSTEM_FEATURE) && defined(ESP_GCODE_HOST_FEATURE)
     //Open local file
-    //[ESP700]<filname>
+    //[ESP700]<filename>
     case 700:
         response = ESP700(cmd_params, auth_type, output);
         break;

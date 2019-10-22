@@ -81,7 +81,7 @@ public:
         return _client;
     }
     size_t dispatch (uint8_t * sbuf, size_t len);
-    size_t printMSG(const char * s);
+    size_t printMSG(const char * s, bool withNL = true);
     size_t printERROR(const char * s, int code_error = 200);
     size_t printLN(const char * s);
     void flush();
