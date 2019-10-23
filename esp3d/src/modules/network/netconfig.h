@@ -23,6 +23,8 @@
 
 #define MAX_HTTP_PORT               65001
 #define MIN_HTTP_PORT               1
+#define MAX_FTP_PORT                65001
+#define MIN_FTP_PORT                1
 #define MAX_TELNET_PORT             65001
 #define MIN_TELNET_PORT             1
 #define MAX_WEBSOCKET_PORT          65001

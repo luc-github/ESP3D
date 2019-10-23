@@ -88,6 +88,10 @@
 #define ESP_CALIBRATION_5       999     //4  bytes = int
 #define ESP_AUTO_NOTIFICATION   1004    //1 byte = flag
 #define ESP_CAMERA_PORT         1005    //4  bytes = int
+#define ESP_FTP_CTRL_PORT       1009    //4  bytes = int
+#define ESP_FTP_DATA_ACTIVE_PORT       1013    //4  bytes = int
+#define ESP_FTP_DATA_PASSIVE_PORT      1017    //4  bytes = int
+#define ESP_FTP_ON             1021     //1 byte = flag
 
 //Hidden password
 #define HIDDEN_PASSWORD "********"

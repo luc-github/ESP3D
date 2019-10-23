@@ -397,6 +397,18 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
         response = ESP172(cmd_params, auth_type, output);
         break;
 #endif //CAMERA_DEVICE
+#ifdef FTP_FEATURE
+    //Set Ftp state which can be ON, OFF
+    //[ESP180]<state>pwd=<admin password>
+    case 180:
+        response = ESP180(cmd_params, auth_type, output);
+        break;
+    //Set/get ftp ports
+    //[ESP181]ctrl=<port> active=<port> passive=<port> pwd=<admin password>
+    case 181:
+        response = ESP181(cmd_params, auth_type, output);
+        break;
+#endif //FTP_FEATURE
 #if defined (SD_DEVICE)
     //Get SD Card Status
     //[ESP200] pwd=<user/admin password>

@@ -44,6 +44,9 @@
 #ifdef TELNET_FEATURE
 #include "../../modules/telnet/telnet_server.h"
 #endif //TELNET_FEATURE
+#ifdef FTP_FEATURE
+#include "../../modules/ftp/ftp_server.h"
+#endif //FTP_FEATURE
 #ifdef WS_DATA_FEATURE
 #include "../../modules/websocket/websocket_server.h"
 #endif //WS_DATA_FEATURE
@@ -401,6 +404,43 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         }
     }
 #endif //TELNET_FEATURE
+#if defined (FTP_FEATURE)
+    if (ftp_server.started()) {
+        //ftp ports
+        if (!plain) {
+            output->print (",{\"id\":\"");
+        }
+        output->print ("Ftp ports (ctrl, active, passive)");
+        if (!plain) {
+            output->print ("\",\"value\":\"");
+        } else {
+            output->print (": ");
+        }
+        output->printf ("%d, %d, %d",ftp_server.ctrlport(),ftp_server.dataactiveport(), ftp_server.datapassiveport());
+        if (!plain) {
+            output->print ("\"}");
+        } else {
+            output->printLN("");
+        }
+    }
+    if (ftp_server.isConnected()) {
+        if (!plain) {
+            output->print (",{\"id\":\"");
+        }
+        output->print ("Ftp Client");
+        if (!plain) {
+            output->print ("\",\"value\":\"");
+        } else {
+            output->print (": ");
+        }
+        output->printf ("%s",ftp_server.clientIPAddress());
+        if (!plain) {
+            output->print ("\"}");
+        } else {
+            output->printLN("");
+        }
+    }
+#endif //FTP_FEATURE
 #if defined (WS_DATA_FEATURE)
     if (websocket_data_server.started()) {
         //websocket port

@@ -81,6 +81,10 @@ public:
     bool ESP171(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     bool ESP172(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #endif //CAMERA_DEVICE
+#if defined(FTP_FEATURE)
+    bool ESP180(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+    bool ESP181(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+#endif //FTP_FEATURE
 #if defined (SD_DEVICE)
     bool ESP200(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #endif //SD_DEVICE

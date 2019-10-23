@@ -44,7 +44,7 @@ Note:
 * Get/Set HTTP port 
 [ESP121]<port>pwd=<admin password>
 
-* Get/Set Telnet state which can be ON, OFF
+* Get/Set Telnet state which can be ON, OFF, CLOSE
 [ESP130]<state>pwd=<admin password>
 
 * Get/Set Telnet port 
@@ -71,6 +71,12 @@ Note:
 * Get/Set Camera command value / list all values in JSON/plain
 label can be: light/framesize/quality/contrast/brightness/saturation/gainceiling/colorbar/awb/agc/aec/hmirror/vflip/awb_gain/agc_gain/aec_value/aec2/cw/bpc/wpc/raw_gma/lenc/special_effect/wb_mode/ae_level
 [ESP172]<plain><label=value> pwd=<admin password>
+
+* Get/Set Ftp state which can be ON, OFF, CLOSE
+[ESP180]<state>pwd=<admin password>
+
+* Get/Set Ftp ports 
+[ESP181]ctrl=<port> active=<port> passive=<port> pwd=<admin password>
 
 * Get SD Card Status
 [ESP200] pwd=<user/admin password>

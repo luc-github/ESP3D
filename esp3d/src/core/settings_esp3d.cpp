@@ -103,6 +103,7 @@
 #define DEFAULT_DHT_TYPE        NO_DHT_DEVICE
 #define DEFAULT_SD_DEVICE_TYPE  ESP_NO_SD
 #define DEFAULT_HTTP_ON         1
+#define DEFAULT_FTP_ON          1
 #define DEFAULT_TELNET_ON       1
 #define DEFAULT_WEBSOCKET_ON    1
 #define DEFAULT_NOTIFICATION_TYPE 0
@@ -116,6 +117,9 @@
 #define DEFAULT_ESP_INT         0L
 #define DEFAULT_BAUD_RATE       115200L
 #define DEFAULT_HTTP_PORT       80L
+#define DEFAULT_FTP_CTRL_PORT   21L
+#define DEFAULT_FTP_ACTIVE_PORT 20L
+#define DEFAULT_FTP_PASSIVE_PORT 55600L
 #define DEFAULT_WEBSOCKET_PORT  8282L
 #define DEFAULT_CAMERA_PORT     9600L
 #define DEFAULT_TELNET_PORT     23L
@@ -269,6 +273,11 @@ uint8_t Settings_ESP3D::get_default_byte_value(int pos)
     case ESP_OUTPUT_FLAG:
         res = DEFAULT_OUTPUT_FLAG;
         break;
+#ifdef FTP_FEATURE
+    case ESP_FTP_ON:
+        res = DEFAULT_FTP_ON;
+        break;
+#endif //FTP_FEATURE
 #ifdef HTTP_FEATURE
     case ESP_HTTP_ON:
         res = DEFAULT_HTTP_ON;
@@ -361,6 +370,17 @@ uint32_t Settings_ESP3D::get_default_int32_value(int pos)
         res = IPAddress(DEFAULT_GATEWAY_VALUE);
         break;
 #endif //WIFI_FEATURE || ETH_FEATURE
+#ifdef FTP_FEATURE
+    case ESP_FTP_CTRL_PORT:
+        res = DEFAULT_FTP_CTRL_PORT;
+        break;
+    case ESP_FTP_DATA_ACTIVE_PORT:
+        res = DEFAULT_FTP_ACTIVE_PORT;
+        break;
+    case ESP_FTP_DATA_PASSIVE_PORT:
+        res = DEFAULT_FTP_PASSIVE_PORT;
+        break;
+#endif //FTP_FEATURE
 #ifdef HTTP_FEATURE
     case ESP_HTTP_PORT:
         res = DEFAULT_HTTP_PORT;
@@ -405,6 +425,13 @@ uint32_t Settings_ESP3D::get_max_int32_value(int pos)
         res = MAX_HTTP_PORT;
         break;
 #endif //CAMERA_DEVICE
+#ifdef FTP_FEATURE
+    case ESP_FTP_CTRL_PORT:
+    case ESP_FTP_DATA_ACTIVE_PORT:
+    case ESP_FTP_DATA_PASSIVE_PORT:
+        res = MAX_FTP_PORT;
+        break;
+#endif //FTP_FEATURE
 #ifdef HTTP_FEATURE
     case ESP_HTTP_PORT:
         res = MAX_HTTP_PORT;
@@ -444,6 +471,13 @@ uint32_t Settings_ESP3D::get_min_int32_value(int pos)
         res =MIN_HTTP_PORT;
         break;
 #endif //CAMERA_DEVICE
+#ifdef FTP_FEATURE
+    case ESP_FTP_CTRL_PORT:
+    case ESP_FTP_DATA_ACTIVE_PORT:
+    case ESP_FTP_DATA_PASSIVE_PORT:
+        res =MIN_FTP_PORT;
+        break;
+#endif //FTP_FEATURE
 #ifdef HTTP_FEATURE
     case ESP_HTTP_PORT:
         res = MIN_HTTP_PORT;
@@ -1061,6 +1095,18 @@ bool Settings_ESP3D::reset()
     //STA static Mask
     Settings_ESP3D::write_IP(ESP_STA_MASK_VALUE, Settings_ESP3D::get_default_IP_value(ESP_STA_MASK_VALUE));
 #endif //WIFI_FEATURE || ETH_FEATURE
+
+#ifdef FTP_FEATURE
+    //FTP On
+    Settings_ESP3D::write_byte(ESP_FTP_ON,Settings_ESP3D::get_default_byte_value(ESP_FTP_ON));
+    //FTP Ctrl Port
+    Settings_ESP3D::write_uint32 (ESP_FTP_CTRL_PORT, Settings_ESP3D::get_default_int32_value(ESP_FTP_CTRL_PORT));
+    //FTP Active data Port
+    Settings_ESP3D::write_uint32 (ESP_FTP_DATA_ACTIVE_PORT, Settings_ESP3D::get_default_int32_value(ESP_FTP_DATA_ACTIVE_PORT));
+    //FTP Pasive data Port
+    Settings_ESP3D::write_uint32 (ESP_FTP_DATA_PASSIVE_PORT, Settings_ESP3D::get_default_int32_value(ESP_FTP_DATA_PASSIVE_PORT));
+#endif //FTP_FEATURE
+
 #ifdef HTTP_FEATURE
     //HTTP On
     Settings_ESP3D::write_byte(ESP_HTTP_ON,Settings_ESP3D::get_default_byte_value(ESP_HTTP_ON));

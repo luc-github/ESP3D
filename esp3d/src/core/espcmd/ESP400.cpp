@@ -225,12 +225,52 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (ESP_TELNET_PORT);
     output->print ("\",\"T\":\"I\",\"V\":\"");
     output->print (Settings_ESP3D::read_uint32(ESP_TELNET_PORT));
-    output->print ("\",\"H\":\"HTTP Port\",\"S\":\"");
+    output->print ("\",\"H\":\"Telnet Port\",\"S\":\"");
     output->print (Settings_ESP3D::get_max_int32_value(ESP_TELNET_PORT));
     output->print ("\",\"M\":\"");
     output->print (Settings_ESP3D::get_min_int32_value(ESP_TELNET_PORT));
     output->printLN ("\"}");
 #endif //TELNET
+
+#ifdef FTP_FEATURE
+    //FTP On
+    output->print (",{\"F\":\"network\",\"P\":\"");
+    output->print (ESP_FTP_ON);
+    output->print ("\",\"T\":\"B\",\"V\":\"");
+    output->print (Settings_ESP3D::read_byte(ESP_FTP_ON));
+    output->printLN ("\",\"H\":\"Enable Ftp\",\"O\":[{\"No\":\"0\"},{\"Yes\":\"1\"}]}");
+
+    //FTP Ports
+    output->print (",{\"F\":\"network\",\"P\":\"");
+    output->print (ESP_FTP_CTRL_PORT);
+    output->print ("\",\"T\":\"I\",\"V\":\"");
+    output->print (Settings_ESP3D::read_uint32(ESP_FTP_CTRL_PORT));
+    output->print ("\",\"H\":\"Ftp Control Port\",\"S\":\"");
+    output->print (Settings_ESP3D::get_max_int32_value(ESP_FTP_CTRL_PORT));
+    output->print ("\",\"M\":\"");
+    output->print (Settings_ESP3D::get_min_int32_value(ESP_FTP_CTRL_PORT));
+    output->printLN ("\"}");
+
+    output->print (",{\"F\":\"network\",\"P\":\"");
+    output->print (ESP_FTP_DATA_ACTIVE_PORT);
+    output->print ("\",\"T\":\"I\",\"V\":\"");
+    output->print (Settings_ESP3D::read_uint32(ESP_FTP_DATA_ACTIVE_PORT));
+    output->print ("\",\"H\":\"FTP Active Port\",\"S\":\"");
+    output->print (Settings_ESP3D::get_max_int32_value(ESP_FTP_DATA_ACTIVE_PORT));
+    output->print ("\",\"M\":\"");
+    output->print (Settings_ESP3D::get_min_int32_value(ESP_FTP_DATA_ACTIVE_PORT));
+    output->printLN ("\"}");
+
+    output->print (",{\"F\":\"network\",\"P\":\"");
+    output->print (ESP_FTP_DATA_PASSIVE_PORT);
+    output->print ("\",\"T\":\"I\",\"V\":\"");
+    output->print (Settings_ESP3D::read_uint32(ESP_FTP_DATA_PASSIVE_PORT));
+    output->print ("\",\"H\":\"FTP Passive Port\",\"S\":\"");
+    output->print (Settings_ESP3D::get_max_int32_value(ESP_FTP_DATA_PASSIVE_PORT));
+    output->print ("\",\"M\":\"");
+    output->print (Settings_ESP3D::get_min_int32_value(ESP_FTP_DATA_PASSIVE_PORT));
+    output->printLN ("\"}");
+#endif //FTP_FEATURE
 
 #ifdef CAMERA_DEVICE
     //Camera Port
