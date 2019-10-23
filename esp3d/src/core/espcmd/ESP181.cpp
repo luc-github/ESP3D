@@ -49,10 +49,10 @@ bool Commands::ESP181(const char* cmd_params, level_authenticate_type auth_type,
             return false;
         }
 #endif //AUTHENTICATION_FEATURE
-        String s = get_param (cmd_params, "ctrl=");
+        parameter = get_param (cmd_params, "ctrl=");
         uint ibuf;
         bool done = false;
-        if (s.length() > 0) {
+        if (parameter.length() > 0) {
             ibuf = parameter.toInt();
             if ((ibuf > Settings_ESP3D::get_max_int32_value(ESP_FTP_CTRL_PORT)) || (ibuf < Settings_ESP3D::get_min_int32_value(ESP_FTP_CTRL_PORT))) {
                 output->printERROR ("Incorrect port!");
@@ -65,8 +65,8 @@ bool Commands::ESP181(const char* cmd_params, level_authenticate_type auth_type,
                 done = true;
             }
         }
-        s = get_param (cmd_params, "active=");
-        if (s.length() > 0) {
+        parameter = get_param (cmd_params, "active=");
+        if (parameter.length() > 0) {
             ibuf = parameter.toInt();
             if ((ibuf > Settings_ESP3D::get_max_int32_value(ESP_FTP_DATA_ACTIVE_PORT)) || (ibuf < Settings_ESP3D::get_min_int32_value(ESP_FTP_DATA_ACTIVE_PORT))) {
                 output->printERROR ("Incorrect port!");
@@ -79,8 +79,8 @@ bool Commands::ESP181(const char* cmd_params, level_authenticate_type auth_type,
                 done = true;
             }
         }
-        s = get_param (cmd_params, "passive=");
-        if (s.length() > 0) {
+        parameter = get_param (cmd_params, "passive=");
+        if (parameter.length() > 0) {
             ibuf = parameter.toInt();
             if ((ibuf > Settings_ESP3D::get_max_int32_value(ESP_FTP_DATA_PASSIVE_PORT)) || (ibuf < Settings_ESP3D::get_min_int32_value(ESP_FTP_DATA_PASSIVE_PORT))) {
                 output->printERROR ("Incorrect port!");
@@ -95,8 +95,13 @@ bool Commands::ESP181(const char* cmd_params, level_authenticate_type auth_type,
         }
         if (response && done) {
             output->printMSG("ok");
+        } else {
+            if (response && !done) {
+                output->printERROR ("Only ctrl, active and passive settings are supported!");
+                response = false;
+            }
         }
-
+        
     }
     return response;
 }

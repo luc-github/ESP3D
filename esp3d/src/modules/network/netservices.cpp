@@ -49,6 +49,9 @@
 #ifdef TELNET_FEATURE
 #include "../telnet/telnet_server.h"
 #endif //TELNET_FEATURE
+#ifdef FTP_FEATURE
+#include "../ftp/ftp_server.h"
+#endif //FP_FEATURE
 #ifdef HTTP_FEATURE
 #include "../http/http_server.h"
 #endif //HTTP_FEATURE
@@ -209,6 +212,17 @@ bool NetServices::begin()
         }
     }
 #endif //TELNET_FEATURE
+#ifdef FTP_FEATURE
+    if (!ftp_server.begin()) {
+        res= false;
+        output.printERROR("Ftp server failed");
+    } else {
+        if(ftp_server.started()) {
+            String stmp = "Ftp server started ports: " + String(ftp_server.ctrlport()) + ","+ String(ftp_server.dataactiveport()) + ","+ String(ftp_server.datapassiveport());
+            output.printMSG(stmp.c_str());
+        }
+    }
+#endif //FTP_FEATURE
 #ifdef WS_DATA_FEATURE
     if (!websocket_data_server.begin(Settings_ESP3D::read_uint32(ESP_WEBSOCKET_PORT))) {
         output.printMSG("Failed start Terminal Web Socket");
@@ -318,7 +332,9 @@ void NetServices::end()
 #ifdef TELNET_FEATURE
     telnet_server.end();
 #endif //TELNET_FEATURE
-
+#ifdef FTP_FEATURE
+    ftp_server.end();
+#endif //FTP_FEATURE
 }
 
 void NetServices::handle()
@@ -349,6 +365,9 @@ void NetServices::handle()
 #ifdef TELNET_FEATURE
         telnet_server.handle();
 #endif //TELNET_FEATURE
+#ifdef FTP_FEATURE
+        ftp_server.handle();
+#endif //FTP_FEATURE
 #ifdef NOTIFICATION_FEATURE
         notificationsservice.handle();
 #endif //NOTIFICATION_FEATURE
