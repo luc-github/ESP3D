@@ -101,7 +101,7 @@ bool Commands::ESP181(const char* cmd_params, level_authenticate_type auth_type,
                 response = false;
             }
         }
-        
+
     }
     return response;
 }

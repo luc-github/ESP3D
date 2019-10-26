@@ -55,7 +55,7 @@ void HTTP_Server::handleSDFileList ()
             return;
         }
     }
-    
+
     //get current path
     if (_webserver->hasArg ("path") ) {
         path += _webserver->arg ("path") ;

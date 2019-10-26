@@ -86,11 +86,9 @@ uint8_t ESP_SD::getState(bool refresh)
     if (!refresh) {
         return _state;  //to avoid refresh=true + busy to reset SD and waste time
     }
-//SD is idle or not detected, let see if still the case
-
+    //SD is idle or not detected, let see if still the case
     _state = ESP_SDCARD_NOT_PRESENT;
-//using default value for speed ? should be parameter
-//refresh content if card was removed
+    //refresh content if card was removed
     if (SD.begin((ESP_SD_CS_PIN == -1)?SS:ESP_SD_CS_PIN, SD_SCK_HZ(F_CPU/_spi_speed_divider))) {
         if (SD.card()->cardSize() > 0 ) {
             _state = ESP_SDCARD_IDLE;
