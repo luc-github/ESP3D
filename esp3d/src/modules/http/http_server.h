@@ -87,11 +87,10 @@ private:
     static void WebUpdateUpload ();
 #endif //WEB_UPDATE_FEATURE
     //static bool is_realtime_cmd(char c);
-#ifdef ENABLE_SD_CARD
-    //static void handle_direct_SDFileList();
-    //static void SDFile_direct_upload();
-    //static bool deleteRecursive(String path);
-#endif
+#ifdef SD_DEVICE
+    static void SDFileupload ();
+    static void handleSDFileList ();
+#endif //SD_DEVICE
 };
 
 #endif //_HTTP_SERVER_H

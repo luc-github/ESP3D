@@ -1,5 +1,5 @@
 /*
- handle-files.cpp - ESP3D http handle
+ handle-SD-files.cpp - ESP3D http handle
 
  Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -18,7 +18,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "../../../include/esp3d_config.h"
-#if defined (HTTP_FEATURE) && defined(FILESYSTEM_FEATURE)
+#if defined (HTTP_FEATURE) && defined(SD_DEVICE)
 #include "../http_server.h"
 #if defined (ARDUINO_ARCH_ESP32)
 #include <WebServer.h>
@@ -26,11 +26,11 @@
 #if defined (ARDUINO_ARCH_ESP8266)
 #include <ESP8266WebServer.h>
 #endif //ARDUINO_ARCH_ESP8266
-#include "../../filesystem/esp_filesystem.h"
+#include "../../filesystem/esp_sd.h"
 #include "../../authentication/authentication_service.h"
-//Filesystem
-//Filesystem files list and file commands
-void HTTP_Server::handleFSFileList ()
+//SD
+//SD files list and file commands
+void HTTP_Server::handleSDFileList ()
 {
     level_authenticate_type auth_level = AuthenticationService::authenticated_level();
     if (auth_level == LEVEL_GUEST) {
@@ -44,6 +44,10 @@ void HTTP_Server::handleFSFileList ()
         status = "Upload failed";
         _upload_status = UPLOAD_STATUS_NONE;
     }
+    if (ESP_SD::getState(true) != ESP_SDCARD_IDLE) {
+        _webserver->send (200, "text/plain", "{\"status\":\"no SD card\"}");
+        return;
+    }
     if (_webserver->hasArg ("quiet")) {
         if(_webserver->arg ("quiet") == "yes") {
             Serial.println("quiet");
@@ -51,6 +55,7 @@ void HTTP_Server::handleFSFileList ()
             return;
         }
     }
+    
     //get current path
     if (_webserver->hasArg ("path") ) {
         path += _webserver->arg ("path") ;
@@ -70,18 +75,18 @@ void HTTP_Server::handleFSFileList ()
             shortname.replace ("/", "");
             filename = path + _webserver->arg ("filename");
             filename.replace ("//", "/");
-            if (!ESP_FileSystem::exists (filename.c_str()) ) {
+            if (!ESP_SD::exists (filename.c_str()) ) {
                 status = shortname + " does not exists!";
             } else {
-                if (ESP_FileSystem::remove (filename.c_str()) ) {
+                if (ESP_SD::remove (filename.c_str()) ) {
                     status = shortname + " deleted";
                     //what happen if no "/." and no other subfiles for SPIFFS like?
                     String ptmp = path;
                     if ( (path != "/") && (path[path.length() - 1] = '/') ) {
                         ptmp = path.substring (0, path.length() - 1);
                     }
-                    if (!ESP_FileSystem::exists (ptmp.c_str())) {
-                        ESP_FileSystem::mkdir(ptmp.c_str());
+                    if (!ESP_SD::exists (ptmp.c_str())) {
+                        ESP_SD::mkdir(ptmp.c_str());
                     }
                 } else {
                     status = "Cannot deleted " ;
@@ -98,7 +103,7 @@ void HTTP_Server::handleFSFileList ()
             filename += "/";
             filename.replace ("//", "/");
             if (filename != "/") {
-                if (ESP_FileSystem::rmdir(filename.c_str())) {
+                if (ESP_SD::rmdir(filename.c_str())) {
                     log_esp3d("Deleting %s",filename.c_str());
                     status = shortname ;
                     status += " deleted";
@@ -115,10 +120,10 @@ void HTTP_Server::handleFSFileList ()
             String shortname = _webserver->arg ("filename");
             shortname.replace ("/", "");
             filename.replace ("//", "/");
-            if (ESP_FileSystem::exists (filename.c_str()) ) {
+            if (ESP_SD::exists (filename.c_str()) ) {
                 status = shortname + " already exists!";
             } else {
-                if (!ESP_FileSystem::mkdir(filename.c_str())) {
+                if (!ESP_SD::mkdir(filename.c_str())) {
                     status = "Cannot create ";
                     status += shortname ;
                 } else {
@@ -138,10 +143,10 @@ void HTTP_Server::handleFSFileList ()
     _webserver->sendHeader("Content-Type","application/json");
     _webserver->sendHeader("Cache-Control","no-cache");
     _webserver->send(200);
-    if (ESP_FileSystem::exists(ptmp.c_str())) {
-        ESP_File f = ESP_FileSystem::open(ptmp.c_str(), ESP_FILE_READ);
+    if (ESP_SD::exists(ptmp.c_str())) {
+        ESP_SDFile f = ESP_SD::open(ptmp.c_str(), ESP_SD_FILE_READ);
         //Parse files
-        ESP_File sub = f.openNextFile();
+        ESP_SDFile sub = f.openNextFile();
         if (f) {
             bool needseparator = false;
             while (sub) {
@@ -157,7 +162,7 @@ void HTTP_Server::handleFSFileList ()
                 if (sub.isDirectory()) {
                     buffer2send+="-1";
                 } else {
-                    buffer2send+=ESP_FileSystem::formatBytes(sub.size());
+                    buffer2send+=ESP_SD::formatBytes(sub.size());
                 }
 #ifdef FILESYSTEM_TIMESTAMP_FEATURE
                 buffer2send+="\",\"time\":\"";
@@ -192,19 +197,19 @@ void HTTP_Server::handleFSFileList ()
     }
     buffer2send += "],\"path\":\"" + path + "\",";
 
-    if (ESP_FileSystem::totalBytes()>0) {
-        buffer2send += "\"occupation\":\"" + String(100*ESP_FileSystem::usedBytes()/ESP_FileSystem::totalBytes()) + "\",";
+    if (ESP_SD::totalBytes()>0) {
+        buffer2send += "\"occupation\":\"" + String(100.0*ESP_SD::usedBytes()/ESP_SD::totalBytes()) + "\",";
     } else {
-        status = "FileSystem Error";
+        status = "SD Error";
         buffer2send += "\"occupation\":\"0\",";
     }
     buffer2send += "\"status\":\"" + status + "\",";
-    buffer2send += "\"total\":\"" + ESP_FileSystem::formatBytes (ESP_FileSystem::totalBytes()) + "\",";
-    buffer2send += "\"used\":\"" + ESP_FileSystem::formatBytes (ESP_FileSystem::usedBytes()) + "\"}";
+    buffer2send += "\"total\":\"" + ESP_SD::formatBytes (ESP_SD::totalBytes()) + "\",";
+    buffer2send += "\"used\":\"" + ESP_SD::formatBytes (ESP_SD::usedBytes()) + "\"}";
     path = "";
     _webserver->sendContent_P(buffer2send.c_str(),buffer2send.length());
     _webserver->sendContent("");
     _upload_status = UPLOAD_STATUS_NONE;
 }
 
-#endif //HTTP_FEATURE && FILESYSTEM_FEATURE
+#endif //HTTP_FEATURE && SD_DEVICE

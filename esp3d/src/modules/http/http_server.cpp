@@ -62,6 +62,10 @@ void HTTP_Server::init_handlers()
     //FileSystem
     _webserver->on ("/files", HTTP_ANY, handleFSFileList, FSFileupload);
 #endif //FILESYSTEM_FEATURE
+#ifdef SD_DEVICE
+    //SD
+    _webserver->on ("/sdfiles", HTTP_ANY, handleSDFileList, SDFileupload);
+#endif //SD_DEVICE
 #ifdef WEB_UPDATE_FEATURE
     //web update
     _webserver->on ("/updatefw", HTTP_ANY, handleUpdate, WebUpdateUpload);
