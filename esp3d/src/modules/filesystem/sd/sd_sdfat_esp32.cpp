@@ -474,7 +474,7 @@ bool eraseCard(Sd2Card & card, cache_t & cache, uint32_t cardSizeBlocks, ESP3DOu
 {
     uint32_t firstBlock = 0;
     uint32_t lastBlock;
-    uint16_t n = 0;
+    //uint16_t n = 0;
     if (output) {
         output->printMSG("Erasing ", false);
     }
@@ -541,20 +541,20 @@ bool ESP_SD::format(ESP3DOutput * output)
         cache_t cache;
 
         // MBR information
-        uint8_t partType;
-        uint32_t relSector;
-        uint32_t partSize;
+        uint8_t partType = 0;
+        uint32_t relSector = 0;
+        uint32_t partSize = 0;
 
         // Fake disk geometry
-        uint8_t numberOfHeads;
-        uint8_t sectorsPerTrack;
+        uint8_t numberOfHeads = 0;
+        uint8_t sectorsPerTrack = 0;
 
         // FAT parameters
-        uint16_t reservedSectors;
-        uint8_t sectorsPerCluster;
-        uint32_t fatStart;
-        uint32_t fatSize;
-        uint32_t dataStart;
+        uint16_t reservedSectors = 0;
+        uint8_t sectorsPerCluster = 0;
+        uint32_t fatStart = 0;
+        uint32_t fatSize = 0;
+        uint32_t dataStart = 0;
         if (!card.begin((ESP_SD_CS_PIN == -1)?SS:ESP_SD_CS_PIN, SD_SCK_MHZ(FREQMZ/_spi_speed_divider))) {
             return false;
         }
