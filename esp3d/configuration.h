@@ -42,6 +42,9 @@
 //TELNET_FEATURE : enable Telnet function
 #define TELNET_FEATURE
 
+//FTP_FEATURE : enable FTP function
+//#define FTP_FEATURE
+
 //WS_DATA_FEATURE: allow to connect serial from Websocket
 #define WS_DATA_FEATURE
 
@@ -107,7 +110,7 @@
 //ESP_SD_NATIVE               1 //esp32 / esp8266
 //ESP_SDIO                    2 //esp32 only
 //ESP_SDFAT                   3 //esp8266 (same as native) / esp32
-#define SD_DEVICE    ESP_SD_NATIVE
+#define SD_DEVICE    ESP_SDFAT
 
 //FILESYSTEM_TIMESTAMP_FEATURE: allow to get last write time from FILESYSTEM files
 //#define SD_TIMESTAMP_FEATURE
@@ -122,7 +125,7 @@
 //ESP_SPIFFS_FILESYSTEM       0
 //ESP_FAT_FILESYSTEM          1
 //ESP_LITTLEFS_FILESYSTEM     2
-#define FILESYSTEM_FEATURE ESP_FAT_FILESYSTEM
+#define FILESYSTEM_FEATURE ESP_SPIFFS_FILESYSTEM
 
 //DIRECT_PIN_FEATURE: allow to access pin using ESP201 command
 #define DIRECT_PIN_FEATURE

@@ -144,7 +144,7 @@ void HTTP_Server::handleSDFileList ()
     _webserver->sendHeader("Cache-Control","no-cache");
     _webserver->send(200);
     if (ESP_SD::exists(ptmp.c_str())) {
-        ESP_SDFile f = ESP_SD::open(ptmp.c_str(), ESP_SD_FILE_READ);
+        ESP_SDFile f = ESP_SD::open(ptmp.c_str(), ESP_FILE_READ);
         //Parse files
         ESP_SDFile sub = f.openNextFile();
         if (f) {

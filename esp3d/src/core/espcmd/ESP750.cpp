@@ -92,7 +92,7 @@ bool Commands::ESP750(const char* cmd_params, level_authenticate_type auth_type,
     }
     parameter = get_param (cmd_params, "create=");
     if (parameter.length() != 0) {
-        ESP_SDFile f = ESP_SD::open(parameter.c_str(), ESP_SD_FILE_WRITE);
+        ESP_SDFile f = ESP_SD::open(parameter.c_str(), ESP_FILE_WRITE);
         if (f.isOpen()) {
             f.close();
             output->printMSG ("ok");

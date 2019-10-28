@@ -100,14 +100,14 @@ bool ESP_SD::format(ESP3DOutput * output)
 ESP_SDFile ESP_SD::open(const char* path, uint8_t mode)
 {
     //do some check
-    if(((strcmp(path,"/") == 0) && ((mode == ESP_SD_FILE_WRITE) || (mode == ESP_SD_FILE_APPEND))) || (strlen(path) == 0)) {
+    if(((strcmp(path,"/") == 0) && ((mode == ESP_FILE_WRITE) || (mode == ESP_FILE_APPEND))) || (strlen(path) == 0)) {
         return ESP_SDFile();
     }
     // path must start by '/'
     if (path[0] != '/') {
         return ESP_SDFile();
     }
-    if (mode != ESP_SD_FILE_READ) {
+    if (mode != ESP_FILE_READ) {
         //check container exists
         String p = path;
         p.remove(p.lastIndexOf('/') +1);
@@ -116,8 +116,8 @@ ESP_SDFile ESP_SD::open(const char* path, uint8_t mode)
             return ESP_SDFile();
         }
     }
-    File tmp = SD_MMC.open(path, (mode == ESP_SD_FILE_READ)?FILE_READ:(mode == ESP_SD_FILE_WRITE)?FILE_WRITE:FILE_APPEND);
-    ESP_SDFile esptmp(&tmp, tmp.isDirectory(),(mode == ESP_SD_FILE_READ)?false:true, path);
+    File tmp = SD_MMC.open(path, (mode == ESP_FILE_READ)?FILE_READ:(mode == ESP_FILE_WRITE)?FILE_WRITE:FILE_APPEND);
+    ESP_SDFile esptmp(&tmp, tmp.isDirectory(),(mode == ESP_FILE_READ)?false:true, path);
     return esptmp;
 }
 
@@ -130,7 +130,7 @@ bool ESP_SD::exists(const char* path)
     }
     res = SD_MMC.exists(path);
     if (!res) {
-        ESP_SDFile root = ESP_SD::open(path, ESP_SD_FILE_READ);
+        ESP_SDFile root = ESP_SD::open(path, ESP_FILE_READ);
         if (root) {
             res = root.isDirectory();
         }

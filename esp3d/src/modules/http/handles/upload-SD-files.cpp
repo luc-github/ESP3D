@@ -78,7 +78,7 @@ void HTTP_Server::SDFileupload ()
                 }
                 if (_upload_status!=UPLOAD_STATUS_FAILED) {
                     //create file
-                    fsUploadFile = ESP_SD::open(filename.c_str(), ESP_SD_FILE_WRITE);
+                    fsUploadFile = ESP_SD::open(filename.c_str(), ESP_FILE_WRITE);
                     //check If creation succeed
                     if (fsUploadFile) {
                         //if yes upload is started

@@ -24,9 +24,6 @@
 #ifdef FILESYSTEM_TIMESTAMP_FEATURE
 #include <time.h>
 #endif //FILESYSTEM_TIMESTAMP_FEATURE
-#define ESP_FILE_READ       0
-#define ESP_FILE_WRITE      1
-#define ESP_FILE_APPEND     2
 
 #define ESP_FLASH_FS_HEADER "/FS:"
 

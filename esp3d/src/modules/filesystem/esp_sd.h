@@ -25,9 +25,6 @@
 #ifdef SD_TIMESTAMP_FEATURE
 #include <time.h>
 #endif //SD_TIMESTAMP_FEATURE
-#define ESP_SD_FILE_READ       0
-#define ESP_SD_FILE_WRITE      1
-#define ESP_SD_FILE_APPEND     2
 
 #define ESP_SD_HEADER "/SD:"
 
@@ -87,7 +84,7 @@ public:
     static uint64_t freeBytes();
     static const char * FilesystemName();
     static bool format(ESP3DOutput * output = nullptr);
-    static ESP_SDFile open(const char* path, uint8_t mode = ESP_SD_FILE_READ);
+    static ESP_SDFile open(const char* path, uint8_t mode = ESP_FILE_READ);
     static bool exists(const char* path);
     static bool remove(const char *path);
     static bool mkdir(const char *path);

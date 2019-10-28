@@ -116,4 +116,14 @@
 #define ESP_ERROR_START_UPLOAD      12
 #define ESP_ERROR_SIZE              13
 
+//File system
+#define ESP_FILE_READ       0
+#define ESP_FILE_WRITE      1
+#define ESP_FILE_APPEND     2
+
+#define FS_ROOT        0
+#define FS_FLASH       1
+#define FS_SD          2
+#define FS_USBDISK     3
+
 #endif //_DEFINES_ESP3D_H

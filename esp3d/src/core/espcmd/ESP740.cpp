@@ -59,7 +59,7 @@ bool Commands::ESP740(const char* cmd_params, level_authenticate_type auth_type,
     output->printf("Directory on SD : %s", parameter.c_str());
     output->printLN("");
     if (ESP_SD::exists(parameter.c_str())) {
-        ESP_SDFile f = ESP_SD::open(parameter.c_str(), ESP_SD_FILE_READ);
+        ESP_SDFile f = ESP_SD::open(parameter.c_str(), ESP_FILE_READ);
         uint countf = 0;
         uint countd = 0;
         if (f) {
@@ -77,7 +77,7 @@ bool Commands::ESP740(const char* cmd_params, level_authenticate_type auth_type,
                 sub = f.openNextFile();
             }
             f.close();
-            f = ESP_SD::open(parameter.c_str(), ESP_SD_FILE_READ);
+            f = ESP_SD::open(parameter.c_str(), ESP_FILE_READ);
             //Check files
             sub = f.openNextFile();
             while (sub) {
