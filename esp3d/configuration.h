@@ -127,6 +127,9 @@
 //ESP_LITTLEFS_FILESYSTEM     2
 #define FILESYSTEM_FEATURE ESP_SPIFFS_FILESYSTEM
 
+//Allows to mount /FS and /SD under / for FTP server
+#define GLOBAL_FILESYSTEM
+
 //DIRECT_PIN_FEATURE: allow to access pin using ESP201 command
 #define DIRECT_PIN_FEATURE
 

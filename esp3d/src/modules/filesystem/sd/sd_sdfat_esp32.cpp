@@ -725,6 +725,9 @@ ESP_SDFile::ESP_SDFile(void* handle, bool isdir, bool iswritemode, const char * 
             if (pos != -1) {
                 _name.remove( 0, pos+1);
             }
+            if (_name.length() == 0) {
+                _name = "/";
+            }
             //size
             _size = tSDFile_handle[i].size();
             //time

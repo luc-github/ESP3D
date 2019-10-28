@@ -125,5 +125,7 @@
 #define FS_FLASH       1
 #define FS_SD          2
 #define FS_USBDISK     3
+#define FS_UNKNOWN     254
+#define MAX_FS 3
 
 #endif //_DEFINES_ESP3D_H

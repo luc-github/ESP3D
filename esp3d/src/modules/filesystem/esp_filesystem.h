@@ -25,7 +25,7 @@
 #include <time.h>
 #endif //FILESYSTEM_TIMESTAMP_FEATURE
 
-#define ESP_FLASH_FS_HEADER "/FS:"
+#define ESP_FLASH_FS_HEADER "/FS"
 
 #define ESP_MAX_OPENHANDLE 4
 
@@ -87,6 +87,10 @@ public:
     static bool mkdir(const char *path);
     static bool rmdir(const char *path);
     static void closeAll();
+    static bool started()
+    {
+        return _started;
+    }
 private:
     static bool _started;
 };

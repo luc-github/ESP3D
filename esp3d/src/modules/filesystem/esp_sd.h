@@ -26,7 +26,7 @@
 #include <time.h>
 #endif //SD_TIMESTAMP_FEATURE
 
-#define ESP_SD_HEADER "/SD:"
+#define ESP_SD_FS_HEADER "/SD"
 
 #define ESP_MAX_SD_OPENHANDLE 4
 
