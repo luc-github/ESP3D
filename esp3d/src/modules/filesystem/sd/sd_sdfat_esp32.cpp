@@ -151,7 +151,7 @@ uint64_t ESP_SD::freeBytes()
 // constants for file system structure
 #define BU16 128
 #define BU32 8192
-#define ERASE_SIZE 262144L;
+#define ERASE_SIZE 262144L
 
 //------------------------------------------------------------------------------
 // write cached block to the card
@@ -473,7 +473,7 @@ bool makeFat32(uint32_t & dataStart, Sd2Card & card, cache_t & cache, uint8_t nu
 bool eraseCard(Sd2Card & card, cache_t & cache, uint32_t cardSizeBlocks, ESP3DOutput * output)
 {
     uint32_t firstBlock = 0;
-    uint32_t lastBlock;
+    uint32_t lastBlock = 0;
     //uint16_t n = 0;
     if (output) {
         output->printMSG("Erasing ", false);
