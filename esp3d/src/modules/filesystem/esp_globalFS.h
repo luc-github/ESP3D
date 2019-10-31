@@ -22,9 +22,7 @@
 #define _ESP_GLOBAL_FS_H
 #include "../../include/esp3d_config.h"
 #include "../../core/esp3doutput.h"
-#if defined(SD_TIMESTAMP_FEATURE) || defined(FILESYSTEM_TIMESTAMP_FEATURE)
 #include <time.h>
-#endif //SD_TIMESTAMP_FEATURE || FILESYSTEM_TIMESTAMP_FEATURE
 #ifdef FILESYSTEM_FEATURE
 #include "esp_filesystem.h"
 #endif //FILESYSTEM_FEATURE
@@ -60,9 +58,7 @@ public:
     ESP_GBFile & operator=(const ESP_SDFile & other);
 #endif //SD_DEVICE    
     size_t size();
-#if defined (SD_TIMESTAMP_FEATURE) || defined(FILESYSTEM_TIMESTAMP_FEATURE)
     time_t getLastWrite();
-#endif //SD_TIMESTAMP_FEATURE || FILESYSTEM_TIMESTAMP_FEATURE
     int available();
     size_t write(uint8_t i);
     size_t write(const uint8_t *buf, size_t size);
@@ -96,6 +92,7 @@ public:
     static bool remove(const char *path);
     static bool mkdir(const char *path);
     static bool rmdir(const char *path);
+    static bool rename(const char *oldpath, const char *newpath);
     static void closeAll();
     static String & formatBytes (uint64_t bytes);
     static const char * getNextFS(bool reset = false);

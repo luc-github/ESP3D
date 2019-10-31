@@ -45,7 +45,7 @@
 #include "../../modules/telnet/telnet_server.h"
 #endif //TELNET_FEATURE
 #ifdef FTP_FEATURE
-#include "../../modules/ftp/ftp_server.h"
+#include "../../modules/ftp/FtpServer.h"
 #endif //FTP_FEATURE
 #ifdef WS_DATA_FEATURE
 #include "../../modules/websocket/websocket_server.h"

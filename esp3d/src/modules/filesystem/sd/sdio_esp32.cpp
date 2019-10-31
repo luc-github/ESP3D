@@ -86,7 +86,12 @@ uint64_t ESP_SD::usedBytes()
 uint64_t ESP_SD::freeBytes()
 {
     return (SD_MMC.totalBytes() - SD_MMC.usedBytes());
-};
+}
+
+bool ESP_SD::rename(const char *oldpath, const char *newpath)
+{
+    return SD_MMC.rename(oldpath,newpath);
+}
 
 bool ESP_SD::format(ESP3DOutput * output)
 {
@@ -202,9 +207,7 @@ ESP_SDFile::ESP_SDFile(void* handle, bool isdir, bool iswritemode, const char * 
     _index = -1;
     _filename = "";
     _name = "";
-#ifdef SD_TIMESTAMP_FEATURE
-    memset (&_lastwrite,0,sizeof(time_t));
-#endif //SD_TIMESTAMP_FEATURE 
+    _lastwrite = 0;
     _iswritemode = iswritemode;
     _size = 0;
     if (!handle) {
@@ -234,9 +237,7 @@ ESP_SDFile::ESP_SDFile(void* handle, bool isdir, bool iswritemode, const char * 
             //size
             _size = tSDFile_handle[i].size();
             //time
-#ifdef SD_TIMESTAMP_FEATURE
             _lastwrite =  tSDFile_handle[i].getLastWrite();
-#endif //SD_TIMESTAMP_FEATURE
             _index = i;
             //log_esp3d("Opening File at index %d",_index);
             set = true;
@@ -255,9 +256,7 @@ void ESP_SDFile::close()
             File ftmp = SD_MMC.open(_filename.c_str());
             if (ftmp) {
                 _size = ftmp.size();
-#ifdef SD_TIMESTAMP_FEATURE
                 _lastwrite = ftmp.getLastWrite();
-#endif //SD_TIMESTAMP_FEATURE
                 ftmp.close();
             }
         }

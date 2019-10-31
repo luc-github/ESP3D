@@ -21,9 +21,7 @@
 #ifndef _ESP_FILESYSTEM_H
 #define _ESP_FILESYSTEM_H
 #include "../../include/esp3d_config.h"
-#ifdef FILESYSTEM_TIMESTAMP_FEATURE
 #include <time.h>
-#endif //FILESYSTEM_TIMESTAMP_FEATURE
 
 #define ESP_FLASH_FS_HEADER "/FS"
 
@@ -43,9 +41,7 @@ public:
     bool isOpen();
     ESP_File & operator=(const ESP_File & other);
     size_t size();
-#ifdef FILESYSTEM_TIMESTAMP_FEATURE
     time_t getLastWrite();
-#endif //FILESYSTEM_TIMESTAMP_FEATURE
     int available();
     size_t write(uint8_t i);
     size_t write(const uint8_t *buf, size_t size);
@@ -62,9 +58,7 @@ private:
     String _filename;
     String _name;
     size_t _size;
-#ifdef FILESYSTEM_TIMESTAMP_FEATURE
     time_t _lastwrite;
-#endif //FILESYSTEM_TIMESTAMP_FEATURE
 };
 
 class ESP_FileSystem
@@ -86,6 +80,7 @@ public:
     static bool remove(const char *path);
     static bool mkdir(const char *path);
     static bool rmdir(const char *path);
+    static bool rename(const char *oldpath, const char *newpath);
     static void closeAll();
     static bool started()
     {

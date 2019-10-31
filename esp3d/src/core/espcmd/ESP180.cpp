@@ -23,7 +23,7 @@
 #include "../esp3doutput.h"
 #include "../settings_esp3d.h"
 #include "../../modules/authentication/authentication_service.h"
-#include "../../modules/ftp/ftp_server.h"
+#include "../../modules/ftp/FtpServer.h"
 //Set ftp state which can be ON, OFF, CLOSE
 //[ESP180]<state>pwd=<admin password>
 bool Commands::ESP180(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)

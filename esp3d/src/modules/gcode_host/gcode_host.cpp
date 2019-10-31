@@ -270,7 +270,7 @@ uint32_t GcodeHost::Get_commandNumber(String & response)
     }
     int pos = response.indexOf(sresend);
     if (pos == -1 ) {
-        log_esp3d("Cannot find label", _error);
+        log_esp3d("Cannot find label %d", _error);
         return -1;
     }
     pos+=sresend.length();

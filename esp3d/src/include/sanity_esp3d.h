@@ -78,8 +78,8 @@
 /**************************
  * Time
  * ***********************/
-#if defined(FILESYSTEM_TIMESTAMP_FEATURE) && defined( ARDUINO_ARCH_ESP8266)
-#error Filesystem time is not available in ESP8266 yet
+#if defined(FILESYSTEM_TIMESTAMP_FEATURE) && defined( ARDUINO_ARCH_ESP8266) && FILESYSTEM_FEATURE == ESP_SPIFFS_FILESYSTEM
+#warning Filesystem time is not available in SPIFFS ESP8266 yet
 #endif
 
 /**************************

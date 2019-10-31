@@ -50,7 +50,7 @@
 #include "../telnet/telnet_server.h"
 #endif //TELNET_FEATURE
 #ifdef FTP_FEATURE
-#include "../ftp/ftp_server.h"
+#include "../ftp/FtpServer.h"
 #endif //FP_FEATURE
 #ifdef HTTP_FEATURE
 #include "../http/http_server.h"

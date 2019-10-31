@@ -19,9 +19,9 @@
 */
 
 #include "../../include/esp3d_config.h"
-#if defined(GLOBAL_FILESYSTEM)
+#if defined(GLOBAL_FILESYSTEM_FEATURE)
 #include "esp_globalFS.h"
-#include "../../core/genLinkedList.h"
+//#include "../../core/genLinkedList.h"
 
 
 //to verify FS is accessible
@@ -221,6 +221,27 @@ bool ESP_GBFS::remove(const char *path)
 #if defined (SD_DEVICE)
     if (t == FS_SD) {
         return ESP_SD::remove(getRealPath(path));
+    }
+#endif //SD_DEVICE
+#endif // FILESYSTEM_FEATURE || SD_DEVICE
+    return false;
+}
+
+bool ESP_GBFS::rename(const char *oldpath, const char *newpath)
+{
+#if defined (FILESYSTEM_FEATURE) || defined(SD_DEVICE)
+    uint8_t t = getFSType(oldpath);
+    if (t == FS_ROOT) {
+        return false;
+    }
+#if defined (FILESYSTEM_FEATURE)
+    if (t == FS_FLASH) {
+        return ESP_FileSystem::rename(getRealPath(oldpath), getRealPath(newpath));
+    }
+#endif //FILESYSTEM_FEATURE
+#if defined (SD_DEVICE)
+    if (t == FS_SD) {
+        return ESP_SD::rename(getRealPath(oldpath), getRealPath(newpath));
     }
 #endif //SD_DEVICE
 #endif // FILESYSTEM_FEATURE || SD_DEVICE
@@ -501,22 +522,16 @@ size_t ESP_GBFile::size()
     return 0;
 }
 
-#if defined (SD_TIMESTAMP_FEATURE) || defined(FILESYSTEM_TIMESTAMP_FEATURE)
 time_t ESP_GBFile::getLastWrite()
 {
-#if defined(FILESYSTEM_FEATURE) && defined(FILESYSTEM_TIMESTAMP_FEATURE)
     if (_type == FS_FLASH) {
         return _flashFile.getLastWrite();
     }
-#endif //FILESYSTEM_FEATURE && FILESYSTEM_TIMESTAMP_FEATURE
-#if defined(SD_DEVICE) && defined(SD_TIMESTAMP_FEATURE)
     if (_type == FS_SD) {
         return _sdFile.getLastWrite();
     }
-#endif //SD_DEVICE && SD_TIMESTAMP_FEATURE
     return 0;
 }
-#endif //SD_TIMESTAMP_FEATURE || FILESYSTEM_TIMESTAMP_FEATURE
 
 int ESP_GBFile::available()
 {
@@ -716,4 +731,4 @@ ESP_GBFile ESP_GBFile::openNextFile()
     return f;
 }
 
-#endif //GLOBAL_FILESYSTEM
+#endif //GLOBAL_FILESYSTEM_FEATURE

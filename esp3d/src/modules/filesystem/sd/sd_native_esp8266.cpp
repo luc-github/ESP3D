@@ -31,7 +31,6 @@ using namespace sdfat;
 
 SdFat SD;
 
-#ifdef SD_TIMESTAMP_FEATURE
 void dateTime (uint16_t* date, uint16_t* dtime)
 {
     struct tm  tmstruct;
@@ -42,33 +41,32 @@ void dateTime (uint16_t* date, uint16_t* dtime)
     *dtime = FAT_TIME (tmstruct.tm_hour, tmstruct.tm_min, tmstruct.tm_sec);
 }
 
-time_t getDateTimeFile(sdfat::File & filehandle)
+time_t getDateTimeFile(File & filehandle)
 {
-    time_t dt = 0;
+    static time_t dt = 0;
     struct tm timefile;
-    memset((void *)&timefile, 0, sizeof(tm));
     dir_t d;
-    if (filehandle.dirEntry(&d)) {
-        timefile.tm_year = FAT_YEAR(d.lastWriteDate) - 1900;
-        timefile.tm_mon = FAT_MONTH(d.lastWriteDate) - 1;
-        timefile.tm_mday = FAT_DAY(d.lastWriteDate);
-        timefile.tm_hour = FAT_HOUR(d.lastWriteTime);
-        timefile.tm_min = FAT_MINUTE(d.lastWriteTime);
-        timefile.tm_sec = FAT_SECOND(d.lastWriteTime);
-        timefile.tm_isdst = -1;
-        if (mktime(&timefile) != -1) {
+    if(filehandle) {
+        if (filehandle.dirEntry(&d)) {
+            timefile.tm_year = FAT_YEAR(d.lastWriteDate) - 1900;
+            timefile.tm_mon = FAT_MONTH(d.lastWriteDate) - 1;
+            timefile.tm_mday = FAT_DAY(d.lastWriteDate);
+            timefile.tm_hour = FAT_HOUR(d.lastWriteTime);
+            timefile.tm_min = FAT_MINUTE(d.lastWriteTime);
+            timefile.tm_sec = FAT_SECOND(d.lastWriteTime);
+            timefile.tm_isdst = -1;
             dt =  mktime(&timefile);
+            if (dt == -1) {
+                log_esp3d("mktime failed");
+            }
         } else {
-            log_esp3d("mktime failed");
+            log_esp3d("stat file failed");
         }
     } else {
-        log_esp3d("stat file failed");
+        log_esp3d("check file for stat failed");
     }
     return dt;
 }
-
-
-#endif //SD_TIMESTAMP_FEATURE
 
 uint8_t ESP_SD::getState(bool refresh)
 {
@@ -143,7 +141,12 @@ uint64_t ESP_SD::freeBytes()
     }
     uint8_t blocks = SD.vol()->blocksPerCluster();
     return volFree * blocks * 512;
-};
+}
+
+bool ESP_SD::rename(const char *oldpath, const char *newpath)
+{
+    return SD.rename(oldpath,newpath);
+}
 
 //  strings needed in file system structures
 #define noName "NO NAME    "
@@ -697,9 +700,7 @@ ESP_SDFile::ESP_SDFile(void* handle, bool isdir, bool iswritemode, const char * 
     _index = -1;
     _filename = "";
     _name = "";
-#ifdef SD_TIMESTAMP_FEATURE
-    memset (&_lastwrite,0,sizeof(time_t));
-#endif //SD_TIMESTAMP_FEATURE 
+    _lastwrite = 0;
     _iswritemode = iswritemode;
     _size = 0;
     if (!handle) {
@@ -732,7 +733,6 @@ ESP_SDFile::ESP_SDFile(void* handle, bool isdir, bool iswritemode, const char * 
             //size
             _size = tSDFile_handle[i].size();
             //time
-#ifdef SD_TIMESTAMP_FEATURE
             if (!_isdir) {
                 _lastwrite = getDateTimeFile(tSDFile_handle[i]);
 
@@ -740,7 +740,6 @@ ESP_SDFile::ESP_SDFile(void* handle, bool isdir, bool iswritemode, const char * 
                 //no need date time for directory
                 _lastwrite = 0;
             }
-#endif //SD_TIMESTAMP_FEATURE
             _index = i;
             //log_esp3d("Opening File at index %d",_index);
             set = true;
@@ -772,9 +771,7 @@ void ESP_SDFile::close()
             sdfat::File ftmp = SD.open(_filename.c_str());
             if (ftmp) {
                 _size = ftmp.size();
-#ifdef SD_TIMESTAMP_FEATURE
                 _lastwrite = getDateTimeFile(ftmp);
-#endif //SD_TIMESTAMP_FEATURE
                 ftmp.close();
             }
         }

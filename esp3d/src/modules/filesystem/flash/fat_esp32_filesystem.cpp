@@ -53,6 +53,10 @@ size_t ESP_FileSystem::usedBytes()
     return (FFat.totalBytes() - FFat.freeBytes());
 }
 
+bool ESP_FileSystem::rename(const char *oldpath, const char *newpath)
+{
+    return FFat.rename(oldpath,newpath);
+}
 
 const char * ESP_FileSystem::FilesystemName()
 {
@@ -170,9 +174,7 @@ ESP_File::ESP_File(void* handle, bool isdir, bool iswritemode, const char * path
     _index = -1;
     _filename = "";
     _name = "";
-#ifdef FILESYSTEM_TIMESTAMP_FEATURE
-    memset (&_lastwrite,0,sizeof(time_t));
-#endif //FILESYSTEM_TIMESTAMP_FEATURE 
+    _lastwrite = 0;
     _iswritemode = iswritemode;
     _size = 0;
     if (!handle) {
@@ -218,9 +220,7 @@ ESP_File::ESP_File(void* handle, bool isdir, bool iswritemode, const char * path
             //size
             _size = tFile_handle[i].size();
             //time
-#ifdef FILESYSTEM_TIMESTAMP_FEATURE
             _lastwrite =  tFile_handle[i].getLastWrite();
-#endif //FILESYSTEM_TIMESTAMP_FEATURE
             _index = i;
             //log_esp3d("Opening File at index %d",_index);
             set = true;
@@ -239,9 +239,7 @@ void ESP_File::close()
             File ftmp = FFat.open(_filename.c_str());
             if (ftmp) {
                 _size = ftmp.size();
-#ifdef FILESYSTEM_TIMESTAMP_FEATURE
                 _lastwrite = ftmp.getLastWrite();
-#endif //FILESYSTEM_TIMESTAMP_FEATURE
                 ftmp.close();
             }
         }

@@ -22,9 +22,7 @@
 #define _ESP_SD_H
 #include "../../include/esp3d_config.h"
 #include "../../core/esp3doutput.h"
-#ifdef SD_TIMESTAMP_FEATURE
 #include <time.h>
-#endif //SD_TIMESTAMP_FEATURE
 
 #define ESP_SD_FS_HEADER "/SD"
 
@@ -45,9 +43,7 @@ public:
     bool isOpen();
     ESP_SDFile & operator=(const ESP_SDFile & other);
     size_t size();
-#ifdef SD_TIMESTAMP_FEATURE
     time_t getLastWrite();
-#endif //SD_TIMESTAMP_FEATURE
     int available();
     size_t write(uint8_t i);
     size_t write(const uint8_t *buf, size_t size);
@@ -63,9 +59,7 @@ private:
     String _filename;
     String _name;
     size_t _size;
-#ifdef SD_TIMESTAMP_FEATURE
     time_t _lastwrite;
-#endif //SD_TIMESTAMP_FEATURE
 };
 
 class ESP_SD
@@ -89,6 +83,7 @@ public:
     static bool remove(const char *path);
     static bool mkdir(const char *path);
     static bool rmdir(const char *path);
+    static bool rename(const char *oldpath, const char *newpath);
     static void closeAll();
     static uint8_t getSPISpeedDivider()
     {

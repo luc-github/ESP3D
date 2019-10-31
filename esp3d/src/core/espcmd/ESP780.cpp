@@ -18,7 +18,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "../../include/esp3d_config.h"
-#if defined (GLOBAL_FILESYSTEM)
+#if defined (GLOBAL_FILESYSTEM_FEATURE)
 #include "../commands.h"
 #include "../esp3doutput.h"
 #include "../settings_esp3d.h"
@@ -107,4 +107,4 @@ bool Commands::ESP780(const char* cmd_params, level_authenticate_type auth_type,
     return response;
 }
 
-#endif //GLOBAL_FILESYSTEM
+#endif //GLOBAL_FILESYSTEM_FEATURE

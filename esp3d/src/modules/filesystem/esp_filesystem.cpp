@@ -20,9 +20,7 @@
 #include "../../include/esp3d_config.h"
 #ifdef FILESYSTEM_FEATURE
 #include "esp_filesystem.h"
-#ifdef FILESYSTEM_TIMESTAMP_FEATURE
 #include <time.h>
-#endif //FILESYSTEM_TIMESTAMP_FEATURE
 #include <FS.h>
 #ifdef ARDUINO_ARCH_ESP32
 #include <esp_ota_ops.h>
@@ -97,9 +95,7 @@ ESP_File::ESP_File(const char * name, const char * filename, bool isdir, size_t 
     _index = -1;
     _filename = filename;
     _name = name;
-#ifdef FILESYSTEM_TIMESTAMP_FEATURE
     _lastwrite = 0;
-#endif //FILESYSTEM_TIMESTAMP_FEATURE 
     _iswritemode = false;
     _size = size;
 }
@@ -144,12 +140,10 @@ size_t ESP_File::size()
     return _size;
 }
 
-#ifdef FILESYSTEM_TIMESTAMP_FEATURE
 time_t ESP_File::getLastWrite()
 {
     return _lastwrite;
 }
-#endif //FILESYSTEM_TIMESTAMP_FEATURE
 
 int ESP_File::available()
 {
@@ -210,9 +204,7 @@ ESP_File& ESP_File::operator=(const ESP_File & other)
     _size = other._size;
     _iswritemode = other._iswritemode;
     _dirlist = other._dirlist;
-#ifdef FILESYSTEM_TIMESTAMP_FEATURE
     _lastwrite = other._lastwrite;
-#endif //FILESYSTEM_TIMESTAMP_FEATURE
     return *this;
 }
 

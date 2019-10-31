@@ -132,10 +132,10 @@ public:
     bool ESP750(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     bool ESP740(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #endif //SD_DEVICE
-#if defined (GLOBAL_FILESYSTEM)
+#if defined (GLOBAL_FILESYSTEM_FEATURE)
     bool ESP780(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     bool ESP790(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
-#endif //GLOBAL_FILESYSTEM
+#endif //GLOBAL_FILESYSTEM_FEATURE
     bool ESP800(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     bool ESP900(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #ifdef BUZZER_DEVICE

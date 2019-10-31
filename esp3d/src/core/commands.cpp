@@ -564,7 +564,7 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
         response = ESP750(cmd_params, auth_type, output);
         break;
 #endif //SD_DEVICE
-#if defined (GLOBAL_FILESYSTEM)
+#if defined (GLOBAL_FILESYSTEM_FEATURE)
     //List Global Filesystem
     //[ESP780]<Root> pwd=<admin password>
     case 780:
@@ -576,7 +576,7 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
     case 790:
         response = ESP790(cmd_params, auth_type, output);
         break;
-#endif //GLOBAL_FILESYSTEM
+#endif //GLOBAL_FILESYSTEM_FEATURE
     //Get fw version firmare target and fw version
     //eventually set time with pc time
     //output is JSON or plain text according parameter

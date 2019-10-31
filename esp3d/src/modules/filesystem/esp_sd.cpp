@@ -22,9 +22,7 @@
 #ifdef SD_DEVICE
 #include "esp_sd.h"
 #include "../../core/genLinkedList.h"
-#ifdef SD_TIMESTAMP_FEATURE
 #include <time.h>
-#endif //SD_TIMESTAMP_FEATURE
 
 #define ESP_MAX_SD_OPENHANDLE 4
 #if ((SD_DEVICE == ESP_SD_NATIVE) || (SD_DEVICE == ESP_SDFAT)) && defined (ARDUINO_ARCH_ESP8266)
@@ -89,9 +87,7 @@ ESP_SDFile::ESP_SDFile(const char * name, const char * filename, bool isdir, siz
     _index = -1;
     _filename = filename;
     _name = name;
-#ifdef SD_TIMESTAMP_FEATURE
     _lastwrite  = 0;
-#endif //SD_TIMESTAMP_FEATURE 
     _iswritemode = false;
     _size = size;
 }
@@ -136,12 +132,10 @@ size_t ESP_SDFile::size()
     return _size;
 }
 
-#ifdef SD_TIMESTAMP_FEATURE
 time_t ESP_SDFile::getLastWrite()
 {
     return _lastwrite;
 }
-#endif //SD_TIMESTAMP_FEATURE
 
 int ESP_SDFile::available()
 {
@@ -201,9 +195,7 @@ ESP_SDFile& ESP_SDFile::operator=(const ESP_SDFile & other)
     _size = other._size;
     _iswritemode = other._iswritemode;
     _dirlist = other._dirlist;
-#ifdef SD_TIMESTAMP_FEATURE
     _lastwrite = other._lastwrite;
-#endif //SD_TIMESTAMP_FEATURE
     return *this;
 }
 

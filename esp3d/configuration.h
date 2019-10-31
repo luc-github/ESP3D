@@ -42,9 +42,6 @@
 //TELNET_FEATURE : enable Telnet function
 #define TELNET_FEATURE
 
-//FTP_FEATURE : enable FTP function
-//#define FTP_FEATURE
-
 //WS_DATA_FEATURE: allow to connect serial from Websocket
 #define WS_DATA_FEATURE
 
@@ -112,9 +109,6 @@
 //ESP_SDFAT                   3 //esp8266 (same as native) / esp32
 #define SD_DEVICE    ESP_SDFAT
 
-//FILESYSTEM_TIMESTAMP_FEATURE: allow to get last write time from FILESYSTEM files
-//#define SD_TIMESTAMP_FEATURE
-
 //pin if reader has insert detection feature
 //let -1 or comment if none
 #define ESP_SD_DETECT_PIN       -1
@@ -128,7 +122,14 @@
 #define FILESYSTEM_FEATURE ESP_SPIFFS_FILESYSTEM
 
 //Allows to mount /FS and /SD under / for FTP server
-#define GLOBAL_FILESYSTEM
+#define GLOBAL_FILESYSTEM_FEATURE
+
+//FTP_FEATURE : enable FTP feature
+//FS_ROOT        mount all FS
+//FS_FLASH       mount Flash FS
+//FS_SD          mount SD FS
+//FS_USBDISK     mount USB disk FS
+#define FTP_FEATURE  FS_ROOT
 
 //DIRECT_PIN_FEATURE: allow to access pin using ESP201 command
 #define DIRECT_PIN_FEATURE
@@ -136,8 +137,11 @@
 //TIMESTAMP_FEATURE: set time system
 //#define TIMESTAMP_FEATURE
 
-//FILESYSTEM_TIMESTAMP_FEATURE: allow to get last write time from FILESYSTEM files
+//FILESYSTEM_TIMESTAMP_FEATURE: display last write time from Flash files
 //#define FILESYSTEM_TIMESTAMP_FEATURE
+
+//FILESYSTEM_TIMESTAMP_FEATURE:display last write time from SD files
+//#define SD_TIMESTAMP_FEATURE
 
 //MDNS_FEATURE: this feature allow  type the name defined
 //in web browser by default: http:\\esp8266.local and connect
