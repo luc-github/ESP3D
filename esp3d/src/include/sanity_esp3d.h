@@ -108,4 +108,25 @@
 #endif
 #endif
 
+/**************************
+ * FTP
+ * ***********************/
+#if defined(FTP_FEATURE) && !defined(GLOBAL_FILESYSTEM_FEATURE)
+#if FTP_FEATURE == FS_ROOT
+#error FTP_FEATURE == FS_ROOT is not available because GLOBAL_FILESYSTEM_FEATURE is not enabled
+#endif
+#endif
+
+#if defined(FTP_FEATURE) && !defined(FILESYSTEM_FEATURE)
+#if FTP_FEATURE == FS_FLASH
+#error FTP_FEATURE == FS_FLASH is not available because FILESYSTEM_FEATURE is not enabled
+#endif
+#endif
+
+#if defined(FTP_FEATURE) && !defined(SD_DEVICE)
+#if FTP_FEATURE == FS_SD
+#error FTP_FEATURE == FS_SD is not available because SD_DEVICE is not enabled
+#endif
+#endif
+
 #endif //SANITY_ESP3D_H 
