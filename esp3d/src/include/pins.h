@@ -142,7 +142,7 @@
 #endif //CAMERA_MODEL_M5STACK_WIDE
 
 #if CAMERA_DEVICE == CAMERA_MODEL_AI_THINKER
-#define CAM_LED_PIN        4
+#define CAM_LED_PIN       -1
 #define CAM_PULLUP1       -1
 #define CAM_PULLUP2       -1
 #define PWDN_GPIO_NUM     32
