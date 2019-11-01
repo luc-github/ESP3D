@@ -311,7 +311,7 @@ bool FtpServer::isUser(const char * user)
     log_esp3d("Check User");
     _currentUser = "";
 #ifdef AUTHENTICATION_FEATURE
-    if ((user != nullptr) &&  ((strcmp(user, DEFAULT_ADMIN_LOGIN) == 0) || (strcmp(user, DEFAULT_USER_LOGIN) == 0)) {
+    if ((user != nullptr) &&  ((strcmp(user, DEFAULT_ADMIN_LOGIN) == 0) || (strcmp(user, DEFAULT_USER_LOGIN) == 0))) {
     _currentUser = user;
     return true;
 }

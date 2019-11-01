@@ -41,7 +41,7 @@ void dateTime (uint16_t* date, uint16_t* dtime)
     *dtime = FAT_TIME (tmstruct.tm_hour, tmstruct.tm_min, tmstruct.tm_sec);
 }
 
-time_t getDateTimeFile(File & filehandle)
+time_t getDateTimeFile(sdfat::File & filehandle)
 {
     static time_t dt = 0;
     struct tm timefile;
