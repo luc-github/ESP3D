@@ -29,9 +29,6 @@
 #include <esp_camera.h>
 #include "fd_forward.h"
 #include <soc/rtc_cntl_reg.h>
-#if defined (HTTP_FEATURE)
-#include "../http/http_server.h"
-#endif //HTTP_FEATURE
 
 #define DEFAULT_FRAME_SIZE FRAMESIZE_SVGA
 #define PART_BUFFER_SIZE 64
@@ -76,10 +73,6 @@ static esp_err_t stream_handler(httpd_req_t *req)
         if (!esp3d_camera.isconnected()) {
             return ESP_FAIL;
         }
-#if defined (HTTP_FEATURE)
-    HTTP_Server::handle();
-#endif //HTTP_FEATURE
-        HTTP_Server::handle();
         log_esp3d("Camera capture ongoing");
         fb = esp_camera_fb_get();
         if (!fb) {
