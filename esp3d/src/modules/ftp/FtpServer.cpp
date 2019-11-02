@@ -312,15 +312,15 @@ bool FtpServer::isUser(const char * user)
     _currentUser = "";
 #ifdef AUTHENTICATION_FEATURE
     if ((user != nullptr) &&  ((strcmp(user, DEFAULT_ADMIN_LOGIN) == 0) || (strcmp(user, DEFAULT_USER_LOGIN) == 0))) {
-    _currentUser = user;
-    return true;
-}
-return false;
+        _currentUser = user;
+        return true;
+    }
+    return false;
 #endif //AUTHENTICATION_FEATURE
-       (void)user;
-       _currentUser = DEFAULT_ADMIN_LOGIN;
-       log_esp3d("User is %s",_currentUser.c_str());
-       return true;
+    (void)user;
+    _currentUser = DEFAULT_ADMIN_LOGIN;
+    log_esp3d("User is %s",_currentUser.c_str());
+    return true;
 
 }
 bool FtpServer::isPassword(const char * password)
