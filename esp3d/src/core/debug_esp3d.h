@@ -22,8 +22,13 @@
 #define _DEBUG_ESP3D_H
 
 #include "../include/esp3d_config.h"
+#if defined(ARDUINO_ARCH_ESP32)
+#define log_esp3d(format, ...) log_d(format, ##__VA_ARGS__)
+#define log_esp3dS(format, ...) log_d(format, ##__VA_ARGS__)
+#else
 #define log_esp3d(format, ...)
 #define log_esp3dS(format, ...)
+#endif
 #define DEBUG_ESP3D_INIT
 #define DEBUG_ESP3D_NETWORK_INIT
 #define DEBUG_ESP3D_NETWORK_HANDLE
