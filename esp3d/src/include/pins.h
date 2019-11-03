@@ -142,15 +142,15 @@
 #endif //CAMERA_MODEL_M5STACK_WIDE
 
 #if CAMERA_DEVICE == CAMERA_MODEL_AI_THINKER
-#define CAM_LED_PIN       -1
+#define CAM_LED_PIN       -1 //used by SD so must left unset
 #define CAM_PULLUP1       -1
 #define CAM_PULLUP2       -1
+
 #define PWDN_GPIO_NUM     32
 #define RESET_GPIO_NUM    -1
 #define XCLK_GPIO_NUM      0
 #define SIOD_GPIO_NUM     26
 #define SIOC_GPIO_NUM     27
-
 #define Y9_GPIO_NUM       35
 #define Y8_GPIO_NUM       34
 #define Y7_GPIO_NUM       39
@@ -167,7 +167,7 @@
 //Pins for the support of SD Card Reader
 //-1 means use default pins of your board defined core
 #define ESP_SD_CS_PIN           -1
-//These are hardcoded on ESP8266 to 12/13/14 
+//These are hardcoded on ESP8266 to 12/13/14
 //so modifications are ignored on ESP8266
 #define ESP_SD_MISO_PIN         -1
 #define ESP_SD_MOSI_PIN         -1

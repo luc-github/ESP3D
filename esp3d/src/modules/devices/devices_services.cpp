@@ -57,6 +57,12 @@ bool DevicesServices::begin()
 {
     bool res = true;
     _started = false;
+#ifdef SD_DEVICE
+    if (!ESP_SD::begin()) {
+        log_esp3d("Error sd intialization failed");
+        res = false;
+    }
+#endif //SD_DEVICE
 #ifdef DISPLAY_DEVICE
     if (!esp3d_display.begin()) {
         log_esp3d("Error starting display device");
@@ -87,12 +93,6 @@ bool DevicesServices::begin()
         res = false;
     }
 #endif //CAMERA_DEVICE
-#ifdef SD_DEVICE
-    if (!ESP_SD::begin()) {
-        log_esp3d("Error sd intialization failed");
-        res = false;
-    }
-#endif //SD_DEVICE
     if (!res) {
         end();
     }

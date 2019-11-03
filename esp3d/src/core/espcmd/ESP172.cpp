@@ -39,13 +39,25 @@ bool Commands::ESP172(const char* cmd_params, level_authenticate_type auth_type,
 #else
     (void)auth_type;
 #endif //AUTHENTICATION_FEATURE
+    if (!esp3d_camera.started()) {
+        output->printERROR("No camera initialized!", 401);
+        return false;
+    }
     parameter = get_param (cmd_params, "");
     //get
     bool plain = hastag (cmd_params, "plain");
     if ((parameter.length() == 0) || plain) {
         sensor_t * s = esp_camera_sensor_get();
+        if (s == nullptr) {
+            if (!plain) {
+                output->print ("{\"status\":\"error\"}");
+            } else {
+                output->printERROR("No camera initialized!", 401);
+            }
+            return false;
+        }
         if (!plain) {
-            output->print ("{");
+            output->print ("{\"status\":\"ok\",");
         }
         //framesize
         if (!plain) {

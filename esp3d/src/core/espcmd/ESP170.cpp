@@ -58,7 +58,7 @@ bool Commands::ESP170(const char* cmd_params, level_authenticate_type auth_type,
             if (parameter == "ON") {
                 esp3d_camera.begin();
             } else {
-                esp3d_camera.end();
+                esp3d_camera.stopHardware();
             }
             output->printMSG ("ok");
         }

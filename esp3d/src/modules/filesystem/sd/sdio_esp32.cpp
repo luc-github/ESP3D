@@ -29,8 +29,14 @@ sdio_esp32.cpp - ESP3D sd support class
 
 extern File tSDFile_handle[ESP_MAX_SD_OPENHANDLE];
 
+#define SDMMC_FORCE_BEGIN
+
 uint8_t ESP_SD::getState(bool refresh)
 {
+    static bool lastinitok = false;
+#ifdef SDMMC_FORCE_BEGIN
+    lastinitok = false;
+#endif //SDMMC_LIGHT_CHECK
 #if defined(ESP_SD_DETECT_PIN) && ESP_SD_DETECT_PIN != -1
     //no need to go further if SD detect is not correct
     if (!((digitalRead (ESP_SD_DETECT_PIN) == ESP_SD_DETECT_VALUE) ? true : false)) {
@@ -46,14 +52,44 @@ uint8_t ESP_SD::getState(bool refresh)
         return _state;  //to avoid refresh=true + busy to reset SD and waste time
     }
 //SD is idle or not detected, let see if still the case
-
-    SD_MMC.end();
     _state = ESP_SDCARD_NOT_PRESENT;
-//using default value for speed ? should be parameter
 //refresh content if card was removed
-    if (SD_MMC.begin()) {
-        if ( SD_MMC.cardSize() > 0 ) {
+    if (!lastinitok) {
+        log_esp3d("last init was failed try sd_mmc begin");
+        //SD_MMC.end();
+        if (SD_MMC.begin()) {
+            log_esp3d("sd_mmc begin succeed");
+            if (SD_MMC.cardType() != CARD_NONE ) {
+                _state = ESP_SDCARD_IDLE;
+                lastinitok = true;
+                log_esp3d("sd_mmc card type succeed");
+            } else {
+                log_esp3d("sd_mmc card type failed");
+            }
+        } else {
+            log_esp3d("sd_mmc begin failed");
+        }
+    } else {
+        log_esp3d("last init was ok try card type");
+        if(SD_MMC.cardType() != CARD_NONE) {
+            log_esp3d("checking sd_mmc card type succeed");
             _state = ESP_SDCARD_IDLE;
+        } else {
+            lastinitok = false;
+            log_esp3d("Soft sd check failed");
+            //SD_MMC.end();
+            if (SD_MMC.begin()) {
+                log_esp3d("new sd_mmc begin succeed");
+                if ( SD_MMC.cardType() != CARD_NONE ) {
+                    _state = ESP_SDCARD_IDLE;
+                    lastinitok = true;
+                    log_esp3d("new sd_mmc card type succeed");
+                } else {
+                    log_esp3d("new sd_mmc card type failed");
+                }
+            } else {
+                log_esp3d("new sd_mmc begin failed");
+            }
         }
     }
     return _state;
@@ -61,8 +97,14 @@ uint8_t ESP_SD::getState(bool refresh)
 
 bool ESP_SD::begin()
 {
+    log_esp3d("Begin SDIO");
     _started = true;
+#ifdef SDMMC_FORCE_BEGIN
     _state = ESP_SDCARD_NOT_PRESENT;
+#else
+    _state = getState(true);
+#endif //SDMMC_FORCE_BEGIN
+
     return _started;
 }
 
