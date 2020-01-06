@@ -1,0 +1,27 @@
+var class_e_s_p___g_b_file =
+[
+    [ "ESP_GBFile", "class_e_s_p___g_b_file.html#ab27d5724f0b10e56dbf192d87624d124", null ],
+    [ "ESP_GBFile", "class_e_s_p___g_b_file.html#af88dec89f7f879fae1e5ddbc2cc90017", null ],
+    [ "ESP_GBFile", "class_e_s_p___g_b_file.html#adf2d7a9ad9d209a3549fd58f3ff9e33c", null ],
+    [ "ESP_GBFile", "class_e_s_p___g_b_file.html#a48a1202685016c8930a2262458f68188", null ],
+    [ "~ESP_GBFile", "class_e_s_p___g_b_file.html#aaf8404e5ccb1516de4a0ce2bd0f4defc", null ],
+    [ "available", "class_e_s_p___g_b_file.html#a6ab06f49b451d035303e6888bea4ff2c", null ],
+    [ "close", "class_e_s_p___g_b_file.html#a16b6bf86b12fb87164c6988b931afdb3", null ],
+    [ "filename", "class_e_s_p___g_b_file.html#a794aa2b0ee3f5b1b4b2515d6238f275d", null ],
+    [ "flush", "class_e_s_p___g_b_file.html#a7394f6c9b23d98698933e01a6feab65e", null ],
+    [ "getLastWrite", "class_e_s_p___g_b_file.html#a446130ab9804c08a9e7c166ac797f342", null ],
+    [ "isDirectory", "class_e_s_p___g_b_file.html#aa42f3430dbd5b260e33a2572e0fa32cb", null ],
+    [ "isOpen", "class_e_s_p___g_b_file.html#a8a663a19e2cd0e2c76293e9c9e75f1e3", null ],
+    [ "name", "class_e_s_p___g_b_file.html#a39ea99c1eddeec3dc6f4c8fe2b2d9ca6", null ],
+    [ "openNextFile", "class_e_s_p___g_b_file.html#a78576c62d9a35def31e375ac773b3e25", null ],
+    [ "operator bool", "class_e_s_p___g_b_file.html#a2798509018fd571a2cbf1512aa1ce52e", null ],
+    [ "operator=", "class_e_s_p___g_b_file.html#a0df15bb317b2bdd2e475698460c194ad", null ],
+    [ "operator=", "class_e_s_p___g_b_file.html#aa2fdfdc28ae782ce4378e050c49377e1", null ],
+    [ "operator=", "class_e_s_p___g_b_file.html#a770b4fe8e6a38626fed6c438a6bc781e", null ],
+    [ "read", "class_e_s_p___g_b_file.html#ae2e9474f690a9a0af7f1a6747a2898c3", null ],
+    [ "read", "class_e_s_p___g_b_file.html#a9357b85f09ce259be86195846a4e5775", null ],
+    [ "shortname", "class_e_s_p___g_b_file.html#a908d3d5c780b861b74e0fc69f1fe0d59", null ],
+    [ "size", "class_e_s_p___g_b_file.html#a23f09288e0b65fb19a1ce7176c2ef122", null ],
+    [ "write", "class_e_s_p___g_b_file.html#a52a7d04f59c75b07a7b9c8c7f5698085", null ],
+    [ "write", "class_e_s_p___g_b_file.html#ae7a6b173a66be6f8af7bcd01f67f51ed", null ]
+];

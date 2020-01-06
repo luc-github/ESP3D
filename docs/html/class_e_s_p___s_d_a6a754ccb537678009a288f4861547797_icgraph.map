@@ -1,0 +1,12 @@
+<map id="ESP_SD::setSPISpeedDivider" name="ESP_SD::setSPISpeedDivider">
+<area shape="rect" id="node1" title=" " alt="" coords="1436,81,1632,108"/>
+<area shape="rect" id="node2" href="$class_commands.html#a52f8d654512a1dd1dbe9381501606186" title=" " alt="" coords="1244,81,1388,108"/>
+<area shape="rect" id="node3" href="$class_commands.html#ae3516c283e84729667119c390d697eb7" title=" " alt="" coords="1005,74,1196,115"/>
+<area shape="rect" id="node4" href="$class_commands.html#ad1efcbcb621f598f3cd4ab4ebfb2f173" title=" " alt="" coords="815,56,957,83"/>
+<area shape="rect" id="node5" href="$class_gcode_host.html#ae3c261bf836a76d3441724eae30555b5" title=" " alt="" coords="588,56,767,83"/>
+<area shape="rect" id="node10" href="$class_gcode_host.html#af17ebce982e939ebc8205ea587b88bee" title=" " alt="" coords="375,5,540,32"/>
+<area shape="rect" id="node6" href="$class_gcode_host.html#a1c624777512a678e5d5b662fc6c28f02" title=" " alt="" coords="376,56,539,83"/>
+<area shape="rect" id="node7" href="$class_commands.html#a16350ec121b0ec859f6458d045a5a60d" title=" " alt="" coords="168,95,312,121"/>
+<area shape="rect" id="node8" href="$class_gcode_host.html#ade23e0a1b4602dfdab7080505b26ff42" title=" " alt="" coords="153,19,327,45"/>
+<area shape="rect" id="node9" href="$class_esp3_d.html#afb33f64a43ad00448d494e66e970339a" title=" " alt="" coords="5,19,105,45"/>
+</map>

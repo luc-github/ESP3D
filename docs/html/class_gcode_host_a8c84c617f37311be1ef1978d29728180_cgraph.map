@@ -1,0 +1,5 @@
+<map id="GcodeHost::wait_for_data" name="GcodeHost::wait_for_data">
+<area shape="rect" id="node1" title=" " alt="" coords="5,31,176,57"/>
+<area shape="rect" id="node2" href="$class_serial_service.html#aeda5594de3b1b10e583bc4ca407468a4" title=" " alt="" coords="224,5,379,32"/>
+<area shape="rect" id="node3" href="$class_hal.html#ac1c708c12fe4e6de959021db039c80f1" title=" " alt="" coords="265,56,337,83"/>
+</map>

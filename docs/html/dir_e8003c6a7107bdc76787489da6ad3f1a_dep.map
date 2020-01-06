@@ -1,0 +1,15 @@
+<map id="esp3d/src/modules/host" name="esp3d/src/modules/host">
+<area shape="rect" id="node1" href="dir_e8003c6a7107bdc76787489da6ad3f1a.html" title="host" alt="" coords="79,52,151,100"/>
+<area shape="rect" id="node2" href="dir_a3ba38e9455c6fb83275f9d5bbe99bd2.html" title="core" alt="" coords="79,148,151,196"/>
+<area shape="rect" id="edge3-headlabel" href="dir_000020_000002.html" title="2" alt="" coords="119,122,127,137"/>
+<area shape="rect" id="node3" href="dir_593a0699f1f3f0bda2c49dc53dffcd19.html" title="serial" alt="" coords="5,244,77,292"/>
+<area shape="rect" id="edge4-headlabel" href="dir_000020_000028.html" title="1" alt="" coords="50,219,58,234"/>
+<area shape="rect" id="node4" href="dir_01029477243d1c705a8107b610584ffe.html" title="include" alt="" coords="91,340,163,388"/>
+<area shape="rect" id="edge5-headlabel" href="dir_000020_000004.html" title="1" alt="" coords="148,319,156,333"/>
+<area shape="rect" id="edge1-headlabel" href="dir_000002_000028.html" title="5" alt="" coords="65,227,73,241"/>
+<area shape="rect" id="edge2-headlabel" href="dir_000002_000004.html" title="62" alt="" coords="117,313,132,328"/>
+<area shape="rect" id="edge6-headlabel" href="dir_000028_000002.html" title="3" alt="" coords="83,199,91,214"/>
+<area shape="rect" id="edge7-headlabel" href="dir_000028_000004.html" title="1" alt="" coords="96,313,104,328"/>
+<area shape="rect" id="edge8-headlabel" href="dir_000004_000002.html" title="2" alt="" coords="113,208,121,223"/>
+<area shape="rect" id="clust1" href="dir_2c1830491e0576ae3395f8c2f91c7d85.html" title="modules" alt="" coords="68,16,161,111"/>
+</map>
