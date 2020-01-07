@@ -112,14 +112,10 @@ Check [Wiki](https://github.com/luc-github/ESP3D/wiki/Install-Instructions) or [
 Check [Wiki](https://github.com/luc-github/ESP3D/wiki/Install-Instructions) and [FAQ](https://github.com/luc-github/ESP3D/issues?utf8=%E2%9C%93&q=label%3AFAQ+) or [submit ticket](https://github.com/luc-github/ESP3D/issues)    
 
 ## ESP3D is used by :
-* Opensource version is used by various boards like : https://www.aliexpress.com/wholesale?SearchText=esp3d&opensearch=true&switch_new_app=y
-and https://youtu.be/XoWW0aU6DGE?t=76  
-
-
-* Custom version (not this repository) is used on azteeg mini wifi : http://www.panucatt.com/azteeg_X5_mini_reprap_3d_printer_controller_p/ax5mini.htm    
-and Wifi boards for 3D printers : https://www.panucatt.com/ProductDetails.asp?ProductCode=WB8266,   
-<h2>:warning: Do not use this repository for boards using custom firmware, you will lose several features.</h2> 
-
+* Custom version is used on azteeg mini wifi : http://www.panucatt.com/azteeg_X5_mini_reprap_3d_printer_controller_p/ax5mini.htm
+* GRBL_Esp32 a GRBL port on ESP32 done by @bdring - https://github.com/bdring/Grbl_Esp32   
+[![](https://img.youtube.com/vi/7vtWNn9jyDs/mqdefault.jpg)](https://www.youtube.com/watch?v=7vtWNn9jyDs)       
+* Marlin_ESP32 a Marlin port on ESP32 done by @simon-jouet is under sync : https://github.com/luc-github/Marlin/tree/eps32_webui 
 * More to come...
 
 If you use ESP3D on your product, drop me a message so I can link your product page here.   
