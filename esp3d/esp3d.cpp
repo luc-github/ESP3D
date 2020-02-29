@@ -255,6 +255,11 @@ void Esp3D::begin(uint16_t startdelayms, uint16_t recoverydelayms)
 //Process which handle all input
 void Esp3D::process()
 {
+#ifdef ARDUINO_ARCH_ESP8266
+#ifdef MDNS_FEATURE
+    wifi_config.mdns.update();
+#endif
+#endif
 #if !defined(ASYNCWEBSERVER)
 //web requests for sync
     web_interface->web_server.handleClient();
