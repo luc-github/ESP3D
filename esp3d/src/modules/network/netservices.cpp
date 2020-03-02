@@ -242,6 +242,8 @@ bool NetServices::begin()
     if(WiFi.getMode() != WIFI_AP) {
         // Add service to MDNS-SD
         MDNS.addService("http", "tcp", 80);
+        // TODO add TXT records
+        //MDNS.addServiceTxt("http", "tcp", Key, value);
     }
 #endif //MDNS_FEATURE
 #ifdef SSDP_FEATURE
