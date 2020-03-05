@@ -527,9 +527,11 @@ time_t ESP_GBFile::getLastWrite()
     if (_type == FS_FLASH) {
         return _flashFile.getLastWrite();
     }
+#ifdef SD_DEVICE
     if (_type == FS_SD) {
         return _sdFile.getLastWrite();
     }
+#endif //SD_DEVICE
     return 0;
 }
 
