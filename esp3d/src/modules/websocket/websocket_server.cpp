@@ -3,18 +3,18 @@
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
-  This library is free software; you can redistribute it and/or
+  This code is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
   License as published by the Free Software Foundation; either
   version 2.1 of the License, or (at your option) any later version.
 
-  This library is distributed in the hope that it will be useful,
+  This code is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
   Lesser General Public License for more details.
 
   You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, write to the Free Software
+  License along with This code; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
@@ -36,13 +36,17 @@ WebSocket_Server websocket_data_server;
 #endif //WS_DATA_FEATURE
 void WebSocket_Server::pushMSG (const char * data)
 {
+    if (_websocket_server) {
     _websocket_server->broadcastTXT(data);
+    log_esp3d("[%u]Broadcast %s", _current_id,data);
+    }
 }
 
 void WebSocket_Server::pushMSG (uint num, const char * data)
 {
     if (_websocket_server) {
         _websocket_server->sendTXT(num, data);
+        log_esp3d("[%u]Send %s", num,data);
     }
 }
 
@@ -234,7 +238,7 @@ size_t WebSocket_Server::write(const uint8_t *buffer, size_t size)
             _TXbufferSize++;
         }
         //if(!_isdebug) {
-        //	log_esp3d("[SOCKET]buffer size %d",_TXbufferSize);
+        //  log_esp3d("[SOCKET]buffer size %d",_TXbufferSize);
         //}
         return size;
     }
@@ -323,11 +327,11 @@ void WebSocket_Server::flushTXbuffer(void)
     if (_started) {
         if ((_TXbufferSize > 0) && (_websocket_server->connectedClients() > 0 )) {
             //if(!_isdebug) {
-            //	log_esp3d("[SOCKET]flush data, buffer size %d",_TXbufferSize);
+            //  log_esp3d("[SOCKET]flush data, buffer size %d",_TXbufferSize);
             //}
             if (_websocket_server) {
                 _websocket_server->broadcastBIN(_TXbuffer,_TXbufferSize);
-                log_esp3d("WS Broadcast bin port %d", port());
+                log_esp3d("WS Broadcast bin port %d: %d bytes", port(), _TXbufferSize);
             }
             //refresh timout
             _lastTXflush = millis();

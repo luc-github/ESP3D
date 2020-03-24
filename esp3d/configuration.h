@@ -3,18 +3,18 @@
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
-  This library is free software; you can redistribute it and/or
+  This code is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
   License as published by the Free Software Foundation; either
   version 2.1 of the License, or (at your option) any later version.
 
-  This library is distributed in the hope that it will be useful,
+  This code is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
   Lesser General Public License for more details.
 
   You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, write to the Free Software
+  License along with This code; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #ifndef _CONFIGURATION_H
@@ -43,12 +43,12 @@
 #define TELNET_FEATURE
 
 //WS_DATA_FEATURE: allow to connect serial from Websocket
-#define WS_DATA_FEATURE
+//#define WS_DATA_FEATURE
 
 //DISPLAY_DEVICE: allow screen output
-//OLED_I2C_SSD1306    		1
-//OLED_I2C_SSDSH1106  		2
-//TFT_SPI_ILI9341_320X240 	3
+//OLED_I2C_SSD1306          1
+//OLED_I2C_SSDSH1106        2
+//TFT_SPI_ILI9341_320X240   3
 //TFT_SPI_ILI9488_480X320 4
 //#define DISPLAY_DEVICE TFT_SPI_ILI9488_480X320
 
@@ -70,17 +70,17 @@
 #define DISPLAY_I2C_PIN_SDA         4
 #define DISPLAY_I2C_PIN_SCL         15
 #define DISPLAY_I2C_PIN_RST         16 //comment if not applicable
-#define DISPLAY_I2C_ADDR	        0x3c
+#define DISPLAY_I2C_ADDR            0x3c
 #endif //(DISPLAY_DEVICE == OLED_I2C_SSD1306) || (DISPLAY_DEVICE == OLED_I2C_SSDSH1106)
 #define DISPLAY_FLIP_VERTICALY      1 //comment to disable
 #if (DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240) || (DISPLAY_DEVICE == TFT_SPI_ILI9488_480X320)
-#define DISPLAY_TOUCH_DRIVER		XPT2046_SPI
+#define DISPLAY_TOUCH_DRIVER        XPT2046_SPI
 #define DISPLAY_LED_PIN             33  //-1 if none
 #endif //(DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240) || (DISPLAY_DEVICE == TFT_SPI_ILI9488_480X320)
 #endif //DISPLAY_DEVICE
 
 //INPUT_DEVICE: allow input
-//ROTARY_ENCODER   		1
+//ROTARY_ENCODER        1
 //#define INPUT_DEVICE ROTARY_ENCODER
 
 //DHT_DEVICE: send update of temperature / humidity based on DHT 11/22
@@ -107,7 +107,7 @@
 //ESP_SD_NATIVE               1 //esp32 / esp8266
 //ESP_SDIO                    2 //esp32 only
 //ESP_SDFAT                   3 //esp8266 (same as native) / esp32
-#define SD_DEVICE    ESP_SDFAT
+//#define SD_DEVICE    ESP_SDFAT
 
 //pin if reader has insert detection feature
 //let -1 or comment if none
@@ -206,7 +206,7 @@
 //DEBUG_OUTPUT_SERIAL2 3
 //DEBUG_OUTPUT_TELNET  4
 //DEBUG_OUTPUT_WEBSOCKET  5
-//#define ESP_DEBUG_FEATURE DEBUG_OUTPUT_SERIAL0
+#define ESP_DEBUG_FEATURE DEBUG_OUTPUT_SERIAL0
 
 #ifdef ESP_DEBUG_FEATURE
 #define DEBUG_ESP3D_OUTPUT_PORT  8000

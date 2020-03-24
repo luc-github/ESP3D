@@ -3,18 +3,18 @@
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
-  This library is free software; you can redistribute it and/or
+  This code is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
   License as published by the Free Software Foundation; either
   version 2.1 of the License, or (at your option) any later version.
 
-  This library is distributed in the hope that it will be useful,
+  This code is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
   Lesser General Public License for more details.
 
   You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, write to the Free Software
+  License along with This code; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
@@ -26,7 +26,7 @@
 #if ESP_SAVE_SETTINGS == SETTINGS_IN_EEPROM
 #include <EEPROM.h>
 //EEPROM SIZE (Up to 4096)
-#define EEPROM_SIZE		2048 //max is 2048
+#define EEPROM_SIZE     2048 //max is 2048
 #endif //SETTINGS_IN_EEPROM
 
 #if defined (WIFI_FEATURE) || defined(ETH_FEATURE)
@@ -51,8 +51,8 @@
 #define MAX_LOCAL_PASSWORD_LENGTH   20
 #define MIN_LOCAL_PASSWORD_LENGTH   1
 #define MAX_VERSION_LENGTH          7 //ESP3DXX
-#define MAX_BOOT_DELAY				40000
-#define MIN_BOOT_DELAY				0
+#define MAX_BOOT_DELAY              40000
+#define MIN_BOOT_DELAY              0
 #define MIN_NOTIFICATION_TOKEN_LENGTH 0
 #define MIN_NOTIFICATION_SETTINGS_LENGTH 0
 #define MAX_NOTIFICATION_TOKEN_LENGTH 63
@@ -109,7 +109,7 @@
 #define DEFAULT_NOTIFICATION_TYPE 0
 #define DEFAULT_NOTIFICATION_TOKEN1 ""
 #define DEFAULT_NOTIFICATION_TOKEN2 ""
-#define DEFAULT_NOTIFICATION_SETTINGS ""
+#define DEFAULT_NOTIFICATION_SETTINGS "#NONE#"
 #define DEFAULT_AUTO_NOTIFICATION_STATE 1
 
 
@@ -124,7 +124,7 @@
 #define DEFAULT_CAMERA_PORT     9600L
 #define DEFAULT_TELNET_PORT     23L
 #define DEFAULT_DHT_INTERVAL    30000L
-#define DEFAULT_BOOT_DELAY	    10000L
+#define DEFAULT_BOOT_DELAY      10000L
 #define DEFAULT_CALIBRATION_VALUE 0
 #define DEFAULT_CALIBRATION_DONE 0
 
@@ -144,11 +144,11 @@ const char DEFAULT_ADMIN_PWD []   =      "admin";
 const char DEFAULT_USER_PWD []   =       "user";
 #endif //AUTHENTICATION_FEATURE
 #ifdef TIMESTAMP_FEATURE
-const char DEFAULT_TIME_SERVER1 []   =	"1.pool.ntp.org";
-const char DEFAULT_TIME_SERVER2 []   =	"2.pool.ntp.org";
-const char DEFAULT_TIME_SERVER3 []   =	"0.pool.ntp.org";
+const char DEFAULT_TIME_SERVER1 []   =  "1.pool.ntp.org";
+const char DEFAULT_TIME_SERVER2 []   =  "2.pool.ntp.org";
+const char DEFAULT_TIME_SERVER3 []   =  "0.pool.ntp.org";
 #endif //TIMESTAMP_FEATURE
-const char DEFAULT_SETTINGS_VERSION []  =	"ESP3D";
+const char DEFAULT_SETTINGS_VERSION []  =   "ESP3D";
 
 #if defined (WIFI_FEATURE) ||defined (ETH_FEATURE)
 //default IP values
