@@ -37,8 +37,8 @@ WebSocket_Server websocket_data_server;
 void WebSocket_Server::pushMSG (const char * data)
 {
     if (_websocket_server) {
-    _websocket_server->broadcastTXT(data);
-    log_esp3d("[%u]Broadcast %s", _current_id,data);
+        _websocket_server->broadcastTXT(data);
+        log_esp3d("[%u]Broadcast %s", _current_id,data);
     }
 }
 
