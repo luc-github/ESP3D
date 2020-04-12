@@ -138,15 +138,15 @@ const char * NotificationsService::getTypeString()
 {
     switch(_notificationType) {
     case ESP_PUSHOVER_NOTIFICATION:
-        return "Pushover";
+        return "pushover";
     case ESP_EMAIL_NOTIFICATION:
-        return "Email";
+        return "email";
     case ESP_LINE_NOTIFICATION:
-        return "Line";
+        return "line";
     default:
         break;
     }
-    return "None";
+    return "none";
 }
 
 bool NotificationsService::sendMSG(const char * title, const char * message)

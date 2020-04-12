@@ -93,7 +93,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
     if (!plain) {
         output->print ("{\"id\":\"");
     }
-    output->print ("Chip ID");
+    output->print ("chip id");
     if (!plain) {
         output->print ("\",\"value\":\"");
     } else {
@@ -109,7 +109,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
     if (!plain) {
         output->print (",{\"id\":\"");
     }
-    output->print ("CPU Frequency");
+    output->print ("CPU Freq");
     if (!plain) {
         output->print ("\",\"value\":\"");
     } else {
@@ -126,13 +126,13 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         if (!plain) {
             output->print (",{\"id\":\"");
         }
-        output->print ("CPU Temperature");
+        output->print ("CPU Temp");
         if (!plain) {
             output->print ("\",\"value\":\"");
         } else {
             output->print (": ");
         }
-        output->printf("%s %s",String (Hal::temperature(), 1).c_str(), (output->client() == ESP_HTTP_CLIENT)?"&deg;C":"C");
+        output->printf("%s C",String (Hal::temperature(), 1).c_str());
         if (!plain) {
             output->print ("\"}");
         } else {
@@ -143,7 +143,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
     if (!plain) {
         output->print (",{\"id\":\"");
     }
-    output->print ("Free memory");
+    output->print ("free mem");
     if (!plain) {
         output->print ("\",\"value\":\"");
     } else {
@@ -175,7 +175,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
     if (!plain) {
         output->print (",{\"id\":\"");
     }
-    output->print ("Flash Size");
+    output->print ("flash size");
     if (!plain) {
         output->print ("\",\"value\":\"");
     } else {
@@ -193,7 +193,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
     if (!plain) {
         output->print (",{\"id\":\"");
     }
-    output->print ("Available Size for update");
+    output->print ("size for update");
     if (!plain) {
         output->print ("\",\"value\":\"");
     } else {
@@ -211,7 +211,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
     if (!plain) {
         output->print (",{\"id\":\"");
     }
-    output->print ("Filesystem type");
+    output->print ("FS type");
     if (!plain) {
         output->print ("\",\"value\":\"");
     } else {
@@ -227,7 +227,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
     if (!plain) {
         output->print (",{\"id\":\"");
     }
-    output->print ("Filesystem usage");
+    output->print ("FS usage");
     if (!plain) {
         output->print ("\",\"value\":\"");
     } else {
@@ -246,7 +246,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
     if (!plain) {
         output->print (",{\"id\":\"");
     }
-    output->print ("Baud rate");
+    output->print ("baud");
     if (!plain) {
         output->print ("\",\"value\":\"");
     } else {
@@ -264,7 +264,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         if (!plain) {
             output->print (",{\"id\":\"");
         }
-        output->print ("Sleep mode");
+        output->print ("sleep mode");
         if (!plain) {
             output->print ("\",\"value\":\"");
         } else {
@@ -283,13 +283,13 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
     if (!plain) {
         output->print (",{\"id\":\"");
     }
-    output->print ("WiFi");
+    output->print ("wifi");
     if (!plain) {
         output->print ("\",\"value\":\"");
     } else {
         output->print (": ");
     }
-    output->print ((WiFi.getMode() == WIFI_OFF)?"Disabled":"Enabled");
+    output->print ((WiFi.getMode() == WIFI_OFF)?"OFF":"ON");
     if (!plain) {
         output->print ("\"}");
     } else {
@@ -300,13 +300,13 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
     if (!plain) {
         output->print (",{\"id\":\"");
     }
-    output->print ("Ethernet");
+    output->print ("ethernet");
     if (!plain) {
         output->print ("\",\"value\":\"");
     } else {
         output->print (": ");
     }
-    output->print ((EthConfig::started())?"Enabled":"Disabled");
+    output->print ((EthConfig::started())?"ON":"OFF");
     if (!plain) {
         output->print ("\"}");
     } else {
@@ -318,13 +318,13 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
     if (!plain) {
         output->print (",{\"id\":\"");
     }
-    output->print("Bluetooth");
+    output->print("bt");
     if (!plain) {
         output->print ("\",\"value\":\"");
     } else {
         output->print (": ");
     }
-    output->print ((bt_service.started())?"Enabled":"Disabled");
+    output->print ((bt_service.started())?"ONN":"OFF");
     if (!plain) {
         output->print ("\"}");
     } else {
@@ -335,7 +335,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
     if (!plain) {
         output->print (",{\"id\":\"");
     }
-    output->print ("Hostname");
+    output->print ("hostname");
     if (!plain) {
         output->print ("\",\"value\":\"");
     } else {
@@ -410,7 +410,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         if (!plain) {
             output->print (",{\"id\":\"");
         }
-        output->print ("Ftp ports (ctrl, active, passive)");
+        output->print ("Ftp ports");
         if (!plain) {
             output->print ("\",\"value\":\"");
         } else {
@@ -504,15 +504,14 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         if (!plain) {
             output->print (",{\"id\":\"");
         }
-        output->print ("Current BT mode");
+        output->print ("bt");
         if (!plain) {
             output->print ("\",\"value\":\"");
         } else {
             output->print (": ");
         }
-        output->print ("Serial (");
         output->print (BTService::macAddress());
-        output->print(")");
+
         if (!plain) {
             output->print ("\"}");
         } else {
@@ -528,7 +527,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         } else {
             output->print (": ");
         }
-        output->print ((bt_service.isConnected())?"Connected":"Disconnected");
+        output->print ((bt_service.isConnected())?"connected":"disconnected");
         if (bt_service.isConnected()) {
             output->print (" (client: ");
             output->print (BTService::clientmacAddress());
@@ -547,15 +546,13 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         if (!plain) {
             output->print (",{\"id\":\"");
         }
-        output->print ("Current Ethernet mode");
+        output->print ("ethernet");
         if (!plain) {
             output->print ("\",\"value\":\"");
         } else {
             output->print (": ");
         }
-        output->print ("Client(");
         output->print (ETH.macAddress().c_str());
-        output->printLN(")");
         if (!plain) {
             output->print ("\"}");
         } else {
@@ -565,13 +562,13 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         if (!plain) {
             output->print (",{\"id\":\"");
         }
-        output->print ("Ethernet cable");
+        output->print ("cable");
         if (!plain) {
             output->print ("\",\"value\":\"");
         } else {
             output->print (": ");
         }
-        output->print ((ETH.linkUp())?"Connected":"Disconnected");
+        output->print ((ETH.linkUp())?"connected":"disconnected");
         if(ETH.linkUp()) {
             output->print (" (");
             output->print (ETH.linkSpeed());
@@ -586,13 +583,13 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         if (!plain) {
             output->print (",{\"id\":\"");
         }
-        output->print ("IP Mode");
+        output->print ("ip mode");
         if (!plain) {
             output->print ("\",\"value\":\"");
         } else {
             output->print (": ");
         }
-        output->print ((NetConfig::isIPModeDHCP(ESP_ETH_STA))?"DHCP":"Static");
+        output->print ((NetConfig::isIPModeDHCP(ESP_ETH_STA))?"dhcp":"static");
         if (!plain) {
             output->print ("\"}");
         } else {
@@ -602,7 +599,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         if (!plain) {
             output->print (",{\"id\":\"");
         }
-        output->print ("IP");
+        output->print ("ip");
         if (!plain) {
             output->print ("\",\"value\":\"");
         } else {
@@ -618,7 +615,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         if (!plain) {
             output->print (",{\"id\":\"");
         }
-        output->print ("Gateway");
+        output->print ("gw");
         if (!plain) {
             output->print ("\",\"value\":\"");
         } else {
@@ -634,7 +631,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         if (!plain) {
             output->print (",{\"id\":\"");
         }
-        output->print ("Mask");
+        output->print ("msk");
         if (!plain) {
             output->print ("\",\"value\":\"");
         } else {
@@ -670,30 +667,46 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         if (!plain) {
             output->print (",{\"id\":\"");
         }
-        output->print ("Current WiFi Mode");
+        if (WiFi.getMode() == WIFI_STA) {
+            output->print ("sta");
+        } else if (WiFi.getMode() == WIFI_AP) {
+            output->print ("ap");
+        } else if (WiFi.getMode() == WIFI_AP_STA) { //we should not be in this state but just in case ....
+            output->print ("mixed");
+        } else {
+            output->print ("unknown");
+        }
+
+        if (!plain) {
+            output->print ("\",\"value\":\"");
+        } else {
+            output->print (": ");
+        }
+        output->print ("ON");
+        if (!plain) {
+            output->print ("\"}");
+        } else {
+            output->printLN("");
+        }
+
+        //WiFi mac
+        if (!plain) {
+            output->print (",{\"id\":\"");
+        }
+        output->print ("mac");
         if (!plain) {
             output->print ("\",\"value\":\"");
         } else {
             output->print (": ");
         }
         if (WiFi.getMode() == WIFI_STA) {
-            output->print ("STA (");
             output->print ( WiFi.macAddress().c_str());
-            output->print (")");
         } else if (WiFi.getMode() == WIFI_AP) {
-            output->print ("AP (");
             output->print (WiFi.softAPmacAddress().c_str());
-            output->print (")");
         } else if (WiFi.getMode() == WIFI_AP_STA) { //we should not be in this state but just in case ....
-            output->print ("Mixed");
-            output->printLN("");
-            output->print ("STA (");
             output->print (WiFi.macAddress().c_str());
-            output->print (")");
-            output->printLN("");
-            output->print ("AP (");
+            output->print ("/");
             output->print (WiFi.softAPmacAddress().c_str());
-            output->print (")");
         } else {
             output->print ("???");
         }
@@ -702,13 +715,14 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         } else {
             output->printLN("");
         }
+
         //WiFi Station
         if (WiFi.getMode() == WIFI_STA) {
             //Connected to SSID
             if (!plain) {
                 output->print (",{\"id\":\"");
             }
-            output->print ("Connected to");
+            output->print ("SSID");
             if (!plain) {
                 output->print ("\",\"value\":\"");
             } else {
@@ -727,7 +741,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
                 if (!plain) {
                     output->print (",{\"id\":\"");
                 }
-                output->print ("Signal");
+                output->print ("signal");
                 if (!plain) {
                     output->print ("\",\"value\":\"");
                 } else {
@@ -743,7 +757,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
                 if (!plain) {
                     output->print (",{\"id\":\"");
                 }
-                output->print ("Phy Mode");
+                output->print ("phy mode");
                 if (!plain) {
                     output->print ("\",\"value\":\"");
                 } else {
@@ -759,7 +773,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
                 if (!plain) {
                     output->print (",{\"id\":\"");
                 }
-                output->print ("Channel");
+                output->print ("channel");
                 if (!plain) {
                     output->print ("\",\"value\":\"");
                 } else {
@@ -775,13 +789,13 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
                 if (!plain) {
                     output->print (",{\"id\":\"");
                 }
-                output->print ("IP Mode");
+                output->print ("ip mode");
                 if (!plain) {
                     output->print ("\",\"value\":\"");
                 } else {
                     output->print (": ");
                 }
-                output->print ((NetConfig::isIPModeDHCP(ESP_WIFI_STA))?"DHCP":"Static");
+                output->print ((NetConfig::isIPModeDHCP(ESP_WIFI_STA))?"dhcp":"static");
                 if (!plain) {
                     output->print ("\"}");
                 } else {
@@ -791,7 +805,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
                 if (!plain) {
                     output->print (",{\"id\":\"");
                 }
-                output->print ("IP");
+                output->print ("ip");
                 if (!plain) {
                     output->print ("\",\"value\":\"");
                 } else {
@@ -807,7 +821,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
                 if (!plain) {
                     output->print (",{\"id\":\"");
                 }
-                output->print ("Gateway");
+                output->print ("gw");
                 if (!plain) {
                     output->print ("\",\"value\":\"");
                 } else {
@@ -823,7 +837,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
                 if (!plain) {
                     output->print (",{\"id\":\"");
                 }
-                output->print ("Mask");
+                output->print ("msk");
                 if (!plain) {
                     output->print ("\",\"value\":\"");
                 } else {
@@ -856,15 +870,30 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
             if (!plain) {
                 output->print (",{\"id\":\"");
             }
-            output->print ("Disabled Mode");
+            output->print ("ap");
+
             if (!plain) {
                 output->print ("\",\"value\":\"");
             } else {
                 output->print (": ");
             }
-            output->print ("AP (");
+            output->print ("OFF");
+            if (!plain) {
+                output->print ("\"}");
+            } else {
+                output->printLN("");
+            }
+            //Disabled Mode
+            if (!plain) {
+                output->print (",{\"id\":\"");
+            }
+            output->print ("mac");
+            if (!plain) {
+                output->print ("\",\"value\":\"");
+            } else {
+                output->print (": ");
+            }
             output->print (WiFi.softAPmacAddress().c_str());
-            output->print (")");
             if (!plain) {
                 output->print ("\"}");
             } else {
@@ -891,13 +920,13 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
             if (!plain) {
                 output->print (",{\"id\":\"");
             }
-            output->print ("Visible");
+            output->print ("visible");
             if (!plain) {
                 output->print ("\",\"value\":\"");
             } else {
                 output->print (": ");
             }
-            output->print ((WiFiConfig::is_AP_visible()) ? "Yes" : "No");
+            output->print ((WiFiConfig::is_AP_visible()) ? "yes" : "no");
             if (!plain) {
                 output->print ("\"}");
             } else {
@@ -907,7 +936,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
             if (!plain) {
                 output->print (",{\"id\":\"");
             }
-            output->print ("Authentication");
+            output->print ("authentication");
             if (!plain) {
                 output->print ("\",\"value\":\"");
             } else {
@@ -929,7 +958,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
             } else {
                 output->print (": ");
             }
-            output->print ((NetConfig::isDHCPServer (ESP_WIFI_AP))?"Started":"Stopped");
+            output->print ((NetConfig::isDHCPServer (ESP_WIFI_AP))?"ON":"OFF");
             if (!plain) {
                 output->print ("\"}");
             } else {
@@ -939,7 +968,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
             if (!plain) {
                 output->print (",{\"id\":\"");
             }
-            output->print ("IP");
+            output->print ("ip");
             if (!plain) {
                 output->print ("\",\"value\":\"");
             } else {
@@ -955,7 +984,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
             if (!plain) {
                 output->print (",{\"id\":\"");
             }
-            output->print ("Gateway");
+            output->print ("gw");
             if (!plain) {
                 output->print ("\",\"value\":\"");
             } else {
@@ -971,7 +1000,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
             if (!plain) {
                 output->print (",{\"id\":\"");
             }
-            output->print ("Mask");
+            output->print ("msk");
             if (!plain) {
                 output->print ("\",\"value\":\"");
             } else {
@@ -990,7 +1019,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
             if (!plain) {
                 output->print (",{\"id\":\"");
             }
-            output->print ("Connected clients");
+            output->print ("clients");
             if (!plain) {
                 output->print ("\",\"value\":\"");
             } else {
@@ -1007,7 +1036,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
                 if (!plain) {
                     output->print (",{\"id\":\"");
                 }
-                output->printf ("Client %d",i);
+                output->printf ("# %d",i);
                 if (!plain) {
                     output->print ("\",\"value\":\"");
                 } else {
@@ -1026,20 +1055,36 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
             if (!plain) {
                 output->print (",{\"id\":\"");
             }
-            output->print ("Disabled Mode");
+            output->print ("sta");
+
             if (!plain) {
                 output->print ("\",\"value\":\"");
             } else {
                 output->print (": ");
             }
-            output->print ("STA (");
-            output->print (WiFi.macAddress().c_str());
-            output->print (")");
+            output->print ("OFF");
             if (!plain) {
                 output->print ("\"}");
             } else {
                 output->printLN("");
             }
+            //Disabled Mode
+            if (!plain) {
+                output->print (",{\"id\":\"");
+            }
+            output->print ("mac");
+            if (!plain) {
+                output->print ("\",\"value\":\"");
+            } else {
+                output->print (": ");
+            }
+            output->print (WiFi.macAddress().c_str());
+            if (!plain) {
+                output->print ("\"}");
+            } else {
+                output->printLN("");
+            }
+
         }
     }
 #endif //WIFI_FEATURE
@@ -1048,13 +1093,13 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
     if (!plain) {
         output->print (",{\"id\":\"");
     }
-    output->print ("Time client");
+    output->print ("i-time");
     if (!plain) {
         output->print ("\",\"value\":\"");
     } else {
         output->print (": ");
     }
-    output->print (timeserver.started()?"Started":"Disabled");
+    output->print (timeserver.started()?"ON":"OFF");
     if (!plain) {
         output->print ("\"}");
     } else {
@@ -1064,13 +1109,13 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
     if (!plain) {
         output->print (",{\"id\":\"");
     }
-    output->print ("Serial communication");
+    output->print ("serial");
     if (!plain) {
         output->print ("\",\"value\":\"");
     } else {
         output->print (": ");
     }
-    output->print (serial_service.started()?"Enabled":"Disabled");
+    output->print (serial_service.started()?"ON":"OFF");
     if (!plain) {
         output->print ("\"}");
     } else {
@@ -1080,13 +1125,13 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
     if (!plain) {
         output->print (",{\"id\":\"");
     }
-    output->print ("Notification");
+    output->print ("notification");
     if (!plain) {
         output->print ("\",\"value\":\"");
     } else {
         output->print (": ");
     }
-    output->print (notificationsservice.started()?"Enabled":"Disabled");
+    output->print (notificationsservice.started()?"ON":"OFF");
     if (notificationsservice.started()) {
         output->print ("(");
         output->print (notificationsservice.getTypeString());
@@ -1102,13 +1147,13 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
     if (!plain) {
         output->print (",{\"id\":\"");
     }
-    output->print ("SD Card");
+    output->print ("sd");
     if (!plain) {
         output->print ("\",\"value\":\"");
     } else {
         output->print (": ");
     }
-    output->print ((Settings_ESP3D::GetSDDevice() == ESP_DIRECT_SD)?"Direct":(Settings_ESP3D::GetSDDevice() == ESP_SHARED_SD)?"Shared":"None");
+    output->print ((Settings_ESP3D::GetSDDevice() == ESP_DIRECT_SD)?"direct":(Settings_ESP3D::GetSDDevice() == ESP_SHARED_SD)?"shared":"none");
     output->print ("(");
     output->print (ESP_SD::FilesystemName());
     output->print (")");
@@ -1122,13 +1167,13 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
     if (!plain) {
         output->print (",{\"id\":\"");
     }
-    output->print ("DHT sensor");
+    output->print ("dht");
     if (!plain) {
         output->print ("\",\"value\":\"");
     } else {
         output->print (": ");
     }
-    output->print (esp3d_DHT.started()?"Enabled":"Disabled");
+    output->print (esp3d_DHT.started()?"ON":"OFF");
     output->print ("(");
     output->print (esp3d_DHT.GetModelString());
     output->print (")");
@@ -1142,13 +1187,13 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
     if (!plain) {
         output->print (",{\"id\":\"");
     }
-    output->print ("Buzzer");
+    output->print ("buzzer");
     if (!plain) {
         output->print ("\",\"value\":\"");
     } else {
         output->print (": ");
     }
-    output->print (esp3d_buzzer.started()?"Enabled":"Disabled");
+    output->print (esp3d_buzzer.started()?"ON":"OFF");
     if (!plain) {
         output->print ("\"}");
     } else {
@@ -1160,7 +1205,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
     if (!plain) {
         output->print (",{\"id\":\"");
     }
-    output->print ("Debug");
+    output->print ("debug");
     if (!plain) {
         output->print ("\",\"value\":\"");
     } else {
@@ -1191,7 +1236,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
     if (!plain) {
         output->print (",{\"id\":\"");
     }
-    output->print ("FW version");
+    output->print ("FW ver");
     if (!plain) {
         output->print ("\",\"value\":\"");
     } else {
@@ -1207,7 +1252,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         output->print (",{\"id\":\"");
     }
     //FW architecture
-    output->print ("FW architecture");
+    output->print ("FW arch");
     if (!plain) {
         output->print ("\",\"value\":\"");
     } else {

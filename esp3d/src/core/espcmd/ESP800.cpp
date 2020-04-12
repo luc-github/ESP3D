@@ -107,7 +107,7 @@ bool Commands::ESP800(const char* cmd_params, level_authenticate_type auth_type,
     } else if (Settings_ESP3D::GetSDDevice() == ESP_SHARED_SD) {
         output->print("shared");
     } else {
-        output->print("None");
+        output->print("none");
     }
     if(plain) {
         output->printLN("");
@@ -235,7 +235,7 @@ bool Commands::ESP800(const char* cmd_params, level_authenticate_type auth_type,
 #if defined(FILESYSTEM_FEATURE)
     output->print(ESP_FileSystem::FilesystemName());
 #else
-    output->print("None");
+    output->print("none");
 #endif //FILESYSTEM_FEATURE
     if(plain) {
         output->printLN("");
@@ -251,7 +251,7 @@ bool Commands::ESP800(const char* cmd_params, level_authenticate_type auth_type,
 #ifdef TIMESTAMP_FEATURE
     output->print(tparm.c_str());
 #else
-    output->print("None");
+    output->print("none");
 #endif //TIMESTAMP_FEATURE
     if(plain) {
         output->printLN("");

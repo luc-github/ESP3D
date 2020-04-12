@@ -330,21 +330,21 @@ const char* WiFiConfig::getSleepModeString ()
 {
 #ifdef ARDUINO_ARCH_ESP32
     if (WiFi.getSleep()) {
-        return "Modem";
+        return "modem";
     } else {
-        return "None";
+        return "none";
     }
 #endif //ARDUINO_ARCH_ESP32
 #ifdef ARDUINO_ARCH_ESP8266
     WiFiSleepType_t ps_type = WiFi.getSleepMode();
     if (ps_type == WIFI_NONE_SLEEP) {
-        return "None";
+        return "none";
     } else if (ps_type == WIFI_LIGHT_SLEEP) {
-        return "Light";
+        return "light";
     } else if (ps_type == WIFI_MODEM_SLEEP) {
-        return "Modem";
+        return "modem";
     } else {
-        return "???";
+        return "unknown";
     }
 #endif //ARDUINO_ARCH_ESP8266
 }
@@ -366,7 +366,7 @@ const char* WiFiConfig::getPHYModeString (uint8_t wifimode)
     } else if (PhyMode == (WIFI_PHY_MODE_11N) ) {
         return "11n";
     } else {
-        return "???";
+        return "unknown";
     }
 }
 
@@ -415,7 +415,7 @@ const char * WiFiConfig::AP_Auth_String()
     mode = apconfig.authmode;
 #endif //ARDUINO_ARCH_ESP8266
     if (mode == AUTH_OPEN) {
-        return "None";
+        return "none";
     } else if (mode == AUTH_WEP) {
         return "WEP";
     } else if (mode == AUTH_WPA_PSK) {

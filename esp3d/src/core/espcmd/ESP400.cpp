@@ -45,7 +45,7 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (ESP_HOSTNAME);
     output->print ("\",\"T\":\"S\",\"V\":\"");
     output->print (Settings_ESP3D::read_string(ESP_HOSTNAME));
-    output->print ("\",\"H\":\"Hostname\" ,\"S\":\"");
+    output->print ("\",\"H\":\"hostname\" ,\"S\":\"");
     output->print (Settings_ESP3D::get_max_string_size(ESP_HOSTNAME));
     output->print ("\", \"M\":\"");
     output->print (Settings_ESP3D::get_min_string_size(ESP_HOSTNAME));
@@ -56,15 +56,15 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (ESP_RADIO_MODE);
     output->print ("\",\"T\":\"B\",\"V\":\"");
     output->print (Settings_ESP3D::read_byte(ESP_RADIO_MODE));
-    output->print ("\",\"H\":\"Radio mode\",\"O\":[{\"None\":\"0\"}");
+    output->print ("\",\"H\":\"radio mode\",\"O\":[{\"none\":\"0\"}");
 #ifdef WIFI_FEATURE
-    output->print (",{\"STA\":\"1\"},{\"AP\":\"2\"}");
+    output->print (",{\"sta\":\"1\"},{\"ap\":\"2\"}");
 #endif //WIFI_FEATURE
 #ifdef BLUETOOTH_FEATURE
-    output->print (",{\"BT\":\"3\"}");
+    output->print (",{\"bt\":\"3\"}");
 #endif  //BLUETOOTH_FEATURE
 #ifdef ETH_FEATURE
-    output->print (",{\"ETH-STA\":\"4\"}");
+    output->print (",{\"eth-sta\":\"4\"}");
 #endif  //ETH_FEATURE
     output->print ("]}");
 #ifdef WIFI_FEATURE
@@ -75,7 +75,7 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (Settings_ESP3D::read_string(ESP_STA_SSID));
     output->print ("\",\"S\":\"");
     output->print (Settings_ESP3D::get_max_string_size(ESP_STA_SSID));
-    output->print ("\",\"H\":\"Station SSID\",\"M\":\"");
+    output->print ("\",\"H\":\"SSID\",\"M\":\"");
     output->print (Settings_ESP3D::get_min_string_size(ESP_STA_SSID));
     output->print ("\"}");
 
@@ -86,22 +86,10 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (HIDDEN_PASSWORD);
     output->print ("\",\"S\":\"");
     output->print (Settings_ESP3D::get_max_string_size(ESP_STA_PASSWORD));
-    output->print ("\",\"H\":\"Station Password\",\"M\":\"");
+    output->print ("\",\"H\":\"pwd\",\"M\":\"");
     output->print (Settings_ESP3D::get_min_string_size(ESP_STA_PASSWORD));
     output->print ("\"}");
 
-    //6-Station Network Mode
-    //output->print (",{\"F\":\"network\",\"P\":\"");
-    //output->print (ESP_STA_PHY_MODE);
-    //output->print ("\",\"T\":\"B\",\"V\":\"");
-    //output->print (Settings_ESP3D::read_byte(ESP_STA_PHY_MODE));
-    //output->print ("\",\"H\":\"Station Network Mode\",\"O\":[{\"11b\":\"");
-    //output->print (WIFI_PHY_MODE_11B);
-    //output->print ("\"},{\"11g\":\"");
-    //output->print (WIFI_PHY_MODE_11G);
-    //output->print ("\"},{\"11n\":\"");
-    //output->print (WIFI_PHY_MODE_11N);
-    //output->print ("\"}]}");
 #endif  //WIFI_FEATURE
 #if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
     //STA IP mode
@@ -109,28 +97,28 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (ESP_STA_IP_MODE);
     output->print ("\",\"T\":\"B\",\"V\":\"");
     output->print (Settings_ESP3D::read_byte(ESP_STA_IP_MODE));
-    output->print ("\",\"H\":\"Station IP Mode\",\"O\":[{\"DHCP\":\"0\"},{\"Static\":\"1\"}]}");
+    output->print ("\",\"H\":\"ip mode\",\"O\":[{\"dhcp\":\"0\"},{\"static\":\"1\"}]}");
 
     //STA static IP
     output->print (",{\"F\":\"network\",\"F2\":\"sta\",\"P\":\"");
     output->print (ESP_STA_IP_VALUE);
     output->print ("\",\"T\":\"A\",\"V\":\"");
     output->print (Settings_ESP3D::read_IP_String(ESP_STA_IP_VALUE));
-    output->print ("\",\"H\":\"Station Static IP\"}");
+    output->print ("\",\"H\":\"ip\"}");
 
     //STA static Gateway
     output->print (",{\"F\":\"network\",\"F2\":\"sta\",\"P\":\"");
     output->print (ESP_STA_GATEWAY_VALUE);
     output->print ("\",\"T\":\"A\",\"V\":\"");
     output->print (Settings_ESP3D::read_IP_String(ESP_STA_GATEWAY_VALUE));
-    output->print ("\",\"H\":\"Station Static Gateway\"}");
+    output->print ("\",\"H\":\"gw\"}");
 
     //STA static Mask
     output->print (",{\"F\":\"network\",\"F2\":\"sta\",\"P\":\"");
     output->print (ESP_STA_MASK_VALUE);
     output->print ("\",\"T\":\"A\",\"V\":\"");
     output->print (Settings_ESP3D::read_IP_String(ESP_STA_MASK_VALUE));
-    output->print ("\",\"H\":\"Station Static Mask\"}");
+    output->print ("\",\"H\":\"msk\"}");
 #endif  //WIFI_FEATURE || ETH_FEATURE
 #if defined(WIFI_FEATURE)
     //AP SSID network/ap
@@ -140,7 +128,7 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (Settings_ESP3D::read_string(ESP_AP_SSID));
     output->print ("\",\"S\":\"");
     output->print (Settings_ESP3D::get_max_string_size(ESP_AP_SSID));
-    output->print ("\",\"H\":\"AP SSID\",\"M\":\"");
+    output->print ("\",\"H\":\"SSID\",\"M\":\"");
     output->print (Settings_ESP3D::get_min_string_size(ESP_AP_SSID));
     output->print ("\"}");
 
@@ -151,7 +139,7 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (HIDDEN_PASSWORD);
     output->print ("\",\"S\":\"");
     output->print (Settings_ESP3D::get_max_string_size(ESP_AP_PASSWORD));
-    output->print ("\",\"H\":\"AP Password\",\"M\":\"");
+    output->print ("\",\"H\":\"pwd\",\"M\":\"");
     output->print (Settings_ESP3D::get_min_string_size(ESP_AP_PASSWORD));
     output->print ("\"}");
 
@@ -160,14 +148,14 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (ESP_AP_IP_VALUE);
     output->print ("\",\"T\":\"A\",\"V\":\"");
     output->print (Settings_ESP3D::read_IP_String(ESP_AP_IP_VALUE));
-    output->print ("\",\"H\":\"AP Static IP\"}");
+    output->print ("\",\"H\":\"ip\"}");
 
     //AP Channel
     output->print (",{\"F\":\"network\",\"F2\":\"ap\",\"P\":\"");
     output->print (ESP_AP_CHANNEL);
     output->print ("\",\"T\":\"B\",\"V\":\"");
     output->print (Settings_ESP3D::read_byte(ESP_AP_CHANNEL));
-    output->print ("\",\"H\":\"AP Channel\",\"O\":[");
+    output->print ("\",\"H\":\"channel\",\"O\":[");
     for (uint8_t i = Settings_ESP3D::get_min_byte(ESP_AP_CHANNEL); i <= Settings_ESP3D::get_max_byte(ESP_AP_CHANNEL) ; i++) {
         if (i > 1) {
             output->print (",");
@@ -178,25 +166,25 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
 #endif  //WIFI_FEATURE
 
 #ifdef AUTHENTICATION_FEATURE
-    //22-Admin password
+    //Admin password
     output->print (",{\"F\":\"security\",\"F2\":\"security\",\"P\":\"");
     output->print (ESP_ADMIN_PWD);
     output->print ("\",\"T\":\"S\",\"V\":\"");
     output->print (HIDDEN_PASSWORD);
     output->print ("\",\"S\":\"");
     output->print (Settings_ESP3D::get_max_string_size(ESP_ADMIN_PWD));
-    output->print ("\",\"H\":\"Admin Password\",\"M\":\"");
+    output->print ("\",\"H\":\"adm pwd\",\"M\":\"");
     output->print (Settings_ESP3D::get_min_string_size(ESP_ADMIN_PWD));
     output->print ("\"}");
 
-    //23-User password
+    //User password
     output->print (",{\"F\":\"security\",\"F2\":\"security\",\"P\":\"");
     output->print (ESP_USER_PWD);
     output->print ("\",\"T\":\"S\",\"V\":\"");
     output->print (HIDDEN_PASSWORD);
     output->print ("\",\"S\":\"");
     output->print (Settings_ESP3D::get_max_string_size(ESP_USER_PWD));
-    output->print ("\",\"H\":\"User Password\",\"M\":\"");
+    output->print ("\",\"H\":\"user pwd\",\"M\":\"");
     output->print (Settings_ESP3D::get_min_string_size(ESP_USER_PWD));
     output->print ("\"}");
 #endif //AUTHENTICATION_FEATURE
@@ -207,14 +195,14 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (ESP_HTTP_ON);
     output->print ("\",\"T\":\"B\",\"V\":\"");
     output->print (Settings_ESP3D::read_byte(ESP_HTTP_ON));
-    output->print ("\",\"H\":\"Enable HTTP\",\"O\":[{\"No\":\"0\"},{\"Yes\":\"1\"}]}");
+    output->print ("\",\"H\":\"enable\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
 
     //HTTP Port
     output->print (",{\"F\":\"service\",\"F2\":\"http\",\"P\":\"");
     output->print (ESP_HTTP_PORT);
     output->print ("\",\"T\":\"I\",\"V\":\"");
     output->print (Settings_ESP3D::read_uint32(ESP_HTTP_PORT));
-    output->print ("\",\"H\":\"HTTP Port\",\"S\":\"");
+    output->print ("\",\"H\":\"port\",\"S\":\"");
     output->print (Settings_ESP3D::get_max_int32_value(ESP_HTTP_PORT));
     output->print ("\",\"M\":\"");
     output->print (Settings_ESP3D::get_min_int32_value(ESP_HTTP_PORT));
@@ -223,18 +211,18 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
 
 #ifdef TELNET_FEATURE
     //TELNET On service/telnet
-    output->print (",{\"F\":\"service\",\"F2\":\"telnet\",\"P\":\"");
+    output->print (",{\"F\":\"service\",\"F2\":\"telnetp\",\"P\":\"");
     output->print (ESP_TELNET_ON);
     output->print ("\",\"T\":\"B\",\"V\":\"");
     output->print (Settings_ESP3D::read_byte(ESP_TELNET_ON));
-    output->print ("\",\"H\":\"Enable Telnet\",\"O\":[{\"No\":\"0\"},{\"Yes\":\"1\"}]}");
+    output->print ("\",\"H\":\"enable\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
 
     //TELNET Port
-    output->print (",{\"F\":\"service\",\"F2\":\"telnet\",\"P\":\"");
+    output->print (",{\"F\":\"service\",\"F2\":\"telnetp\",\"P\":\"");
     output->print (ESP_TELNET_PORT);
     output->print ("\",\"T\":\"I\",\"V\":\"");
     output->print (Settings_ESP3D::read_uint32(ESP_TELNET_PORT));
-    output->print ("\",\"H\":\"Telnet Port\",\"S\":\"");
+    output->print ("\",\"H\":\"port\",\"S\":\"");
     output->print (Settings_ESP3D::get_max_int32_value(ESP_TELNET_PORT));
     output->print ("\",\"M\":\"");
     output->print (Settings_ESP3D::get_min_int32_value(ESP_TELNET_PORT));
@@ -247,14 +235,14 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (ESP_FTP_ON);
     output->print ("\",\"T\":\"B\",\"V\":\"");
     output->print (Settings_ESP3D::read_byte(ESP_FTP_ON));
-    output->print ("\",\"H\":\"Enable Ftp\",\"O\":[{\"No\":\"0\"},{\"Yes\":\"1\"}]}");
+    output->print ("\",\"H\":\"enable\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
 
     //FTP Ports
     output->print (",{\"F\":\"service\",\"F2\":\"ftp\",\"P\":\"");
     output->print (ESP_FTP_CTRL_PORT);
     output->print ("\",\"T\":\"I\",\"V\":\"");
     output->print (Settings_ESP3D::read_uint32(ESP_FTP_CTRL_PORT));
-    output->print ("\",\"H\":\"Ftp Control Port\",\"S\":\"");
+    output->print ("\",\"H\":\"control port\",\"S\":\"");
     output->print (Settings_ESP3D::get_max_int32_value(ESP_FTP_CTRL_PORT));
     output->print ("\",\"M\":\"");
     output->print (Settings_ESP3D::get_min_int32_value(ESP_FTP_CTRL_PORT));
@@ -264,7 +252,7 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (ESP_FTP_DATA_ACTIVE_PORT);
     output->print ("\",\"T\":\"I\",\"V\":\"");
     output->print (Settings_ESP3D::read_uint32(ESP_FTP_DATA_ACTIVE_PORT));
-    output->print ("\",\"H\":\"FTP Active Port\",\"S\":\"");
+    output->print ("\",\"H\":\"active port\",\"S\":\"");
     output->print (Settings_ESP3D::get_max_int32_value(ESP_FTP_DATA_ACTIVE_PORT));
     output->print ("\",\"M\":\"");
     output->print (Settings_ESP3D::get_min_int32_value(ESP_FTP_DATA_ACTIVE_PORT));
@@ -274,7 +262,7 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (ESP_FTP_DATA_PASSIVE_PORT);
     output->print ("\",\"T\":\"I\",\"V\":\"");
     output->print (Settings_ESP3D::read_uint32(ESP_FTP_DATA_PASSIVE_PORT));
-    output->print ("\",\"H\":\"FTP Passive Port\",\"S\":\"");
+    output->print ("\",\"H\":\"passive port\",\"S\":\"");
     output->print (Settings_ESP3D::get_max_int32_value(ESP_FTP_DATA_PASSIVE_PORT));
     output->print ("\",\"M\":\"");
     output->print (Settings_ESP3D::get_min_int32_value(ESP_FTP_DATA_PASSIVE_PORT));
@@ -288,14 +276,14 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (ESP_INTERNET_TIME);
     output->print("\",\"T\":\"B\",\"V\":\"");
     output->print ((int8_t)Settings_ESP3D::read_byte(ESP_INTERNET_TIME));
-    output->print("\",\"H\":\"Internet Time\",\"O\":[{\"No\":\"0\"},{\"Yes\":\"1\"}]}");
+    output->print("\",\"H\":\"i-time\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
 
     //Time zone
     output->print (",{\"F\":\"service\",\"F2\":\"time\",\"P\":\"");
     output->print (ESP_TIMEZONE);
     output->print("\",\"T\":\"B\",\"V\":\"");
     output->print ((int8_t)Settings_ESP3D::read_byte(ESP_TIMEZONE));
-    output->print("\",\"H\":\"Time Zone\",\"O\":[");
+    output->print("\",\"H\":\"tzone\",\"O\":[");
     for (int8_t i = Settings_ESP3D::get_min_byte(ESP_TIMEZONE); i <= Settings_ESP3D::get_max_byte(ESP_TIMEZONE) ; i++) {
         if (i > 1) {
             output->print (",");
@@ -309,7 +297,7 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (ESP_TIME_IS_DST);
     output->print("\",\"T\":\"B\",\"V\":\"");
     output->print (Settings_ESP3D::read_byte(ESP_TIME_IS_DST));
-    output->print("\",\"H\":\"Day Saving Time\",\"O\":[{\"No\":\"0\"},{\"Yes\":\"1\"}]}");
+    output->print("\",\"H\":\"dst\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
 
     //Time Server1
     output->print (",{\"F\":\"service\",\"F2\":\"time\",\"P\":\"");
@@ -318,7 +306,7 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (Settings_ESP3D::read_string(ESP_TIME_SERVER1));
     output->print ("\",\"S\":\"");
     output->print (Settings_ESP3D::get_max_string_size(ESP_TIME_SERVER1));
-    output->print ("\",\"H\":\"Time Server 1\",\"M\":\"");
+    output->print ("\",\"H\":\"t-server\",\"M\":\"");
     output->print (Settings_ESP3D::get_min_string_size(ESP_TIME_SERVER1));
     output->print ("\"}");
 
@@ -329,7 +317,7 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (Settings_ESP3D::read_string(ESP_TIME_SERVER2));
     output->print ("\",\"S\":\"");
     output->print (Settings_ESP3D::get_max_string_size(ESP_TIME_SERVER2));
-    output->print ("\",\"H\":\"Time Server 2\",\"M\":\"");
+    output->print ("\",\"H\":\"t-server\",\"M\":\"");
     output->print (Settings_ESP3D::get_min_string_size(ESP_TIME_SERVER2));
     output->print ("\"}");
 
@@ -340,7 +328,7 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (Settings_ESP3D::read_string(ESP_TIME_SERVER3));
     output->print ("\",\"S\":\"");
     output->print (Settings_ESP3D::get_max_string_size(ESP_TIME_SERVER3));
-    output->print ("\",\"H\":\"Time Server 3\",\"M\":\"");
+    output->print ("\",\"H\":\"t-server\",\"M\":\"");
     output->print (Settings_ESP3D::get_min_string_size(ESP_TIME_SERVER3));
     output->print ("\"}");
 #endif //TIMESTAMP_FEATURE
@@ -351,17 +339,17 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (ESP_AUTO_NOTIFICATION);
     output->print("\",\"T\":\"B\",\"V\":\"");
     output->print (Settings_ESP3D::read_byte(ESP_AUTO_NOTIFICATION));
-    output->print("\",\"H\":\"Auto notification\",\"O\":[{\"No\":\"0\"},{\"Yes\":\"1\"}]}");
+    output->print("\",\"H\":\"auto notif\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
     //Notification type
     output->print (",{\"F\":\"service\",\"F2\":\"notification\",\"P\":\"");
     output->print (ESP_NOTIFICATION_TYPE);
     output->print ("\",\"T\":\"B\",\"V\":\"");
     output->print (Settings_ESP3D::read_byte(ESP_NOTIFICATION_TYPE));
-    output->print ("\",\"H\":\"Notification\",\"O\":[{\"None\":\"0\"},{\"Pushover\":\"");
+    output->print ("\",\"H\":\"notification\",\"O\":[{\"none\":\"0\"},{\"pushover\":\"");
     output->print (ESP_PUSHOVER_NOTIFICATION);
-    output->print ("\"},{\"Email\":\"");
+    output->print ("\"},{\"email\":\"");
     output->print (ESP_EMAIL_NOTIFICATION);
-    output->print ("\"},{\"Line\":\"");
+    output->print ("\"},{\"line\":\"");
     output->print (ESP_LINE_NOTIFICATION);
     output->print ("\"}]}");
     //Token 1
@@ -371,7 +359,7 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (HIDDEN_PASSWORD);
     output->print ("\",\"S\":\"");
     output->print (Settings_ESP3D::get_max_string_size(ESP_NOTIFICATION_TOKEN1));
-    output->print ("\",\"H\":\"Token 1\",\"M\":\"");
+    output->print ("\",\"H\":\"t1\",\"M\":\"");
     output->print (Settings_ESP3D::get_min_string_size(ESP_NOTIFICATION_TOKEN1));
     output->print ("\"}");
     //Token 2
@@ -381,7 +369,7 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (HIDDEN_PASSWORD);
     output->print ("\",\"S\":\"");
     output->print (Settings_ESP3D::get_max_string_size(ESP_NOTIFICATION_TOKEN2));
-    output->print ("\",\"H\":\"Token 2\",\"M\":\"");
+    output->print ("\",\"H\":\"t2\",\"M\":\"");
     output->print (Settings_ESP3D::get_min_string_size(ESP_NOTIFICATION_TOKEN2));
     output->print ("\"}");
     //Notifications Settings
@@ -391,7 +379,7 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (Settings_ESP3D::read_string(ESP_NOTIFICATION_SETTINGS));
     output->print ("\",\"S\":\"");
     output->print (Settings_ESP3D::get_max_string_size(ESP_NOTIFICATION_SETTINGS));
-    output->print ("\",\"H\":\"Notifications Settings\",\"M\":\"");
+    output->print ("\",\"H\":\"ts\",\"M\":\"");
     output->print (Settings_ESP3D::get_min_string_size(ESP_NOTIFICATION_SETTINGS));
     output->print ("\"}");
 #endif //NOTIFICATION_FEATURE
@@ -401,7 +389,7 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (ESP_CAMERA_PORT);
     output->print ("\",\"T\":\"I\",\"V\":\"");
     output->print (Settings_ESP3D::read_uint32(ESP_CAMERA_PORT));
-    output->print ("\",\"H\":\"Camera Port\",\"S\":\"");
+    output->print ("\",\"H\":\"port\",\"S\":\"");
     output->print (Settings_ESP3D::get_max_int32_value(ESP_CAMERA_PORT));
     output->print ("\",\"M\":\"");
     output->print (Settings_ESP3D::get_min_int32_value(ESP_CAMERA_PORT));
@@ -413,7 +401,7 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (ESP_BUZZER);
     output->print ("\",\"T\":\"B\",\"V\":\"");
     output->print (Settings_ESP3D::read_byte(ESP_BUZZER));
-    output->print ("\",\"H\":\"Buzzer\",\"O\":[{\"No\":\"0\"},{\"Yes\":\"1\"}]}");
+    output->print ("\",\"H\":\"buzzer\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
 #endif //BUZZER_DEVICE
 
 #ifdef DHT_DEVICE
@@ -422,9 +410,9 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (ESP_DHT_TYPE);
     output->print ("\",\"T\":\"B\",\"V\":\"");
     output->print (Settings_ESP3D::read_byte(ESP_DHT_TYPE));
-    output->print ("\",\"H\":\"DHT Type\",\"O\":[{\"None\":\"0\"},{\"DHT11\":\"");
+    output->print ("\",\"H\":\"type\",\"O\":[{\"none\":\"0\"},{\"11\":\"");
     output->print (DHT11_DEVICE);
-    output->print ("\"},{\"DHT22\":\"");
+    output->print ("\"},{\"22\":\"");
     output->print (DHT22_DEVICE);
     output->print ("\"}]}");
 
@@ -433,7 +421,7 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (ESP_DHT_INTERVAL);
     output->print ("\",\"T\":\"I\",\"V\":\"");
     output->print (Settings_ESP3D::read_uint32(ESP_DHT_INTERVAL));
-    output->print ("\",\"H\":\"DHT interval (millisec)\",\"S\":\"");
+    output->print ("\",\"H\":\"intervalms\",\"S\":\"");
     output->print (Settings_ESP3D::get_max_int32_value(ESP_DHT_INTERVAL));
     output->print ("\",\"M\":\"");
     output->print (Settings_ESP3D::get_min_int32_value(ESP_DHT_INTERVAL));
@@ -446,32 +434,32 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print("\",\"T\":\"B\",\"V\":\"");
     output->print (Settings_ESP3D::read_byte(ESP_SD_DEVICE_TYPE));
     //hard coded for readibility but should use ESP_NO_SD / ESP_DIRECT_SD / ESP_SHARED_SD
-    output->print("\",\"H\":\"SD Device\",\"O\":[{\"None\":\"0\"},{\"Direct\":\"1\"},{\"Shared\":\"2\"}]}");
+    output->print("\",\"H\":\"type\",\"O\":[{\"none\":\"0\"},{\"direct\":\"1\"},{\"dhared\":\"2\"}]}");
     //SPI SD Divider
     output->print(",{\"F\":\"device\",\"F2\":\"sd\",\"P\":\"");
     output->print(ESP_SD_SPEED_DIV);
     output->print("\",\"T\":\"B\",\"V\":\"");
     output->print (Settings_ESP3D::read_byte(ESP_SD_SPEED_DIV));
-    output->print("\",\"H\":\"SD speed divider\",\"O\":[{\"1\":\"1\"},{\"2\":\"2\"},{\"3\":\"3\"},{\"4\":\"4\"},{\"6\":\"6\"},{\"8\":\"8\"},{\"16\":\"16\"},{\"32\":\"32\"}]}");
+    output->print("\",\"H\":\"speedx\",\"O\":[{\"1\":\"1\"},{\"2\":\"2\"},{\"3\":\"3\"},{\"4\":\"4\"},{\"6\":\"6\"},{\"8\":\"8\"},{\"16\":\"16\"},{\"32\":\"32\"}]}");
 #endif //SD_DEVICE 
     //Target FW
     output->print (",{\"F\":\"system\",\"F2\":\"system\",\"P\":\"");
     output->print (ESP_TARGET_FW);
     output->print ("\",\"T\":\"B\",\"V\":\"");
     output->print (Settings_ESP3D::read_byte(ESP_TARGET_FW));
-    output->print ("\",\"H\":\"Target FW\",\"O\":[{\"Repetier\":\"");
+    output->print ("\",\"H\":\"targetfw\",\"O\":[{\"repetier\":\"");
     output->print (REPETIER);
-    output->print ("\"},{\"Repetier for Davinci\":\"");
+    output->print ("\"},{\"repetier4davinci\":\"");
     output->print (REPETIER4DV);
-    output->print ("\"},{\"Marlin\":\"");
+    output->print ("\"},{\"marlin\":\"");
     output->print (MARLIN);
-    output->print ("\"},{\"Marlin Kimbra\":\"");
+    output->print ("\"},{\"marlinkimbra\":\"");
     output->print (MARLINKIMBRA);
-    output->print ("\"},{\"Smoothieware\":\"");
+    output->print ("\"},{\"smoothieware\":\"");
     output->print (SMOOTHIEWARE);
-    output->print ("\"},{\"Grbl\":\"");
+    output->print ("\"},{\"grbl\":\"");
     output->print (GRBL);
-    output->print ("\"},{\"Unknown\":\"");
+    output->print ("\"},{\"unknown\":\"");
     output->print (UNKNOWN_FW);
     output->print ("\"}]}");
     //Baud Rate
@@ -479,7 +467,7 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (ESP_BAUD_RATE);
     output->print ("\",\"T\":\"I\",\"V\":\"");
     output->print (Settings_ESP3D::read_uint32(ESP_BAUD_RATE));
-    output->print ("\",\"H\":\"Baud Rate\",\"O\":[");
+    output->print ("\",\"H\":\"baud\",\"O\":[");
     uint8_t count = 0;
     const long *bl =  serial_service.get_baudratelist(&count);
     for (uint8_t i = 0 ; i < count ; i++) {
@@ -494,7 +482,7 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (ESP_BOOT_DELAY);
     output->print ("\",\"T\":\"I\",\"V\":\"");
     output->print (Settings_ESP3D::read_uint32(ESP_BOOT_DELAY));
-    output->print ("\",\"H\":\"Start delay\",\"S\":\"");
+    output->print ("\",\"H\":\"bootdelay\",\"S\":\"");
     output->print (Settings_ESP3D::get_max_int32_value(ESP_BOOT_DELAY));
     output->print ("\",\"M\":\"");
     output->print (Settings_ESP3D::get_min_int32_value(ESP_BOOT_DELAY));
@@ -504,19 +492,19 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (ESP_OUTPUT_FLAG);
     output->print ("\",\"T\":\"F\",\"V\":\"");
     output->print (Settings_ESP3D::read_byte(ESP_TARGET_FW));
-    output->printf ("\",\"H\":\"Output msg\",\"O\":[{\"M117\":\"%d\"}", ESP_PRINTER_LCD_CLIENT);
+    output->printf ("\",\"H\":\"outputmsg\",\"O\":[{\"M117\":\"%d\"}", ESP_PRINTER_LCD_CLIENT);
 #ifdef DISPLAY_DEVICE
-    output->printf (",{\"Screen\":\"%d\"}", ESP_SCREEN_CLIENT);
+    output->printf (",{\"screen\":\"%d\"}", ESP_SCREEN_CLIENT);
 #endif //DISPLAY_DEVICE
-    output->printf (",{\"Serial\":\"%d\"}", ESP_SERIAL_CLIENT);
+    output->printf (",{\"serial\":\"%d\"}", ESP_SERIAL_CLIENT);
 #ifdef WS_DATA_FEATURE
-    output->printf (",{\"Web Socket\":\"%d\"}", ESP_WEBSOCKET_CLIENT);
+    output->printf (",{\"ws\":\"%d\"}", ESP_WEBSOCKET_CLIENT);
 #endif //WS_DATA_FEATURE
 #ifdef BLUETOOTH_FEATURE
-    output->printf (",{\"Bluetooth\":\"%d\"}", ESP_BT_CLIENT);
+    output->printf (",{\"bt\":\"%d\"}", ESP_BT_CLIENT);
 #endif //BLUETOOTH_FEATURE
 #ifdef TELNET_FEATURE
-    output->printf (",{\"Telnet\":\"%d\"}", ESP_TELNET_CLIENT);
+    output->printf (",{\"telnet\":\"%d\"}", ESP_TELNET_CLIENT);
 #endif //TELNET_FEATURE
     output->print ("]}");
 
