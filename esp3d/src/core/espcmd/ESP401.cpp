@@ -166,9 +166,12 @@ bool Commands::ESP401(const char* cmd_params, level_authenticate_type auth_type,
 #endif //WIFI_FEATURE
     }
     if (!response) {
-        output->printERROR ("Incorrect command!");
+        String tmp = "error " + spos;
+        output->printERROR (tmp);
+
     } else {
-        output->printMSG("ok");
+        String tmp = "ok " + spos;
+        output->printMSG(tmp)
     }
 
     return response;

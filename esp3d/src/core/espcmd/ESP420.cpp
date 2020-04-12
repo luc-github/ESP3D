@@ -708,7 +708,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
             output->print ("/");
             output->print (WiFi.softAPmacAddress().c_str());
         } else {
-            output->print ("???");
+            output->print ("unknown");
         }
         if (!plain) {
             output->print ("\"}");
