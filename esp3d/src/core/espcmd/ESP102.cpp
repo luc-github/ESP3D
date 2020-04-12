@@ -53,7 +53,7 @@ bool Commands::ESP102(const char* cmd_params, level_authenticate_type auth_type,
         } else if (resp == STATIC_IP_MODE) {
             output->printMSG("STATIC");
         } else {
-            output->printMSG("???");
+            output->printMSG("Unknown");
         }
     } else { //set
 #ifdef AUTHENTICATION_FEATURE

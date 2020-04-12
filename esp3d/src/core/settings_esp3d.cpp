@@ -216,7 +216,7 @@ const char* Settings_ESP3D::GetFirmwareTargetShortName()
     } else if ( _FirmwareTarget == GRBL) {
         response = F ("grbl");
     } else {
-        response = F ("???");
+        response = F ("unknown");
     }
     return response.c_str();
 }
