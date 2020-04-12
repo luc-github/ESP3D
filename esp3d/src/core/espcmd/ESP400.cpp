@@ -376,7 +376,7 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (",{\"F\":\"service\",\"F2\":\"notification\",\"P\":\"");
     output->print (ESP_NOTIFICATION_SETTINGS);
     output->print ("\",\"T\":\"S\",\"V\":\"");
-    output->print (Settings_ESP3D::read_string(ESP_NOTIFICATION_SETTINGS));
+    output->print ((strlen(Settings_ESP3D::read_string(ESP_NOTIFICATION_SETTINGS))==0)?" ":Settings_ESP3D::read_string(ESP_NOTIFICATION_SETTINGS));
     output->print ("\",\"S\":\"");
     output->print (Settings_ESP3D::get_max_string_size(ESP_NOTIFICATION_SETTINGS));
     output->print ("\",\"H\":\"ts\",\"M\":\"");

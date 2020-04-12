@@ -166,12 +166,12 @@ bool Commands::ESP401(const char* cmd_params, level_authenticate_type auth_type,
 #endif //WIFI_FEATURE
     }
     if (!response) {
-        String tmp = "error " + spos;
-        output->printERROR (tmp);
+        parameter = "error " + spos;
+        output->printERROR (parameter.c_str());
 
     } else {
-        String tmp = "ok " + spos;
-        output->printMSG(tmp)
+        parameter = "ok " + spos;
+        output->printMSG(parameter.c_str());
     }
 
     return response;
