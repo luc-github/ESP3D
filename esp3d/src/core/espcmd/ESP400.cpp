@@ -97,7 +97,7 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (ESP_STA_IP_MODE);
     output->print ("\",\"T\":\"B\",\"V\":\"");
     output->print (Settings_ESP3D::read_byte(ESP_STA_IP_MODE));
-    output->print ("\",\"H\":\"ip mode\",\"O\":[{\"dhcp\":\"0\"},{\"static\":\"1\"}]}");
+    output->print ("\",\"H\":\"ip mode\",\"O\":[{\"dhcp\":\"1\"},{\"static\":\"0\"}]}");
 
     //STA static IP
     output->print (",{\"F\":\"network\",\"F2\":\"sta\",\"P\":\"");
@@ -491,7 +491,7 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (",{\"F\":\"system\",\"F2\":\"system\",\"P\":\"");
     output->print (ESP_OUTPUT_FLAG);
     output->print ("\",\"T\":\"F\",\"V\":\"");
-    output->print (Settings_ESP3D::read_byte(ESP_TARGET_FW));
+    output->print (Settings_ESP3D::read_byte(ESP_OUTPUT_FLAG));
     output->printf ("\",\"H\":\"outputmsg\",\"O\":[{\"M117\":\"%d\"}", ESP_PRINTER_LCD_CLIENT);
 #ifdef DISPLAY_DEVICE
     output->printf (",{\"screen\":\"%d\"}", ESP_SCREEN_CLIENT);
