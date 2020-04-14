@@ -56,6 +56,7 @@ private:
     bool sendPushoverMSG(const char * title, const char * message);
     bool sendEmailMSG(const char * title, const char * message);
     bool sendLineMSG(const char * title, const char * message);
+    bool sendTelegramMSG(const char * title, const char * message);
     bool getPortFromSettings();
     bool getServerAddressFromSettings();
     bool getEmailFromSettings();

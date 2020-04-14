@@ -27,6 +27,8 @@
 //* Email:
 // - https://github.com/CosmicBoris/ESP8266SMTP
 // - https://www.electronicshub.org/send-an-email-using-esp8266/
+//* Telegram
+// - https://medium.com/@xabaras/sending-a-message-to-a-telegram-channel-the-easy-way-eb0a0b32968
 
 #include "../../include/esp3d_config.h"
 #ifdef NOTIFICATION_FEATURE
@@ -62,9 +64,49 @@ typedef WiFiClientSecure TSecureClient;
 #define LINESERVER "notify-api.line.me"
 #define LINEPORT    443
 
+#define TELEGRAMTIMEOUT 5000
+#define TELEGRAMSERVER "api.telegram.org"
+#define TELEGRAMPORT    443
+
 #define EMAILTIMEOUT 5000
 
 NotificationsService notificationsservice;
+
+//https://circuits4you.com/2019/03/21/esp8266-url-encode-decode-example/
+String urlencode(String str)
+{
+    String encodedString="";
+    char c;
+    char code0;
+    char code1;
+    char code2;
+    for (int i =0; i < str.length(); i++) {
+        c=str.charAt(i);
+        if (c == ' ') {
+            encodedString+= '+';
+        } else if (isalnum(c)) {
+            encodedString+=c;
+        } else {
+            code1=(c & 0xf)+'0';
+            if ((c & 0xf) >9) {
+                code1=(c & 0xf) - 10 + 'A';
+            }
+            c=(c>>4)&0xf;
+            code0=c+'0';
+            if (c > 9) {
+                code0=c - 10 + 'A';
+            }
+            code2='\0';
+            encodedString+='%';
+            encodedString+=code0;
+            encodedString+=code1;
+            //encodedString+=code2;
+        }
+        Hal::wait(0);
+    }
+    return encodedString;
+
+}
 
 bool Wait4Answer(TSecureClient & client, const char * linetrigger, const char * expected_answer,  uint32_t timeout)
 {
@@ -143,6 +185,8 @@ const char * NotificationsService::getTypeString()
         return "email";
     case ESP_LINE_NOTIFICATION:
         return "line";
+    case ESP_TELEGRAM_NOTIFICATION:
+        return "telegram";
     default:
         break;
     }
@@ -152,6 +196,7 @@ const char * NotificationsService::getTypeString()
 bool NotificationsService::sendMSG(const char * title, const char * message)
 {
     if(!_started) {
+        log_esp3d("Error notification not started");
         return false;
     }
     if (!((strlen(title) == 0) && (strlen(message) == 0))) {
@@ -164,6 +209,9 @@ bool NotificationsService::sendMSG(const char * title, const char * message)
             break;
         case ESP_LINE_NOTIFICATION :
             return sendLineMSG(title,message);
+            break;
+        case ESP_TELEGRAM_NOTIFICATION :
+            return sendTelegramMSG(title,message);
             break;
         default:
             break;
@@ -212,6 +260,45 @@ bool NotificationsService::sendPushoverMSG(const char * title, const char * mess
     Notificationclient.stop();
     return res;
 }
+
+//Telegram
+bool NotificationsService::sendTelegramMSG(const char * title, const char * message)
+{
+    String data;
+    String getcmd;
+    bool res;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+    TSecureClient Notificationclient;
+#pragma GCC diagnostic pop
+#if defined(ARDUINO_ARCH_ESP8266) && !defined(USING_AXTLS)
+    Notificationclient.setInsecure();
+#endif //ARDUINO_ARCH_ESP8266 && !USING_AXTLS
+    if (!Notificationclient.connect(_serveraddress.c_str(), _port)) {
+        log_esp3d("Error connecting  server %s:%d", _serveraddress.c_str(), _port);
+        return false;
+    }
+    (void)title;
+    //build url for get
+    data = "/bot";
+    data +=_token1;
+    data += "/sendMessage?chat_id=";
+    data += _token2;
+    data += "&text=";
+    data += urlencode(message);
+
+    //build post query
+    getcmd  = "GET ";
+    getcmd  += data;
+    getcmd  +=" HTTP/1.1\r\nHost: api.telegram.org\r\nConnection: close\r\n\r\n";
+    log_esp3d("Query: %s", getcmd.c_str());
+    //send query
+    Notificationclient.print(getcmd);
+    res = Wait4Answer(Notificationclient, "{", "\"ok\":true",  TELEGRAMTIMEOUT);
+    Notificationclient.stop();
+    return res;
+}
+
 bool NotificationsService::sendEmailMSG(const char * title, const char * message)
 {
 #pragma GCC diagnostic push
@@ -399,6 +486,12 @@ bool NotificationsService::begin()
         _token2 = Settings_ESP3D::read_string(ESP_NOTIFICATION_TOKEN2);
         _port = PUSHOVERPORT;
         _serveraddress = PUSHOVERSERVER;
+        break;
+    case ESP_TELEGRAM_NOTIFICATION:
+        _token1 = Settings_ESP3D::read_string(ESP_NOTIFICATION_TOKEN1);
+        _token2 = Settings_ESP3D::read_string(ESP_NOTIFICATION_TOKEN2);
+        _port = TELEGRAMPORT;
+        _serveraddress = TELEGRAMSERVER;
         break;
     case ESP_LINE_NOTIFICATION:
         _token1 = Settings_ESP3D::read_string(ESP_NOTIFICATION_TOKEN1);

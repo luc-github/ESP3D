@@ -44,7 +44,7 @@ bool Commands::ESP610(const char* cmd_params, level_authenticate_type auth_type,
     if (parameter.length() == 0) {
         uint8_t Ntype =  Settings_ESP3D::read_byte(ESP_NOTIFICATION_TYPE);
         static String tmp;
-        tmp = (Ntype == ESP_PUSHOVER_NOTIFICATION)?"PUSHOVER":(Ntype == ESP_EMAIL_NOTIFICATION)?"EMAIL":(Ntype == ESP_LINE_NOTIFICATION)?"LINE":"NONE";
+        tmp = (Ntype == ESP_PUSHOVER_NOTIFICATION)?"PUSHOVER":(Ntype == ESP_EMAIL_NOTIFICATION)?"EMAIL":(Ntype == ESP_LINE_NOTIFICATION)?"LINE":(Ntype == ESP_TELEGRAM_NOTIFICATION)?"TELEGRAM":"NONE";
         tmp+= " ";
         tmp+= Settings_ESP3D::read_string(ESP_NOTIFICATION_SETTINGS);
         output->printMSG (tmp.c_str());
@@ -63,6 +63,8 @@ bool Commands::ESP610(const char* cmd_params, level_authenticate_type auth_type,
                 Ntype = ESP_EMAIL_NOTIFICATION;
             } else if (parameter == "LINE") {
                 Ntype = ESP_LINE_NOTIFICATION;
+            } else if (parameter == "TELEGRAM") {
+                Ntype = ESP_TELEGRAM_NOTIFICATION;
             } else {
                 output->printERROR("Only NONE, PUSHOVER, EMAIL, LINE are supported!");
                 return false;
