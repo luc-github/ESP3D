@@ -72,42 +72,6 @@ typedef WiFiClientSecure TSecureClient;
 
 NotificationsService notificationsservice;
 
-//https://circuits4you.com/2019/03/21/esp8266-url-encode-decode-example/
-String urlencode(String str)
-{
-    String encodedString="";
-    char c;
-    char code0;
-    char code1;
-    char code2;
-    for (int i =0; i < str.length(); i++) {
-        c=str.charAt(i);
-        if (c == ' ') {
-            encodedString+= '+';
-        } else if (isalnum(c)) {
-            encodedString+=c;
-        } else {
-            code1=(c & 0xf)+'0';
-            if ((c & 0xf) >9) {
-                code1=(c & 0xf) - 10 + 'A';
-            }
-            c=(c>>4)&0xf;
-            code0=c+'0';
-            if (c > 9) {
-                code0=c - 10 + 'A';
-            }
-            code2='\0';
-            encodedString+='%';
-            encodedString+=code0;
-            encodedString+=code1;
-            //encodedString+=code2;
-        }
-        Hal::wait(0);
-    }
-    return encodedString;
-
-}
-
 bool Wait4Answer(TSecureClient & client, const char * linetrigger, const char * expected_answer,  uint32_t timeout)
 {
     if(client.connected()) {
@@ -265,7 +229,7 @@ bool NotificationsService::sendPushoverMSG(const char * title, const char * mess
 bool NotificationsService::sendTelegramMSG(const char * title, const char * message)
 {
     String data;
-    String getcmd;
+    String postcmd;
     bool res;
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -280,20 +244,21 @@ bool NotificationsService::sendTelegramMSG(const char * title, const char * mess
     }
     (void)title;
     //build url for get
-    data = "/bot";
-    data +=_token1;
-    data += "/sendMessage?chat_id=";
+    data = "chat_id=";
     data += _token2;
     data += "&text=";
-    data += urlencode(message);
+    data += message;
 
     //build post query
-    getcmd  = "GET ";
-    getcmd  += data;
-    getcmd  +=" HTTP/1.1\r\nHost: api.telegram.org\r\nConnection: close\r\n\r\n";
-    log_esp3d("Query: %s", getcmd.c_str());
+    postcmd  = "POST /bot";
+    postcmd +=_token1;
+    postcmd += "/sendMessage HTTP/1.1\r\nHost: api.telegram.org\r\nConnection: close\r\nContent-Type: application/x-www-form-urlencoded\r\nCache-Control: no-cache\r\nUser-Agent: ESP3D\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\nContent-Length: ";
+    postcmd  += data.length();
+    postcmd  +="\r\n\r\n";
+    postcmd  +=data;
+    log_esp3d("Query: %s", postcmd.c_str());
     //send query
-    Notificationclient.print(getcmd);
+    Notificationclient.print(postcmd);
     res = Wait4Answer(Notificationclient, "{", "\"ok\":true",  TELEGRAMTIMEOUT);
     Notificationclient.stop();
     return res;
