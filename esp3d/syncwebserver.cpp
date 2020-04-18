@@ -601,7 +601,7 @@ void handleFileList()
 //SPIFFS files uploader handle
 void SPIFFSFileupload()
 {
-	static FS_FILE fsUploadFile = (FS_FILE)0;
+    static FS_FILE fsUploadFile = (FS_FILE)0;
     static String filename;
     //get authentication status
     level_authenticate_type auth_level= web_interface->is_authenticated();
@@ -958,7 +958,6 @@ void handle_web_command()
     }
 #endif
     String cmd = "";
-    int count ;
     if (web_interface->web_server.hasArg("plain") || web_interface->web_server.hasArg("commandText")) {
         if (web_interface->web_server.hasArg("plain")) {
             cmd = web_interface->web_server.arg("plain");
@@ -1029,38 +1028,46 @@ void handle_web_command()
                 CONFIG::wait(1);
             }
             LOG("End PurgeSerial\r\n")
-            LOG("Send Command\r\n")
             ESPCOM::println (cmd, DEFAULT_PRINTER_PIPE);
-            count = 0;
+            bool done = false;
             String current_buffer;
             String current_line;
             //int pos;
             int temp_counter = 0;
             String tmp;
             bool datasent = false;
+            uint32_t timeout = millis();
             //pickup the list
-            while (count < MAX_TRY) {
+            while ((millis() - timeout < 2000) && !done) {
                 //give some time between each buffer
                 if (ESPCOM::available(DEFAULT_PRINTER_PIPE)) {
-                    count = 0;
+                    LOG("Got data\r\n")
+                    timeout = millis();
                     size_t len = ESPCOM::available(DEFAULT_PRINTER_PIPE);
                     uint8_t sbuf[len+1];
                     //read buffer
                     ESPCOM::readBytes (DEFAULT_PRINTER_PIPE, sbuf, len);
                     //change buffer as string
                     sbuf[len]='\0';
+                    LOG((const char*)sbuf)
+                     LOG("\r\n")
                     //add buffer to current one if any
                     current_buffer += (char * ) sbuf;
                     while (current_buffer.indexOf("\n") !=-1) {
+                         LOG("remove newline")
                         //remove the possible "\r"
                         current_buffer.replace("\r","");
-                        //pos = current_buffer.indexOf("\n");
                         //get line
                         current_line = current_buffer.substring(0,current_buffer.indexOf("\n"));
                         //if line is command ack - just exit so save the time out period
-                        if ((current_line == "ok") || (current_line == "wait")) {
-                            count = MAX_TRY;
-                            LOG("Found ok\r\n")
+                        if ((current_line == "ok") || (current_line == "wait") || (current_line.startsWith("ok") && !((CONFIG::GetFirmwareTarget() == REPETIER) || (CONFIG::GetFirmwareTarget() == REPETIER4DV)))) {
+                            done = true;
+                            buffer2send +=current_line;
+                            LOG("new buffer: ")
+                            LOG(buffer2send)
+                            LOG("\r\n")
+                            buffer2send +="\n";
+                            LOG("Found ok or wait\r\n")
                             break;
                         }
                         //get the line and transmit it
@@ -1081,6 +1088,8 @@ void handle_web_command()
                             }
                         }
                         if (temp_counter > 5) {
+                            LOG("Timeout X5\r\n")
+                            done = true;
                             break;
                         }
                         if ((CONFIG::GetFirmwareTarget()  == REPETIER) || (CONFIG::GetFirmwareTarget() == REPETIER4DV)) {
@@ -1090,31 +1099,41 @@ void handle_web_command()
                             }
                         } else {
                             buffer2send +=current_line;
+                            LOG("new buffer: ")
+                            LOG(buffer2send)
+                            LOG("\r\n")
                             buffer2send +="\n";
                         }
                         if (buffer2send.length() > 1200) {
                             web_interface->web_server.sendContent(buffer2send);
+                            LOG("sending: ")
+                            LOG(buffer2send)
+                            LOG("\r\n")
                             buffer2send = "";
                             datasent = true;
                         }
                         //current remove line from buffer
                         tmp = current_buffer.substring(current_buffer.indexOf("\n")+1,current_buffer.length());
                         current_buffer = tmp;
-                        delay(0);
+                        CONFIG::wait (0);
                     }
                     CONFIG::wait (0);
                 } else {
                     CONFIG::wait(1);
+                    LOG(".")
                 }
                 //it is sending too many temp status should be heating so let's exit the loop
                 if (temp_counter > 5) {
-                    count = MAX_TRY;
+                    done = true;
                 }
-                count++;
             }
+            LOG("Finished\r\n")
             //to be sure connection close
             if (buffer2send.length() > 0) {
                 web_interface->web_server.sendContent(buffer2send);
+                LOG("sending: ")
+                LOG(buffer2send)
+                LOG("\r\n")
                 datasent = true;
             }
             if (!datasent) {
