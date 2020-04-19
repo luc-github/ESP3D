@@ -163,6 +163,9 @@ bool sendLine2Serial (String &  line, int32_t linenb,  int32_t * newlinenb)
     if ( CONFIG::GetFirmwareTarget() == SMOOTHIEWARE) {
         sresend = "rs N";
     }
+#ifdef DISABLE_SERIAL_CHECKSUM
+    linenb = -1;
+#endif
     if (linenb != -1) {
         if ( ( CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER) ) {
             sok+=" " + String(linenb);

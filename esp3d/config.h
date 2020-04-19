@@ -19,7 +19,7 @@
 */
 
 //version and sources location
-#define FW_VERSION "2.1.1.b4"
+#define FW_VERSION "2.1.1.b5"
 #define REPOSITORY "https://github.com/luc-github/ESP3D"
 
 //Customize ESP3D ////////////////////////////////////////////////////////////////////////
@@ -144,6 +144,9 @@
 #define GRBL        6
 #define MAX_FW_ID 6
 
+//For FW which has issue with checksum or not handling M110 properly///////
+#define DISABLE_SERIAL_CHECKSUM
+
 //Do not Edit after this line //////////////////////////////////////////////
 
 //DEBUG Flag do not do this when connected to printer !!!
@@ -163,6 +166,7 @@
 
 #if defined(ASYNCWEBSERVER)
 #define ESP_USE_ASYNC true
+#error it no more supported
 #else
 #define ESP_USE_ASYNC false
 #endif
