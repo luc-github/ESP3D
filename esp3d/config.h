@@ -145,7 +145,7 @@
 #define MAX_FW_ID 6
 
 //For FW which has issue with checksum or not handling M110 properly///////
-#define DISABLE_SERIAL_CHECKSUM
+//#define DISABLE_SERIAL_CHECKSUM
 
 //Do not Edit after this line //////////////////////////////////////////////
 
@@ -155,7 +155,7 @@
 //#define DEBUG_OUTPUT_SPIFFS
 //#define DEBUG_OUTPUT_SERIAL
 //#define DEBUG_OUTPUT_TCP
-#define DEBUG_OUTPUT_SOCKET
+//#define DEBUG_OUTPUT_SOCKET
 
 //Sanity check
 #ifndef SDCARD_FEATURE
