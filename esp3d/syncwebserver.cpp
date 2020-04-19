@@ -1230,10 +1230,10 @@ void SDFile_serial_upload()
                 if (CONFIG::GetFirmwareTarget() == SMOOTHIEWARE)resetcmd = "N0 M110";
                 lineNb=1;
                 //close any ongoing upload and get current line number
-                if(!sendLine2Serial (command,1, &lineNb)){
+                if(!sendLine2Serial (command,-1, &lineNb)){
                     //it can failed for repetier
                     if ( ( CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER) ) {
-                        if(!sendLine2Serial (command,-1, NULL)){
+                        if(!sendLine2Serial (command,1, NULL)){
                             log_esp3d("Upload start failed");
                             web_interface->_upload_status= UPLOAD_STATUS_FAILED;
                             pushError(ESP_ERROR_START_UPLOAD, "Upload rejected");
