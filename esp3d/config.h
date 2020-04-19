@@ -19,7 +19,7 @@
 */
 
 //version and sources location
-#define FW_VERSION "2.1.1.b3"
+#define FW_VERSION "2.1.1.b4"
 #define REPOSITORY "https://github.com/luc-github/ESP3D"
 
 //Customize ESP3D ////////////////////////////////////////////////////////////////////////
@@ -210,6 +210,14 @@ using fs::File;
 //WEBHOST_SDCARD_FEATURE : to use SDCard to host webpages
 //NOT YET IMPLEMENTED!!! Keep it as TODO
 //#define WEBHOST_SDCARD_FEATURE
+
+#ifdef DEBUG_OUTPUT_SOCKET
+extern void log_socket(const char *format, ...);
+extern const char * pathToFileName(const char * path);
+#define log_esp3d(format, ...) log_socket("\n[ESP3D][%s:%u] %s(): " format "\n", pathToFileName(__FILE__), __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#else
+#define log_esp3d(format, ...)
+#endif
 
 #ifdef DEBUG_ESP3D
 #ifdef DEBUG_OUTPUT_SPIFFS

@@ -1562,7 +1562,7 @@ void CONFIG::print_config (tpipe output, bool plaintext, ESPResponseStream  *esp
         }
 #else
             //go next record
-            station = STAILQ_NEXT (station,	next);
+            station = STAILQ_NEXT (station, next);
         }
         wifi_softap_free_station_info();
 #endif
@@ -1979,3 +1979,50 @@ void CONFIG::print_config (tpipe output, bool plaintext, ESPResponseStream  *esp
         ESPCOM::print (F ("\n"), output, espresponse);
     }
 }
+
+#ifdef DEBUG_OUTPUT_SOCKET
+#if defined(ARDUINO_ARCH_ESP8266)
+#define NODEBUG_WEBSOCKETS
+#include <WebSocketsServer.h>
+extern WebSocketsServer * socket_server;
+const char * pathToFileName(const char * path)
+{
+    size_t i = 0;
+    size_t pos = 0;
+    char * p = (char *)path;
+    while(*p) {
+        i++;
+        if(*p == '/' || *p == '\\') {
+            pos = i;
+        }
+        p++;
+    }
+    return path+pos;
+}
+#endif //ARDUINO_ARCH_ESP8266 
+
+void log_socket(const char *format, ...){
+    if(socket_server){
+        char loc_buf[255];
+        char * temp = loc_buf;
+        va_list arg;
+        va_list copy;
+        va_start(arg, format);
+        va_copy(copy, arg);
+        size_t len = vsnprintf(NULL, 0, format, arg);
+        va_end(copy);
+        if(len >= sizeof(loc_buf)){
+            temp = new char[len+1];
+            if(temp == NULL) {
+                return;
+            }
+        }
+        len = vsnprintf(temp, len+1, format, arg);
+        socket_server->sendBIN(ESPCOM::current_socket_id,(uint8_t *)temp,strlen(temp));
+        va_end(arg);
+        if(len > 255){
+            delete[] temp;
+        }
+    }
+}
+#endif
