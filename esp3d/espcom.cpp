@@ -69,7 +69,7 @@ long ESPCOM::readBytes (tpipe output, uint8_t * sbuf, size_t len)
         long l = Serial.readBytes(sbuf,len);
 #ifdef DEBUG_OUTPUT_SOCKET
         if(socket_server){
-            socket_server->sendBIN(ESPCOM::current_socket_id,sbuf,len);
+            socket_server->sendBIN(ESPCOM::current_socket_id,sbuf,l);
             }
 #endif
         return l;
