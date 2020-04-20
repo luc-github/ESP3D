@@ -348,9 +348,9 @@ typedef enum {
 #define EP_TARGET_FW        461 //1  bytes = flag
 #define EP_TIMEZONE         462//1  bytes = flag
 #define EP_TIME_ISDST       463//1  bytes = flag
-#define EP_TIME_SERVER1 464//129 bytes 128+1 = string  ; warning does not support multibyte char like chinese  
-#define EP_TIME_SERVER2  593 //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese
-#define EP_TIME_SERVER3  722 //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese
+#define EP_TIME_SERVER1 464//128 bytes 127+1 = string  ; warning does not support multibyte char like chinese  
+#define EP_TIME_SERVER2  593 //128 bytes 127+1 = string  ; warning does not support multibyte char like chinese
+#define EP_TIME_SERVER3  722 //128 bytes 127+1 = string  ; warning does not support multibyte char like chinese
 #define EP_IS_DIRECT_SD   850//1  bytes = flag
 #define EP_PRIMARY_SD   851//1  bytes = flag
 #define EP_SECONDARY_SD   852//1  bytes = flag
@@ -503,7 +503,7 @@ const uint16_t Setting[][2] = {
 #define MIN_PASSWORD_LENGTH             0
 #define MAX_LOCAL_PASSWORD_LENGTH           16
 #define MIN_LOCAL_PASSWORD_LENGTH           1
-#define MAX_DATA_LENGTH             128
+#define MAX_DATA_LENGTH             127
 #define MIN_DATA_LENGTH             0
 #define IP_LENGTH               4
 #define INTEGER_LENGTH              4
