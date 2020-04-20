@@ -61,6 +61,7 @@
 #include "syncwebserver.h"
 WebSocketsServer * socket_server;
 
+
 #define ESP_ERROR_AUTHENTICATION 1
 #define ESP_ERROR_FILE_CREATION  2
 #define ESP_ERROR_FILE_WRITE 3
@@ -73,6 +74,7 @@ WebSocketsServer * socket_server;
 #define ESP_ERROR_RESET_NUMBERING 10
 #define ESP_ERROR_BUFFER_OVERFLOW 11
 #define ESP_ERROR_START_UPLOAD 12
+
 
 void pushError(int code, const char * st, bool web_error = 500, uint16_t timeout = 1000){
     if (socket_server && st) {
@@ -601,7 +603,7 @@ void handleFileList()
 //SPIFFS files uploader handle
 void SPIFFSFileupload()
 {
-	static FS_FILE fsUploadFile = (FS_FILE)0;
+    static FS_FILE fsUploadFile = (FS_FILE)0;
     static String filename;
     //get authentication status
     level_authenticate_type auth_level= web_interface->is_authenticated();
@@ -725,7 +727,7 @@ void WebUpdateUpload()
     if(web_interface->is_authenticated() != LEVEL_ADMIN) {
         web_interface->_upload_status=UPLOAD_STATUS_FAILED;
         ESPCOM::println (F ("Update failed"), PRINTER_PIPE);
-        LOG("Web Update failed\r\n");
+        log_esp3d("Web Update failed");
         pushError(ESP_ERROR_AUTHENTICATION, "Upload rejected",401);
     } else {
         //get current file ID
@@ -853,22 +855,7 @@ void handle_not_found()
     String path = web_interface->web_server.urlDecode(web_interface->web_server.uri());
     String contentType =  web_interface->getContentType(path);
     String pathWithGz = path + ".gz";
-    LOG("request:")
-    LOG(path)
-    LOG("\r\n")
-#ifdef DEBUG_ESP3D
-    int nb = web_interface->web_server.args();
-    for (int i = 0 ; i < nb; i++) {
-        LOG(web_interface->web_server.argName(i))
-        LOG(":")
-        LOG(web_interface->web_server.arg(i))
-        LOG("\r\n")
-
-    }
-#endif
-    LOG("type:")
-    LOG(contentType)
-    LOG("\r\n")
+    log_esp3d("Not found %s, type %s", path.c_str(), contentType.c_str());
     if(SPIFFS.exists(pathWithGz) || SPIFFS.exists(path)) {
         if(SPIFFS.exists(pathWithGz)) {
             path = pathWithGz;
@@ -901,7 +888,7 @@ void handle_not_found()
             return;
         }
 #endif
-        LOG("Page not found\r\n")
+        log_esp3d("Page not found");
         path = F("/404.htm");
         contentType =  web_interface->getContentType(path);
         pathWithGz =  path + F(".gz");
@@ -946,30 +933,16 @@ void handle_web_command()
       }*/
     String buffer2send = "";
     ESPResponseStream espresponse;
-    LOG(String (web_interface->web_server.args()))
-    LOG(" Web command\r\n")
-#ifdef DEBUG_ESP3D
-    int nb = web_interface->web_server.args();
-    for (int i = 0 ; i < nb; i++) {
-        LOG(web_interface->web_server.argName(i))
-        LOG(":")
-        LOG(web_interface->web_server.arg(i))
-        LOG("\r\n")
-    }
-#endif
     String cmd = "";
-    int count ;
     if (web_interface->web_server.hasArg("plain") || web_interface->web_server.hasArg("commandText")) {
         if (web_interface->web_server.hasArg("plain")) {
             cmd = web_interface->web_server.arg("plain");
         } else {
             cmd = web_interface->web_server.arg("commandText");
         }
-        LOG("Web Command:")
-        LOG(cmd)
-        LOG("\r\n")
+        log_esp3d("WebCommand %s",cmd.c_str());
     } else {
-        LOG("invalid argument\r\n")
+        log_esp3d("Invalid arg");
         web_interface->web_server.send(200,"text/plain","Invalid command");
         return;
     }
@@ -1009,40 +982,40 @@ void handle_web_command()
         if ((web_interface->blockserial) == false) {
             //block every query
             web_interface->blockserial = true;
-            LOG("Block Serial\r\n")
+            log_esp3d("Block Serial");
             //empty the serial buffer and incoming data
-            LOG("Start PurgeSerial\r\n")
+            log_esp3d("Start PurgeSerial");
             if(ESPCOM::available(DEFAULT_PRINTER_PIPE)) {
                 ESPCOM::bridge();
                 CONFIG::wait(1);
             }
-            LOG("End PurgeSerial\r\n")
+            log_esp3d("End PurgeSerial");
             web_interface->web_server.setContentLength(CONTENT_LENGTH_UNKNOWN);
             web_interface->web_server.sendHeader("Content-Type","text/plain",true);
             web_interface->web_server.sendHeader("Cache-Control","no-cache");
             web_interface->web_server.send(200);
             //send command
-            LOG(String(cmd.length()))
-            LOG("Start PurgeSerial\r\n")
+            log_esp3d("Start PurgeSerial");
             if(ESPCOM::available(DEFAULT_PRINTER_PIPE)) {
                 ESPCOM::bridge();
                 CONFIG::wait(1);
             }
-            LOG("End PurgeSerial\r\n")
-            LOG("Send Command\r\n")
+            log_esp3d("End PurgeSerial");
             ESPCOM::println (cmd, DEFAULT_PRINTER_PIPE);
-            count = 0;
+            bool done = false;
             String current_buffer;
             String current_line;
             //int pos;
             int temp_counter = 0;
             String tmp;
             bool datasent = false;
+            uint32_t timeout = millis();
             //pickup the list
-            while (count < MAX_TRY) {
+            while ((millis() - timeout < 2000) && !done) {
                 //give some time between each buffer
                 if (ESPCOM::available(DEFAULT_PRINTER_PIPE)) {
-                    count = 0;
+                    log_esp3d("Got data");
+                    timeout = millis();
                     size_t len = ESPCOM::available(DEFAULT_PRINTER_PIPE);
                     uint8_t sbuf[len+1];
                     //read buffer
@@ -1052,21 +1025,20 @@ void handle_web_command()
                     //add buffer to current one if any
                     current_buffer += (char * ) sbuf;
                     while (current_buffer.indexOf("\n") !=-1) {
+                        log_esp3d("Remove new line");
                         //remove the possible "\r"
                         current_buffer.replace("\r","");
-                        //pos = current_buffer.indexOf("\n");
                         //get line
                         current_line = current_buffer.substring(0,current_buffer.indexOf("\n"));
                         //if line is command ack - just exit so save the time out period
-                        if ((current_line == "ok") || (current_line == "wait")) {
-                            count = MAX_TRY;
-                            LOG("Found ok\r\n")
+                        if ((current_line == "ok") || (current_line == "wait") || (current_line.startsWith("ok") && !((CONFIG::GetFirmwareTarget() == REPETIER) || (CONFIG::GetFirmwareTarget() == REPETIER4DV)))) {
+                            done = true;
+                            buffer2send +=current_line;
+                            log_esp3d("Found ok/wait add New buffer %s", buffer2send.c_str());
+                            buffer2send +="\n";
                             break;
                         }
                         //get the line and transmit it
-                        LOG("Check command: ")
-                        LOG(current_line)
-                        LOG("\r\n")
                         //check command
                         if ((CONFIG::GetFirmwareTarget() == REPETIER) || (CONFIG::GetFirmwareTarget() == REPETIER4DV)) {
                             //save time no need to continue
@@ -1081,6 +1053,8 @@ void handle_web_command()
                             }
                         }
                         if (temp_counter > 5) {
+                            log_esp3d("Timeout X5");
+                            done = true;
                             break;
                         }
                         if ((CONFIG::GetFirmwareTarget()  == REPETIER) || (CONFIG::GetFirmwareTarget() == REPETIER4DV)) {
@@ -1090,17 +1064,19 @@ void handle_web_command()
                             }
                         } else {
                             buffer2send +=current_line;
+                            log_esp3d("New buffer %s", buffer2send.c_str());
                             buffer2send +="\n";
                         }
                         if (buffer2send.length() > 1200) {
                             web_interface->web_server.sendContent(buffer2send);
+                           log_esp3d("Sending %s", buffer2send.c_str());
                             buffer2send = "";
                             datasent = true;
                         }
                         //current remove line from buffer
                         tmp = current_buffer.substring(current_buffer.indexOf("\n")+1,current_buffer.length());
                         current_buffer = tmp;
-                        delay(0);
+                        CONFIG::wait (0);
                     }
                     CONFIG::wait (0);
                 } else {
@@ -1108,27 +1084,28 @@ void handle_web_command()
                 }
                 //it is sending too many temp status should be heating so let's exit the loop
                 if (temp_counter > 5) {
-                    count = MAX_TRY;
+                    done = true;
                 }
-                count++;
             }
+            log_esp3d("Finished");
             //to be sure connection close
             if (buffer2send.length() > 0) {
                 web_interface->web_server.sendContent(buffer2send);
+                log_esp3d("Sending %s", buffer2send.c_str());
                 datasent = true;
             }
             if (!datasent) {
                 web_interface->web_server.sendContent(" \r\n");
             }
             web_interface->web_server.sendContent("");
-            LOG("Start PurgeSerial\r\n")
+            log_esp3d("Start PurgeSerial");
             if(ESPCOM::available(DEFAULT_PRINTER_PIPE)) {
                 ESPCOM::bridge();
                 CONFIG::wait(1);
             }
-            LOG("End PurgeSerial\r\n")
+            log_esp3d("End PurgeSerial");
             web_interface->blockserial = false;
-            LOG("Release Serial\r\n")
+            log_esp3d("Release PurgeSerial");
         } else {
             web_interface->web_server.send(200,"text/plain","Serial is busy, retry later!");
         }
@@ -1144,17 +1121,6 @@ void handle_web_command_silent()
         return;
     }
     String buffer2send = "";
-    LOG(String (web_interface->web_server.args()))
-    LOG(" Web silent command\r\n")
-#ifdef DEBUG_ESP3D
-    int nb = web_interface->web_server.args();
-    for (int i = 0 ; i < nb; i++) {
-        LOG(web_interface->web_server.argName(i))
-        LOG(":")
-        LOG(web_interface->web_server.arg(i))
-        LOG("\r\n")
-    }
-#endif
     String cmd = "";
     //int count ;
     if (web_interface->web_server.hasArg("plain") || web_interface->web_server.hasArg("commandText")) {
@@ -1163,11 +1129,9 @@ void handle_web_command_silent()
         } else {
             cmd = web_interface->web_server.arg("commandText");
         }
-        LOG("Web Command:")
-        LOG(cmd)
-        LOG("\r\n")
+        log_esp3d("Web Command:%s", cmd.c_str());
     } else {
-        LOG("invalid argument\r\n")
+        log_esp3d("Invalid argument");
         web_interface->web_server.send(200,"text/plain","Invalid command");
         return;
     }
@@ -1200,7 +1164,6 @@ void handle_web_command_silent()
         //send command to serial as no need to transfer ESP command
         //to avoid any pollution if Uploading file to SDCard
         if ((web_interface->blockserial) == false) {
-            LOG("Send Command\r\n")
             //send command
             ESPCOM::println (cmd, DEFAULT_PRINTER_PIPE);
             web_interface->web_server.send(200,"text/plain","ok");
@@ -1222,7 +1185,8 @@ void handle_serial_SDFileList()
         web_interface->web_server.send(401, "application/json", "{\"status\":\"Authentication failed!\"}");
         return;
     }
-    LOG("serial SD upload done\r\n")
+    
+    log_esp3d("Serial SD upload done");
     String sstatus="Ok";
     if ((web_interface->_upload_status == UPLOAD_STATUS_FAILED) || (web_interface->_upload_status == UPLOAD_STATUS_FAILED)) {
         sstatus = "Upload failed";
@@ -1251,7 +1215,7 @@ void SDFile_serial_upload()
         web_interface->_upload_status=UPLOAD_STATUS_FAILED;
         ESPCOM::println (F ("SD upload rejected"), PRINTER_PIPE);
         pushError(ESP_ERROR_AUTHENTICATION, "Upload rejected", 401);
-        LOG("SD upload rejected\r\n");
+        log_esp3d("SD upload rejected");
     } else {
         //retrieve current file id
         HTTPUpload& upload = (web_interface->web_server).upload();
@@ -1260,22 +1224,22 @@ void SDFile_serial_upload()
             //**************
             if(upload.status == UPLOAD_FILE_START) {
                 web_interface->_upload_status= UPLOAD_STATUS_ONGOING;
-                LOG("Upload Start\r\n")
+                log_esp3d("Upload start");
                 String command = "M29";
                 String resetcmd = "M110 N0";
                 if (CONFIG::GetFirmwareTarget() == SMOOTHIEWARE)resetcmd = "N0 M110";
                 lineNb=1;
                 //close any ongoing upload and get current line number
-                if(!sendLine2Serial (command,1, &lineNb)){
+                if(!sendLine2Serial (command,-1, &lineNb)){
                     //it can failed for repetier
                     if ( ( CONFIG::GetFirmwareTarget() == REPETIER4DV) || (CONFIG::GetFirmwareTarget() == REPETIER) ) {
-                        if(!sendLine2Serial (command,-1, NULL)){
-                            LOG("Start Upload failed")
+                        if(!sendLine2Serial (command,1, NULL)){
+                            log_esp3d("Upload start failed");
                             web_interface->_upload_status= UPLOAD_STATUS_FAILED;
                             pushError(ESP_ERROR_START_UPLOAD, "Upload rejected");
                         }
                     } else {
-                        LOG("Start Upload failed")
+                        log_esp3d("Upload start failed");
                         web_interface->_upload_status= UPLOAD_STATUS_FAILED;
                         pushError(ESP_ERROR_START_UPLOAD, "Upload rejected");
                     }
@@ -1283,14 +1247,14 @@ void SDFile_serial_upload()
                     //Mount SD card
                     command = "M21";
                     if(!sendLine2Serial (command,-1, NULL)){
-                        LOG("Mounting SD failed")
+                        log_esp3d("Mounting SD failed");
                         web_interface->_upload_status= UPLOAD_STATUS_FAILED;
                         pushError(ESP_ERROR_MOUNT_SD, "Mounting SD failed");
                     }
                     if (web_interface->_upload_status != UPLOAD_STATUS_FAILED) {
                         //Reset line numbering
                         if(!sendLine2Serial (resetcmd,-1, NULL)){
-                            LOG("Reset Numbering failed")
+                            log_esp3d("Reset Numbering failed");
                             web_interface->_upload_status= UPLOAD_STATUS_FAILED;
                             pushError(ESP_ERROR_RESET_NUMBERING, "Reset Numbering failed");
                         }
@@ -1317,11 +1281,11 @@ void SDFile_serial_upload()
                             //additional purge, in case it is slow to answer
                             purge_serial();
                             web_interface->_upload_status= UPLOAD_STATUS_ONGOING;
-                            LOG("Creation Ok\r\n")
+                            log_esp3d("Creation Ok");
                             
                         } else  {
                             web_interface->_upload_status= UPLOAD_STATUS_FAILED;
-                            LOG("Creation failed\r\n");
+                            log_esp3d("Creation failed");
                             pushError(ESP_ERROR_FILE_CREATION, "File creation failed");
                         }
                     }
@@ -1335,7 +1299,7 @@ void SDFile_serial_upload()
                     CONFIG::wait(0);
                     //it is a comment
                     if (upload.buf[pos] == ';') {
-                        LOG ("Comment\r\n")
+                        log_esp3d("Comment found");
                         is_comment = true;
                     }
                     //it is an end line
@@ -1348,7 +1312,7 @@ void SDFile_serial_upload()
                             if (current_line.length() > 0 ) {
                                 lineNb++;
                                 if (!sendLine2Serial (current_line, lineNb, NULL) ) {
-                                    LOG ("Error sending line\n")
+                                    log_esp3d("Error sending line");
                                     CloseSerialUpload (true, current_filename,lineNb);
                                     web_interface->_upload_status= UPLOAD_STATUS_FAILED;
                                     pushError(ESP_ERROR_FILE_WRITE, "File write failed");
@@ -1357,11 +1321,11 @@ void SDFile_serial_upload()
                                 current_line = "";
 
                             } else {
-                                LOG ("Empy line\n")
+                                log_esp3d ("Empy line");
                             }
                         } else {
                             //error buffer overload
-                            LOG ("Error over buffer\n")
+                            log_esp3d ("Error over buffer(1)");
                             lineNb++;
                             web_interface->_upload_status= UPLOAD_STATUS_FAILED;
                             pushError(ESP_ERROR_BUFFER_OVERFLOW, "Error buffer overflow");
@@ -1370,7 +1334,7 @@ void SDFile_serial_upload()
                         if (current_line.length() < MAX_RESEND_BUFFER) {
                             current_line += char (upload.buf[pos]);  //copy current char to buffer to send/resend
                         } else {
-                            LOG ("Error over buffer\n")
+                            log_esp3d ("Error over buffer(2)");
                             lineNb++;
                             web_interface->_upload_status= UPLOAD_STATUS_FAILED;
                             pushError(ESP_ERROR_BUFFER_OVERFLOW, "Error buffer overflow");
@@ -1384,20 +1348,20 @@ void SDFile_serial_upload()
                 if (current_line.length()  > 0) {
                     lineNb++;
                     if (!sendLine2Serial (current_line, lineNb, NULL) ) {
-                        LOG ("Error sending buffer\n")
+                        log_esp3d ("Error sending buffer");
                         lineNb++;
                         CloseSerialUpload (true, current_filename, lineNb);
                         web_interface->_upload_status= UPLOAD_STATUS_FAILED;
                         pushError(ESP_ERROR_FILE_WRITE, "File write failed");
                     }
                 }
-                LOG ("Upload finished ");
+                log_esp3d ("Upload finished");
                 lineNb++;
                 CloseSerialUpload (false, current_filename, lineNb);
                 //Upload cancelled
                 //**************
             } else { //UPLOAD_FILE_ABORTED
-                LOG("Error, Something happened\r\n");
+                log_esp3d("Error, Something happened");
                 web_interface->_upload_status= UPLOAD_STATUS_FAILED;
                 //pushError(ESP_ERROR_UPLOAD_CANCELLED, "Upload cancelled");
             }
