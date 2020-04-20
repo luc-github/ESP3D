@@ -75,23 +75,23 @@
 #define ESP_TIME_SERVER1        464     //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese
 #define ESP_TIME_SERVER2        593     //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese
 #define ESP_TIME_SERVER3        722     //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese
-#define ESP_SD_DEVICE_TYPE      850     //1  bytes = flag
-#define ESP_SD_MOUNT            851     //1  bytes = flag
-#define ESP_FREE_BYTE           852     //1  bytes = flag
-#define ESP_DIRECT_SD_CHECK     853     //1  bytes = flag
-#define ESP_SD_CHECK_UPDATE_AT_BOOT   854//1  bytes = flag
-#define ESP_NOTIFICATION_SETTINGS 855   //128 bytes 127+1 = string  ; warning does not support multibyte char like chinese
-#define ESP_CALIBRATION_1       983     //4  bytes = int
-#define ESP_CALIBRATION_2       987     //4  bytes = int
-#define ESP_CALIBRATION_3       991     //4  bytes = int 
-#define ESP_CALIBRATION_4       995     //4  bytes = int
-#define ESP_CALIBRATION_5       999     //4  bytes = int
-#define ESP_AUTO_NOTIFICATION   1004    //1 byte = flag
+#define ESP_SD_DEVICE_TYPE      851     //1  bytes = flag
+#define ESP_SD_MOUNT            852     //1  bytes = flag
+#define ESP_FREE_BYTE           853     //1  bytes = flag
+#define ESP_DIRECT_SD_CHECK     854     //1  bytes = flag
+#define ESP_SD_CHECK_UPDATE_AT_BOOT   855//1  bytes = flag
+#define ESP_NOTIFICATION_SETTINGS 856   //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese
+#define ESP_CALIBRATION_1       985     //4  bytes = int
+#define ESP_CALIBRATION_2       989     //4  bytes = int
+#define ESP_CALIBRATION_3       993     //4  bytes = int 
+#define ESP_CALIBRATION_4       997     //4  bytes = int
+#define ESP_CALIBRATION_5       1001     //4  bytes = int
 #define ESP_CAMERA_PORT         1005    //4  bytes = int
 #define ESP_FTP_CTRL_PORT       1009    //4  bytes = int
 #define ESP_FTP_DATA_ACTIVE_PORT       1013    //4  bytes = int
 #define ESP_FTP_DATA_PASSIVE_PORT      1017    //4  bytes = int
 #define ESP_FTP_ON             1021     //1 byte = flag
+#define ESP_AUTO_NOTIFICATION   1022    //1 byte = flag
 
 //Hidden password
 #define HIDDEN_PASSWORD "********"
