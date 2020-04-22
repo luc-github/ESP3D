@@ -36,6 +36,7 @@ public:
     const char* get_param (const char * cmd_params, const char * label);
     const char* get_label (const char * cmd_params, const char * labelseparator, uint8_t startindex = 0);
     bool hastag (const char * cmd_params, const char * tag);
+    bool ESP0(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #if defined (WIFI_FEATURE)
     bool ESP100(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     bool ESP101(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);

@@ -27,7 +27,7 @@
 #if defined(SD_TIMESTAMP_FEATURE) ||  defined(FILESYSTEM_TIMESTAMP_FEATURE)
 #include "../../modules/time/time_server.h"
 #endif //SD_TIMESTAMP_FEATURE || FILESYSTEM_TIMESTAMP_FEATURE
-//List SD Filesystem
+//List Global Filesystem
 //[ESP780]<Root> pwd=<admin password>
 bool Commands::ESP780(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {

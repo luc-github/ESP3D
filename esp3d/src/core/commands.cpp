@@ -37,20 +37,20 @@ void Commands::process(uint8_t * sbuf, size_t len, ESP3DOutput * output, level_a
 {
     if(is_esp_command(sbuf,len)) {
         size_t slen = len;
+        uint8_t p = 5;
         String tmpbuf = (const char*)sbuf;
         if (tmpbuf.startsWith("echo: ")) {
             tmpbuf.replace("echo: ", "");
             slen = tmpbuf.length();
         }
 
-        uint8_t cmd[4];
-        cmd[0] = tmpbuf[4];
-        cmd[1] = tmpbuf[5];
-        cmd[2] = tmpbuf[6];
+        uint8_t cmd[4]= {0,0,0,0};
+        cmd[0] = tmpbuf[4] == ']'?0:tmpbuf[4];
+        cmd[1] = tmpbuf[5] == ']'?0:tmpbuf[5];
+        cmd[2] = tmpbuf[6] == ']'?0:tmpbuf[6];
         cmd[3] = 0x0;
-
         //log_esp3d("Authentication = %d client %d", auth, output->client());
-        execute_internal_command (String((const char*)cmd).toInt(), (slen > 8)?(const char*)&tmpbuf[8]:"", auth, (outputonly == nullptr)?output:outputonly);
+        execute_internal_command (String((const char*)cmd).toInt(), (slen > (strlen((const char *)cmd)+5))?(const char*)&tmpbuf[strlen((const char *)cmd)+5]:"", auth, (outputonly == nullptr)?output:outputonly);
     } else {
         //Dispatch to all clients but current or to define output
         if ((output->client() == ESP_HTTP_CLIENT) && (outputonly == nullptr)) {
@@ -74,15 +74,15 @@ bool Commands::is_esp_command(uint8_t * sbuf, size_t len)
 {
     //TODO
     //M117 should be handled here and transfered to [ESP214] if it is an host
-    if (len < 8) {
+    if (len < 5) {
         return false;
     }
-    if ((char(sbuf[0]) == '[') && (char(sbuf[1]) == 'E') && (char(sbuf[2]) == 'S') && (char(sbuf[3]) == 'P') && (char(sbuf[7]) == ']')) {
+    if ((char(sbuf[0]) == '[') && (char(sbuf[1]) == 'E') && (char(sbuf[2]) == 'S') && (char(sbuf[3]) == 'P') && ((char(sbuf[4]) == ']') ||(char(sbuf[5]) == ']')||(char(sbuf[6]) == ']') ||(char(sbuf[7]) == ']'))) {
         return true;
     }
     if((char(sbuf[0]) == 'e') && (char(sbuf[1]) == 'c') && (char(sbuf[2]) == 'h') && (char(sbuf[3]) == 'o') && (char(sbuf[4]) == ':') && (char(sbuf[5]) == ' ') && (char(sbuf[6]) == '[') && (char(sbuf[7]) == 'E')) {
         if (len >= 14) {
-            if ((char(sbuf[8]) == 'S') && (char(sbuf[9]) == 'P') && (char(sbuf[13]) == ']')) {
+            if ((char(sbuf[8]) == 'S') && (char(sbuf[9]) == 'P') && ((char(sbuf[4]) == ']') ||(char(sbuf[5]) == ']')||(char(sbuf[6]) == ']') ||(char(sbuf[7]) == ']'))) {
                 return true;
             }
         }
@@ -260,6 +260,11 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
     //log_esp3d("Authentication = %d", auth_type);
     String parameter;
     switch (cmd) {
+    //ESP3D Help
+    //[ESP0] or [ESP]
+    case 0:
+        response = ESP0(cmd_params, auth_type, output);
+        break;
 #if defined (WIFI_FEATURE)
     //STA SSID
     //[ESP100]<SSID>[pwd=<admin password>]
