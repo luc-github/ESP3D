@@ -63,7 +63,11 @@
 
 //default byte values
 #ifdef WIFI_FEATURE
+#if defined(STATION_WIFI_SSID) && defined(STATION_WIFI_PASSWORD)
+#define DEFAULT_ESP_RADIO_MODE  ESP_WIFI_STA
+#else
 #define DEFAULT_ESP_RADIO_MODE  ESP_WIFI_AP
+#endif //STATION_WIFI_SSID && STATION_WIFI_PASSWORD
 #else //WIFI_FEATURE
 #ifdef BLUETOOTH_FEATURE
 #define DEFAULT_ESP_RADIO_MODE  ESP_BT
@@ -132,8 +136,13 @@
 //default string values
 const char DEFAULT_AP_SSID []   =        "ESP3D";
 const char DEFAULT_AP_PASSWORD []  =     "12345678";
+#if defined(STATION_WIFI_SSID) && defined(STATION_WIFI_PASSWORD)
+const char DEFAULT_STA_SSID []   =       STATION_WIFI_SSID;
+const char DEFAULT_STA_PASSWORD []  =    STATION_WIFI_PASSWORD;
+#else
 const char DEFAULT_STA_SSID []   =       "ESP3D";
 const char DEFAULT_STA_PASSWORD []  =    "12345678";
+#endif //STATION_WIFI_SSID && STATION_WIFI_PASSWORD
 #endif //WIFI_FEATURE
 #if defined (BLUETOOTH_FEATURE) || defined (WIFI_FEATURE) ||defined (ETH_FEATURE)
 const char DEFAULT_HOSTNAME []   =       "esp3d";

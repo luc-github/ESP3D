@@ -19,7 +19,13 @@
 */
 #ifndef _CONFIGURATION_H
 #define _CONFIGURATION_H
+
 //FEATURES - comment to disable //////////////////////////////////////////////////////////
+
+//WiFi setup station as default, use AP mode first if not done
+//Note: need both defined to enable it
+//#define STATION_WIFI_SSID "*********"
+//#define STATION_WIFI_PASSWORD "*********"
 
 //SERIAL_COMMAND_FEATURE: allow to send command by serial
 #define SERIAL_COMMAND_FEATURE
@@ -62,7 +68,6 @@
 
 //BUZZER_DEVICE: allow to connect passive buzzer
 //#define BUZZER_DEVICE
-
 
 #if defined (DISPLAY_DEVICE)
 //for ILI9143 edit User_Setup.h of TFT_eSPI library
