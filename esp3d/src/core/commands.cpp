@@ -37,7 +37,6 @@ void Commands::process(uint8_t * sbuf, size_t len, ESP3DOutput * output, level_a
 {
     if(is_esp_command(sbuf,len)) {
         size_t slen = len;
-        uint8_t p = 5;
         String tmpbuf = (const char*)sbuf;
         if (tmpbuf.startsWith("echo: ")) {
             tmpbuf.replace("echo: ", "");
