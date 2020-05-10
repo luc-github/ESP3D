@@ -19,7 +19,7 @@
 */
 
 //version and sources location
-#define FW_VERSION "2.1.1.b6"
+#define FW_VERSION "2.1.1.b7"
 #define REPOSITORY "https://github.com/luc-github/ESP3D"
 
 //Customize ESP3D ////////////////////////////////////////////////////////////////////////
@@ -36,9 +36,15 @@
 //like ESP_XXXXXX (eg:ESP_028E41) to avoid overlap if several ESP3D
 #define ESP_HOST_NAME ESP_DEFAULT_NAME
 
+//To allow webupdate using small updater
+//#define USE_AS_UPDATER_ONLY
 
 //FEATURES - comment to disable //////////////////////////////////////////////////////////
 
+//WEB_UPDATE_FEATURE: allow to flash fw using web UI
+#define WEB_UPDATE_FEATURE
+
+#ifndef USE_AS_UPDATER_ONLY
 //Do we use async webserver or not (currntly deprecated do not enable it yet)
 //#define ASYNCWEBSERVER
 
@@ -62,13 +68,10 @@
 #define SSDP_FEATURE
 
 //NETBIOS_FEATURE: this feature is a discovery protocol, supported on Windows out of the box
-#define NETBIOS_FEATURE
+//#define NETBIOS_FEATURE
 
 //CAPTIVE_PORTAL_FEATURE: In SoftAP redirect all unknow call to main page
 #define CAPTIVE_PORTAL_FEATURE
-
-//WEB_UPDATE_FEATURE: allow to flash fw using web UI
-#define WEB_UPDATE_FEATURE
 
 //RECOVERY_FEATURE: allow to use GPIO2 pin as hardware reset for EEPROM, add 8s to boot time to let user to jump GPIO2 to GND
 //#define RECOVERY_FEATURE
@@ -90,7 +93,7 @@
 
 //TIMESTAMP_FEATURE: Time stamp feature on direct SD  files
 //#define TIMESTAMP_FEATURE
-
+#endif //USE_AS_UPDATER_ONLY
 //Extra features /////////////////////////////////////////////////////////////////////////
 
 //Workaround for Marlin 2.X coldstart

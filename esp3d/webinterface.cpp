@@ -73,6 +73,8 @@
 
 long id_connection = 0;
 
+#ifndef USE_AS_UPDATER_ONLY
+
 uint8_t Checksum(const char * line, uint16_t lineSize)
 {
     uint8_t checksum_val =0;
@@ -290,7 +292,7 @@ void CloseSerialUpload (bool iserror, String & filename, int32_t linenb)
     purge_serial();
     web_interface->blockserial = false;
 }
-
+#endif //USE_AS_UPDATER_ONLY
 
 //constructor
 WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port) : web_server (port)
