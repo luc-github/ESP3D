@@ -745,22 +745,21 @@ void WebUpdateUpload()
     #endif
                 size_t flashsize = 0;
     #if defined ( ARDUINO_ARCH_ESP8266)
-                flashsize = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+                maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
     #else 
-                
                 if (esp_ota_get_running_partition()) {
                     const esp_partition_t* partition = esp_ota_get_next_update_partition(NULL);
                     if (partition) {
-                        flashsize = partition->size;
+                        maxSketchSpace = partition->size;
                     }
                 }  
     #endif
                 if ((web_interface->web_server).hasArg (sizeargname.c_str()) ) {
-                    maxSketchSpace = (web_interface->web_server).arg (sizeargname).toInt();
+                    flashsize = (web_interface->web_server).arg (sizeargname).toInt();
                 } else {
-                    maxSketchSpace = flashsize;
+                    flashsize = maxSketchSpace;
                 }
-                if ((flashsize > flashsize) || (flashsize == 0)) {
+                if ((flashsize > maxSketchSpace) || (flashsize == 0)) {
                     web_interface->_upload_status=UPLOAD_STATUS_FAILED;
                     pushError(ESP_ERROR_NOT_ENOUGH_SPACE, "Upload rejected");
                 }
@@ -1178,6 +1177,7 @@ void handle_web_command_silent()
 //Serial SD files list//////////////////////////////////////////////////
 void handle_serial_SDFileList()
 {
+#ifndef USE_AS_UPDATER_ONLY
     //this is only for admin an user
     if (web_interface->is_authenticated() == LEVEL_GUEST) {
         web_interface->_upload_status=UPLOAD_STATUS_NONE;
@@ -1197,6 +1197,7 @@ void handle_serial_SDFileList()
     web_interface->web_server.send(200, "application/json", jsonfile);
     web_interface->blockserial = false;
     web_interface->_upload_status=UPLOAD_STATUS_NONE;
+#endif //USE_AS_UPDATER_ONLY
 }
 
 #define NB_RETRY 5
@@ -1205,6 +1206,7 @@ void handle_serial_SDFileList()
 //SD file upload by serial
 void SDFile_serial_upload()
 {
+#ifndef USE_AS_UPDATER_ONLY
     static int32_t lineNb =-1;
     static String current_line;
     static bool is_comment = false;
@@ -1374,6 +1376,7 @@ void SDFile_serial_upload()
         CloseSerialUpload (true, current_filename, lineNb);
         cancelUpload();
     }
+#endif //USE_AS_UPDATER_ONLY
 }
 
 #endif

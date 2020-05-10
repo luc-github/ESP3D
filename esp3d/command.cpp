@@ -166,6 +166,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
     String parameter;
     LOG ("Execute Command\r\n")
     switch (cmd) {
+
     //STA SSID
     //[ESP100]<SSID>[pwd=<admin password>]
     case 100:
@@ -281,6 +282,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
                 }
         }
         break;
+#ifndef USE_AS_UPDATER_ONLY
     //AP SSID
     //[ESP105]<SSID>[pwd=<admin password>]
     case 105:
@@ -1554,6 +1556,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
         }
     }
     break;
+#endif //USE_AS_UPDATER_ONLY
     //Get ESP current status in plain or JSON
     //[ESP420]<plain>
     case 420: {
@@ -1588,6 +1591,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
             }
         }
         break;
+#ifndef USE_AS_UPDATER_ONLY
     //[ESP500]<gcode>
     case 500: { //send GCode with check sum caching right line numbering
         //be sure serial is locked
@@ -1872,6 +1876,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
         ESPCOM::println (CONFIG::formatBytes (SPIFFS.usedBytes() ).c_str(), output, espresponse);
 #endif
         break;
+#endif //USE_AS_UPDATER_ONLY
     //get fw version firmare target and fw version
     //[ESP800]<header answer>
     case 800: {
@@ -1945,6 +1950,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
         ESPCOM::println ("", output, espresponse);
     }
     break;
+#ifndef USE_AS_UPDATER_ONLY
     //get fw target
     //[ESP801]<header answer>
     case 801:
@@ -1985,7 +1991,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
             }
         }
         break;
-
+#endif //USE_AS_UPDATER_ONLY
     default:
         ESPCOM::println (INCORRECT_CMD_MSG, output, espresponse);
         response = false;
