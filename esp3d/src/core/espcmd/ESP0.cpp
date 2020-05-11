@@ -263,27 +263,27 @@ bool Commands::ESP0(const char* cmd_params, level_authenticate_type auth_type, E
     const uint cmdNb = sizeof(help)/sizeof(char*);
     parameter = get_param (cmd_params, "");
     if (parameter.length() == 0) {
-        output->printMSG("[List of ESP3D commands]");
+        output->printLN("[List of ESP3D commands]");
         for (uint i = 0; i < cmdNb -1; i++) {
-            output->printMSG(help[i]);
+            output->printLN(help[i]);
         }
     } else {
         bool found = false;
         uint cmdval = String(cmd_params).toInt();
         if (sizeof(help)/sizeof(char*) != sizeof(cmdlist)/sizeof(uint)) {
-            output->printMSG("Error in code");
+            output->printLN("Error in code");
             return false;
         }
         for (uint i = 0; i < cmdNb-1; i++) {
             if (cmdlist[i] == cmdval) {
-                output->printMSG(help[i]);
+                output->printLN(help[i]);
                 found = true;
             }
         }
         if (!found) {
             String tmp = "This command is not supported: ";
             tmp+= cmd_params;
-            output->printMSG(tmp.c_str());
+            output->printLN(tmp.c_str());
         }
     }
     return response;
