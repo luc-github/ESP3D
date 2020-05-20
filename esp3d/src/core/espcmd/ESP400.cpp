@@ -41,7 +41,7 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
 
 #if defined (WIFI_FEATURE) || defined (ETH_FEATURE) || defined(BT_FEATURE)
     //Hostname network/network
-    output->print ("{\"F\":\"networ/network\",\"P\":\"");
+    output->print ("{\"F\":\"network/network\",\"P\":\"");
     output->print (ESP_HOSTNAME);
     output->print ("\",\"T\":\"S\",\"V\":\"");
     output->print (Settings_ESP3D::read_string(ESP_HOSTNAME));
