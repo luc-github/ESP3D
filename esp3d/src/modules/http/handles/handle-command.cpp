@@ -39,7 +39,9 @@ void HTTP_Server::handle_web_command ()
     if (_webserver->hasArg ("cmd")) {
         cmd = _webserver->arg ("cmd");
         ESP3DOutput  output(_webserver);
-        if(!cmd.endsWith("\n")) cmd+="\n";//need to validate command
+        if(!cmd.endsWith("\n")) {
+            cmd+="\n";    //need to validate command
+        }
         esp3d_commands.process((uint8_t*)cmd.c_str(), cmd.length(), &output, auth_level);
     } else {
         _webserver->send (400, "text/plain", "Invalid command");

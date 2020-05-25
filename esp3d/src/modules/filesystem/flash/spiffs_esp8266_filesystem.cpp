@@ -310,7 +310,7 @@ ESP_File  ESP_File::openNextFile()
         return ESP_File();
     }
     if(tDir_handle[_index].next()) {
-        //log_esp3d("Getting next file from %s", _filename.c_str());
+        log_esp3d("Getting next file from %s", _filename.c_str());
         File tmp = tDir_handle[_index].openFile("r");
         while (tmp) {
             ESP_File esptmp(&tmp);
@@ -321,17 +321,26 @@ ESP_File  ESP_File::openNextFile()
             if (pos!=-1) {
                 //is subdir
                 sub = sub.substring(0,pos);
-                //log_esp3d("file name:%s name: %s %s  sub:%s root:%s", esptmp.filename(), esptmp.name(), (esptmp.isDirectory())?"isDir":"isFile", sub.c_str(), _filename.c_str());
+                log_esp3d("file name:%s name: %s %s  sub:%s root:%s", esptmp.filename(), esptmp.name(), (esptmp.isDirectory())?"isDir":"isFile", sub.c_str(), _filename.c_str());
                 String tag = "*" + sub + "*";
                 //test if already in directory list
                 if (_dirlist.indexOf(tag) == -1) {//not in list so add it and return the info
                     _dirlist+= tag;
                     String fname = _filename.substring(0,_filename.length()-1) + sub + "/.";
-                    //log_esp3d("Found dir  name: %s filename:%s", sub.c_str(), fname.c_str());
-                    esptmp = ESP_File(sub.c_str(), fname.c_str());
-                    return esptmp;
+                    log_esp3d("Found dir # name: %s filename:%s", sub.c_str(), fname.c_str());
+                    if (sub == ".") {
+                        log_esp3d("Dir tag, ignore it");
+                        if(!tDir_handle[_index].next()) {
+                            return ESP_File();
+                        } else {
+                            tmp = tDir_handle[_index].openFile("r");
+                        }
+                    } else {
+                        esptmp = ESP_File(sub.c_str(), fname.c_str());
+                        return esptmp;
+                    }
                 } else { //already in list so ignore it
-                    //log_esp3d("Dir name: %s already in list", sub.c_str());
+                    log_esp3d("Dir name: %s already in list", sub.c_str());
                     if(!tDir_handle[_index].next()) {
                         return ESP_File();
                     } else {
@@ -339,15 +348,16 @@ ESP_File  ESP_File::openNextFile()
                     }
                 }
             } else { //is file
-                //log_esp3d("file name:%s name: %s %s  sub:%s root:%s", esptmp.filename(), esptmp.name(), (esptmp.isDirectory())?"isDir":"isFile", sub.c_str(), _filename.c_str());
+                log_esp3d("file name:%s name: %s %s  sub:%s root:%s", esptmp.filename(), esptmp.name(), (esptmp.isDirectory())?"isDir":"isFile", sub.c_str(), _filename.c_str());
                 if (sub == ".") {
-                    //log_esp3d("Dir tag, ignore it");
+                    log_esp3d("Dir tag, ignore it");
                     if(!tDir_handle[_index].next()) {
                         return ESP_File();
                     } else {
                         tmp = tDir_handle[_index].openFile("r");
                     }
                 } else {
+                    log_esp3d("Found file #  name: %s filename:%s", esptmp.filename(), esptmp.name());
                     return esptmp;
                 }
             }
