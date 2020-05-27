@@ -114,7 +114,7 @@ public:
     static uint32_t get_max_int32_value(int pos);
     static uint32_t get_min_int32_value(int pos);
     static uint8_t get_max_byte(int pos);
-    static uint8_t get_min_byte(int pos);
+    static int8_t get_min_byte(int pos);
     static uint8_t read_byte (int pos, bool * haserror = NULL);
     static uint32_t read_uint32(int pos, bool * haserror = NULL);
     static uint32_t read_IP(int pos, bool * haserror = NULL);

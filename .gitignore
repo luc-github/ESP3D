@@ -10,3 +10,4 @@ embedded/dist
 .vscode/c_cpp_properties.json
 .vscode/launch.json
 .vscode/arduino.json
+esp3d/myconfig.h

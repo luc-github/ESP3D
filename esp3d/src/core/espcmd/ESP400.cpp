@@ -285,7 +285,7 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print ((int8_t)Settings_ESP3D::read_byte(ESP_TIMEZONE));
     output->print("\",\"H\":\"tzone\",\"O\":[");
     for (int8_t i = Settings_ESP3D::get_min_byte(ESP_TIMEZONE); i <= Settings_ESP3D::get_max_byte(ESP_TIMEZONE) ; i++) {
-        if (i > 1) {
+        if (i > Settings_ESP3D::get_min_byte(ESP_TIMEZONE)) {
             output->print (",");
         }
         output->printf("{\"%d\":\"%d\"}", i, i);

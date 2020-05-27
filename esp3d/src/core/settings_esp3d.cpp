@@ -533,7 +533,7 @@ uint8_t Settings_ESP3D::get_max_byte(int pos)
     return res;
 }
 
-uint8_t Settings_ESP3D::get_min_byte(int pos)
+int8_t Settings_ESP3D::get_min_byte(int pos)
 {
     uint8_t res;
     switch(pos) {
