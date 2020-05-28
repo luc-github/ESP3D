@@ -78,8 +78,14 @@ ESP_File ESP_FileSystem::open(const char* path, uint8_t mode)
     }
     //TODO add support if path = /DIR1/ <- with last /
     File tmp = SPIFFS.open(path, (mode == ESP_FILE_READ)?FILE_READ:(mode == ESP_FILE_WRITE)?FILE_WRITE:FILE_APPEND);
-    ESP_File esptmp(&tmp, tmp.isDirectory(),(mode == ESP_FILE_READ)?false:true, path);
-    return esptmp;
+    if(tmp) {
+        ESP_File esptmp(&tmp, tmp.isDirectory(),(mode == ESP_FILE_READ)?false:true, path);
+        log_esp3d("%s is a %s", path,tmp.isDirectory()?"Dir":"File");
+        return esptmp;
+    } else {
+        log_esp3d("open %s failed", path);
+        return  ESP_File();
+    }
 }
 
 bool ESP_FileSystem::exists(const char* path)
@@ -103,7 +109,7 @@ bool ESP_FileSystem::exists(const char* path)
             newpath+="/";
         }
         newpath+=".";
-        //log_esp3d("Check %s", newpath.c_str());
+        log_esp3d("Check %s", newpath.c_str());
         res = SPIFFS.exists(newpath);
         if (!res) {
             ESP_File f = ESP_FileSystem::open(path, ESP_FILE_READ);
@@ -123,7 +129,11 @@ bool ESP_FileSystem::exists(const char* path)
 
 bool ESP_FileSystem::remove(const char *path)
 {
-    return SPIFFS.remove(path);
+    String p = path;
+    if(p[0]!='/') {
+        p="/"+p;
+    }
+    return SPIFFS.remove(p);
 }
 
 bool ESP_FileSystem::mkdir(const char *path)
@@ -134,7 +144,7 @@ bool ESP_FileSystem::mkdir(const char *path)
         p+="/";
     }
     p+=".";
-    //log_esp3d("Dir create : %s", p.c_str());
+    log_esp3d("Dir create : %s", p.c_str());
     ESP_File f = open(p.c_str(), ESP_FILE_WRITE);
     if (f) {
         f.close();
@@ -148,6 +158,9 @@ bool ESP_FileSystem::rmdir(const char *path)
 {
     String spath = path;
     spath.trim();
+    if(spath[0]!='/') {
+        spath="/"+spath;
+    }
     if (spath[spath.length()-1] == '/') {
         if (spath!="/") {
             spath.remove(spath.length()-1);
@@ -158,7 +171,7 @@ bool ESP_FileSystem::rmdir(const char *path)
     if (ftmp) {
         File pfile = ftmp.openNextFile();
         while (pfile) {
-            //log_esp3d("File: %s",pfile.name());
+            log_esp3d("File: %s",pfile.name());
             if (!SPIFFS.remove(pfile.name())) {
                 pfile.close();
                 return false;
@@ -193,6 +206,7 @@ ESP_File::ESP_File(void* handle, bool isdir, bool iswritemode, const char * path
     _iswritemode = iswritemode;
     _size = 0;
     if (!handle) {
+        log_esp3d("No handle");
         return ;
     }
     bool set =false;
@@ -237,7 +251,9 @@ ESP_File::ESP_File(void* handle, bool isdir, bool iswritemode, const char * path
             //time
             _lastwrite =  tFile_handle[i].getLastWrite();
             _index = i;
-            //log_esp3d("Opening File at index %d",_index);
+            log_esp3d("Opening File at index %d",_index);
+            log_esp3d("name: %s", _name.c_str());
+            log_esp3d("filename: %s", _filename.c_str());
             set = true;
         }
     }
@@ -246,7 +262,7 @@ ESP_File::ESP_File(void* handle, bool isdir, bool iswritemode, const char * path
 void ESP_File::close()
 {
     if (_index != -1) {
-        //log_esp3d("Closing File at index %d", _index);
+        log_esp3d("Closing File at index %d", _index);
         tFile_handle[_index].close();
         //reopen if mode = write
         //udate size + date
@@ -259,7 +275,6 @@ void ESP_File::close()
             }
         }
         tFile_handle[_index] = File();
-        //log_esp3d("Closing File at index %d",_index);
         _index = -1;
     }
 }

@@ -28,6 +28,9 @@
 #endif //ARDUINO_ARCH_ESP8266
 #include "../../filesystem/esp_filesystem.h"
 #include "../../authentication/authentication_service.h"
+#ifdef FILESYSTEM_TIMESTAMP_FEATURE
+#include "../../time/time_server.h"
+#endif //FILESYSTEM_TIMESTAMP_FEATURE
 //Filesystem
 //Filesystem files list and file commands
 void HTTP_Server::handleFSFileList ()
@@ -111,7 +114,7 @@ void HTTP_Server::handleFSFileList ()
         //create a directory
         if (_webserver->arg ("action") == "createdir" && _webserver->hasArg ("filename") ) {
             String filename;
-            filename = path + _webserver->arg ("filename") + "/.";
+            filename = path + _webserver->arg ("filename");
             String shortname = _webserver->arg ("filename");
             shortname.replace ("/", "");
             filename.replace ("//", "/");
@@ -161,11 +164,7 @@ void HTTP_Server::handleFSFileList ()
                 }
 #ifdef FILESYSTEM_TIMESTAMP_FEATURE
                 buffer2send+="\",\"time\":\"";
-                time_t t = sub.getLastWrite();
-                struct tm * tmstruct = localtime(&t);
-                char str[20]; //buffer should be 20
-                sprintf(str,"%d-%02d-%02d %02d:%02d:%02d",(tmstruct->tm_year)+1900,( tmstruct->tm_mon)+1, tmstruct->tm_mday,tmstruct->tm_hour, tmstruct->tm_min, tmstruct->tm_sec);
-                buffer2send+=str;
+                buffer2send+=timeserver.current_time(sub.getLastWrite());
 #endif //FILESYSTEM_TIMESTAMP_FEATURE
                 buffer2send+="\"}";
                 if (buffer2send.length() > 1100) {

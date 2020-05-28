@@ -120,7 +120,12 @@ bool ESP_FileSystem::exists(const char* path)
 
 bool ESP_FileSystem::remove(const char *path)
 {
-    return LittleFS.remove(path);
+    String p = path;
+    if(p[0]!='/') {
+        p="/"+p;
+    }
+    log_esp3d("delete %s", p.c_str());
+    return LittleFS.remove(p);
 }
 
 bool ESP_FileSystem::mkdir(const char *path)
@@ -131,6 +136,9 @@ bool ESP_FileSystem::mkdir(const char *path)
         if (spath!="/") {
             spath.remove(spath.length()-1);
         }
+    }
+    if (spath[0]!='/') {
+        spath = "/"+spath;
     }
     return LittleFS.mkdir(spath.c_str());
 }
@@ -205,6 +213,7 @@ ESP_File::ESP_File(void* handle, bool isdir, bool iswritemode, const char * path
     _iswritemode = iswritemode;
     _size = 0;
     if (!handle) {
+        log_esp3d("No handle");
         return ;
     }
     bool set =false;
@@ -220,7 +229,6 @@ ESP_File::ESP_File(void* handle, bool isdir, bool iswritemode, const char * path
                     if (!((_filename[_filename.length()-1] == '/') || (_filename == "/"))) {
                         _filename+="/";
                     }
-                    //log_esp3d("Filename: %s", _filename.c_str());
                     //Name
                     if (_filename == "/") {
                         _name = "/";
@@ -228,7 +236,9 @@ ESP_File::ESP_File(void* handle, bool isdir, bool iswritemode, const char * path
                         _name.remove( 0, _name.lastIndexOf('/')+1);
                     }
                 }
-                //log_esp3d("Name: %s index: %d", _name.c_str(), _index);
+                log_esp3d("Dir: %s index: %d", _name.c_str(), _index);
+                log_esp3d("name: %s", _name.c_str());
+                log_esp3d("filename: %s", _filename.c_str());
                 set = true;
             }
         }
@@ -239,33 +249,17 @@ ESP_File::ESP_File(void* handle, bool isdir, bool iswritemode, const char * path
         if (!tFile_handle[i]) {
             tFile_handle[i] = *((File*)handle);
             //filename
-            _filename = tFile_handle[i].name();
-            if (_isdir) {
-                if (!((_filename[_filename.length()-1] == '/') || (_filename == "/"))) {
-                    _filename+="/";
-                }
-            }
+            _filename = tFile_handle[i].fullName();
             //name
-            if (_filename == "/") {
-                _name = "/";
-            } else {
-                _name = _filename;
-                if (_name[0] == '/') {
-                    _name.remove( 0, 1);
-                }
-                int pos = _name.lastIndexOf('/');
-                if (pos != -1) {
-                    _name.remove( 0, pos+1);
-                }
-            }
+            _name = tFile_handle[i].name();
             //size
             _size = tFile_handle[i].size();
             //time
-            //TODO - not yet implemented in esp core
-            //_lastwrite =  tFile_handle[i].getLastWrite();
-            _lastwrite = 0;
+            _lastwrite =  tFile_handle[i].getLastWrite();
             _index = i;
-            //log_esp3d("Opening File at index %d",_index);
+            log_esp3d("Opening File at index %d",_index);
+            log_esp3d("name: %s", _name.c_str());
+            log_esp3d("filename: %s", _filename.c_str());
             set = true;
         }
     }
@@ -275,26 +269,26 @@ void ESP_File::close()
 {
     if (_index != -1) {
         if (_isdir) {
-            //log_esp3d("Closing Dir at index %d", _index);
+            log_esp3d("Closing Dir at index %d", _index);
             tDir_handle[_index] = Dir();
             _index = -1;
             return;
         }
-        //log_esp3d("Closing File at index %d", _index);
+        log_esp3d("Closing File at index %d", _index);
+        log_esp3d("Size is %d", tFile_handle[_index].size());
         tFile_handle[_index].close();
         //reopen if mode = write
         //udate size + date
         if (_iswritemode && !_isdir) {
+            log_esp3d("Updating Size of %s",_filename.c_str());
             File ftmp = LittleFS.open(_filename.c_str(), "r");
             if (ftmp) {
                 _size = ftmp.size();
-                //TODO - not yet implemented in esp core
-                //_lastwrite = ftmp.getLastWrite();
-                _lastwrite = 0;
+                log_esp3d("Updating Size to %d", ftmp.size());
+                _lastwrite = ftmp.getLastWrite();
                 ftmp.close();
             }
         }
-        //log_esp3d("Closing File at index %d",_index);
         _index = -1;
     }
 }

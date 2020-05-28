@@ -24,6 +24,10 @@
 #include "../settings_esp3d.h"
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/filesystem/esp_filesystem.h"
+#ifdef FILESYSTEM_TIMESTAMP_FEATURE
+#include "../../modules/time/time_server.h"
+#endif //FILESYSTEM_TIMESTAMP_FEATURE
+
 //List ESP Filesystem
 //[ESP720]<Root> pwd=<admin password>
 bool Commands::ESP720(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
@@ -75,9 +79,7 @@ bool Commands::ESP720(const char* cmd_params, level_authenticate_type auth_type,
                     output->print(ESP_FileSystem::formatBytes(sub.size()).c_str());
                     output->print(" \t");
 #ifdef FILESYSTEM_TIMESTAMP_FEATURE
-                    time_t t = sub.getLastWrite();
-                    struct tm * tmstruct = localtime(&t);
-                    output->printf("%d-%02d-%02d %02d:%02d:%02d",(tmstruct->tm_year)+1900,( tmstruct->tm_mon)+1, tmstruct->tm_mday,tmstruct->tm_hour, tmstruct->tm_min, tmstruct->tm_sec);
+                    output->print(timeserver.current_time(sub.getLastWrite()));
                     output->print(" \t");
 #endif //FILESYSTEM_TIMESTAMP_FEATURE              
                     output->printLN("");

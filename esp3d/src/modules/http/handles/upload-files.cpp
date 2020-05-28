@@ -99,6 +99,7 @@ void HTTP_Server::FSFileupload ()
                 }
                 //Upload end
             } else if(upload.status == UPLOAD_FILE_END) {
+                log_esp3d("upload end");
                 //check if file is still open
                 if(fsUploadFile) {
                     //close it
@@ -109,7 +110,9 @@ void HTTP_Server::FSFileupload ()
                     uint32_t filesize = fsUploadFile.size();
                     _upload_status = UPLOAD_STATUS_SUCCESSFUL;
                     if (_webserver->hasArg (sizeargname.c_str()) ) {
+                        log_esp3d("Size check: %s vs %s", _webserver->arg (sizeargname.c_str()).c_str(), String(filesize).c_str());
                         if (_webserver->arg (sizeargname.c_str()) != String(filesize)) {
+                            log_esp3d("Size Error");
                             _upload_status = UPLOAD_STATUS_FAILED;
                             pushError(ESP_ERROR_SIZE, "File upload failed");
                         }
@@ -119,6 +122,7 @@ void HTTP_Server::FSFileupload ()
                     }
                 } else {
                     //we have a problem set flag UPLOAD_STATUS_FAILED
+                    log_esp3d("Close Error");
                     _upload_status=UPLOAD_STATUS_FAILED;
                     pushError(ESP_ERROR_FILE_CLOSE, "File close failed");
                 }

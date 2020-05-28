@@ -88,7 +88,7 @@ bool TimeServer::begin()
     }
 #endif //ETH_FEATURE
     if (!is_internet_time()) {
-        return false;
+        return true;
     }
     s1 = Settings_ESP3D::read_string (ESP_TIME_SERVER1);
     s2 = Settings_ESP3D::read_string (ESP_TIME_SERVER2);
@@ -125,13 +125,6 @@ const char * TimeServer::current_time(time_t t)
         time(&now);
         localtime_r(&now, &tmstruct);
     } else {
-        /* struct tm * tmstructtmp = localtime(&t);
-         tmstruct.tm_year = tmstructtmp->tm_year;
-         tmstruct.tm_mon = tmstructtmp->tm_mon;
-         tmstruct.tm_mday = tmstructtmp->tm_mday;
-         tmstruct.tm_hour = tmstructtmp->tm_hour;
-         tmstruct.tm_min = tmstructtmp->tm_min;
-         tmstruct.tm_sec = tmstructtmp->tm_sec;*/
         localtime_r(&t, &tmstruct);
     }
     stmp = String((tmstruct.tm_year)+1900) + "-";
@@ -231,8 +224,6 @@ bool TimeServer::setTime(const char* stime)
         return false;
     }
     tmstruct.tm_isdst = 0; //ignore dst
-    //reset servers, time zone and dst
-    configTime (0, 0,"", "", "");
     tmstruct.tm_sec = substmp.toInt();
     time_val.tv_sec = mktime (&tmstruct);
     if(settimeofday(&time_val,0) == -1) {
