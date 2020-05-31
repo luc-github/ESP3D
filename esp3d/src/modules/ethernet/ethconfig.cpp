@@ -90,7 +90,7 @@ bool EthConfig::StartSTA()
 bool EthConfig::begin()
 {
     bool res = false;
-    ESP3DOutput output(ESP_ALL_CLIENTS);
+    ESP3DOutput output(ESP_SERIAL_CLIENT);
     end();
     _started = ETH.begin();
     if (_started) {
@@ -99,10 +99,7 @@ bool EthConfig::begin()
     } else {
         output.printERROR("Failed Starting Ethernet");
     }
-    if (!ETH.setHostname(NetConfig::hostname(true))) {
-        res = false;
-        log_esp3d("Set Hostname error");
-    }
+    ETH.setHostname(NetConfig::hostname(true));
 
     int8_t espMode =Settings_ESP3D::read_byte(ESP_RADIO_MODE);
     //DHCP is only for Client

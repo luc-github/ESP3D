@@ -211,13 +211,17 @@ size_t ESP3DOutput::printMSG(const char * s, bool withNL)
         return 0;
     }
 #endif //HTTP_FEATURE
-    if (_client == ESP_PRINTER_LCD_CLIENT) {
-        display = "M117 ";
-        display+= s;
-        return printLN(display.c_str());
+    if (_client & ESP_PRINTER_LCD_CLIENT) {
+        if (isOutput(ESP_PRINTER_LCD_CLIENT)) {
+            display= "M117 ";
+            display+= s;
+            return printLN(display.c_str());
+        } else {
+            return printLN(s);
+        }
     }
-    if (_client == ESP_SCREEN_CLIENT) {
-        return print(s);
+    if (_client & ESP_SCREEN_CLIENT) {
+        print(s);
     }
     switch(Settings_ESP3D::GetFirmwareTarget()) {
     case GRBL:

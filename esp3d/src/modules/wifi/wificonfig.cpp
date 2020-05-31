@@ -162,15 +162,26 @@ bool WiFiConfig::ConnectSTA2AP()
  */
 bool WiFiConfig::StartSTA()
 {
+#if defined (ARDUINO_ARCH_ESP32)
+    esp_wifi_start();
+#endif //ARDUINO_ARCH_ESP32
     //Sanity check
     if((WiFi.getMode() == WIFI_STA) || (WiFi.getMode() == WIFI_AP_STA)) {
-        WiFi.disconnect();
+        if(WiFi.isConnected()) {
+            WiFi.disconnect();
+        } else {
+            WiFi.begin();
+        }
     }
     if((WiFi.getMode() == WIFI_AP) || (WiFi.getMode() == WIFI_AP_STA)) {
         WiFi.softAPdisconnect();
     }
     WiFi.enableAP (false);
+    WiFi.enableSTA (true);
     WiFi.mode(WIFI_STA);
+#if defined (ARDUINO_ARCH_ESP32)
+    esp_wifi_start();
+#endif //ARDUINO_ARCH_ESP32
     //Get parameters for STA
     String SSID = Settings_ESP3D::read_string(ESP_STA_SSID);
     String password = Settings_ESP3D::read_string(ESP_STA_PASSWORD);
@@ -182,16 +193,14 @@ bool WiFiConfig::StartSTA()
         IPAddress ip(IP), mask(MK), gateway(GW);
         WiFi.config(ip, gateway,mask);
     }
-    ESP3DOutput output(ESP_ALL_CLIENTS);
+    ESP3DOutput output(ESP_SERIAL_CLIENT);
     String stmp;
     stmp = "Connecting to '" + SSID + "'";;
     output.printMSG(stmp.c_str());
     if (WiFi.begin(SSID.c_str(), (password.length() > 0)?password.c_str():nullptr)) {
 #if defined (ARDUINO_ARCH_ESP8266)
         WiFi.setSleepMode(WIFI_NONE_SLEEP);
-        if (!WiFi.hostname(NetConfig::hostname(true))) {
-            output.printERROR("Set hostname STA failed");
-        }
+        WiFi.hostname(NetConfig::hostname(true));
 #endif //ARDUINO_ARCH_ESP8266
 #if defined (ARDUINO_ARCH_ESP32)
         WiFi.setSleep(false);
@@ -213,7 +222,9 @@ bool WiFiConfig::StartAP()
     ESP3DOutput output(ESP_ALL_CLIENTS);
     //Sanity check
     if((WiFi.getMode() == WIFI_STA) || (WiFi.getMode() == WIFI_AP_STA)) {
-        WiFi.disconnect();
+        if(WiFi.isConnected()) {
+            WiFi.disconnect();
+        }
     }
     if((WiFi.getMode() == WIFI_AP) || (WiFi.getMode() == WIFI_AP_STA)) {
         WiFi.softAPdisconnect();
@@ -223,10 +234,6 @@ bool WiFiConfig::StartAP()
     //Set Sleep Mode to none
 #if defined (ARDUINO_ARCH_ESP8266)
     WiFi.setSleepMode(WIFI_NONE_SLEEP);
-    //No API for it
-    //if(!WiFi.hostname(NetConfig::hostname(true))){
-    //    output.printERROR("Set hostname AP failed");
-    //}
 #endif //ARDUINO_ARCH_ESP8266
 
     String SSID = Settings_ESP3D::read_string(ESP_AP_SSID);
@@ -256,9 +263,7 @@ bool WiFiConfig::StartAP()
         //must be done after starting AP not before
 #if defined (ARDUINO_ARCH_ESP32)
         WiFi.setSleep(false);
-        if (!WiFi.softAPsetHostname(NetConfig::hostname(true))) {
-            output.printERROR("Set hostname AP failed");
-        }
+        WiFi.softAPsetHostname(NetConfig::hostname(true));
 #endif //ARDUINO_ARCH_ESP32
         return true;
     } else {
@@ -302,14 +307,16 @@ void WiFiConfig::end()
 {
     //Sanity check
     if((WiFi.getMode() == WIFI_STA) || (WiFi.getMode() == WIFI_AP_STA)) {
-        WiFi.disconnect(true);
+        if(WiFi.isConnected()) {
+            WiFi.disconnect(true);
+        }
     }
     if((WiFi.getMode() == WIFI_AP) || (WiFi.getMode() == WIFI_AP_STA)) {
-        WiFi.softAPdisconnect(true);
+        if(WiFi.isConnected()) {
+            WiFi.softAPdisconnect(true);
+        }
     }
     WiFi.mode(WIFI_OFF);
-    ESP3DOutput output(ESP_ALL_CLIENTS);
-    output.printMSG("WiFi Off");
 }
 
 /**

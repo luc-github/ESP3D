@@ -147,10 +147,10 @@
 #define DIRECT_PIN_FEATURE
 
 //TIMESTAMP_FEATURE: set time system
-//#define TIMESTAMP_FEATURE
+#define TIMESTAMP_FEATURE
 
 //FILESYSTEM_TIMESTAMP_FEATURE: display last write time from Flash files
-//#define FILESYSTEM_TIMESTAMP_FEATURE
+#define FILESYSTEM_TIMESTAMP_FEATURE
 
 //FILESYSTEM_TIMESTAMP_FEATURE:display last write time from SD files
 //#define SD_TIMESTAMP_FEATURE
@@ -174,6 +174,13 @@
 
 //NOTIFICATION_FEATURE : allow to push notifications
 #define NOTIFICATION_FEATURE
+
+//For ESP8266 Only, it define which secure client to use AXTls or BearSSL
+//#define USING_AXTLS
+
+//if not using AXTLS need to decrease size of packet to not be OOM
+#define BEARSSL_MFLN_SIZE   512
+#define BEARSSL_MFLN_SIZE_FALLBACK  4096
 
 //CAMERA_DEVICE: Enable the support of connected camera
 //CAMERA_MODEL_CUSTOM           0 //Edit the pins in include/pins.h

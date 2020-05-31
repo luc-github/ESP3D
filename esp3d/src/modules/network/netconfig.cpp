@@ -25,8 +25,10 @@
 #define WIFI_EVENT_STAMODE_DISCONNECTED SYSTEM_EVENT_STA_DISCONNECTED
 #define WIFI_EVENT_STAMODE_GOT_IP SYSTEM_EVENT_STA_GOT_IP
 #define WIFI_EVENT_SOFTAPMODE_STACONNECTED SYSTEM_EVENT_AP_STACONNECTED
+#define RADIO_OFF_MSG "Radio Off"
 #endif //ARDUINO_ARCH_ESP32
 #ifdef ARDUINO_ARCH_ESP8266
+#define RADIO_OFF_MSG "WiFi Off"
 #endif //ARDUINO_ARCH_ESP8266
 #include "netconfig.h"
 #if defined (WIFI_FEATURE)
@@ -165,8 +167,6 @@ void NetConfig::onWiFiEvent(WiFiEvent_t event)
     }
     break;
     case WIFI_EVENT_STAMODE_GOT_IP: {
-        output.printMSG ("Connected");
-        ESP3DGlobalOutput::SetStatus("Connected");
         ESP3DGlobalOutput::display_IP();
         output.printMSG (WiFi.localIP().toString().c_str());
     }
@@ -218,7 +218,7 @@ bool NetConfig::begin()
     //clear everything
     end();
     int8_t espMode =Settings_ESP3D::read_byte(ESP_RADIO_MODE);
-    ESP3DOutput output(ESP_ALL_CLIENTS);
+    ESP3DOutput output(ESP_SERIAL_CLIENT);
     if (espMode != NO_NETWORK) {
         output.printMSG("Starting Network");
     }
@@ -240,7 +240,12 @@ bool NetConfig::begin()
     _hostname = Settings_ESP3D::read_string(ESP_HOSTNAME);
     _mode = espMode;
     if (espMode == NO_NETWORK) {
+        WiFi.mode(WIFI_OFF);
         ESP3DGlobalOutput::display_IP();
+        ESP3DOutput output(ESP_ALL_CLIENTS);
+        ESP3DGlobalOutput::SetStatus(RADIO_OFF_MSG);
+        output.printMSG(RADIO_OFF_MSG);
+        output.flush();
         return true;
     }
 #if defined (WIFI_FEATURE)
@@ -255,11 +260,18 @@ bool NetConfig::begin()
 #if defined (ETH_FEATURE)
     //if ((espMode == ESP_ETH_STA) || (espMode == ESP_ETH_SRV)) {
     if ((espMode == ESP_ETH_STA)) {
+        WiFi.mode(WIFI_OFF);
         res = EthConfig::begin();
     }
 #endif //ETH_FEATURE
 #if defined (BLUETOOTH_FEATURE)
     if ((espMode == ESP_BT)) {
+        WiFi.mode(WIFI_OFF);
+        ESP3DOutput output(ESP_ALL_CLIENTS);
+        String msg = "BT On";
+        ESP3DGlobalOutput::SetStatus(msg.c_str());
+        output.printMSG(msg.c_str());
+        output.flush();
         res = bt_service.begin();
     }
 #endif //BLUETOOTH_FEATURE
@@ -320,11 +332,9 @@ void NetConfig::end()
 #if defined (ETH_FEATURE)
     EthConfig::end();
 #endif //ETH_FEATURE
-    ESP3DOutput output(ESP_ALL_CLIENTS);
 #if defined (BLUETOOTH_FEATURE)
     bt_service.end();
 #endif //BLUETOOTH_FEATURE
-    output.printMSG("Network Off");
     _started = false;
 }
 

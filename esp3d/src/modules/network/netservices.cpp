@@ -87,7 +87,7 @@ bool NetServices::begin()
     bool res = true;
     _started = false;
     String hostname = Settings_ESP3D::read_string(ESP_HOSTNAME);
-    ESP3DOutput output(ESP_ALL_CLIENTS);
+    ESP3DOutput output(ESP_SERIAL_CLIENT);
     end();
 #ifdef TIMESTAMP_FEATURE
     if (WiFi.getMode() != WIFI_AP) {
@@ -96,7 +96,7 @@ bool NetServices::begin()
                 output.printERROR("Failed contact time servers!");
             }
         } else {
-            String tmp = "Time set :";
+            String tmp = "Current time :";
             tmp+=timeserver.current_time();
             output.printMSG(tmp.c_str());
         }
@@ -241,7 +241,7 @@ bool NetServices::begin()
 #ifdef MDNS_FEATURE
     if(WiFi.getMode() != WIFI_AP) {
         // Add service to MDNS-SD
-        MDNS.addService("http", "tcp", 80);
+        MDNS.addService("http", "tcp", HTTP_Server::port());
         // TODO add TXT records
         //MDNS.addServiceTxt("http", "tcp", Key, value);
     }
@@ -307,12 +307,17 @@ void NetServices::end()
 #endif //ARDUINO_ARCH_ESP32
 #endif //SSDP_FEATURE
 #ifdef MDNS_FEATURE
-#if defined(ARDUINO_ARCH_ESP32)
     if(WiFi.getMode() != WIFI_AP) {
+#if defined(ARDUINO_ARCH_ESP8266)
+        String hostname = Settings_ESP3D::read_string(ESP_HOSTNAME);
+        hostname.toLowerCase();
+        MDNS.removeService(hostname.c_str(),"http", "tcp");
+#endif // ARDUINO_ARCH_ESP8266
+#if defined(ARDUINO_ARCH_ESP32)
         mdns_service_remove("_http", "_tcp");
+#endif // ARDUINO_ARCH_ESP32
         MDNS.end();
     }
-#endif // ARDUINO_ARCH_ESP32
 #endif //MDNS_FEATURE
 
 #ifdef OTA_FEATURE

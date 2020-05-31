@@ -38,7 +38,6 @@
 #include "../network/netconfig.h"
 
 #if defined( ARDUINO_ARCH_ESP8266)
-#define USING_AXTLS
 #if defined(USING_AXTLS)
 #include "WiFiClientSecureAxTLS.h"
 using namespace axTLS;
@@ -196,6 +195,13 @@ bool NotificationsService::sendPushoverMSG(const char * title, const char * mess
 #pragma GCC diagnostic pop
 #if defined(ARDUINO_ARCH_ESP8266) && !defined(USING_AXTLS)
     Notificationclient.setInsecure();
+    if (Notificationclient.probeMaxFragmentLength(_serveraddress.c_str(), _port, BEARSSL_MFLN_SIZE)) {
+        log_esp3d("Handshake success");
+        Notificationclient.setBufferSizes(BEARSSL_MFLN_SIZE, 512);
+    } else {
+        log_esp3d("Handshake failed");
+        Notificationclient.setBufferSizes(BEARSSL_MFLN_SIZE_FALLBACK, 512);
+    }
 #endif //ARDUINO_ARCH_ESP8266 && !USING_AXTLS
     if (!Notificationclient.connect(_serveraddress.c_str(), _port)) {
         log_esp3d("Error connecting  server %s:%d", _serveraddress.c_str(), _port);
@@ -237,6 +243,13 @@ bool NotificationsService::sendTelegramMSG(const char * title, const char * mess
 #pragma GCC diagnostic pop
 #if defined(ARDUINO_ARCH_ESP8266) && !defined(USING_AXTLS)
     Notificationclient.setInsecure();
+    if (Notificationclient.probeMaxFragmentLength(_serveraddress.c_str(), _port, BEARSSL_MFLN_SIZE)) {
+        log_esp3d("Handshake success");
+        Notificationclient.setBufferSizes(BEARSSL_MFLN_SIZE, 512);
+    } else {
+        log_esp3d("Handshake failed");
+        Notificationclient.setBufferSizes(BEARSSL_MFLN_SIZE_FALLBACK, 512);
+    }
 #endif //ARDUINO_ARCH_ESP8266 && !USING_AXTLS
     if (!Notificationclient.connect(_serveraddress.c_str(), _port)) {
         log_esp3d("Error connecting  server %s:%d", _serveraddress.c_str(), _port);
@@ -272,6 +285,13 @@ bool NotificationsService::sendEmailMSG(const char * title, const char * message
 #pragma GCC diagnostic pop
 #if defined(ARDUINO_ARCH_ESP8266) && !defined(USING_AXTLS)
     Notificationclient.setInsecure();
+    if (Notificationclient.probeMaxFragmentLength(_serveraddress.c_str(), _port, BEARSSL_MFLN_SIZE)) {
+        log_esp3d("Handshake success");
+        Notificationclient.setBufferSizes(BEARSSL_MFLN_SIZE, 512);
+    } else {
+        log_esp3d("Handshake failed");
+        Notificationclient.setBufferSizes(BEARSSL_MFLN_SIZE_FALLBACK, 512);
+    }
 #endif //ARDUINO_ARCH_ESP8266 && !USING_AXTLS
     log_esp3d("Connect to server");
     if (!Notificationclient.connect(_serveraddress.c_str(), _port)) {
@@ -368,6 +388,13 @@ bool NotificationsService::sendLineMSG(const char * title, const char * message)
 #pragma GCC diagnostic pop
 #if defined(ARDUINO_ARCH_ESP8266) && !defined(USING_AXTLS)
     Notificationclient.setInsecure();
+    if (Notificationclient.probeMaxFragmentLength(_serveraddress.c_str(), _port, BEARSSL_MFLN_SIZE)) {
+        log_esp3d("Handshake success");
+        Notificationclient.setBufferSizes(BEARSSL_MFLN_SIZE, 512);
+    } else {
+        log_esp3d("Handshake failed");
+        Notificationclient.setBufferSizes(BEARSSL_MFLN_SIZE_FALLBACK, 512);
+    }
 #endif //ARDUINO_ARCH_ESP8266 && !USING_AXTLS
     (void)title;
     if (!Notificationclient.connect(_serveraddress.c_str(), _port)) {
