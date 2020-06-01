@@ -256,13 +256,13 @@ bool NetServices::begin()
         SSDP.setName (hostname.c_str());
         SSDP.setURL ("/");
         SSDP.setDeviceType ("upnp:rootdevice");
-        // SSDP.setSerialNumber (stmp.c_str());
+        SSDP.setSerialNumber (stmp.c_str());
         //Any customization could be here
-        //  SSDP.setModelName (ESP_MODEL_NAME);
-        //  SSDP.setModelURL (ESP_MODEL_URL);
-        //   SSDP.setModelNumber (ESP_MODEL_NUMBER);
-        //   SSDP.setManufacturer (ESP_MANUFACTURER_NAME);
-        //   SSDP.setManufacturerURL (ESP_MANUFACTURER_URL);
+        SSDP.setModelName (ESP_MODEL_NAME);
+        SSDP.setModelURL (ESP_MODEL_URL);
+        SSDP.setModelNumber (ESP_MODEL_NUMBER);
+        SSDP.setManufacturer (ESP_MANUFACTURER_NAME);
+        SSDP.setManufacturerURL (ESP_MANUFACTURER_URL);
         SSDP.begin();
         stmp = "SSDP started with '" + hostname + "'";
         output.printMSG(stmp.c_str());
