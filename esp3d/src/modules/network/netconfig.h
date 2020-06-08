@@ -34,7 +34,7 @@
 
 //IP mode
 #define DHCP_MODE       1
-#define STATIC_IP_MODE  2
+#define STATIC_IP_MODE  0
 
 //Network Mode
 #define ESP_RADIO_OFF 0
