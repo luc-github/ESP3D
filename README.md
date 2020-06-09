@@ -18,12 +18,6 @@ The web interface files are present in data directory but UI has it's own reposi
 * Be aware  ESP3D-WEBUI is for firmware 0.9.99 minimum - previous released version use tpl files which are no more used.
 * Note for ESP8266 1MB flash : FW is now too big will all features you need to chose strip the FW and select only some features, also WebUI is now also too big for full multilanguage support to fit the 128K SPIFFS so please use pack with limited language (en +another) https://github.com/luc-github/ESP3D-WEBUI/tree/2.1/languages
     
-:+1:Thanks
-* to @disneysw for bringing this module idea
-* to @lkarlslund for suggestion about independent reset using GPIO2
-* to Roy Cortes from http://www.panucatt.com for supporting and pushing me implementing great features
-* to all contributors, feedbacks owners and donations.
-
 
 ## Sponsors 
 [<img width="200px" src="https://raw.githubusercontent.com/luc-github/ESP3D/3.0/images/sponsors-supporters/FYSETC/LOGO.png">](https://www.fysetc.com/)  
@@ -133,7 +127,14 @@ and https://youtu.be/XoWW0aU6DGE?t=76
 and Wifi boards for 3D printers : https://www.panucatt.com/ProductDetails.asp?ProductCode=WB8266,   
 <h2>:warning: Do not use this repository for boards using custom firmware, you will lose several features.</h2> 
 
-* More to come...
+* More to come...   
+
+## :+1:Thanks
+* to @disneysw for bringing this module idea
+* to @lkarlslund for suggestion about independent reset using GPIO2
+* to Roy Cortes from http://www.panucatt.com for supporting and pushing me implementing great features
+* to all contributors, feedbacks owners and donations.
+
 
 If you use ESP3D on your product, drop me a message so I can link your product page here.   
 
