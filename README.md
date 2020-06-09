@@ -24,6 +24,14 @@ The web interface files are present in data directory but UI has it's own reposi
 * to Roy Cortes from http://www.panucatt.com for supporting and pushing me implementing great features
 * to all contributors, feedbacks owners and donations.
 
+
+## Sponsors 
+[<img width="200px" src="https://raw.githubusercontent.com/luc-github/ESP3D/3.0/images/sponsors-supporters/FYSETC/LOGO.png">](https://www.fysetc.com/)  
+
+## Supporters
+[<img src="https://raw.githubusercontent.com/luc-github/ESP3D/3.0/images/sponsors-supporters/PanucattDevices/Panucatt.jpg" />](http://www.panucatt.com/)
+
+
 ## Become a sponsor or a supporter
  * A sponsor is a recurent donator [<img src="https://raw.githubusercontent.com/luc-github/ESP3D/3.0/images/sponsors-supporters/sponsor.PNG" />](https://github.com/sponsors/luc-github)   
  The github sponsors are automaticaly displayed by github, if your tier is `A big hug` or more, to thank you for your support, your logo / avatar will be also added to the readme page with eventually with a link to your site.    
@@ -32,12 +40,6 @@ The web interface files are present in data directory but UI has it's own reposi
  If your donation is over a per year sponsor tier `A big hug`, to thank you for your support, your logo / avatar will be added to the readme page with eventually with a link to your site.    
 
  Every support is welcome, giving support/ developing new features need time and devices, donations contribute a lot to make things happen, thank you.
-
-## Sponsors 
-[<img width="200px" src="https://raw.githubusercontent.com/luc-github/ESP3D/3.0/images/sponsors-supporters/FYSETC/LOGO.png">](https://www.fysetc.com/)  
-
-## Supporters
-[<img src="https://raw.githubusercontent.com/luc-github/ESP3D/3.0/images/sponsors-supporters/PanucattDevices/Panucatt.jpg" />](http://www.panucatt.com/)
 
 ## Features
 * Serial/Wifi bridge using configurable port 8888
