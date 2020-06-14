@@ -162,7 +162,7 @@ void NetConfig::onWiFiEvent(WiFiEvent_t event)
         if(_started) {
             output.printMSG ("Disconnected");
             ESP3DGlobalOutput::SetStatus("Disconnected");
-            _needReconnect2AP = true;
+            //_needReconnect2AP = true;
         }
     }
     break;
