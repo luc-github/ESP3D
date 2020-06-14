@@ -62,9 +62,9 @@ size_t ESP_FileSystem::max_update_size()
     size_t  flashsize = 0;
 #if defined (ARDUINO_ARCH_ESP8266)
     flashsize = ESP.getFlashChipSize();
-    //if higher than 1MB take out SPIFFS
+    //if higher than 1MB or not (no more support for 512KB flash)
     if (flashsize <= 1024 * 1024) {
-        flashsize = (1024 * 1024)-ESP.getSketchSize()-1024;
+        flashsize = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
     } else {
         flashsize = flashsize - ESP.getSketchSize()-totalBytes()-1024;
         //max OTA partition is 1019Kb
