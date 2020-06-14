@@ -211,7 +211,7 @@ bool NotificationsService::sendPushoverMSG(const char * title, const char * mess
     data = "user=";
     data += _token1;
     data += "&token=";
-    data += _token2;;
+    data += _token2;
     data +="&title=";
     data += title;
     data += "&message=";

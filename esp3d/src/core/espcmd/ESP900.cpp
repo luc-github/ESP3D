@@ -47,7 +47,7 @@ bool Commands::ESP900(const char* cmd_params, level_authenticate_type auth_type,
         }
     } else { //set
         if (parameter == "ENABLE" ) {
-            if (!serial_service.begin()) {
+            if (serial_service.begin()) {
                 output->printMSG ("Serial communication enabled");
             } else {
                 output->printERROR("Cannot enable serial communication!", 500);

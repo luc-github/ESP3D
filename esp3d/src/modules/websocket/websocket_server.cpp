@@ -213,7 +213,7 @@ uint8_t WebSocket_Server::get_currentID()
 
 size_t WebSocket_Server::write(uint8_t c)
 {
-    return write(&c,1);;
+    return write(&c,1);
 }
 
 size_t WebSocket_Server::write(const uint8_t *buffer, size_t size)
