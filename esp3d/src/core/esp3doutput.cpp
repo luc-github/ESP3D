@@ -231,7 +231,7 @@ size_t ESP3DOutput::printMSG(const char * s, bool withNL)
         break;
     case MARLIN:
     case MARLINKIMBRA:
-        display = "echo: ";
+        display = ";echo: ";
         display += s;
         break;
     case REPETIER4DV:
