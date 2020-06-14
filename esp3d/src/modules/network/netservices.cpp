@@ -87,7 +87,7 @@ bool NetServices::begin()
     bool res = true;
     _started = false;
     String hostname = Settings_ESP3D::read_string(ESP_HOSTNAME);
-    ESP3DOutput output(ESP_SERIAL_CLIENT);
+    ESP3DOutput output(ESP_ALL_CLIENTS);
     end();
 #ifdef TIMESTAMP_FEATURE
     if (WiFi.getMode() != WIFI_AP) {
@@ -280,6 +280,7 @@ bool NetServices::begin()
     if (!res) {
         end();
     }
+    output.printMSG(NetConfig::localIP().c_str());
     _started = res;
     return _started;
 }
