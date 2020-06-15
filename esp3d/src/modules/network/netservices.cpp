@@ -280,6 +280,7 @@ bool NetServices::begin()
     if (!res) {
         end();
     }
+    Hal::wait(1000);
     output.printMSG(NetConfig::localIP().c_str());
     _started = res;
     return _started;

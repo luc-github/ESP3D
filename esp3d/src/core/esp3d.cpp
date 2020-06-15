@@ -174,6 +174,10 @@ void Esp3D::restart_esp(bool need_restart)
 void Esp3D::restart_now()
 {
     log_esp3d("Restarting");
+    serial_service.flush();
+#if defined(FILESYSTEM_FEATURE)
+    ESP_FileSystem::end();
+#endif //FILESYSTEM_FEATURE
     serial_service.swap();
     ESP.restart();
     while (1) {
