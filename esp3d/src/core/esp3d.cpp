@@ -174,7 +174,6 @@ void Esp3D::restart_esp(bool need_restart)
 void Esp3D::restart_now()
 {
     log_esp3d("Restarting");
-    end();
     serial_service.swap();
     ESP.restart();
     while (1) {
