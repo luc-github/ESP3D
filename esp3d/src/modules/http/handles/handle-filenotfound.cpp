@@ -42,6 +42,7 @@ void HTTP_Server:: handle_not_found()
 #if defined (FILESYSTEM_FEATURE)
     if(ESP_FileSystem::exists(pathWithGz.c_str()) || ESP_FileSystem::exists(path.c_str())) {
         if(ESP_FileSystem::exists(pathWithGz.c_str())) {
+            _webserver->sendHeader("Content-Encoding", "gzip");
             path = pathWithGz;
         }
         if(!StreamFSFile(path.c_str(),contentType.c_str())) {
@@ -58,6 +59,7 @@ void HTTP_Server:: handle_not_found()
     pathWithGz =  path + ".gz";
     if(ESP_FileSystem::exists(pathWithGz.c_str()) || ESP_FileSystem::exists(path.c_str())) {
         if(ESP_FileSystem::exists(pathWithGz.c_str())) {
+            _webserver->sendHeader("Content-Encoding", "gzip");
             path = pathWithGz;
         }
         if(!StreamFSFile(path.c_str(),contentType.c_str())) {
