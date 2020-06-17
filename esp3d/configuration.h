@@ -121,6 +121,11 @@
 //ESP_SDFAT                   3 //esp8266 (same as native) / esp32
 //#define SD_DEVICE    ESP_SDFAT
 
+//SD Device Connection type (default is direct)
+//ESP_DIRECT_SD
+//ESP_SHARED_SD
+#define SD_DEVICE_CONNECTION  ESP_DIRECT_SD
+
 //pin if reader has insert detection feature
 //let -1 or comment if none
 #define ESP_SD_DETECT_PIN       -1
