@@ -54,6 +54,7 @@ uint8_t ESP_SD::getState(bool refresh)
     _state = ESP_SDCARD_NOT_PRESENT;
 //using default value for speed ? should be parameter
 //refresh content if card was removed
+    log_esp3d("Spi : CS: %d,  Miso: %d, Mosi: %d, SCK: %d",ESP_SD_CS_PIN!=-1?ESP_SD_CS_PIN:SS, ESP_SD_MISO_PIN!=-1?ESP_SD_MISO_PIN:MISO, ESP_SD_MOSI_PIN!=-1?ESP_SD_MOSI_PIN:MOSI, ESP_SD_SCK_PIN!=-1?ESP_SD_SCK_PIN:SCK);
     if (SD.begin((ESP_SD_CS_PIN == -1)?SS:ESP_SD_CS_PIN, SPI, ESP_SPI_FREQ / _spi_speed_divider)) {
         if ( SD.cardSize() > 0 ) {
             _state = ESP_SDCARD_IDLE;
@@ -65,6 +66,7 @@ uint8_t ESP_SD::getState(bool refresh)
 bool ESP_SD::begin()
 {
 #if (ESP_SD_CS_PIN != -1) || (ESP_SD_MISO_PIN != -1) || (ESP_SD_MOSI_PIN != -1) || (ESP_SD_SCK_PIN != -1)
+    log_esp3d("Custom spi : CS: %d,  Miso: %d, Mosi: %d, SCK: %d",ESP_SD_CS_PIN, ESP_SD_MISO_PIN, ESP_SD_MOSI_PIN, ESP_SD_SCK_PIN);
     SPI.begin(ESP_SD_SCK_PIN, ESP_SD_MISO_PIN, ESP_SD_MOSI_PIN, ESP_SD_CS_PIN);
 #endif
     _started = true;

@@ -22,17 +22,12 @@
 #define _DEBUG_ESP3D_H
 
 #include "../include/esp3d_config.h"
-#if defined(ARDUINO_ARCH_ESP32)
-#define log_esp3d(format, ...) log_d(format, ##__VA_ARGS__)
-#define log_esp3dS(format, ...) log_d(format, ##__VA_ARGS__)
-#else
-#define log_esp3d(format, ...)
-#define log_esp3dS(format, ...)
-#endif
+
 #define DEBUG_ESP3D_INIT
 #define DEBUG_ESP3D_NETWORK_INIT
 #define DEBUG_ESP3D_NETWORK_HANDLE
 #define DEBUG_ESP3D_NETWORK_END
+
 #if defined(ESP_DEBUG_FEATURE)
 #if defined(ARDUINO_ARCH_ESP8266)
 extern const char * pathToFileName(const char * path);
@@ -84,6 +79,9 @@ extern WebSocket_Server websocket_debug;
 #define log_esp3d(format, ...) websocket_debug.printf("[ESP3D][%s:%u] %s(): " format "\r\n", pathToFileName(__FILE__), __LINE__, __FUNCTION__, ##__VA_ARGS__)
 #define log_esp3dS(format, ...) websocket_debug.printf(format "\r\n", ##__VA_ARGS__)
 #endif // DEBUG_OUTPUT_WEBSOCKET
-
+#else
+#define log_esp3d(format, ...)
+#define log_esp3dS(format, ...)
 #endif //ESP_DEBUG_FEATURE
+
 #endif //_DEBUG_ESP3D_H 
