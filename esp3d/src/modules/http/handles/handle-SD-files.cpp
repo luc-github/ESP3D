@@ -198,7 +198,11 @@ void HTTP_Server::handleSDFileList ()
     buffer2send += "],\"path\":\"" + path + "\",";
 
     if (ESP_SD::totalBytes()>0) {
-        buffer2send += "\"occupation\":\"" + String(100.0*ESP_SD::usedBytes()/ESP_SD::totalBytes()) + "\",";
+        float occupation = 100.0*ESP_SD::usedBytes()/ESP_SD::totalBytes();
+        if ((occupation < 1) && (ESP_SD::usedBytes()>0)) {
+            occupation=1;
+        }
+        buffer2send += "\"occupation\":\"" + String((int)round(occupation)) + "\",";
     } else {
         status = "SD Error";
         buffer2send += "\"occupation\":\"0\",";

@@ -131,10 +131,6 @@ void HTTP_Server::SDFileupload ()
                     _upload_status=UPLOAD_STATUS_FAILED;
                     pushError(ESP_ERROR_FILE_CLOSE, "File close failed");
                 }
-                Serial.print(filesize);
-                Serial.print(" B in  ");
-                Serial.print((millis()-timecheck) / 1000);
-                Serial.println(" sec");
                 //Upload cancelled
             } else {
                 if (_upload_status == UPLOAD_STATUS_ONGOING) {

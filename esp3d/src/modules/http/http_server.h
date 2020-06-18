@@ -90,6 +90,7 @@ private:
 #ifdef SD_DEVICE
     static void SDFileupload ();
     static void handleSDFileList ();
+    static bool StreamSDFile(const char* filename, const char * contentType);
 #endif //SD_DEVICE
 };
 

@@ -1232,11 +1232,13 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         output->printLN("");
     }
 #endif //ESP_DEBUG_FEATURE
-    
+
     //Target Firmware
     if (!plain) {
         output->print (",{\"id\":\"targetfw");
-    } else   output->print ("Target Fw");
+    } else {
+        output->print ("Target Fw");
+    }
     if (!plain) {
         output->print ("\",\"value\":\"");
     } else {

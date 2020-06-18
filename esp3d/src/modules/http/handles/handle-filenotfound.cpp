@@ -28,6 +28,9 @@
 #endif //ARDUINO_ARCH_ESP8266
 #include "../../filesystem/esp_filesystem.h"
 #include "../../authentication/authentication_service.h"
+#if defined(SD_DEVICE)
+#include "../../filesystem/esp_sd.h"
+#endif //SD_DEVICE
 
 //Handle not registred path on FS neither SD ///////////////////////
 void HTTP_Server:: handle_not_found()
@@ -52,6 +55,23 @@ void HTTP_Server:: handle_not_found()
     }
 #endif //#if defined (FILESYSTEM_FEATURE)
 
+#if defined (SD_DEVICE)
+    if (path.startsWith("/sd/")) {
+        path = path.substring(3);
+        pathWithGz = path + ".gz";
+        if(ESP_SD::exists(pathWithGz.c_str()) || ESP_SD::exists(path.c_str())) {
+            if(ESP_SD::exists(pathWithGz.c_str())) {
+                _webserver->sendHeader("Content-Encoding", "gzip");
+                path = pathWithGz;
+            }
+            if(!StreamSDFile(path.c_str(),contentType.c_str())) {
+                log_esp3d("Stream `%s` failed", path.c_str());
+            }
+            return;
+        }
+    }
+#endif //#if defined (SD_DEVICE)
+
 #ifdef FILESYSTEM_FEATURE
     //check local page
     path = "/404.htm";
@@ -71,32 +91,5 @@ void HTTP_Server:: handle_not_found()
     //let's keep simple just send minimum
     _webserver->send(404);
 
-    /*
-
-    #ifdef ENABLE_SD_CARD
-     if ((path.substring(0,4) == "/SD/")) {
-         //remove /SD
-         path = path.substring(3);
-         if(SD.exists((char *)pathWithGz.c_str()) || SD.exists((char *)path.c_str())) {
-             if(SD.exists((char *)pathWithGz.c_str())) {
-                 path = pathWithGz;
-             }
-             File datafile = SD.open((char *)path.c_str());
-             if (datafile) {
-                if( _webserver->streamFile(datafile, contentType) == datafile.size()) {
-                     datafile.close();
-                     COMMANDS::wait(0);
-                     return;
-                } else{
-                    datafile.close();
-                }
-             }
-         }
-         String content = "cannot find ";
-         content+=path;
-         _webserver->send(404,"text/plain",content.c_str());
-         return;
-     } else
-    #endif*/
 }
 #endif //HTTP_FEATURE
