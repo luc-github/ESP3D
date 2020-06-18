@@ -140,7 +140,6 @@ bool HTTP_Server::StreamSDFile(const char* filename, const char * contentType)
             done = true;
         } else {
             _webserver->client().write(buf,v);
-            Serial.print(".");
             i+=v;
         }
         if (i >= totalFileSize) {
