@@ -1,6 +1,10 @@
 ESP32 Simple Service Discovery Copyright (c) 2015 Hristo Gochkov
 Original (Arduino) version by Filippo Sallemi, July 23, 2014. Can be
-found at: https://github.com/nomadnt/uSSDP
+found at: https://github.com/nomadnt/uSSDP    
+
+[Latest stable release ![Release Version](https://img.shields.io/github/release/luc-github/ESP32SSDP.svg?style=plastic) ![Release Date](https://img.shields.io/github/release-date/luc-github/ESP32SSDP.svg?style=plastic)](https://github.com/luc-github/ESP32SSDP/releases/latest/) [![Travis (.org) branch](https://img.shields.io/travis/luc-github/ESP32SSDP/master?style=plastic)](https://travis-ci.org/luc-github/ESP32SSDP)
+
+[Latest development version ![Development Version](https://img.shields.io/badge/devt-yellow?style=plastic) ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/luc-github/ESP32SSDP/devt?style=plastic)](https://github.com/luc-github/ESP32SSDP/tree/devt) [![Travis (.org) branch](https://img.shields.io/travis/luc-github/ESP32SSDP/devt?style=plastic)](https://travis-ci.org/luc-github/ESP32SSDP)
 
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files (the

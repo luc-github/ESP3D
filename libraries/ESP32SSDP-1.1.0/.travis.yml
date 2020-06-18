@@ -1,0 +1,64 @@
+dist: xenial
+sudo: require
+
+language: python
+
+python:
+  - "3.7"
+
+os:
+  - linux
+  
+cache:
+  pip: true
+  directories:
+  - "~/.platformio"
+  - $HOME/astyle
+  
+install:
+  - pip install -U platformio
+
+before_script:
+  - platformio update
+  - wget http://downloads.arduino.cc/arduino-1.8.5-linux64.tar.xz
+  - tar xf arduino-1.8.5-linux64.tar.xz
+  - mv arduino-1.8.5 $HOME/arduino_ide
+  - cd $HOME/arduino_ide/hardware
+  - mkdir esp32
+  - cd esp32
+  - git clone https://github.com/espressif/arduino-esp32.git esp32
+  - cd esp32
+  - git submodule update --init --recursive
+  - cd tools
+  - python get.py
+  - cd $TRAVIS_BUILD_DIR
+  - cp -r $TRAVIS_BUILD_DIR $HOME/arduino_ide/libraries/
+  - sh test/install_astyle.sh
+    
+script:
+  - cd $TRAVIS_BUILD_DIR
+  - export ARTISTIC_STYLE_OPTIONS=".astylerc"
+  - astyle -Q `find . -name *.cpp -o -name *.ino -o -name *.h` > astyle.out
+  - TEST=$(cat astyle.out | wc -l)
+  - |
+      if [[ $TEST -ne 0 ]]; then
+        cat astyle.out
+        git --no-pager diff
+        echo "Please fix style issues as shown above"
+        exit 1
+      fi
+  - source command.sh
+  - export PATH="$HOME/arduino_ide:$PATH"
+  - rm -f $HOME/.arduino15/preferences.txt
+  - arduino --board esp32:esp32:esp32:PartitionScheme=min_spiffs,FlashFreq=80,PSRAM=disabled,CPUFreq=240,FlashMode=qio,FlashSize=4M,DebugLevel=none --pref compiler.warning_level=all --save-prefs
+  - build_sketch  $TRAVIS_BUILD_DIR/examples/SSDP/SSDP.ino
+  - rm -fr $HOME/arduino_ide
+  - rm -fr $HOME/.arduino15
+  - cp  $TRAVIS_BUILD_DIR/test/platformio.ini $TRAVIS_BUILD_DIR/examples/SSDP/
+  - cd $TRAVIS_BUILD_DIR/examples/SSDP/
+  - platformio run
+  
+notifications:
+  email:
+    on_success: change
+    on_failure: change
