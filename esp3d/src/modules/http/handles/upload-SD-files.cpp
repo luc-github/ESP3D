@@ -35,7 +35,6 @@ void HTTP_Server::SDFileupload ()
     level_authenticate_type auth_level= AuthenticationService::authenticated_level();
     static String filename;
     static ESP_SDFile fsUploadFile;
-    static uint32_t timecheck;
     //Guest cannot upload - only admin
     if (auth_level == LEVEL_GUEST) {
         pushError(ESP_ERROR_AUTHENTICATION, "Upload rejected", 401);
@@ -47,7 +46,6 @@ void HTTP_Server::SDFileupload ()
 
             //Upload start
             if (upload.status == UPLOAD_FILE_START) {
-                timecheck= millis();
                 _upload_status = UPLOAD_STATUS_ONGOING;
                 if (upload_filename[0] != '/') {
                     filename = "/" + upload_filename;
