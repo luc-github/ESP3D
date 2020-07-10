@@ -341,7 +341,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
     } else {
         output->print (": ");
     }
-    output->print (NetConfig::hostname());
+    if (!plain)output->print (encodeString(NetConfig::hostname()));
+    else output->print (NetConfig::hostname());
+   
     if (!plain) {
         output->print ("\"}");
     } else {
@@ -729,7 +731,8 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
                 output->print (": ");
             }
             if (WiFi.isConnected()) {
-                output->print (WiFi.SSID().c_str());
+                if (!plain) output->print (encodeString(WiFi.SSID().c_str()));
+                else output->print (WiFi.SSID().c_str());
             }
             if (!plain) {
                 output->print ("\"}");
@@ -910,7 +913,8 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
             } else {
                 output->print (": ");
             }
-            output->print (WiFiConfig::AP_SSID());
+            if (!plain)output->print (encodeString(WiFiConfig::AP_SSID()));
+            else output->print (WiFiConfig::AP_SSID());
             if (!plain) {
                 output->print ("\"}");
             } else {

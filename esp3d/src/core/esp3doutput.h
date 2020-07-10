@@ -45,6 +45,8 @@ class WebServer;
 #endif //ARDUINO_ARCH_ESP8266
 #endif //HTTP_FEATURE
 
+extern const char * encodeString(const char * s);
+
 class ESP3DOutput : public Print
 {
 public:
