@@ -154,6 +154,7 @@ bool WiFiConfig::ConnectSTA2AP()
         count++;
         status = WiFi.status();
     }
+    ESP3DGlobalOutput::SetStatus("");
     return (status == WL_CONNECTED);
 }
 
