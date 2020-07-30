@@ -24,7 +24,9 @@
 #error No FileSystem defined
 #endif
 #if FILESYSTEM_FEATURE == ESP_SPIFFS_FILESYSTEM
-#include "SPIFFS.h"
+#if defined(ARDUINO_ARCH_ESP32)
+#include <SPIFFS.h>
+#endif //ARDUINO_ARCH_ESP32
 #else
 #if FILESYSTEM_FEATURE == ESP_FAT_FILESYSTEM
 #include "FFat.h"
