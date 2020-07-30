@@ -228,6 +228,25 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (Settings_ESP3D::get_min_int32_value(ESP_TELNET_PORT));
     output->print ("\"}");
 #endif //TELNET
+#ifdef WS_DATA_FEATURE
+    //Websocket On service
+    output->print (",{\"F\":\"service/websocketp\",\"P\":\"");
+    output->print (ESP_WEBSOCKET_ON);
+    output->print ("\",\"T\":\"B\",\"V\":\"");
+    output->print (Settings_ESP3D::read_byte(ESP_WEBSOCKET_ON));
+    output->print ("\",\"H\":\"enable\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
+
+    //Websocket Port
+    output->print (",{\"F\":\"service/websocketp\",\"P\":\"");
+    output->print (ESP_WEBSOCKET_PORT);
+    output->print ("\",\"T\":\"I\",\"V\":\"");
+    output->print (Settings_ESP3D::read_uint32(ESP_WEBSOCKET_PORT));
+    output->print ("\",\"H\":\"port\",\"S\":\"");
+    output->print (Settings_ESP3D::get_max_int32_value(ESP_WEBSOCKET_PORT));
+    output->print ("\",\"M\":\"");
+    output->print (Settings_ESP3D::get_min_int32_value(ESP_WEBSOCKET_PORT));
+    output->print ("\"}");
+#endif //WS_DATA_FEATURE
 
 #ifdef FTP_FEATURE
     //FTP On service/ftp
