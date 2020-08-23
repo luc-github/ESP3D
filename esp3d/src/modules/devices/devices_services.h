@@ -27,8 +27,6 @@
 class DevicesServices
 {
 public:
-    DevicesServices();
-    ~DevicesServices();
     static bool begin();
     static void end();
     static void handle();

@@ -53,8 +53,6 @@
 class WiFiConfig
 {
 public:
-    WiFiConfig();
-    ~WiFiConfig();
     static bool isPasswordValid (const char * password);
     static bool isSSIDValid (const char * ssid);
     static bool StartAP();

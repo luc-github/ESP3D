@@ -47,16 +47,6 @@ uint8_t AuthenticationService::_current_nb_ip = 0;
 #define MAX_AUTH_IP 10
 //#define ALLOW_MULTIPLE_SESSIONS
 
-AuthenticationService::AuthenticationService()
-{
-}
-AuthenticationService::~AuthenticationService()
-{
-#if defined (HTTP_FEATURE) && defined (AUTHENTICATION_FEATURE)
-    end();
-#endif //HTTP_FEATURE && AUTHENTICATION_FEATURE
-}
-
 //check authentification
 level_authenticate_type AuthenticationService::authenticated_level(const  char * pwd)
 {

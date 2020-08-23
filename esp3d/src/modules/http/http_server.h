@@ -45,8 +45,6 @@ typedef enum {
 class HTTP_Server
 {
 public:
-    HTTP_Server();
-    ~HTTP_Server();
     static bool begin();
     static void end();
     static void handle();

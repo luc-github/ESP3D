@@ -80,8 +80,6 @@ private:
 class ESP_GBFS
 {
 public:
-    ESP_GBFS();
-    ~ESP_GBFS();
     static bool isavailable(uint8_t FS);
     static uint64_t totalBytes(uint8_t FS);
     static uint64_t usedBytes(uint8_t FS);

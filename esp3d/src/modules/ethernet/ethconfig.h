@@ -32,8 +32,6 @@
 class EthConfig
 {
 public:
-    EthConfig();
-    ~EthConfig();
     static bool begin();
     static bool StartSTA();
     //static bool StartSRV();

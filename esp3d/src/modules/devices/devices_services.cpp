@@ -45,14 +45,6 @@
 
 bool DevicesServices::_started = false;
 
-DevicesServices::DevicesServices()
-{
-}
-DevicesServices::~DevicesServices()
-{
-    end();
-}
-
 bool DevicesServices::begin()
 {
     bool res = true;

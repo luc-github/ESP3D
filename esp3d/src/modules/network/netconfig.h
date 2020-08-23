@@ -57,8 +57,6 @@
 class NetConfig
 {
 public:
-    NetConfig();
-    ~NetConfig();
     static bool isValidIP(const char * string);
     static bool isHostnameValid (const char * hostname);
     static uint32_t IP_int_from_string(const char * s);

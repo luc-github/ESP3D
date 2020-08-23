@@ -32,14 +32,6 @@
 
 const uint8_t DEFAULT_AP_MASK_VALUE[]  =      {255, 255, 255, 0};
 
-WiFiConfig::WiFiConfig()
-{
-}
-
-WiFiConfig::~WiFiConfig()
-{
-    end();
-}
 
 /**
  * Check if SSID string is valid

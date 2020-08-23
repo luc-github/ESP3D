@@ -174,13 +174,6 @@ const uint8_t DEFAULT_ADDRESS_VALUE[]   =  {0, 0, 0, 0};
 uint8_t Settings_ESP3D::_FirmwareTarget = UNKNOWN_FW;
 bool Settings_ESP3D::_SDdevice = ESP_NO_SD;
 
-Settings_ESP3D::Settings_ESP3D()
-{
-}
-Settings_ESP3D::~Settings_ESP3D()
-{
-}
-
 bool Settings_ESP3D::begin()
 {
     if(GetSettingsVersion() == -1) {

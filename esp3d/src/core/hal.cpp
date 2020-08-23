@@ -43,17 +43,6 @@ int ChannelAttached2Pin[16]= {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
 uint32_t Hal::_analogWriteRange = 255;
 uint32_t Hal::_analogWriteFreq = 1000;
 
-//Contructor
-Hal::Hal()
-{
-
-}
-
-//Destructor
-Hal::~Hal()
-{
-}
-
 void Hal::clearAnalogChannels()
 {
 #ifdef ARDUINO_ARCH_ESP32

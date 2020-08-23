@@ -65,8 +65,6 @@ class ESP_FileSystem
 {
 public:
     static String & formatBytes (uint64_t bytes);
-    ESP_FileSystem();
-    ~ESP_FileSystem();
     static bool begin();
     static void end();
     static size_t totalBytes();

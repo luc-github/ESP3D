@@ -45,12 +45,19 @@ uint8_t ESP3DOutput::_outputflags = ESP_ALL_CLIENTS;
 #endif //DISPLAY_DEVICE
 
 //tool function to avoid string corrupt JSON files
-const char * encodeString(const char * s){
+const char * encodeString(const char * s)
+{
     static String tmp;
     tmp = s;
-    while(tmp.indexOf("'")!=-1)tmp.replace("'", "&#39;");
-    while(tmp.indexOf("\"")!=-1)tmp.replace("\"", "&#34;");
-    if (tmp =="") tmp=" ";
+    while(tmp.indexOf("'")!=-1) {
+        tmp.replace("'", "&#39;");
+    }
+    while(tmp.indexOf("\"")!=-1) {
+        tmp.replace("\"", "&#34;");
+    }
+    if (tmp =="") {
+        tmp=" ";
+    }
     return tmp.c_str();
 }
 

@@ -102,8 +102,6 @@
 class Settings_ESP3D
 {
 public:
-    Settings_ESP3D();
-    ~Settings_ESP3D();
     static bool begin();
     static uint8_t get_default_byte_value(int pos);
     static uint32_t get_default_int32_value(int pos);

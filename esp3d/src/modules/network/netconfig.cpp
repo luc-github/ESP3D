@@ -49,14 +49,6 @@ bool NetConfig::_needReconnect2AP = false;
 bool NetConfig::_events_registered = false;
 bool NetConfig::_started = false;
 uint8_t NetConfig::_mode = ESP_RADIO_OFF;
-NetConfig::NetConfig()
-{
-}
-
-NetConfig::~NetConfig()
-{
-    //end();
-}
 
 //just simple helper to convert mac address to string
 char * NetConfig::mac2str (uint8_t mac [8])

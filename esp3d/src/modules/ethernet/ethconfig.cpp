@@ -32,14 +32,6 @@
 #include "ethconfig.h"
 bool EthConfig::_started = false;
 const uint8_t DEFAULT_AP_MASK_VALUE[]  =      {255, 255, 255, 0};
-EthConfig::EthConfig()
-{
-}
-
-EthConfig::~EthConfig()
-{
-    end();
-}
 
 bool EthConfig::StartSTA()
 {

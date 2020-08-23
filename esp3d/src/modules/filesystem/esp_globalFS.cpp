@@ -42,16 +42,6 @@ bool ESP_GBFS::isavailable(uint8_t FS)
 
 uint8_t ESP_GBFS::_nbFS = 0;
 String ESP_GBFS::_rootlist[MAX_FS];
-//constructor
-ESP_GBFS::ESP_GBFS()
-{
-    _nbFS = 0;
-}
-
-//destructor
-ESP_GBFS::~ESP_GBFS()
-{
-}
 
 //helper to format size to readable string
 String & ESP_GBFS::formatBytes (uint64_t bytes)

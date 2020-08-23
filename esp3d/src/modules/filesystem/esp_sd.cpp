@@ -49,16 +49,6 @@ uint8_t ESP_SD::setState(uint8_t flag)
 }
 
 
-//constructor
-ESP_SD::ESP_SD()
-{
-}
-
-//destructor
-ESP_SD::~ESP_SD()
-{
-}
-
 void ESP_SD::handle()
 {
 

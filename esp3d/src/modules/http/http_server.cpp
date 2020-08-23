@@ -42,14 +42,6 @@ uint16_t HTTP_Server::_port = 0;
 WEBSERVER * HTTP_Server::_webserver = nullptr;
 uint8_t HTTP_Server::_upload_status = UPLOAD_STATUS_NONE;
 
-HTTP_Server::HTTP_Server()
-{
-}
-HTTP_Server::~HTTP_Server()
-{
-    end();
-}
-
 void HTTP_Server::init_handlers()
 {
     _webserver->on("/",HTTP_ANY, handle_root);

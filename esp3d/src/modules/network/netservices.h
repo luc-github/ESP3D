@@ -27,8 +27,6 @@
 class NetServices
 {
 public:
-    NetServices();
-    ~NetServices();
     static bool begin();
     static void end();
     static void handle();

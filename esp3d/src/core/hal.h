@@ -35,8 +35,6 @@
 class Hal
 {
 public:
-    Hal();
-    ~Hal();
     static bool begin();
     static void end();
     static void wait (uint32_t milliseconds);

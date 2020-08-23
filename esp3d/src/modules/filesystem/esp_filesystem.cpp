@@ -31,16 +31,6 @@ File tFile_handle[ESP_MAX_OPENHANDLE];
 
 bool ESP_FileSystem::_started = false;
 
-//constructor
-ESP_FileSystem::ESP_FileSystem()
-{
-}
-
-//destructor
-ESP_FileSystem::~ESP_FileSystem()
-{
-}
-
 //helper to format size to readable string
 String & ESP_FileSystem::formatBytes (uint64_t bytes)
 {

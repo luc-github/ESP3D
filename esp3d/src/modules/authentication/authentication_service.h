@@ -58,8 +58,6 @@ typedef void Authwebserver;
 class AuthenticationService
 {
 public:
-    AuthenticationService();
-    ~AuthenticationService();
     static level_authenticate_type  authenticated_level(const  char * pwd = nullptr);
 #ifdef AUTHENTICATION_FEATURE
     static bool begin(Authwebserver * webserver);

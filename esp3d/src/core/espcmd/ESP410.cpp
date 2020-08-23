@@ -62,7 +62,9 @@ bool Commands::ESP410(const char* cmd_params, level_authenticate_type auth_type,
         if (!plain) {
             output->print ("{\"SSID\":\"");
             output->print (encodeString(WiFi.SSID (i).c_str()));
-        } else output->print (WiFi.SSID (i).c_str()); 
+        } else {
+            output->print (WiFi.SSID (i).c_str());
+        }
         if (!plain) {
             output->print ("\",\"SIGNAL\":\"");
         } else {

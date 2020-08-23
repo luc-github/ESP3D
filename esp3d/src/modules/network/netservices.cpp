@@ -74,13 +74,6 @@ DNSServer dnsServer;
 #endif //CAMERA_DEVICE
 bool NetServices::_started = false;
 bool NetServices::_restart = false;
-NetServices::NetServices()
-{
-}
-NetServices::~NetServices()
-{
-    end();
-}
 
 bool NetServices::begin()
 {

@@ -66,8 +66,6 @@ class ESP_SD
 {
 public:
     static String & formatBytes (uint64_t bytes);
-    ESP_SD();
-    ~ESP_SD();
     static bool begin();
     static void handle();
     static void end();
