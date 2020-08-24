@@ -87,10 +87,14 @@
 #define ESP_LINE_NOTIFICATION       3
 #define ESP_TELEGRAM_NOTIFICATION   4
 
-//DHT
-#define NO_DHT_DEVICE   0
+//SENSOR
+#define NO_SENSOR_DEVICE   0
 #define DHT11_DEVICE    1
 #define DHT22_DEVICE    2
+#define ANALOG_DEVICE   3
+#define BMP280_DEVICE   4
+#define BME280_DEVICE   5
+
 #define USE_CELSIUS     1
 #define USE_FAHRENHEIT  2
 

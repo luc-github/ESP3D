@@ -1,5 +1,5 @@
 /*
-  version.h - ESP3D version file
+  dht.h -  dht functions class
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -18,11 +18,33 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _VERSION_ESP3D_H
-#define _VERSION_ESP3D_H
 
-//version and sources location
-#define FW_VERSION "3.0.0.a51"
-#define REPOSITORY "https://github.com/luc-github/ESP3D/tree/3.0"
 
-#endif //_VERSION_ESP3D_H
+#ifndef _DHT_H
+#define _DHT_H
+
+class DHT
+{
+public:
+    DHT();
+    ~DHT();
+    bool begin();
+    void end();
+    uint8_t GetModel();
+    const char *GetModelString();
+    const char *GetData();
+    float getHumidity();
+    float getTemperature();
+    bool started();
+    bool isCelsiusUnit();
+    void setCelsiusUnit(bool set);
+private:
+    bool _started;
+    bool _usecelsius;
+    float _temperature;
+    float _humidity;
+};
+
+
+#endif //_DHT_H
+

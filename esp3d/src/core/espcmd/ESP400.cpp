@@ -23,6 +23,10 @@
 #include "../settings_esp3d.h"
 #include "../../modules/serial/serial_service.h"
 #include "../../modules/authentication/authentication_service.h"
+#if defined (SENSOR_DEVICE)
+#include "../../modules/sensor/sensor.h"
+#endif //SENSOR_DEVICE
+
 //Get full ESP3D settings
 //[ESP400]<pwd=admin>
 bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
@@ -425,29 +429,33 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print ("\",\"H\":\"buzzer\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
 #endif //BUZZER_DEVICE
 
-#ifdef DHT_DEVICE
-    //DHT type
-    output->print (",{\"F\":\"device/dht\",\"P\":\"");
-    output->print (ESP_DHT_TYPE);
+#ifdef SENSOR_DEVICE
+    //Sensor type
+    output->print (",{\"F\":\"device/sensor\",\"P\":\"");
+    output->print (ESP_SENSOR_TYPE);
     output->print ("\",\"T\":\"B\",\"V\":\"");
-    output->print (Settings_ESP3D::read_byte(ESP_DHT_TYPE));
-    output->print ("\",\"H\":\"type\",\"O\":[{\"none\":\"0\"},{\"11\":\"");
-    output->print (DHT11_DEVICE);
-    output->print ("\"},{\"22\":\"");
-    output->print (DHT22_DEVICE);
-    output->print ("\"}]}");
+    output->print (Settings_ESP3D::read_byte(ESP_SENSOR_TYPE));
+    output->print ("\",\"H\":\"type\",\"O\":[{\"none\":\"0\"}");
+    for (uint8_t p = 0; p < esp3d_sensor.nbType(); p++) {
+        output->print (",{\"");
+        output->print (esp3d_sensor.GetModelString(p));
+        output->print ("\":\"");
+        output->print (esp3d_sensor.GetModel(p));
+        output->print ("\"}");
+    }
+    output->print ("]}");
 
-    //DHT interval
-    output->print (",{\"F\":\"device/dht\",\"P\":\"");
-    output->print (ESP_DHT_INTERVAL);
+    //Sensor interval
+    output->print (",{\"F\":\"device/sensor\",\"P\":\"");
+    output->print (ESP_SENSOR_INTERVAL);
     output->print ("\",\"T\":\"I\",\"V\":\"");
-    output->print (Settings_ESP3D::read_uint32(ESP_DHT_INTERVAL));
+    output->print (Settings_ESP3D::read_uint32(ESP_SENSOR_INTERVAL));
     output->print ("\",\"H\":\"intervalms\",\"S\":\"");
-    output->print (Settings_ESP3D::get_max_int32_value(ESP_DHT_INTERVAL));
+    output->print (Settings_ESP3D::get_max_int32_value(ESP_SENSOR_INTERVAL));
     output->print ("\",\"M\":\"");
-    output->print (Settings_ESP3D::get_min_int32_value(ESP_DHT_INTERVAL));
+    output->print (Settings_ESP3D::get_min_int32_value(ESP_SENSOR_INTERVAL));
     output->print ("\"}");
-#endif //DHT_DEVICE
+#endif //SENSOR_DEVICE
 #ifdef SD_DEVICE
     //Direct SD
     output->print(",{\"F\":\"device/sd\",\"P\":\"");

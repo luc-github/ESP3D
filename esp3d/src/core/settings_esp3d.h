@@ -53,7 +53,7 @@
 #define ESP_TELNET_PORT         125     //4  bytes = int
 #define ESP_OUTPUT_FLAG         129     //1  bytes = flag
 #define ESP_HOSTNAME            130     //33 bytes 32+1 = string  ; warning does not support multibyte char like chinese
-#define ESP_DHT_INTERVAL        164     //4  bytes = int
+#define ESP_SENSOR_INTERVAL     164     //4  bytes = int
 #define ESP_SETTINGS_VERSION    168     //8  bytes = 7+1 = string ESP3D + 2 digits
 #define ESP_ADMIN_PWD           176     //21  bytes 20+1 = string  ; warning does not support multibyte char like chinese
 #define ESP_USER_PWD            197     //21  bytes 20+1 = string  ; warning does not support multibyte char like chinese
@@ -68,7 +68,7 @@
 #define ESP_SD_SPEED_DIV        331     //1 byte = flag
 #define ESP_NOTIFICATION_TOKEN1 332     //64 bytes 63+1 = string  ; warning does not support multibyte char like chinese
 #define ESP_NOTIFICATION_TOKEN2 396     //64 bytes 63+1 = string  ; warning does not support multibyte char like chinese
-#define ESP_DHT_TYPE            460     //1  bytes = flag
+#define ESP_SENSOR_TYPE         460     //1  bytes = flag
 #define ESP_TARGET_FW           461     //1  bytes = flag
 #define ESP_TIMEZONE            462     //1  bytes = flag
 #define ESP_TIME_IS_DST         463     //1  bytes = flag

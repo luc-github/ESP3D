@@ -46,8 +46,8 @@
 #define CURRENT_SETTINGS_VERSION "ESP3D04"
 
 //boundaries
-#define MAX_DHT_INTERVAL            60000
-#define MIN_DHT_INTERVAL            0
+#define MAX_SENSOR_INTERVAL            60000
+#define MIN_SENSOR_INTERVAL            0
 #define MAX_LOCAL_PASSWORD_LENGTH   20
 #define MIN_LOCAL_PASSWORD_LENGTH   1
 #define MAX_VERSION_LENGTH          7 //ESP3DXX
@@ -104,7 +104,7 @@
 #define DEFAULT_SD_MOUNT        ESP_SD_ROOT
 #define DEFAULT_DIRECT_SD_CHECK 0
 #define DEFAULT_SD_CHECK_UPDATE_AT_BOOT 1
-#define DEFAULT_DHT_TYPE        NO_DHT_DEVICE
+#define DEFAULT_SENSOR_TYPE     NO_SENSOR_DEVICE
 #ifdef SD_DEVICE
 #define DEFAULT_SD_DEVICE_TYPE  SD_DEVICE_CONNECTION
 #else
@@ -131,7 +131,7 @@
 #define DEFAULT_WEBSOCKET_PORT  8282L
 #define DEFAULT_CAMERA_PORT     9600L
 #define DEFAULT_TELNET_PORT     23L
-#define DEFAULT_DHT_INTERVAL    30000L
+#define DEFAULT_SENSOR_INTERVAL 30000L
 #define DEFAULT_BOOT_DELAY      10000L
 #define DEFAULT_CALIBRATION_VALUE 0
 #define DEFAULT_CALIBRATION_DONE 0
@@ -328,11 +328,11 @@ uint8_t Settings_ESP3D::get_default_byte_value(int pos)
         break;
 #endif //TIMESTAMP_FEATURE
 
-#if defined(DHT_DEVICE)
-    case ESP_DHT_TYPE:
-        res = DEFAULT_DHT_TYPE;
+#if defined(SENSOR_DEVICE)
+    case ESP_SENSOR_TYPE:
+        res = DEFAULT_SENSOR_TYPE;
         break;
-#endif //DHT_DEVICE
+#endif //SENSOR_DEVICE
 #if defined(DISPLAY_DEVICE) && defined(DISPLAY_TOUCH_DRIVER)
     case ESP_CALIBRATION:
         res = DEFAULT_CALIBRATION_DONE;
@@ -407,11 +407,11 @@ uint32_t Settings_ESP3D::get_default_int32_value(int pos)
         res = DEFAULT_CAMERA_PORT;
         break;
 #endif //CAMERA_DEVICE
-#if defined(DHT_DEVICE)
-    case ESP_DHT_INTERVAL:
-        res = DEFAULT_DHT_INTERVAL;
+#if defined(SENSOR_DEVICE)
+    case ESP_SENSOR_INTERVAL:
+        res = DEFAULT_SENSOR_INTERVAL;
         break;
-#endif //DHT_DEVICE
+#endif //SENSOR_DEVICE
     default:
         res = DEFAULT_ESP_INT;
     }
@@ -453,11 +453,11 @@ uint32_t Settings_ESP3D::get_max_int32_value(int pos)
         res = MAX_WEBSOCKET_PORT;
         break;
 #endif //WS_DATA_FEATURE
-#if defined(DHT_DEVICE)
-    case ESP_DHT_INTERVAL:
-        res = MAX_DHT_INTERVAL;
+#if defined(SENSOR_DEVICE)
+    case ESP_SENSOR_INTERVAL:
+        res = MAX_SENSOR_INTERVAL;
         break;
-#endif //DHT_DEVICE
+#endif //SENSOR_DEVICE
     default:
         res = DEFAULT_ESP_INT;
     }
@@ -499,11 +499,11 @@ uint32_t Settings_ESP3D::get_min_int32_value(int pos)
         res = MIN_WEBSOCKET_PORT;
         break;
 #endif //WS_DATA_FEATURE
-#if defined(DHT_DEVICE)
-    case ESP_DHT_INTERVAL:
-        res = MIN_DHT_INTERVAL;
+#if defined(SENSOR_DEVICE)
+    case ESP_SENSOR_INTERVAL:
+        res = MIN_SENSOR_INTERVAL;
         break;
-#endif //DHT_DEVICE
+#endif //SENSOR_DEVICE
     default:
         res = DEFAULT_ESP_INT;
     }
@@ -1169,12 +1169,12 @@ bool Settings_ESP3D::reset()
     //Time Server 3 address
     Settings_ESP3D::write_string(ESP_TIME_SERVER3, Settings_ESP3D::get_default_string_value(ESP_TIME_SERVER3).c_str());
 #endif //TIMESTAMP_FEATURE
-#ifdef DHT_DEVICE
-    //DHT device
-    Settings_ESP3D::write_byte(ESP_DHT_TYPE,Settings_ESP3D::get_default_byte_value(ESP_DHT_TYPE));
-    //DHT query interval
-    Settings_ESP3D::write_uint32 (ESP_DHT_INTERVAL, Settings_ESP3D::get_default_int32_value(ESP_DHT_INTERVAL));
-#endif //DHT_DEVICE
+#ifdef SENSOR_DEVICE
+    //Sensor device
+    Settings_ESP3D::write_byte(ESP_SENSOR_TYPE,Settings_ESP3D::get_default_byte_value(ESP_SENSOR_TYPE));
+    //Sensor query interval
+    Settings_ESP3D::write_uint32 (ESP_SENSOR_INTERVAL, Settings_ESP3D::get_default_int32_value(ESP_SENSOR_INTERVAL));
+#endif //SENSOR_DEVICE
     //Start Delay
     Settings_ESP3D::write_uint32 (ESP_BOOT_DELAY, Settings_ESP3D::get_default_int32_value(ESP_BOOT_DELAY));
 #endif //SETTINGS_IN_EEPROM

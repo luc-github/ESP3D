@@ -1,5 +1,5 @@
 /*
-  dht.h -  dht functions class
+  analogsensor.h -  sensor functions class
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -20,36 +20,25 @@
 
 
 
-#ifndef _DHT_H
-#define _DHT_H
+#ifndef _ANALOG_SENSOR_H
+#define _ANALOG_SENSOR_H
 
-class DHT
+#include "sensor.h"
+
+class AnalogSensorDevice : ESP3DSensorDevice
 {
 public:
-    DHT();
-    ~DHT();
+    AnalogSensorDevice();
+    ~AnalogSensorDevice();
     bool begin();
     void end();
-    void handle();
-    bool setInterval(uint interval);
-    uint interval();
-    uint8_t GetModel();
-    const char *GetModelString();
-    float getHumidity();
-    float getTemperature();
-    bool started();
-    bool isCelsiusUnit();
-    void setCelsiusUnit(bool set);
-private:
-    bool _started;
-    bool _usecelsius;
-    uint32_t _interval;
-    uint32_t _lastReadTime;
-    float _temperature;
-    float _humidity;
+    bool isModelValid(uint8_t model);
+    uint8_t getIDFromString(const char *);
+    uint8_t nbType();
+    uint8_t GetModel(uint8_t i=0);
+    const char *GetModelString(uint8_t i=0);
+    const char * GetData();
 };
 
-extern DHT esp3d_DHT;
-
-#endif //_DHT_H
+#endif //_ANALOG_SENSOR_H
 

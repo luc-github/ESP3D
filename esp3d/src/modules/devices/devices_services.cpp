@@ -27,9 +27,9 @@
 #ifdef DISPLAY_DEVICE
 #include "../display/display.h"
 #endif //DISPLAY_DEVICE
-#ifdef DHT_DEVICE
-#include "../dht/dht.h"
-#endif //DHT_DEVICE
+#ifdef SENSOR_DEVICE
+#include "../sensor/sensor.h"
+#endif //SENSOR_DEVICE
 #ifdef BUZZER_DEVICE
 #include "../buzzer/buzzer.h"
 #endif //BUZZER_DEVICE
@@ -61,12 +61,12 @@ bool DevicesServices::begin()
         res = false;
     }
 #endif //DISPLAY_DEVICE
-#ifdef DHT_DEVICE
-    if (!esp3d_DHT.begin()) {
-        log_esp3d("Error starting DHT device");
+#ifdef SENSOR_DEVICE
+    if (!esp3d_sensor.begin()) {
+        log_esp3d("Error starting sensor device");
         res = false;
     }
-#endif //DHT_DEVICE
+#endif //SENSOR_DEVICE
 #ifdef BUZZER_DEVICE
     if (!esp3d_buzzer.begin()) {
         log_esp3d("Error starting buzzer device");
@@ -112,9 +112,9 @@ void DevicesServices::end()
 #ifdef DISPLAY_DEVICE
     esp3d_display.end();
 #endif //DISPLAY_DEVICE
-#ifdef DHT_DEVICE
-    esp3d_DHT.end();
-#endif //DHT_DDEVICE
+#ifdef SENSOR_DEVICE
+    esp3d_sensor.end();
+#endif //SENSOR_DEVICE
 }
 
 void DevicesServices::handle()
@@ -123,9 +123,9 @@ void DevicesServices::handle()
 #ifdef DISPLAY_DEVICE
         esp3d_display.handle();
 #endif //DISPLAY_DEVICE
-#ifdef DHT_DEVICE
-        esp3d_DHT.handle();
-#endif //DHT_DEVICE
+#ifdef SENSOR_DEVICE
+        esp3d_sensor.handle();
+#endif //SENSOR_DEVICE
 #ifdef BUZZER_DEVICE
         esp3d_buzzer.handle();
 #endif //BUZZER_DEVICE

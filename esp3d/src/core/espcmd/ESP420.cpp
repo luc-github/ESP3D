@@ -53,9 +53,9 @@
 #if defined (TIMESTAMP_FEATURE)
 #include "../../modules/time/time_server.h"
 #endif //TIMESTAMP_FEATURE
-#if defined (DHT_DEVICE)
-#include "../../modules/dht/dht.h"
-#endif //DHT_DEVICE
+#if defined (SENSOR_DEVICE)
+#include "../../modules/sensor/sensor.h"
+#endif //SENSOR_DEVICE
 #ifdef NOTIFICATION_FEATURE
 #include "../../modules/notifications/notifications_service.h"
 #endif //NOTIFICATION_FEATURE
@@ -1176,26 +1176,26 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         output->printLN("");
     }
 #endif //SD_DEVICE
-#if defined (DHT_DEVICE)
+#if defined (SENSOR_DEVICE)
     if (!plain) {
         output->print (",{\"id\":\"");
     }
-    output->print ("dht");
+    output->print ("sensor");
     if (!plain) {
         output->print ("\",\"value\":\"");
     } else {
         output->print (": ");
     }
-    output->print (esp3d_DHT.started()?"ON":"OFF");
+    output->print (esp3d_sensor.started()?"ON":"OFF");
     output->print ("(");
-    output->print (esp3d_DHT.GetModelString());
+    output->print (esp3d_sensor.GetModelString());
     output->print (")");
     if (!plain) {
         output->print ("\"}");
     } else {
         output->printLN("");
     }
-#endif //DHT_DEVICE
+#endif //SENSOR_DEVICE
 #if defined (BUZZER_DEVICE)
     if (!plain) {
         output->print (",{\"id\":\"");

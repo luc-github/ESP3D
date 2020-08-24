@@ -95,19 +95,28 @@
 //ROTARY_ENCODER        1
 //#define INPUT_DEVICE ROTARY_ENCODER
 
-//DHT_DEVICE: send update of temperature / humidity based on DHT 11/22
-//#define DHT_DEVICE
+//SENSOR_DEVICE: send info based on defined sensor
+//DHT11_DEVICE    1
+//DHT22_DEVICE    2
+//ANALOG_DEVICE   3
+//BMP280_DEVICE   4
+//BME280_DEVICE   5
+#define SENSOR_DEVICE DHT22_DEVICE
 
 #ifdef BUZZER_DEVICE
 #define ESP3D_BUZZER_PIN 15
 #endif //BUZZER_DEVICE
 
-#ifdef DHT_DEVICE
-#define ESP3D_DHT_PIN 22
-//USE_CELSIUS
-//USE_FAHRENHEIT
-#define DHT_UNIT USE_CELSIUS
-#endif //DHT_DEVICE
+#ifdef SENSOR_DEVICE
+//pin
+#define ESP3D_SENSOR_PIN 22
+//Conversion coefficient
+#define SENSOR_CONVERTER(v) v*0.588
+//Unit to use, if not applicaple for sensor will use default one
+//it is used also for the output format
+//C for Celsius / F for Fahrenheit / V for volt
+#define SENSOR__UNIT "C"
+#endif //SENSOR_DEVICE
 
 //PIN_RESET_FEATURE : allow to reset settings by setting low a pin
 //#define PIN_RESET_FEATURE

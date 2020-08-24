@@ -101,9 +101,9 @@ public:
     bool ESP216(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #endif //DISPLAY_TOUCH_DRIVER
 #endif //DISPLAY_DEVICE
-#ifdef DHT_DEVICE
+#ifdef SENSOR_DEVICE
     bool ESP210(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
-#endif //DHT_DEVICE
+#endif //SENSOR_DEVICE
     bool ESP290(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     bool ESP400(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     bool ESP401(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);

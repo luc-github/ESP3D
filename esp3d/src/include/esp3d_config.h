@@ -40,8 +40,8 @@
 #define RECOVERY_FEATURE
 #endif //PIN_RESET_FEATURE || SD_RECOVERY_FEATURE
 
-#if defined(DISPLAY_DEVICE) || defined(DHT_DEVICE) || defined(RECOVERY_FEATURE) || defined(BUZZER_DEVICE) || defined(CAMERA_DEVICE)  || defined(SD_DEVICE)
+#if defined(DISPLAY_DEVICE) || defined(SENSOR_DEVICE) || defined(RECOVERY_FEATURE) || defined(BUZZER_DEVICE) || defined(CAMERA_DEVICE)  || defined(SD_DEVICE)
 #define CONNECTED_DEVICES_FEATURE
-#endif //DISPLAY_DEVICE || DHT_DEVICE , etc...
+#endif //DISPLAY_DEVICE || SENSOR_DEVICE , etc...
 
 #endif //_ESP3D_CONFIG_H

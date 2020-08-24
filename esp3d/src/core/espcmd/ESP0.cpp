@@ -78,9 +78,9 @@ const char * help[]= {"[ESP] - display this help",
 #ifdef DIRECT_PIN_FEATURE
                       "[ESP201](Pxxx) (Vxxx) (PULLUP=YES RAW=YES ANALOG=NO ANALOG_RANGE=255 CLEARCHANNELS=NO) - read / set  pin value",
 #endif //DIRECT_PIN_FEATURE
-#ifdef DHT_DEVICE
-                      "[ESP210](type=NONE/11/22) (interval=xxxx) - display and read/set DHT info",
-#endif //DHT_DEVICE
+#ifdef SENSOR_DEVICE
+                      "[ESP210](type=NONE/xxx) (interval=xxxx) - display and read/set SENSOR info",
+#endif //SENSOR_DEVICE
 #if defined (DISPLAY_DEVICE)
                       "[ESP214](text) - display (text) to ESP screen status",
 #if defined(DISPLAY_TOUCH_DRIVER)
@@ -193,9 +193,9 @@ const uint cmdlist[]= {0,
 #ifdef DIRECT_PIN_FEATURE
                        201,
 #endif //DIRECT_PIN_FEATURE
-#ifdef DHT_DEVICE
+#ifdef SENSOR_DEVICE
                        210,
-#endif //DHT_DEVICE
+#endif //SENSOR_DEVICE
 #if defined (DISPLAY_DEVICE)
                        214,
 #if defined(DISPLAY_TOUCH_DRIVER)

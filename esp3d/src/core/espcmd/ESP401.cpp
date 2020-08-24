@@ -25,9 +25,9 @@
 #ifdef CAMERA_DEVICE
 #include "../../modules/camera/camera.h"
 #endif //CAMERA_DEVICE
-#ifdef DHT_DEVICE
-#include "../../modules/dht/dht.h"
-#endif //DHT_DEVICE
+#ifdef SENSOR_DEVICE
+#include "../../modules/sensor/sensor.h"
+#endif //SENSOR_DEVICE
 #ifdef BUZZER_DEVICE
 #include "../../modules/buzzer/buzzer.h"
 #endif //BUZZER_DEVICE
@@ -94,11 +94,11 @@ bool Commands::ESP401(const char* cmd_params, level_authenticate_type auth_type,
                     notificationsservice.setAutonotification((sval.toInt() == 0)?false:true);
                     break;
 #endif //NOTIFICATION_FEATURE
-#ifdef DHT_DEVICE
-                case ESP_DHT_TYPE:
-                    esp3d_DHT.begin();
+#ifdef SENSOR_DEVICE
+                case ESP_SENSOR_TYPE:
+                    esp3d_sensor.begin();
                     break;
-#endif //DHT_DEVICE
+#endif //SENSOR_DEVICE
 #ifdef BUZZER_DEVICE
                 case ESP_BUZZER:
                     if (sval.toInt() == 1) {
@@ -120,11 +120,11 @@ bool Commands::ESP401(const char* cmd_params, level_authenticate_type auth_type,
             } else {
                 //dynamique refresh is better than restart the board
                 switch(spos.toInt()) {
-#ifdef DHT_DEVICE
-                case ESP_DHT_INTERVAL:
-                    esp3d_DHT.setInterval(sval.toInt());
+#ifdef SENSOR_DEVICE
+                case ESP_SENSOR_INTERVAL:
+                    esp3d_sensor.setInterval(sval.toInt());
                     break;
-#endif //DHT_DEVICE
+#endif //SENSOR_DEVICE
 #ifdef CAMERA_DEVICE
                 case ESP_CAMERA_PORT:
                     //esp3d_camera.begin();

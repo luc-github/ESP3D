@@ -18,14 +18,14 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "../../include/esp3d_config.h"
-#if defined (DHT_DEVICE)
+#if defined (SENSOR_DEVICE)
 #include "../commands.h"
 #include "../esp3doutput.h"
 #include "../settings_esp3d.h"
-#include "../../modules/dht/dht.h"
+#include "../../modules/sensor/sensor.h"
 #include "../../modules/authentication/authentication_service.h"
-//Get DHT Value / type/Set DHT type
-//[ESP210]<type=NONE/11/22/xxx> <interval=XXX in millisec>
+//Get Sensor Value / type/Set Sensor type
+//[ESP210]<type=NONE/xxx> <interval=XXX in millisec>
 bool Commands::ESP210(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
     bool response = true;
@@ -41,19 +41,13 @@ bool Commands::ESP210(const char* cmd_params, level_authenticate_type auth_type,
     parameter = get_param (cmd_params, "");
     if (parameter.length() == 0) {
         String s;
-        if(esp3d_DHT.started()) {
-            s = String(esp3d_DHT.getHumidity(),1);
-            if (s !="nan") {
-                s+="% ";
-                s+= String(esp3d_DHT.getTemperature(),1);
-            } else {
-                s ="Disconnected ";
-            }
-            s+= esp3d_DHT.isCelsiusUnit()?"C ":"F ";
-            s += esp3d_DHT.GetModelString();
-            s+= " ";
-            s+= esp3d_DHT.interval();
-            s+= "ms";
+        if(esp3d_sensor.started()) {
+            s = esp3d_sensor.GetData();
+            s += " ";
+            s += esp3d_sensor.GetModelString();
+            s += " ";
+            s += esp3d_sensor.interval();
+            s += "ms";
 
         } else {
             s = "NONE";
@@ -72,20 +66,18 @@ bool Commands::ESP210(const char* cmd_params, level_authenticate_type auth_type,
             int8_t v = -1;
             if (parameter == "NONE") {
                 v = 0;
-            } else if(parameter == "11") {
-                v = DHT11_DEVICE;
-            } else if (parameter == "22") {
-                v = DHT22_DEVICE;
-            } else {
+            } else if(esp3d_sensor.isModelValid(esp3d_sensor.getIDFromString(parameter.c_str()))) {
+                v = esp3d_sensor.getIDFromString(parameter.c_str());
+            }  else {
                 output->printERROR ("Invalid parameter!");
                 return false;
             }
             if (v!=-1) {
-                if (!Settings_ESP3D::write_byte(ESP_DHT_TYPE,v)) {
+                if (!Settings_ESP3D::write_byte(ESP_SENSOR_TYPE,v)) {
                     output->printERROR ("Set failed!");
                     return false;
                 }
-                if (!esp3d_DHT.begin()) {
+                if (!esp3d_sensor.begin()) {
                     output->printERROR ("Set failed!");
                     return false;
                 }
@@ -93,15 +85,15 @@ bool Commands::ESP210(const char* cmd_params, level_authenticate_type auth_type,
         }
         parameter = get_param (cmd_params, "interval=");
         if (parameter.length() != 0) {
-            if (!Settings_ESP3D::write_uint32(ESP_DHT_INTERVAL,parameter.toInt())) {
+            if (!Settings_ESP3D::write_uint32(ESP_SENSOR_INTERVAL,parameter.toInt())) {
                 output->printERROR ("Set failed!");
                 return false;
             }
-            esp3d_DHT.setInterval(parameter.toInt());
+            esp3d_sensor.setInterval(parameter.toInt());
         }
         output->printMSG ("ok");
     }
     return response;
 }
 
-#endif //DHT_DEVICE
+#endif //SENSOR_DEVICE

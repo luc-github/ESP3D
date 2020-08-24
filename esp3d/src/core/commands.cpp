@@ -427,13 +427,13 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
         response = ESP201(cmd_params, auth_type, output);
         break;
 #endif //DIRECT_PIN_FEATURE
-#ifdef DHT_DEVICE
-    //Get DHT Value / type/Set DHT type
-    //[ESP210] <TYPE> <type=NONE/11/22/xxx> <interval=XXX in millisec>
+#ifdef SENSOR_DEVICE
+    //Get SENSOR Value / type/Set SENSOR type
+    //[ESP210] <TYPE> <type=NONE/xxx> <interval=XXX in millisec>
     case 210:
         response = ESP210(cmd_params, auth_type, output);
         break;
-#endif //#ifdef DHT_DEVICE
+#endif //#ifdef SENSOR_DEVICE
 #if defined (DISPLAY_DEVICE)
     //Output to esp screen status
     //[ESP214]<Text>pwd=<user password>
