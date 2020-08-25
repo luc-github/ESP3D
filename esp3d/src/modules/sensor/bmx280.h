@@ -1,5 +1,5 @@
 /*
-  dht.h -  dht functions class
+  bmx280.h -  sensor functions class
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -20,31 +20,24 @@
 
 
 
-#ifndef _DHT_H
-#define _DHT_H
+#ifndef _BMX280_SENSOR_H
+#define _BMX280_SENSOR_H
+#include "sensor.h"
 
-class DHT
+class BMX280SensorDevice : ESP3DSensorDevice
 {
 public:
-    DHT();
-    ~DHT();
+    BMX280SensorDevice();
+    ~BMX280SensorDevice();
     bool begin();
     void end();
-    uint8_t GetModel();
-    const char *GetModelString();
-    const char *GetData();
-    float getHumidity();
-    float getTemperature();
-    bool started();
-    bool isCelsiusUnit();
-    void setCelsiusUnit(bool set);
-private:
-    bool _started;
-    bool _usecelsius;
-    float _temperature;
-    float _humidity;
+    bool isModelValid(uint8_t model);
+    uint8_t getIDFromString(const char *);
+    uint8_t nbType();
+    uint8_t GetModel(uint8_t i=0);
+    const char *GetModelString(uint8_t i=0);
+    const char * GetData();
 };
 
-
-#endif //_DHT_H
+#endif //_BMX280_SENSOR_H
 

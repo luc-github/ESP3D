@@ -30,6 +30,10 @@
 #if SENSOR_DEVICE==ANALOG_DEVICE
 #include "analogsensor.h"
 #endif //ANALOG_DEVICE
+#if SENSOR_DEVICE==BMP280_DEVICE || SENSOR_DEVICE==BME280_DEVICE
+#include "bmx280.h"
+#endif //BMP280_DEVICE || BME280_DEVICE
+
 #if defined (WIFI_FEATURE) || defined(ETH_FEATURE)
 #include "../websocket/websocket_server.h"
 #endif // WIFI_FEATURE || ETH_FEATURE
@@ -59,6 +63,9 @@ bool ESP3DSensor::begin()
 #endif //ANALOG_DEVICE
 #if SENSOR_DEVICE==DHT11_DEVICE || SENSOR_DEVICE==DHT22_DEVICE
     _device = (ESP3DSensorDevice * )new DHTSensorDevice();
+#endif //DHT11_DEVICE || DHT22_DEVICE
+#if SENSOR_DEVICE==BMP280_DEVICE || SENSOR_DEVICE==BME280_DEVICE
+    _device = (ESP3DSensorDevice * )new BMX280SensorDevice();
 #endif //DHT11_DEVICE || DHT22_DEVICE
     if (!_device) {
         log_esp3d("No device created");
@@ -152,6 +159,9 @@ const char * ESP3DSensor::GetData()
 
 void ESP3DSensor::handle()
 {
+    if (_interval == 0) {
+        return;
+    }
     if (_started && _device) {
         if ((millis() - _lastReadTime) > _interval) {
             String data = _device->GetData();

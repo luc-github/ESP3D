@@ -22,8 +22,21 @@
 //-1 means use default pins of your board what ever the serial you choose
 //   * UART 0 possible options are (1, 3), (2, 3) or (15, 13)
 //   * UART 1 allows only TX on 2 if UART 0 is not (2, 3)
+#ifndef ESP_RX_PIN
 #define ESP_RX_PIN -1
+#endif //~ESP_RX_PIN
+#ifndef ESP_TX_PIN
 #define ESP_TX_PIN -1
+#endif //~ESP_TX_PIN
+
+//I2C Pins
+#ifndef ESP_SDA_PIN
+#define ESP_SDA_PIN SDA
+#endif //~ESP_SDA_PIN
+
+#ifndef ESP_SCL_PIN
+#define ESP_SCL_PIN SCL
+#endif //~ESP_SCL_PIN
 
 //Pins for the support of connected camera
 #if CAMERA_DEVICE == CAMERA_MODEL_CUSTOM

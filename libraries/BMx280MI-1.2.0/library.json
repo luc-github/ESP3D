@@ -1,0 +1,19 @@
+{
+    "name": "BMx280MI",
+    "version": "1.2.0",
+    "keywords": "BMP280, BME280, BMx280",
+    "description": "A library for the Bosch Sensortec BME280 and BMP280 Digital Pressure Sensors. The library supports both the SPI (via the SPI Library) and I2C (via the Wire Library) interfaces. Use of other I2C / SPI libraries (e.g. software I2C) is supported by inheritance. Supports 64 bit pressure calculation. ",
+    "authors":
+    {
+        "name": "Gregor Christandl",
+        "email": "christandlg@yahoo.com",
+        "url": "https://bitbucket.org/christandlg/bmx280mi"
+    },
+    "repository":
+    {
+        "type": "git",
+        "url": "https://bitbucket.org/christandlg/bmx280mi.git"
+    },
+    "frameworks": "arduino",
+    "platforms": "*"
+}

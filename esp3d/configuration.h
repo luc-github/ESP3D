@@ -79,8 +79,6 @@
 #if defined (DISPLAY_DEVICE)
 //for ILI9143 edit User_Setup.h of TFT_eSPI library
 #if (DISPLAY_DEVICE == OLED_I2C_SSD1306) || (DISPLAY_DEVICE == OLED_I2C_SSDSH1106)
-#define DISPLAY_I2C_PIN_SDA         4
-#define DISPLAY_I2C_PIN_SCL         15
 #define DISPLAY_I2C_PIN_RST         16 //comment if not applicable
 #define DISPLAY_I2C_ADDR            0x3c
 #endif //(DISPLAY_DEVICE == OLED_I2C_SSD1306) || (DISPLAY_DEVICE == OLED_I2C_SSDSH1106)
@@ -101,7 +99,7 @@
 //ANALOG_DEVICE   3
 //BMP280_DEVICE   4
 //BME280_DEVICE   5
-#define SENSOR_DEVICE DHT22_DEVICE
+#define SENSOR_DEVICE BMP280_DEVICE
 
 #ifdef BUZZER_DEVICE
 #define ESP3D_BUZZER_PIN 15
@@ -110,6 +108,7 @@
 #ifdef SENSOR_DEVICE
 //pin
 #define ESP3D_SENSOR_PIN 22
+#define SENSOR_ADDR            0x76
 //Conversion coefficient
 #define SENSOR_CONVERTER(v) v*0.588
 //Unit to use, if not applicaple for sensor will use default one

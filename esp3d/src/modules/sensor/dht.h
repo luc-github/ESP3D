@@ -20,8 +20,8 @@
 
 
 
-#ifndef _ANALOG_SENSOR_H
-#define _ANALOG_SENSOR_H
+#ifndef _DHT_SENSOR_H
+#define _DHT_SENSOR_H
 
 #include "sensor.h"
 
@@ -40,5 +40,5 @@ public:
     const char * GetData();
 };
 
-#endif //_ANALOG_SENSOR_H
+#endif //_DHT_SENSOR_H
 
