@@ -45,7 +45,7 @@ public:
     {
         return 0;
     }
-    virtual uint8_t GetModel(uint8_t i=0);
+    virtual uint8_t GetModel(uint8_t i=0){ return 0;}
     virtual const char *GetModelString(uint8_t i=0)
     {
         return "None";
