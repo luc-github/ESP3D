@@ -167,11 +167,12 @@ const char * BMX280SensorDevice::GetData()
                         temperature =  toFahrenheit(temperature);
                     }
                     s= String(temperature,1);
+                    s+= "[";
                     s+= SENSOR__UNIT;
-                    s+= " " +String(pressure,1);
-                    s+= "Pa";
+                    s+= "] " +String(pressure,1);
+                    s+= "[Pa]";
                     if (bmx280_device->isBME280()) {
-                        s+=" " + String(humidity,1) + "%";
+                        s+=" " + String(humidity,1) + "[%]";
                     }
                 } else {
                     s="DISCONNECTED";

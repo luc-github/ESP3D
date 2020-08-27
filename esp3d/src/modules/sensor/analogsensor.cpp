@@ -78,8 +78,9 @@ const char * AnalogSensorDevice::GetModelString(uint8_t i)
 const char * AnalogSensorDevice::GetData()
 {
     static String s;
-    s = String(SENSOR_CONVERTER(analogRead(ESP3D_SENSOR_PIN)));
-    s += SENSOR__UNIT;
+    s = String(SENSOR_CONVERTER(analogRead(ESP3D_SENSOR_PIN))) + "[";
+    s +=  SENSOR__UNIT;
+    s +="]";
     return s.c_str();
 }
 
