@@ -53,6 +53,7 @@ before_script:
   - cp -r $TRAVIS_BUILD_DIR/libraries/lv_arduino-2.0.3 $HOME/arduino_ide/libraries/
   - cp -r $TRAVIS_BUILD_DIR/libraries/ESP8266-Arduino-Lua-0.0.30 $HOME/arduino_ide/libraries/
   - cp -r $TRAVIS_BUILD_DIR/libraries/SdFat-1.1.0 $HOME/arduino_ide/libraries/
+  - cp -r $TRAVIS_BUILD_DIR/libraries/BMx280MI-1.2.0 $HOME/arduino_ide/libraries/
   - cd $TRAVIS_BUILD_DIR
   - source command.sh
   - export PATH="$HOME/arduino_ide:$PATH"
