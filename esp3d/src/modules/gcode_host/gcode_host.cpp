@@ -112,6 +112,7 @@ bool GcodeHost::wait_for_ack(uint32_t timeout, bool checksum, const char * ack)
         size_t len = serial_service.available();
         if (len > 0) {
             uint8_t * sbuf = (uint8_t *)malloc(len+1);
+            serial_service.readBytes(sbuf, len);
             if(!sbuf) {
                 _error = ERROR_MEMORY_PROBLEM;
                 return false;
