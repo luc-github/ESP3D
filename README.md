@@ -22,3 +22,5 @@ or PlatformIO
  * Refactoring code when necessary
  * TBD
  
+# Chat   
+Please use discord : https://discord.gg/h2pkaf
