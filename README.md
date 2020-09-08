@@ -19,5 +19,6 @@ or PlatformIO
  * [Implement minor missing features not present in alpha](https://github.com/luc-github/ESP3D-WEBUI/issues?q=is%3Aissue+is%3Aopen+label%3A3.0)
  * Translate UI and build language packs 
  * Adjust features according feedback
+ * Refactoring code when necessary
  * TBD
  
