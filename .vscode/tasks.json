@@ -8,6 +8,34 @@
 				"$platformio"
 			],
 			"label": "PlatformIO: Check"
-		}
+		},
+		{
+			"type": "shell",
+			"command": "platformio",
+			"args": [
+				"run",
+				"--environment"
+				"esp32dev"
+			],
+			"problemMatcher": [
+				"$platformio"
+			],
+			"group": "build",
+			"label": "PlatformIO: build (esp32dev)"
+		},
+		{
+			"type": "shell",
+			"command": "platformio",
+			"args": [
+				"run",
+				"--environment"
+				"esp8266dev"
+			],
+			"problemMatcher": [
+				"$platformio"
+			],
+			"group": "build",
+			"label": "PlatformIO: build (esp8266dev)"
+		},
 	]
 }
