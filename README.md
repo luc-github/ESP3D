@@ -23,4 +23,5 @@ or PlatformIO
  * TBD
  
 # Chat   
-Please use discord : https://discord.gg/h2pkaf
+Please use discord : https://discord.gg/Z4ujTwE
+
