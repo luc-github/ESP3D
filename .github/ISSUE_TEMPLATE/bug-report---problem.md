@@ -28,7 +28,7 @@ If applicable, add screenshots to help explain your problem.
 - Version:[e.g 2.1b4]
 - Web UI Version:[e.g 2.1b14]  
 - Wifi mode:[e.g. STA]  
-- WebUI version: [e.g. 2.0b4]
+- Flash method: [Arduino Ide / PlatformIO]
 - Any change done in FW  
 
 **Target Firmware:**
