@@ -113,7 +113,7 @@ if embedded uploader does not show up you can force it ti display using : http:/
 [Check the wiki](https://github.com/luc-github/ESP3D/wiki)
 
 ## :question:Any question ?   
-Check [Wiki](https://github.com/luc-github/ESP3D/wiki/Install-Instructions) or [![Join the chat at https://gitter.im/luc-github/ESP3D](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/luc-github/ESP3D?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)   
+Check [Wiki](https://github.com/luc-github/ESP3D/wiki/Install-Instructions) or Join the chat at [Discord server](https://discord.gg/Z4ujTwE)   
 
 ## :exclamation:Any issue/feedback ?    
 Check [Wiki](https://github.com/luc-github/ESP3D/wiki/Install-Instructions) and [FAQ](https://github.com/luc-github/ESP3D/issues?utf8=%E2%9C%93&q=label%3AFAQ+) or [submit ticket](https://github.com/luc-github/ESP3D/issues)    
