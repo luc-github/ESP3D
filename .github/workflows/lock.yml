@@ -1,4 +1,4 @@
-ame: 'Lock threads'
+name: 'Lock threads'
 
 on:
   schedule:
@@ -14,7 +14,7 @@ jobs:
           issue-lock-inactive-days: '1'
           issue-exclude-created-before: ''
           issue-exclude-labels: 'planned'
-          issue-lock-labels: ''
+          issue-lock-labels: 'outdated'
           issue-lock-comment: 'This issue has been automatically locked since there has not been any recent activity after it was closed. Please open a new issue for related bugs.'
           issue-lock-reason: 'resolved'
           pr-lock-inactive-days: '365'
