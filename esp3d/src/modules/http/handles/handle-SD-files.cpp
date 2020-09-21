@@ -116,7 +116,7 @@ void HTTP_Server::handleSDFileList ()
         //create a directory
         if (_webserver->arg ("action") == "createdir" && _webserver->hasArg ("filename") ) {
             String filename;
-            filename = path + _webserver->arg ("filename") + "/.";
+            filename = path + _webserver->arg ("filename");
             String shortname = _webserver->arg ("filename");
             shortname.replace ("/", "");
             filename.replace ("//", "/");

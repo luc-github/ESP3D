@@ -199,7 +199,11 @@ bool ESP_SD::remove(const char *path)
 
 bool ESP_SD::mkdir(const char *path)
 {
-    return SD_MMC.mkdir(path);
+    String p = path;
+    if (p.endsWith("/")) {
+        p.remove( p.length() - 1,1);
+    }
+    return SD_MMC.mkdir(p.c_str());
 }
 
 bool ESP_SD::rmdir(const char *path)
@@ -210,6 +214,9 @@ bool ESP_SD::rmdir(const char *path)
     bool res = true;
     GenLinkedList<String > pathlist;
     String p = path;
+    if (p.endsWith("/")) {
+        p.remove( p.length() - 1,1);
+    }
     pathlist.push(p);
     while (pathlist.count() > 0) {
         File dir = SD_MMC.open(pathlist.getLast().c_str());
