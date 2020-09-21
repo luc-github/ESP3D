@@ -148,10 +148,12 @@ ESP_SDFile ESP_SD::open(const char* path, uint8_t mode)
 {
     //do some check
     if(((strcmp(path,"/") == 0) && ((mode == ESP_FILE_WRITE) || (mode == ESP_FILE_APPEND))) || (strlen(path) == 0)) {
+        log_esp3d("File open check : failed");
         return ESP_SDFile();
     }
     // path must start by '/'
     if (path[0] != '/') {
+        log_esp3d("File open path is invalid");
         return ESP_SDFile();
     }
     if (mode != ESP_FILE_READ) {
@@ -159,7 +161,7 @@ ESP_SDFile ESP_SD::open(const char* path, uint8_t mode)
         String p = path;
         p.remove(p.lastIndexOf('/') +1);
         if (!exists(p.c_str())) {
-            log_esp3d("Error opening: %s", path);
+            log_esp3d("Error opening: %s, %s does not exists", path,p.c_str());
             return ESP_SDFile();
         }
     }
@@ -171,13 +173,18 @@ ESP_SDFile ESP_SD::open(const char* path, uint8_t mode)
 bool ESP_SD::exists(const char* path)
 {
     bool res = false;
+    String p = path;
     //root should always be there if started
-    if (strcmp(path, "/") == 0) {
+    if (p == "/")  {
         return _started;
     }
-    res = SD_MMC.exists(path);
+
+    if (p.endsWith("/")) {
+        p.remove( p.length() - 1,1);
+    }
+    res = SD_MMC.exists(p);
     if (!res) {
-        ESP_SDFile root = ESP_SD::open(path, ESP_FILE_READ);
+        ESP_SDFile root = ESP_SD::open(p.c_str(), ESP_FILE_READ);
         if (root) {
             res = root.isDirectory();
         }

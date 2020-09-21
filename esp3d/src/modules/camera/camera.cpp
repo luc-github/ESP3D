@@ -28,7 +28,7 @@
 #include "esp_http_server.h"
 #include <esp_camera.h>
 #include "fd_forward.h"
-//#include <soc/soc.h> //not sure this one is needed
+#include <soc/soc.h> //not sure this one is needed
 #include <soc/rtc_cntl_reg.h>
 #include <driver/i2c.h>
 

@@ -135,7 +135,7 @@ const char * DHTSensorDevice::GetData()
         if ( String(humidity,1)!="nan") {
             s= String(temperature,1);
             s+= "[";
-            s+= SENSOR__UNIT+
+            s+= SENSOR__UNIT;
             s+="] " + String(humidity,1) + "[%]";
         } else {
             s="DISCONNECTED";

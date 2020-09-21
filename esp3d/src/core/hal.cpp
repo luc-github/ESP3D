@@ -24,6 +24,8 @@
 #include "ESP8266WiFi.h"
 #endif //ARDUINO_ARCH_ESP8266
 #if defined(ARDUINO_ARCH_ESP32)
+#include <soc/soc.h>
+#include <soc/rtc_cntl_reg.h>
 #include "WiFi.h"
 #ifdef __cplusplus
 extern "C" {
@@ -183,6 +185,10 @@ void Hal::analogWriteRange(uint32_t range)
 //Setup
 bool Hal::begin()
 {
+#if defined(ARDUINO_ARCH_ESP32) && defined(CAMERA_DEVICE)
+    log_esp3d("Disable brown out");
+    WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0); //disable brownout detector
+#endif //ARDUINO_ARCH_ESP32 && CAMERA_DEVICE
     //Clear all wifi state
     WiFi.persistent(false);
     WiFi.disconnect(true);
