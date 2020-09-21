@@ -73,11 +73,10 @@ Check wiki : https://github.com/luc-github/ESP3D/wiki/Direct-ESP3D-commands
 ## Installation
 Feedback on 2.0 was : ESP3D being a library is not really useful and make setup more complex, so now we are back to simple application.   
 
-1. Please follow installation of the ESP core you want to use : [ESP8266 core version](https://github.com/esp8266/Arduino)  or [ESP32 core version](https://github.com/espressif/arduino-esp32)   
-2.  Add manually libraries present in libraries directory to your arduino libraries directory (no need if you use platformIO) -these versions are verified to work with ESP3D, any others (newer version) may cause untested behavior.  
-
-Use webserver support (recommended as stable), asyncwebserver support is no more stable on ESP3D 
-* arduinoWebSockets from @Links2004  
+1. If you haven't already set up Arduino IDE for ESPs then do so for [ESP8266](https://github.com/esp8266/Arduino) or [ESP32 core version](https://github.com/espressif/arduino-esp32).
+2. Download the [latest release](https://github.com/luc-github/ESP3D/releases/) and manually copy the libraries present in the `ESP3D-x.y.z/libraries` directory into your `Arduino/libraries` directory.  (*no need if using platformIO*).  *These versions are verified to work with ESP3D, any others (newer version) may cause untested behavior.*
+- Use webserver support (recommended as stable), asyncwebserver support is no longer stable on ESP3D 
+- * arduinoWebSockets from @Links2004
  
 Generic ones:      
 Specific for ESP32    
