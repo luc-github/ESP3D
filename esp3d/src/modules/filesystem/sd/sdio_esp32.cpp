@@ -57,7 +57,7 @@ uint8_t ESP_SD::getState(bool refresh)
     if (!lastinitok) {
         log_esp3d("last init was failed try sd_mmc begin");
         //SD_MMC.end();
-        if (SD_MMC.begin()) {
+        if (SD_MMC.begin("/sdcard", SD_ONE_BIT_MODE)) {
             log_esp3d("sd_mmc begin succeed");
             if (SD_MMC.cardType() != CARD_NONE ) {
                 _state = ESP_SDCARD_IDLE;
@@ -78,7 +78,7 @@ uint8_t ESP_SD::getState(bool refresh)
             lastinitok = false;
             log_esp3d("Soft sd check failed");
             //SD_MMC.end();
-            if (SD_MMC.begin()) {
+            if (SD_MMC.begin("/sdcard", SD_ONE_BIT_MODE)) {
                 log_esp3d("new sd_mmc begin succeed");
                 if ( SD_MMC.cardType() != CARD_NONE ) {
                     _state = ESP_SDCARD_IDLE;

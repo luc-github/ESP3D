@@ -65,7 +65,7 @@ void Hal::pinMode(uint8_t pin, uint8_t mode)
         return;
     }
 #endif
-    pinMode(pin, mode);
+     ::pinMode(pin, mode);
 }
 
 void Hal::toneESP(uint8_t pin, unsigned int frequency, unsigned int duration, bool sync)
