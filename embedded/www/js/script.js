@@ -13,6 +13,8 @@ var esp_error_message ="";
 var esp_error_code = 0;
 var xmlhttpupload;
 var typeupload = 0;
+var wifimode = "";
+
 function navbar(){
     var content="<table><tr>";
     var tlist = currentpath.split("/");
@@ -156,6 +158,31 @@ if (filename != null) {
     }
 }
 
+function isLimitedEnvironment() {
+    var sitesList = [
+        "clients3.google.com", //Android Captive Portal Detection
+        "connectivitycheck.",
+        //Apple iPhone, iPad with iOS 6 Captive Portal Detection
+        "apple.com",
+        ".akamaitechnologies.com",
+        //Apple iPhone, iPad with iOS 7, 8, 9 and recent versions of OS X
+        "www.appleiphonecell.com",
+        "www.itools.info",
+        "www.ibook.info",
+        "www.airport.us",
+        "www.thinkdifferent.us",
+        ".akamaiedge.net",
+        //Windows
+        ".msftncsi.com",
+        "microsoft.com",
+    ];
+    if (wifimode != "AP")return false;
+    for (var i = 0; i < sitesList.length; i++) {
+        if (document.location.host.indexOf(sitesList[i]) != -1) return true;
+    }
+    return false;
+}
+
 function SendCommand(action,filename){
 var xmlhttp = new XMLHttpRequest();
 var url = "/files?action="+action;
@@ -281,6 +308,8 @@ xmlhttp.onreadystatechange = function() {
                     webupdate = true;
                     //console.log(jsonresponse.WebUpdate);
                 }
+                //
+                wifimode = jsonresponse.WiFiMode;
                 //websocket port
                 websocket_port = jsonresponse.WebSocketport;
                 //websocket IP
@@ -290,6 +319,11 @@ xmlhttp.onreadystatechange = function() {
                 if (jsonresponse.WebCommunication != "Synchronous") {
                     async_webcommunication = true;
                     //console.log(jsonresponse.WebCommunication);
+                }
+                if (isLimitedEnvironment()){
+                    document.getElementById('InfoMSG').innerHTML="It seems you are in limited environment,<br> please open a browser using<BR>" + websocket_IP + "<br>to get all features working";
+                } else {
+                    document.getElementById('InfoMSG').innerHTML="";
                 }
                 FWOk();
                 startSocket();

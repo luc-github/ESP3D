@@ -21,7 +21,8 @@
     "gulp-uglify": "latest",
     "gulp-zip": "latest",
     "jshint": "latest",
-    "merge-stream": "latest"
+    "merge-stream": "latest",
+    "lodash": "^4.17.19"
   },
   "repository": "https://github.com/luc-github/ESP3D",
   "author": "Luc LEBOSSE",
