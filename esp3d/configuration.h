@@ -127,7 +127,10 @@
 //ESP_SD_NATIVE               1 //esp32 / esp8266
 //ESP_SDIO                    2 //esp32 only
 //ESP_SDFAT                   3 //esp8266 (same as native) / esp32
-//#define SD_DEVICE    ESP_SDFAT
+//#define SD_DEVICE    ESP_SDIO
+
+//SDIO mode
+#define SD_ONE_BIT_MODE true
 
 //SD Device Connection type (default is direct)
 //ESP_DIRECT_SD
