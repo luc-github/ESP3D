@@ -31,6 +31,10 @@ extern File tSDFile_handle[ESP_MAX_SD_OPENHANDLE];
 
 #define SDMMC_FORCE_BEGIN
 
+#ifndef SD_ONE_BIT_MODE
+#define SD_ONE_BIT_MODE false 
+#endif //SD_ONE_BIT_MODE
+
 uint8_t ESP_SD::getState(bool refresh)
 {
     static bool lastinitok = false;
