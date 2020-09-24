@@ -65,13 +65,15 @@ size_t ESP_FileSystem::max_update_size()
 #endif //ARDUINO_ARCH_ESP8266
 #if defined (ARDUINO_ARCH_ESP32)
     //Is OTA available ?
-    if (esp_ota_get_running_partition()) {
-        const esp_partition_t* partition = esp_ota_get_next_update_partition(NULL);
+    const esp_partition_t* mainpartition = esp_ota_get_running_partition();
+    if (mainpartition) {
+        const esp_partition_t* partition = esp_ota_get_next_update_partition(mainpartition);
         if (partition) {
-            flashsize = partition->size;
+            const esp_partition_t* partition2 = esp_ota_get_next_update_partition(partition);
+            if (partition2 && (partition->address!=partition2->address)) {
+                flashsize = partition2->size;
+            }
         }
-    }  else {
-        flashsize = 0;
     }
 #endif //ARDUINO_ARCH_ESP32
     return flashsize;
