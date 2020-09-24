@@ -215,7 +215,11 @@ bool Commands::ESP800(const char* cmd_params, level_authenticate_type auth_type,
         output->print(",\"WebUpdate\":\"");
     }
 #ifdef WEB_UPDATE_FEATURE
-    output->print("Enabled");
+    if (ESP_FileSystem::max_update_size()!=0){
+         output->print("Enabled");
+     } else {
+         output->print("Disabled");
+     }
 #else
     output->print("Disabled");
 #endif //WEB_UPDATE_FEATURE
