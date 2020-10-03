@@ -27,7 +27,7 @@
 #include "../authentication/authentication_service.h"
 class ESP3DOutput;
 
-#define DEFAULT_TIMOUT 2000
+#define DEFAULT_TIMOUT 16000
 #define MAX_TRY_2_SEND 5
 #define ERROR_NO_ERROR          0
 #define ERROR_TIME_OUT          1

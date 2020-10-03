@@ -41,7 +41,7 @@ bool Commands::ESP700(const char* cmd_params, level_authenticate_type auth_type,
     (void)auth_type;
 #endif //AUTHENTICATION_FEATURE
     {
-        esp3d_gcode_host.processFile(parameter.c_str(), auth_type, output);
+        esp3d_gcode_host.processFSFile(parameter.c_str(), auth_type, output);
         output->printMSG("ok");
     }
     return response;

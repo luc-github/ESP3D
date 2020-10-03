@@ -163,7 +163,7 @@ bool GcodeHost::wait_for_ack(uint32_t timeout, bool checksum, const char * ack)
 
         Hal::wait (0);  //minimum delay is 10 actually
     }
-    _error = ERROR_ACK_NUMBER;
+    _error = ERROR_TIME_OUT;
     return false;
 }
 
@@ -209,7 +209,7 @@ bool GcodeHost::sendCommand(const char* command, bool checksum, bool wait4ack, c
                             //what is the error ?
                             log_esp3d("Error: %d", _error);
                             //no need to retry for this one
-                            if (_error == ERROR_MEMORY_PROBLEM) {
+                            if ((_error == ERROR_MEMORY_PROBLEM) || (_error == ERROR_TIME_OUT)) {
                                 return false;
                             }
                             //need to resend command
@@ -224,6 +224,7 @@ bool GcodeHost::sendCommand(const char* command, bool checksum, bool wait4ack, c
                     }
                 }
             }
+            Hal::wait(0);
         }
     }
     if (_error == ERROR_NO_ERROR) {
