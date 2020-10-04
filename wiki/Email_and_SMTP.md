@@ -17,6 +17,6 @@ for example `luc@gmail.com#smtp.gmail.com:465`
 
 4 - **Important** : if you are using Gmail there is an additional as by default https access is disabled
 go to : https://myaccount.google.com/lesssecureapps and allow less secure applications to connect
-![](https://github.com/luc-github/ESP3D/blob/3.0/images/Notifications/Email/google.PNG) 
+![](https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/Notifications/Email/google.PNG) 
 
  

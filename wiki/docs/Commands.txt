@@ -1,0 +1,220 @@
+Note:
+1 - add space to separate parameters
+2 -  if parameter has space add \ in front of space to not be seen as separator
+
+* Set/Get STA SSID 
+[ESP100]<SSID>pwd=<admin password>
+
+* Set STA Password 
+[ESP101]<Password>pwd=<admin password>
+
+* Set/Get STA IP mode (DHCP/STATIC) 
+[ESP102]<mode>pwd=<admin password>
+
+* Set/Get STA IP/Mask/GW 
+[ESP103]IP=<IP> MSK=<IP> GW=<IP> pwd=<admin password>
+
+*  Set/Get AP SSID 
+[ESP105]<SSID>pwd=<admin password>
+
+* Change AP Password 
+[ESP106]<Password>pwd=<admin password>
+
+* Set/Get AP IP 
+[ESP107]<IP>pwd=<admin password>
+
+* Set/Get AP channel 
+[ESP108]<channel>pwd=<admin password>
+
+* Set/Get radio state which can be WIFI-STA, WIFI-AP, BT, ETH-STA, ETH-AP, OFF
+[ESP110]<state>pwd=<admin password>
+
+* Get current IP
+[ESP111]<header answer>
+
+* Get/Set hostname
+[ESP112]<Hostname> pwd=<admin password>
+
+* Get/Set immediate network(WiFi/BT/Ethernet) state which can be ON, OFF
+[ESP115]<state>pwd=<admin password>
+
+* Get/Set HTTP state which can be ON, OFF
+[ESP120]<state>pwd=<admin password>
+
+* Get/Set HTTP port 
+[ESP121]<port>pwd=<admin password>
+
+* Get/Set Telnet state which can be ON, OFF, CLOSE
+[ESP130]<state>pwd=<admin password>
+
+* Get/Set Telnet port 
+[ESP131]<port>pwd=<admin password>
+
+* Sync / Set / Get current time
+[ESP140]<SYNC> <srv1=XXXXX> <srv2=XXXXX> <srv3=XXXXX> <zone=xxx> <dst=YES/NO> <time=YYYY-MM-DD#H24:MM:SS> pwd=<admin password>
+
+* Get/Set boot delay
+[ESP150]<time in milliseconds>[pwd=<admin password>]
+
+* Get/Set WebSocket state which can be ON, OFF
+[ESP160]<state>pwd=<admin password>
+
+* Get/Set WebSocket port 
+[ESP161]<port>pwd=<admin password>
+
+* Get/Set camera server state which can be ON, OFF, but not saved in EEPROM
+[ESP170]<state>pwd=<admin password>
+
+* Get/Set Camera port
+[ESP171]<port>pwd=<admin password>
+
+* Get/Set Camera command value / list all values in JSON/plain
+label can be: light/framesize/quality/contrast/brightness/saturation/gainceiling/colorbar/awb/agc/aec/hmirror/vflip/awb_gain/agc_gain/aec_value/aec2/cw/bpc/wpc/raw_gma/lenc/special_effect/wb_mode/ae_level
+[ESP172]<plain><label=value> pwd=<admin password>
+
+* Get/Set Ftp state which can be ON, OFF, CLOSE
+[ESP180]<state>pwd=<admin password>
+
+* Get/Set Ftp ports 
+[ESP181]ctrl=<port> active=<port> passive=<port> pwd=<admin password>
+
+* Get SD Card Status
+[ESP200] pwd=<user/admin password>
+
+*Get/Set pin value
+[ESP201]P<pin> V<value> [PULLUP=YES RAW=YES]pwd=<admin password>
+if no V<value> get P<pin> value
+if V<value> 0/1 set INPUT_PULLUP value, but for GPIO16(ESP8266) INPUT_PULLDOWN_16
+if PULLUP=YES set input pull up (for GPIO16(ESP8266) INPUT_PULLDOWN_16), if not set input
+if RAW=YES do not set pinmode just read value
+Flash pins (6~11) cannot be used
+
+* Output to esp screen status
+[ESP214]<Text>pwd=<user password>
+
+* Touch Calibration 
+[ESP215]<CALIBRATE>[pwd=<user password>]
+
+* Take screen snapshot
+[ESP216]<SNAP>[pwd=<user password>]
+
+* Play sound  
+No parameter just play beep
+[ESP250]F=<frequency> D=<duration> [pwd=<user password>]
+
+* Delay command
+[ESP290]<delay in ms>[pwd=<user password>]
+
+* Get full EEPROM settings content
+but do not give any passwords
+[ESP400] pwd=<admin password>
+
+*Set EEPROM setting
+position in EEPROM, type: B(byte), I(integer/long), S(string), A(IP address / mask)
+[ESP401]P=<position> T=<type> V=<value> pwd=<user/admin password>
+Description:        Positions:
+ESP_RADIO_MODE          0       //1 byte = flag
+ESP_STA_SSID            1       //33 bytes 32+1 = string  ; warning does not support multibyte char like chinese
+ESP_STA_PASSWORD        34      //65 bytes 64 +1 = string ;warning does not support multibyte char like chinese
+ESP_STA_IP_MODE         99      //1 byte = flag
+ESP_STA_IP_VALUE        100     //4  bytes xxx.xxx.xxx.xxx
+ESP_STA_MASK_VALUE      104     //4  bytes xxx.xxx.xxx.xxx
+ESP_STA_GATEWAY_VALUE   108     //4  bytes xxx.xxx.xxx.xxx
+ESP_BAUD_RATE           112     //4  bytes = int
+ESP_NOTIFICATION_TYPE   116     //1 byte = flag
+ESP_CALIBRATION         117     //1 byte = flag
+ESP_AP_CHANNEL          118     //1 byte = flag
+ESP_BUZZER              119     //1 byte = flag 
+ESP_INTERNET_TIME       120     //1  byte = flag
+ESP_HTTP_PORT           121     //4  bytes = int
+ESP_TELNET_PORT         125     //4  bytes = int
+ESP_OUTPUT_FLAG         129     //1  bytes = flag
+ESP_HOSTNAME            130     //33 bytes 32+1 = string  ; warning does not support multibyte char like chinese
+ESP_SENSOR_INTERVAL     164     //4  bytes = int
+ESP_SETTINGS_VERSION    168     //8  bytes = 7+1 = string ESP3D + 2 digits
+ESP_ADMIN_PWD           176     //21  bytes 20+1 = string  ; warning does not support multibyte char like chinese
+ESP_USER_PWD            197     //21  bytes 20+1 = string  ; warning does not support multibyte char like chinese
+ESP_AP_SSID             218     //33 bytes 32+1 = string  ; warning does not support multibyte char like chinese
+ESP_AP_PASSWORD         251     //65 bytes 64 +1 = string ;warning does not support multibyte char like chinese
+ESP_AP_IP_VALUE         316     //4  bytes xxx.xxx.xxx.xxx
+ESP_BOOT_DELAY          320     //4  bytes xxx.xxx.xxx.xxx
+ESP_WEBSOCKET_PORT      324     //4  bytes xxx.xxx.xxx.xxx
+ESP_HTTP_ON             328     //1 byte = flag
+ESP_TELNET_ON           329     //1 byte = flag
+ESP_WEBSOCKET_ON        330     //1 byte = flag
+ESP_SD_SPEED_DIV        331     //1 byte = flag
+ESP_NOTIFICATION_TOKEN1 332    //64 bytes 63+1 = string  ; warning does not support multibyte char like chinese
+ESP_NOTIFICATION_TOKEN2 396    //64 bytes 63+1 = string  ; warning does not support multibyte char like chinese
+ESP_SENSOR_TYPE         460//1  bytes = flag
+ESP_TARGET_FW           461 //1  bytes = flag
+ESP_TIMEZONE            462//1  bytes = flag
+ESP_TIME_IS_DST         463//1  bytes = flag
+ESP_TIME_SERVER1        464//129 bytes 128+1 = string  ; warning does not support multibyte char like chinese
+ESP_TIME_SERVER2        593 //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese
+ESP_TIME_SERVER3        722 //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese
+ESP_IS_DIRECT_SD        850//1  bytes = flag
+ESP_PRIMARY_SD          851//1  bytes = flag
+ESP_SECONDARY_SD        852//1  bytes = flag
+ESP_DIRECT_SD_CHECK     853//1  bytes = flag
+ESP_SD_CHECK_UPDATE_AT_BOOT   854//1  bytes = flag
+ESP_NOTIFICATION_SETTINGS 855//128 bytes 127+1 = string  ; warning does not support multibyte char like chinese
+ESP_CALIBRATION_1       983  //4  bytes = int
+ESP_CALIBRATION_2       987  //4  bytes = int
+ESP_CALIBRATION_3       991  //4  bytes = int 
+ESP_CALIBRATION_4       995  //4  bytes = int
+ESP_CALIBRATION_5       999  //4  bytes = int
+ESP_AUTO_NOTIFICATION   1004 //1 byte = flag
+
+*Get available AP list (limited to 30)
+output is JSON or plain text according parameter
+[ESP410]<plain><pwd=admin/user>
+
+*Get current settings of ESP3D
+output is plain text 
+[ESP420]<pwd=admin/user>
+
+* Set ESP State
+cmd are RESTART / RESET
+[ESP444]<cmd><pwd=admin>
+
+* Change admin password
+[ESP550]<password>pwd=<admin password>
+
+* Change user password
+[ESP555]<password>pwd=<admin/user password>
+
+* Send Notification
+[ESP600]msg [pwd=<admin password>]
+
+* Set/Get Notification settings
+[ESP610]type=<NONE/PUSHOVER/EMAIL/LINE> T1=<token1> T2=<token2> TS=<Settings> [pwd=<admin password>]
+Get will give type and settings only, not the protected T1/T2
+
+* Format ESP Filesystem
+[ESP710]FORMAT pwd=<admin password>
+
+* Format SD Filesystem
+[ESP715]FORMATSD pwd=<admin password>
+
+* List ESP Filesystem
+[ESP720]<Root> pwd=<admin password>
+
+* Action on ESP Filesystem
+rmdir / remove / mkdir / exists / create
+[ESP730]<Action>=<path> pwd=<admin password>
+
+* List SD Filesystem
+[ESP740]<Root> pwd=<admin password>
+
+* Action on SD Filesystem
+rmdir / remove / mkdir / exists / create
+[ESP750]<Action>=<path> pwd=<admin password>
+
+* FW Informations
+[ESP800]<plain> pwd=<admin password>
+
+* Get state / Set Enable / Disable Serial Communication
+[ESP900]<ENABLE/DISABLE>[pwd=<admin/user password>]
+
+* Get state / Set Enable / Disable buzzer
+[ESP910]<ENABLE/DISABLE>[pwd=<admin/user password>]
