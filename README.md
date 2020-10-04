@@ -105,7 +105,7 @@ if embedded uploader does not show up you can force it ti display using : http:/
 * To style the code before pushing PR please use [astyle --style=otbs *.h *.cpp *.ino](http://astyle.sourceforge.net/)   
 * The embedded page is created using nodejs then gulp to generate a compressed html page (tool.html.gz), all necessary modules will be installed using the build.bat, you also need bin2c tool (https://sourceforge.net/projects/bin2c/) to generate the h file from the binary,  installation and build is done using the build.bat.   
 * The corresponding UI is located [here](https://github.com/luc-github/ESP3D-WEBUI/tree/2.1)
-* An optional UI was development using old repetier UI - check [UI\repetier\testui.htm] (https://github.com/luc-github/ESP3D/blob/master/UI/repetier/testui.htm) file   
+* An optional UI was development using old repetier UI - check [UI\repetier\testui.htm] (https://raw.githubusercontent.com/wiki/luc-github/ESP3D/UI/repetier/testui.htm) file   
 
  
 ## Need more information about supported boards or wiring ?

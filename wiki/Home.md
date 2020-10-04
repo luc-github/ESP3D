@@ -14,3 +14,5 @@ https://github.com/luc-github/ESP3D/releases
 check right menu for more
 
 To update wiki please submit a PR to wiki directory content of current branch
+
+the path for the wiki images will be `https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/...`

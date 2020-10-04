@@ -14,10 +14,10 @@ _______________________________________________
 connection Wemos d1 mini and Diode
 
 connection:
-![](https://github.com/luc-github/ESP3D/blob/master/images/D1_mini/FB_IMG_1510306696875.jpg)
+![](https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/D1_mini/FB_IMG_1510306696875.jpg)
 
 example:
-![](https://github.com/luc-github/ESP3D/blob/master/images/D1_mini/20171111_215253.jpg)
+![](https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/D1_mini/20171111_215253.jpg)
 
 printed case:
 https://www.thingiverse.com/thing:2671591

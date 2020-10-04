@@ -1,2 +1,2 @@
 # Where to connect ESP on MKS board (Smoothieware compatible version)
-![](https://github.com/luc-github/ESP3D/blob/master/images/MKS-SMOOTHIEWARE/MKS-smoothie.png)
+![](https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/MKS-SMOOTHIEWARE/MKS-smoothie.png)

@@ -1,5 +1,5 @@
 # Wiring Sonoff modules
-![](https://github.com/luc-github/ESP3D/blob/master/images/Sonoff/Sonoff.png)
+![](https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/Sonoff/Sonoff.png)
 
 Relay is connected by GPIO12, it can be handled using ESP201 command:
 ```
