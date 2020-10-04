@@ -13,4 +13,4 @@ https://github.com/luc-github/ESP3D/releases
 
 check right menu for more
 
-if you need to upload images to wiki please use [this](https://github.com/luc-github/ESP3D/issues/427) to upload them, so you can use them in wiki
+To update wiki please submit a PR to wiki directory content of current branch
