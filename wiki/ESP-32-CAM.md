@@ -1,6 +1,6 @@
 # Wiring ESP32 CAM
 Once the board is programmed, the wiring to the printer board should be like this:
-![ESP32 CAM connection diagram](https://user-images.githubusercontent.com/62440824/77234429-a7af8180-6bae-11ea-9121-d215436c38a2.png)
+![ESP32 CAM connection diagram](https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/esp/ESPcam32.png)
 
 
 note: this is not the only way to connect the board.

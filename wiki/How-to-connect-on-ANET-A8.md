@@ -52,5 +52,5 @@ For more Info check http://lokspace.eu/anet-a8-wifi-mod/
 
 # For connecting version 1.7 Anet boards
 Unlike older boards this board does not require you to remove any resistors. 
-You will have to solder two wires from number 9 and number 10 its recommender to connect these to pin 1 and 2 of J3 connector. ![board](https://user-images.githubusercontent.com/28871862/79461201-78f0c380-8013-11ea-83f7-db038b93a7cc.jpg)
+You will have to solder two wires from number 9 and number 10 its recommender to connect these to pin 1 and 2 of J3 connector. ![board](https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/Anet/board.jpg)
  
