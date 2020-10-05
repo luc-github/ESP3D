@@ -39,7 +39,14 @@
 #define ESP3D_SERIAL Serial2
 #endif //USE_SERIAL_2
 
+#define ESP3DSERIAL_RUNNING_PRIORITY 1
+
+#define ESP3DSERIAL_RUNNING_CORE 1
+
 SerialService serial_service;
+#ifdef ARDUINO_ARCH_ESP32
+TaskHandle_t _hserialtask= nullptr;
+#endif //ARDUINO_ARCH_ESP32 
 
 const long SupportedBaudList[] = {9600, 19200, 38400, 57600, 74880, 115200, 230400, 250000, 500000, 921600};
 
@@ -57,6 +64,18 @@ SerialService::~SerialService()
     end();
 }
 
+//dedicated serial task
+#ifdef ARDUINO_ARCH_ESP32
+void ESP3DSerialTaskfn( void * parameter )
+{
+    for(;;) {
+        serial_service.process();
+        Hal::wait(0);  // Yield to other tasks
+    }
+    vTaskDelete( NULL );
+}
+#endif //ARDUINO_ARCH_ESP32 
+
 //Setup Serial
 bool SerialService::begin()
 {
@@ -69,6 +88,7 @@ bool SerialService::begin()
         if ( !is_valid_baudrate(br)) {
             br = Settings_ESP3D::get_default_int32_value(ESP_BAUD_RATE);
         }
+        ESP3D_SERIAL.setRxBufferSize (SERIAL_RX_BUFFER_SIZE);
 #ifdef ARDUINO_ARCH_ESP8266
         ESP3D_SERIAL.begin(br, SERIAL_8N1, SERIAL_FULL, (ESP_TX_PIN == -1)?1:ESP_TX_PIN);
 #if ESP_RX_PIN != -1
@@ -77,9 +97,24 @@ bool SerialService::begin()
 #endif //ARDUINO_ARCH_ESP8266
 #ifdef ARDUINO_ARCH_ESP32
         ESP3D_SERIAL.begin (br, ESP_SERIAL_PARAM, ESP_RX_PIN, ESP_TX_PIN);
+        //create serial task once
+        if (_hserialtask == nullptr) {
+            xTaskCreatePinnedToCore(
+                ESP3DSerialTaskfn, /* Task function. */
+                "ESP3D Serial Task", /* name of task. */
+                8096, /* Stack size of task */
+                NULL, /* parameter of the task */
+                ESP3DSERIAL_RUNNING_PRIORITY, /* priority of the task */
+                &_hserialtask, /* Task handle to keep track of created task */
+                ESP3DSERIAL_RUNNING_CORE    /* Core to run the task */
+            );
+        }
+        if (_hserialtask == nullptr) {
+            log_esp3d("Serial Task creation failed");
+            return false;
+        }
 #endif //ARDUINO_ARCH_ESP32
     }
-    ESP3D_SERIAL.setRxBufferSize (SERIAL_RX_BUFFER_SIZE);
     _started = true;
     return true;
 }
@@ -117,7 +152,7 @@ bool SerialService::is_valid_baudrate(long br)
 }
 
 //Function which could be called in other loop
-void SerialService::handle()
+void SerialService::process()
 {
     //Do we have some data waiting
     size_t len = available();
@@ -139,6 +174,16 @@ void SerialService::handle()
     if (((millis() - _lastflush) > TIMEOUT_SERIAL_FLUSH) && (_buffer_size > 0)) {
         flushbuffer();
     }
+}
+
+//Function which could be called in other loop
+void SerialService::handle()
+{
+//for ESP32 there is dedicated task for it
+#ifdef ARDUINO_ARCH_ESP8266
+    process();
+#endif //ARDUINO_ARCH_ESP8266
+
 }
 
 void SerialService::flushbuffer()

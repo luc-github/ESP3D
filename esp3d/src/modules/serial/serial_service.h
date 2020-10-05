@@ -33,6 +33,7 @@ public:
     bool begin();
     bool end();
     void handle();
+    void process();
     bool reset();
     long baudRate();
     const long * get_baudratelist(uint8_t * count);
