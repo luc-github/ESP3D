@@ -29,11 +29,17 @@ If applicable, add screenshots to help explain your problem.
 - Web UI Version:[e.g 2.1b14]  
 - Wifi mode:[e.g. STA]  
 - Flash method: [Arduino Ide / PlatformIO]
-- Any change done in FW  
+- Any change done in FW
+ 
+ tips: to get ESP3D informations type `[ESP420]plain`    
+       to get WebUI version check your menu header    
+
 
 **Target Firmware:**
  - Name: [e.g. Marlin]
  - Version [e.g. 2.0]
+ 
+ tip: to get firmware info type `M115` in console    
 
 **Board used (please complete the following information):**
  - MCU: [e.g. ESP32] 
