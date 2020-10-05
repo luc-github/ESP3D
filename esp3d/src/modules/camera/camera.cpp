@@ -375,7 +375,7 @@ bool Camera::begin(bool forceinit)
         log_esp3d("Cannot access camera sensor");
     }
     if (NetConfig::started() && (NetConfig::getMode()!= ESP_BT)) {
-        ESP3DOutput output(ESP_SERIAL_CLIENT);
+        ESP3DOutput output(ESP_ALL_CLIENTS);
         httpd_config_t httpdconfig = HTTPD_DEFAULT_CONFIG();
         httpdconfig.close_fn =&disconnected_uri;
         httpd_uri_t stream_uri = {
