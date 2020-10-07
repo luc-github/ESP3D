@@ -36,7 +36,7 @@
 void HTTP_Server:: handle_not_found()
 {
     if (AuthenticationService::authenticated_level() == LEVEL_GUEST) {
-        _webserver->sendContent("HTTP/1.1 301 OK\r\nLocation: /\r\nCache-Control: no-cache\r\n\r\n");
+        _webserver->send (401, "text/plain", "Wrong authentication!");
         return;
     }
     String path = _webserver->urlDecode(_webserver->uri());
