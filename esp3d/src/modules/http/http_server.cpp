@@ -146,7 +146,7 @@ bool HTTP_Server::StreamSDFile(const char* filename, const char * contentType)
 }
 #endif //SD_DEVICE
 
-void HTTP_Server::pushError(int code, const char * st, uint8_t web_error, uint16_t timeout)
+void HTTP_Server::pushError(int code, const char * st, uint16_t web_error, uint16_t timeout)
 {
     if (websocket_terminal_server.started() && st) {
         String s = "ERROR:" + String(code) + ":";
