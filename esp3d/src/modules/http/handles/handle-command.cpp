@@ -34,6 +34,10 @@
 void HTTP_Server::handle_web_command ()
 {
     level_authenticate_type auth_level = AuthenticationService::authenticated_level();
+    if (auth_level == LEVEL_GUEST) {
+        _webserver->send (401, "text/plain", "Wrong authentication!");
+        return;
+    }
     //log_esp3d("Authentication = %d", auth_level);
     String cmd = "";
     if (_webserver->hasArg ("cmd")) {
@@ -43,7 +47,10 @@ void HTTP_Server::handle_web_command ()
             cmd+="\n";    //need to validate command
         }
         esp3d_commands.process((uint8_t*)cmd.c_str(), cmd.length(), &output, auth_level);
-    } else {
+    } else if (_webserver->hasArg ("ping")) {
+        _webserver->send (200);
+        }
+    else {
         _webserver->send (400, "text/plain", "Invalid command");
     }
     return;

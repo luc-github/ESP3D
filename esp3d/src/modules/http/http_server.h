@@ -57,7 +57,7 @@ public:
         return _port;
     }
 private:
-    static void pushError(int code, const char * st, bool web_error = 500, uint16_t timeout = 1000);
+    static void pushError(int code, const char * st, uint8_t web_error = 500, uint16_t timeout = 1000);
     static void cancelUpload();
     static bool _started;
     static WEBSERVER * _webserver;
