@@ -269,9 +269,6 @@ bool AuthenticationService::ClearAuthIP (IPAddress ip, const char * sessionID)
 auth_ip * AuthenticationService::GetAuth (IPAddress ip, const char * sessionID)
 {
     auth_ip * current = _head;
-    //auth_ip * previous = NULL;
-    //get time
-    //uint32_t now = millis();
     while (current) {
         if (ip == current->ip) {
             if (strcmp (sessionID, current->sessionID) == 0) {
@@ -283,6 +280,28 @@ auth_ip * AuthenticationService::GetAuth (IPAddress ip, const char * sessionID)
         current = current->_next;
     }
     return NULL;
+}
+
+//Get time left for specific session
+uint32_t AuthenticationService::getSessionRemaining(const char * sessionID)
+{
+    auth_ip * current = _head;
+    if ((sessionID == nullptr) || (strlen(sessionID) == 0)) {
+        return 0;
+    }
+    while (current) {
+        if (strcmp (sessionID, current->sessionID) == 0) {
+            //found
+            uint32_t now = millis();
+            if ((now - current->last_time) > _sessionTimeout) {
+                return 0;
+            }
+            return _sessionTimeout - (now-current->last_time);
+        }
+        //previous = current;
+        current = current->_next;
+    }
+    return 0;
 }
 
 //Review all IP to reset timers

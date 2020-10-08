@@ -69,6 +69,7 @@ public:
 #if defined (HTTP_FEATURE)
     static uint32_t setSessionTimeout(uint32_t timeout);
     static uint32_t getSessionTimeout();
+    static uint32_t getSessionRemaining(const char * sessionID);
     static char * create_session_ID();
     static bool ClearCurrentSession ();
     static bool ClearAllSessions ();

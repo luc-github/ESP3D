@@ -49,8 +49,7 @@ void HTTP_Server::handle_web_command ()
         esp3d_commands.process((uint8_t*)cmd.c_str(), cmd.length(), &output, auth_level);
     } else if (_webserver->hasArg ("ping")) {
         _webserver->send (200);
-        }
-    else {
+    } else {
         _webserver->send (400, "text/plain", "Invalid command");
     }
     return;

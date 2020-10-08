@@ -29,6 +29,7 @@
 #include "../../core/settings_esp3d.h"
 #include "../../core/esp3doutput.h"
 #include "../../core/commands.h"
+#include "../authentication/authentication_service.h"
 
 WebSocket_Server websocket_terminal_server;
 #if defined(WS_DATA_FEATURE)
@@ -89,23 +90,35 @@ void handle_Websocket_Terminal_Event(uint8_t num, uint8_t type, uint8_t * payloa
 {
     (void)payload;
     (void)length;
+    String msg;
     switch(type) {
     case WStype_DISCONNECTED:
         log_esp3d("[%u] Socket Disconnected port %d!", num,websocket_terminal_server.port());
         break;
     case WStype_CONNECTED: {
-        String s = "currentID:" + String(num);
+        msg = "currentID:" + String(num);
         // send message to client
         websocket_terminal_server.set_currentID(num);
-        websocket_terminal_server.pushMSG(num, s.c_str());
-        s = "activeID:" + String(num);
-        websocket_terminal_server.pushMSG(s.c_str());
+        websocket_terminal_server.pushMSG(num, msg.c_str());
+        msg = "activeID:" + String(num);
+        websocket_terminal_server.pushMSG(msg.c_str());
         log_esp3d("[%u] Socket connected port %d", num,websocket_terminal_server.port());
     }
     break;
     case WStype_TEXT:
-        //we do not expect any input
-        //log_esp3d("[IGNORED][%u] get Text: %s  port %d", num, payload, websocket_terminal_server.port());
+#if defined (AUTHENTICATION_FEATURE)
+        //we do not expect any input but ping to get session timeout if any
+        if (AuthenticationService::getSessionTimeout() != 0) {
+            msg = (const char*)payload;
+            if (msg.startsWith("PING:")) {
+                String session = msg.substring(5);
+                String response = "PING:"+String(AuthenticationService::getSessionRemaining(session.c_str()));
+                response += ":"+String(AuthenticationService::getSessionTimeout());
+                websocket_terminal_server.pushMSG(num, response.c_str());
+            }
+        }
+#endif //AUTHENTICATION_FEATURE 
+        log_esp3d("[IGNORED][%u] get Text: %s  port %d", num, payload, websocket_terminal_server.port());
         break;
     case WStype_BIN:
         //we do not expect any input
