@@ -77,7 +77,7 @@
 #define ESP_TIME_SERVER3        722     //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese
 #define ESP_SD_DEVICE_TYPE      851     //1  bytes = flag
 #define ESP_SD_MOUNT            852     //1  bytes = flag
-#define ESP_FREE_BYTE           853     //1  bytes = flag
+#define ESP_SESSION_TIMEOUT     853     //1  bytes = flag
 #define ESP_DIRECT_SD_CHECK     854     //1  bytes = flag
 #define ESP_SD_CHECK_UPDATE_AT_BOOT   855//1  bytes = flag
 #define ESP_NOTIFICATION_SETTINGS 856   //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese

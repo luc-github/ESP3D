@@ -76,6 +76,11 @@ bool Commands::ESP401(const char* cmd_params, level_authenticate_type auth_type,
                 case ESP_TARGET_FW:
                     Settings_ESP3D::GetFirmwareTarget(true);
                     break;
+#ifdef AUTHENTICATION_FEATURE
+                case ESP_SESSION_TIMEOUT:
+                    AuthenticationService::setSessionTimeout(1000*60*sval.toInt());
+                    break;
+#endif //AUTHENTICATION_FEATURE
 #ifdef SD_DEVICE
                 case ESP_SD_DEVICE_TYPE:
                     Settings_ESP3D::GetSDDevice(true);

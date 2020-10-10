@@ -118,6 +118,8 @@ bool AuthenticationService::begin(Authwebserver * webserver)
 #if defined (HTTP_FEATURE)
     _webserver = webserver;
 #endif //HTTP_FEATURE
+    //value is in ms but storage is in min
+    _sessionTimeout = 1000 * 60 * Settings_ESP3D::read_byte(ESP_SESSION_TIMEOUT);
     return true;
 }
 void AuthenticationService::end()

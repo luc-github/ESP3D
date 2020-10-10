@@ -135,6 +135,7 @@
 #define DEFAULT_BOOT_DELAY      10000L
 #define DEFAULT_CALIBRATION_VALUE 0
 #define DEFAULT_CALIBRATION_DONE 0
+#define DEFAULT_SESSION_TIMEOUT 3
 
 #ifdef WIFI_FEATURE
 //default string values
@@ -235,6 +236,11 @@ uint8_t Settings_ESP3D::get_default_byte_value(int pos)
     case ESP_RADIO_MODE:
         res = DEFAULT_ESP_RADIO_MODE;
         break;
+#ifdef AUTHENTICATION_FEATURE
+    case ESP_SESSION_TIMEOUT:
+        res = DEFAULT_SESSION_TIMEOUT;
+        break;
+#endif //AUTHENTICATION_FEATURE
 #ifdef TIMESTAMP_FEATURE
     case ESP_INTERNET_TIME:
         res = DEFAULT_INTERNET_TIME;
@@ -1143,6 +1149,8 @@ bool Settings_ESP3D::reset()
     Settings_ESP3D::write_string(ESP_ADMIN_PWD,Settings_ESP3D::get_default_string_value(ESP_ADMIN_PWD).c_str());
     //User password
     Settings_ESP3D::write_string(ESP_USER_PWD,Settings_ESP3D::get_default_string_value(ESP_USER_PWD).c_str());
+    //Session timeout
+    Settings_ESP3D::write_byte(ESP_SESSION_TIMEOUT,Settings_ESP3D::get_default_byte_value(ESP_SESSION_TIMEOUT));
 #endif //AUTHENTICATION_FEATURE
     //Target FW
     Settings_ESP3D::write_byte(ESP_TARGET_FW,Settings_ESP3D::get_default_byte_value(ESP_TARGET_FW));
