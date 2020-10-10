@@ -87,8 +87,8 @@ static const char _ssdp_schema_template[] PROGMEM =
     "<manufacturerURL>%s</manufacturerURL>"
     "<UDN>uuid:%s</UDN>"
     "<serviceList>%s</serviceList>"
-    "</device>"
     "<iconList>%s</iconList>"
+    "</device>"
     "</root>\r\n"
     "\r\n";
 
@@ -97,20 +97,20 @@ struct SSDPTimer {
 };
 
 SSDPClass::SSDPClass() :
-    _server(0),
-    _timer(0),
-    _port(80),
-    _ttl(SSDP_MULTICAST_TTL),
-    _interval(SSDP_INTERVAL),
     _replySlots{NULL},
-    _respondToAddr{0,0,0,0},
-    _respondToPort(0),
-    _pending(false),
-    _stmatch(false),
-    _delay(0),
-    _process_time(0),
-    _notify_time(0)
+    _respondToAddr{0,0,0,0}
 {
+    _server = nullptr;
+    _timer = nullptr;
+    _port = 80;
+    _ttl = SSDP_MULTICAST_TTL;
+    _interval = SSDP_INTERVAL;
+    _respondToPort = 0;
+    _pending = false;
+    _stmatch = false;
+    _delay=0;
+    _process_time = 0;
+    _notify_time = 0;
     _uuid[0] = '\0';
     _usn_suffix[0] = '\0';
     _respondType[0] = '\0';

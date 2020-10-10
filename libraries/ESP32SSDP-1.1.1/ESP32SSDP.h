@@ -160,7 +160,7 @@ protected:
     WiFiUDP *_server;
     SSDPTimer* _timer;
     uint16_t _port;
-    uint8_t _ttl;
+    uint32_t _ttl;
     uint32_t _interval;
 
     ssdp_reply_slot_item_t *_replySlots[SSDP_MAX_REPLY_SLOTS];
