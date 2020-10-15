@@ -42,6 +42,7 @@ static const char* _STREAM_CONTENT_TYPE = "multipart/x-mixed-replace;boundary=" 
 static const char* _STREAM_BOUNDARY = "\r\n--" PART_BOUNDARY "\r\n";
 static const char* _STREAM_PART = "Content-Type: image/jpeg\r\nContent-Length: %u\r\n\r\n";
 
+bool Camera::_initialised = false;
 httpd_handle_t stream_httpd = NULL;
 Camera esp3d_camera;
 
@@ -55,7 +56,7 @@ static void disconnected_uri(httpd_handle_t hd, int sockfd)
 static esp_err_t stream_handler(httpd_req_t *req)
 {
     log_esp3d("Camera stream reached");
-    if (!esp3d_camera.started()) {
+    if (!esp3d_camera.serverstarted()) {
         const char* resp = "Camera not started";
         log_esp3d("Camera not started");
         httpd_resp_send(req, resp, strlen(resp));
@@ -168,8 +169,8 @@ static esp_err_t stream_handler(httpd_req_t *req)
 
 Camera::Camera()
 {
+    _server_started = false;
     _started = false;
-    _initialised = false;
     _connected  = false;
 }
 
@@ -248,16 +249,12 @@ int Camera::command(const char * param, const char * value)
     return res;
 }
 
-bool Camera::initHardware(bool forceinit)
+bool Camera::initHardware()
 {
-    if (forceinit) {
-        _initialised = false;
-    }
-    if (_initialised) {
-        return _initialised;
-    }
+    _initialised = false;
     log_esp3d("Disable brown out");
     WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0); //disable brownout detector
+    stopHardware();
     camera_config_t config;
     config.ledc_channel = LEDC_CHANNEL_0;
     config.ledc_timer = LEDC_TIMER_0;
@@ -286,9 +283,6 @@ bool Camera::initHardware(bool forceinit)
         _initialised = false;
         log_esp3d("psram is not enabled");
         return false;
-    }
-    if (!stopHardware()) {
-        log_esp3d("Stop camera failed");
     }
     log_esp3d("Init camera");
 #if CAM_PULLUP1 != -1
@@ -319,7 +313,6 @@ bool Camera::initHardware(bool forceinit)
     esp_err_t err = esp_camera_init(&config);
     if (err != ESP_OK) {
         log_esp3d("Camera init failed with error 0x%x", err);
-        _initialised = false;
     } else {
         _initialised = true;
     }
@@ -328,51 +321,29 @@ bool Camera::initHardware(bool forceinit)
 
 bool Camera::stopHardware()
 {
-    end();
-    _initialised = false;
-    log_esp3d("deinit camera");
-    esp_err_t err = esp_camera_deinit();
-    if(err == ESP_OK) {
-        //seems sometimes i2c install failed when doing camera init so let's remove if already installed
-        if(i2c_driver_delete(I2C_NUM_1)!= ESP_OK) {
-            log_esp3d("I2C 1 delete failed");
-        }
-        return true;
-    } else {
-        log_esp3d("Camera deinit failed with error 0x%x", err);
-        return false;
-    }
+    return true;
+    //no need to stop as it is done once at boot
+    /* _initialised = false;
+     log_esp3d("deinit camera");
+     esp_err_t err = esp_camera_deinit();
+     if(err == ESP_OK) {
+         //seems sometimes i2c install failed when doing camera init so let's remove if already installed
+         if(i2c_driver_delete(I2C_NUM_1)!= ESP_OK) {
+             log_esp3d("I2C 1 delete failed");
+         }
+         return true;
+     } else {
+         log_esp3d("Camera deinit failed with error 0x%x", err);
+         return false;
+     }*/
 }
 
-//need to be call by device and by network
-bool Camera::begin(bool forceinit)
+bool Camera::startStreamServer()
 {
-    end();
-    log_esp3d("Begin camera");
-    if (!initHardware(forceinit) ) {
-        log_esp3d("Init hardware failed");
+    stopStreamServer();
+    if (!_initialised) {
+        log_esp3d("Camera not initialised");
         return false;
-    }
-    delay(1000);
-    log_esp3d("Init camera sensor settings");
-    sensor_t * s = esp_camera_sensor_get();
-    if (s != nullptr) {
-        //initial sensors are flipped vertically and colors are a bit saturated
-        if (s->id.PID == OV3660_PID) {
-            s->set_brightness(s, 1);//up the blightness just a bit
-            s->set_saturation(s, -2);//lower the saturation
-        }
-
-        s->set_framesize(s, DEFAULT_FRAME_SIZE);
-
-#if defined(CAMERA_DEVICE_FLIP_HORIZONTALY)
-        s->set_hmirror(s, 1);
-#endif //CAMERA_DEVICE_FLIP_HORIZONTALY
-#if defined(CAMERA_DEVICE_FLIP_VERTICALY)
-        s->set_vflip(s, 1);
-#endif //CAMERA_DEVICE_FLIP_VERTICALY
-    } else {
-        log_esp3d("Cannot access camera sensor");
     }
     if (NetConfig::started() && (NetConfig::getMode()!= ESP_BT)) {
         ESP3DOutput output(ESP_ALL_CLIENTS);
@@ -401,7 +372,7 @@ bool Camera::begin(bool forceinit)
             output.printERROR("Starting camera server failed");
             return false;
         }
-        _started = true;
+        _server_started = true;
     }
     for (int j = 0; j < 5; j++) {
         camera_fb_t * fb = esp_camera_fb_get();  // start the camera ... warm it up
@@ -411,14 +382,13 @@ bool Camera::begin(bool forceinit)
         esp_camera_fb_return(fb);
         delay(20);
     }
-    return _started;
+    return _server_started;
 }
 
-void Camera::end()
+bool Camera::stopStreamServer()
 {
-    if (_started) {
-        _started = false;
-        _connected  = false;
+    _connected = false;
+    if (_server_started) {
         log_esp3d("unregister /stream");
         if (ESP_OK != httpd_unregister_uri(stream_httpd, "/stream")) {
             log_esp3d("Error unregistering /stream");
@@ -427,6 +397,49 @@ void Camera::end()
         if (ESP_OK != httpd_stop(stream_httpd)) {
             log_esp3d("Error stopping stream server");
         }
+        _server_started = false;
+    }
+    return true;
+}
+
+//need to be call by device and by network
+bool Camera::begin()
+{
+    end();
+    log_esp3d("Begin camera");
+    if (!_initialised) {
+        log_esp3d("Init hardware not done");
+        return false;
+    }
+    log_esp3d("Init camera sensor settings");
+    sensor_t * s = esp_camera_sensor_get();
+    if (s != nullptr) {
+        //initial sensors are flipped vertically and colors are a bit saturated
+        if (s->id.PID == OV3660_PID) {
+            s->set_brightness(s, 1);//up the blightness just a bit
+            s->set_saturation(s, -2);//lower the saturation
+        }
+
+        s->set_framesize(s, DEFAULT_FRAME_SIZE);
+
+#if defined(CAMERA_DEVICE_FLIP_HORIZONTALY)
+        s->set_hmirror(s, 1);
+#endif //CAMERA_DEVICE_FLIP_HORIZONTALY
+#if defined(CAMERA_DEVICE_FLIP_VERTICALY)
+        s->set_vflip(s, 1);
+#endif //CAMERA_DEVICE_FLIP_VERTICALY
+    } else {
+        log_esp3d("Cannot access camera sensor");
+    }
+    _started = startStreamServer();
+    return _started;
+}
+
+void Camera::end()
+{
+    if (_started) {
+        _started = false;
+        stopStreamServer();
     }
 }
 

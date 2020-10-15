@@ -28,9 +28,12 @@ class Camera
 public:
     Camera();
     ~Camera();
-    bool initHardware(bool forceinit = false);
-    bool begin(bool forceinit = false);
+    bool begin();
     void end();
+    bool initHardware();
+    bool stopHardware();
+    bool startStreamServer();
+    bool stopStreamServer();
     void handle();
     int command(const char * param, const char * value);
     uint8_t GetModel();
@@ -39,11 +42,10 @@ public:
     {
         return _started;
     }
-    bool initialised()
+    bool serverstarted()
     {
-        return _initialised;
+        return _server_started;
     }
-    bool stopHardware();
     void connect(bool status)
     {
         _connected = status;
@@ -57,7 +59,8 @@ public:
         return _port;
     }
 private:
-    bool _initialised;
+    static bool _initialised;
+    bool _server_started;
     bool _started;
     bool _connected;
     uint16_t _port;

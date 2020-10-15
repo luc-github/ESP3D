@@ -42,7 +42,7 @@ bool Commands::ESP170(const char* cmd_params, level_authenticate_type auth_type,
     parameter = get_param (cmd_params, "");
     //get
     if (parameter.length() == 0) {
-        output->printMSG(!esp3d_camera.started()?"Camera OFF":"Camera ON");
+        output->printMSG(!esp3d_camera.serverstarted()?"Camera OFF":"Camera ON");
     } else { //set
 #ifdef AUTHENTICATION_FEATURE
         if (auth_type != LEVEL_ADMIN) {
@@ -56,11 +56,14 @@ bool Commands::ESP170(const char* cmd_params, level_authenticate_type auth_type,
             return false;
         } else {
             if (parameter == "ON") {
-                esp3d_camera.begin();
+                if(esp3d_camera.startStreamServer()) {
+                    output->printMSG ("ok");
+                }
             } else {
-                esp3d_camera.stopHardware();
+                if(esp3d_camera.stopStreamServer()) {
+                    output->printMSG ("ok");
+                }
             }
-            output->printMSG ("ok");
         }
     }
     return response;
