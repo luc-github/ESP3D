@@ -150,6 +150,15 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         output->print (": ");
     }
     output->print(ESP_FileSystem::formatBytes (ESP.getFreeHeap()).c_str());
+    
+    #ifdef ARDUINO_ARCH_ESP32
+#ifdef BOARD_HAS_PSRAM
+    output->print(" - PSRAM:");
+    output->print(ESP_FileSystem::formatBytes (ESP.getFreePsram()).c_str());
+
+#endif //BOARD_HAS_PSRAM
+#endif //ARDUINO_ARCH_ESP32
+    
     if (!plain) {
         output->print ("\"}");
     } else {

@@ -157,7 +157,7 @@
 //FS_FLASH       mount Flash FS
 //FS_SD          mount SD FS
 //FS_USBDISK     mount USB disk FS
-//#define FTP_FEATURE  FS_ROOT
+#define FTP_FEATURE  FS_ROOT
 
 //DIRECT_PIN_FEATURE: allow to access pin using ESP201 command
 #define DIRECT_PIN_FEATURE
@@ -209,6 +209,13 @@
 //#define CAMERA_DEVICE_FLIP_VERTICALY  //comment to disable
 //#define CAMERA_DEVICE_FLIP_HORIZONTALY//comment to disable
 #define CUSTOM_CAMERA_NAME "ESP32-CAM"
+
+////////////////////////////////////////////////
+//Warning until fix is found
+#if defined(CAMERA_DEVICE) && defined(FTP_FEATURE)
+#warning currently Camera and FTP server do not work together, disabling FTP SERVER
+#undef FTP_FEATURE
+#endif
 
 //Allow remote access by enabling cross origin access
 //check https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
