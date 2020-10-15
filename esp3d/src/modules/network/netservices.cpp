@@ -268,7 +268,7 @@ bool NetServices::begin()
 #ifdef CAMERA_DEVICE
     if (!esp3d_camera.begin()) {
         output.printMSG("Failed start camera streaming server");
-    }
+    } else esp3d_camera.stopHardware();
 #endif //CAMERA_DEVICE
     if (!res) {
         end();

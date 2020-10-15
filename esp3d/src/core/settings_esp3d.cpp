@@ -1240,7 +1240,11 @@ String Settings_ESP3D::IPtoString(uint32_t ip_int)
 const char * Settings_ESP3D::TargetBoard()
 {
 #ifdef ARDUINO_ARCH_ESP32
+#ifdef BOARD_HAS_PSRAM
+    return "ESP32 (PSRAM)";
+#else
     return "ESP32";
+#endif //BOARD_HAS_PSRAM
 #endif //ARDUINO_ARCH_ESP32
 #ifdef ARDUINO_ARCH_ESP8266
     return "ESP82XX";
