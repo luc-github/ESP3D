@@ -120,6 +120,9 @@ void DevicesServices::end()
 void DevicesServices::handle()
 {
     if (_started) {
+#ifdef CAMERA_DEVICE
+        esp3d_camera.handle();
+#endif //CAMERA_DEVICE
 #ifdef DISPLAY_DEVICE
         esp3d_display.handle();
 #endif //DISPLAY_DEVICE

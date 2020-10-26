@@ -205,24 +205,20 @@
 //CAMERA_MODEL_M5STACK_WIDE     3
 //CAMERA_MODEL_AI_THINKER       4 e.g. used by ESP32-CAM
 //CAMERA_MODEL_WROVER_KIT       5
-//#define CAMERA_DEVICE CAMERA_MODEL_AI_THINKER
+#define CAMERA_DEVICE CAMERA_MODEL_AI_THINKER
 //#define CAMERA_DEVICE_FLIP_VERTICALY  //comment to disable
 //#define CAMERA_DEVICE_FLIP_HORIZONTALY//comment to disable
 #define CUSTOM_CAMERA_NAME "ESP32-CAM"
 
-////////////////////////////////////////////////
-//Warning until fix is found
-#if defined(CAMERA_DEVICE) && defined(FTP_FEATURE)
-#warning currently Camera and FTP server do not work together, disabling FTP SERVER
-#undef FTP_FEATURE
-#endif
+#define CAMERA_INDEPENDANT_TASK
+
 
 //Allow remote access by enabling cross origin access
 //check https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
 //this should be enabled only in specific cases
 //like show the camera in web page different than device web server
 //if you do not know what is that then better left it commented
-//#define ESP_ACCESS_CONTROL_ALLOW_ORIGIN
+#define ESP_ACCESS_CONTROL_ALLOW_ORIGIN
 
 //ESP_GCODE_HOST_FEATURE : allow to send GCODE with ack
 #define ESP_GCODE_HOST_FEATURE
@@ -273,6 +269,9 @@
 
 //Serial rx buffer size is 256 but can be extended
 #define SERIAL_RX_BUFFER_SIZE 512
+
+//Serial need speed up on esp32
+#define SERIAL_INDEPENDANT_TASK
 
 /************************************
  *
