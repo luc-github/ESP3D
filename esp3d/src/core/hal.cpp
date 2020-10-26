@@ -220,14 +220,15 @@ void Hal::wdtFeed()
 //wait function
 void Hal::wait (uint32_t milliseconds)
 {
-#if defined(ASYNCWEBSERVER) || defined(ARDUINO_ARCH_ESP32)
+#if defined(ASYNCWEBSERVER)
     uint32_t timeout = millis();
     while ( (millis() - timeout) < milliseconds) {
         wdtFeed();
     }
-#else // !(ASYNCWEBSERVER + ARDUINO_ARCH_ESP32)
+#else // !(ASYNCWEBSERVER 
+    wdtFeed();
     delay(milliseconds);
-#endif // !ASYNCWEBSERVER & !ARDUINO_ARCH_ESP32
+#endif // !ASYNCWEBSERVER
 }
 
 uint16_t Hal::getChipID()
