@@ -389,16 +389,11 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
         break;
 #endif //WS_DATA_FEATURE
 #ifdef CAMERA_DEVICE
-    //Set carmera server state which can be ON, OFF
-    //[ESP170]<state>pwd=<admin password>
+    //Get/Set Camera command value / list all values in JSON/plain
+    //[ESP170]label=<value>pwd=<admin password>
+    //label can be: light/framesize/quality/contrast/brightness/saturation/gainceiling/colorbar/awb/agc/aec/hmirror/vflip/awb_gain/agc_gain/aec_value/aec2/cw/bpc/wpc/raw_gma/lenc/special_effect/wb_mode/ae_level
     case 170:
         response = ESP170(cmd_params, auth_type, output);
-        break;
-    case 171:
-        response = ESP171(cmd_params, auth_type, output);
-        break;
-    case 172:
-        response = ESP172(cmd_params, auth_type, output);
         break;
 #endif //CAMERA_DEVICE
 #ifdef FTP_FEATURE

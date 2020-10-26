@@ -65,11 +65,14 @@ void HTTP_Server::init_handlers()
     //web update
     _webserver->on ("/updatefw", HTTP_ANY, handleUpdate, WebUpdateUpload);
 #endif //WEB_UPDATE_FEATURE
+#ifdef CAMERA_DEVICE
+    _webserver->on("/snap", HTTP_GET, handle_snap);
+#endif //CAMERA_DEVICE
 #ifdef SSDP_FEATURE
     if(WiFi.getMode() != WIFI_AP) {
         _webserver->on("/description.xml", HTTP_GET, handle_SSDP);
     }
-#endif
+#endif //SSDP_FEATURE
 #ifdef CAPTIVE_PORTAL_FEATURE
     if(WiFi.getMode() == WIFI_AP) {
         _webserver->on ("/generate_204", HTTP_ANY,  handle_root);
@@ -77,7 +80,7 @@ void HTTP_Server::init_handlers()
         //do not forget the / at the end
         _webserver->on ("/fwlink/", HTTP_ANY, handle_root);
     }
-#endif
+#endif //CAPTIVE_PORTAL_FEATURE
 }
 
 bool HTTP_Server::StreamFSFile(const char* filename, const char * contentType)

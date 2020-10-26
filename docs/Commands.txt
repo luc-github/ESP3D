@@ -62,15 +62,9 @@ Note:
 * Get/Set WebSocket port 
 [ESP161]<port>pwd=<admin password>
 
-* Get/Set camera server state which can be ON, OFF, but not saved in EEPROM
-[ESP170]<state>pwd=<admin password>
-
-* Get/Set Camera port
-[ESP171]<port>pwd=<admin password>
-
 * Get/Set Camera command value / list all values in JSON/plain
 label can be: light/framesize/quality/contrast/brightness/saturation/gainceiling/colorbar/awb/agc/aec/hmirror/vflip/awb_gain/agc_gain/aec_value/aec2/cw/bpc/wpc/raw_gma/lenc/special_effect/wb_mode/ae_level
-[ESP172]<plain><label=value> pwd=<admin password>
+[ESP170]<plain><label=value> pwd=<admin password>
 
 * Get/Set Ftp state which can be ON, OFF, CLOSE
 [ESP180]<state>pwd=<admin password>
@@ -124,7 +118,7 @@ ESP_BAUD_RATE           112     //4  bytes = int
 ESP_NOTIFICATION_TYPE   116     //1 byte = flag
 ESP_CALIBRATION         117     //1 byte = flag
 ESP_AP_CHANNEL          118     //1 byte = flag
-ESP_BUZZER              119     //1 byte = flag 
+ESP_BUZZER              119     //1 byte = flag
 ESP_INTERNET_TIME       120     //1  byte = flag
 ESP_HTTP_PORT           121     //4  bytes = int
 ESP_TELNET_PORT         125     //4  bytes = int
@@ -143,27 +137,32 @@ ESP_HTTP_ON             328     //1 byte = flag
 ESP_TELNET_ON           329     //1 byte = flag
 ESP_WEBSOCKET_ON        330     //1 byte = flag
 ESP_SD_SPEED_DIV        331     //1 byte = flag
-ESP_NOTIFICATION_TOKEN1 332    //64 bytes 63+1 = string  ; warning does not support multibyte char like chinese
-ESP_NOTIFICATION_TOKEN2 396    //64 bytes 63+1 = string  ; warning does not support multibyte char like chinese
-ESP_SENSOR_TYPE         460//1  bytes = flag
-ESP_TARGET_FW           461 //1  bytes = flag
-ESP_TIMEZONE            462//1  bytes = flag
-ESP_TIME_IS_DST         463//1  bytes = flag
-ESP_TIME_SERVER1        464//129 bytes 128+1 = string  ; warning does not support multibyte char like chinese
-ESP_TIME_SERVER2        593 //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese
-ESP_TIME_SERVER3        722 //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese
-ESP_IS_DIRECT_SD        850//1  bytes = flag
-ESP_PRIMARY_SD          851//1  bytes = flag
-ESP_SECONDARY_SD        852//1  bytes = flag
-ESP_DIRECT_SD_CHECK     853//1  bytes = flag
-ESP_SD_CHECK_UPDATE_AT_BOOT   854//1  bytes = flag
-ESP_NOTIFICATION_SETTINGS 855//128 bytes 127+1 = string  ; warning does not support multibyte char like chinese
-ESP_CALIBRATION_1       983  //4  bytes = int
-ESP_CALIBRATION_2       987  //4  bytes = int
-ESP_CALIBRATION_3       991  //4  bytes = int 
-ESP_CALIBRATION_4       995  //4  bytes = int
-ESP_CALIBRATION_5       999  //4  bytes = int
-ESP_AUTO_NOTIFICATION   1004 //1 byte = flag
+ESP_NOTIFICATION_TOKEN1 332     //64 bytes 63+1 = string  ; warning does not support multibyte char like chinese
+ESP_NOTIFICATION_TOKEN2 396     //64 bytes 63+1 = string  ; warning does not support multibyte char like chinese
+ESP_SENSOR_TYPE         460     //1  bytes = flag
+ESP_TARGET_FW           461     //1  bytes = flag
+ESP_TIMEZONE            462     //1  bytes = flag
+ESP_TIME_IS_DST         463     //1  bytes = flag
+ESP_TIME_SERVER1        464     //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese
+ESP_TIME_SERVER2        593     //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese
+ESP_TIME_SERVER3        722     //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese
+ESP_SD_DEVICE_TYPE      851     //1  bytes = flag
+ESP_SD_MOUNT            852     //1  bytes = flag
+ESP_SESSION_TIMEOUT     853     //1  bytes = flag
+ESP_DIRECT_SD_CHECK     854     //1  bytes = flag
+ESP_SD_CHECK_UPDATE_AT_BOOT   855//1  bytes = flag
+ESP_NOTIFICATION_SETTINGS 856   //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese
+ESP_CALIBRATION_1       985     //4  bytes = int
+ESP_CALIBRATION_2       989     //4  bytes = int
+ESP_CALIBRATION_3       993     //4  bytes = int 
+ESP_CALIBRATION_4       997     //4  bytes = int
+ESP_CALIBRATION_5       1001     //4  bytes = int
+ESP_FREE_ENTRY          1005    //4  bytes = int
+ESP_FTP_CTRL_PORT       1009    //4  bytes = int
+ESP_FTP_DATA_ACTIVE_PORT       1013    //4  bytes = int
+ESP_FTP_DATA_PASSIVE_PORT      1017    //4  bytes = int
+ESP_FTP_ON             1021     //1 byte = flag
+ESP_AUTO_NOTIFICATION   1022    //1 byte = flag
 
 *Get available AP list (limited to 30)
 output is JSON or plain text according parameter

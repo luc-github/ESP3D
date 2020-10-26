@@ -493,22 +493,6 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         } else {
             output->printLN("");
         }
-        //camera port
-        if (!plain) {
-            output->print (",{\"id\":\"");
-        }
-        output->print ("camera ports");
-        if (!plain) {
-            output->print ("\",\"value\":\"");
-        } else {
-            output->print (": ");
-        }
-        output->printf ("%d - %d",esp3d_camera.port(), esp3d_camera.port()+1);
-        if (!plain) {
-            output->print ("\"}");
-        } else {
-            output->printLN("");
-        }
     }
 #endif //CAMERA_DEVICE
 

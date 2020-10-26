@@ -66,8 +66,11 @@ private:
     static const char * getContentType (const char * filename);
     static const char * get_Splited_Value(String data, char separator, int index);
 #ifdef SSDP_FEATURE
-    static void handle_SSDP ();
+    static void handle_SSDP();
 #endif //SSDP_FEATURE
+#ifdef CAMERA_DEVICE
+    static void handle_snap();
+#endif //CAMERA_DEVICE
     static void init_handlers();
     static bool StreamFSFile(const char* filename, const char * contentType);
     static void handle_root();

@@ -129,7 +129,6 @@
 #define DEFAULT_FTP_ACTIVE_PORT 20L
 #define DEFAULT_FTP_PASSIVE_PORT 55600L
 #define DEFAULT_WEBSOCKET_PORT  8282L
-#define DEFAULT_CAMERA_PORT     9600L
 #define DEFAULT_TELNET_PORT     23L
 #define DEFAULT_SENSOR_INTERVAL 30000L
 #define DEFAULT_BOOT_DELAY      10000L
@@ -408,11 +407,6 @@ uint32_t Settings_ESP3D::get_default_int32_value(int pos)
         res = DEFAULT_WEBSOCKET_PORT;
         break;
 #endif //WS_DATA_FEATURE
-#ifdef CAMERA_DEVICE
-    case ESP_CAMERA_PORT:
-        res = DEFAULT_CAMERA_PORT;
-        break;
-#endif //CAMERA_DEVICE
 #if defined(SENSOR_DEVICE)
     case ESP_SENSOR_INTERVAL:
         res = DEFAULT_SENSOR_INTERVAL;
@@ -432,11 +426,6 @@ uint32_t Settings_ESP3D::get_max_int32_value(int pos)
     case ESP_BOOT_DELAY:
         res = MAX_BOOT_DELAY;
         break;
-#ifdef CAMERA_DEVICE
-    case ESP_CAMERA_PORT:
-        res = MAX_HTTP_PORT;
-        break;
-#endif //CAMERA_DEVICE
 #ifdef FTP_FEATURE
     case ESP_FTP_CTRL_PORT:
     case ESP_FTP_DATA_ACTIVE_PORT:
@@ -478,11 +467,6 @@ uint32_t Settings_ESP3D::get_min_int32_value(int pos)
     case ESP_BOOT_DELAY:
         res = MIN_BOOT_DELAY;
         break;
-#ifdef CAMERA_DEVICE
-    case ESP_CAMERA_PORT:
-        res =MIN_HTTP_PORT;
-        break;
-#endif //CAMERA_DEVICE
 #ifdef FTP_FEATURE
     case ESP_FTP_CTRL_PORT:
     case ESP_FTP_DATA_ACTIVE_PORT:
@@ -1132,11 +1116,6 @@ bool Settings_ESP3D::reset()
     //TELNET Port
     Settings_ESP3D::write_uint32 (ESP_TELNET_PORT, Settings_ESP3D::get_default_int32_value(ESP_TELNET_PORT));
 #endif //TELNET
-
-#ifdef CAMERA_DEVICE
-    //Camera Port
-    Settings_ESP3D::write_uint32 (ESP_CAMERA_PORT, Settings_ESP3D::get_default_int32_value(ESP_CAMERA_PORT));
-#endif //CAMERA_DEVICE
 
 #ifdef WS_DATA_FEATURE
     //Websocket On

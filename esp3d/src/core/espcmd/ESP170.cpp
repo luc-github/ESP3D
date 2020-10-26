@@ -1,5 +1,5 @@
 /*
- ESP170.cpp - ESP3D command class
+ ESP122.cpp - ESP3D command class
 
  Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -21,12 +21,15 @@
 #if defined (CAMERA_DEVICE)
 #include "../commands.h"
 #include "../esp3doutput.h"
+#include "esp_camera.h"
 #include "../settings_esp3d.h"
 #include "../../modules/authentication/authentication_service.h"
-#include "../../modules/network/netservices.h"
 #include "../../modules/camera/camera.h"
-//Set camera server state which can be ON, OFF
-//[ESP170]<state>pwd=<admin password>
+//Set Camera command value / list all values in JSON/plain
+//[ESP170]<plain><label=value> pwd=<admin password>
+//label can be: light/framesize/quality/contrast/brightness/saturation/gainceiling/colorbar
+//             /awb/agc/aec/hmirror/vflip/awb_gain/agc_gain/aec_value/aec2/cw/bpc/wpc
+//             /raw_gma/lenc/special_effect/wb_mode/ae_level
 bool Commands::ESP170(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
     bool response = true;
@@ -39,10 +42,447 @@ bool Commands::ESP170(const char* cmd_params, level_authenticate_type auth_type,
 #else
     (void)auth_type;
 #endif //AUTHENTICATION_FEATURE
+    if (!esp3d_camera.started()) {
+        output->printERROR("No camera initialized!", 401);
+        return false;
+    }
     parameter = get_param (cmd_params, "");
     //get
-    if (parameter.length() == 0) {
-        output->printMSG(!esp3d_camera.serverstarted()?"Camera OFF":"Camera ON");
+    bool plain = hastag (cmd_params, "plain");
+    if ((parameter.length() == 0) || plain) {
+        sensor_t * s = esp_camera_sensor_get();
+        if (s == nullptr) {
+            if (!plain) {
+                output->print ("{\"status\":\"error\"}");
+            } else {
+                output->printERROR("No camera initialized!", 401);
+            }
+            return false;
+        }
+        if (!plain) {
+            output->print ("{\"status\":\"ok\",");
+        }
+        //framesize
+        if (!plain) {
+            output->print ("\"");
+        }
+        output->print ("framesize");
+        if (!plain) {
+            output->print ("\":\"");
+        } else {
+            output->print (" : ");
+        }
+        output->print (s->status.framesize);
+        if (!plain) {
+            output->print ("\",");
+        } else {
+            output->printLN("");
+        }
+        //quality
+        if (!plain) {
+            output->print ("\"");
+        }
+        output->print ("quality");
+        if (!plain) {
+            output->print ("\":\"");
+        } else {
+            output->print (" : ");
+        }
+        output->print (s->status.quality);
+        if (!plain) {
+            output->print ("\",");
+        } else {
+            output->printLN("");
+        }
+        //brightness
+        if (!plain) {
+            output->print ("\"");
+        }
+        output->print ("brightness");
+        if (!plain) {
+            output->print ("\":\"");
+        } else {
+            output->print (" : ");
+        }
+        output->print (s->status.brightness);
+        if (!plain) {
+            output->print ("\",");
+        } else {
+            output->printLN("");
+        }
+        //contrast
+        if (!plain) {
+            output->print ("\"");
+        }
+        output->print ("contrast");
+        if (!plain) {
+            output->print ("\":\"");
+        } else {
+            output->print (" : ");
+        }
+        output->print (s->status.contrast);
+        if (!plain) {
+            output->print ("\",");
+        } else {
+            output->printLN("");
+        }
+        //saturation
+        if (!plain) {
+            output->print ("\"");
+        }
+        output->print ("saturation");
+        if (!plain) {
+            output->print ("\":\"");
+        } else {
+            output->print (" : ");
+        }
+        output->print (s->status.saturation);
+        if (!plain) {
+            output->print ("\",");
+        } else {
+            output->printLN("");
+        }
+        //sharpness
+        if (!plain) {
+            output->print ("\"");
+        }
+        output->print ("sharpness");
+        if (!plain) {
+            output->print ("\":\"");
+        } else {
+            output->print (" : ");
+        }
+        output->print (s->status.sharpness);
+        if (!plain) {
+            output->print ("\",");
+        } else {
+            output->printLN("");
+        }
+        //special_effect
+        if (!plain) {
+            output->print ("\"");
+        }
+        output->print ("special_effect");
+        if (!plain) {
+            output->print ("\":\"");
+        } else {
+            output->print (" : ");
+        }
+        output->print (s->status.special_effect);
+        if (!plain) {
+            output->print ("\",");
+        } else {
+            output->printLN("");
+        }
+        //wb_mode
+        if (!plain) {
+            output->print ("\"");
+        }
+        output->print ("wb_mode");
+        if (!plain) {
+            output->print ("\":\"");
+        } else {
+            output->print (" : ");
+        }
+        output->print (s->status.wb_mode);
+        if (!plain) {
+            output->print ("\",");
+        } else {
+            output->printLN("");
+        }
+        //awb
+        if (!plain) {
+            output->print ("\"");
+        }
+        output->print ("awb");
+        if (!plain) {
+            output->print ("\":\"");
+        } else {
+            output->print (" : ");
+        }
+        output->print (s->status.awb);
+        if (!plain) {
+            output->print ("\",");
+        } else {
+            output->printLN("");
+        }
+        //awb_gain
+        if (!plain) {
+            output->print ("\"");
+        }
+        output->print ("awb_gain");
+        if (!plain) {
+            output->print ("\":\"");
+        } else {
+            output->print (" : ");
+        }
+        output->print (s->status.awb_gain);
+        if (!plain) {
+            output->print ("\",");
+        } else {
+            output->printLN("");
+        }
+        //aec
+        if (!plain) {
+            output->print ("\"");
+        }
+        output->print ("aec");
+        if (!plain) {
+            output->print ("\":\"");
+        } else {
+            output->print (" : ");
+        }
+        output->print (s->status.aec);
+        if (!plain) {
+            output->print ("\",");
+        } else {
+            output->printLN("");
+        }
+        //aec2
+        if (!plain) {
+            output->print ("\"");
+        }
+        output->print ("aec2");
+        if (!plain) {
+            output->print ("\":\"");
+        } else {
+            output->print (" : ");
+        }
+        output->print (s->status.aec2);
+        if (!plain) {
+            output->print ("\",");
+        } else {
+            output->printLN("");
+        }
+        //ae_level
+        if (!plain) {
+            output->print ("\"");
+        }
+        output->print ("ae_level");
+        if (!plain) {
+            output->print ("\":\"");
+        } else {
+            output->print (" : ");
+        }
+        output->print (s->status.ae_level);
+        if (!plain) {
+            output->print ("\",");
+        } else {
+            output->printLN("");
+        }
+        //aec_value
+        if (!plain) {
+            output->print ("\"");
+        }
+        output->print ("aec_value");
+        if (!plain) {
+            output->print ("\":\"");
+        } else {
+            output->print (" : ");
+        }
+        output->print (s->status.aec_value);
+        if (!plain) {
+            output->print ("\",");
+        } else {
+            output->printLN("");
+        }
+        //agc
+        if (!plain) {
+            output->print ("\"");
+        }
+        output->print ("agc");
+        if (!plain) {
+            output->print ("\":\"");
+        } else {
+            output->print (" : ");
+        }
+        output->print (s->status.agc);
+        if (!plain) {
+            output->print ("\",");
+        } else {
+            output->printLN("");
+        }
+        //agc_gain
+        if (!plain) {
+            output->print ("\"");
+        }
+        output->print ("agc_gain");
+        if (!plain) {
+            output->print ("\":\"");
+        } else {
+            output->print (" : ");
+        }
+        output->print (s->status.agc_gain);
+        if (!plain) {
+            output->print ("\",");
+        } else {
+            output->printLN("");
+        }
+        //gainceiling
+        if (!plain) {
+            output->print ("\"");
+        }
+        output->print ("gainceiling");
+        if (!plain) {
+            output->print ("\":\"");
+        } else {
+            output->print (" : ");
+        }
+        output->print (s->status.gainceiling);
+        if (!plain) {
+            output->print ("\",");
+        } else {
+            output->printLN("");
+        }
+        //bpc
+        if (!plain) {
+            output->print ("\"");
+        }
+        output->print ("bpc");
+        if (!plain) {
+            output->print ("\":\"");
+        } else {
+            output->print (" : ");
+        }
+        output->print (s->status.bpc);
+        if (!plain) {
+            output->print ("\",");
+        } else {
+            output->printLN("");
+        }
+        //wpc
+        if (!plain) {
+            output->print ("\"");
+        }
+        output->print ("wpc");
+        if (!plain) {
+            output->print ("\":\"");
+        } else {
+            output->print (" : ");
+        }
+        output->print (s->status.wpc);
+        if (!plain) {
+            output->print ("\",");
+        } else {
+            output->printLN("");
+        }
+        //raw_gma
+        if (!plain) {
+            output->print ("\"");
+        }
+        output->print ("raw_gma");
+        if (!plain) {
+            output->print ("\":\"");
+        } else {
+            output->print (" : ");
+        }
+        output->print (s->status.raw_gma);
+        if (!plain) {
+            output->print ("\",");
+        } else {
+            output->printLN("");
+        }
+        //lenc
+        if (!plain) {
+            output->print ("\"");
+        }
+        output->print ("lenc");
+        if (!plain) {
+            output->print ("\":\"");
+        } else {
+            output->print (" : ");
+        }
+        output->print (s->status.lenc);
+        if (!plain) {
+            output->print ("\",");
+        } else {
+            output->printLN("");
+        }
+        //vflip
+        if (!plain) {
+            output->print ("\"");
+        }
+        output->print ("vflip");
+        if (!plain) {
+            output->print ("\":\"");
+        } else {
+            output->print (" : ");
+        }
+        output->print (s->status.vflip);
+        if (!plain) {
+            output->print ("\",");
+        } else {
+            output->printLN("");
+        }
+        //hmirror
+        if (!plain) {
+            output->print ("\"");
+        }
+        output->print ("hmirror");
+        if (!plain) {
+            output->print ("\":\"");
+        } else {
+            output->print (" : ");
+        }
+        output->print (s->status.hmirror);
+        if (!plain) {
+            output->print ("\",");
+        } else {
+            output->printLN("");
+        }
+        //dcw
+        if (!plain) {
+            output->print ("\"");
+        }
+        output->print ("dcw");
+        if (!plain) {
+            output->print ("\":\"");
+        } else {
+            output->print (" : ");
+        }
+        output->print (s->status.dcw);
+        if (!plain) {
+            output->print ("\",");
+        } else {
+            output->printLN("");
+        }
+        //colorbar
+        if (!plain) {
+            output->print ("\"");
+        }
+        output->print ("colorbar");
+        if (!plain) {
+            output->print ("\":\"");
+        } else {
+            output->print (" : ");
+        }
+        output->print (s->status.colorbar);
+        if (!plain) {
+            output->print ("\"");
+        } else {
+            output->printLN("");
+        }
+#if CAM_LED_PIN != -1
+        //light
+        if (!plain) {
+            output->print (",\"");
+        }
+        output->print ("light");
+        if (!plain) {
+            output->print ("\":\"");
+        } else {
+            output->print (" : ");
+        }
+        output->print (digitalRead(CAM_LED_PIN)==HIGH?1:0);
+        if (!plain) {
+            output->print ("\"");
+        } else {
+            output->printLN("");
+        }
+#endif //CAM_LED_PIN 
+        if (!plain) {
+            output->print ("}");
+        }
     } else { //set
 #ifdef AUTHENTICATION_FEATURE
         if (auth_type != LEVEL_ADMIN) {
@@ -50,23 +490,29 @@ bool Commands::ESP170(const char* cmd_params, level_authenticate_type auth_type,
             return false;
         }
 #endif //AUTHENTICATION_FEATURE
-        parameter.toUpperCase();
-        if (!((parameter == "ON") || (parameter == "OFF"))) {
-            output->printERROR("Only ON or OFF mode supported!");
+        String label = get_label (cmd_params, "=");
+        if (label.length()==0) {
+            output->printERROR("Missing command!");
             return false;
+        }
+        String labels = label+"=";
+        String value = get_param (cmd_params,labels.c_str());
+        if (value.length()==0) {
+            output->printERROR("Invalid value!");
+            return false;
+        }
+        int r = esp3d_camera.command(label.c_str(), value.c_str());
+        if (r == -1) {
+            output->printERROR("Unknow command!");
+            response = false;
+        } else if (r == 1) {
+            output->printERROR("Invalid value!");
+            response = false;
         } else {
-            if (parameter == "ON") {
-                if(esp3d_camera.startStreamServer()) {
-                    output->printMSG ("ok");
-                }
-            } else {
-                if(esp3d_camera.stopStreamServer()) {
-                    output->printMSG ("ok");
-                }
-            }
+            output->printMSG ("ok");
         }
     }
     return response;
 }
 
-#endif //HTTP_FEATURE && CAMERA_DEVICE
+#endif //CAMERA_DEVICE

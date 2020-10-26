@@ -22,7 +22,7 @@
 #define _VERSION_ESP3D_H
 
 //version and sources location
-#define FW_VERSION "3.0.0.a65"
+#define FW_VERSION "3.0.0.a66"
 #define REPOSITORY "https://github.com/luc-github/ESP3D/tree/3.0"
 
 #endif //_VERSION_ESP3D_H

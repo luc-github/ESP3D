@@ -263,18 +263,6 @@ bool Commands::ESP800(const char* cmd_params, level_authenticate_type auth_type,
         output->print("\"");
     }
 #ifdef CAMERA_DEVICE
-    //camera port
-    if (plain) {
-        output->print("Camera port:");
-    } else {
-        output->print(",\"Cam_port\":\"");
-    }
-    output->print(esp3d_camera.port());
-    if(plain) {
-        output->printLN("");
-    } else {
-        output->print("\"");
-    }
     //camera ID
     if (plain) {
         output->print("Camera ID:");

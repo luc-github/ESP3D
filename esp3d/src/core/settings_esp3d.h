@@ -86,7 +86,7 @@
 #define ESP_CALIBRATION_3       993     //4  bytes = int 
 #define ESP_CALIBRATION_4       997     //4  bytes = int
 #define ESP_CALIBRATION_5       1001     //4  bytes = int
-#define ESP_CAMERA_PORT         1005    //4  bytes = int
+#define ESP_FREE_ENTRY          1005    //4  bytes = int
 #define ESP_FTP_CTRL_PORT       1009    //4  bytes = int
 #define ESP_FTP_DATA_ACTIVE_PORT       1013    //4  bytes = int
 #define ESP_FTP_DATA_PASSIVE_PORT      1017    //4  bytes = int
