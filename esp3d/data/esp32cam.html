@@ -626,7 +626,7 @@
         return
     }
 
-    const query = `${baseHost}/command?cmd=` + encodeURIComponent(`[ESP172]${el.id}=${value}`)
+    const query = `${baseHost}/command?cmd=` + encodeURIComponent(`[ESP170]${el.id}=${value}`)
 
     fetch(query)
       .then(response => {
