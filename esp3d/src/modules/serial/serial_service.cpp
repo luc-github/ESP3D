@@ -40,11 +40,11 @@
 #endif //USE_SERIAL_2
 
 #define ESP3DSERIAL_RUNNING_PRIORITY 1
-
 #define ESP3DSERIAL_RUNNING_CORE 1
+#define SERIAL_YIELD 10
 
 SerialService serial_service;
-#ifdef ARDUINO_ARCH_ESP32
+#if defined(ARDUINO_ARCH_ESP32) && defined(SERIAL_INDEPENDANT_TASK)
 TaskHandle_t _hserialtask= nullptr;
 #endif //ARDUINO_ARCH_ESP32 
 
@@ -65,12 +65,12 @@ SerialService::~SerialService()
 }
 
 //dedicated serial task
-#ifdef ARDUINO_ARCH_ESP32
+#if defined(ARDUINO_ARCH_ESP32) && defined(SERIAL_INDEPENDANT_TASK)
 void ESP3DSerialTaskfn( void * parameter )
 {
     for(;;) {
         serial_service.process();
-        Hal::wait(0);  // Yield to other tasks
+        Hal::wait(SERIAL_YIELD);  // Yield to other tasks
     }
     vTaskDelete( NULL );
 }
@@ -95,14 +95,15 @@ bool SerialService::begin()
         ESP3D_SERIAL.pins((ESP_TX_PIN == -1)?1:ESP_TX_PIN, ESP_RX_PIN)
 #endif //ESP_RX_PIN != -1
 #endif //ARDUINO_ARCH_ESP8266
-#ifdef ARDUINO_ARCH_ESP32
+#if defined(ARDUINO_ARCH_ESP32)
         ESP3D_SERIAL.begin (br, ESP_SERIAL_PARAM, ESP_RX_PIN, ESP_TX_PIN);
+#if defined(SERIAL_INDEPENDANT_TASK)
         //create serial task once
         if (_hserialtask == nullptr) {
             xTaskCreatePinnedToCore(
                 ESP3DSerialTaskfn, /* Task function. */
                 "ESP3D Serial Task", /* name of task. */
-                8096, /* Stack size of task */
+                8192, /* Stack size of task */
                 NULL, /* parameter of the task */
                 ESP3DSERIAL_RUNNING_PRIORITY, /* priority of the task */
                 &_hserialtask, /* Task handle to keep track of created task */
@@ -113,6 +114,7 @@ bool SerialService::begin()
             log_esp3d("Serial Task creation failed");
             return false;
         }
+#endif //SERIAL_INDEPENDANT_TASK
 #endif //ARDUINO_ARCH_ESP32
     }
     _started = true;
@@ -180,7 +182,7 @@ void SerialService::process()
 void SerialService::handle()
 {
 //for ESP32 there is dedicated task for it
-#ifdef ARDUINO_ARCH_ESP8266
+#if !(defined(ARDUINO_ARCH_ESP32) && defined(SERIAL_INDEPENDANT_TASK))
     process();
 #endif //ARDUINO_ARCH_ESP8266
 
