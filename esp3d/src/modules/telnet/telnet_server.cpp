@@ -269,7 +269,7 @@ size_t Telnet_Server::write(const uint8_t *buffer, size_t size)
     return 0;
 }
 
-uint Telnet_Server::availableForWrite()
+int Telnet_Server::availableForWrite()
 {
     if (!isConnected()) {
         return 0;

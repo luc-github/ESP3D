@@ -62,7 +62,7 @@ public:
         return write((uint8_t) n);
     }
     int available();
-    uint availableForWrite();
+    int availableForWrite();
     void flush();
     int read(void);
     size_t readBytes (uint8_t * sbuf, size_t len);

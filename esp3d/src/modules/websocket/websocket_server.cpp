@@ -135,7 +135,7 @@ int WebSocket_Server::available()
 {
     return _RXbufferSize;
 }
-uint WebSocket_Server::availableForWrite()
+int WebSocket_Server::availableForWrite()
 {
     return TXBUFFERSIZE -_TXbufferSize;
 }

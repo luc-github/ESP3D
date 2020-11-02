@@ -62,7 +62,7 @@ public:
     }
     void end();
     int available();
-    uint availableForWrite();
+    int availableForWrite();
     void pushMSG (const char * data);
     void pushMSG (uint num, const char * data);
     void flush(void);
