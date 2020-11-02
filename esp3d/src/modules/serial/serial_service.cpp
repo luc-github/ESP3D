@@ -287,7 +287,7 @@ size_t SerialService::write(const uint8_t *buffer, size_t size)
     }
 }
 
-uint SerialService::availableForWrite()
+int SerialService::availableForWrite()
 {
     return ESP3D_SERIAL.availableForWrite();
 }

@@ -23,7 +23,7 @@
 
 #ifndef DEBUG_BAUDRATE
 #define DEBUG_BAUDRATE 115200
-#ndif //~DEBUG_BAUDRATE
+#endif //~DEBUG_BAUDRATE
 
 #if defined(ARDUINO_ARCH_ESP8266)
 const char * pathToFileName(const char * path)
