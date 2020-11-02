@@ -96,6 +96,18 @@ bool Commands::ESP800(const char* cmd_params, level_authenticate_type auth_type,
     } else {
         output->print("\"");
     }
+    //Setup done
+    if (plain) {
+        output->print("Setup:");
+    } else {
+        output->print(",\"Setup\":\"");
+    }
+    output->print(Settings_ESP3D::read_byte (ESP_SETUP) == 0?F("Enabled"):F("Disabled"));
+    if(plain) {
+        output->printLN("");
+    } else {
+        output->print("\"");
+    }
     //SD connection
     if (plain) {
         output->print("SD connection:");

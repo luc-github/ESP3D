@@ -86,6 +86,8 @@
 #define DEFAULT_INTERNET_TIME       0
 #endif //TIMESTAMP_FEATURE
 
+#define DEFAULT_SETUP   0
+
 #define DEFAULT_ESP_BYTE        0
 #define DEFAULT_ESP_STRING_SIZE 0
 #if defined (WIFI_FEATURE) || defined (ETH_FEATURE)
@@ -234,6 +236,9 @@ uint8_t Settings_ESP3D::get_default_byte_value(int pos)
     switch(pos) {
     case ESP_RADIO_MODE:
         res = DEFAULT_ESP_RADIO_MODE;
+        break;
+    case ESP_SETUP:
+        res = DEFAULT_SETUP;
         break;
 #ifdef AUTHENTICATION_FEATURE
     case ESP_SESSION_TIMEOUT:
@@ -1011,7 +1016,6 @@ bool Settings_ESP3D::reset()
 {
     bool res = true;
     log_esp3d("Reset Settings");
-
 #if ESP_SAVE_SETTINGS == SETTINGS_IN_PREFERENCES
     log_esp3d("clear preferences");
     Preferences prefs;
@@ -1025,6 +1029,9 @@ bool Settings_ESP3D::reset()
 //for EEPROM need to overwrite all settings
 #if ESP_SAVE_SETTINGS == SETTINGS_IN_EEPROM
     log_esp3d("clear EEPROM");
+
+    //Setup done (internal only)
+    Settings_ESP3D::write_byte(ESP_SETUP,Settings_ESP3D::get_default_byte_value(ESP_SETUP));
 
 #if defined(DISPLAY_DEVICE) && defined(DISPLAY_TOUCH_DRIVER)
     //Calibration done (internal only)
