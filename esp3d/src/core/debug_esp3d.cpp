@@ -21,6 +21,10 @@
 #include "../include/esp3d_config.h"
 #if defined(ESP_DEBUG_FEATURE)
 
+#ifndef DEBUG_BAUDRATE
+#define DEBUG_BAUDRATE 115200
+#ndif //~DEBUG_BAUDRATE
+
 #if defined(ARDUINO_ARCH_ESP8266)
 const char * pathToFileName(const char * path)
 {
@@ -37,6 +41,19 @@ const char * pathToFileName(const char * path)
     return path+pos;
 }
 #endif //ARDUINO_ARCH_ESP8266 
+
+void initDebug()
+{
+#ifdef ARDUINO_ARCH_ESP8266
+    DEBUG_OUTPUT_SERIAL.begin(DEBUG_BAUDRATE, SERIAL_8N1, SERIAL_FULL, (ESP_DEBUG_TX_PIN == -1)?1:ESP_DEBUG_TX_PIN);
+#if ESP_DEBUG_RX_PIN != -1
+    DEBUG_OUTPUT_SERIAL.pins((ESP_DEBUG_TX_PIN == -1)?1:ESP_DEBUG_TX_PIN, ESP_DEBUG_RX_PIN)
+#endif //ESP_DEBUG_RX_PIN != -1
+#endif //ARDUINO_ARCH_ESP8266
+#if defined(ARDUINO_ARCH_ESP32)
+    DEBUG_OUTPUT_SERIAL.begin (DEBUG_BAUDRATE, SERIAL_8N1, ESP_DEBUG_RX_PIN, ESP_DEBUG_TX_PIN);
+#endif //ARDUINO_ARCH_ESP32
+}
 
 //Telnet
 #if ESP_DEBUG_FEATURE == DEBUG_OUTPUT_TELNET

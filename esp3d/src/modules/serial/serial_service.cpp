@@ -90,7 +90,7 @@ bool SerialService::begin()
         }
         ESP3D_SERIAL.setRxBufferSize (SERIAL_RX_BUFFER_SIZE);
 #ifdef ARDUINO_ARCH_ESP8266
-        ESP3D_SERIAL.begin(br, SERIAL_8N1, SERIAL_FULL, (ESP_TX_PIN == -1)?1:ESP_TX_PIN);
+        ESP3D_SERIAL.begin(br, ESP_SERIAL_PARAM, SERIAL_FULL, (ESP_TX_PIN == -1)?1:ESP_TX_PIN);
 #if ESP_RX_PIN != -1
         ESP3D_SERIAL.pins((ESP_TX_PIN == -1)?1:ESP_TX_PIN, ESP_RX_PIN)
 #endif //ESP_RX_PIN != -1

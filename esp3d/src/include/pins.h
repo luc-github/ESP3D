@@ -29,6 +29,13 @@
 #define ESP_TX_PIN -1
 #endif //~ESP_TX_PIN
 
+#ifndef ESP_DEBUG_RX_PIN
+#define ESP_DEBUG_RX_PIN -1
+#endif //~ESP_DEBUG_RX_PIN
+#ifndef ESP_DEBUG_TX_PIN
+#define ESP_DEBUG_TX_PIN -1
+#endif //~ESP_DEBUG_TX_PIN
+
 //I2C Pins
 #ifndef ESP_SDA_PIN
 #define ESP_SDA_PIN SDA
