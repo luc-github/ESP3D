@@ -71,6 +71,10 @@ bool Commands::ESP800(const char* cmd_params, level_authenticate_type auth_type,
         }
     }
 #endif //TIMESTAMP_FEATURE
+    parameter = get_param (cmd_params, "setup=");
+    if(parameter.length() > 0) {
+        Settings_ESP3D::write_byte (ESP_SETUP, parameter =="0"?0:1);
+    }
     //FW version
     if (plain) {
         output->print("FW version:");
