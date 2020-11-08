@@ -163,10 +163,10 @@
 #define DIRECT_PIN_FEATURE
 
 //TIMESTAMP_FEATURE: set time system
-#define TIMESTAMP_FEATURE
+//#define TIMESTAMP_FEATURE
 
 //FILESYSTEM_TIMESTAMP_FEATURE: display last write time from Flash files
-#define FILESYSTEM_TIMESTAMP_FEATURE
+//#define FILESYSTEM_TIMESTAMP_FEATURE
 
 //FILESYSTEM_TIMESTAMP_FEATURE:display last write time from SD files
 //#define SD_TIMESTAMP_FEATURE
