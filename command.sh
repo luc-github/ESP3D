@@ -2,7 +2,7 @@
 
 function build_sketch()
 {
-	local sketch=$1
+    local sketch=$1
     local target=$2
     local ide=$3
     local bt=$4
@@ -36,7 +36,7 @@ function build_sketch()
         echo "setup for esp8266"
         sed -i "s/#define DISPLAY_DEVICE/\/\/#define DISPLAY_DEVICE/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
         sed -i "s/#define ETH_FEATURE/\/\/#define ETH_FEATURE/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
-        arduino --board esp8266com:esp8266:generic:eesz=4M3M,xtal=160,FlashMode=dio,FlashFreq=40,sdk=nonosdk221,ip=lm2f,dbg=Disabled,vt=flash,exception=disabled,ssl=basic --save-prefs
+        arduino --board esp8266com:esp8266:generic:eesz=4M3M,xtal=160,FlashMode=dio,FlashFreq=40,sdk=nonosdk221,ip=lm2f,dbg=Disabled,vt=flash,exception=disabled,ssl=basic, waveform=pwm --save-prefs
     fi
     if [[ "$fs" == "SPIFFS" ]];
     then
@@ -52,18 +52,18 @@ function build_sketch()
     fi
     echo "Display configuration"
     cat $TRAVIS_BUILD_DIR/esp3d/configuration.h
-	# build sketch with arduino ide
-	echo -e "\n Build $sketch \n"
-	arduino --verbose --verify $sketch
+    # build sketch with arduino ide
+    echo -e "\n Build $sketch \n"
+    arduino --verbose --verify $sketch
 
-	# get build result from arduino
-	local re=$?
+    # get build result from arduino
+    local re=$?
 
-	# check result
-	if [ $re -ne 0 ]; then
-		echo "Failed to build $sketch"
-		return $re
-	fi
+    # check result
+    if [ $re -ne 0 ]; then
+        echo "Failed to build $sketch"
+        return $re
+    fi
     else
         echo "setup for platformIO"
         sed -i "s/#define BLUETOOTH_FEATURE/\/\/#define BLUETOOTH_FEATURE/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
