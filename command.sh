@@ -44,6 +44,12 @@ function build_sketch()
         sed -i "s/#define FILESYSTEM_FEATURE ESP_FAT_FILESYSTEM/#define FILESYSTEM_FEATURE ESP_SPIFFS_FILESYSTEM/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
         sed -i "s/#define FILESYSTEM_FEATURE ESP_LITTLEFS_FILESYSTEM/#define FILESYSTEM_FEATURE ESP_SPIFFS_FILESYSTEM/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
     fi
+    if [[ "$fs" == "LITTLEFS" ]];
+    then
+        echo "Set Filesystem to LittleFS"
+        sed -i "s/#define FILESYSTEM_FEATURE ESP_FAT_FILESYSTEM/#define FILESYSTEM_FEATURE ESP_LITTLEFS_FILESYSTEM/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
+        sed -i "s/#define FILESYSTEM_FEATURE ESP_SPIFFS_FILESYSTEM/#define FILESYSTEM_FEATURE ESP_LITTLEFS_FILESYSTEM/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
+    fi
     if [[ "$fs" == "FAT" ]];
     then
         echo "Set Filesystem to FAT"

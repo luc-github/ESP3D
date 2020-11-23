@@ -257,6 +257,7 @@ bool Commands::ESP0(const char* cmd_params, level_authenticate_type auth_type, E
     bool response = true;
     String parameter;
     const uint cmdNb = sizeof(help)/sizeof(char*);
+    (void)auth_type;
     parameter = get_param (cmd_params, "");
     if (parameter.length() == 0) {
         output->printLN("[List of ESP3D commands]");

@@ -412,22 +412,26 @@ size_t ESP3DOutput::write(const uint8_t *buffer, size_t size)
         if(bt_service.started()) {
             return bt_service.write(buffer, size);
         }
+        break;
 #endif //BLUETOOTH_FEATURE 
 #if defined (TELNET_FEATURE)
     case ESP_TELNET_CLIENT:
         if(telnet_server.started()) {
             return telnet_server.write(buffer, size);
         }
+        break;
 #endif //TELNET_FEATURE
 #if defined (WS_DATA_FEATURE)
     case ESP_WEBSOCKET_CLIENT:
         if(websocket_data_server.started()) {
             return websocket_data_server.write(buffer, size);
         }
+        break;
 #endif //WS_DATA_FEATURE
     case ESP_PRINTER_LCD_CLIENT:
     case ESP_SERIAL_CLIENT:
         return serial_service.write(buffer, size);
+        break;
     case ESP_ALL_CLIENTS:
 #if defined (BLUETOOTH_FEATURE)
         if(bt_service.started()) {

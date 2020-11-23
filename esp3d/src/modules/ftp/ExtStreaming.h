@@ -120,6 +120,7 @@ enum _EndLineCode { eol };
 
 inline Print &operator <<(Print &obj, _EndLineCode arg)
 {
+    (void)arg;
     obj.print( "\r\n" );
     return obj;
 }

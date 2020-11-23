@@ -78,9 +78,7 @@
 /**************************
  * Time
  * ***********************/
-#if defined(FILESYSTEM_TIMESTAMP_FEATURE) && defined( ARDUINO_ARCH_ESP8266) && FILESYSTEM_FEATURE == ESP_SPIFFS_FILESYSTEM
-#warning Filesystem time is not available in SPIFFS ESP8266 yet
-#endif
+
 
 /**************************
  * Filesystem
@@ -89,7 +87,10 @@
 #error Fat FS is not available in ESP8266
 #endif
 #if FILESYSTEM_FEATURE == ESP_LITTLEFS_FILESYSTEM && defined( ARDUINO_ARCH_ESP32)
-#error LittleFS is not available in ESP32
+#error LittleFS is not yet available in ESP32, use ESP_SPIFFS_FILESYSTEM instead
+#endif
+#if FILESYSTEM_FEATURE == ESP_SPIFFS_FILESYSTEM && defined( ARDUINO_ARCH_ESP8266)
+#error ESP_SPIFFS_FILESYSTEM is no more available in ESP8266, use ESP_LITTLEFS_FILESYSTEM instead
 #endif
 
 /**************************
@@ -107,6 +108,12 @@
 #error SDIO is not available in ESP8266
 #endif
 #endif
+
+#if defined (SD_DEVICE_CONNECTION) && defined(PIN_RESET_FEATURE)
+#if SD_DEVICE_CONNECTION == ESP_SHARED_SD && ESP_FLAG_SHARED_SD_PIN == ESP3D_RESET_PIN
+#error ESP_FLAG_SHARED_SD_PIN and ESP3D_RESET_PIN are same, it is not allowed.
+#endif
+#endif 
 
 /**************************
  * FTP

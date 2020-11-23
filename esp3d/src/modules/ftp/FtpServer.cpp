@@ -1303,8 +1303,15 @@ bool FtpServer::getFileModTime(const char * path, time_t & t)
 }
 //TODO
 bool  FtpServer::timeStamp( const char * path, uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second )
-{
+{   //TODO
     //Not available yet
+    (void)path;
+    (void ) year;
+    (void ) month;
+    (void ) day;
+    (void ) hour;
+    (void ) minute;
+    (void ) second ;
     return false;
 }
 

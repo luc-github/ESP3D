@@ -194,7 +194,7 @@ bool GcodeHost::sendCommand(const char* command, bool checksum, bool wait4ack, c
         //to give a chance to not overload buffer
         bool done = false;
         while (((millis() - start) < DEFAULT_TIMOUT) && !done) {
-            if (serial_service.availableForWrite() > s.length()) {
+            if ((size_t)serial_service.availableForWrite() > s.length()) {
                 if (strlen(command) == serial_service.write((const uint8_t*)s.c_str(), s.length())) {
                     if (serial_service.write('\n')==1) {
                         if(!wait4ack) {

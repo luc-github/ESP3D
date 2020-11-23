@@ -49,12 +49,14 @@ bool Commands::ESP720(const char* cmd_params, level_authenticate_type auth_type,
     output->printf("Directory on FS : %s", parameter.c_str());
     output->printLN("");
     if (ESP_FileSystem::exists(parameter.c_str())) {
-        ESP_File f = ESP_FileSystem::open(parameter.c_str(), ESP_FILE_READ);
+        ESP_File f ;
+        f = ESP_FileSystem::open(parameter.c_str(), ESP_FILE_READ);
         uint countf = 0;
         uint countd = 0;
         if (f) {
             //Check directories
-            ESP_File sub = f.openNextFile();
+            ESP_File sub;
+            sub = f.openNextFile();
             while (sub) {
                 if (sub.isDirectory()) {
                     countd++;

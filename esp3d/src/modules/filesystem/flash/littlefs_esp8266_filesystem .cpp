@@ -103,7 +103,6 @@ ESP_File ESP_FileSystem::open(const char* path, uint8_t mode)
 
 bool ESP_FileSystem::exists(const char* path)
 {
-    bool res = false;
     //root should always be there if started
     if (strcmp(path, "/") == 0) {
         return _started;

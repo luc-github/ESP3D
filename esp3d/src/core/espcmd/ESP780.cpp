@@ -49,12 +49,14 @@ bool Commands::ESP780(const char* cmd_params, level_authenticate_type auth_type,
     output->printf("Directory on Global FS : %s", parameter.c_str());
     output->printLN("");
     if (ESP_GBFS::exists(parameter.c_str())) {
-        ESP_GBFile f = ESP_GBFS::open(parameter.c_str(), ESP_FILE_READ);
+        ESP_GBFile f;
+        f = ESP_GBFS::open(parameter.c_str(), ESP_FILE_READ);
         uint countf = 0;
         uint countd = 0;
         if (f) {
             //Check directories
-            ESP_GBFile sub = f.openNextFile();
+            ESP_GBFile sub;
+            sub = f.openNextFile();
             while (sub) {
                 if (sub.isDirectory()) {
                     countd++;
