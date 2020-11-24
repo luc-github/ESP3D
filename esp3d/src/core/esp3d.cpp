@@ -86,7 +86,7 @@ bool Esp3D::begin()
         log_esp3d("Need reset settings");
         reset();
         //Restart ESP3D
-        restart_esp();
+        restart_now();
     }
     //BT do not start automaticaly so should be OK
     //Serial service
