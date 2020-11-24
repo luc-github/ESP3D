@@ -119,9 +119,8 @@
 
 //PIN_RESET_FEATURE : allow to reset settings by setting low a pin
 //#define PIN_RESET_FEATURE
-#if defined (PIN_RESET_FEATURE)
-#define ESP3D_RESET_PIN 2
-#endif //PIN_RESET_FEATURE
+//#define ESP3D_RESET_PIN 0
+
 
 //SD_DEVICE: to access SD Card files directly instead of access by serial using printer Board FW
 //ESP_SD_NATIVE               1 //esp32 / esp8266
@@ -132,15 +131,16 @@
 //SDIO mode
 #define SD_ONE_BIT_MODE true
 
-//SD Device Connection type (default is direct)
+//SD Device Connection type (default is ESP_NO_SD if not defined)
+//ESP_NO_SD
 //ESP_DIRECT_SD
 //ESP_SHARED_SD
 #define SD_DEVICE_CONNECTION  ESP_DIRECT_SD
 
 //pin if reader has insert detection feature
 //let -1 or comment if none
-#define ESP_SD_DETECT_PIN       -1
-//value expected for ESP_SD_DETECT_PIN
+//#define ESP_SD_DETECT_PIN       -1
+//value expected for ESP_SD_DETECT_PIN (0 or 1)
 #define ESP_SD_DETECT_VALUE      1
 
 //FILESYSTEM_FEATURE: to host some files on flash
