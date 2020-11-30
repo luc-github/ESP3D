@@ -698,7 +698,8 @@ void WebSocketsClient::connectedCb() {
 
 #if (WEBSOCKETS_NETWORK_TYPE == NETWORK_ESP8266)
     _client.tcp->setNoDelay(true);
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     if(_client.isSSL && _fingerprint.length()) {
         if(!_client.ssl->verify(_fingerprint.c_str(), _host.c_str())) {
             DEBUG_WEBSOCKETS("[WS-Client] certificate mismatch\n");
@@ -706,6 +707,7 @@ void WebSocketsClient::connectedCb() {
             return;
         }
     }
+#pragma GCC diagnostic pop
 #endif
 
     // send Header to Server

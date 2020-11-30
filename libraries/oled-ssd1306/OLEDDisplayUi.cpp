@@ -251,7 +251,10 @@ void OLEDDisplayUi::drawFrame(){
   switch (this->state.frameState){
      case IN_TRANSITION: {
        float progress = (float) this->state.ticksSinceLastStateSwitch / (float) this->ticksPerTransition;
-       int16_t x, y, x1, y1;
+       int16_t x = 0;
+       int16_t y = 0;
+       int16_t x1 = 0;
+       int16_t y1 = 0;
        switch(this->frameAnimationDirection){
         case SLIDE_LEFT:
           x = -128 * progress;
@@ -331,7 +334,7 @@ void OLEDDisplayUi::drawIndicator() {
       return;
     }
 
-    uint8_t posOfHighlightFrame;
+    uint8_t posOfHighlightFrame = 0;
     float indicatorFadeProgress = 0;
 
     // if the indicator needs to be slided in we want to
@@ -362,7 +365,8 @@ void OLEDDisplayUi::drawIndicator() {
 
     uint16_t frameStartPos = (12 * frameCount / 2);
     const char *image;
-    uint16_t x,y;
+    uint16_t x = 0;
+    uint16_t y = 0;
     for (byte i = 0; i < this->frameCount; i++) {
 
       switch (this->indicatorPosition){

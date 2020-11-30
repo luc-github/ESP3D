@@ -444,7 +444,7 @@ void WebSockets::handleWebsocketPayloadCb(WSclient_t * client, bool ok, uint8_t 
                 if(header->payloadLen >= 2) {
                     reasonCode = payload[0] << 8 | payload[1];
                 }
-
+                (void)reasonCode;
                 DEBUG_WEBSOCKETS("[WS][%d][handleWebsocket] get ask for close. Code: %d", client->num, reasonCode);
                 if(header->payloadLen > 2) {
                     DEBUG_WEBSOCKETS(" (%s)\n", (payload + 2));
@@ -453,7 +453,7 @@ void WebSockets::handleWebsocketPayloadCb(WSclient_t * client, bool ok, uint8_t 
                 }
                 clientDisconnect(client, 1000);
             }
-            	break;
+                break;
             default:
                 clientDisconnect(client, 1002);
                 break;
@@ -608,47 +608,47 @@ bool WebSockets::readCb(WSclient_t * client, uint8_t * out, size_t n, WSreadWait
  * @return bytes send
  */
 size_t WebSockets::write(WSclient_t * client, uint8_t *out, size_t n) {
-	if(out == NULL) return 0;
-	if(client == NULL) return 0;
-	unsigned long t = millis();
-	size_t len = 0;
-	size_t total = 0;
-	DEBUG_WEBSOCKETS("[write] n: %zu t: %lu\n", n, t);
-	while(n > 0) {
-		if(client->tcp == NULL) {
-			DEBUG_WEBSOCKETS("[write] tcp is null!\n");
-			break;
-		}
+    if(out == NULL) return 0;
+    if(client == NULL) return 0;
+    unsigned long t = millis();
+    size_t len = 0;
+    size_t total = 0;
+    DEBUG_WEBSOCKETS("[write] n: %zu t: %lu\n", n, t);
+    while(n > 0) {
+        if(client->tcp == NULL) {
+            DEBUG_WEBSOCKETS("[write] tcp is null!\n");
+            break;
+        }
 
-		if(!client->tcp->connected()) {
-			DEBUG_WEBSOCKETS("[write] not connected!\n");
-			break;
-		}
+        if(!client->tcp->connected()) {
+            DEBUG_WEBSOCKETS("[write] not connected!\n");
+            break;
+        }
 
-		if((millis() - t) > WEBSOCKETS_TCP_TIMEOUT) {
-			DEBUG_WEBSOCKETS("[write] write TIMEOUT! %lu\n", (millis() - t));
-			break;
-		}
+        if((millis() - t) > WEBSOCKETS_TCP_TIMEOUT) {
+            DEBUG_WEBSOCKETS("[write] write TIMEOUT! %lu\n", (millis() - t));
+            break;
+        }
 
-		len = client->tcp->write((const uint8_t*)out, n);
-		if(len) {
-			t = millis();
-			out += len;
-			n -= len;
-			total += len;
-			//DEBUG_WEBSOCKETS("write %d left %d!\n", len, n);
-		} else {
-			//DEBUG_WEBSOCKETS("write %d failed left %d!\n", len, n);
-		}
+        len = client->tcp->write((const uint8_t*)out, n);
+        if(len) {
+            t = millis();
+            out += len;
+            n -= len;
+            total += len;
+            //DEBUG_WEBSOCKETS("write %d left %d!\n", len, n);
+        } else {
+            //DEBUG_WEBSOCKETS("write %d failed left %d!\n", len, n);
+        }
 #if (WEBSOCKETS_NETWORK_TYPE == NETWORK_ESP8266)
-		delay(0);
+        delay(0);
 #endif
-	}
-	return total;
+    }
+    return total;
 }
 
 size_t WebSockets::write(WSclient_t * client, const char *out) {
-	if(client == NULL) return 0;
-	if(out == NULL) return 0;
-	return write(client, (uint8_t*)out, strlen(out));
+    if(client == NULL) return 0;
+    if(out == NULL) return 0;
+    return write(client, (uint8_t*)out, strlen(out));
 }

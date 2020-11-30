@@ -239,7 +239,10 @@ bool WIFI_CONFIG::Setup (bool force_ap)
     byte bflag = 0;
     byte bmode = 0;
 #ifdef ARDUINO_ARCH_ESP8266
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     WiFi.onEvent(onWiFiEvent, WIFI_EVENT_ANY);
+#pragma GCC diagnostic pop
 #else
     WiFi.onEvent(onWiFiEvent);
 #endif

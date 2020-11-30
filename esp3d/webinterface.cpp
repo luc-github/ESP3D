@@ -221,7 +221,7 @@ bool sendLine2Serial (String &  line, int32_t linenb,  int32_t * newlinenb)
                         return sendLine2Serial (line, line_number, newlinenb);
                     } else {
                         //the line requested is not the current one so we stop
-                        if (line_number !=linenb) {
+                        if (line_number !=(uint32_t)linenb) {
                             log_esp3d ("Wrong line requested");
                             count = 5;
                         }

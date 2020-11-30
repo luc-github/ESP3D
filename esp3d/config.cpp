@@ -344,7 +344,7 @@ bool CONFIG::isHostnameValid (const char * hostname)
         return false;
     }
     //only letter and digit
-    for (int i = 0; i < strlen (hostname); i++) {
+    for (uint i = 0; i < strlen (hostname); i++) {
         c = hostname[i];
         if (! (isdigit (c) || isalpha (c) || c == '_') ) {
             return false;
@@ -364,7 +364,7 @@ bool CONFIG::isSSIDValid (const char * ssid)
         return false;
     }
     //only printable
-    for (int i = 0; i < strlen (ssid); i++) {
+    for (uint i = 0; i < strlen (ssid); i++) {
         if (!isPrintable (ssid[i]) ) {
             return false;
         }
@@ -384,7 +384,7 @@ bool CONFIG::isPasswordValid (const char * password)
     }
 #endif
     //no space allowed
-    for (int i = 0; i < strlen (password); i++)
+    for (uint i = 0; i < strlen (password); i++)
         if (password[i] == ' ') {
             return false;
         }
@@ -399,7 +399,7 @@ bool CONFIG::isLocalPasswordValid (const char * password)
         return false;
     }
     //no space allowed
-    for (int i = 0; i < strlen (password); i++) {
+    for (uint i = 0; i < strlen (password); i++) {
         c = password[i];
         if (c == ' ') {
             return false;
@@ -424,7 +424,7 @@ bool CONFIG::isIPValid (const char * IP)
         return false;
     }
     //only letter and digit
-    for (int i = 0; i < strlen (IP); i++) {
+    for (uint i = 0; i < strlen (IP); i++) {
         c = IP[i];
         if (isdigit (c) ) {
             //only 3 digit at once
