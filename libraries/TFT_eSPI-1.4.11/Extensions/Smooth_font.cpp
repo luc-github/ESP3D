@@ -84,9 +84,10 @@ void TFT_eSPI::loadFont(String fontName, bool flash)
   */
 
   spiffs = flash;
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
   if(spiffs) fontFS = SPIFFS;
-
+#pragma GCC diagnostic pop
   unloadFont();
 
   // Avoid a crash on the ESP32 if the file does not exist

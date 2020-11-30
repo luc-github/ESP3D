@@ -52,6 +52,7 @@ uint8_t ESP_SD::getState(bool refresh)
 
     SD.end();
     _state = ESP_SDCARD_NOT_PRESENT;
+    bool isactive = accessSD();
 //using default value for speed ? should be parameter
 //refresh content if card was removed
     log_esp3d("Spi : CS: %d,  Miso: %d, Mosi: %d, SCK: %d",ESP_SD_CS_PIN!=-1?ESP_SD_CS_PIN:SS, ESP_SD_MISO_PIN!=-1?ESP_SD_MISO_PIN:MISO, ESP_SD_MOSI_PIN!=-1?ESP_SD_MOSI_PIN:MOSI, ESP_SD_SCK_PIN!=-1?ESP_SD_SCK_PIN:SCK);
@@ -59,6 +60,9 @@ uint8_t ESP_SD::getState(bool refresh)
         if ( SD.cardSize() > 0 ) {
             _state = ESP_SDCARD_IDLE;
         }
+    }
+    if (!isactive) {
+        releaseSD();
     }
     return _state;
 }
@@ -76,6 +80,16 @@ bool ESP_SD::begin()
     if (_spi_speed_divider <= 0) {
         _spi_speed_divider = 1;
     }
+//Setup pins
+#if defined(ESP_SD_DETECT_PIN) && ESP_SD_DETECT_PIN != -1
+    pinMode (ESP_SD_DETECT_PIN, INPUT);
+#endif //ESP_SD_DETECT_PIN
+#if SD_DEVICE_CONNECTION  == ESP_SHARED_SD
+#if defined(ESP_FLAG_SHARED_SD_PIN) && ESP_FLAG_SHARED_SD_PIN != -1
+    pinMode (ESP_FLAG_SHARED_SD_PIN, OUTPUT);
+    digitalWrite(ESP_FLAG_SHARED_SD_PIN, !ESP_FLAG_SHARED_SD_VALUE);
+#endif //ESP_FLAG_SHARED_SD_PIN
+#endif //SD_DEVICE_CONNECTION  == ESP_SHARED_SD
     return _started;
 }
 

@@ -53,45 +53,62 @@ bool Commands::ESP750(const char* cmd_params, level_authenticate_type auth_type,
     }
     parameter = get_param (cmd_params, "mkdir=");
     if (parameter.length() != 0) {
+        bool isactive = ESP_SD::accessSD();
         if (ESP_SD::mkdir(parameter.c_str())) {
             output->printMSG ("ok");
         } else {
             output->printERROR ("failed!");
             response = false;
         }
+        if (!isactive) {
+            ESP_SD::releaseSD();
+        }
         return response;
     }
     parameter = get_param (cmd_params, "rmdir=");
     if (parameter.length() != 0) {
+        bool isactive = ESP_SD::accessSD();
         if (ESP_SD::rmdir(parameter.c_str())) {
             output->printMSG ("ok");
         } else {
             output->printERROR ("failed!");
             response = false;
         }
+        if (!isactive) {
+            ESP_SD::releaseSD();
+        }
         return response;
     }
     parameter = get_param (cmd_params, "remove=");
     if (parameter.length() != 0) {
+        bool isactive = ESP_SD::accessSD();
         if (ESP_SD::remove(parameter.c_str())) {
             output->printMSG ("ok");
         } else {
             output->printERROR ("failed!");
             response = false;
         }
+        if (!isactive) {
+            ESP_SD::releaseSD();
+        }
         return response;
     }
     parameter = get_param (cmd_params, "exists=");
     if (parameter.length() != 0) {
+        bool isactive = ESP_SD::accessSD();
         if (ESP_SD::exists(parameter.c_str())) {
             output->printMSG ("yes");
         } else {
             output->printMSG ("no");
         }
+        if (!isactive) {
+            ESP_SD::releaseSD();
+        }
         return response;
     }
     parameter = get_param (cmd_params, "create=");
     if (parameter.length() != 0) {
+        bool isactive = ESP_SD::accessSD();
         ESP_SDFile f = ESP_SD::open(parameter.c_str(), ESP_FILE_WRITE);
         if (f.isOpen()) {
             f.close();
@@ -99,6 +116,9 @@ bool Commands::ESP750(const char* cmd_params, level_authenticate_type auth_type,
         } else {
             output->printERROR ("failed!");
             response = false;
+        }
+        if (!isactive) {
+            ESP_SD::releaseSD();
         }
         return response;
     }

@@ -174,7 +174,6 @@ const uint8_t DEFAULT_ADDRESS_VALUE[]   =  {0, 0, 0, 0};
 #endif //WIFI_FEATURE || ETH_FEATURE
 
 uint8_t Settings_ESP3D::_FirmwareTarget = UNKNOWN_FW;
-bool Settings_ESP3D::_SDdevice = ESP_NO_SD;
 
 bool Settings_ESP3D::begin()
 {
@@ -183,8 +182,6 @@ bool Settings_ESP3D::begin()
     }
     //get target FW
     Settings_ESP3D::GetFirmwareTarget(true);
-    //get SD device if any
-    Settings_ESP3D::GetSDDevice(true);
     return true;
 }
 
@@ -196,16 +193,13 @@ uint8_t Settings_ESP3D::GetFirmwareTarget(bool fromsettings)
     return _FirmwareTarget;
 }
 
-uint8_t Settings_ESP3D::GetSDDevice(bool fromsettings)
+uint8_t Settings_ESP3D::GetSDDevice()
 {
-    if(fromsettings) {
 #ifdef SD_DEVICE
-        _SDdevice = read_byte (ESP_SD_DEVICE_TYPE);
+    return SD_DEVICE_CONNECTION;
 #else // !SD_DEVICE
-        _SDdevice = ESP_NO_SD;
+    return ESP_NO_SD;
 #endif //SD_DEVICE
-    }
-    return _SDdevice;
 }
 
 const char* Settings_ESP3D::GetFirmwareTargetShortName()

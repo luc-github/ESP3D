@@ -113,7 +113,7 @@
 #if SD_DEVICE_CONNECTION == ESP_SHARED_SD && ESP_FLAG_SHARED_SD_PIN == ESP3D_RESET_PIN
 #error ESP_FLAG_SHARED_SD_PIN and ESP3D_RESET_PIN are same, it is not allowed.
 #endif
-#endif 
+#endif
 
 /**************************
  * FTP

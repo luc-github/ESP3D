@@ -47,6 +47,7 @@ void HTTP_Server::SDFileupload ()
             //Upload start
             if (upload.status == UPLOAD_FILE_START) {
                 _upload_status = UPLOAD_STATUS_ONGOING;
+                ESP_SD::accessSD();
                 if (upload_filename[0] != '/') {
                     filename = "/" + upload_filename;
                 } else {
@@ -129,10 +130,12 @@ void HTTP_Server::SDFileupload ()
                     _upload_status=UPLOAD_STATUS_FAILED;
                     pushError(ESP_ERROR_FILE_CLOSE, "File close failed");
                 }
+                ESP_SD::releaseSD();
                 //Upload cancelled
             } else {
                 if (_upload_status == UPLOAD_STATUS_ONGOING) {
                     _upload_status = UPLOAD_STATUS_FAILED;
+                    ESP_SD::releaseSD();
                 }
             }
         }
@@ -148,6 +151,7 @@ void HTTP_Server::SDFileupload ()
                 ESP_SD::remove (filename.c_str());
             }
         }
+        ESP_SD::releaseSD();
     }
 }
 #endif //HTTP_FEATURE && SD_DEVICE

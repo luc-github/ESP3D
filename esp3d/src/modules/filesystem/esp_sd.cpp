@@ -48,6 +48,25 @@ uint8_t ESP_SD::setState(uint8_t flag)
     return _state;
 }
 
+bool  ESP_SD::accessSD()
+{
+    bool res = false;
+#if SD_DEVICE_CONNECTION == ESP_SHARED_SD
+    //need to send the current state to avoid
+    res =  (digitalRead(ESP_FLAG_SHARED_SD_PIN) == ESP_FLAG_SHARED_SD_VALUE);
+    if (!res) {
+        digitalWrite(ESP_FLAG_SHARED_SD_PIN, ESP_FLAG_SHARED_SD_VALUE);
+    }
+#endif //SD_DEVICE_CONNECTION == ESP_SHARED_SD 
+    return res;
+}
+void  ESP_SD::releaseSD()
+{
+#if SD_DEVICE_CONNECTION == ESP_SHARED_SD
+    digitalWrite(ESP_FLAG_SHARED_SD_PIN, !ESP_FLAG_SHARED_SD_VALUE);
+#endif //SD_DEVICE_CONNECTION == ESP_SHARED_SD 
+}
+
 
 void ESP_SD::handle()
 {

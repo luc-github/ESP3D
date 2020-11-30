@@ -86,7 +86,7 @@ void HTTP_Server::WebUpdateUpload ()
                             }
                             String s = "Update ";
                             s+= String(last_upload_update);
-                            s+="%";
+                            s+="/100";
                             output.printMSG(s.c_str());
                         }
                     }

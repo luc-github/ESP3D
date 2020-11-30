@@ -202,14 +202,21 @@
 #define ESP_SD_SCK_PIN          -1
 #endif //ESP_SD_SCK_PIN
 
-// For SDIO Connect the SD card to the following pins:
-//SD Card | ESP32
-//    D2       12
-//    D3       13
-//    CMD      15
-//    VSS      GND
-//    VDD      3.3V
-//    CLK      14
-//    VSS      GND
-//    D0       2  (add 1K pull up after flashing)
-//    D1       4
+#ifndef ESP_SD_DETECT_PIN
+#define ESP_SD_DETECT_PIN       -1
+#endif //ESP_SD_DETECT_PIN 
+
+#if defined (PIN_RESET_FEATURE) && !defined(ESP3D_RESET_PIN)
+#define ESP3D_RESET_PIN 0
+#endif //PIN_RESET_FEATURE
+
+#ifdef SD_DEVICE_CONNECTION
+#if SD_DEVICE_CONNECTION == ESP_SHARED_SD
+#ifndef ESP_FLAG_SHARED_SD_PIN
+#define ESP_FLAG_SHARED_SD_PIN 0
+#endif //ESP_PIN_SHARED_SD
+#ifndef ESP_FLAG_SHARED_SD_VALUE
+#define ESP_FLAG_SHARED_SD_VALUE 0
+#endif //ESP_FLAG_SHARED_SD_VALUE
+#endif //SD_DEVICE_CONNECTION == ESP_SHARED_SD
+#endif //SD_DEVICE_CONNECTION

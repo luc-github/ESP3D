@@ -551,6 +551,8 @@ static int handle_luainit (lua_State *L) {
 ** Main body of stand-alone interpreter (to be called in protected mode).
 ** Reads the options and handles them all.
 */
+static int pmain (lua_State *L)  __attribute__ ((unused));
+
 static int pmain (lua_State *L) {
   int argc = (int)lua_tointeger(L, 1);
   char **argv = (char **)lua_touserdata(L, 2);
@@ -591,8 +593,6 @@ static int pmain (lua_State *L) {
   lua_pushboolean(L, 1);  /* signal no errors */
   return 1;
 }
-
-
 //int main (int argc, char **argv) {
 //  int status, result;
 //  lua_State *L = luaL_newstate();  /* create state */

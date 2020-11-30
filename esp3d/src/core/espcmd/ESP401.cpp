@@ -79,9 +79,6 @@ bool Commands::ESP401(const char* cmd_params, level_authenticate_type auth_type,
                     break;
 #endif //AUTHENTICATION_FEATURE
 #ifdef SD_DEVICE
-                case ESP_SD_DEVICE_TYPE:
-                    Settings_ESP3D::GetSDDevice(true);
-                    break;
                 case ESP_SD_SPEED_DIV:
                     ESP_SD::setSPISpeedDivider(sval.toInt());
                     break;

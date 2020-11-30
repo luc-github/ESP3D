@@ -213,7 +213,7 @@ void Telnet_Server::push2buffer(uint8_t * sbuf, size_t len)
             }
             flushbuffer();
         } else if (isPrintable (char(sbuf[i]) )) {
-        if (_buffer_size < ESP3D_TELNET_BUFFER_SIZE) {
+            if (_buffer_size < ESP3D_TELNET_BUFFER_SIZE) {
                 _buffer[_buffer_size] = sbuf[i];
                 _buffer_size++;
             } else {

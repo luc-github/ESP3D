@@ -127,7 +127,7 @@ public:
     static bool reset();
     static int8_t GetSettingsVersion();
     static uint8_t GetFirmwareTarget(bool fromsettings = false);
-    static uint8_t GetSDDevice(bool fromsettings = false);
+    static uint8_t GetSDDevice();
     static const char* GetFirmwareTargetShortName();
     static String IPtoString(uint32_t ip_int);
     static uint32_t StringtoIP(const char *s);
@@ -136,7 +136,6 @@ public:
 private:
     static bool is_string(const char * s, uint len);
     static uint8_t _FirmwareTarget;
-    static bool _SDdevice;
 };
 
 

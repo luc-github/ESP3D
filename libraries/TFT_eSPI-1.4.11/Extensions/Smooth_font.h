@@ -45,6 +45,8 @@ fontMetrics gFont = { 0, 0, 0, 0, 0, 0, 0 };
 
   void     loadMetrics(uint16_t gCount);
   uint32_t readInt32(void);
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
   fs::FS   &fontFS = SPIFFS;
+#pragma GCC diagnostic pop
   bool     spiffs = true;

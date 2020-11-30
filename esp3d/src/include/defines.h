@@ -51,9 +51,19 @@
 #define UI_MONOCHROME      2
 
 //SD connection
-#define ESP_NO_SD       0
-#define ESP_DIRECT_SD   1
-#define ESP_SHARED_SD   2
+#define ESP_NO_SD           0
+#define ESP_DIRECT_SD       1
+#define ESP_SHARED_SD       2
+
+//Upload type
+#define ESP_UPLOAD_DIRECT_SD       1
+#define ESP_UPLOAD_SHARED_SD       2
+#define ESP_UPLOAD_SERIAL_SD       3
+#define ESP_UPLOAD_FAST_SERIAL_SD  4
+#define ESP_UPLOAD_FAST_SERIAL_USB 5
+#define ESP_UPLOAD_DIRECT_USB      6
+
+
 
 //SD mount point
 #define ESP_SD_ROOT     1

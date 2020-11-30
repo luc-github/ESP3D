@@ -56,6 +56,7 @@ bool Commands::ESP740(const char* cmd_params, level_authenticate_type auth_type,
         output->printERROR ("Busy");
         return false;
     }
+    bool isactive = ESP_SD::accessSD();
     output->printf("Directory on SD : %s", parameter.c_str());
     output->printLN("");
     if (ESP_SD::exists(parameter.c_str())) {
@@ -111,6 +112,9 @@ bool Commands::ESP740(const char* cmd_params, level_authenticate_type auth_type,
     } else {
         output->printERROR ("Invalid directory!");
         response = false;
+    }
+    if (!isactive) {
+        ESP_SD::releaseSD();
     }
     return response;
 }

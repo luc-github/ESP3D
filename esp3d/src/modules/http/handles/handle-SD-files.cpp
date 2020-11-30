@@ -48,6 +48,7 @@ void HTTP_Server::handleSDFileList ()
         _webserver->send (200, "text/plain", "{\"status\":\"no SD card\"}");
         return;
     }
+
     if (_webserver->hasArg ("quiet")) {
         if(_webserver->arg ("quiet") == "yes") {
             Serial.println("quiet");
@@ -55,7 +56,7 @@ void HTTP_Server::handleSDFileList ()
             return;
         }
     }
-
+    bool isactive = ESP_SD::accessSD();
     //get current path
     if (_webserver->hasArg ("path") ) {
         path += _webserver->arg ("path") ;
@@ -214,6 +215,9 @@ void HTTP_Server::handleSDFileList ()
     _webserver->sendContent_P(buffer2send.c_str(),buffer2send.length());
     _webserver->sendContent("");
     _upload_status = UPLOAD_STATUS_NONE;
+    if (!isactive) {
+        ESP_SD::releaseSD();
+    }
 }
 
 #endif //HTTP_FEATURE && SD_DEVICE

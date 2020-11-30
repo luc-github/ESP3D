@@ -253,8 +253,11 @@ const char * HTTP_Server::get_Splited_Value(String data, char separator, int ind
             strIndex[1] = (i == maxIndex) ? i+1 : i;
         }
     }
-    if (found>index) s =  data.substring(strIndex[0], strIndex[1]).c_str();
-    else s = "";
+    if (found>index) {
+        s =  data.substring(strIndex[0], strIndex[1]).c_str();
+    } else {
+        s = "";
+    }
     return s.c_str();
 }
 

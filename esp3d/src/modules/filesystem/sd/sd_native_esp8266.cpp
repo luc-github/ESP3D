@@ -73,24 +73,40 @@ uint8_t ESP_SD::getState(bool refresh)
 #if defined(ESP_SD_DETECT_PIN) && ESP_SD_DETECT_PIN != -1
     //no need to go further if SD detect is not correct
     if (!((digitalRead (ESP_SD_DETECT_PIN) == ESP_SD_DETECT_VALUE) ? true : false)) {
+        log_esp3d("No SD State %d vs %d", digitalRead (ESP_SD_DETECT_PIN), ESP_SD_DETECT_VALUE);
         _state = ESP_SDCARD_NOT_PRESENT;
         return _state;
+    } else {
+        log_esp3d("SD Detect Pin ok");
     }
 #endif  //ESP_SD_DETECT_PIN
     //if busy doing something return state
     if (!((_state == ESP_SDCARD_NOT_PRESENT) || _state == ESP_SDCARD_IDLE)) {
+        log_esp3d("Busy SD State");
         return _state;
     }
     if (!refresh) {
+        log_esp3d("SD State cache is %d", _state);
         return _state;  //to avoid refresh=true + busy to reset SD and waste time
     }
     //SD is idle or not detected, let see if still the case
     _state = ESP_SDCARD_NOT_PRESENT;
+    bool isactive = accessSD();
     //refresh content if card was removed
     if (SD.begin((ESP_SD_CS_PIN == -1)?SS:ESP_SD_CS_PIN, SD_SCK_HZ(F_CPU/_spi_speed_divider))) {
+        log_esp3d("Init SD State ok");
         if (SD.card()->cardSize() > 0 ) {
+            log_esp3d("SD available");
             _state = ESP_SDCARD_IDLE;
+        } else {
+            log_esp3d("Cannot get card size");
         }
+    } else {
+        log_esp3d("Init SD State failed");
+    }
+    log_esp3d("SD State is %d", _state);
+    if (!isactive) {
+        releaseSD();
     }
     return _state;
 }
@@ -108,9 +124,16 @@ bool ESP_SD::begin()
     //set callback to get time on files on SD
     SdFile::dateTimeCallback (dateTime);
 #endif //SD_TIMESTAMP_FEATURE
-    if (getState(true) == ESP_SDCARD_IDLE) {
-        freeBytes();
-    }
+    //Setup pins
+#if defined(ESP_SD_DETECT_PIN) && ESP_SD_DETECT_PIN != -1
+    pinMode (ESP_SD_DETECT_PIN, INPUT);
+#endif //ESP_SD_DETECT_PIN
+#if SD_DEVICE_CONNECTION  == ESP_SHARED_SD
+#if defined(ESP_FLAG_SHARED_SD_PIN) && ESP_FLAG_SHARED_SD_PIN != -1
+    pinMode (ESP_FLAG_SHARED_SD_PIN, OUTPUT);
+    digitalWrite(ESP_FLAG_SHARED_SD_PIN, !ESP_FLAG_SHARED_SD_VALUE);
+#endif //ESP_FLAG_SHARED_SD_PIN
+#endif //SD_DEVICE_CONNECTION  == ESP_SHARED_SD
     return _started;
 }
 
@@ -155,7 +178,7 @@ bool ESP_SD::rename(const char *oldpath, const char *newpath)
 // constants for file system structure
 #define BU16 128
 #define BU32 8192
-#define ERASE_SIZE 262144L;
+#define ERASE_SIZE 262144L
 
 //------------------------------------------------------------------------------
 // write cached block to the card
@@ -309,7 +332,7 @@ uint32_t volSerialNumber(uint32_t cardSizeBlocks)
 }
 
 // format the SD as FAT16
-bool makeFat16(uint32_t & dataStart, Sd2Card & card, cache_t & cache, uint8_t numberOfHeads, uint8_t sectorsPerTrack, uint32_t cardSizeBlocks, uint8_t sectorsPerCluster, uint32_t &relSector, uint32_t partSize, uint8_t & partType, uint32_t &fatSize, uint32_t &fatStart, uint16_t reservedSectors, ESP3DOutput * output)
+bool makeFat16(uint32_t & dataStart, Sd2Card & card, cache_t & cache, uint8_t numberOfHeads, uint8_t sectorsPerTrack, uint32_t cardSizeBlocks, uint8_t sectorsPerCluster, uint32_t &relSector,  uint8_t & partType, uint32_t &fatSize, uint32_t &fatStart, ESP3DOutput * output)
 {
     uint32_t nc;
     for (dataStart = 2 * BU16;; dataStart += BU16) {
@@ -326,9 +349,9 @@ bool makeFat16(uint32_t & dataStart, Sd2Card & card, cache_t & cache, uint8_t nu
     if (nc < 4085 || nc >= 65525) {
         return false;
     }
-    reservedSectors = 1;
+    uint16_t reservedSectors = 1;
     fatStart = relSector + reservedSectors;
-    partSize = nc * sectorsPerCluster + 2 * fatSize + reservedSectors + 32;
+    uint32_t partSize = nc * sectorsPerCluster + 2 * fatSize + reservedSectors + 32;
     if (partSize < 32680) {
         partType = 0X01;
     } else if (partSize < 65536) {
@@ -382,7 +405,7 @@ bool makeFat16(uint32_t & dataStart, Sd2Card & card, cache_t & cache, uint8_t nu
 }
 
 // format the SD as FAT32
-bool makeFat32(uint32_t & dataStart, Sd2Card & card, cache_t & cache, uint8_t numberOfHeads, uint8_t sectorsPerTrack, uint32_t cardSizeBlocks, uint8_t sectorsPerCluster, uint32_t &relSector, uint32_t partSize, uint8_t & partType, uint32_t &fatSize, uint32_t &fatStart, uint16_t reservedSectors, ESP3DOutput * output)
+bool makeFat32(uint32_t & dataStart, Sd2Card & card, cache_t & cache, uint8_t numberOfHeads, uint8_t sectorsPerTrack, uint32_t cardSizeBlocks, uint8_t sectorsPerCluster, uint32_t &relSector, uint8_t & partType, uint32_t &fatSize, uint32_t &fatStart, ESP3DOutput * output)
 {
     uint32_t nc;
     relSector = BU32;
@@ -398,9 +421,9 @@ bool makeFat32(uint32_t & dataStart, Sd2Card & card, cache_t & cache, uint8_t nu
     if (nc < 65525) {
         return false;
     }
-    reservedSectors = dataStart - relSector - 2 * fatSize;
+    uint16_t reservedSectors = dataStart - relSector - 2 * fatSize;
     fatStart = relSector + reservedSectors;
-    partSize = nc * sectorsPerCluster + dataStart - relSector;
+    uint32_t partSize = nc * sectorsPerCluster + dataStart - relSector;
     // type depends on address of end sector
     // max CHS has lbn = 16450560 = 1024*255*63
     if ((relSector + partSize) <= 16450560) {
@@ -478,7 +501,6 @@ bool eraseCard(Sd2Card & card, cache_t & cache, uint32_t cardSizeBlocks, ESP3DOu
 {
     uint32_t firstBlock = 0;
     uint32_t lastBlock;
-    uint16_t n = 0;
     if (output) {
         output->printMSG("Erasing ", false);
     }
@@ -506,26 +528,31 @@ bool eraseCard(Sd2Card & card, cache_t & cache, uint32_t cardSizeBlocks, ESP3DOu
 }
 
 bool formatCard(uint32_t & dataStart, Sd2Card & card,
-                cache_t & cache, uint8_t numberOfHeads,
-                uint8_t sectorsPerTrack, uint32_t cardSizeBlocks,
-                uint8_t sectorsPerCluster, uint32_t &relSector,
-                uint32_t partSize, uint8_t & partType,
+                cache_t & cache, uint32_t cardSizeBlocks,
+                uint32_t &relSector,
+                uint8_t & partType,
                 uint32_t &fatSize, uint32_t &fatStart,
-                uint32_t cardCapacityMB, uint16_t reservedSectors, ESP3DOutput * output)
+                uint32_t cardCapacityMB, ESP3DOutput * output)
 {
+    // Fake disk geometry
+    uint8_t numberOfHeads;
+    uint8_t sectorsPerTrack;
+    // FAT parameters
+    uint8_t sectorsPerCluster;
+
     initSizes(cardCapacityMB, sectorsPerCluster, numberOfHeads, sectorsPerTrack);
     if (card.type() != SD_CARD_TYPE_SDHC) {
         if (output) {
             output->printMSG("Formating FAT16 ");
         }
-        if(!makeFat16(dataStart, card, cache, numberOfHeads, sectorsPerTrack, cardSizeBlocks, sectorsPerCluster, relSector, partSize, partType, fatSize, fatStart, reservedSectors, output)) {
+        if(!makeFat16(dataStart, card, cache, numberOfHeads, sectorsPerTrack, cardSizeBlocks, sectorsPerCluster, relSector, partType, fatSize, fatStart, output)) {
             return false;
         }
     } else {
         if (output) {
             output->printMSG("Formating FAT32 ", false);
         }
-        if(!makeFat32(dataStart, card, cache, numberOfHeads, sectorsPerTrack, cardSizeBlocks, sectorsPerCluster, relSector, partSize, partType, fatSize, fatStart, reservedSectors, output)) {
+        if(!makeFat32(dataStart, card, cache, numberOfHeads, sectorsPerTrack, cardSizeBlocks, sectorsPerCluster, relSector, partType, fatSize, fatStart, output)) {
             return false;
         }
     }
@@ -547,15 +574,8 @@ bool ESP_SD::format(ESP3DOutput * output)
         // MBR information
         uint8_t partType;
         uint32_t relSector;
-        uint32_t partSize;
-
-        // Fake disk geometry
-        uint8_t numberOfHeads;
-        uint8_t sectorsPerTrack;
 
         // FAT parameters
-        uint16_t reservedSectors;
-        uint8_t sectorsPerCluster;
         uint32_t fatStart;
         uint32_t fatSize;
         uint32_t dataStart;
@@ -575,10 +595,9 @@ bool ESP_SD::format(ESP3DOutput * output)
             return false;
         }
 
-        if (!formatCard(dataStart, card, cache, numberOfHeads,
-                        sectorsPerTrack, cardSizeBlocks,
-                        sectorsPerCluster, relSector, partSize, partType,
-                        fatSize, fatStart, cardCapacityMB, reservedSectors,output)) {
+        if (!formatCard(dataStart, card, cache, cardSizeBlocks,
+                        relSector, partType,
+                        fatSize, fatStart, cardCapacityMB,output)) {
             return false;
         }
         return true;

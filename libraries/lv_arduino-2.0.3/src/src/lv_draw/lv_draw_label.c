@@ -142,7 +142,7 @@ void lv_draw_label(const lv_area_t * coords, const lv_area_t * mask, const lv_st
     cmd_state_t cmd_state = CMD_STATE_WAIT;
     uint32_t i;
     uint16_t par_start = 0;
-    lv_color_t recolor;
+    lv_color_t recolor = lv_color_make(0, 0, 0);
     lv_coord_t letter_w;
     lv_style_t sel_style;
     lv_style_copy(&sel_style, &lv_style_plain_color);

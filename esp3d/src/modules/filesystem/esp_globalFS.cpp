@@ -69,7 +69,13 @@ uint64_t ESP_GBFS::totalBytes(uint8_t FS)
 #endif //FILESYSTEM_FEATURE 
 #ifdef SD_DEVICE
     if(FS == FS_SD) {
-        return ESP_SD::totalBytes();
+        uint64_t size = 0;
+        bool isactive = ESP_SD::accessSD();
+        size =ESP_SD::totalBytes();
+        if (!isactive) {
+            ESP_SD::releaseSD();
+        }
+        return size;
     }
 #endif //SD_DEVICE   
     return 0;
@@ -84,7 +90,13 @@ uint64_t ESP_GBFS::usedBytes(uint8_t FS)
 #endif //FILESYSTEM_FEATURE 
 #ifdef SD_DEVICE
     if(FS == FS_SD) {
-        return ESP_SD::usedBytes();
+        uint64_t size = 0;
+        bool isactive = ESP_SD::accessSD();
+        size = ESP_SD::usedBytes();
+        if (!isactive) {
+            ESP_SD::releaseSD();
+        }
+        return size;
     }
 #endif //SD_DEVICE   
     return 0;
@@ -99,7 +111,13 @@ uint64_t ESP_GBFS::freeBytes(uint8_t FS)
 #endif //FILESYSTEM_FEATURE 
 #ifdef SD_DEVICE
     if(FS == FS_SD) {
-        return ESP_SD::freeBytes();
+        uint64_t size = 0;
+        bool isactive = ESP_SD::accessSD();
+        size = ESP_SD::freeBytes();
+        if (!isactive) {
+            ESP_SD::releaseSD();
+        }
+        return size;
     }
 #endif //SD_DEVICE   
     return 0;
@@ -115,7 +133,13 @@ bool format(uint8_t FS, ESP3DOutput * output = nullptr)
 #endif //FILESYSTEM_FEATURE 
 #ifdef SD_DEVICE
     if(FS == FS_SD) {
-        return ESP_SD::format(output);
+        bool res = false;
+        bool isactive = ESP_SD::accessSD();
+        res = ESP_SD::format(output);
+        if (!isactive) {
+            ESP_SD::releaseSD();
+        }
+        return res;
     }
 #endif //SD_DEVICE 
     output->printERROR("Not available");
@@ -189,7 +213,13 @@ bool ESP_GBFS::exists(const char* path)
 #endif //FILESYSTEM_FEATURE
 #if defined (SD_DEVICE)
     if (t == FS_SD) {
-        return ESP_SD::exists(getRealPath(path));
+        bool res = false;
+        bool isactive = ESP_SD::accessSD();
+        res = ESP_SD::exists(getRealPath(path));
+        if (!isactive) {
+            ESP_SD::releaseSD();
+        }
+        return res;
     }
 #endif //SD_DEVICE
 #endif // FILESYSTEM_FEATURE || SD_DEVICE
@@ -210,7 +240,13 @@ bool ESP_GBFS::remove(const char *path)
 #endif //FILESYSTEM_FEATURE
 #if defined (SD_DEVICE)
     if (t == FS_SD) {
-        return ESP_SD::remove(getRealPath(path));
+        bool res = false;
+        bool isactive = ESP_SD::accessSD();
+        res = ESP_SD::remove(getRealPath(path));
+        if (!isactive) {
+            ESP_SD::releaseSD();
+        }
+        return res;
     }
 #endif //SD_DEVICE
 #endif // FILESYSTEM_FEATURE || SD_DEVICE
@@ -231,7 +267,13 @@ bool ESP_GBFS::rename(const char *oldpath, const char *newpath)
 #endif //FILESYSTEM_FEATURE
 #if defined (SD_DEVICE)
     if (t == FS_SD) {
-        return ESP_SD::rename(getRealPath(oldpath), getRealPath(newpath));
+        bool res = false;
+        bool isactive = ESP_SD::accessSD();
+        res = ESP_SD::rename(getRealPath(oldpath), getRealPath(newpath));
+        if (!isactive) {
+            ESP_SD::releaseSD();
+        }
+        return res;
     }
 #endif //SD_DEVICE
 #endif // FILESYSTEM_FEATURE || SD_DEVICE
@@ -247,12 +289,18 @@ bool ESP_GBFS::mkdir(const char *path)
     }
 #if defined (FILESYSTEM_FEATURE)
     if (t == FS_FLASH) {
-        return ESP_FileSystem::mkdir(getRealPath(path));
+        return ESP_FileSystem::mkdir(getRealPath(path));;
     }
 #endif //FILESYSTEM_FEATURE
 #if defined (SD_DEVICE)
     if (t == FS_SD) {
-        return ESP_SD::mkdir(getRealPath(path));
+        bool res = false;
+        bool isactive = ESP_SD::accessSD();
+        res = ESP_SD::mkdir(getRealPath(path));
+        if (!isactive) {
+            ESP_SD::releaseSD();
+        }
+        return res;
     }
 #endif //SD_DEVICE
 #endif // FILESYSTEM_FEATURE || SD_DEVICE
@@ -273,7 +321,13 @@ bool ESP_GBFS::rmdir(const char *path)
 #endif //FILESYSTEM_FEATURE
 #if defined (SD_DEVICE)
     if (t == FS_SD) {
-        return ESP_SD::rmdir(getRealPath(path));
+        bool res = false;
+        bool isactive = ESP_SD::accessSD();
+        res = ESP_SD::rmdir(getRealPath(path));
+        if (!isactive) {
+            ESP_SD::releaseSD();
+        }
+        return res;
     }
 #endif //SD_DEVICE
 #endif // FILESYSTEM_FEATURE || SD_DEVICE

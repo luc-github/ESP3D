@@ -456,13 +456,6 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print ("\"}");
 #endif //SENSOR_DEVICE
 #ifdef SD_DEVICE
-    //Direct SD
-    output->print(",{\"F\":\"device/sd\",\"P\":\"");
-    output->print(ESP_SD_DEVICE_TYPE);
-    output->print("\",\"T\":\"B\",\"V\":\"");
-    output->print (Settings_ESP3D::read_byte(ESP_SD_DEVICE_TYPE));
-    //hard coded for readibility but should use ESP_NO_SD / ESP_DIRECT_SD / ESP_SHARED_SD
-    output->print("\",\"H\":\"type\",\"O\":[{\"none\":\"0\"},{\"direct\":\"1\"},{\"shared\":\"2\"}]}");
     //SPI SD Divider
     output->print(",{\"F\":\"device/sd\",\"P\":\"");
     output->print(ESP_SD_SPEED_DIV);

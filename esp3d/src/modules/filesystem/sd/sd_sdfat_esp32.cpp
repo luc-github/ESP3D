@@ -86,12 +86,16 @@ uint8_t ESP_SD::getState(bool refresh)
     }
     //SD is idle or not detected, let see if still the case
     _state = ESP_SDCARD_NOT_PRESENT;
+    bool isactive = accessSD();
     log_esp3d("Spi : CS: %d,  Miso: %d, Mosi: %d, SCK: %d",ESP_SD_CS_PIN!=-1?ESP_SD_CS_PIN:SS, ESP_SD_MISO_PIN!=-1?ESP_SD_MISO_PIN:MISO, ESP_SD_MOSI_PIN!=-1?ESP_SD_MOSI_PIN:MOSI, ESP_SD_SCK_PIN!=-1?ESP_SD_SCK_PIN:SCK);
     //refresh content if card was removed
     if (SD.begin((ESP_SD_CS_PIN == -1)?SS:ESP_SD_CS_PIN, SD_SCK_MHZ(FREQMZ/_spi_speed_divider))) {
         if (SD.card()->cardSize() > 0 ) {
             _state = ESP_SDCARD_IDLE;
         }
+    }
+    if (!isactive) {
+        releaseSD();
     }
     return _state;
 }
@@ -112,9 +116,16 @@ bool ESP_SD::begin()
     //set callback to get time on files on SD
     SdFile::dateTimeCallback (dateTime);
 #endif //SD_TIMESTAMP_FEATURE
-    if (getState(true) == ESP_SDCARD_IDLE) {
-        freeBytes();
-    }
+//Setup pins
+#if defined(ESP_SD_DETECT_PIN) && ESP_SD_DETECT_PIN != -1
+    pinMode (ESP_SD_DETECT_PIN, INPUT);
+#endif //ESP_SD_DETECT_PIN
+#if SD_DEVICE_CONNECTION  == ESP_SHARED_SD
+#if defined(ESP_FLAG_SHARED_SD_PIN) && ESP_FLAG_SHARED_SD_PIN != -1
+    pinMode (ESP_FLAG_SHARED_SD_PIN, OUTPUT);
+    digitalWrite(ESP_FLAG_SHARED_SD_PIN, !ESP_FLAG_SHARED_SD_VALUE);
+#endif //ESP_FLAG_SHARED_SD_PIN
+#endif //SD_DEVICE_CONNECTION  == ESP_SHARED_SD
     return _started;
 }
 

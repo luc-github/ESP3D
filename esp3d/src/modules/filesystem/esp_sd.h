@@ -67,6 +67,8 @@ class ESP_SD
 public:
     static String & formatBytes (uint64_t bytes);
     static bool begin();
+    static bool  accessSD();
+    static void  releaseSD();
     static void handle();
     static void end();
     static uint8_t getState(bool refresh);
