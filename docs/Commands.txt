@@ -122,7 +122,7 @@ ESP_BUZZER              119     //1 byte = flag
 ESP_INTERNET_TIME       120     //1  byte = flag
 ESP_HTTP_PORT           121     //4  bytes = int
 ESP_TELNET_PORT         125     //4  bytes = int
-ESP_OUTPUT_FLAG         129     //1  bytes = flag
+ESP_SERIAL_FLAG         129     //1  bytes = flag
 ESP_HOSTNAME            130     //33 bytes 32+1 = string  ; warning does not support multibyte char like chinese
 ESP_SENSOR_INTERVAL     164     //4  bytes = int
 ESP_SETTINGS_VERSION    168     //8  bytes = 7+1 = string ESP3D + 2 digits
@@ -131,8 +131,8 @@ ESP_USER_PWD            197     //21  bytes 20+1 = string  ; warning does not su
 ESP_AP_SSID             218     //33 bytes 32+1 = string  ; warning does not support multibyte char like chinese
 ESP_AP_PASSWORD         251     //65 bytes 64 +1 = string ;warning does not support multibyte char like chinese
 ESP_AP_IP_VALUE         316     //4  bytes xxx.xxx.xxx.xxx
-ESP_BOOT_DELAY          320     //4  bytes xxx.xxx.xxx.xxx
-ESP_WEBSOCKET_PORT      324     //4  bytes xxx.xxx.xxx.xxx
+ESP_BOOT_DELAY          320     //4  bytes = int
+ESP_WEBSOCKET_PORT      324     //4  bytes= int
 ESP_HTTP_ON             328     //1 byte = flag
 ESP_TELNET_ON           329     //1 byte = flag
 ESP_WEBSOCKET_ON        330     //1 byte = flag
@@ -146,10 +146,10 @@ ESP_TIME_IS_DST         463     //1  bytes = flag
 ESP_TIME_SERVER1        464     //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese
 ESP_TIME_SERVER2        593     //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese
 ESP_TIME_SERVER3        722     //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese
-ESP_SD_DEVICE_TYPE      851     //1  bytes = flag
+ESP_PRINTER_LCD         851     //1  bytes = flag
 ESP_SD_MOUNT            852     //1  bytes = flag
 ESP_SESSION_TIMEOUT     853     //1  bytes = flag
-ESP_DIRECT_SD_CHECK     854     //1  bytes = flag
+ESP_WEBSOCKET_FLAG      854     //1  bytes = flag
 ESP_SD_CHECK_UPDATE_AT_BOOT   855//1  bytes = flag
 ESP_NOTIFICATION_SETTINGS 856   //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese
 ESP_CALIBRATION_1       985     //4  bytes = int
@@ -157,12 +157,18 @@ ESP_CALIBRATION_2       989     //4  bytes = int
 ESP_CALIBRATION_3       993     //4  bytes = int 
 ESP_CALIBRATION_4       997     //4  bytes = int
 ESP_CALIBRATION_5       1001     //4  bytes = int
-ESP_FREE_ENTRY          1005    //4  bytes = int
+ESP_SETUP               1005    //1 byte = flag
+ESP_TELNET_FLAG         1006    //1 byte = flag
+ESP_BT_FLAG             1007    //1 byte = flag
+ESP_LCD_FLAG            1008    //1 byte = flag
 ESP_FTP_CTRL_PORT       1009    //4  bytes = int
 ESP_FTP_DATA_ACTIVE_PORT       1013    //4  bytes = int
 ESP_FTP_DATA_PASSIVE_PORT      1017    //4  bytes = int
 ESP_FTP_ON             1021     //1 byte = flag
 ESP_AUTO_NOTIFICATION   1022    //1 byte = flag
+
+* Get/Set Check update at boot state which can be ON, OFF
+[ESP402]<state>pwd=<admin password>
 
 *Get available AP list (limited to 30)
 output is JSON or plain text according parameter
@@ -217,3 +223,6 @@ rmdir / remove / mkdir / exists / create
 
 * Get state / Set Enable / Disable buzzer
 [ESP910]<ENABLE/DISABLE>[pwd=<admin/user password>]
+
+*Get state / Set state of  output message clients
+[ESP910]<SERIAL / LCD / PRINTER_LCD/ WEBSOCKET / TELNET /BT / ALL>=<ON/OFF>[pwd=<admin/user password>]

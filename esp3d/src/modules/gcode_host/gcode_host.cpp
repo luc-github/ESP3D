@@ -249,7 +249,7 @@ bool GcodeHost::purge(uint32_t timeout)
         size_t len = serial_service.readBytes (buf, 50);
         buf[len] = '\0';
         log_esp3d("**\n%s\n", (const char *)buf);
-        if ( (Settings_ESP3D::GetFirmwareTarget() == REPETIER4DV) || (Settings_ESP3D::GetFirmwareTarget() == REPETIER) || _waitwhenidle) {
+        if ( (Settings_ESP3D::GetFirmwareTarget() == REPETIER) || _waitwhenidle) {
             String s = (const char *)buf;
             //repetier never stop sending data so no need to wait if have 'wait' or 'busy'
             if((s.indexOf ("wait") > -1) || (s.indexOf ("busy") > -1)) {

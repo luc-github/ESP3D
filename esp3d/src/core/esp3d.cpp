@@ -46,6 +46,9 @@
 #ifdef ESP_LUA_INTERPRETER_FEATURE
 #include "../modules/lua_interpreter/lua_interpreter_service.h"
 #endif //#ifdef 
+#ifdef  SD_UPDATE_FEATURE
+#include "../modules/update/update_service.h"
+#endif // SD_UPDATE_FEATURE
 #include "esp3doutput.h"
 #include "../modules/boot_delay/boot_delay.h"
 
@@ -81,6 +84,13 @@ bool Esp3D::begin()
 #endif //CONNECTED_DEVICES_FEATURE
     //delay to avoid to disturb printer
     bd.begin();
+#ifdef  SD_UPDATE_FEATURE
+    if (update_service.begin()) {
+        log_esp3d("Need restart due to update");
+        //no need to continue as there was an update
+        restart_now();
+    }
+#endif // SD_UPDATE_FEATURE
     log_esp3d("Mode %d", WiFi.getMode());
     if (!Settings_ESP3D::begin()) {
         log_esp3d("Need reset settings");

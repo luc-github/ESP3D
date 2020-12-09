@@ -126,7 +126,7 @@
 //ESP_SD_NATIVE               1 //esp32 / esp8266
 //ESP_SDIO                    2 //esp32 only
 //ESP_SDFAT                   3 //esp8266 (same as native) / esp32
-//#define SD_DEVICE    ESP_SDIO
+#define SD_DEVICE    ESP_SD_NATIVE
 
 //SDIO mode
 #define SD_ONE_BIT_MODE true
@@ -139,15 +139,17 @@
 
 //pin if reader has insert detection feature
 //let -1 or comment if none
-//#define ESP_SD_DETECT_PIN       -1
+//#define ESP_SD_DETECT_PIN       4
 //value expected for ESP_SD_DETECT_PIN (0 or 1)
-#define ESP_SD_DETECT_VALUE      1
+#define ESP_SD_DETECT_VALUE      0
+
+//#define ESP_SD_CS_PIN   5
 
 //FILESYSTEM_FEATURE: to host some files on flash
 //ESP_SPIFFS_FILESYSTEM       0
 //ESP_FAT_FILESYSTEM          1
 //ESP_LITTLEFS_FILESYSTEM     2
-#define FILESYSTEM_FEATURE ESP_SPIFFS_FILESYSTEM
+#define FILESYSTEM_FEATURE ESP_LITTLEFS_FILESYSTEM
 
 //Allows to mount /FS and /SD under / for FTP server
 #define GLOBAL_FILESYSTEM_FEATURE
@@ -187,6 +189,9 @@
 
 //WEB_UPDATE_FEATURE: allow to flash fw using web UI
 #define WEB_UPDATE_FEATURE
+
+//SD_UPDATE_FEATURE: allow to flash/configure fw using SD
+#define SD_UPDATE_FEATURE
 
 //NOTIFICATION_FEATURE : allow to push notifications
 #define NOTIFICATION_FEATURE
@@ -242,7 +247,7 @@
 //DEBUG_OUTPUT_SERIAL2 3
 //DEBUG_OUTPUT_TELNET  4
 //DEBUG_OUTPUT_WEBSOCKET  5
-//#define ESP_DEBUG_FEATURE DEBUG_OUTPUT_SERIAL2
+//#define ESP_DEBUG_FEATURE DEBUG_OUTPUT_SERIAL0
 
 #ifdef ESP_DEBUG_FEATURE
 #define DEBUG_BAUDRATE 115200

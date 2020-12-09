@@ -333,7 +333,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
     } else {
         output->print (": ");
     }
-    output->print ((bt_service.started())?"ONN":"OFF");
+    output->print ((bt_service.started())?"ON":"OFF");
     if (!plain) {
         output->print ("\"}");
     } else {
@@ -1185,6 +1185,24 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
     } else {
         output->printLN("");
     }
+#ifdef SD_UPDATE_FEATURE
+    if (!plain) {
+        output->print (",{\"id\":\"");
+    }
+    output->print ("SD updater");
+    if (!plain) {
+        output->print ("\",\"value\":\"");
+    } else {
+        output->print (": ");
+    }
+    output->print (Settings_ESP3D::read_byte (ESP_SD_CHECK_UPDATE_AT_BOOT)!=0?"ON":"OFF");
+    if (!plain) {
+        output->print ("\"}");
+    } else {
+        output->printLN("");
+    }
+#endif //SD_UPDATE_FEATURE
+
 #endif //SD_DEVICE
 #if defined (SENSOR_DEVICE)
     if (!plain) {

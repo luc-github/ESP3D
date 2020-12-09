@@ -32,13 +32,10 @@
 
 
 #define DEFAULT_FRAME_SIZE FRAMESIZE_SVGA
-#define PART_BUFFER_SIZE 64
 #define JPEG_COMPRESSION 80
 #define MIN_WIDTH_COMPRESSION 400
-#define PART_BOUNDARY "123456789000000000000987654321"
 
 Camera esp3d_camera;
-
 
 void Camera::handle_snap(WebServer * webserver)
 {
@@ -70,7 +67,6 @@ void Camera::handle_snap(WebServer * webserver)
     bool res_error = false;
     size_t _jpg_buf_len = 0;
     uint8_t * _jpg_buf = NULL;
-    char * part_buf[PART_BUFFER_SIZE];
     dl_matrix3du_t *image_matrix = NULL;
     webserver->sendHeader(String(F("Content-Type")), String(F("image/jpeg")),true);
     webserver->sendHeader(String(F("Content-Disposition")), String(F("inline; filename=capture.jpg")),true);

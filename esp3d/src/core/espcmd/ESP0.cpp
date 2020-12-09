@@ -94,6 +94,9 @@ const char * help[]= {"[ESP] - display this help",
                       "[ESP290](delay in ms) - do a pause",
                       "[ESP400] - display ESP3D settings in JSON",
                       "[ESP401]P=(position) T=(type) V=(value) - Set specific setting",
+#ifdef SD_UPDATE_FEATURE
+                      "[ESP402](State) - display/set check update at boot from SD which can be ON, OFF",
+#endif //SD_UPDATE_FEATURE
 #if defined (WIFI_FEATURE)
                       "[ESP410](plain) - display available AP list (limited to 30) in plain/JSON",
 #endif //WIFI_FEATURE
@@ -133,6 +136,7 @@ const char * help[]= {"[ESP] - display this help",
 #ifdef BUZZER_DEVICE
                       "[ESP910](ENABLE/DISABLE) - display/set buzzer state",
 #endif //BUZZER_DEVICE
+                      "[ESP920](client)=(ON/OFF) - display/set SERIAL / LCD / PRINTER_LCD/ WEBSOCKET / TELNET /BT / ALL client state",
                       ""
                      };
 const uint cmdlist[]= {0,

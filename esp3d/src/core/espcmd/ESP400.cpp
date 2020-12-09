@@ -462,6 +462,14 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print("\",\"T\":\"B\",\"V\":\"");
     output->print (Settings_ESP3D::read_byte(ESP_SD_SPEED_DIV));
     output->print("\",\"H\":\"speedx\",\"O\":[{\"1\":\"1\"},{\"2\":\"2\"},{\"3\":\"3\"},{\"4\":\"4\"},{\"6\":\"6\"},{\"8\":\"8\"},{\"16\":\"16\"},{\"32\":\"32\"}]}");
+#ifdef SD_UPDATE_FEATURE
+    //SD CHECK UPDATE AT BOOT feature
+    output->print(",{\"F\":\"device/sd\",\"P\":\"");
+    output->print(ESP_SD_CHECK_UPDATE_AT_BOOT);
+    output->print("\",\"T\":\"B\",\"V\":\"");
+    output->print (Settings_ESP3D::read_byte(ESP_SD_CHECK_UPDATE_AT_BOOT));
+    output->print("\",\"H\":\"SD updater\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
+#endif //SD_UPDATE_FEATURE
 #endif //SD_DEVICE 
     //Target FW
     output->print (",{\"F\":\"system/system\",\"P\":\"");
@@ -470,8 +478,6 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (Settings_ESP3D::read_byte(ESP_TARGET_FW));
     output->print ("\",\"H\":\"targetfw\",\"O\":[{\"repetier\":\"");
     output->print (REPETIER);
-    output->print ("\"},{\"repetier4davinci\":\"");
-    output->print (REPETIER4DV);
     output->print ("\"},{\"marlin\":\"");
     output->print (MARLIN);
     output->print ("\"},{\"marlinkimbra\":\"");
@@ -509,25 +515,51 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (Settings_ESP3D::get_min_int32_value(ESP_BOOT_DELAY));
     output->print ("\"}");
     //Output flag
-    output->print (",{\"F\":\"system/system\",\"P\":\"");
-    output->print (ESP_OUTPUT_FLAG);
-    output->print ("\",\"T\":\"F\",\"V\":\"");
-    output->print (Settings_ESP3D::read_byte(ESP_OUTPUT_FLAG));
-    output->printf ("\",\"H\":\"outputmsg\",\"O\":[{\"M117\":\"%d\"}", ESP_PRINTER_LCD_CLIENT);
+    //Serial
+    output->print (",{\"F\":\"system/outputmsg\",\"P\":\"");
+    output->print (ESP_SERIAL_FLAG);
+    output->print ("\",\"T\":\"B\",\"V\":\"");
+    output->print (Settings_ESP3D::read_byte(ESP_SERIAL_FLAG));
+    output->print ("\",\"H\":\"serial\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
+
+    //Printer LCD
+    output->print (",{\"F\":\"system/outputmsg\",\"P\":\"");
+    output->print (ESP_PRINTER_LCD_FLAG);
+    output->print ("\",\"T\":\"B\",\"V\":\"");
+    output->print (Settings_ESP3D::read_byte(ESP_PRINTER_LCD_FLAG));
+    output->print ("\",\"H\":\"M117\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
 #ifdef DISPLAY_DEVICE
-    output->printf (",{\"screen\":\"%d\"}", ESP_SCREEN_CLIENT);
+    //ESP LCD
+    output->print (",{\"F\":\"system/outputmsg\",\"P\":\"");
+    output->print (ESP_LCD_FLAG);
+    output->print ("\",\"T\":\"B\",\"V\":\"");
+    output->print (Settings_ESP3D::read_byte(ESP_LCD_FLAG));
+    output->print ("\",\"H\":\"M117\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
 #endif //DISPLAY_DEVICE
-    output->printf (",{\"serial\":\"%d\"}", ESP_SERIAL_CLIENT);
 #ifdef WS_DATA_FEATURE
-    output->printf (",{\"ws\":\"%d\"}", ESP_WEBSOCKET_CLIENT);
+    //Websocket
+    output->print (",{\"F\":\"system/outputmsg\",\"P\":\"");
+    output->print (ESP_WEBSOCKET_FLAG);
+    output->print ("\",\"T\":\"B\",\"V\":\"");
+    output->print (Settings_ESP3D::read_byte(ESP_WEBSOCKET_FLAG));
+    output->print ("\",\"H\":\"ws\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
 #endif //WS_DATA_FEATURE
 #ifdef BLUETOOTH_FEATURE
-    output->printf (",{\"bt\":\"%d\"}", ESP_BT_CLIENT);
+    //BT
+    output->print (",{\"F\":\"system/outputmsg\",\"P\":\"");
+    output->print (ESP_BT_FLAG);
+    output->print ("\",\"T\":\"B\",\"V\":\"");
+    output->print (Settings_ESP3D::read_byte(ESP_BT_FLAG));
+    output->print ("\",\"H\":\"BT\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
 #endif //BLUETOOTH_FEATURE
 #ifdef TELNET_FEATURE
-    output->printf (",{\"telnet\":\"%d\"}", ESP_TELNET_CLIENT);
+    //Telnet
+    output->print (",{\"F\":\"system/outputmsg\",\"P\":\"");
+    output->print (ESP_TELNET_FLAG);
+    output->print ("\",\"T\":\"B\",\"V\":\"");
+    output->print (Settings_ESP3D::read_byte(ESP_TELNET_FLAG));
+    output->print ("\",\"H\":\"telnet\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
 #endif //TELNET_FEATURE
-    output->print ("]}");
 
     output->print ("]}");
     return true;

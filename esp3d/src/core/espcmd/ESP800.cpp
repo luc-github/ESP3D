@@ -100,6 +100,18 @@ bool Commands::ESP800(const char* cmd_params, level_authenticate_type auth_type,
     } else {
         output->print("\"");
     }
+    //FW ID
+    if (plain) {
+        output->print("FW ID:");
+    } else {
+        output->print(",\"FWTargetID\":\"");
+    }
+    output->print(Settings_ESP3D::GetFirmwareTarget());
+    if(plain) {
+        output->printLN("");
+    } else {
+        output->print("\"");
+    }
     //Setup done
     if (plain) {
         output->print("Setup:");

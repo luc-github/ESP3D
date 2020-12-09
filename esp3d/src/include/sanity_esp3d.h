@@ -136,4 +136,11 @@
 #endif
 #endif
 
+/**************************
+ * Update
+ * ***********************/
+#if defined(SD_UPDATE_FEATURE) && !defined(SD_DEVICE)
+#error SD_UPDATE_FEATURE is not available because SD_DEVICE is not enabled
+#endif
+
 #endif //SANITY_ESP3D_H 

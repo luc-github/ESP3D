@@ -414,6 +414,13 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
     case 200:
         response = ESP200(cmd_params, auth_type, output);
         break;
+#ifdef SD_UPDATE_FEATURE
+    //Get/Set SD Check at boot state which can be ON, OFF
+    //[ESP402]<state>pwd=<admin password>
+    case 402:
+        response = ESP402(cmd_params, auth_type, output);
+        break;
+#endif //#ifdef SD_UPDATE_FEATURE
 #endif //SD_DEVICE
 #ifdef DIRECT_PIN_FEATURE
     //Get/Set pin value
@@ -596,6 +603,11 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
         response = ESP910(cmd_params, auth_type, output);
         break;
 #endif //BUZZER_DEVICE
+    case 920:
+        //Get state / Set state of output message clients
+        //[ESP910]<SERIAL / LCD / PRINTER_LCD/ WEBSOCKET / TELNET /BT / ALL>=<ON/OFF>[pwd=<admin password>]
+        response = ESP920(cmd_params, auth_type, output);
+        break;
     default:
         output->printERROR ("Invalid Command");
         response = false;

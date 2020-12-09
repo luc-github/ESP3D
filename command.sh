@@ -79,7 +79,9 @@ function build_sketch()
         sed -i "s/#define FILESYSTEM_FEATURE ESP_LITTLEFS_FILESYSTEM/#define FILESYSTEM_FEATURE ESP_SPIFFS_FILESYSTEM/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
         rm -fr $HOME/arduino_ide
         rm -fr $HOME/.arduino15
-        platformio run
+        platformio run -e esp32dev
+        sed -i "s/#define FILESYSTEM_FEATURE ESP_SPIFFS_FILESYSTEM/#define FILESYSTEM_FEATURE ESP_LITTLEFS_FILESYSTEM/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
+        platformio run -e esp8266dev
     fi
     
 }

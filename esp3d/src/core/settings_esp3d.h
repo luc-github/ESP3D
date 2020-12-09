@@ -26,13 +26,19 @@
 
 //Supported FW /////////////////////////////////////////////////////////////
 #define UNKNOWN_FW      0
-#define REPETIER4DV     1
-#define MARLIN          2
-#define MARLINKIMBRA    3
-#define SMOOTHIEWARE    4
-#define REPETIER        5
-#define GRBL            6
-#define MAX_FW_ID 6
+#define GRBL            10
+#define MARLIN          20
+#define MARLINKIMBRA    35
+#define SMOOTHIEWARE    40
+#define REPETIER        50
+
+//Default flags
+#define DEFAULT_SERIAL_OUTPUT_FLAG 1
+#define DEFAULT_PRINTER_LCD_FLAG 1
+#define DEFAULT_WEBSOCKET_FLAG 1
+#define DEFAULT_TELNET_FLAG 1
+#define DEFAULT_BT_FLAG 1
+#define DEFAULT_LCD_FLAG 1
 
 #define NO_NETWORK      0
 //position in EEPROM / preferences will use `P_` + <position> to make a string : P_0 for 0
@@ -51,7 +57,7 @@
 #define ESP_INTERNET_TIME       120     //1  byte = flag
 #define ESP_HTTP_PORT           121     //4  bytes = int
 #define ESP_TELNET_PORT         125     //4  bytes = int
-#define ESP_OUTPUT_FLAG         129     //1  bytes = flag
+#define ESP_SERIAL_FLAG         129     //1  bytes = flag
 #define ESP_HOSTNAME            130     //33 bytes 32+1 = string  ; warning does not support multibyte char like chinese
 #define ESP_SENSOR_INTERVAL     164     //4  bytes = int
 #define ESP_SETTINGS_VERSION    168     //8  bytes = 7+1 = string ESP3D + 2 digits
@@ -60,8 +66,8 @@
 #define ESP_AP_SSID             218     //33 bytes 32+1 = string  ; warning does not support multibyte char like chinese
 #define ESP_AP_PASSWORD         251     //65 bytes 64 +1 = string ;warning does not support multibyte char like chinese
 #define ESP_AP_IP_VALUE         316     //4  bytes xxx.xxx.xxx.xxx
-#define ESP_BOOT_DELAY          320     //4  bytes xxx.xxx.xxx.xxx
-#define ESP_WEBSOCKET_PORT      324     //4  bytes xxx.xxx.xxx.xxx
+#define ESP_BOOT_DELAY          320     //4  bytes = int
+#define ESP_WEBSOCKET_PORT      324     //4  bytes= int
 #define ESP_HTTP_ON             328     //1 byte = flag
 #define ESP_TELNET_ON           329     //1 byte = flag
 #define ESP_WEBSOCKET_ON        330     //1 byte = flag
@@ -75,10 +81,10 @@
 #define ESP_TIME_SERVER1        464     //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese
 #define ESP_TIME_SERVER2        593     //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese
 #define ESP_TIME_SERVER3        722     //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese
-#define ESP_SD_DEVICE_TYPE      851     //1  bytes = flag
+#define ESP_PRINTER_LCD_FLAG    851     //1  bytes = flag
 #define ESP_SD_MOUNT            852     //1  bytes = flag
 #define ESP_SESSION_TIMEOUT     853     //1  bytes = flag
-#define ESP_DIRECT_SD_CHECK     854     //1  bytes = flag
+#define ESP_WEBSOCKET_FLAG      854     //1  bytes = flag
 #define ESP_SD_CHECK_UPDATE_AT_BOOT   855//1  bytes = flag
 #define ESP_NOTIFICATION_SETTINGS 856   //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese
 #define ESP_CALIBRATION_1       985     //4  bytes = int
@@ -87,7 +93,9 @@
 #define ESP_CALIBRATION_4       997     //4  bytes = int
 #define ESP_CALIBRATION_5       1001     //4  bytes = int
 #define ESP_SETUP               1005    //1 byte = flag
-#define ESP_FREE_ENTRY          1006    //3  bytes 
+#define ESP_TELNET_FLAG         1006    //1 byte = flag
+#define ESP_BT_FLAG             1007    //1 byte = flag
+#define ESP_LCD_FLAG            1008    //1 byte = flag
 #define ESP_FTP_CTRL_PORT       1009    //4  bytes = int
 #define ESP_FTP_DATA_ACTIVE_PORT       1013    //4  bytes = int
 #define ESP_FTP_DATA_PASSIVE_PORT      1017    //4  bytes = int

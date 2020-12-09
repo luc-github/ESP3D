@@ -31,7 +31,12 @@
 #if defined (TELNET_FEATURE)
 #include "../modules/telnet/telnet_server.h"
 #endif //TELNET_FEATURE
-uint8_t ESP3DOutput::_outputflags = ESP_ALL_CLIENTS;
+uint8_t ESP3DOutput::_serialoutputflags = DEFAULT_SERIAL_OUTPUT_FLAG;
+uint8_t ESP3DOutput::_printerlcdoutputflags = DEFAULT_PRINTER_LCD_FLAG;
+uint8_t ESP3DOutput::_websocketoutputflags = DEFAULT_WEBSOCKET_FLAG;
+uint8_t ESP3DOutput::_telnetoutputflags = DEFAULT_TELNET_FLAG;
+uint8_t ESP3DOutput::_lcdoutputflags = DEFAULT_LCD_FLAG;
+uint8_t ESP3DOutput::_BToutputflags = DEFAULT_BT_FLAG;
 #if defined (HTTP_FEATURE)
 #if defined (ARDUINO_ARCH_ESP32)
 #include <WebServer.h>
@@ -95,10 +100,29 @@ ESP3DOutput::~ESP3DOutput()
 bool ESP3DOutput::isOutput(uint8_t flag, bool fromsettings)
 {
     if(fromsettings) {
-        _outputflags = Settings_ESP3D::read_byte (ESP_OUTPUT_FLAG);
+        _serialoutputflags= Settings_ESP3D::read_byte (ESP_SERIAL_FLAG);
+        _printerlcdoutputflags= Settings_ESP3D::read_byte (ESP_PRINTER_LCD_FLAG);
+        _websocketoutputflags= Settings_ESP3D::read_byte (ESP_WEBSOCKET_FLAG);
+        _telnetoutputflags= Settings_ESP3D::read_byte (ESP_TELNET_FLAG);
+        _lcdoutputflags= Settings_ESP3D::read_byte (ESP_LCD_FLAG);
+        _BToutputflags= Settings_ESP3D::read_byte (ESP_BT_FLAG);
     }
-    return ((_outputflags & flag) == flag);
-
+    switch(flag) {
+    case ESP_SERIAL_CLIENT:
+        return _serialoutputflags;
+    case ESP_PRINTER_LCD_CLIENT:
+        return _printerlcdoutputflags;
+    case ESP_WEBSOCKET_CLIENT:
+        return _websocketoutputflags;
+    case ESP_TELNET_CLIENT:
+        return _telnetoutputflags;
+    case ESP_SCREEN_CLIENT:
+        return _lcdoutputflags;
+    case ESP_BT_CLIENT:
+        return _BToutputflags;
+    default:
+        return true;
+    }
 }
 
 size_t ESP3DOutput::dispatch (uint8_t * sbuf, size_t len)
@@ -251,7 +275,6 @@ size_t ESP3DOutput::printMSG(const char * s, bool withNL)
         display = "M117 ";
         display += s;
         break;
-    case REPETIER4DV:
     case SMOOTHIEWARE:
     case REPETIER:
     default:
@@ -303,7 +326,6 @@ size_t ESP3DOutput::printERROR(const char * s, int code_error)
         display = "error: ";
         display += s;
         break;
-    case REPETIER4DV:
     case SMOOTHIEWARE:
     case REPETIER:
     default:

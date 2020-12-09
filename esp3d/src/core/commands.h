@@ -86,6 +86,9 @@ public:
 #endif //FTP_FEATURE
 #if defined (SD_DEVICE)
     bool ESP200(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+#ifdef SD_UPDATE_FEATURE
+    bool ESP402(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+#endif //SD_UPDATE_FEATURE
 #endif //SD_DEVICE
 #ifdef DIRECT_PIN_FEATURE
     bool ESP201(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
@@ -137,6 +140,7 @@ public:
 #endif //GLOBAL_FILESYSTEM_FEATURE
     bool ESP800(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     bool ESP900(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+    bool ESP920(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #ifdef BUZZER_DEVICE
     bool ESP910(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     bool ESP250(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);

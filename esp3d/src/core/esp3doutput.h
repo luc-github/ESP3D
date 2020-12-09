@@ -97,7 +97,12 @@ private:
     bool _footerSent;
     WEBSERVER * _webserver;
 #endif //HTTP_FEATURE
-    static uint8_t _outputflags;
+    static uint8_t _serialoutputflags;
+    static uint8_t _printerlcdoutputflags;
+    static uint8_t _websocketoutputflags;
+    static uint8_t _telnetoutputflags;
+    static uint8_t _lcdoutputflags;
+    static uint8_t _BToutputflags;
 };
 
 class ESP3DGlobalOutput

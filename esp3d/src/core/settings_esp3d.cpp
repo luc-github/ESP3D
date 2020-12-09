@@ -86,6 +86,7 @@
 #define DEFAULT_INTERNET_TIME       0
 #endif //TIMESTAMP_FEATURE
 
+
 #define DEFAULT_SETUP   0
 
 #define DEFAULT_ESP_BYTE        0
@@ -104,14 +105,8 @@
 #define DEFAULT_TIME_ZONE       0
 #define DEFAULT_TIME_DST        0
 #define DEFAULT_SD_MOUNT        ESP_SD_ROOT
-#define DEFAULT_DIRECT_SD_CHECK 0
 #define DEFAULT_SD_CHECK_UPDATE_AT_BOOT 1
 #define DEFAULT_SENSOR_TYPE     NO_SENSOR_DEVICE
-#ifdef SD_DEVICE
-#define DEFAULT_SD_DEVICE_TYPE  SD_DEVICE_CONNECTION
-#else
-#define DEFAULT_SD_DEVICE_TYPE  ESP_NO_SD
-#endif //SD_DEVICE
 #define DEFAULT_HTTP_ON         1
 #define DEFAULT_FTP_ON          1
 #define DEFAULT_TELNET_ON       1
@@ -205,9 +200,7 @@ uint8_t Settings_ESP3D::GetSDDevice()
 const char* Settings_ESP3D::GetFirmwareTargetShortName()
 {
     static String response;
-    if ( _FirmwareTarget == REPETIER4DV) {
-        response = F ("repetier4davinci");
-    } else if ( _FirmwareTarget == REPETIER) {
+    if  ( _FirmwareTarget == REPETIER) {
         response = F ("repetier");
     } else if ( _FirmwareTarget == MARLIN) {
         response = F ("marlin");
@@ -280,8 +273,23 @@ uint8_t Settings_ESP3D::get_default_byte_value(int pos)
         //    res = DEFAULT_SSID_VISIBLE;
         //    break;
 #endif //WIFI_FEATURE
-    case ESP_OUTPUT_FLAG:
-        res = DEFAULT_OUTPUT_FLAG;
+    case ESP_SERIAL_FLAG:
+        res = DEFAULT_SERIAL_OUTPUT_FLAG;
+        break;
+    case ESP_PRINTER_LCD_FLAG:
+        res = DEFAULT_PRINTER_LCD_FLAG;
+        break;
+    case ESP_WEBSOCKET_FLAG:
+        res = DEFAULT_WEBSOCKET_FLAG;
+        break;
+    case ESP_TELNET_FLAG:
+        res = DEFAULT_TELNET_FLAG;
+        break;
+    case ESP_BT_FLAG:
+        res = DEFAULT_BT_FLAG;
+        break;
+    case ESP_LCD_FLAG:
+        res = DEFAULT_LCD_FLAG;
         break;
 #ifdef FTP_FEATURE
     case ESP_FTP_ON:
@@ -310,14 +318,8 @@ uint8_t Settings_ESP3D::get_default_byte_value(int pos)
     case ESP_SD_MOUNT:
         res = DEFAULT_SD_MOUNT;
         break;
-    case ESP_DIRECT_SD_CHECK:
-        res = DEFAULT_DIRECT_SD_CHECK;
-        break;
     case ESP_SD_CHECK_UPDATE_AT_BOOT:
         res = DEFAULT_SD_CHECK_UPDATE_AT_BOOT;
-        break;
-    case ESP_SD_DEVICE_TYPE:
-        res = DEFAULT_SD_DEVICE_TYPE;
         break;
 #endif //SD_DEVICE
     case ESP_TARGET_FW:
@@ -1134,13 +1136,20 @@ bool Settings_ESP3D::reset()
 #endif //AUTHENTICATION_FEATURE
     //Target FW
     Settings_ESP3D::write_byte(ESP_TARGET_FW,Settings_ESP3D::get_default_byte_value(ESP_TARGET_FW));
-    //Output flag
-    Settings_ESP3D::write_byte(ESP_OUTPUT_FLAG,Settings_ESP3D::get_default_byte_value(ESP_OUTPUT_FLAG));
+    //Output flags
+    Settings_ESP3D::write_byte(ESP_SERIAL_FLAG,Settings_ESP3D::get_default_byte_value(ESP_SERIAL_FLAG));
+    Settings_ESP3D::write_byte(ESP_PRINTER_LCD_FLAG,Settings_ESP3D::get_default_byte_value(ESP_PRINTER_LCD_FLAG));
+    Settings_ESP3D::write_byte(ESP_WEBSOCKET_FLAG,Settings_ESP3D::get_default_byte_value(ESP_WEBSOCKET_FLAG));
+    Settings_ESP3D::write_byte(ESP_TELNET_FLAG,Settings_ESP3D::get_default_byte_value(ESP_TELNET_FLAG));
+    Settings_ESP3D::write_byte(ESP_BT_FLAG,Settings_ESP3D::get_default_byte_value(ESP_BT_FLAG));
+    Settings_ESP3D::write_byte(ESP_LCD_FLAG,Settings_ESP3D::get_default_byte_value(ESP_LCD_FLAG));
 #ifdef SD_DEVICE
-    //Direct SD
-    Settings_ESP3D::write_byte(ESP_SD_DEVICE_TYPE,Settings_ESP3D::get_default_byte_value(ESP_SD_DEVICE_TYPE));
     //SPI SD Divider
     Settings_ESP3D::write_byte(ESP_SD_SPEED_DIV,Settings_ESP3D::get_default_byte_value(ESP_SD_SPEED_DIV));
+#ifdef SD_UPDATE_FEATURE
+    //SD Update feature
+    Settings_ESP3D::write_byte(ESP_SD_CHECK_UPDATE_AT_BOOT,Settings_ESP3D::get_default_byte_value(ESP_SD_CHECK_UPDATE_AT_BOOT));
+#endif //SD_UPDATE_FEATURE
 #endif //SD_DEVICE
 
 #ifdef TIMESTAMP_FEATURE

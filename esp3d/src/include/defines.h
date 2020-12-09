@@ -63,7 +63,17 @@
 #define ESP_UPLOAD_FAST_SERIAL_USB 5
 #define ESP_UPLOAD_DIRECT_USB      6
 
+//IP mode
+#define DHCP_MODE       1
+#define STATIC_IP_MODE  0
 
+//Network Mode
+#define ESP_RADIO_OFF 0
+#define ESP_WIFI_STA 1
+#define ESP_WIFI_AP  2
+#define ESP_BT       3
+#define ESP_ETH_STA  4
+//#define ESP_ETH_SRV  5
 
 //SD mount point
 #define ESP_SD_ROOT     1
@@ -92,6 +102,7 @@
 #define ESP_SDCARD_BUSY             2
 
 //Notifications
+#define ESP_NO_NOTIFICATION         0
 #define ESP_PUSHOVER_NOTIFICATION   1
 #define ESP_EMAIL_NOTIFICATION      2
 #define ESP_LINE_NOTIFICATION       3

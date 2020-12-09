@@ -70,6 +70,14 @@ bool Commands::ESP401(const char* cmd_params, level_authenticate_type auth_type,
             } else {
                 //dynamique refresh is better than restart the boards
                 switch(spos.toInt()) {
+                case ESP_SERIAL_FLAG:
+                case ESP_PRINTER_LCD_FLAG:
+                case ESP_WEBSOCKET_FLAG:
+                case ESP_TELNET_FLAG:
+                case ESP_LCD_FLAG:
+                case ESP_BT_FLAG:
+                    ESP3DOutput::isOutput(ESP_ALL_CLIENTS,true);
+                    break;
                 case ESP_TARGET_FW:
                     Settings_ESP3D::GetFirmwareTarget(true);
                     break;
