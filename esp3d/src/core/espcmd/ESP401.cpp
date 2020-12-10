@@ -58,13 +58,13 @@ bool Commands::ESP401(const char* cmd_params, level_authenticate_type auth_type,
     if (spos.length() == 0) {
         response = false;
     }
-    if (! (styp == "B" || styp == "S" || styp == "A" || styp == "I" || styp == "F") ) {
+    if (! (styp == "B" || styp == "S" || styp == "A" || styp == "I") ) {
         response = false;
     }
 
     if (response) {
         //Byte value
-        if ((styp == "B")  ||  (styp == "F")) {
+        if (styp == "B") {
             if (!Settings_ESP3D::write_byte (spos.toInt(), sval.toInt())) {
                 response = false;
             } else {

@@ -255,23 +255,10 @@ uint8_t Settings_ESP3D::get_default_byte_value(int pos)
         res = DEFAULT_STA_IP_MODE;
         break;
 #endif //WIFI_FEATURE || ETH_FEATURE
-        //case ESP_AP_PHY_MODE:
-        //case ESP_STA_PHY_MODE:
-        //    res = DEFAULT_PHY_MODE;
-        //    break;
-        //case ESP_SLEEP_MODE:
-        //    res = DEFAULT_SLEEP_MODE;
-        //    break;
 #if defined (WIFI_FEATURE)
     case ESP_AP_CHANNEL:
         res = DEFAULT_AP_CHANNEL;
         break;
-        //case ESP_AP_AUTH_TYPE:
-        //    res = DEFAULT_AUTH_TYPE;
-        //    break;
-        //case ESP_SSID_VISIBLE:
-        //    res = DEFAULT_SSID_VISIBLE;
-        //    break;
 #endif //WIFI_FEATURE
     case ESP_SERIAL_FLAG:
         res = DEFAULT_SERIAL_OUTPUT_FLAG;
