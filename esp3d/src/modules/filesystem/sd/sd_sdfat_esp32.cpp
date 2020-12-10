@@ -144,6 +144,9 @@ uint64_t ESP_SD::totalBytes()
 
 uint64_t ESP_SD::usedBytes()
 {
+    if(freeBytes() >totalBytes() ) {
+        _sizechanged = true;
+    }
     return totalBytes() - freeBytes();
 }
 
