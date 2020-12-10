@@ -32,6 +32,7 @@ public:
     void end();
 
 private:
+    bool flash(const char * filename, int type);
 };
 
 extern UpdateService update_service;

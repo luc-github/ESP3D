@@ -25,9 +25,23 @@
 #include "../../core/esp3doutput.h"
 #include "../../core/commands.h"
 #include "esp_config_file.h"
+#include "../filesystem/esp_sd.h"
+#include "../filesystem/esp_filesystem.h"
+#if defined (ARDUINO_ARCH_ESP32)
+#include <Update.h>
+#define U_FS U_SPIFFS
+#endif //ARDUINO_ARCH_ESP32
+#if defined (ARDUINO_ARCH_ESP8266)
+
+#endif //ARDUINO_ARCH_ESP8266
+
 
 UpdateService update_service;
-#define CONFIG_FILE "/espconf.ini"
+
+#define CONFIG_FILE "/esp3dcnf.ini"
+#define FW_FILE "/esp3dfw.bin"
+#define FS_FILE "/esp3dfs.bin"
+
 const char * NetstringKeysVal[] = {"hostname",
                                    "STA_SSID",
                                    "STA_Password",
@@ -420,27 +434,101 @@ bool processingFileFunction (const char * section, const char * key, const char 
 
 UpdateService::UpdateService() {}
 UpdateService::~UpdateService() {}
+
+bool  UpdateService::flash(const char * filename, int type)
+{
+    bool res = false;
+    if (ESP_SD::exists (filename)) {
+        log_esp3d("Update found");
+        bool issucess = false;
+        ESP_SDFile sdfile;
+        String finalName = filename;
+        sdfile = ESP_SD::open(filename);
+        if(sdfile) {
+            size_t s = sdfile.size();
+            size_t rs = 0;
+            uint8_t v[1] ;
+            if(Update.begin(s, type)) {
+                log_esp3d("Update started");
+                while (sdfile.available() && (rs <= (s+1))) {
+                    rs++;
+                    v[0]=sdfile.read();
+                    Update.write(v,1);
+                    Hal::wait(0);
+                }
+                if (rs==s) {
+                    log_esp3d("Update done");
+                    if(Update.end(true)) {
+                        log_esp3d("Update success");
+                        issucess = true;
+                    }
+                } else {
+                    Update.end();
+                    log_esp3d("Wrong size");
+                }
+            }
+            sdfile.close();
+        } else {
+            log_esp3d("Cannot open file");
+        }
+        if(issucess) {
+            res = true;
+            finalName.replace(".bin", ".ok");
+        } else {
+            finalName.replace(".bin", ".bad");
+        }
+        if (ESP_SD::exists (finalName.c_str())) {
+            String name = filename;
+            uint8_t n = 1;
+            log_esp3d("Final name already exists, backup existing");
+            name.replace("bin", String(n).c_str());
+            while(ESP_SD::exists (name.c_str())) {
+                n++;
+                name.replace("bin", String(n).c_str());
+            }
+            ESP_SD::rename(finalName.c_str(),name.c_str());
+        }
+        ESP_SD::rename(filename, finalName.c_str());
+    }
+    return res;
+}
+
 bool UpdateService::begin()
 {
+    bool res = false;
     if(Settings_ESP3D::read_byte(ESP_SD_CHECK_UPDATE_AT_BOOT)!=0) {
+        bool isactive = ESP_SD::accessSD();
         log_esp3d("Update SD for update requestest");
-        ESP_ConfigFile updateConfig(CONFIG_FILE, processingFileFunction);
-        if (updateConfig.processFile()) {
-            log_esp3d("Processing ini file done");
-            if(updateConfig.revokeFile()) {
-                log_esp3d("Revoking ini file done");
-                return true;
+        if(ESP_SD::getState(true) == ESP_SDCARD_IDLE) {
+            ESP_ConfigFile updateConfig(CONFIG_FILE, processingFileFunction);
+            if (updateConfig.processFile()) {
+                log_esp3d("Processing ini file done");
+                if(updateConfig.revokeFile()) {
+                    log_esp3d("Revoking ini file done");
+                    res = true;
+                } else {
+                    log_esp3d("Revoking ini file failed");
+                }
             } else {
-                log_esp3d("Revoking ini file failed");
+                log_esp3d("Processing ini file failed");
             }
-        } else {
-            log_esp3d("Processing ini file done");
+            int command = U_FLASH;
+            if (flash(FW_FILE,U_FLASH)) {
+                res = true;
+            } else {
+                if (flash(FS_FILE,U_FS)) {
+                    res = true;
+                }
+            }
         }
-        log_esp3d("Update failed");
-        return false;
+        if (!isactive) {
+            ESP_SD::releaseSD();
+        }
+    } else {
+        log_esp3d("No need to check for update");
     }
-    log_esp3d("No need to check for update");
-    return false;
+
+    return res;
 }
 void UpdateService::end()
 {

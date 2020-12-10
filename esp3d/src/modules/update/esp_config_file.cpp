@@ -41,10 +41,6 @@ ESP_ConfigFile::ESP_ConfigFile(const char * path, TProcessingFunction fn)
 bool ESP_ConfigFile::processFile()
 {
     bool res = true;
-    if (ESP_SD::getState(true) != ESP_SDCARD_IDLE) {
-        log_esp3d("No SD");
-        return false;
-    }
     if (!ESP_SD::exists(_filename)) {
         log_esp3d("No ini file");
         return false;
