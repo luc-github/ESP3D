@@ -83,6 +83,9 @@ if PULLUP=YES set input pull up (for GPIO16(ESP8266) INPUT_PULLDOWN_16), if not 
 if RAW=YES do not set pinmode just read value
 Flash pins (6~11) cannot be used
 
+*Get/Set SD card Speed factor 1 2 4 6 8 16 32
+[ESP202]SPEED=<value>pwd=<user/admin password>
+
 * Output to esp screen status
 [ESP214]<Text>pwd=<user password>
 
@@ -225,4 +228,4 @@ rmdir / remove / mkdir / exists / create
 [ESP910]<ENABLE/DISABLE>[pwd=<admin/user password>]
 
 *Get state / Set state of  output message clients
-[ESP910]<SERIAL / LCD / PRINTER_LCD/ WEBSOCKET / TELNET /BT / ALL>=<ON/OFF>[pwd=<admin/user password>]
+[ESP920]<SERIAL / LCD / PRINTER_LCD/ WEBSOCKET / TELNET /BT / ALL>=<ON/OFF>[pwd=<admin/user password>]

@@ -86,6 +86,7 @@ public:
 #endif //FTP_FEATURE
 #if defined (SD_DEVICE)
     bool ESP200(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+    bool ESP202(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #ifdef SD_UPDATE_FEATURE
     bool ESP402(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #endif //SD_UPDATE_FEATURE

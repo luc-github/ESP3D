@@ -76,6 +76,9 @@ const char * help[]= {"[ESP] - display this help",
 #ifdef DIRECT_PIN_FEATURE
                       "[ESP201](Pxxx) (Vxxx) (PULLUP=YES RAW=YES ANALOG=NO ANALOG_RANGE=255 CLEARCHANNELS=NO) - read / set  pin value",
 #endif //DIRECT_PIN_FEATURE
+#if defined (SD_DEVICE)
+                      "[ESP202] - display / set  SD Card  SD card Speed factor (1 2 4 6 8 16 32)",
+#endif //SD_DEVICE
 #ifdef SENSOR_DEVICE
                       "[ESP210](type=NONE/xxx) (interval=xxxx) - display and read/set SENSOR info",
 #endif //SENSOR_DEVICE
