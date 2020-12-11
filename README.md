@@ -1,6 +1,7 @@
 # ESP3D 3.0 alpha stage
 <img src="https://github.com/luc-github/ESP3D/blob/3.0/images/Screen/logo2.png">
-<H3>Do not use it for production, but feel free to test it and feedback</H3>
+<H3>Do not use it for production, in alpha stage - breaking changes can happen anytime - just be aware of that, but feel free to test it and feedback</H3>   
+     
 
 Use the webUI 3.0 : https://github.com/luc-github/ESP3D-WEBUI/blob/3.0/dist/printer/production/index.html.gz    
 [Latest development version ![Development Version](https://img.shields.io/badge/Devt-v3.0-yellow?style=plastic) ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/luc-github/ESP3D/3.0?style=plastic)](https://github.com/luc-github/ESP3D/tree/3.0) [![Travis (.org) branch](https://img.shields.io/travis/luc-github/ESP3D/3.0?style=plastic)](https://travis-ci.org/luc-github/ESP3D) [![Development  Version](https://img.shields.io/badge/Devt-v3.0-yellow?style=plastic&label=WebUI)](https://github.com/luc-github/ESP3D-WEBUI/tree/3.0)
