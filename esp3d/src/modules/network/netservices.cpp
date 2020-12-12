@@ -95,19 +95,7 @@ bool NetServices::begin()
         }
     }
 #endif //TIMESTAMP_FEATURE
-#if defined(MDNS_FEATURE) && defined(ARDUINO_ARCH_ESP8266)
-    if(WiFi.getMode() != WIFI_AP) {
-        String lhostname =hostname;
-        lhostname.toLowerCase();
-        if (!MDNS.begin(hostname.c_str())) {
-            output.printERROR("mDNS failed to start");
-            _started =false;
-        } else {
-            String stmp = "mDNS started with '" + lhostname + ".local'";
-            output.printMSG(stmp.c_str());
-        }
-    }
-#endif //MDNS_FEATURE && ARDUINO_ARCH_ESP8266
+
 
 #ifdef OTA_FEATURE
     if(WiFi.getMode() != WIFI_AP) {
@@ -153,10 +141,26 @@ bool NetServices::begin()
             }
         });
         output.printMSG("OTA service started");
+        String lhostname =hostname;
+        lhostname.toLowerCase();
+        ArduinoOTA.setHostname(hostname.c_str());
         ArduinoOTA.begin();
     }
 #endif
-
+#if defined(MDNS_FEATURE) && defined(ARDUINO_ARCH_ESP8266)
+    if(WiFi.getMode() != WIFI_AP) {
+        String lhostname =hostname;
+        lhostname.toLowerCase();
+        log_esp3d("Start mdsn for %s", hostname.c_str());
+        if (!MDNS.begin(hostname.c_str())) {
+            output.printERROR("mDNS failed to start");
+            _started =false;
+        } else {
+            String stmp = "mDNS started with '" + lhostname + ".local'";
+            output.printMSG(stmp.c_str());
+        }
+    }
+#endif //MDNS_FEATURE && ARDUINO_ARCH_ESP8266
 #if defined(MDNS_FEATURE) && defined(ARDUINO_ARCH_ESP32)
     if(WiFi.getMode() != WIFI_AP) {
         String lhostname =hostname;
@@ -234,7 +238,10 @@ bool NetServices::begin()
 #ifdef MDNS_FEATURE
     if(WiFi.getMode() != WIFI_AP) {
         // Add service to MDNS-SD
-        MDNS.addService("http", "tcp", HTTP_Server::port());
+        log_esp3d("Add mdns service http / tcp port %d", HTTP_Server::port());
+        if (!MDNS.addService("http", "tcp", HTTP_Server::port())){
+            log_esp3d("failed");
+        }
         // TODO add TXT records
         //MDNS.addServiceTxt("http", "tcp", Key, value);
     }
@@ -306,7 +313,10 @@ void NetServices::end()
 #if defined(ARDUINO_ARCH_ESP8266)
         String hostname = Settings_ESP3D::read_string(ESP_HOSTNAME);
         hostname.toLowerCase();
-        MDNS.removeService(hostname.c_str(),"http", "tcp");
+        log_esp3d("Remove mdns for %s", hostname.c_str());
+        if (!MDNS.removeService(hostname.c_str(),"http", "tcp")) {
+            log_esp3d("failed");
+        }
 #endif // ARDUINO_ARCH_ESP8266
 #if defined(ARDUINO_ARCH_ESP32)
         mdns_service_remove("_http", "_tcp");
