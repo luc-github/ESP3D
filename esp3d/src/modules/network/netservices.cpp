@@ -98,6 +98,22 @@ bool NetServices::begin()
     }
 #endif //TIMESTAMP_FEATURE
 
+#if defined(MDNS_FEATURE) && defined(ARDUINO_ARCH_ESP8266)
+    if(WiFi.getMode() != WIFI_AP) {
+        String lhostname =hostname;
+        lhostname.toLowerCase();
+        log_esp3d("Start mdsn for %s", hostname.c_str());
+        if (!MDNS.begin(hostname.c_str())) {
+            output.printERROR("mDNS failed to start");
+            _started =false;
+        } else {
+            String stmp = "mDNS started with '" + lhostname + ".local'";
+            if (Settings_ESP3D::isVerboseBoot()) {
+                output.printMSG(stmp.c_str());
+            }
+        }
+    }
+#endif //MDNS_FEATURE && ARDUINO_ARCH_ESP8266
 
 #ifdef OTA_FEATURE
     if(WiFi.getMode() != WIFI_AP) {
@@ -151,22 +167,7 @@ bool NetServices::begin()
         ArduinoOTA.begin();
     }
 #endif
-#if defined(MDNS_FEATURE) && defined(ARDUINO_ARCH_ESP8266)
-    if(WiFi.getMode() != WIFI_AP) {
-        String lhostname =hostname;
-        lhostname.toLowerCase();
-        log_esp3d("Start mdsn for %s", hostname.c_str());
-        if (!MDNS.begin(hostname.c_str())) {
-            output.printERROR("mDNS failed to start");
-            _started =false;
-        } else {
-            String stmp = "mDNS started with '" + lhostname + ".local'";
-            if (Settings_ESP3D::isVerboseBoot()) {
-                output.printMSG(stmp.c_str());
-            }
-        }
-    }
-#endif //MDNS_FEATURE && ARDUINO_ARCH_ESP8266
+
 #if defined(MDNS_FEATURE) && defined(ARDUINO_ARCH_ESP32)
     if(WiFi.getMode() != WIFI_AP) {
         String lhostname =hostname;
