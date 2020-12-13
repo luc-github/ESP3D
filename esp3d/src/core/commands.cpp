@@ -371,8 +371,8 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
         response = ESP140(cmd_params, auth_type, output);
         break;
 #endif //TIMESTAMP_FEATURE
-    //Get/Set boot delay
-    //[ESP150]<time>[pwd=<admin password>]
+    //Get/Set display/set boot delay in ms / Verbose boot
+    //[ESP150]<delay=time in milliseconds><verbose=YES/NO>[pwd=<admin password>]
     case 150:
         response = ESP150(cmd_params, auth_type, output);
         break;

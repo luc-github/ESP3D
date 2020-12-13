@@ -22,8 +22,8 @@
 #include "../esp3doutput.h"
 #include "../settings_esp3d.h"
 #include "../../modules/authentication/authentication_service.h"
-//Get/Set boot delay
-//[ESP150]<time>[pwd=<admin password>]
+// Get/Set display/set boot delay in ms / Verbose boot
+//[ESP150]<delay=time in milliseconds><verbose=ON/OFF>[pwd=<admin password>]
 bool Commands::ESP150(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
     bool response = true;
@@ -39,7 +39,10 @@ bool Commands::ESP150(const char* cmd_params, level_authenticate_type auth_type,
     parameter = get_param (cmd_params, "");
     //get
     if (parameter.length() == 0) {
-        output->printMSG(String(Settings_ESP3D::read_uint32(ESP_BOOT_DELAY)).c_str());
+        String s = "delay="+String(Settings_ESP3D::read_uint32(ESP_BOOT_DELAY));
+        s+=" verbose=";
+        s+= Settings_ESP3D::isVerboseBoot(true)?"ON":"OFF";
+        output->printMSG(s.c_str());
     } else {
 #ifdef AUTHENTICATION_FEATURE
         if (auth_type != LEVEL_ADMIN) {
@@ -47,14 +50,39 @@ bool Commands::ESP150(const char* cmd_params, level_authenticate_type auth_type,
             return false;
         }
 #endif //AUTHENTICATION_FEATURE
-        uint ibuf = parameter.toInt();
-        if ((ibuf > Settings_ESP3D::get_max_int32_value(ESP_BOOT_DELAY)) || (ibuf < Settings_ESP3D::get_min_int32_value(ESP_BOOT_DELAY))) {
-            output->printERROR ("Incorrect delay!");
-            return false;
+        response = false;
+        parameter = get_param (cmd_params, "delay=");
+        if (parameter.length() != 0) {
+            uint ibuf = parameter.toInt();
+            if ((ibuf > Settings_ESP3D::get_max_int32_value(ESP_BOOT_DELAY)) || (ibuf < Settings_ESP3D::get_min_int32_value(ESP_BOOT_DELAY))) {
+                output->printERROR ("Incorrect delay!");
+                return false;
+            }
+            if (!Settings_ESP3D::write_uint32 (ESP_BOOT_DELAY, ibuf)) {
+                output->printERROR ("Set failed!");
+                return false;
+            } else {
+                response = true;
+            }
         }
-        if (!Settings_ESP3D::write_uint32 (ESP_BOOT_DELAY, ibuf)) {
-            output->printERROR ("Set failed!");
-            response = false;
+        parameter = get_param (cmd_params, "verbose=");
+        if (parameter.length() != 0) {
+            if ((parameter == "ON")|| (parameter == "OFF")) {
+                if (!Settings_ESP3D::write_byte (ESP_VERBOSE_BOOT, (parameter == "ON")?1:0)) {
+                    output->printERROR ("Set failed!");
+                    return false;
+                } else {
+                    Settings_ESP3D::isVerboseBoot(true);
+                    response = true;
+                }
+            } else {
+                output->printERROR ("Incorrect command! only ON/OFF is allowed");
+                return false;
+            }
+            response = true;
+        }
+        if (!response) {
+            output->printERROR ("Incorrect command!");
         } else {
             output->printMSG ("ok");
         }

@@ -210,9 +210,11 @@ bool NetConfig::begin()
     //clear everything
     end();
     int8_t espMode =Settings_ESP3D::read_byte(ESP_RADIO_MODE);
-    ESP3DOutput output(ESP_SERIAL_CLIENT);
+    ESP3DOutput output(ESP_ALL_CLIENTS);
     if (espMode != NO_NETWORK) {
-        output.printMSG("Starting Network");
+        if (Settings_ESP3D::isVerboseBoot()) {
+            output.printMSG("Starting Network");
+        }
     }
     //setup events
     if(!_events_registered) {
@@ -234,10 +236,12 @@ bool NetConfig::begin()
     if (espMode == NO_NETWORK) {
         WiFi.mode(WIFI_OFF);
         ESP3DGlobalOutput::display_IP();
-        ESP3DOutput output(ESP_ALL_CLIENTS);
-        ESP3DGlobalOutput::SetStatus(RADIO_OFF_MSG);
-        output.printMSG(RADIO_OFF_MSG);
-        output.flush();
+        if (Settings_ESP3D::isVerboseBoot()) {
+            ESP3DOutput output(ESP_ALL_CLIENTS);
+            ESP3DGlobalOutput::SetStatus(RADIO_OFF_MSG);
+            output.printMSG(RADIO_OFF_MSG);
+            output.flush();
+        }
         return true;
     }
 #if defined (WIFI_FEATURE)
@@ -259,11 +263,13 @@ bool NetConfig::begin()
 #if defined (BLUETOOTH_FEATURE)
     if ((espMode == ESP_BT)) {
         WiFi.mode(WIFI_OFF);
-        ESP3DOutput output(ESP_ALL_CLIENTS);
-        String msg = "BT On";
-        ESP3DGlobalOutput::SetStatus(msg.c_str());
-        output.printMSG(msg.c_str());
-        output.flush();
+        if (Settings_ESP3D::isVerboseBoot()) {
+            ESP3DOutput output(ESP_ALL_CLIENTS);
+            String msg = "BT On";
+            ESP3DGlobalOutput::SetStatus(msg.c_str());
+            output.printMSG(msg.c_str());
+            output.flush();
+        }
         res = bt_service.begin();
     }
 #endif //BLUETOOTH_FEATURE

@@ -53,8 +53,8 @@ Note:
 * Sync / Set / Get current time
 [ESP140]<SYNC> <srv1=XXXXX> <srv2=XXXXX> <srv3=XXXXX> <zone=xxx> <dst=YES/NO> <time=YYYY-MM-DD#H24:MM:SS> pwd=<admin password>
 
-* Get/Set boot delay
-[ESP150]<time in milliseconds>[pwd=<admin password>]
+* Get/Set display/set boot delay in ms / Verbose boot
+[ESP150]<delay=time in milliseconds><verbose=ON/OFF>[pwd=<admin password>]
 
 * Get/Set WebSocket state which can be ON, OFF
 [ESP160]<state>pwd=<admin password>

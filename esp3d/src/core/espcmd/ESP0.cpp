@@ -41,7 +41,7 @@ const char * help[]= {"[ESP] - display this help",
                       "[ESP110](State) - display/set radio state which can be STA, AP, OFF",
 #endif // WIFI_FEATURE || BLUETOOTH_FEATURE || ETH_FEATURE
 #if defined( WIFI_FEATURE) || defined (ETH_FEATURE)
-                      "[ESP111]display current IP",
+                      "[ESP111](header)display current IP",
 #endif //WIFI_FEATURE || ETH_FEATURE
 #if defined(WIFI_FEATURE) || defined(ETH_FEATURE) || defined(BT_FEATURE)
                       "[ESP112](Hostname) - display/set Hostname",
@@ -58,7 +58,7 @@ const char * help[]= {"[ESP] - display this help",
 #if defined(TIMESTAMP_FEATURE)
                       "[ESP140](SYNC) (srv1=xxxx) (srv2=xxxx) (srv3=xxxx) (zone=xxx) (dst=YES/NO) (time=YYYY-MM-DD#H24:MM:SS) - sync/display/set current time/time servers",
 #endif //TIMESTAMP_FEATURE
-                      "[ESP150](time) - display/set boot delay in ms",
+                      "[ESP150](delay=time) (verbose=ON/OFF)- display/set boot delay in ms / Verbose boot",
 #if defined(WS_DATA_FEATURE)
                       "[ESP160](State) - display/set WebSocket state which can be ON, OFF, CLOSE",
                       "[ESP161](Port) - display/set WebSocket port",

@@ -89,6 +89,7 @@
 
 #define DEFAULT_SETUP   0
 
+#define DEFAULT_VERBOSE_BOOT    0
 #define DEFAULT_ESP_BYTE        0
 #define DEFAULT_ESP_STRING_SIZE 0
 #if defined (WIFI_FEATURE) || defined (ETH_FEATURE)
@@ -169,6 +170,7 @@ const uint8_t DEFAULT_ADDRESS_VALUE[]   =  {0, 0, 0, 0};
 #endif //WIFI_FEATURE || ETH_FEATURE
 
 uint8_t Settings_ESP3D::_FirmwareTarget = UNKNOWN_FW;
+bool Settings_ESP3D::_isverboseboot = DEFAULT_VERBOSE_BOOT;
 
 bool Settings_ESP3D::begin()
 {
@@ -177,7 +179,16 @@ bool Settings_ESP3D::begin()
     }
     //get target FW
     Settings_ESP3D::GetFirmwareTarget(true);
+    Settings_ESP3D::isVerboseBoot(true);
     return true;
+}
+
+bool Settings_ESP3D::isVerboseBoot(bool fromsettings)
+{
+    if(fromsettings) {
+        _isverboseboot = read_byte (ESP_VERBOSE_BOOT);
+    }
+    return _isverboseboot;
 }
 
 uint8_t Settings_ESP3D::GetFirmwareTarget(bool fromsettings)
@@ -223,6 +234,9 @@ uint8_t Settings_ESP3D::get_default_byte_value(int pos)
     switch(pos) {
     case ESP_RADIO_MODE:
         res = DEFAULT_ESP_RADIO_MODE;
+        break;
+    case ESP_VERBOSE_BOOT:
+        res = DEFAULT_VERBOSE_BOOT;
         break;
     case ESP_SETUP:
         res = DEFAULT_SETUP;
@@ -1015,6 +1029,8 @@ bool Settings_ESP3D::reset()
 
     //Setup done (internal only)
     Settings_ESP3D::write_byte(ESP_SETUP,Settings_ESP3D::get_default_byte_value(ESP_SETUP));
+    //Verbose boot
+    Settings_ESP3D::write_byte(ESP_VERBOSE_BOOT,Settings_ESP3D::get_default_byte_value(ESP_VERBOSE_BOOT));
 
 #if defined(DISPLAY_DEVICE) && defined(DISPLAY_TOUCH_DRIVER)
     //Calibration done (internal only)

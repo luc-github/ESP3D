@@ -505,7 +505,7 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     }
     output->print ("]}");
     //Start delay
-    output->print (",{\"F\":\"system/system\",\"P\":\"");
+    output->print (",{\"F\":\"system/boot\",\"P\":\"");
     output->print (ESP_BOOT_DELAY);
     output->print ("\",\"T\":\"I\",\"V\":\"");
     output->print (Settings_ESP3D::read_uint32(ESP_BOOT_DELAY));
@@ -514,6 +514,12 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print ("\",\"M\":\"");
     output->print (Settings_ESP3D::get_min_int32_value(ESP_BOOT_DELAY));
     output->print ("\"}");
+    //Verbose boot
+    output->print(",{\"F\":\"system/boot\",\"P\":\"");
+    output->print(ESP_VERBOSE_BOOT);
+    output->print("\",\"T\":\"B\",\"V\":\"");
+    output->print (Settings_ESP3D::read_byte(ESP_VERBOSE_BOOT));
+    output->print("\",\"H\":\"verbose\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
     //Output flag
     //Serial
     output->print (",{\"F\":\"system/outputmsg\",\"P\":\"");

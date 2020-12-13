@@ -101,6 +101,8 @@
 #define ESP_FTP_DATA_PASSIVE_PORT      1017    //4  bytes = int
 #define ESP_FTP_ON             1021     //1 byte = flag
 #define ESP_AUTO_NOTIFICATION   1022    //1 byte = flag
+#define ESP_VERBOSE_BOOT        1023    //1 byte = flag
+
 
 //Hidden password
 #define HIDDEN_PASSWORD "********"
@@ -135,6 +137,7 @@ public:
     static bool reset();
     static int8_t GetSettingsVersion();
     static uint8_t GetFirmwareTarget(bool fromsettings = false);
+    static bool isVerboseBoot(bool fromsettings = false);
     static uint8_t GetSDDevice();
     static const char* GetFirmwareTargetShortName();
     static String IPtoString(uint32_t ip_int);
@@ -144,6 +147,7 @@ public:
 private:
     static bool is_string(const char * s, uint len);
     static uint8_t _FirmwareTarget;
+    static bool _isverboseboot;
 };
 
 

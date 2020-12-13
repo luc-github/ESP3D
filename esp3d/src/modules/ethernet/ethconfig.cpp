@@ -82,7 +82,7 @@ bool EthConfig::StartSTA()
 bool EthConfig::begin()
 {
     bool res = false;
-    ESP3DOutput output(ESP_SERIAL_CLIENT);
+    ESP3DOutput output(ESP_ALL_CLIENTS);
     end();
     _started = ETH.begin();
     if (_started) {

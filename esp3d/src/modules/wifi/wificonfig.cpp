@@ -118,6 +118,10 @@ bool WiFiConfig::ConnectSTA2AP()
     uint8_t dot = 0;
     wl_status_t status = WiFi.status();
     ESP3DOutput output(ESP_ALL_CLIENTS);
+    if (!Settings_ESP3D::isVerboseBoot()) {
+        output.printMSG("Connecting");
+        output.flush();
+    }
     while (status != WL_CONNECTED && count < 40) {
 
         switch (status) {
@@ -140,8 +144,10 @@ bool WiFiConfig::ConnectSTA2AP()
             break;
         }
         ESP3DGlobalOutput::SetStatus(msg.c_str());
-        output.printMSG(msg.c_str());
-        output.flush();
+        if (Settings_ESP3D::isVerboseBoot()) {
+            output.printMSG(msg.c_str());
+            output.flush();
+        }
         Hal::wait (500);
         count++;
         status = WiFi.status();
@@ -186,10 +192,12 @@ bool WiFiConfig::StartSTA()
         IPAddress ip(IP), mask(MK), gateway(GW);
         WiFi.config(ip, gateway,mask);
     }
-    ESP3DOutput output(ESP_SERIAL_CLIENT);
-    String stmp;
-    stmp = "Connecting to '" + SSID + "'";;
-    output.printMSG(stmp.c_str());
+    ESP3DOutput output(ESP_ALL_CLIENTS);
+    if (Settings_ESP3D::isVerboseBoot()) {
+        String stmp;
+        stmp = "Connecting to '" + SSID + "'";;
+        output.printMSG(stmp.c_str());
+    }
     if (WiFi.begin(SSID.c_str(), (password.length() > 0)?password.c_str():nullptr)) {
 #if defined (ARDUINO_ARCH_ESP8266)
         WiFi.setSleepMode(WIFI_NONE_SLEEP);
@@ -277,8 +285,10 @@ bool WiFiConfig::begin()
 {
     bool res = false;
     end();
-    ESP3DOutput output(ESP_ALL_CLIENTS);
-    output.printMSG("Starting WiFi");
+    if (Settings_ESP3D::isVerboseBoot()) {
+        ESP3DOutput output(ESP_ALL_CLIENTS);
+        output.printMSG("Starting WiFi");
+    }
     int8_t wifiMode =Settings_ESP3D::read_byte(ESP_RADIO_MODE);
     if (wifiMode == ESP_WIFI_AP) {
         res = StartAP();

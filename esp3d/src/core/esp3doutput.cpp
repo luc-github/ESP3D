@@ -252,17 +252,9 @@ size_t ESP3DOutput::printMSG(const char * s, bool withNL)
         return 0;
     }
 #endif //HTTP_FEATURE
-    if (_client & ESP_PRINTER_LCD_CLIENT) {
-        if (isOutput(ESP_PRINTER_LCD_CLIENT) && (Settings_ESP3D::GetFirmwareTarget()!=GRBL)) {
-            display= "M117 ";
-            display+= s;
-            return printLN(display.c_str());
-        } else {
-            return printLN(s);
-        }
-    }
     if (_client & ESP_SCREEN_CLIENT) {
-        print(s);
+        ESP3DOutput outputscr(ESP_SCREEN_CLIENT);
+        outputscr.print(s);
     }
     switch(Settings_ESP3D::GetFirmwareTarget()) {
     case GRBL:
@@ -272,13 +264,21 @@ size_t ESP3DOutput::printMSG(const char * s, bool withNL)
         break;
     case MARLIN:
     case MARLINKIMBRA:
-        display = "M117 ";
+        if (_client & ESP_PRINTER_LCD_CLIENT) {
+            display = "M117 ";
+        } else {
+            display = ";echo: ";
+        }
         display += s;
         break;
     case SMOOTHIEWARE:
     case REPETIER:
     default:
-        display = ";";
+        if (_client & ESP_PRINTER_LCD_CLIENT) {
+            display = "M117 ";
+        } else {
+            display = ";";
+        }
         display += s;
     }
     if(withNL) {

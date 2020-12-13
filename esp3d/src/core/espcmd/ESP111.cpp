@@ -28,14 +28,16 @@
 //[ESP111]
 bool Commands::ESP111(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
-    bool response = true;
-    String parameter;
-    String res = get_param (cmd_params, "");
+    String parameter = get_param (cmd_params, "");
     (void)auth_type;
-    res += NetConfig::localIP();
-    //log_esp3d("Client %d", output->client());
-    output->printMSG (res.c_str());
-    return response;
+    if (parameter.length() > 0) {
+        parameter += " ";
+        parameter += NetConfig::localIP();
+        output->printLN (parameter.c_str());
+    } else {
+        output->printMSG (NetConfig::localIP().c_str());
+    }
+    return true;
 }
 
 #endif //WIFI_FEATURE

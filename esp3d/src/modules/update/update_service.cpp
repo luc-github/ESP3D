@@ -141,7 +141,8 @@ const char * SysboolKeysVal[] = {"Active_Printer_LCD",
                                  "Active_Serial ",
                                  "Active_WebSocket",
                                  "Active_Telnet",
-                                 "Active_BT"
+                                 "Active_BT",
+                                 "Boot_verbose"
                                 } ;
 
 const uint16_t SysboolKeysPos[] = {ESP_PRINTER_LCD_FLAG,
@@ -149,7 +150,8 @@ const uint16_t SysboolKeysPos[] = {ESP_PRINTER_LCD_FLAG,
                                    ESP_SERIAL_FLAG,
                                    ESP_WEBSOCKET_FLAG,
                                    ESP_TELNET_FLAG,
-                                   ESP_BT_FLAG
+                                   ESP_BT_FLAG,
+                                   ESP_VERBOSE_BOOT
                                   } ;
 
 const char * NetbyteKeysVal[] = {
@@ -285,9 +287,9 @@ bool processingFileFunction (const char * section, const char * key, const char 
                 if (strcasecmp(ServboolKeysVal[i],key)==0) {
                     T='B';
                     P=ServboolKeysPos[i];
-                    if ((strcasecmp("yes",value)==0)||(strcasecmp("true", value)==0)||(strcasecmp("1", value)==0) ) {
+                    if ((strcasecmp("yes",value)==0)||(strcasecmp("on", value)==0)||(strcasecmp("true", value)==0)||(strcasecmp("1", value)==0) ) {
                         b = 1;
-                    } else if ((strcasecmp("no", value)==0)||(strcasecmp("false", value)==0)||(strcasecmp("0", value)==0) ) {
+                    } else if ((strcasecmp("no", value)==0)||(strcasecmp("off", value)==0)||(strcasecmp("false", value)==0)||(strcasecmp("0", value)==0) ) {
                         b = 0;
                     } else {
                         P=-1;
@@ -370,9 +372,9 @@ bool processingFileFunction (const char * section, const char * key, const char 
                 if (strcasecmp(SysboolKeysVal[i],key)==0) {
                     T='B';
                     P=SysboolKeysPos[i];
-                    if ((strcasecmp("yes",value)==0)||(strcasecmp("true", value)==0)||(strcasecmp("1", value)==0) ) {
+                    if ((strcasecmp("yes",value)==0)||(strcasecmp("on", value)==0)||(strcasecmp("true", value)==0)||(strcasecmp("1", value)==0) ) {
                         b = 1;
-                    } else if ((strcasecmp("no", value)==0)||(strcasecmp("false", value)==0)||(strcasecmp("0", value)==0) ) {
+                    } else if ((strcasecmp("no", value)==0)||(strcasecmp("off", value)==0)||(strcasecmp("false", value)==0)||(strcasecmp("0", value)==0) ) {
                         b = 0;
                     } else {
                         P=-1;

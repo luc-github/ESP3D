@@ -39,25 +39,25 @@ bool Commands::ESP202(const char* cmd_params, level_authenticate_type auth_type,
 #endif //AUTHENTICATION_FEATURE
     bool response = true;
     String parameter;
-     parameter = get_param (cmd_params, "");
+    parameter = get_param (cmd_params, "");
     //get
     if (parameter.length() == 0) {
         String r = "SPEED="  + String(Settings_ESP3D::read_byte (ESP_SD_SPEED_DIV));
         output->printMSG (r.c_str());
     } else { //set
-         parameter = get_param (cmd_params, "SPEED=");
-         if ((parameter == "1") || (parameter == "2") || (parameter == "4")|| (parameter == "6")|| (parameter == "8")|| (parameter == "16")|| (parameter == "32")) {
+        parameter = get_param (cmd_params, "SPEED=");
+        if ((parameter == "1") || (parameter == "2") || (parameter == "4")|| (parameter == "6")|| (parameter == "8")|| (parameter == "16")|| (parameter == "32")) {
             if (!Settings_ESP3D::write_byte (ESP_SD_SPEED_DIV, parameter.toInt())) {
-                    response = false;
-                    output->printERROR ("Set failed!");
-                } else {
-                    ESP_SD::setSPISpeedDivider(parameter.toInt());
-                    output->printMSG ("ok");
-                }
-         } else {
-             output->printERROR ("Invalid parameter!");
-             response = false;
-         }
+                response = false;
+                output->printERROR ("Set failed!");
+            } else {
+                ESP_SD::setSPISpeedDivider(parameter.toInt());
+                output->printMSG ("ok");
+            }
+        } else {
+            output->printERROR ("Invalid parameter!");
+            response = false;
+        }
     }
     return response;
 }
