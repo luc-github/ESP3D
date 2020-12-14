@@ -173,6 +173,56 @@ const uint16_t ServbyteKeysPos[] = {ESP_TIMEZONE,
                                    } ;
 
 
+bool processString(const char** keysval, const uint16_t * keypos, const size_t size, const char * key, const char * value, char & T, int & P )
+{
+
+    for(uint i=0; i< size ; i++) {
+        if (strcasecmp(keysval[i],key)==0) {
+            //if it is a previouly saved scrambled password ignore it
+            if (strcasecmp(value,"********")!=0) {
+                T='S';
+                P=keypos[i];
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool processInt(const char** keysval, const uint16_t * keypos, const size_t size, const char * key, const char * value, char & T, int & P,  uint32_t & v)
+{
+    for(uint i=0; i< size ; i++) {
+        if (strcasecmp(keysval[i],key)==0) {
+            T='I';
+            P=keypos[i];
+            v=String(value).toInt();
+            return true;
+        }
+    }
+    return false;
+}
+
+bool processBool(const char** keysval, const uint16_t * keypos, const size_t size, const char * key, const char * value, char & T, int & P,  byte & b)
+{
+    for(uint i=0; i< size ; i++) {
+        if (strcasecmp(keysval[i],key)==0) {
+            T='B';
+            P=keypos[i];
+            if ((strcasecmp("yes",value)==0)||(strcasecmp("on", value)==0)||(strcasecmp("true", value)==0)||(strcasecmp("1", value)==0) ) {
+                b = 1;
+            } else if ((strcasecmp("no", value)==0)||(strcasecmp("off", value)==0)||(strcasecmp("false", value)==0)||(strcasecmp("0", value)==0) ) {
+                b = 0;
+            } else {
+                P=-1;
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
+
+
 //Parsing all entries of file once is faster that checking all possible parameters for each line of file
 bool processingFileFunction (const char * section, const char * key, const char * value)
 {
@@ -187,38 +237,20 @@ bool processingFileFunction (const char * section, const char * key, const char 
     //network / services / system sections
     if (strcasecmp("network",section)==0) {
         size =  sizeof(NetstringKeysVal)/sizeof(char*);
-        //Look in string entries
-        for(uint i=0; i< size && !done; i++) {
-            if (strcasecmp(NetstringKeysVal[i],key)==0) {
-                //if it is a previouly saved scrambled password ignore it
-                if (strcasecmp(value,"********")!=0) {
-                    T='S';
-                    P=NetstringKeysPos[i];
-                    done=true;
-                }
-            }
-        }
-
         if (!done) {
-            size =  sizeof(IPKeysVal)/sizeof(char*);
-            for(uint i=0; i< size && !done; i++) {
-                if (strcasecmp(IPKeysVal[i],key)==0) {
-                    T='A';
-                    P=IPKeysPos[i];
-                    v=String(value).toInt();
-                    done=true;
-                }
+            done = processString(NetstringKeysVal,NetstringKeysPos,sizeof(NetstringKeysVal)/sizeof(char*),  key, value, T, P );
+        }
+        if (!done) {
+            done = processString(IPKeysVal,IPKeysPos,sizeof(IPKeysVal)/sizeof(char*),  key, value, T, P );
+            if(done) {
+                T='A';
             }
         }
         if (!done) {
-            size =  sizeof(NetbyteKeysVal)/sizeof(char*);
-            for(uint i=0; i< size && !done; i++) {
-                if (strcasecmp(NetbyteKeysVal[i],key)==0) {
-                    T='B';
-                    P=NetbyteKeysPos[i];
-                    b=String(value).toInt();
-                    done=true;
-                }
+            done = processInt(NetbyteKeysVal,NetbyteKeysPos,sizeof(NetbyteKeysVal)/sizeof(char*),  key, value, T, P, v);
+            if(done) {
+                T='B';
+                b=v;
             }
         }
         //Radio mode BT, WIFI-STA, WIFI-AP, ETH-STA, OFF
@@ -259,54 +291,20 @@ bool processingFileFunction (const char * section, const char * key, const char 
             }
         }
     } else if (strcasecmp("services",section)==0) {
-        size =  sizeof(ServstringKeysVal)/sizeof(char*);
-        //Look in string entries
-        for(uint i=0; i< size && !done; i++) {
-            if (strcasecmp(ServstringKeysVal[i],key)==0) {
-                //if it is a previouly saved scrambled password ignore it
-                if (strcasecmp(value,"********")!=0) {
-                    T='S';
-                    P=ServstringKeysPos[i];
-                    done=true;
-                }
-            }
+        if (!done) {
+            done = processString(ServstringKeysVal,ServstringKeysPos,sizeof(ServstringKeysVal)/sizeof(char*),  key, value, T, P );
         }
         if (!done) {
-            size =  sizeof(ServintKeysVal)/sizeof(char*);
-            for(uint i=0; i< size && !done; i++) {
-                if (strcasecmp(ServintKeysVal[i],key)==0) {
-                    T='I';
-                    P=ServintKeysPos[i];
-                    done=true;
-                }
-            }
+            done = processInt(ServintKeysVal,ServintKeysPos,sizeof(ServintKeysVal)/sizeof(char*),  key, value, T, P, v);
         }
         if (!done) {
-            size =  sizeof(ServboolKeysVal)/sizeof(char*);
-            for(uint i=0; i< size && !done; i++) {
-                if (strcasecmp(ServboolKeysVal[i],key)==0) {
-                    T='B';
-                    P=ServboolKeysPos[i];
-                    if ((strcasecmp("yes",value)==0)||(strcasecmp("on", value)==0)||(strcasecmp("true", value)==0)||(strcasecmp("1", value)==0) ) {
-                        b = 1;
-                    } else if ((strcasecmp("no", value)==0)||(strcasecmp("off", value)==0)||(strcasecmp("false", value)==0)||(strcasecmp("0", value)==0) ) {
-                        b = 0;
-                    } else {
-                        P=-1;
-                    }
-                    done=true;
-                }
-            }
+            done = processBool(ServboolKeysVal,ServboolKeysPos,sizeof(ServboolKeysVal)/sizeof(char*),  key, value, T, P, b);
         }
         if (!done) {
-            size =  sizeof(ServbyteKeysVal)/sizeof(char*);
-            for(uint i=0; i< size && !done; i++) {
-                if (strcasecmp(ServbyteKeysVal[i],key)==0) {
-                    T='B';
-                    P=ServbyteKeysPos[i];
-                    b=String(value).toInt();
-                    done=true;
-                }
+            done = processInt(ServbyteKeysVal,ServbyteKeysPos,sizeof(ServbyteKeysVal)/sizeof(char*),  key, value, T, P, v);
+            if(done) {
+                T='B';
+                b=v;
             }
         }
         //Notification type None / PushOver / Line / Email / Telegram
@@ -330,7 +328,6 @@ bool processingFileFunction (const char * section, const char * key, const char 
                 }
             }
         }
-
         //Sensor type if enabled None / DHT11 / DHT22 / ANALOG / BMP280 / BME280
         if (!done) {
             if (strcasecmp("SENSOR_TYPE",key)==0) {
@@ -354,34 +351,12 @@ bool processingFileFunction (const char * section, const char * key, const char 
                 }
             }
         }
-    }
-    if (strcasecmp("system",section)==0) {
+    } else if (strcasecmp("system",section)==0) {
         if (!done) {
-            size =  sizeof(SysintKeysVal)/sizeof(char*);
-            for(uint i=0; i< size && !done; i++) {
-                if (strcasecmp(SysintKeysVal[i],key)==0) {
-                    T='I';
-                    P=SysintKeysPos[i];
-                    done=true;
-                }
-            }
+            done = processInt(SysintKeysVal,SysintKeysPos,sizeof(SysintKeysVal)/sizeof(char*),  key, value, T, P, v);
         }
         if (!done) {
-            size =  sizeof(SysboolKeysVal)/sizeof(char*);
-            for(uint i=0; i< size && !done; i++) {
-                if (strcasecmp(SysboolKeysVal[i],key)==0) {
-                    T='B';
-                    P=SysboolKeysPos[i];
-                    if ((strcasecmp("yes",value)==0)||(strcasecmp("on", value)==0)||(strcasecmp("true", value)==0)||(strcasecmp("1", value)==0) ) {
-                        b = 1;
-                    } else if ((strcasecmp("no", value)==0)||(strcasecmp("off", value)==0)||(strcasecmp("false", value)==0)||(strcasecmp("0", value)==0) ) {
-                        b = 0;
-                    } else {
-                        P=-1;
-                    }
-                    done=true;
-                }
-            }
+            done = processBool(SysboolKeysVal,SysboolKeysPos,sizeof(SysboolKeysVal)/sizeof(char*),  key, value, T, P, b);
         }
         //Target Firmware None / Marlin / Repetier / MarlinKimbra / Smoothieware / GRBL
         if (!done) {
@@ -514,7 +489,6 @@ bool UpdateService::begin()
             } else {
                 log_esp3d("Processing ini file failed");
             }
-            int command = U_FLASH;
             if (flash(FW_FILE,U_FLASH)) {
                 res = true;
             } else {
