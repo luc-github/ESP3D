@@ -261,8 +261,8 @@ bool NetServices::begin()
         if (!MDNS.addService("http", "tcp", HTTP_Server::port())) {
             log_esp3d("failed");
         }
-        // TODO add TXT records
-        //MDNS.addServiceTxt("http", "tcp", Key, value);
+        //Add TXT records
+        MDNS.addServiceTxt("http", "tcp", "ESP3D", FW_VERSION);
     }
 #endif //MDNS_FEATURE
 #ifdef SSDP_FEATURE
