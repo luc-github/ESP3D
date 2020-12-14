@@ -528,6 +528,11 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
     case 610:
         response = ESP610(cmd_params, auth_type, output);
         break;
+    //Send Notification using URL
+    //[ESP620]URL=<encoded url> [pwd=<admin password>]
+    case 620:
+        response = ESP620(cmd_params, auth_type, output);
+        break;
 #endif //NOTIFICATION_FEATURE
 #if defined(FILESYSTEM_FEATURE)
     //Format ESP Filesystem

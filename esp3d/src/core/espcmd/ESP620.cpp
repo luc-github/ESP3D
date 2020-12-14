@@ -1,5 +1,5 @@
 /*
- ESP600.cpp - ESP3D command class
+ ESP620.cpp - ESP3D command class
 
  Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -24,9 +24,9 @@
 #include "../settings_esp3d.h"
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/notifications/notifications_service.h"
-//Send Notification
-//[ESP600]msg [pwd=<admin/user password>]
-bool Commands::ESP600(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
+//Send Notification using URL
+//[ESP620]URL=<encoded url> [pwd=<admin/user password>]
+bool Commands::ESP620(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
     bool response = true;
     String parameter;
@@ -44,11 +44,11 @@ bool Commands::ESP600(const char* cmd_params, level_authenticate_type auth_type,
         output->printERROR ("Invalid message!");
         return false;
     } else {
-        parameter = get_param (cmd_params, "");
-        if (notificationsservice.sendMSG(ESP_NOTIFICATION_TITLE, parameter.c_str())) {
+        parameter = get_param (cmd_params, "URL=");
+        if (notificationsservice.GET(parameter.c_str())) {
             output->printMSG ("ok");
         } else {
-            output->printERROR ("Cannot send message!");
+            output->printERROR ("Cannot send notification!");
             return false;
         }
     }

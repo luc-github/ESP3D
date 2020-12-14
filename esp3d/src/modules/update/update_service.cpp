@@ -232,11 +232,9 @@ bool processingFileFunction (const char * section, const char * key, const char 
     uint32_t v = 0;
     byte b = 0;
     bool done=false;
-    uint8_t size = 0;
     log_esp3d("[%s]%s=%s",section, key,value);
     //network / services / system sections
     if (strcasecmp("network",section)==0) {
-        size =  sizeof(NetstringKeysVal)/sizeof(char*);
         if (!done) {
             done = processString(NetstringKeysVal,NetstringKeysPos,sizeof(NetstringKeysVal)/sizeof(char*),  key, value, T, P );
         }

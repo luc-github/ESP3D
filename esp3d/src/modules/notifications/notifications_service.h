@@ -33,6 +33,7 @@ public:
     void end();
     void handle();
     bool sendMSG(const char * title, const char * message);
+    bool GET(const char * URL64);
     const char * getTypeString();
     bool started();
     bool isAutonotification()
@@ -53,6 +54,7 @@ private:
     String _settings;
     String _serveraddress;
     uint16_t _port;
+    bool decode64(const char* encodedURL, char *decodedURL);
     bool sendPushoverMSG(const char * title, const char * message);
     bool sendEmailMSG(const char * title, const char * message);
     bool sendLineMSG(const char * title, const char * message);
