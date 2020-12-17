@@ -38,6 +38,10 @@
 #define USE_SERIAL_1 2
 #define USE_SERIAL_2 3
 
+//Communication protocols
+#define RAW_SERIAL 0
+#define MKS_SERIAL 1
+
 //Display
 #define OLED_I2C_SSD1306        1
 #define OLED_I2C_SSDSH1106      2

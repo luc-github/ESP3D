@@ -118,10 +118,12 @@ bool WiFiConfig::ConnectSTA2AP()
     uint8_t dot = 0;
     wl_status_t status = WiFi.status();
     ESP3DOutput output(ESP_ALL_CLIENTS);
+#if COMMUNICATION_PROTOCOL != MKS_SERIAL
     if (!Settings_ESP3D::isVerboseBoot()) {
         output.printMSG("Connecting");
         output.flush();
     }
+#endif //#if COMMUNICATION_PROTOCOL == MKS_SERIAL
     while (status != WL_CONNECTED && count < 40) {
 
         switch (status) {

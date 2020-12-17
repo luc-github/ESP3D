@@ -107,6 +107,29 @@ bool NetConfig::isHostnameValid (const char * hostname)
     return true;
 }
 
+
+/**
+ * Get IP Integer what ever is enabled
+ */
+IPAddress  NetConfig::localIPAddress()
+{
+    IPAddress current_ip = 0;
+#if defined( WIFI_FEATURE)
+    if (WiFi.getMode() == WIFI_STA) {
+        current_ip = WiFi.localIP();
+    } else if (WiFi.getMode() == WIFI_AP) {
+        current_ip = WiFi.softAPIP();
+    }
+#endif //WIFI_FEATURE
+#if defined (ETH_FEATURE)
+    if (EthConfig::started()) {
+        current_ip = ETH.localIP();
+    }
+#endif //ETH_FEATURE
+
+    return current_ip;
+}
+
 /**
  * Get IP string what ever is enabled
  */
@@ -153,14 +176,16 @@ void NetConfig::onWiFiEvent(WiFiEvent_t event)
     case WIFI_EVENT_STAMODE_DISCONNECTED: {
         if(_started) {
             output.printMSG ("Disconnected");
-            ESP3DGlobalOutput::SetStatus("Disconnected");
+            ESP3DGlobalOutput::display_Disconnected();
             //_needReconnect2AP = true;
         }
     }
     break;
     case WIFI_EVENT_STAMODE_GOT_IP: {
         ESP3DGlobalOutput::display_IP();
+#if COMMUNICATION_PROTOCOL != MKS_SERIAL
         output.printMSG (WiFi.localIP().toString().c_str());
+#endif //#if COMMUNICATION_PROTOCOL == MKS_SERIAL
     }
     break;
     case WIFI_EVENT_SOFTAPMODE_STACONNECTED: {

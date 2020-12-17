@@ -185,9 +185,13 @@ bool Settings_ESP3D::begin()
 
 bool Settings_ESP3D::isVerboseBoot(bool fromsettings)
 {
+#if COMMUNICATION_PROTOCOL != MKS_SERIAL
     if(fromsettings) {
         _isverboseboot = read_byte (ESP_VERBOSE_BOOT);
     }
+#else
+    _isverboseboot =  false;
+#endif //#if COMMUNICATION_PROTOCOL == MKS_SERIAL
     return _isverboseboot;
 }
 

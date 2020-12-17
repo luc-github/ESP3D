@@ -111,6 +111,7 @@ public:
     static void SetStatus(const char * status);
     static void display_progress(uint8_t v);
     static void display_IP(bool force = false);
+    static void display_Disconnected();
 };
 
 #endif //_ESP3DOUTPUT_H

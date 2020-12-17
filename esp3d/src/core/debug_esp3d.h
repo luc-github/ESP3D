@@ -65,8 +65,8 @@ extern Telnet_Server telnet_debug;
 #define DEBUG_ESP3D_NETWORK_INIT telnet_debug.begin(DEBUG_ESP3D_OUTPUT_PORT, true);
 #define DEBUG_ESP3D_NETWORK_HANDLE telnet_debug.handle();
 #define DEBUG_ESP3D_NETWORK_END telnet_debug.end();
-#define log_esp3d(format, ...) telnet_debug.printf("[ESP3D][%s:%u] %s(): " format "\r\n", pathToFileName(__FILE__), __LINE__, __FUNCTION__, ##__VA_ARGS__)
-#define log_esp3dS(format, ...) telnet_debug.printf(format "\r\n", ##__VA_ARGS__)
+#define log_esp3d(format, ...) if(telnet_debug.isConnected())telnet_debug.printf("[ESP3D][%s:%u] %s(): " format "\r\n", pathToFileName(__FILE__), __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define log_esp3dS(format, ...) if(telnet_debug.isConnected())telnet_debug.printf(format "\r\n", ##__VA_ARGS__)
 #endif // DEBUG_OUTPUT_TELNET
 
 //Telnet

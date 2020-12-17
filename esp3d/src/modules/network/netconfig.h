@@ -64,6 +64,7 @@ public:
         return _started;
     }
     static String localIP();
+    static IPAddress localIPAddress();
 private :
     static String _hostname;
     static void onWiFiEvent(WiFiEvent_t event);

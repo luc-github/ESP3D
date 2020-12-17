@@ -37,6 +37,11 @@
 //SERIAL_COMMAND_FEATURE: allow to send command by serial
 #define SERIAL_COMMAND_FEATURE
 
+//COMMUNICATION_PROTOCOL: to communicate with printer or TFT
+//RAW_SERIAL standard serial
+//MKS_SERIAL Mks protocol
+#define COMMUNICATION_PROTOCOL MKS_SERIAL
+
 //AUTHENTICATION_FEATURE: protect pages by login password
 //#define AUTHENTICATION_FEATURE
 
@@ -126,7 +131,7 @@
 //ESP_SD_NATIVE               1 //esp32 / esp8266
 //ESP_SDIO                    2 //esp32 only
 //ESP_SDFAT                   3 //esp8266 (same as native) / esp32
-#define SD_DEVICE    ESP_SD_NATIVE
+//#define SD_DEVICE    ESP_SD_NATIVE
 
 //SDIO mode
 #define SD_ONE_BIT_MODE true
@@ -135,7 +140,7 @@
 //ESP_NO_SD
 //ESP_DIRECT_SD
 //ESP_SHARED_SD
-#define SD_DEVICE_CONNECTION  ESP_DIRECT_SD
+//#define SD_DEVICE_CONNECTION  ESP_DIRECT_SD
 
 //pin if reader has insert detection feature
 //let -1 or comment if none
@@ -185,13 +190,13 @@
 #define CAPTIVE_PORTAL_FEATURE
 
 //OTA_FEATURE: this feature is arduino update over the air
-//#define OTA_FEATURE
+#define OTA_FEATURE
 
 //WEB_UPDATE_FEATURE: allow to flash fw using web UI
 #define WEB_UPDATE_FEATURE
 
 //SD_UPDATE_FEATURE: allow to flash/configure fw using SD
-#define SD_UPDATE_FEATURE
+//#define SD_UPDATE_FEATURE
 
 //NOTIFICATION_FEATURE : allow to push notifications
 #define NOTIFICATION_FEATURE
@@ -247,7 +252,7 @@
 //DEBUG_OUTPUT_SERIAL2 3
 //DEBUG_OUTPUT_TELNET  4
 //DEBUG_OUTPUT_WEBSOCKET  5
-//#define ESP_DEBUG_FEATURE DEBUG_OUTPUT_SERIAL0
+#define ESP_DEBUG_FEATURE DEBUG_OUTPUT_TELNET
 
 #ifdef ESP_DEBUG_FEATURE
 #define DEBUG_BAUDRATE 115200

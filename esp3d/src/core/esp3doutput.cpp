@@ -489,6 +489,15 @@ void ESP3DGlobalOutput::display_progress(uint8_t v)
 #endif //DISPLAY_DEVICE
 }
 
+void ESP3DGlobalOutput::display_Disconnected()
+{
+#ifdef DISPLAY_DEVICE
+    esp3d_display.SetStatus("Disconnected");
+#else
+
+#endif //DISPLAY_DEVICE
+}
+
 void ESP3DGlobalOutput::display_IP(bool force)
 {
 #ifdef DISPLAY_DEVICE
