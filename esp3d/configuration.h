@@ -40,7 +40,7 @@
 //COMMUNICATION_PROTOCOL: to communicate with printer or TFT
 //RAW_SERIAL standard serial
 //MKS_SERIAL Mks protocol
-#define COMMUNICATION_PROTOCOL MKS_SERIAL
+#define COMMUNICATION_PROTOCOL RAW_SERIAL
 
 //AUTHENTICATION_FEATURE: protect pages by login password
 //#define AUTHENTICATION_FEATURE

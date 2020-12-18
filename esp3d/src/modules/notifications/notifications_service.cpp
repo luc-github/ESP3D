@@ -56,6 +56,9 @@ typedef WiFiClientSecure TSecureClient;
 typedef WiFiClientSecure TSecureClient;
 #include <WiFi.h>
 #include <HTTPClient.h>
+extern "C" {
+#include "libb64/cdecode.h"
+}
 #endif //ARDUINO_ARCH_ESP32
 
 #include <base64.h>
@@ -472,15 +475,10 @@ bool NotificationsService::getEmailFromSettings()
 bool NotificationsService::decode64(const char* encodedURL,  char *decodedURL)
 {
     size_t out_len = 0;
-#if defined( ARDUINO_ARCH_ESP8266)
     out_len =  base64_decode_chars(encodedURL, strlen(encodedURL), decodedURL);
-#endif //ARDUINO_ARCH_ESP8266
-#if defined( ARDUINO_ARCH_ESP32)
-    strcpy(base64_decode(encodedURL, strlen(encodedURL),&out_len);
-#endif //ARDUINO_ARCH_ESP32
-           log_esp3d("URLE: %s", encodedURL);
-           log_esp3d("URLD: %s", decodedURL);
-           return (out_len>0);
+    log_esp3d("URLE: %s", encodedURL);
+    log_esp3d("URLD: %s", decodedURL);
+    return (out_len>0);
 }
 
 bool NotificationsService::GET(const char * URL64)

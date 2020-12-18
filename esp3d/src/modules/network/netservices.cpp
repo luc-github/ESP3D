@@ -265,9 +265,7 @@ bool NetServices::begin()
     if(WiFi.getMode() != WIFI_AP) {
         // Add service to MDNS-SD
         log_esp3d("Add mdns service http / tcp port %d", HTTP_Server::port());
-        if (!MDNS.addService("http", "tcp", HTTP_Server::port())) {
-            log_esp3d("failed");
-        }
+        MDNS.addService("http", "tcp", HTTP_Server::port());
         //Add TXT records
         MDNS.addServiceTxt("http", "tcp", "ESP3D", FW_VERSION);
     }

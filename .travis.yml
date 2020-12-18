@@ -63,5 +63,7 @@ script:
 
 notifications:
   email:
+    recipients:
+      - luc@tech-hunters.com
     on_success: always
     on_failure: always

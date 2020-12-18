@@ -113,7 +113,7 @@ bool NetConfig::isHostnameValid (const char * hostname)
  */
 IPAddress  NetConfig::localIPAddress()
 {
-    IPAddress current_ip = 0;
+    IPAddress current_ip = IPAddress(0,0,0,0);
 #if defined( WIFI_FEATURE)
     if (WiFi.getMode() == WIFI_STA) {
         current_ip = WiFi.localIP();
