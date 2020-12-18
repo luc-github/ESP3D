@@ -25,6 +25,7 @@ env:
   - TARGET=all PLATFORM=PIO BT=yes AUTHENTICATION=yes
 
 before_script:
+  - export AUTHOR_NAME="$(git log -1 $TRAVIS_COMMIT --pretty="%aN")"
   - platformio update
   - wget http://downloads.arduino.cc/arduino-1.8.5-linux64.tar.xz
   - tar xf arduino-1.8.5-linux64.tar.xz
@@ -60,6 +61,14 @@ before_script:
     
 script:
   - build_sketch  $TRAVIS_BUILD_DIR/esp3d/esp3d.ino $TARGET $PLATFORM $BT $AUTHENTICATION $FILESYSTEM
+
+after_success:
+  - chmod +x success.sh
+  - ./success.sh
+after_failure:
+  - chmod +x fail.sh
+  - ./fail.sh
+  
 
 notifications:
   email:
