@@ -125,6 +125,8 @@ If it is not an issue join discussion [here](https://github.com/luc-github/ESP3D
 * Opensource version is used by various boards like : https://www.aliexpress.com/wholesale?SearchText=esp3d&opensearch=true&switch_new_app=y
 and https://youtu.be/XoWW0aU6DGE?t=76  
 
+This is for information only - I am not linked to these products, it is just a search result of a query using ESP3D as keyword. So I am not responsible of any usage of them.
+
 
 * Custom version (not this repository) is used on azteeg mini wifi : http://www.panucatt.com/azteeg_X5_mini_reprap_3d_printer_controller_p/ax5mini.htm    
 and Wifi boards for 3D printers : https://www.panucatt.com/ProductDetails.asp?ProductCode=WB8266,   
