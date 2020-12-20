@@ -18,6 +18,7 @@ install:
   - pip install -U platformio
 
 before_script:
+  - export AUTHOR_NAME="$(git log -1 $TRAVIS_COMMIT --pretty="%aN")"
   - platformio update
   - wget http://downloads.arduino.cc/arduino-1.8.5-linux64.tar.xz
   - tar xf arduino-1.8.5-linux64.tar.xz
@@ -71,7 +72,16 @@ script:
   - rm -fr $HOME/.arduino15
   - platformio run
   
+after_success:
+  - chmod +x success.sh
+  - ./success.sh
+after_failure:
+  - chmod +x fail.sh
+  - ./fail.sh
+  
 notifications:
   email:
+      recipients:
+          - luc@tech-hunters.com
     on_success: change
     on_failure: change
