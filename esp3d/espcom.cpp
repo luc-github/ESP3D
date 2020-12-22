@@ -390,6 +390,7 @@ void ESPCOM::send2TCP (const char * data, bool async)
 bool ESPCOM::processFromSerial (bool async)
 {
     uint8_t i;
+    (void)i; //avoid warning if updater only
     //check UART for data
     if (ESPCOM::available(DEFAULT_PRINTER_PIPE)) {
         size_t len = ESPCOM::available(DEFAULT_PRINTER_PIPE);

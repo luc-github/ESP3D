@@ -162,6 +162,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
 {
     bool response = true;
     level_authenticate_type auth_type = auth_level;
+    (void)auth_type;  //avoid warning if updater only
 #ifdef AUTHENTICATION_FEATURE
 
     if (isadmin(cmd_params)) {
