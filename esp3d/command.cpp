@@ -69,7 +69,6 @@ const char * encodeString(const char * s){
 
 bool isValidNumber(String str)
 {
-   boolean isNum=false;
    if(!(str.charAt(0) == '+' || str.charAt(0) == '-' || isDigit(str.charAt(0)))) return false;
 
    for(byte i=1;i<str.length();i++)
@@ -2080,7 +2079,7 @@ bool COMMAND::check_command (String buffer, tpipe output, bool handlelockserial,
         if (ESPpos == -1 && (CONFIG::GetFirmwareTarget() == SMOOTHIEWARE)) {
             ESPpos = buffer.indexOf ("[esp");
         }
-        if ((ESPpos > -1) && (ESPpos<strlen("echo: " ))){
+        if ((ESPpos > -1) && (ESPpos< (int)strlen("echo: " ))){
             //is there the second part?
             int ESPpos2 = buffer.indexOf ("]", ESPpos);
             if (ESPpos2 > -1) {
