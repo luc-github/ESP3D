@@ -66,6 +66,19 @@ const char * encodeString(const char * s){
     if (tmp =="") tmp=" ";
     return tmp.c_str();
 }
+
+bool isValidNumber(String str)
+{
+   boolean isNum=false;
+   if(!(str.charAt(0) == '+' || str.charAt(0) == '-' || isDigit(str.charAt(0)))) return false;
+
+   for(byte i=1;i<str.length();i++)
+   {
+       if(!(isDigit(str.charAt(i)) || str.charAt(i) == '.')) return false;
+   }
+   return true;
+}
+
 String COMMAND::get_param (String & cmd_params, const char * id, bool withspace)
 {
     static String parameter;
@@ -84,6 +97,9 @@ String COMMAND::get_param (String & cmd_params, const char * id, bool withspace)
     //if no id found and not first part leave
     if (start == -1 ) {
         return parameter;
+    }
+    if (start >0){
+        if (cmd_params[start-1]!=' ') return parameter;
     }
     //password and SSID can have space so handle it
     //if no space expected use space as delimiter
@@ -511,7 +527,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
             } else {
                 int pin = parameter.toInt();
                 //check pin is valid
-                if ((pin >= 0) && (pin <= MAX_GPIO)) {
+                if ((pin >= 0) && (pin <= MAX_GPIO) && isValidNumber(parameter)) {
                     //check if analog or digital
                     bool isdigital = true;
 
@@ -573,6 +589,11 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
                     } else {
                         //it is a set
                         int value = parameter.toInt();
+                        if (!isValidNumber(parameter)){
+                            ESPCOM::println (INCORRECT_CMD_MSG, output, espresponse);
+                            response = false;
+                            break;
+                        }
                         if (isdigital) {
                             //verify it is a 0 or a 1
                             if ( (value == 0) || (value == 1) ) {
@@ -2059,7 +2080,7 @@ bool COMMAND::check_command (String buffer, tpipe output, bool handlelockserial,
         if (ESPpos == -1 && (CONFIG::GetFirmwareTarget() == SMOOTHIEWARE)) {
             ESPpos = buffer.indexOf ("[esp");
         }
-        if (ESPpos > -1) {
+        if ((ESPpos > -1) && (ESPpos<strlen("echo: " ))){
             //is there the second part?
             int ESPpos2 = buffer.indexOf ("]", ESPpos);
             if (ESPpos2 > -1) {
