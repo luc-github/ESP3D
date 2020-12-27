@@ -73,6 +73,6 @@ after_failure:
 notifications:
   email:
     recipients:
-      - luc@tech-hunters.com
+      - $TRAVIS_EMAIL
     on_success: always
     on_failure: always
