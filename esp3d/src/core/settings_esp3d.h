@@ -134,7 +134,7 @@ public:
     static bool write_uint32 (int pos, const uint32_t value);
     static bool write_IP (int pos, const uint32_t value);
     static bool write_IP_String (int pos, const char * value);
-    static bool reset();
+    static bool reset(bool networkonly = false);
     static int8_t GetSettingsVersion();
     static uint8_t GetFirmwareTarget(bool fromsettings = false);
     static bool isVerboseBoot(bool fromsettings = false);

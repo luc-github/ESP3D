@@ -46,6 +46,7 @@ void HTTP_Server::handle_web_command ()
         if(!cmd.endsWith("\n")) {
             cmd+="\n";    //need to validate command
         }
+        log_esp3d("Web Command: %s",cmd.c_str());
         esp3d_commands.process((uint8_t*)cmd.c_str(), cmd.length(), &output, auth_level);
     } else if (_webserver->hasArg ("ping")) {
         _webserver->send (200);

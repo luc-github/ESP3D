@@ -32,6 +32,7 @@ public:
     ~SerialService();
     bool begin();
     bool end();
+    void updateBaudRate(long br);
     void handle();
     void process();
     bool reset();

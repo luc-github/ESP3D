@@ -27,19 +27,31 @@ class MKSService
 {
 public:
     static bool begin();
-    static bool  sendNetworkFrame();
+    static bool sendNetworkFrame();
+    static bool sendGcodeFrame(const char* cmd);
     static void handle();
+    static void handleFrame(const uint8_t type, const uint8_t * dataFrame, const size_t dataSize );
     static void end();
     static bool started()
     {
         return _started;
     }
+    static bool isHead(const char c);
+    static bool isTail(const char c);
+    static bool isFrame(const char c);
+    static bool isCommand(const char c);
 private:
+    static uint8_t _uploadStatus;
+    static void sendWifiHotspots();
+    static void messageWiFiControl(const uint8_t * dataFrame, const size_t dataSize);
+    static void messageException(const uint8_t * dataFrame, const size_t dataSize);
+    static void messageWiFiConfig(const uint8_t * dataFrame, const size_t dataSize);
     static void clearFrame();
     static bool canSendFrame();
+    static void sendFrameDone();
     static bool _started;
     static char _frame[MKS_FRAME_SIZE];
-    static char _moduleId[21];
+    static char _moduleId[22];
 };
 
 

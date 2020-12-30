@@ -23,6 +23,9 @@
 #include "../../core/settings_esp3d.h"
 #include "../../core/esp3doutput.h"
 #include "../../core/commands.h"
+#if COMMUNICATION_PROTOCOL == MKS_SERIAL
+#include "../mks/mks_service.h"
+#endif //COMMUNICATION_PROTOCOL == MKS_SERIAL
 
 //Serial Parameters
 #define ESP_SERIAL_PARAM SERIAL_8N1
@@ -160,6 +163,7 @@ void SerialService::process()
     size_t len = available();
     if (len > 0) {
         //if yes read them
+        log_esp3d("Got %d chars in serial", len);
         uint8_t * sbuf = (uint8_t *)malloc(len);
         if(sbuf) {
             size_t count = readBytes(sbuf, len);
@@ -201,6 +205,101 @@ void SerialService::flushbuffer()
 //push collected data to buffer and proceed accordingly
 void SerialService::push2buffer(uint8_t * sbuf, size_t len)
 {
+    log_esp3d("buffer get %d data ", len);
+#if COMMUNICATION_PROTOCOL == MKS_SERIAL
+    static bool isFrameStarted = false;
+    static bool isCommandFrame = false;
+    static uint8_t type;
+    //expected size
+    static int16_t framePos = -1;
+    //currently received
+    static uint datalen = 0;
+    for (size_t i = 0; i < len; i++) {
+        log_esp3d("Data : %c %x", sbuf[i],sbuf[i]);
+        framePos++;
+        _lastflush = millis();
+        //so frame head was detected
+        if (isFrameStarted) {
+            //checking it is a valid Frame header
+            if (framePos==1) {
+                log_esp3d("type = %x",sbuf[i]);
+                if(MKSService::isFrame(char(sbuf[i]))) {
+                    if (MKSService::isCommand(char(sbuf[i]))) {
+                        isCommandFrame =true;
+                        log_esp3d("type: Command");
+                    } else {
+                        log_esp3d("type: other");
+                        type = sbuf[i];
+                        isCommandFrame =false;
+                    }
+                } else {
+                    log_esp3d("wrong frame type");
+                    isFrameStarted = false;
+                    _buffer_size = 0;
+                }
+            } else if ((framePos==2) || (framePos==3)) {
+                //add size to int
+                if (framePos==2) {
+                    datalen = sbuf[i];
+                } else {
+                    datalen += (sbuf[i]<<8);
+                    log_esp3d("Data len: %d", datalen);
+                    if (datalen > (ESP3D_SERIAL_BUFFER_SIZE -5)) {
+                        log_esp3d("Overflow in data len");
+                        isFrameStarted = false;
+                        _buffer_size = 0;
+                    }
+                }
+            } else if (MKSService::isTail(char(sbuf[i]))) {
+                log_esp3d("got tail");
+                _buffer[_buffer_size]='\0';
+                log_esp3d("size is %d", _buffer_size);
+                //let check integrity
+                if (_buffer_size == datalen) {
+                    log_esp3d("Flushing buffer");
+                    if (isCommandFrame) {
+                        flushbuffer();
+                    } else {
+                        MKSService::handleFrame(type,(const uint8_t*)_buffer, _buffer_size);
+                    }
+                } else {
+                    log_esp3d("Error in data len");
+                }
+                //clear frame infos
+                _buffer_size = 0;
+                isFrameStarted = false;
+
+            } else {
+                //it is data
+                if (_buffer_size < ESP3D_SERIAL_BUFFER_SIZE -5) {
+                    _buffer[_buffer_size] = sbuf[i];
+                    _buffer_size++;
+                } else {
+                    log_esp3d("Overflow in data len");
+                    isFrameStarted = false;
+                    _buffer_size = 0;
+                }
+
+            }
+        } else {
+            //frame is not started let see if it is a head
+            if (MKSService::isHead(char(sbuf[i]))) {
+                log_esp3d("got head");
+                //yes it is
+                isFrameStarted = true;
+                framePos =0;
+                _buffer_size = 0;
+            } else {
+                //no so let reset all and just ignore it
+                //TODO should we handle these data ?
+                log_esp3d("Unidentified data : %c %x", sbuf[i],sbuf[i]);
+                isCommandFrame = false;
+                framePos = -1;
+                datalen = 0;
+            }
+        }
+    }
+#else
     for (size_t i = 0; i < len; i++) {
         _lastflush = millis();
         //command is defined
@@ -230,6 +329,7 @@ void SerialService::push2buffer(uint8_t * sbuf, size_t len)
             flushbuffer();
         }
     }
+#endif
 }
 
 //Reset Serial Setting (baud rate)
@@ -237,6 +337,14 @@ bool SerialService::reset()
 {
     log_esp3d("Reset serial");
     return Settings_ESP3D::write_uint32 (ESP_BAUD_RATE, Settings_ESP3D::get_default_int32_value(ESP_BAUD_RATE));
+}
+
+void SerialService::updateBaudRate(long br)
+{
+    if (br!=baudRate()) {
+        ESP3D_SERIAL.flush();
+        ESP3D_SERIAL.updateBaudRate(br);
+    }
 }
 
 //Get current baud rate

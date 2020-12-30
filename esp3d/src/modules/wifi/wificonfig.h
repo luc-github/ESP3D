@@ -19,6 +19,7 @@
 */
 
 //boundaries
+#define MIN_RSSI                    -78
 #define MAX_SSID_LENGTH             32
 #define MIN_SSID_LENGTH             1
 #define MIN_CHANNEL                 1

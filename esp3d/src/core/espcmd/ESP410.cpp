@@ -43,6 +43,7 @@ bool Commands::ESP410(const char* cmd_params, level_authenticate_type auth_type,
     uint8_t currentmode = WiFi.getMode();
     bool plain = hastag(cmd_params,"plain");
     int n = 0;
+    uint8_t total = 0;
     if (plain) {
         output->printLN ("Start Scan");
         output->flush();
@@ -52,46 +53,49 @@ bool Commands::ESP410(const char* cmd_params, level_authenticate_type auth_type,
         output->print ("{\"AP_LIST\":[");
     }
     for (int i = 0; i < n; ++i) {
-        if (i > 0) {
-            if (!plain) {
-                output->print (",");
-            } else {
-                output->printLN ("");
+        if (WiFi.RSSI (i)>= MIN_RSSI) {
+            if (total > 0) {
+                if (!plain) {
+                    output->print (",");
+                } else {
+                    output->printLN ("");
+                }
             }
-        }
-        if (!plain) {
-            output->print ("{\"SSID\":\"");
-            output->print (encodeString(WiFi.SSID (i).c_str()));
-        } else {
-            output->print (WiFi.SSID (i).c_str());
-        }
-        if (!plain) {
-            output->print ("\",\"SIGNAL\":\"");
-        } else {
-            output->print ("\t");
-        }
-        output->print (String(WiFiConfig::getSignal (WiFi.RSSI (i) )));
-        if (plain) {
-            output->print("%");
-        }
-        if (!plain) {
-            output->print ("\",\"IS_PROTECTED\":\"");
-        }
-        if (WiFi.encryptionType (i) == ENC_TYPE_NONE) {
+            total++;
             if (!plain) {
-                output->print ("0");
+                output->print ("{\"SSID\":\"");
+                output->print (encodeString(WiFi.SSID (i).c_str()));
             } else {
-                output->print ("\tOpen");
+                output->print (WiFi.SSID (i).c_str());
             }
-        } else {
             if (!plain) {
-                output->print ("1");
+                output->print ("\",\"SIGNAL\":\"");
             } else {
-                output->print ("\tSecure");
+                output->print ("\t");
             }
-        }
-        if (!plain) {
-            output->print ("\"}");
+            output->print (String(WiFiConfig::getSignal (WiFi.RSSI (i) )));
+            if (plain) {
+                output->print("%");
+            }
+            if (!plain) {
+                output->print ("\",\"IS_PROTECTED\":\"");
+            }
+            if (WiFi.encryptionType (i) == ENC_TYPE_NONE) {
+                if (!plain) {
+                    output->print ("0");
+                } else {
+                    output->print ("\tOpen");
+                }
+            } else {
+                if (!plain) {
+                    output->print ("1");
+                } else {
+                    output->print ("\tSecure");
+                }
+            }
+            if (!plain) {
+                output->print ("\"}");
+            }
         }
     }
     WiFi.scanDelete();

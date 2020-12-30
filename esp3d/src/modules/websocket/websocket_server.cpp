@@ -118,7 +118,7 @@ void handle_Websocket_Terminal_Event(uint8_t num, uint8_t type, uint8_t * payloa
             }
         }
 #endif //AUTHENTICATION_FEATURE 
-        log_esp3d("[IGNORED][%u] get Text: %s  port %d", num, payload, websocket_terminal_server.port());
+        //log_esp3d("[IGNORED][%u] get Text: %s  port %d", num, payload, websocket_terminal_server.port());
         break;
     case WStype_BIN:
         //we do not expect any input

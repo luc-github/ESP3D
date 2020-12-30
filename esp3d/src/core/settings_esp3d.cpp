@@ -1013,8 +1013,40 @@ bool Settings_ESP3D::write_IP(int pos, const uint32_t value)
 }
 
 //clear all entries
-bool Settings_ESP3D::reset()
+bool Settings_ESP3D::reset(bool networkonly)
 {
+    if (networkonly) {
+        //radio mode
+        Settings_ESP3D::write_byte(ESP_RADIO_MODE,Settings_ESP3D::get_default_byte_value(ESP_RADIO_MODE));
+#if defined (WIFI_FEATURE)
+        //STA SSID
+        Settings_ESP3D::write_string(ESP_STA_SSID,Settings_ESP3D::get_default_string_value(ESP_STA_SSID).c_str());
+        //STA pwd
+        Settings_ESP3D::write_string(ESP_STA_PASSWORD,Settings_ESP3D::get_default_string_value(ESP_STA_PASSWORD).c_str());
+        //AP SSID
+        Settings_ESP3D::write_string(ESP_AP_SSID,Settings_ESP3D::get_default_string_value(ESP_AP_SSID).c_str());
+        //AP password
+        Settings_ESP3D::write_string(ESP_AP_PASSWORD,Settings_ESP3D::get_default_string_value(ESP_AP_PASSWORD).c_str());
+        //AP static IP
+        Settings_ESP3D::write_IP(ESP_AP_IP_VALUE, Settings_ESP3D::get_default_IP_value(ESP_AP_IP_VALUE));
+        //AP Channel
+        Settings_ESP3D::write_byte(ESP_AP_CHANNEL,Settings_ESP3D::get_default_byte_value(ESP_AP_CHANNEL));
+
+#endif //WIFI_FEATURE
+
+#if defined (WIFI_FEATURE) || defined (ETH_FEATURE)
+        //STA IP mode
+        Settings_ESP3D::write_byte(ESP_STA_IP_MODE,Settings_ESP3D::get_default_byte_value(ESP_STA_IP_MODE));
+        //STA static IP
+        Settings_ESP3D::write_IP(ESP_STA_IP_VALUE, Settings_ESP3D::get_default_IP_value(ESP_STA_IP_VALUE));
+        //STA static Gateway
+        Settings_ESP3D::write_IP(ESP_STA_GATEWAY_VALUE, Settings_ESP3D::get_default_IP_value(ESP_STA_GATEWAY_VALUE));
+        //STA static Mask
+        Settings_ESP3D::write_IP(ESP_STA_MASK_VALUE, Settings_ESP3D::get_default_IP_value(ESP_STA_MASK_VALUE));
+#endif //WIFI_FEATURE || ETH_FEATURE
+        return true;
+    }
+
     bool res = true;
     log_esp3d("Reset Settings");
 #if ESP_SAVE_SETTINGS == SETTINGS_IN_PREFERENCES
@@ -1068,39 +1100,6 @@ bool Settings_ESP3D::reset()
 #endif //NOTIFICATION_FEATURE
     //radio mode
     Settings_ESP3D::write_byte(ESP_RADIO_MODE,Settings_ESP3D::get_default_byte_value(ESP_RADIO_MODE));
-#if defined (WIFI_FEATURE)
-    //STA SSID
-    Settings_ESP3D::write_string(ESP_STA_SSID,Settings_ESP3D::get_default_string_value(ESP_STA_SSID).c_str());
-    //STA pwd
-    Settings_ESP3D::write_string(ESP_STA_PASSWORD,Settings_ESP3D::get_default_string_value(ESP_STA_PASSWORD).c_str());
-    //AP SSID
-    Settings_ESP3D::write_string(ESP_AP_SSID,Settings_ESP3D::get_default_string_value(ESP_AP_SSID).c_str());
-    //AP password
-    Settings_ESP3D::write_string(ESP_AP_PASSWORD,Settings_ESP3D::get_default_string_value(ESP_AP_PASSWORD).c_str());
-    //AP static IP
-    Settings_ESP3D::write_IP(ESP_AP_IP_VALUE, Settings_ESP3D::get_default_IP_value(ESP_AP_IP_VALUE));
-    //AP Channel
-    Settings_ESP3D::write_byte(ESP_AP_CHANNEL,Settings_ESP3D::get_default_byte_value(ESP_AP_CHANNEL));
-    //AP Network Mode (PHY)
-    //Settings_ESP3D::write_byte(ESP_AP_PHY_MODE,Settings_ESP3D::get_default_byte_value(ESP_AP_PHY_MODE));
-    //AP Authentication
-    //Settings_ESP3D::write_byte(ESP_AP_AUTH_TYPE,Settings_ESP3D::get_default_byte_value(ESP_AP_AUTH_TYPE));
-    //AP SSID visibility
-    //Settings_ESP3D::write_byte(ESP_SSID_VISIBLE,Settings_ESP3D::get_default_byte_value(ESP_SSID_VISIBLE));
-#endif //WIFI_FEATURE
-
-#if defined (WIFI_FEATURE) || defined (ETH_FEATURE)
-    //STA Network Mode
-    //Settings_ESP3D::write_byte(ESP_STA_PHY_MODE,Settings_ESP3D::get_default_byte_value(ESP_STA_PHY_MODE));
-    //STA IP mode
-    Settings_ESP3D::write_byte(ESP_STA_IP_MODE,Settings_ESP3D::get_default_byte_value(ESP_STA_IP_MODE));
-    //STA static IP
-    Settings_ESP3D::write_IP(ESP_STA_IP_VALUE, Settings_ESP3D::get_default_IP_value(ESP_STA_IP_VALUE));
-    //STA static Gateway
-    Settings_ESP3D::write_IP(ESP_STA_GATEWAY_VALUE, Settings_ESP3D::get_default_IP_value(ESP_STA_GATEWAY_VALUE));
-    //STA static Mask
-    Settings_ESP3D::write_IP(ESP_STA_MASK_VALUE, Settings_ESP3D::get_default_IP_value(ESP_STA_MASK_VALUE));
-#endif //WIFI_FEATURE || ETH_FEATURE
 
 #ifdef FTP_FEATURE
     //FTP On

@@ -31,6 +31,10 @@
 #if defined (TELNET_FEATURE)
 #include "../modules/telnet/telnet_server.h"
 #endif //TELNET_FEATURE
+#if COMMUNICATION_PROTOCOL == MKS_SERIAL
+#include "../modules/mks/mks_service.h"
+#endif //COMMUNICATION_PROTOCOL == MKS_SERIAL
+
 uint8_t ESP3DOutput::_serialoutputflags = DEFAULT_SERIAL_OUTPUT_FLAG;
 uint8_t ESP3DOutput::_printerlcdoutputflags = DEFAULT_PRINTER_LCD_FLAG;
 uint8_t ESP3DOutput::_websocketoutputflags = DEFAULT_WEBSOCKET_FLAG;
@@ -127,10 +131,14 @@ bool ESP3DOutput::isOutput(uint8_t flag, bool fromsettings)
 
 size_t ESP3DOutput::dispatch (uint8_t * sbuf, size_t len)
 {
-    log_esp3d("Dispatch %d to %d", len, _client);
+    //log_esp3d("Dispatch %d chars to client %d", len, _client);
     if (_client != ESP_SERIAL_CLIENT) {
         if (isOutput(ESP_SERIAL_CLIENT)) {
+#if COMMUNICATION_PROTOCOL == MKS_SERIAL
+            MKSService::sendGcodeFrame((const char *)sbuf);
+#else
             serial_service.write(sbuf, len);
+#endif //COMMUNICATION_PROTOCOL == MKS_SERIAL
         }
     }
 #if defined (HTTP_FEATURE) //no need to block it never

@@ -48,7 +48,7 @@ void Commands::process(uint8_t * sbuf, size_t len, ESP3DOutput * output, level_a
         cmd[1] = tmpbuf[5] == ']'?0:tmpbuf[5];
         cmd[2] = tmpbuf[6] == ']'?0:tmpbuf[6];
         cmd[3] = 0x0;
-        //log_esp3d("Authentication = %d client %d", auth, output->client());
+        log_esp3d("It is ESP command");
         execute_internal_command (String((const char*)cmd).toInt(), (slen > (strlen((const char *)cmd)+5))?(const char*)&tmpbuf[strlen((const char *)cmd)+5]:"", auth, (outputonly == nullptr)?output:outputonly);
     } else {
         //Dispatch to all clients but current or to define output

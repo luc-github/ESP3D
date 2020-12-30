@@ -1273,7 +1273,25 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         output->printLN("");
     }
 #endif //ESP_DEBUG_FEATURE
-
+#if COMMUNICATION_PROTOCOL == MKS_SERIAL
+//Target Firmware
+    if (!plain) {
+        output->print (",{\"id\":\"serial");
+    } else {
+        output->print ("Serial");
+    }
+    if (!plain) {
+        output->print ("\",\"value\":\"");
+    } else {
+        output->print (": ");
+    }
+    output->print ("MKS");
+    if (!plain) {
+        output->print ("\"}");
+    } else {
+        output->printLN("");
+    }
+#endif //COMMUNICATION_PROTOCOL
     //Target Firmware
     if (!plain) {
         output->print (",{\"id\":\"targetfw");
