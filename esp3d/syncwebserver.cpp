@@ -948,7 +948,7 @@ void handle_web_command()
     //if it is for ESP module [ESPXXX]<parameter>
     cmd.trim();
     int ESPpos = cmd.indexOf("[ESP");
-    if (ESPpos>-1) {
+    if (ESPpos==0) {
         //is there the second part?
         int ESPpos2 = cmd.indexOf("]",ESPpos);
         if (ESPpos2>-1) {
@@ -1137,7 +1137,7 @@ void handle_web_command_silent()
     //if it is for ESP module [ESPXXX]<parameter>
     cmd.trim();
     int ESPpos = cmd.indexOf("[ESP");
-    if (ESPpos>-1) {
+    if (ESPpos==0) {
         //is there the second part?
         int ESPpos2 = cmd.indexOf("]",ESPpos);
         if (ESPpos2>-1) {

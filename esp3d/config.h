@@ -19,7 +19,7 @@
 */
 
 //version and sources location
-#define FW_VERSION "2.1.1.b9"
+#define FW_VERSION "2.1.1.b10"
 #define REPOSITORY "https://github.com/luc-github/ESP3D"
 
 //Customize ESP3D ////////////////////////////////////////////////////////////////////////

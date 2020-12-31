@@ -1828,9 +1828,10 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
                 String currentline = currentfile.readStringUntil('\n');
                 currentline.replace("\n","");
                 currentline.replace("\r","");
+                currentline.trim();
                 if (currentline.length() > 0) {
                     int ESPpos = currentline.indexOf ("[ESP");
-                    if (ESPpos > -1) {
+                    if (ESPpos ==0) {
                         //is there the second part?
                         int ESPpos2 = currentline.indexOf ("]", ESPpos);
                         if (ESPpos2 > -1) {
