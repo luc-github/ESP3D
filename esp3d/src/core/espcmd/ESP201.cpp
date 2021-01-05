@@ -107,7 +107,7 @@ bool Commands::ESP201(const char* cmd_params, level_authenticate_type auth_type,
                     if (!Hal::analogWrite(pin, value)) {
                         output->printERROR ("Invalid value!");
                         response = false;
-                    }
+                    } else output->printMSG ("ok");
                 } else {
                     output->printERROR ("Invalid parameter!");
                     response = false;

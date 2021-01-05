@@ -61,7 +61,7 @@ void Hal::pinMode(uint8_t pin, uint8_t mode)
 {
 #if defined (ARDUINO_ARCH_ESP8266)
     if ((pin == 16) && (mode == INPUT_PULLUP)) {
-        pinMode(pin, INPUT_PULLDOWN_16);
+        ::pinMode(pin, INPUT_PULLDOWN_16);
         return;
     }
 #endif
@@ -104,9 +104,9 @@ int Hal::analogRead(uint8_t pin)
 {
 #ifdef ARDUINO_ARCH_ESP8266 //only one ADC on ESP8266 A0
     (void)pin;
-    return analogRead (A0);
+    return ::analogRead (A0);
 #else
-    return analogRead (pin);
+    return ::analogRead (pin);
 #endif
 }
 
@@ -135,7 +135,7 @@ bool Hal::analogWrite(uint8_t pin, uint value)
         return false;
     }
 #ifdef ARDUINO_ARCH_ESP8266
-    analogWrite(pin, value);
+    ::analogWrite(pin, value);
 #endif //ARDUINO_ARCH_ESP8266
 #ifdef ARDUINO_ARCH_ESP32
     int channel  = getAnalogWriteChannel(pin);
@@ -171,14 +171,14 @@ void Hal::analogWriteFreq(uint32_t freq)
 {
     _analogWriteFreq = freq;
 #ifdef ARDUINO_ARCH_ESP8266
-    analogWriteFreq(_analogWriteFreq);
+    ::analogWriteFreq(_analogWriteFreq);
 #endif //ARDUINO_ARCH_ESP8266
 }
 void Hal::analogWriteRange(uint32_t range)
 {
     _analogWriteRange = range;
 #ifdef ARDUINO_ARCH_ESP8266
-    analogWriteRange(_analogWriteRange);
+    ::analogWriteRange(_analogWriteRange);
 #endif //ARDUINO_ARCH_ESP8266
 }
 
