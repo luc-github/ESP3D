@@ -408,7 +408,7 @@ void MKSService::messageWiFiControl(const uint8_t * dataFrame, const size_t data
         log_esp3d("WiFi control flag not supported");
     }
 }
-//Exception handle - but actually not used 
+//Exception handle - but actually not used
 void MKSService::messageException(const uint8_t * dataFrame, const size_t dataSize )
 {
     if(dataSize != 1) {

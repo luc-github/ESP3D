@@ -49,6 +49,12 @@ void HTTP_Server::MKSFileupload ()
             size_t fileSize = 0 ;
             String filename = upload.filename;
             String sfilename = "s"+filename;
+            //No / in filename
+            int p = filename.lastIndexOf("/");
+
+            if(p!=-1) {
+                filename.remove(0,p+1);
+            }
             if (_webserver->hasArg(sfilename)) {
                 fileSize = _webserver->arg(sfilename).toInt();
             } else if (_webserver->hasHeader("Content-Length")) {
