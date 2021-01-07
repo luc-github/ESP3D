@@ -408,7 +408,7 @@ void MKSService::messageWiFiControl(const uint8_t * dataFrame, const size_t data
         log_esp3d("WiFi control flag not supported");
     }
 }
-
+//Exception handle - but actually not used 
 void MKSService::messageException(const uint8_t * dataFrame, const size_t dataSize )
 {
     if(dataSize != 1) {
@@ -421,24 +421,6 @@ void MKSService::messageException(const uint8_t * dataFrame, const size_t dataSi
         _uploadStatus = UNKNOW_STATE;
         log_esp3d("Tranfer state unknown" );
     }
-}
-
-bool MKSService::waitForAck()
-{
-    uint32_t timestart = millis();
-    bool res=true;
-    while ((_uploadStatus==UNKNOW_STATE)&&((millis()-timestart)<ACK_TIMEOUT)) {
-        serial_service.handle();
-        Hal::wait(10);
-    }
-    if (_uploadStatus!=SUCCESS_STATE) {
-        res=false;
-    }
-    if(_uploadStatus==UNKNOW_STATE) {
-        log_esp3d("Ack timeout");
-    }
-    _uploadStatus=UNKNOW_STATE;
-    return res;
 }
 
 void MKSService::messageWiFiConfig(const uint8_t * dataFrame, const size_t dataSize )

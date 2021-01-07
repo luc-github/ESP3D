@@ -41,7 +41,6 @@ public:
     static bool isTail(const char c);
     static bool isFrame(const char c);
     static bool isCommand(const char c);
-    static bool waitForAck();
     static bool sendFirstFragment(const char* filename, size_t filesize);
     static bool sendFragment(const uint8_t * dataFrame, const size_t dataSize,uint fragmentID);
     static uint getFragmentID(uint32_t fragmentNumber, bool isLast=false);
