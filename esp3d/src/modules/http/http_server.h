@@ -93,6 +93,10 @@ private:
     static void handleSDFileList ();
     static bool StreamSDFile(const char* filename, const char * contentType);
 #endif //SD_DEVICE
+#if COMMUNICATION_PROTOCOL == MKS_SERIAL
+    static void MKSFileupload ();
+    static void handleMKSUpload ();
+#endif //COMMUNICATION_PROTOCOL == MKS_SERIAL
 };
 
 #endif //_HTTP_SERVER_H

@@ -58,6 +58,10 @@ void HTTP_Server::init_handlers()
     //FileSystememptyConstChar
     _webserver->on ("/files", HTTP_ANY, handleFSFileList, FSFileupload);
 #endif //FILESYSTEM_FEATURE
+#if COMMUNICATION_PROTOCOL == MKS_SERIAL
+    //MKS_SERIAL
+    _webserver->on ("/upload", HTTP_ANY, handleMKSUpload, MKSFileupload);
+#endif //COMMUNICATION_PROTOCOL == MKS_SERIAL
 #ifdef SD_DEVICE
     //SD
     _webserver->on ("/sdfiles", HTTP_ANY, handleSDFileList, SDFileupload);
@@ -199,14 +203,16 @@ bool HTTP_Server::begin()
     }
 
     init_handlers();
-#ifdef AUTHENTICATION_FEATURE
     //here the list of headers to be recorded
-    //Autrization is already added
-    const char * headerkeys[] = {"Cookie"} ;
-    size_t headerkeyssize = sizeof (headerkeys) / sizeof (char*);
+    //Autorization is already added
     //ask server to track these headers
-    _webserver->collectHeaders (headerkeys, headerkeyssize );
+#ifdef AUTHENTICATION_FEATURE
+    const char * headerkeys[] = {"Cookie","Content-Length"} ;
+#else
+    const char * headerkeys[] = {"Content-Length"} ;
 #endif
+    size_t headerkeyssize = sizeof (headerkeys) / sizeof (char*);
+    _webserver->collectHeaders (headerkeys, headerkeyssize );
     _webserver->begin();
 #ifdef AUTHENTICATION_FEATURE
     AuthenticationService::begin(_webserver);

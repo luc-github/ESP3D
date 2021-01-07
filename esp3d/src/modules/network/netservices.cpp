@@ -86,9 +86,6 @@ bool NetServices::begin()
     String hostname = Settings_ESP3D::read_string(ESP_HOSTNAME);
     ESP3DOutput output(ESP_ALL_CLIENTS);
     end();
-#if COMMUNICATION_PROTOCOL == MKS_SERIAL
-    MKSService::begin();
-#endif //COMMUNICATION_PROTOCOL == MKS_SERIAL
 #ifdef TIMESTAMP_FEATURE
     if (WiFi.getMode() != WIFI_AP) {
         if(!timeserver.begin()) {
@@ -303,6 +300,9 @@ bool NetServices::begin()
         output.printMSG("Failed start camera streaming server");
     }
 #endif //CAMERA_DEVICE
+#if COMMUNICATION_PROTOCOL == MKS_SERIAL
+    MKSService::begin();
+#endif //COMMUNICATION_PROTOCOL == MKS_SERIAL
     if (!res) {
         end();
     }

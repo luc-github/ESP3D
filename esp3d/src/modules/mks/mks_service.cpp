@@ -28,8 +28,7 @@
 #include "../telnet/telnet_server.h"
 #include "../http/http_server.h"
 #include "../network/netconfig.h"
-
-#define MKS_FRAME_DATA_MAX_SIZE  (MKS_FRAME_SIZE - 5 - 4)
+#include "../serial/serial_service.h"
 
 //Flag Pins
 #define ESP_FLAG_PIN        0
@@ -91,18 +90,21 @@
 #define ERROR_STATE     0x1
 #define SUCCESS_STATE   0x2
 
-
-
 #define NB_HOTSPOT_MAX  15
 
 //Timeouts
 #define FRAME_WAIT_TO_SEND_TIMEOUT  2000
+#define ACK_TIMEOUT  5000
 #define NET_FRAME_REFRESH_TIME  10000
 
+#define UPLOAD_BAUD_RATE    1958400
+
 bool MKSService::_started = false;
-char MKSService::_frame[MKS_FRAME_SIZE] = {0};
+uint8_t MKSService::_frame[MKS_FRAME_SIZE] = {0};
 char MKSService::_moduleId[22] = {0};
 uint8_t MKSService::_uploadStatus = UNKNOW_STATE;
+long MKSService::_commandBaudRate = 115200;
+bool MKSService::_uploadMode = false;
 
 bool MKSService::isHead(const char c)
 {
@@ -131,7 +133,123 @@ bool MKSService::begin()
     _started = true;
     //max size is 21
     strncpy(_moduleId,NetConfig::hostname(), 21);
+    commandMode(true);
     return true;
+}
+
+void MKSService::commandMode(bool fromSettings)
+{
+    if (fromSettings) {
+        _commandBaudRate= Settings_ESP3D::read_uint32(ESP_BAUD_RATE);
+    }
+    log_esp3d("Cmd Mode");
+    _uploadMode = false;
+    serial_service.updateBaudRate(_commandBaudRate);
+
+}
+void MKSService::uploadMode()
+{
+    log_esp3d("Upload Mode");
+    _uploadMode = true;
+    serial_service.updateBaudRate(UPLOAD_BAUD_RATE);
+}
+
+uint MKSService::getFragmentID(uint32_t fragmentNumber, bool isLast)
+{
+    log_esp3d("Fragment: %d %s",fragmentNumber, isLast?" is last":"" );
+    if (isLast) {
+        fragmentNumber |= (1 << 31);
+    } else {
+        fragmentNumber &= ~(1 << 31);
+    }
+    log_esp3d("Fragment is now: %d",fragmentNumber);
+    return fragmentNumber;
+}
+
+bool MKSService::sendFirstFragment(const char* filename, size_t filesize)
+{
+    uint fileNameLen = strlen(filename);
+    uint dataLen = fileNameLen + 5;
+    clearFrame();
+    //Head Flag
+    _frame[MKS_FRAME_HEAD_OFFSET] = MKS_FRAME_HEAD_FLAG;
+    //Type Flag
+    _frame[MKS_FRAME_TYPE_OFFSET] = MKS_FRAME_DATA_FIRST_FRAGMENT_TYPE;
+    //Fragment size
+    _frame[MKS_FRAME_DATALEN_OFFSET] = dataLen & 0xff;
+    _frame[MKS_FRAME_DATALEN_OFFSET + 1] = dataLen >> 8;
+    //FileName size
+    _frame[MKS_FRAME_DATA_OFFSET] = strlen(filename);
+    //File Size
+    _frame[MKS_FRAME_DATA_OFFSET+1] = filesize & 0xff;
+    _frame[MKS_FRAME_DATA_OFFSET+2] = (filesize >> 8) & 0xff;
+    _frame[MKS_FRAME_DATA_OFFSET+3] = (filesize >> 16) & 0xff;
+    _frame[MKS_FRAME_DATA_OFFSET+4] = (filesize >> 24) & 0xff;
+    //Filename
+    strncpy((char *)&_frame[MKS_FRAME_DATA_OFFSET+ 5], filename, fileNameLen);
+    //Tail Flag
+    _frame[dataLen + 4] = MKS_FRAME_TAIL_FLAG;
+    log_esp3d("Filename: %s  Filesize: %d",filename, filesize );
+    for (uint i =0; i< dataLen + 5 ; i++) {
+        log_esp3d("%c %x",_frame[i],_frame[i]);
+    }
+    _uploadStatus = UNKNOW_STATE;
+    if (canSendFrame()) {
+        ESP3DOutput output(ESP_SERIAL_CLIENT);
+        _uploadStatus = UNKNOW_STATE;
+        if (output.write(_frame,dataLen + 5) == (dataLen + 5)) {
+            log_esp3d("First fragment Ok");
+            sendFrameDone();
+            return true;
+        }
+    }
+    log_esp3d("Failed");
+    sendFrameDone();
+    return false;
+}
+
+
+bool MKSService::sendFragment(const uint8_t * dataFrame, const size_t dataSize,uint fragmentID)
+{
+    uint dataLen = dataSize + 4;
+    log_esp3d("Fragment datalen:%d",dataSize);
+    //Head Flag
+    _frame[MKS_FRAME_HEAD_OFFSET] = MKS_FRAME_HEAD_FLAG;
+    //Type Flag
+    _frame[MKS_FRAME_TYPE_OFFSET] = MKS_FRAME_DATA_FRAGMENT_TYPE;
+    //Fragment size
+    _frame[MKS_FRAME_DATALEN_OFFSET] = dataLen & 0xff;
+    _frame[MKS_FRAME_DATALEN_OFFSET + 1] = dataLen >> 8;
+    //Fragment ID
+    _frame[MKS_FRAME_DATA_OFFSET ] = fragmentID & 0xff;
+    _frame[MKS_FRAME_DATA_OFFSET + 1] = (fragmentID >> 8) & 0xff;
+    _frame[MKS_FRAME_DATA_OFFSET + 2] = (fragmentID >> 16) & 0xff;
+    _frame[MKS_FRAME_DATA_OFFSET + 3] = (fragmentID >> 24) & 0xff;
+    //data
+    if ((dataSize>0) && (dataFrame!=nullptr)) {
+        memcpy(&_frame[MKS_FRAME_DATA_OFFSET+ 4], dataFrame, dataSize);
+    }
+    if (dataSize<MKS_FRAME_DATA_MAX_SIZE) {
+        clearFrame(dataLen + 4);
+    }
+    //Tail Flag
+    _frame[dataLen + 4] = MKS_FRAME_TAIL_FLAG;
+    /* for (uint i =0; i< dataLen + 5 ; i++) {
+             log_esp3d("%c %x",_frame[i],_frame[i]);
+         }*/
+    if (canSendFrame()) {
+        ESP3DOutput output(ESP_SERIAL_CLIENT);
+        _uploadStatus = UNKNOW_STATE;
+        if (output.write(_frame,MKS_FRAME_SIZE) == MKS_FRAME_SIZE) {
+            log_esp3d("Ok");
+            sendFrameDone();
+            return true;
+        }
+        log_esp3d("Error with size sent");
+    }
+    log_esp3d("Failed");
+    sendFrameDone();
+    return false;
 }
 
 void MKSService::sendWifiHotspots()
@@ -188,7 +306,7 @@ void MKSService::sendWifiHotspots()
         }
         if (canSendFrame()) {
             ESP3DOutput output(ESP_SERIAL_CLIENT);
-            if (output.write((const uint8_t *)_frame,dataOffset+5) == (dataOffset+5)) {
+            if (output.write(_frame,dataOffset+5) == (dataOffset+5)) {
                 log_esp3d("Ok");
                 sendFrameDone();
             } else {
@@ -202,6 +320,7 @@ void MKSService::sendWifiHotspots()
     }
     //Restore mode
     WiFi.mode((WiFiMode_t)currentmode);
+    sendFrameDone();
 }
 
 void MKSService::handleFrame(const uint8_t type, const uint8_t * dataFrame, const size_t dataSize )
@@ -304,6 +423,24 @@ void MKSService::messageException(const uint8_t * dataFrame, const size_t dataSi
     }
 }
 
+bool MKSService::waitForAck()
+{
+    uint32_t timestart = millis();
+    bool res=true;
+    while ((_uploadStatus==UNKNOW_STATE)&&((millis()-timestart)<ACK_TIMEOUT)) {
+        serial_service.handle();
+        Hal::wait(10);
+    }
+    if (_uploadStatus!=SUCCESS_STATE) {
+        res=false;
+    }
+    if(_uploadStatus==UNKNOW_STATE) {
+        log_esp3d("Ack timeout");
+    }
+    _uploadStatus=UNKNOW_STATE;
+    return res;
+}
+
 void MKSService::messageWiFiConfig(const uint8_t * dataFrame, const size_t dataSize )
 {
     String ssid;
@@ -383,14 +520,15 @@ void MKSService::messageWiFiConfig(const uint8_t * dataFrame, const size_t dataS
 
 bool MKSService::canSendFrame()
 {
-    //log_esp3d("Is board ready for frame?");
-    digitalWrite(ESP_FLAG_PIN, HIGH);
+    log_esp3d("Is board ready for frame?");
+    digitalWrite(ESP_FLAG_PIN, BOARD_READY_FLAG_VALUE);
     uint32_t startTime = millis();
     while( (millis() - startTime) <  FRAME_WAIT_TO_SEND_TIMEOUT) {
         if (digitalRead(BOARD_FLAG_PIN) == BOARD_READY_FLAG_VALUE) {
-            // log_esp3d("Yes");
+            log_esp3d("Yes");
             return true;
         }
+        Hal::wait(0);
     }
     log_esp3d("Time out no board answer");
     return false;
@@ -398,12 +536,15 @@ bool MKSService::canSendFrame()
 
 void MKSService::sendFrameDone()
 {
-    digitalWrite(ESP_FLAG_PIN, LOW);
+    digitalWrite(ESP_FLAG_PIN, !BOARD_READY_FLAG_VALUE);
 
 }
 
 bool MKSService::sendGcodeFrame(const char* cmd)
 {
+    if (_uploadMode) {
+        return false;
+    }
     String tmp = cmd;
     if (tmp.endsWith("\n")) {
         tmp[tmp.length()-1]='\0';
@@ -428,7 +569,7 @@ bool MKSService::sendGcodeFrame(const char* cmd)
 
     if (canSendFrame()) {
         ESP3DOutput output(ESP_SERIAL_CLIENT);
-        if (output.write((const uint8_t *)_frame,strlen(tmp.c_str())+7) == (strlen(tmp.c_str())+7)) {
+        if (output.write(_frame,strlen(tmp.c_str())+7) == (strlen(tmp.c_str())+7)) {
             log_esp3d("Ok");
             sendFrameDone();
             return true;
@@ -445,6 +586,9 @@ bool MKSService::sendNetworkFrame()
     size_t dataOffset = 0;
     String s;
     static uint32_t lastsend  = 0;
+    if (_uploadMode) {
+        return false;
+    }
     if ((millis() - lastsend)> NET_FRAME_REFRESH_TIME) {
         lastsend = millis();
         log_esp3d("Network frame preparation");
@@ -487,7 +631,7 @@ bool MKSService::sendNetworkFrame()
             dataOffset = MKS_FRAME_DATA_OFFSET + 9;
             //////////////////////////////////
             //Wifi_name Segment
-            strcpy(&_frame[dataOffset], s.c_str());
+            strcpy((char *)&_frame[dataOffset], s.c_str());
             dataOffset+=s.length();
             //////////////////////////////////
             //Wifi_key_len Segment
@@ -496,7 +640,7 @@ bool MKSService::sendNetworkFrame()
             dataOffset++;
             //////////////////////////////////
             //Wifi_key Segment
-            strcpy(&_frame[dataOffset], s.c_str());
+            strcpy((char *)&_frame[dataOffset], s.c_str());
             dataOffset+=s.length();
         } else if (NetConfig::getMode() == ESP_WIFI_AP) {
             log_esp3d("AP Mode");
@@ -522,7 +666,7 @@ bool MKSService::sendNetworkFrame()
             dataOffset = MKS_FRAME_DATA_OFFSET + 9;
             //////////////////////////////////
             //Wifi_name Segment
-            strcpy(&_frame[dataOffset], s.c_str());
+            strcpy((char *)&_frame[dataOffset], s.c_str());
             dataOffset+=s.length();
             //////////////////////////////////
             //Wifi_key_len Segment
@@ -531,7 +675,7 @@ bool MKSService::sendNetworkFrame()
             dataOffset++;
             //////////////////////////////////
             //Wifi_key Segment
-            strcpy(&_frame[dataOffset], s.c_str());
+            strcpy((char *)&_frame[dataOffset], s.c_str());
             dataOffset+=s.length();
         } else {
             //not supported
@@ -559,7 +703,7 @@ bool MKSService::sendNetworkFrame()
         //////////////////////////////////
         //Cloud host Segment
         //Use ESP3D IP instead
-        strcpy(&_frame[dataOffset], s.c_str());
+        strcpy((char *)&_frame[dataOffset], s.c_str());
         dataOffset+=s.length();
         //////////////////////////////////
         //Cloud host port Segment
@@ -575,7 +719,7 @@ bool MKSService::sendNetworkFrame()
         dataOffset++;
         //////////////////////////////////
         //Module id  Segment
-        strcpy(&_frame[dataOffset], _moduleId);
+        strcpy((char *)&_frame[dataOffset], _moduleId);
         dataOffset+=strlen(_moduleId);
         //////////////////////////////////
         //FW version len Segment
@@ -583,7 +727,7 @@ bool MKSService::sendNetworkFrame()
         dataOffset++;
         //////////////////////////////////
         //FW version  Segment
-        strcpy(&_frame[dataOffset], "ESP3D_" FW_VERSION);
+        strcpy((char *)&_frame[dataOffset], "ESP3D_" FW_VERSION);
         dataOffset+=strlen(FW_VERSION)+6;
         //////////////////////////////////
         //Tail Segment
@@ -597,7 +741,7 @@ bool MKSService::sendNetworkFrame()
         log_esp3d("Size of data in frame %d ", dataOffset-4);
         if (canSendFrame()) {
             ESP3DOutput output(ESP_SERIAL_CLIENT);
-            if (output.write((const uint8_t *)_frame,dataOffset+1) == (dataOffset+1)) {
+            if (output.write(_frame,dataOffset+1) == (dataOffset+1)) {
                 log_esp3d("Ok");
                 sendFrameDone();
                 return true;
@@ -610,9 +754,9 @@ bool MKSService::sendNetworkFrame()
     return false;
 }
 
-void MKSService::clearFrame()
+void MKSService::clearFrame(uint start)
 {
-    memset(_frame, 0, sizeof(_frame));
+    memset(&_frame[start], 0, sizeof(_frame)-start);
 }
 void MKSService::handle()
 {

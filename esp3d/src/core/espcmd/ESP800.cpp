@@ -142,6 +142,23 @@ bool Commands::ESP800(const char* cmd_params, level_authenticate_type auth_type,
     } else {
         output->print("\"");
     }
+    //Serial protocol
+    if (plain) {
+        output->print("Serial protocol:");
+    } else {
+        output->print(",\"serialprotocol\":\"");
+    }
+#if COMMUNICATION_PROTOCOL ==  MKS_SERIAL
+    output->print("MKS");
+#endif //COMMUNICATION_PROTOCOL ==  MKS_SERIAL 
+#if COMMUNICATION_PROTOCOL ==  RAW_SERIAL
+    output->print("RAW");
+#endif //COMMUNICATION_PROTOCOL ==  RAW_SERIAL 
+    if(plain) {
+        output->printLN("");
+    } else {
+        output->print("\"");
+    }
     //Authentication
     if (plain) {
         output->print("Authentication:");

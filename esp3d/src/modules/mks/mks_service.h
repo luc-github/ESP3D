@@ -22,6 +22,7 @@
 #define _MKS_SERVICES_H
 
 #define MKS_FRAME_SIZE  1024
+#define MKS_FRAME_DATA_MAX_SIZE  (MKS_FRAME_SIZE - 5 - 4)
 
 class MKSService
 {
@@ -40,18 +41,26 @@ public:
     static bool isTail(const char c);
     static bool isFrame(const char c);
     static bool isCommand(const char c);
+    static bool waitForAck();
+    static bool sendFirstFragment(const char* filename, size_t filesize);
+    static bool sendFragment(const uint8_t * dataFrame, const size_t dataSize,uint fragmentID);
+    static uint getFragmentID(uint32_t fragmentNumber, bool isLast=false);
+    static void commandMode(bool fromSettings=false);
+    static void uploadMode();
 private:
     static uint8_t _uploadStatus;
+    static long _commandBaudRate;
     static void sendWifiHotspots();
     static void messageWiFiControl(const uint8_t * dataFrame, const size_t dataSize);
     static void messageException(const uint8_t * dataFrame, const size_t dataSize);
     static void messageWiFiConfig(const uint8_t * dataFrame, const size_t dataSize);
-    static void clearFrame();
+    static void clearFrame(uint start=0);
     static bool canSendFrame();
     static void sendFrameDone();
     static bool _started;
-    static char _frame[MKS_FRAME_SIZE];
+    static uint8_t _frame[MKS_FRAME_SIZE];
     static char _moduleId[22];
+    static bool _uploadMode;
 };
 
 

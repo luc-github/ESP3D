@@ -236,6 +236,7 @@ bool NetConfig::begin()
     end();
     int8_t espMode =Settings_ESP3D::read_byte(ESP_RADIO_MODE);
     ESP3DOutput output(ESP_ALL_CLIENTS);
+    log_esp3d("Starting Network");
     if (espMode != NO_NETWORK) {
         if (Settings_ESP3D::isVerboseBoot()) {
             output.printMSG("Starting Network");
@@ -259,6 +260,7 @@ bool NetConfig::begin()
     _hostname = Settings_ESP3D::read_string(ESP_HOSTNAME);
     _mode = espMode;
     if (espMode == NO_NETWORK) {
+        output.printMSG("Disable Network");
         WiFi.mode(WIFI_OFF);
         ESP3DGlobalOutput::display_IP();
         if (Settings_ESP3D::isVerboseBoot()) {
@@ -271,6 +273,7 @@ bool NetConfig::begin()
     }
 #if defined (WIFI_FEATURE)
     if ((espMode == ESP_WIFI_AP) || (espMode == ESP_WIFI_STA)) {
+        output.printMSG("Setup wifi");
         res = WiFiConfig::begin();
         //in case STA failed and fallback to AP mode
         if (WiFi.getMode() == WIFI_AP) {

@@ -51,7 +51,7 @@ SerialService serial_service;
 TaskHandle_t _hserialtask= nullptr;
 #endif //ARDUINO_ARCH_ESP32 
 
-const long SupportedBaudList[] = {9600, 19200, 38400, 57600, 74880, 115200, 230400, 250000, 500000, 921600};
+const long SupportedBaudList[] = {9600, 19200, 38400, 57600, 74880, 115200, 230400, 250000, 500000, 921600, 1958400};
 
 #define TIMEOUT_SERIAL_FLUSH 1500
 //Constructor

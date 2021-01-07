@@ -22,6 +22,7 @@
 #include "../esp3doutput.h"
 #include "../settings_esp3d.h"
 #include "../../modules/authentication/authentication_service.h"
+#include "../../modules/serial/serial_service.h"
 #ifdef SENSOR_DEVICE
 #include "../../modules/sensor/sensor.h"
 #endif //SENSOR_DEVICE
@@ -135,6 +136,9 @@ bool Commands::ESP401(const char* cmd_params, level_authenticate_type auth_type,
                     esp3d_sensor.setInterval(sval.toInt());
                     break;
 #endif //SENSOR_DEVICE
+                case ESP_BAUD_RATE:
+                    serial_service.updateBaudRate(sval.toInt());
+                    break;
                 default:
                     break;
                 }

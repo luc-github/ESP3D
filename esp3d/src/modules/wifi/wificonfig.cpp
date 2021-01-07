@@ -118,6 +118,7 @@ bool WiFiConfig::ConnectSTA2AP()
     uint8_t dot = 0;
     wl_status_t status = WiFi.status();
     ESP3DOutput output(ESP_ALL_CLIENTS);
+    log_esp3d("Connecting");
 #if COMMUNICATION_PROTOCOL != MKS_SERIAL
     if (!Settings_ESP3D::isVerboseBoot()) {
         output.printMSG("Connecting");
@@ -142,6 +143,7 @@ bool WiFiConfig::ConnectSTA2AP()
             }
             msg_out+=".";
             msg= msg_out;
+            log_esp3d("...");
             dot++;
             break;
         }
@@ -163,6 +165,7 @@ bool WiFiConfig::ConnectSTA2AP()
  */
 bool WiFiConfig::StartSTA()
 {
+    log_esp3d("StartSTA");
 #if defined (ARDUINO_ARCH_ESP32)
     esp_wifi_start();
 #endif //ARDUINO_ARCH_ESP32
@@ -248,7 +251,7 @@ bool WiFiConfig::StartAP()
     IPAddress ip(IP);
     IPAddress mask(DEFAULT_AP_MASK_VALUE);
     //Set static IP
-
+    log_esp3d("Use: %s / %s / %s", ip.toString().c_str(),ip.toString().c_str(),mask.toString().c_str());
     if (!WiFi.softAPConfig(ip, ip, mask)) {
         output.printERROR("Set IP to AP failed");
     } else {
@@ -263,6 +266,7 @@ bool WiFiConfig::StartAP()
             stmp +=" is started not protected by passord";
         }
         output.printMSG(stmp.c_str());
+        log_esp3d("%s",stmp.c_str());
         //must be done after starting AP not before
 #if defined (ARDUINO_ARCH_ESP32)
         WiFi.setSleep(false);
@@ -271,6 +275,7 @@ bool WiFiConfig::StartAP()
         return true;
     } else {
         output.printERROR("Starting AP failed");
+        log_esp3d("Starting AP failed");
         return false;
     }
 }
@@ -287,17 +292,21 @@ bool WiFiConfig::begin()
 {
     bool res = false;
     end();
+    log_esp3d("Starting Wifi Config");
     if (Settings_ESP3D::isVerboseBoot()) {
         ESP3DOutput output(ESP_ALL_CLIENTS);
         output.printMSG("Starting WiFi");
     }
     int8_t wifiMode =Settings_ESP3D::read_byte(ESP_RADIO_MODE);
     if (wifiMode == ESP_WIFI_AP) {
+        log_esp3d("Starting AP mode");
         res = StartAP();
     } else if (wifiMode == ESP_WIFI_STA) {
+        log_esp3d("Starting STA");
         res = StartSTA();
         //AP is backup mode
         if(!res) {
+            log_esp3d("Starting AP mode in safe mode");
             res = StartAP();
         }
     }
