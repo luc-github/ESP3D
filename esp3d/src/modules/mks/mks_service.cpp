@@ -132,7 +132,7 @@ bool MKSService::begin()
     pinMode(ESP_FLAG_PIN, OUTPUT);
     _started = true;
     //max size is 21
-    strncpy(_moduleId,NetConfig::hostname(), 21);
+    sprintf (_moduleId, "HJNLM000%02X%02X%02X%02X%02X%02X", WiFi.macAddress()[0], WiFi.macAddress()[1], WiFi.macAddress()[2], WiFi.macAddress()[3], WiFi.macAddress()[4], WiFi.macAddress()[5]);
     commandMode(true);
     return true;
 }
