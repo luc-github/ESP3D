@@ -28,6 +28,7 @@
 #endif //ARDUINO_ARCH_ESP8266
 #include "../../mks/mks_service.h"
 #include "../../authentication/authentication_service.h"
+
 //MKS files uploader handle
 void HTTP_Server::MKSFileupload ()
 {
@@ -50,10 +51,33 @@ void HTTP_Server::MKSFileupload ()
             String filename = upload.filename;
             String sfilename = "s"+filename;
             //No / in filename
-            int p = filename.lastIndexOf("/");
+            if (filename[0]=='/') {
+                filename.remove(0,1);
+            }
+            //for remote path or device
+            //if USB on TFT 0:<path>
+            //if SD on TFT  1:<path>
+            //if SD on Robin 0:<path> or just <path>
 
-            if(p!=-1) {
-                filename.remove(0,p+1);
+            if (_webserver->hasArg ("rpath") ) {
+                String upload_filename = _webserver->arg ("rpath") + "/" + filename;
+                filename = upload_filename;
+                if (filename[0]=='/') {
+                    filename.remove(0,1);
+                }
+                //this is target device
+                if (filename.startsWith("USB:") || filename.startsWith("SD:")) {
+                    String cmd = "M998 ";
+                    if (filename.startsWith("USB:")) {
+                        cmd += "0";
+                        filename.remove(0,strlen("USB:"));
+                    } else {
+                        cmd += "1";
+                        filename.remove(0,strlen("SD:"));
+                    }
+                    MKSService::sendGcodeFrame(cmd.c_str());
+                    Hal::wait(10);
+                }
             }
             if (_webserver->hasArg(sfilename)) {
                 fileSize = _webserver->arg(sfilename).toInt();

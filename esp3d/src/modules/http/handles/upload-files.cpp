@@ -52,6 +52,14 @@ void HTTP_Server::FSFileupload ()
                 } else {
                     filename = upload.filename;
                 }
+                if (_webserver->hasArg ("rpath") ) {
+                    upload_filename = _webserver->arg ("rpath") + filename;
+                    if (upload_filename[0] != '/') {
+                        filename = "/" + upload_filename;
+                    } else {
+                        filename = upload_filename;
+                    }
+                }
                 //Sanity check
                 if (ESP_FileSystem::exists (filename.c_str()) ) {
                     ESP_FileSystem::remove (filename.c_str());
