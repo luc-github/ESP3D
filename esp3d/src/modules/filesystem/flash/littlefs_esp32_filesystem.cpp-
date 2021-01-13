@@ -18,24 +18,24 @@ littlefs_esp8266_filesystem.cpp - ESP3D littlefs filesystem configuration class
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "../../../include/esp3d_config.h"
-#if (FILESYSTEM_FEATURE == ESP_LITTLEFS_FILESYSTEM) && defined(ARDUINO_ARCH_ESP8266)
+#if (FILESYSTEM_FEATURE == ESP_LITTLEFS_FILESYSTEM) && defined(ARDUINO_ARCH_ESP32)
 #include "../esp_filesystem.h"
 #include "../../../core/genLinkedList.h"
 #include <FS.h>
-#include <LittleFS.h>
+#include <LITTLEFS.h>
 
 Dir tDir_handle[ESP_MAX_OPENHANDLE];
 extern File tFile_handle[ESP_MAX_OPENHANDLE];
 
 bool ESP_FileSystem::begin()
 {
-    _started = LittleFS.begin();
+    _started = LITTLEFS.begin();
     return _started;
 }
 void ESP_FileSystem::end()
 {
     _started = false;
-    LittleFS.end();
+    LITTLEFS.end();
 }
 
 size_t ESP_FileSystem::freeBytes()
@@ -46,30 +46,30 @@ size_t ESP_FileSystem::freeBytes()
 size_t ESP_FileSystem::totalBytes()
 {
     fs::FSInfo info;
-    LittleFS.info (info);
+    LITTLEFS.info (info);
     return info.totalBytes;
 }
 
 size_t ESP_FileSystem::usedBytes()
 {
     fs::FSInfo info;
-    LittleFS.info (info);
+    LITTLEFS.info (info);
     return info.usedBytes;
 }
 
 bool ESP_FileSystem::rename(const char *oldpath, const char *newpath)
 {
-    return LittleFS.rename(oldpath,newpath);
+    return LITTLEFS.rename(oldpath,newpath);
 }
 
 const char * ESP_FileSystem::FilesystemName()
 {
-    return "LittleFS";
+    return "LITTLEFS";
 }
 
 bool ESP_FileSystem::format()
 {
-    return LittleFS.format();
+    return LITTLEFS.format();
 }
 
 ESP_File ESP_FileSystem::open(const char* path, uint8_t mode)
@@ -82,7 +82,7 @@ ESP_File ESP_FileSystem::open(const char* path, uint8_t mode)
     if (path[0] != '/') {
         return ESP_File();
     }
-    File ftmp = LittleFS.open(path, (mode == ESP_FILE_READ)?"r":(mode == ESP_FILE_WRITE)?"w":"a");
+    File ftmp = LITTLEFS.open(path, (mode == ESP_FILE_READ)?"r":(mode == ESP_FILE_WRITE)?"w":"a");
     if(ftmp) {
         log_esp3d("Success openening: %s", path);
         if (ftmp.isFile()) {
@@ -96,7 +96,7 @@ ESP_File ESP_FileSystem::open(const char* path, uint8_t mode)
         ftmp.close();
     }
     log_esp3d("Opening as Directory");
-    Dir dtmp = LittleFS.openDir(path);
+    Dir dtmp = LITTLEFS.openDir(path);
     ESP_File esptmp(&dtmp, true, false, path);
     return esptmp;
 }
@@ -114,7 +114,7 @@ bool ESP_FileSystem::exists(const char* path)
             spath.remove(spath.length()-1);
         }
     }
-    return LittleFS.exists(spath.c_str());
+    return LITTLEFS.exists(spath.c_str());
 }
 
 bool ESP_FileSystem::remove(const char *path)
@@ -124,7 +124,7 @@ bool ESP_FileSystem::remove(const char *path)
         p="/"+p;
     }
     log_esp3d("delete %s", p.c_str());
-    return LittleFS.remove(p);
+    return LITTLEFS.remove(p);
 }
 
 bool ESP_FileSystem::mkdir(const char *path)
@@ -139,7 +139,7 @@ bool ESP_FileSystem::mkdir(const char *path)
     if (spath[0]!='/') {
         spath = "/"+spath;
     }
-    return LittleFS.mkdir(spath.c_str());
+    return LITTLEFS.mkdir(spath.c_str());
 }
 
 bool ESP_FileSystem::rmdir(const char *path)
@@ -161,8 +161,8 @@ bool ESP_FileSystem::rmdir(const char *path)
     while (pathlist.count() > 0) {
         spath=pathlist.getLast();
         bool candelete = true;
-        if (LittleFS.exists(spath.c_str()))  {
-            Dir dir = LittleFS.openDir(pathlist.getLast().c_str());
+        if (LITTLEFS.exists(spath.c_str()))  {
+            Dir dir = LITTLEFS.openDir(pathlist.getLast().c_str());
             while (dir.next()) {
                 if (dir.isDirectory()) {
                     candelete = false;
@@ -171,7 +171,7 @@ bool ESP_FileSystem::rmdir(const char *path)
                 } else {
                     log_esp3d("remove %s", dir.fileName().c_str());
                     String s = spath + dir.fileName();
-                    LittleFS.remove(s);
+                    LITTLEFS.remove(s);
                 }
             }
         }
@@ -180,8 +180,8 @@ bool ESP_FileSystem::rmdir(const char *path)
                 if (spath[spath.length()-1] == '/') {
                     spath.remove(spath.length()-1);
                 }
-                if (LittleFS.exists(spath.c_str()))  {
-                    res = LittleFS.rmdir(spath.c_str());
+                if (LITTLEFS.exists(spath.c_str()))  {
+                    res = LITTLEFS.rmdir(spath.c_str());
                 }
                 log_esp3d("rmdir %s %d", spath.c_str(), res);
             }
@@ -280,7 +280,7 @@ void ESP_File::close()
         //udate size + date
         if (_iswritemode && !_isdir) {
             log_esp3d("Updating Size of %s",_filename.c_str());
-            File ftmp = LittleFS.open(_filename.c_str(), "r");
+            File ftmp = LITTLEFS.open(_filename.c_str(), "r");
             if (ftmp) {
                 _size = ftmp.size();
                 log_esp3d("Updating Size to %d", ftmp.size());

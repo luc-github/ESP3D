@@ -86,9 +86,6 @@
 #if FILESYSTEM_FEATURE == ESP_FAT_FILESYSTEM && defined( ARDUINO_ARCH_ESP8266)
 #error Fat FS is not available in ESP8266
 #endif
-#if FILESYSTEM_FEATURE == ESP_LITTLEFS_FILESYSTEM && defined( ARDUINO_ARCH_ESP32)
-#error LittleFS is not yet available in ESP32, use ESP_SPIFFS_FILESYSTEM instead
-#endif
 #if FILESYSTEM_FEATURE == ESP_SPIFFS_FILESYSTEM && defined( ARDUINO_ARCH_ESP8266)
 #error ESP_SPIFFS_FILESYSTEM is no more available in ESP8266, use ESP_LITTLEFS_FILESYSTEM instead
 #endif

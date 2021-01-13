@@ -20,6 +20,7 @@ install:
 env:
   - TARGET=esp32 PLATFORM=arduino BT=yes AUTHENTICATION=yes FILESYSTEM=FAT
   - TARGET=esp32 PLATFORM=arduino BT=yes AUTHENTICATION=no FILESYSTEM=SPIFFS
+  - TARGET=esp32 PLATFORM=arduino BT=NO AUTHENTICATION=no FILESYSTEM=LITTLEFS
   - TARGET=esp8266 PLATFORM=arduino BT=no AUTHENTICATION=yes FILESYSTEM=LITTLEFS
   - TARGET=esp8266 PLATFORM=arduino BT=no AUTHENTICATION=no FILESYSTEM=LITTLEFS
   - TARGET=all PLATFORM=PIO BT=yes AUTHENTICATION=yes
@@ -55,6 +56,7 @@ before_script:
   - cp -r $TRAVIS_BUILD_DIR/libraries/ESP8266-Arduino-Lua-0.0.30 $HOME/arduino_ide/libraries/
   - cp -r $TRAVIS_BUILD_DIR/libraries/SdFat-1.1.0 $HOME/arduino_ide/libraries/
   - cp -r $TRAVIS_BUILD_DIR/libraries/BMx280MI-1.2.0 $HOME/arduino_ide/libraries/
+  - cp -r $TRAVIS_BUILD_DIR/libraries/LITTLEFS-1.0.5 $HOME/arduino_ide/libraries/
   - cd $TRAVIS_BUILD_DIR
   - source command.sh
   - export PATH="$HOME/arduino_ide:$PATH"
