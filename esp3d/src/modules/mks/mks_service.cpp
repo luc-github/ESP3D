@@ -705,7 +705,7 @@ bool MKSService::sendNetworkFrame()
         dataOffset+=strlen(_moduleId);
         //////////////////////////////////
         //FW version len Segment
-        _frame[dataOffset] = strlen(FW_VERSION);
+        _frame[dataOffset] = strlen(FW_VERSION)+6;
         dataOffset++;
         //////////////////////////////////
         //FW version  Segment
