@@ -30,7 +30,8 @@
 
 #if defined(ESP_DEBUG_FEATURE)
 #if defined(ARDUINO_ARCH_ESP8266)
-extern const char * pathToFileName(const char * path);
+//no need with latest esp8266 core
+#define pathToFileName(p) p
 #endif //ARDUINO_ARCH_ESP8266
 #undef log_esp3d
 #undef log_esp3dS

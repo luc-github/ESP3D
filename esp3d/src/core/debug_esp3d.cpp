@@ -25,23 +25,6 @@
 #define DEBUG_BAUDRATE 115200
 #endif //~DEBUG_BAUDRATE
 
-#if defined(ARDUINO_ARCH_ESP8266)
-const char * pathToFileName(const char * path)
-{
-    size_t i = 0;
-    size_t pos = 0;
-    char * p = (char *)path;
-    while(*p) {
-        i++;
-        if(*p == '/' || *p == '\\') {
-            pos = i;
-        }
-        p++;
-    }
-    return path+pos;
-}
-#endif //ARDUINO_ARCH_ESP8266 
-
 void initDebug()
 {
 #if (ESP_DEBUG_FEATURE == DEBUG_OUTPUT_SERIAL0) || (ESP_DEBUG_FEATURE == DEBUG_OUTPUT_SERIAL1)||(ESP_DEBUG_FEATURE == DEBUG_OUTPUT_SERIAL2)
