@@ -151,6 +151,10 @@
 #define ESP_FILE_WRITE      1
 #define ESP_FILE_APPEND     2
 
+#define ESP_SEEK_SET  0
+#define ESP_SEEK_CUR  1
+#define ESP_SEEK_END  2
+
 #define FS_ROOT        0
 #define FS_FLASH       1
 #define FS_SD          2

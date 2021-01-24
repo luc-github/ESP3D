@@ -53,6 +53,11 @@ size_t ESP_FileSystem::usedBytes()
     return (FFat.totalBytes() - FFat.freeBytes());
 }
 
+uint ESP_FileSystem::maxPathLength()
+{
+    return 32;
+}
+
 bool ESP_FileSystem::rename(const char *oldpath, const char *newpath)
 {
     return FFat.rename(oldpath,newpath);
@@ -233,6 +238,11 @@ ESP_File::ESP_File(void* handle, bool isdir, bool iswritemode, const char * path
     if(!set) {
         log_esp3d("No handle available");
     }
+}
+
+bool ESP_File::seek(uint32_t pos, uint8_t mode)
+{
+    return tFile_handle[_index].seek(pos, (SeekMode)mode);
 }
 
 void ESP_File::close()

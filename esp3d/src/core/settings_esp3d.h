@@ -102,7 +102,8 @@
 #define ESP_FTP_ON             1021     //1 byte = flag
 #define ESP_AUTO_NOTIFICATION   1022    //1 byte = flag
 #define ESP_VERBOSE_BOOT        1023    //1 byte = flag
-
+#define ESP_WEBDAV_ON           1024    //1 byte = flag
+#define ESP_WEBDAV_PORT         1025    //4  bytes= int
 
 //Hidden password
 #define HIDDEN_PASSWORD "********"

@@ -35,6 +35,7 @@ public:
     ~ESP_File();
     operator bool() const;
     bool isDirectory();
+    bool seek(uint32_t pos, uint8_t mode = ESP_SEEK_SET);
     const char* name() const;
     const char* filename() const;
     void close();
@@ -70,6 +71,7 @@ public:
     static size_t totalBytes();
     static size_t usedBytes();
     static size_t freeBytes();
+    static uint maxPathLength();
     static size_t max_update_size();
     static const char * FilesystemName();
     static bool format();

@@ -134,6 +134,11 @@ uint64_t ESP_SD::freeBytes()
     return (SD_MMC.totalBytes() - SD_MMC.usedBytes());
 }
 
+uint ESP_SD::maxPathLength()
+{
+    return 255;
+}
+
 bool ESP_SD::rename(const char *oldpath, const char *newpath)
 {
     return SD_MMC.rename(oldpath,newpath);
@@ -303,6 +308,11 @@ ESP_SDFile::ESP_SDFile(void* handle, bool isdir, bool iswritemode, const char * 
             set = true;
         }
     }
+}
+
+bool ESP_SDFile::seek(uint32_t pos, uint8_t mode)
+{
+    return tSDFile_handle[_index].seek(pos, (SeekMode)mode);
 }
 
 void ESP_SDFile::close()

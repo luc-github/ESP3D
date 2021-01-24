@@ -150,6 +150,11 @@ uint64_t ESP_SD::usedBytes()
     return totalBytes() - freeBytes();
 }
 
+uint ESP_SD::maxPathLength()
+{
+    return 255;
+}
+
 uint64_t ESP_SD::freeBytes()
 {
     static uint64_t volFree;
@@ -709,6 +714,14 @@ void ESP_SD::closeAll()
         tSDFile_handle[i].close();
         tSDFile_handle[i] = File();
     }
+}
+
+bool ESP_SDFile::seek(uint32_t pos, uint8_t mode)
+{
+    if (mode == SeekEnd) {
+        return tSDFile_handle[_index].seek(-pos);    //based on SDFS comment
+    }
+    return tSDFile_handle[_index].seek(pos);
 }
 
 ESP_SDFile::ESP_SDFile(void* handle, bool isdir, bool iswritemode, const char * path)

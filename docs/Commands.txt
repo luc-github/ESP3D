@@ -72,6 +72,12 @@ label can be: light/framesize/quality/contrast/brightness/saturation/gainceiling
 * Get/Set Ftp ports 
 [ESP181]ctrl=<port> active=<port> passive=<port> pwd=<admin password>
 
+* Get/Set WebDav state which can be ON, OFF, CLOSE
+[ESP190]<state>pwd=<admin password>
+
+* Get/Set WebDav port 
+[ESP191]<port>pwd=<admin password>
+
 * Get SD Card Status
 [ESP200] pwd=<user/admin password>
 
@@ -169,6 +175,9 @@ ESP_FTP_DATA_ACTIVE_PORT       1013    //4  bytes = int
 ESP_FTP_DATA_PASSIVE_PORT      1017    //4  bytes = int
 ESP_FTP_ON             1021     //1 byte = flag
 ESP_AUTO_NOTIFICATION   1022    //1 byte = flag
+ESP_VERBOSE_BOOT	1023	//1 byte = flag
+ESP_WEBDAV_ON           1024    //1 byte = flag
+ESP_WEBDAV_PORT  	1025	//4  bytes = int
 
 * Get/Set Check update at boot state which can be ON, OFF
 [ESP402]<state>pwd=<admin password>

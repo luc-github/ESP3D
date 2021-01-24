@@ -171,6 +171,11 @@ uint64_t ESP_SD::freeBytes()
     return volFree * blocks * 512;
 }
 
+uint ESP_SD::maxPathLength()
+{
+    return 255;
+}
+
 bool ESP_SD::rename(const char *oldpath, const char *newpath)
 {
     return SD.rename(oldpath,newpath);
@@ -710,6 +715,11 @@ bool ESP_SD::rmdir(const char *path)
     p = String();
     log_esp3d("count %d", pathlist.count());
     return res;
+}
+
+bool ESP_SDFile::seek(uint32_t pos, uint8_t mode)
+{
+    return tSDFile_handle[_index].seek(pos, (SeekMode)mode);
 }
 
 void ESP_SD::closeAll()

@@ -51,6 +51,11 @@ size_t ESP_FileSystem::usedBytes()
     return SPIFFS.usedBytes();
 }
 
+uint ESP_FileSystem::maxPathLength()
+{
+    return 32;
+}
+
 bool ESP_FileSystem::rename(const char *oldpath, const char *newpath)
 {
     return SPIFFS.rename(oldpath,newpath);
@@ -257,6 +262,11 @@ ESP_File::ESP_File(void* handle, bool isdir, bool iswritemode, const char * path
             set = true;
         }
     }
+}
+
+bool ESP_File::seek(uint32_t pos, uint8_t mode)
+{
+    return tFile_handle[_index].seek(pos, (SeekMode)mode);
 }
 
 void ESP_File::close()

@@ -36,6 +36,7 @@ public:
     ~ESP_SDFile();
     operator bool() const;
     bool isDirectory();
+    bool seek(uint32_t pos, uint8_t mode = ESP_SEEK_SET);
     const char* name() const;
     const char* shortname() const;
     const char* filename() const;
@@ -76,6 +77,7 @@ public:
     static uint64_t totalBytes();
     static uint64_t usedBytes();
     static uint64_t freeBytes();
+    static uint maxPathLength();
     static const char * FilesystemName();
     static bool format(ESP3DOutput * output = nullptr);
     static ESP_SDFile open(const char* path, uint8_t mode = ESP_FILE_READ);

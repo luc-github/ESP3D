@@ -52,6 +52,9 @@
 #ifdef FTP_FEATURE
 #include "../ftp/FtpServer.h"
 #endif //FP_FEATURE
+#ifdef WEBDAV_FEATURE
+#include "../webdav/webdav_server.h"
+#endif //WEBDAV_FEATURE
 #ifdef HTTP_FEATURE
 #include "../http/http_server.h"
 #endif //HTTP_FEATURE
@@ -253,6 +256,18 @@ bool NetServices::begin()
         }
     }
 #endif //WS_DATA_FEATURE
+#ifdef WEBDAV_FEATURE
+    if (!webdav_server.begin()) {
+        output.printMSG("Failed start Terminal Web Socket");
+    } else {
+        if (webdav_server.started()) {
+            String stmp = "WebDav server started port " + String(webdav_server.port());
+            if (Settings_ESP3D::isVerboseBoot()) {
+                output.printMSG(stmp.c_str());
+            }
+        }
+    }
+#endif //WEBDAV_FEATURE
 #if defined(HTTP_FEATURE)
     if (!websocket_terminal_server.begin()) {
         output.printMSG("Failed start Terminal Web Socket");
@@ -366,6 +381,9 @@ void NetServices::end()
 #if defined(HTTP_FEATURE)
     websocket_terminal_server.end();
 #endif //HTTP_FEATURE
+#ifdef WEBDAV_FEATURE
+    webdav_server.end();
+#endif //WEBDAV_FEATURE
 #ifdef HTTP_FEATURE
     HTTP_Server::end();
 #endif //HTTP_FEATURE
@@ -402,6 +420,9 @@ void NetServices::handle()
 #ifdef HTTP_FEATURE
         HTTP_Server::handle();
 #endif //HTTP_FEATURE
+#ifdef WEBDAV_FEATURE
+        webdav_server.handle();
+#endif //WEBDAV_FEATURE
 #ifdef WS_DATA_FEATURE
         websocket_data_server.handle();
 #endif //WS_DATA_FEATURE

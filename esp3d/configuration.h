@@ -61,7 +61,7 @@
 #define TELNET_FEATURE
 
 //WS_DATA_FEATURE: allow to connect serial from Websocket
-#define WS_DATA_FEATURE
+//#define WS_DATA_FEATURE
 
 //DISPLAY_DEVICE: allow screen output
 //OLED_I2C_SSD1306          1
@@ -157,14 +157,22 @@
 #define FILESYSTEM_FEATURE ESP_LITTLEFS_FILESYSTEM
 
 //Allows to mount /FS and /SD under / for FTP server
-#define GLOBAL_FILESYSTEM_FEATURE
+//#define GLOBAL_FILESYSTEM_FEATURE
+
+//WEBDAV_FEATURE : enable WebDav feature
+//FS_ROOT        mount all FS
+//FS_FLASH       mount Flash FS
+//FS_SD          mount SD FS
+//FS_USBDISK     mount USB disk FS
+
+#define WEBDAV_FEATURE  FS_FLASH
 
 //FTP_FEATURE : enable FTP feature
 //FS_ROOT        mount all FS
 //FS_FLASH       mount Flash FS
 //FS_SD          mount SD FS
 //FS_USBDISK     mount USB disk FS
-#define FTP_FEATURE  FS_ROOT
+//#define FTP_FEATURE  FS_ROOT
 
 //DIRECT_PIN_FEATURE: allow to access pin using ESP201 command
 #define DIRECT_PIN_FEATURE
@@ -190,7 +198,7 @@
 #define CAPTIVE_PORTAL_FEATURE
 
 //OTA_FEATURE: this feature is arduino update over the air
-#define OTA_FEATURE
+//#define OTA_FEATURE
 
 //WEB_UPDATE_FEATURE: allow to flash fw using web UI
 #define WEB_UPDATE_FEATURE
@@ -252,7 +260,7 @@
 //DEBUG_OUTPUT_SERIAL2 3
 //DEBUG_OUTPUT_TELNET  4
 //DEBUG_OUTPUT_WEBSOCKET  5
-//#define ESP_DEBUG_FEATURE DEBUG_OUTPUT_TELNET
+#define ESP_DEBUG_FEATURE DEBUG_OUTPUT_SERIAL0
 
 #ifdef ESP_DEBUG_FEATURE
 #define DEBUG_BAUDRATE 115200

@@ -102,6 +102,22 @@ uint64_t ESP_GBFS::usedBytes(uint8_t FS)
     return 0;
 }
 
+uint ESP_GBFS::maxPathLength()
+{
+    uint size = 255;
+#ifdef FILESYSTEM_FEATURE
+    if(size >32) {
+        size =32;
+    }
+#endif //FILESYSTEM_FEATURE 
+#ifdef SD_DEVICE
+    if(size >255) {
+        size =255;
+    }
+#endif //SD_DEVICE   
+    return size;
+}
+
 uint64_t ESP_GBFS::freeBytes(uint8_t FS)
 {
 #ifdef FILESYSTEM_FEATURE
@@ -429,6 +445,25 @@ ESP_GBFile::operator bool() const
     }
 #endif //SD_DEVICE 
     return false;
+}
+
+bool ESP_GBFile::seek(uint32_t pos, uint8_t mode)
+{
+#if defined(FILESYSTEM_FEATURE) || defined(SD_DEVICE)
+    if (_type == FS_ROOT) {
+        //TBD
+    }
+#endif //FILESYSTEM_FEATURE || SD_DEVICE
+#ifdef FILESYSTEM_FEATURE
+    if (_type == FS_FLASH) {
+        _flashFile.seek(pos,mode);
+    }
+#endif //FILESYSTEM_FEATURE
+#ifdef SD_DEVICE
+    if (_type == FS_SD) {
+        return _sdFile.seek(pos,mode);
+    }
+#endif //SD_DEVICE 
 }
 
 void ESP_GBFile::close()

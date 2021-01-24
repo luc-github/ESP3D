@@ -45,6 +45,7 @@ public:
     ~ESP_GBFile();
     operator bool() const;
     bool isDirectory();
+    bool seek(uint32_t pos, uint8_t mode = ESP_SEEK_SET);
     const char* name() const;
     const char* shortname() const;
     const char* filename() const;
@@ -80,10 +81,11 @@ private:
 class ESP_GBFS
 {
 public:
-    static bool isavailable(uint8_t FS);
-    static uint64_t totalBytes(uint8_t FS);
-    static uint64_t usedBytes(uint8_t FS);
-    static uint64_t freeBytes(uint8_t FS);
+    static bool isavailable(uint8_t FS=FS_UNKNOWN);
+    static uint64_t totalBytes(uint8_t FS=FS_UNKNOWN);
+    static uint64_t usedBytes(uint8_t FS=FS_UNKNOWN);
+    static uint64_t freeBytes(uint8_t FS=FS_UNKNOWN);
+    static uint maxPathLength();
     static bool format(uint8_t FS, ESP3DOutput * output = nullptr);
     static ESP_GBFile open(const char* path, uint8_t mode = ESP_FILE_READ);
     static bool exists(const char* path);

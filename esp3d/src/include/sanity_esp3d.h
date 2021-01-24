@@ -134,6 +134,27 @@
 #endif
 
 /**************************
+ * WebDav
+ * ***********************/
+#if defined(WEBDAV_FEATURE) && !defined(GLOBAL_FILESYSTEM_FEATURE)
+#if WEBDAV_FEATURE == FS_ROOT
+#error WEBDAV_FEATURE == FS_ROOT is not available because GLOBAL_FILESYSTEM_FEATURE is not enabled
+#endif
+#endif
+
+#if defined(WEBDAV_FEATURE) && !defined(FILESYSTEM_FEATURE)
+#if WEBDAV_FEATURE == FS_FLASH
+#error WEBDAV_FEATURE == FS_FLASH is not available because FILESYSTEM_FEATURE is not enabled
+#endif
+#endif
+
+#if defined(WEBDAV_FEATURE) && !defined(SD_DEVICE)
+#if WEBDAV_FEATURE == FS_SD
+#error WEBDAV_FEATURE == FS_SD is not available because SD_DEVICE is not enabled
+#endif
+#endif
+
+/**************************
  * Update
  * ***********************/
 #if defined(SD_UPDATE_FEATURE) && !defined(SD_DEVICE)

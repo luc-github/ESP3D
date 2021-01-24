@@ -408,6 +408,18 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
         response = ESP181(cmd_params, auth_type, output);
         break;
 #endif //FTP_FEATURE
+#ifdef WEBDAV_FEATURE
+    //Set webdav state which can be ON, OFF
+    //[ESP190]<state>pwd=<admin password>
+    case 190:
+        response = ESP190(cmd_params, auth_type, output);
+        break;
+    //Set/get webdav port
+    //[ESP191]ctrl=<port> active=<port> passive=<port> pwd=<admin password>
+    case 191:
+        response = ESP191(cmd_params, auth_type, output);
+        break;
+#endif //WEBDAV_FEATURE
 #if defined (SD_DEVICE)
     //Get SD Card Status
     //[ESP200] pwd=<user/admin password>

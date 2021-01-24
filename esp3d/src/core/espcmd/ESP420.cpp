@@ -50,6 +50,9 @@
 #ifdef WS_DATA_FEATURE
 #include "../../modules/websocket/websocket_server.h"
 #endif //WS_DATA_FEATURE
+#ifdef WEBDAV_FEATURE
+#include "../../modules/webdav/webdav_server.h"
+#endif //WEBDAV_FEATURE
 #if defined (TIMESTAMP_FEATURE)
 #include "../../modules/time/time_server.h"
 #endif //TIMESTAMP_FEATURE
@@ -418,6 +421,43 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         }
     }
 #endif //TELNET_FEATURE
+#if defined (WEBDAV_FEATURE)
+    if (webdav_server.started()) {
+        //WebDav port
+        if (!plain) {
+            output->print (",{\"id\":\"");
+        }
+        output->print ("WebDav port");
+        if (!plain) {
+            output->print ("\",\"value\":\"");
+        } else {
+            output->print (": ");
+        }
+        output->printf ("%d",webdav_server.port());
+        if (!plain) {
+            output->print ("\"}");
+        } else {
+            output->printLN("");
+        }
+    }
+    if (webdav_server.isConnected()) {
+        if (!plain) {
+            output->print (",{\"id\":\"");
+        }
+        output->print ("WebDav Client");
+        if (!plain) {
+            output->print ("\",\"value\":\"");
+        } else {
+            output->print (": ");
+        }
+        output->printf ("%s",webdav_server.clientIPAddress());
+        if (!plain) {
+            output->print ("\"}");
+        } else {
+            output->printLN("");
+        }
+    }
+#endif //WEBDAV_FEATURE
 #if defined (FTP_FEATURE)
     if (ftp_server.started()) {
         //ftp ports

@@ -110,6 +110,7 @@
 #define DEFAULT_SENSOR_TYPE     NO_SENSOR_DEVICE
 #define DEFAULT_HTTP_ON         1
 #define DEFAULT_FTP_ON          1
+#define DEFAULT_WEBDAV_ON       1
 #define DEFAULT_TELNET_ON       1
 #define DEFAULT_WEBSOCKET_ON    1
 #define DEFAULT_NOTIFICATION_TYPE 0
@@ -127,6 +128,7 @@
 #define DEFAULT_FTP_ACTIVE_PORT 20L
 #define DEFAULT_FTP_PASSIVE_PORT 55600L
 #define DEFAULT_WEBSOCKET_PORT  8282L
+#define DEFAULT_WEBDAV_PORT     8181L
 #define DEFAULT_TELNET_PORT     23L
 #define DEFAULT_SENSOR_INTERVAL 30000L
 #define DEFAULT_BOOT_DELAY      10000L
@@ -316,6 +318,11 @@ uint8_t Settings_ESP3D::get_default_byte_value(int pos)
         res = DEFAULT_WEBSOCKET_ON;
         break;
 #endif //WS_DATA_FEATURE
+#ifdef WEBDAV_FEATURE
+    case ESP_WEBDAV_ON:
+        res = DEFAULT_WEBDAV_ON;
+        break;
+#endif //WEBDAV_FEATURE
 #ifdef SD_DEVICE
     case ESP_SD_SPEED_DIV:
         res = DEFAULT_SDREADER_SPEED;
@@ -413,6 +420,11 @@ uint32_t Settings_ESP3D::get_default_int32_value(int pos)
         res = DEFAULT_WEBSOCKET_PORT;
         break;
 #endif //WS_DATA_FEATURE
+#ifdef WEBDAV_FEATURE
+    case ESP_WEBDAV_PORT:
+        res = DEFAULT_WEBDAV_PORT;
+        break;
+#endif //WEBDAV_FEATURE
 #if defined(SENSOR_DEVICE)
     case ESP_SENSOR_INTERVAL:
         res = DEFAULT_SENSOR_INTERVAL;
@@ -449,6 +461,11 @@ uint32_t Settings_ESP3D::get_max_int32_value(int pos)
         res = MAX_TELNET_PORT;
         break;
 #endif //TELNET_FEATURE
+#ifdef WEBDAV_FEATURE
+    case ESP_WEBDAV_PORT:
+        res = MAX_WEBDAV_PORT;
+        break;
+#endif //WEBDAV_FEATURE
 #ifdef WS_DATA_FEATURE
     case ESP_WEBSOCKET_PORT:
         res = MAX_WEBSOCKET_PORT;
@@ -495,6 +512,11 @@ uint32_t Settings_ESP3D::get_min_int32_value(int pos)
         res = MIN_WEBSOCKET_PORT;
         break;
 #endif //WS_DATA_FEATURE
+#ifdef WEBDAV_FEATURE
+    case ESP_WEBDAV_PORT:
+        res = MIN_WEBDAV_PORT;
+        break;
+#endif //WEBDAV_FEATURE
 #if defined(SENSOR_DEVICE)
     case ESP_SENSOR_INTERVAL:
         res = MIN_SENSOR_INTERVAL;
@@ -1125,13 +1147,18 @@ bool Settings_ESP3D::reset(bool networkonly)
     //TELNET Port
     Settings_ESP3D::write_uint32 (ESP_TELNET_PORT, Settings_ESP3D::get_default_int32_value(ESP_TELNET_PORT));
 #endif //TELNET
-
 #ifdef WS_DATA_FEATURE
     //Websocket On
     Settings_ESP3D::write_byte(ESP_WEBSOCKET_ON,Settings_ESP3D::get_default_byte_value(ESP_WEBSOCKET_ON));
     //Websocket Port
     Settings_ESP3D::write_uint32 (ESP_WEBSOCKET_PORT, Settings_ESP3D::get_default_int32_value(ESP_WEBSOCKET_PORT));
 #endif //WS_DATA_FEATURE
+#ifdef WEBDAV_FEATURE
+    //WebDav On
+    Settings_ESP3D::write_byte(ESP_WEBDAV_ON,Settings_ESP3D::get_default_byte_value(ESP_WEBDAV_ON));
+    //WebDav Port
+    Settings_ESP3D::write_uint32 (ESP_WEBDAV_PORT, Settings_ESP3D::get_default_int32_value(ESP_WEBDAV_PORT));
+#endif //WEBDAV_FEATURE
 #ifdef AUTHENTICATION_FEATURE
     //Admin password
     Settings_ESP3D::write_string(ESP_ADMIN_PWD,Settings_ESP3D::get_default_string_value(ESP_ADMIN_PWD).c_str());

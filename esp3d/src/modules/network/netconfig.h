@@ -21,6 +21,8 @@
 //boundaries
 
 
+#define MAX_WEBDAV_PORT             65001
+#define MIN_WEBDAV_PORT             1
 #define MAX_HTTP_PORT               65001
 #define MIN_HTTP_PORT               1
 #define MAX_FTP_PORT                65001

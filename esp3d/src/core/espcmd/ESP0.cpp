@@ -70,6 +70,10 @@ const char * help[]= {"[ESP] - display this help",
                       "[ESP180](State) - display/set FTP state which can be ON, OFF",
                       "[ESP181](ctrl=xxxx) (active=xxxx) (passive=xxxx) - display/set FTP ports",
 #endif //FTP_FEATURE
+#if defined(WEBDAV_FEATURE)
+                      "[ESP190](State) - display/set WebDav state which can be ON, OFF",
+                      "[ESP191](Port) - display/set WebDav port",
+#endif //WEBDAV_FEATURE
 #if defined (SD_DEVICE)
                       "[ESP200] - display SD Card Status",
 #endif //SD_DEVICE
@@ -191,6 +195,10 @@ const uint cmdlist[]= {0,
                        180,
                        181,
 #endif //FTP_FEATURE
+#if defined(WEBDAV_FEATURE)
+                       190,
+                       111,
+#endif //WEBDAV_FEATURE
 #if defined (SD_DEVICE)
                        200,
 #endif //SD_DEVICE
