@@ -37,7 +37,7 @@
 #include <ESP8266WiFi.h>
 #include <coredecls.h> // crc32()
 #include <PolledTimeout.h>
-typedef esp8266::polledTimeout::oneShotFastMs PolledTimeout
+#define PolledTimeout esp8266::polledTimeout::oneShotFastMs
 #define BUFFER_SIZE 128
 #endif //ARDUINO_ARCH_ESP8266
 #if defined(ARDUINO_ARCH_ESP32)

@@ -64,7 +64,7 @@ const char* Webdav_Server::clientIPAddress()
 }
 
 
-Webdav_Server::Webdav_Server()
+Webdav_Server::Webdav_Server():_tcpserver(0)
 {
     _started = false;
     _port = 0;
