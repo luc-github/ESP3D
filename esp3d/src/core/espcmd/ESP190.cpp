@@ -42,7 +42,7 @@ bool Commands::ESP190(const char* cmd_params, level_authenticate_type auth_type,
     //get
     if (parameter.length() == 0) {
         output->printMSG((Settings_ESP3D::read_byte(ESP_WEBDAV_ON) == 0)?"OFF":"ON");
-        webdav_server.dir();
+        //webdav_server.dir();
     } else { //set
 #ifdef AUTHENTICATION_FEATURE
         if (auth_type != LEVEL_ADMIN) {
