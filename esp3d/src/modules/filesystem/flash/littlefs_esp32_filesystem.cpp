@@ -53,6 +53,11 @@ size_t ESP_FileSystem::usedBytes()
     return LITTLEFS.usedBytes();
 }
 
+uint ESP_FileSystem::maxPathLength()
+{
+    return 32;
+}
+
 bool ESP_FileSystem::rename(const char *oldpath, const char *newpath)
 {
     return LITTLEFS.rename(oldpath,newpath);
@@ -228,10 +233,18 @@ ESP_File::ESP_File(void* handle, bool isdir, bool iswritemode, const char * path
             log_esp3d("name: %s", _name.c_str());
             log_esp3d("filename: %s", _filename.c_str());
             set = true;
+        } else {
+            log_esp3d("File %d busy", i);
+            log_esp3d(tFile_handle[i].name());
         }
     }
     if(!set) {
         log_esp3d("No handle available");
+#if defined(ESP_DEBUG_FEATURE)
+        for (uint8_t i=0; (i < ESP_MAX_OPENHANDLE) ; i++) {
+            log_esp3d(tFile_handle[i].name());
+        }
+#endif
     }
 }
 
@@ -253,6 +266,10 @@ void ESP_File::close()
         tFile_handle[_index] = File();
         _index = -1;
     }
+}
+bool ESP_File::seek(uint32_t pos, uint8_t mode)
+{
+    return tFile_handle[_index].seek(pos, (SeekMode)mode);
 }
 
 ESP_File  ESP_File::openNextFile()

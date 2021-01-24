@@ -313,6 +313,8 @@ bool ESPWebDAVCore::dirAction(const String& path,
                 log_esp3d("(file-OK)");
             } else {
                 log_esp3d("(file-abort)");
+                entry.close();
+                root.close();
                 return false;
             }
         }
@@ -332,6 +334,8 @@ bool ESPWebDAVCore::dirAction(const String& path,
                     log_esp3d("(dir-OK)");
                 } else {
                     log_esp3d("(dir-abort)");
+                    entry.close();
+                    root.close();
                     return false;
                 }
             }
@@ -417,72 +421,97 @@ void ESPWebDAVCore::handleRequest()
     if (method.equals("PUT"))
         // payload is managed
     {
-        return handlePut(resource);
+        handlePut(resource);
+        file.close();
+        return ;
     }
 
     // swallow content
     if (!getPayload(payload)) {
         handleIssue(408, "Request Time-out");
         client->stop();
+        file.close();
         return;
     }
 
     // handle properties
     if (method.equals("PROPFIND")) {
-        return handleProp(resource, file);
+        handleProp(resource, file);
+        file.close();
+        return;
     }
 
     if (method.equals("GET")) {
-        return handleGet(resource, file, true);
+        handleGet(resource, file, true);
+        file.close();
+        return ;
     }
 
     if (method.equals("HEAD")) {
-        return handleGet(resource, file, false);
+        handleGet(resource, file, false);
+        file.close();
+        return;
     }
 
     // handle options
     if (method.equals("OPTIONS")) {
-        return handleOptions(resource);
+        handleOptions(resource);
+        file.close();
+        return ;
     }
 
 #if WEBDAV_LOCK_SUPPORT
     // handle file locks
     if (method.equals("LOCK")) {
-        return handleLock(resource);
+        handleLock(resource);
+        file.close();
+        return;
     }
 
     if (method.equals("UNLOCK")) {
-        return handleUnlock(resource);
+        handleUnlock(resource);
+        file.close();
+        return ;
     }
 #endif
 
     if (method.equals("PROPPATCH")) {
-        return handlePropPatch(resource, file);
+        handlePropPatch(resource, file);
+        file.close();
+        return ;
     }
 
     // directory creation
     if (method.equals("MKCOL")) {
-        return handleDirectoryCreate(resource);
+        handleDirectoryCreate(resource);
+        file.close();
+        return;
     }
 
     // move a file or directory
     if (method.equals("MOVE")) {
-        return handleMove(resource, file);
+        handleMove(resource, file);
+        file.close();
+        return;
     }
 
     // delete a file or directory
     if (method.equals("DELETE")) {
-        return handleDelete(resource);
+        handleDelete(resource);
+        file.close();
+        return;
     }
 
     // delete a file or directory
     if (method.equals("COPY")) {
-        return handleCopy(resource, file);
+        handleCopy(resource, file);
+        file.close();
+        return;
     }
 
     // if reached here, means its a unhandled
     handleIssue(404, "Not found");
-
+    file.close();
     //return false;
 }
 
@@ -926,6 +955,7 @@ void ESPWebDAVCore::handlePut(ResourceType resource)
                 auto numWrite = file.write(buf + written, numRead - written);
                 if (numWrite == 0 || (int)numWrite == -1) {
                     log_esp3d("error: numread=%d write=%d written=%d", (int)numRead, (int)numWrite, (int)written);
+                    file.close();
                     return handleWriteError("Write data failed", file);
                 }
                 written += numWrite;
@@ -943,12 +973,13 @@ void ESPWebDAVCore::handlePut(ResourceType resource)
 
         // detect timeout condition
         if (numRemaining) {
+            file.close();
             return handleWriteError("Timed out waiting for data", file);
         }
 
         log_esp3d("File %d  bytes stored in: %d sec",(contentLengthHeader - numRemaining), ((millis() - tStart) / 1000));
     }
-
+    file.close();
     log_esp3d("file written ('%s': %d = %d bytes)", String(file.name()).c_str(), (int)contentLengthHeader, (int)file.size());
 
     if (resource == RESOURCE_NONE) {
@@ -988,8 +1019,10 @@ void ESPWebDAVCore::handleDirectoryCreate(ResourceType resource)
     if (parentLastIndex > 0) {
         WebDavFile testParent = WebDavFS::open(uri.substring(0, parentLastIndex).c_str());
         if (!testParent.isDirectory()) {
+            testParent.close();
             return handleIssue(409, "Conflict");
         }
+        testParent.close();
     }
 
     if (!WebDavFS::mkdir(uri.c_str())) {
@@ -1054,6 +1087,7 @@ void ESPWebDAVCore::handleMove(ResourceType resource, WebDavFile& src)
 
     if (destFile) {
         if (overwrite.equalsIgnoreCase("F")) {
+            destFile.close();
             return handleIssue(412, "Precondition Failed");
         }
         if (destFile.isDirectory()) {
@@ -1165,8 +1199,7 @@ bool ESPWebDAVCore::copyFile(WebDavFile srcFile, const String& destName)
 {
     WebDavFile dest;
     if (overwrite.equalsIgnoreCase("F")) {
-        dest = WebDavFS::open(destName.c_str());
-        if (dest) {
+        if (WebDavFS::exists(destName.c_str())) {
             log_esp3d("copy dest '%s' already exists and overwrite is false", destName.c_str());
             handleIssue(412, "Precondition Failed");
             return false;
@@ -1190,12 +1223,14 @@ bool ESPWebDAVCore::copyFile(WebDavFile srcFile, const String& destName)
         if (!nb) {
             log_esp3d("copy: short read");
             handleIssue(500, "Internal Server Error");
+            dest.close();
             return false;
         }
         int wr = dest.write((const uint8_t*)cp, nb);
         if (wr != nb) {
             log_esp3d("copy: short write wr=%d != rd=%d", (int)wr, (int)nb);
             handleIssue(500, "Internal Server Error");
+            dest.close();
             return false;
         }
     }
@@ -1251,6 +1286,7 @@ void ESPWebDAVCore::handleCopy(ResourceType resource, WebDavFile& src)
     stripName(destPath);
     int code;
     if (/*(code = allowed(uri)) != 200 ||*/ (code = allowed(destParentPath)) != 200 || (code = allowed(destPath)) != 200) {
+        destParent.close();
         return handleIssue(code, "Locked");
     }
 
@@ -1259,6 +1295,7 @@ void ESPWebDAVCore::handleCopy(ResourceType resource, WebDavFile& src)
         log_esp3d("Source is directory");
         if (!destParent.isDirectory()) {
             log_esp3d("'%s' is not a directory", destParentPath.c_str());
+            destParent.close();
             return handleIssue(409, "Conflict");
         }
 
@@ -1269,8 +1306,13 @@ void ESPWebDAVCore::handleCopy(ResourceType resource, WebDavFile& src)
             destNameX += source.name();
             stripName(destNameX);
             log_esp3d("COPY: '%s' -> '%s", source.name(), destNameX.c_str());
-            return copyFile(WebDavFS::open(source.name()), destNameX);
+            WebDavFile orifile = WebDavFS::open(source.name());
+            bool res = copyFile(orifile, destNameX);
+            orifile.close();
+            return res;
+            //return copyFile(WebDavFS::open(source.name()), destNameX);
         })) {
+            destParent.close();
             return; // handleIssue already called by failed copyFile() handleIssue(409, "Conflict");
         }
     } else {
@@ -1279,6 +1321,7 @@ void ESPWebDAVCore::handleCopy(ResourceType resource, WebDavFile& src)
         // (COPY into non-existant collection '/litmus/nonesuch' succeeded)
         if (!destParent || !destParent.isDirectory()) {
             log_esp3d("dest dir '%s' not existing", destParentPath.c_str());
+            destParent.close();
             return handleIssue(409, "Conflict");
         }
 
