@@ -275,6 +275,10 @@ dispatchfilestatus(jsonresponse);
 xmlhttpupload.send(formData);
 }
 
+function autoscroll(){
+    if (DGEI('monitor_enable_autoscroll').checked == true) DGEI('cmd_content').scrollTop = DGEI('cmd_content').scrollHeight;
+}
+
 function padNumber(num, size) {
     var s = num.toString();
     while (s.length < size) s = "0" + s;
@@ -390,6 +394,7 @@ function Monitor_output_Update(message) {
             output+=Monitor_output[i];
         }
         DGEI("cmd_content").innerHTML = output;
+        autoscroll();
     }
     
 }
@@ -498,6 +503,7 @@ DGEI('fw-select').style.visibility = 'hidden';
 DGEI('msg').style.visibility = "visible";
 DGEI('msg').innerHTML="";
 DGEI('MSG').innerHTML="Please wait";
+DGEI('CONSOLE').style.display = "none";
 DGEI('FILESYSTEM').style.display = "none";
 DGEI('prgfw').style.visibility = "visible";
 var formData = new FormData();
