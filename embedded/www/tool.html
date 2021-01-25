@@ -59,6 +59,24 @@
         <div class="panel">
             <center><h2 id="MSG"></h2><h2 id="InfoMSG"></h2></center>
         </div>
+        <div class="panel hide_it" id="CONSOLE">
+            <div class="panel-heading" onclick='toogleConsole()'>Console</div>
+            <div class="panel-body hide_it" id="TERMINAL">
+                <table>
+                    <tr>
+                        <td>
+                            <input class="form-control" autocomplete="off" type="text"  value="" id="custom_cmd_txt"  placeholder="Send Command..." />
+                        </td>
+                        <td>
+                            <button class="btn btn-primary" onclick="SendCustomCommand();" >Send</button>
+                        </td>
+                    </tr>
+                </table>
+                <div style="overflow-wrap: break-word;">
+                <pre id="cmd_content" style="min-height: 350px; max-height: 350px;border:1px solid black;overflow-y: auto;overflow-wrap: anywhere;"></pre>
+                </div>
+            </div>
+        </div>
         <div class="panel hide_it" id="FILESYSTEM">
             <div class="panel-heading">Flash Filesystem</div>
             <div class="panel-body">
