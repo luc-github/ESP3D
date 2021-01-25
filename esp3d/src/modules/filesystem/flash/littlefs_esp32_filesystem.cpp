@@ -65,7 +65,7 @@ bool ESP_FileSystem::rename(const char *oldpath, const char *newpath)
 
 const char * ESP_FileSystem::FilesystemName()
 {
-    return "FAT";
+    return "LittleFS";
 }
 
 bool ESP_FileSystem::format()
