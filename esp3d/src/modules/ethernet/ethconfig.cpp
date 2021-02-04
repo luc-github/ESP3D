@@ -40,8 +40,9 @@ bool EthConfig::StartSTA()
         int32_t IP = Settings_ESP3D::read_IP(ESP_STA_IP_VALUE);
         int32_t GW = Settings_ESP3D::read_IP(ESP_STA_GATEWAY_VALUE);
         int32_t MK = Settings_ESP3D::read_IP(ESP_STA_MASK_VALUE);
-        IPAddress ip(IP), mask(MK), gateway(GW);
-        res = ETH.config(ip, gateway,mask);
+        int32_t DNS = Settings_ESP3D::read_IP(ESP_STA_DNS_VALUE);
+        IPAddress ip(IP), mask(MK), gateway(GW), dns(DNS);
+        res = ETH.config(ip, gateway,mask,dns);
     }
     return res;
 }

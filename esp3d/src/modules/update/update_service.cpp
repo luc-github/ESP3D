@@ -81,12 +81,14 @@ const uint16_t ServstringKeysPos[] = {
 const char * IPKeysVal[] = {"STA_IP",
                             "STA_GW",
                             "STA_MSK",
+                            "STA_DNS",
                             "AP_IP"
                            } ;
 
 const uint16_t IPKeysPos[] = {ESP_STA_IP_VALUE,
                               ESP_STA_MASK_VALUE,
                               ESP_STA_GATEWAY_VALUE,
+                              ESP_STA_DNS_VALUE
                               ESP_AP_IP_VALUE
                              } ;
 

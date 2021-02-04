@@ -168,6 +168,7 @@ const char DEFAULT_SETTINGS_VERSION []  =   "ESP3D";
 const uint8_t DEFAULT_IP_VALUE[]   =       {192, 168, 0, 1};
 const uint8_t DEFAULT_MASK_VALUE[]  =      {255, 255, 255, 0};
 #define DEFAULT_GATEWAY_VALUE           DEFAULT_IP_VALUE
+#define DEFAULT_DNS_VALUE           DEFAULT_GATEWAY_VALUE
 const uint8_t DEFAULT_ADDRESS_VALUE[]   =  {0, 0, 0, 0};
 #endif //WIFI_FEATURE || ETH_FEATURE
 
@@ -392,6 +393,9 @@ uint32_t Settings_ESP3D::get_default_int32_value(int pos)
         break;
     case ESP_STA_GATEWAY_VALUE:
         res = IPAddress(DEFAULT_GATEWAY_VALUE);
+        break;
+    case ESP_STA_DNS_VALUE:
+        res = IPAddress(DEFAULT_DNS_VALUE);
         break;
 #endif //WIFI_FEATURE || ETH_FEATURE
 #ifdef FTP_FEATURE
@@ -1064,6 +1068,8 @@ bool Settings_ESP3D::reset(bool networkonly)
     Settings_ESP3D::write_IP(ESP_STA_GATEWAY_VALUE, Settings_ESP3D::get_default_IP_value(ESP_STA_GATEWAY_VALUE));
     //STA static Mask
     Settings_ESP3D::write_IP(ESP_STA_MASK_VALUE, Settings_ESP3D::get_default_IP_value(ESP_STA_MASK_VALUE));
+     //STA static DNS
+    Settings_ESP3D::write_IP(ESP_STA_DNS_VALUE, Settings_ESP3D::get_default_IP_value(ESP_STA_DNS_VALUE));
 #endif //WIFI_FEATURE || ETH_FEATURE
     if (networkonly) {
         return true;

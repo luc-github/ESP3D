@@ -53,6 +53,8 @@ bool Commands::ESP103(const char* cmd_params, level_authenticate_type auth_type,
         res += Settings_ESP3D::read_IP_String(ESP_STA_GATEWAY_VALUE);
         res += ", MSK:";
         res += Settings_ESP3D::read_IP_String(ESP_STA_MASK_VALUE);
+         res += ", DNS:";
+        res += Settings_ESP3D::read_IP_String(ESP_STA_DNS_VALUE);
         output->printMSG (res.c_str());
     } else { //set
 #ifdef AUTHENTICATION_FEATURE
@@ -65,6 +67,7 @@ bool Commands::ESP103(const char* cmd_params, level_authenticate_type auth_type,
         String IP = get_param (cmd_params, "IP=");
         String GW = get_param (cmd_params, "GW=");
         String MSK = get_param (cmd_params, "MSK=");
+        String DNS = get_param (cmd_params, "DNS=");
         if ( !NetConfig::isValidIP(IP.c_str())) {
             output->printERROR ("Incorrect IP!");
             return false;
@@ -77,8 +80,13 @@ bool Commands::ESP103(const char* cmd_params, level_authenticate_type auth_type,
             output->printERROR ("Incorrect mask!");
             return false;
         }
+        if ( !NetConfig::isValidIP(DNS.c_str())) {
+            output->printERROR ("Incorrect dns!");
+            return false;
+        }
         if ( !Settings_ESP3D::write_IP_String(ESP_STA_IP_VALUE, IP.c_str()) ||
                 !Settings_ESP3D::write_IP_String(ESP_STA_GATEWAY_VALUE, GW.c_str()) ||
+                !Settings_ESP3D::write_IP_String(ESP_STA_DNS_VALUE, DNS.c_str()) ||
                 !Settings_ESP3D::write_IP_String(ESP_STA_MASK_VALUE, MSK.c_str())) {
             output->printERROR ("Set failed!");
             response = false;

@@ -123,6 +123,13 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print ("\",\"T\":\"A\",\"V\":\"");
     output->print (Settings_ESP3D::read_IP_String(ESP_STA_MASK_VALUE));
     output->print ("\",\"H\":\"msk\"}");
+
+    //STA static DNS
+    output->print (",{\"F\":\"network/sta\",\"P\":\"");
+    output->print (ESP_STA_DNS_VALUE);
+    output->print ("\",\"T\":\"A\",\"V\":\"");
+    output->print (Settings_ESP3D::read_IP_String(ESP_STA_DNS_VALUE));
+    output->print ("\",\"H\":\"dns\"}");
 #endif  //WIFI_FEATURE || ETH_FEATURE
 #if defined(WIFI_FEATURE)
     //AP SSID network/ap

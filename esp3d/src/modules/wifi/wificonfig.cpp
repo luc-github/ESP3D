@@ -194,8 +194,9 @@ bool WiFiConfig::StartSTA()
         int32_t IP = Settings_ESP3D::read_IP(ESP_STA_IP_VALUE);
         int32_t GW = Settings_ESP3D::read_IP(ESP_STA_GATEWAY_VALUE);
         int32_t MK = Settings_ESP3D::read_IP(ESP_STA_MASK_VALUE);
-        IPAddress ip(IP), mask(MK), gateway(GW);
-        WiFi.config(ip, gateway,mask);
+        int32_t DNS = Settings_ESP3D::read_IP(ESP_STA_DNS_VALUE);
+        IPAddress ip(IP), mask(MK), gateway(GW), dns(DNS);
+        WiFi.config(ip, gateway,mask,dns);
     }
     ESP3DOutput output(ESP_ALL_CLIENTS);
     if (Settings_ESP3D::isVerboseBoot()) {

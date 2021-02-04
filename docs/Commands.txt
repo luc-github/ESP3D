@@ -11,8 +11,8 @@ Note:
 * Set/Get STA IP mode (DHCP/STATIC) 
 [ESP102]<mode>pwd=<admin password>
 
-* Set/Get STA IP/Mask/GW 
-[ESP103]IP=<IP> MSK=<IP> GW=<IP> pwd=<admin password>
+* Set/Get STA IP/Mask/GW/DNS
+[ESP103]IP=<IP> MSK=<IP> GW=<IP> DNS=<IP> pwd=<admin password>
 
 *  Set/Get AP SSID 
 [ESP105]<SSID>pwd=<admin password>
