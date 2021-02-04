@@ -454,7 +454,7 @@ bool WIFI_CONFIG::Setup (bool force_ap)
             }
             IPAddress subnet (ip_buf[0], ip_buf[1], ip_buf[2], ip_buf[3]);
             //apply according active wifi mode
-            WiFi.config ( local_ip,  gateway,  subnet);
+            WiFi.config ( local_ip,  gateway,  subnet, gateway);
         }
         WiFi.enableAP (false);
         delay (100);
