@@ -236,6 +236,7 @@ bool WiFiConfig::StartAP()
     if((WiFi.getMode() == WIFI_AP) || (WiFi.getMode() == WIFI_AP_STA)) {
         WiFi.softAPdisconnect();
     }
+    WiFi.enableAP (true);
     WiFi.enableSTA (false);
     WiFi.mode(WIFI_AP);
     //Set Sleep Mode to none
@@ -375,7 +376,7 @@ const char* WiFiConfig::getPHYModeString (uint8_t wifimode)
 {
 #ifdef ARDUINO_ARCH_ESP32
     uint8_t PhyMode;
-    esp_wifi_get_protocol ((wifimode == WIFI_STA)?ESP_IF_WIFI_STA:ESP_IF_WIFI_AP, &PhyMode);
+    esp_wifi_get_protocol ((wifi_interface_t)((wifimode == WIFI_STA)?ESP_IF_WIFI_STA:ESP_IF_WIFI_AP), &PhyMode);
 #endif //ARDUINO_ARCH_ESP32
 #ifdef ARDUINO_ARCH_ESP8266
     (void)wifimode;
@@ -396,7 +397,7 @@ bool WiFiConfig::is_AP_visible()
 {
 #ifdef ARDUINO_ARCH_ESP32
     wifi_config_t conf;
-    esp_wifi_get_config (ESP_IF_WIFI_AP, &conf);
+    esp_wifi_get_config ((wifi_interface_t)ESP_IF_WIFI_AP, &conf);
     return (conf.ap.ssid_hidden == 0);
 #endif //ARDUINO_ARCH_ESP32
 #ifdef ARDUINO_ARCH_ESP8266
@@ -411,7 +412,7 @@ const char * WiFiConfig::AP_SSID()
     static String ssid;
 #ifdef ARDUINO_ARCH_ESP32
     wifi_config_t conf;
-    esp_wifi_get_config (ESP_IF_WIFI_AP, &conf);
+    esp_wifi_get_config ((wifi_interface_t)ESP_IF_WIFI_AP, &conf);
     ssid = (const char*) conf.ap.ssid;
 #endif //ARDUINO_ARCH_ESP32
 #ifdef ARDUINO_ARCH_ESP8266
@@ -427,7 +428,7 @@ const char * WiFiConfig::AP_Auth_String()
     uint8_t mode = 0;
 #ifdef ARDUINO_ARCH_ESP32
     wifi_config_t conf;
-    esp_wifi_get_config (ESP_IF_WIFI_AP, &conf);
+    esp_wifi_get_config ((wifi_interface_t)ESP_IF_WIFI_AP, &conf);
     mode = conf.ap.authmode;
 
 #endif //ARDUINO_ARCH_ESP32
