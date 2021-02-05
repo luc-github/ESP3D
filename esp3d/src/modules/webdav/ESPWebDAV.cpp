@@ -43,7 +43,23 @@
 #if defined(ARDUINO_ARCH_ESP32)
 #include <WiFi.h>
 #include "PolledTimeout_esp32.h"
-#include <rom/miniz.h>
+#if defined __has_include
+#  if __has_include (<rom/miniz.h>)
+#    include <rom/miniz.h>
+#   else
+#       if CONFIG_IDF_TARGET_ESP32
+#           include <esp32/rom/miniz.h>
+#       elif CONFIG_IDF_TARGET_ESP32S2
+#           include <esp32s2/rom/miniz.h>
+#       elif CONFIG_IDF_TARGET_ESP32S3
+#           include <esp32s3/rom/miniz.h>
+#       elif CONFIG_IDF_TARGET_ESP32C3
+#           include <esp32c3/rom/miniz.h>
+#       endif
+#  endif
+#else
+#error Cannot define which path to use
+#endif
 #undef crc32
 #define crc32(a, len) mz_crc32( 0xffffffff,(const unsigned char *)a, len)
 #define BUFFER_SIZE 1024
