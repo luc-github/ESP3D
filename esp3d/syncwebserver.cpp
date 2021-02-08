@@ -76,7 +76,7 @@ WebSocketsServer * socket_server;
 #define ESP_ERROR_START_UPLOAD 12
 
 
-void pushError(int code, const char * st, bool web_error = 500, uint16_t timeout = 1000){
+void pushError(int code, const char * st, uint16_t web_error = 500, uint16_t timeout = 1000){
     if (socket_server && st) {
         String s = "ERROR:" + String(code) + ":";
         s+=st;
