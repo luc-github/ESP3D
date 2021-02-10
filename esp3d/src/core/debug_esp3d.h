@@ -34,7 +34,7 @@
 #define pathToFileName(p) p
 #endif //ARDUINO_ARCH_ESP8266
 #undef log_esp3d
-#undef log_esp3dS
+#undef log_esp3ds
 //Serial
 #if (ESP_DEBUG_FEATURE == DEBUG_OUTPUT_SERIAL0) || (ESP_DEBUG_FEATURE == DEBUG_OUTPUT_SERIAL1) || (ESP_DEBUG_FEATURE == DEBUG_OUTPUT_SERIAL2)
 
@@ -67,7 +67,7 @@ extern Telnet_Server telnet_debug;
 #define DEBUG_ESP3D_NETWORK_HANDLE telnet_debug.handle();
 #define DEBUG_ESP3D_NETWORK_END telnet_debug.end();
 #define log_esp3d(format, ...) if(telnet_debug.isConnected())telnet_debug.printf("[ESP3D][%s:%u] %s(): " format "\r\n", pathToFileName(__FILE__), __LINE__, __FUNCTION__, ##__VA_ARGS__)
-#define log_esp3dS(format, ...) if(telnet_debug.isConnected())telnet_debug.printf(format , ##__VA_ARGS__)
+#define log_esp3ds(format, ...) if(telnet_debug.isConnected())telnet_debug.printf(format , ##__VA_ARGS__)
 #endif // DEBUG_OUTPUT_TELNET
 
 //Telnet
@@ -81,7 +81,7 @@ extern WebSocket_Server websocket_debug;
 #define DEBUG_ESP3D_NETWORK_HANDLE websocket_debug.handle();
 #define DEBUG_ESP3D_NETWORK_END websocket_debug.end();
 #define log_esp3d(format, ...) websocket_debug.printf("[ESP3D][%s:%u] %s(): " format "\r\n", pathToFileName(__FILE__), __LINE__, __FUNCTION__, ##__VA_ARGS__)
-#define log_esp3dS(format, ...) websocket_debug.printf(format, ##__VA_ARGS__)
+#define log_esp3ds(format, ...) websocket_debug.printf(format, ##__VA_ARGS__)
 #endif // DEBUG_OUTPUT_WEBSOCKET
 #else
 #define log_esp3d(format, ...)
