@@ -156,6 +156,7 @@ bool HTTP_Server::StreamSDFile(const char* filename, const char * contentType)
 
 void HTTP_Server::pushError(int code, const char * st, uint16_t web_error, uint16_t timeout)
 {
+    log_esp3d("%s:%d",st,web_error);
     if (websocket_terminal_server.started() && st) {
         String s = "ERROR:" + String(code) + ":";
         s+=st;

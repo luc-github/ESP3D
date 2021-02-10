@@ -50,6 +50,7 @@ void HTTP_Server::MKSFileupload ()
             size_t fileSize = 0 ;
             String filename = upload.filename;
             String sfilename = "s"+filename;
+            log_esp3d("Filename: %s",filename.c_str() );
             //No / in filename
             if (filename[0]=='/') {
                 filename.remove(0,1);
@@ -85,6 +86,7 @@ void HTTP_Server::MKSFileupload ()
                 fileSize = _webserver->header("Content-Length").toInt();
             }
             fragmentID = 0;
+            log_esp3d("Filename: %s Size:%d",filename.c_str(),  fileSize);
             if (MKSService::sendFirstFragment(filename.c_str(), fileSize)) {
                 MKSService::uploadMode();
             }

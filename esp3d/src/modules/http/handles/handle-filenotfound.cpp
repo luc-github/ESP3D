@@ -42,6 +42,7 @@ void HTTP_Server:: handle_not_found()
     String path = _webserver->urlDecode(_webserver->uri());
     String contentType =  getContentType(path.c_str());
     String pathWithGz = path + ".gz";
+    log_esp3d("URI: %s", path.c_str());
 #if defined (FILESYSTEM_FEATURE)
     if(ESP_FileSystem::exists(pathWithGz.c_str()) || ESP_FileSystem::exists(path.c_str())) {
         log_esp3d("Path found `%s`", path.c_str());
