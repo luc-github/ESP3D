@@ -86,9 +86,9 @@ const char * IPKeysVal[] = {"STA_IP",
                            } ;
 
 const uint16_t IPKeysPos[] = {ESP_STA_IP_VALUE,
-                              ESP_STA_MASK_VALUE,
                               ESP_STA_GATEWAY_VALUE,
-                              ESP_STA_DNS_VALUE
+                              ESP_STA_MASK_VALUE,
+                              ESP_STA_DNS_VALUE,
                               ESP_AP_IP_VALUE
                              } ;
 
