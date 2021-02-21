@@ -170,7 +170,7 @@ void Esp3D::begin(uint16_t startdelayms, uint16_t recoverydelayms)
 #ifdef ARDUINO_ARCH_ESP8266
         WiFi.setPhyMode (WIFI_PHY_MODE_11G);
 #else
-        esp_wifi_set_protocol (ESP_IF_WIFI_AP, WIFI_PHY_MODE_11G);
+        esp_wifi_set_protocol (WIFI_IF_AP, WIFI_PHY_MODE_11G);
 #endif
         CONFIG::esp_restart();
     }

@@ -344,7 +344,7 @@ bool WIFI_CONFIG::Setup (bool force_ap)
         //setup Soft AP
         WiFi.mode (WIFI_AP);
 #ifdef ARDUINO_ARCH_ESP32
-        esp_wifi_set_protocol (ESP_IF_WIFI_AP, bflag);
+        esp_wifi_set_protocol (WIFI_IF_AP, bflag);
 #endif
         wifi_config.WiFi_on = true;
         delay (50);
@@ -363,7 +363,7 @@ bool WIFI_CONFIG::Setup (bool force_ap)
         //get current config
 #ifdef ARDUINO_ARCH_ESP32
         wifi_config_t conf;
-        esp_wifi_get_config (ESP_IF_WIFI_AP, &conf);
+        esp_wifi_get_config (WIFI_IF_AP, &conf);
 #else
         struct softap_config apconfig;
         wifi_softap_get_config (&apconfig);
@@ -400,7 +400,7 @@ bool WIFI_CONFIG::Setup (bool force_ap)
 #ifdef ARDUINO_ARCH_ESP32
         conf.ap.max_connection = DEFAULT_MAX_CONNECTIONS;
         conf.ap.beacon_interval = DEFAULT_BEACON_INTERVAL;
-        if (esp_wifi_set_config (ESP_IF_WIFI_AP, &conf) != ESP_OK) {
+        if (esp_wifi_set_config (WIFI_IF_AP, &conf) != ESP_OK) {
             ESPCOM::println (F ("Error Wifi AP!"), PRINTER_PIPE);
             delay (1000);
         }
@@ -469,7 +469,7 @@ bool WIFI_CONFIG::Setup (bool force_ap)
 #ifdef ARDUINO_ARCH_ESP8266
         WiFi.setPhyMode ( (WiFiPhyMode_t) bflag);
 #else
-        esp_wifi_set_protocol (ESP_IF_WIFI_STA, bflag);
+        esp_wifi_set_protocol (WIFI_IF_STA, bflag);
 #endif
         if (strlen(pwd) > 0) {
             WiFi.begin (sbuf, pwd);

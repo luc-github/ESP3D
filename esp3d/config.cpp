@@ -1132,9 +1132,9 @@ void CONFIG::print_config (tpipe output, bool plaintext, ESPResponseStream  *esp
 #ifdef ARDUINO_ARCH_ESP32
     uint8_t PhyMode;
     if (WiFi.getMode() == WIFI_STA) {
-        esp_wifi_get_protocol (ESP_IF_WIFI_STA, &PhyMode);
+        esp_wifi_get_protocol (WIFI_IF_STA, &PhyMode);
     } else {
-        esp_wifi_get_protocol (ESP_IF_WIFI_AP, &PhyMode);
+        esp_wifi_get_protocol (WIFI_IF_AP, &PhyMode);
     }
 #else
     WiFiPhyMode_t PhyMode = WiFi.getPhyMode();
@@ -1368,7 +1368,7 @@ void CONFIG::print_config (tpipe output, bool plaintext, ESPResponseStream  *esp
 #ifdef ARDUINO_ARCH_ESP32
         wifi_ap_config_t apconfig;
         wifi_config_t conf;
-        esp_wifi_get_config (ESP_IF_WIFI_AP, &conf);
+        esp_wifi_get_config (WIFI_IF_AP, &conf);
         apconfig.ssid_hidden = conf.ap.ssid_hidden;
         apconfig.authmode = conf.ap.authmode;
         apconfig.max_connection = conf.ap.max_connection;
