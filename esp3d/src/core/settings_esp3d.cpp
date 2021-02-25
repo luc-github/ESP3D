@@ -118,6 +118,7 @@
 #define DEFAULT_NOTIFICATION_TOKEN2 ""
 #define DEFAULT_NOTIFICATION_SETTINGS ""
 #define DEFAULT_AUTO_NOTIFICATION_STATE 1
+#define DEFAULT_SECURE_SERIAL 1
 
 
 //default int values
@@ -239,6 +240,9 @@ uint8_t Settings_ESP3D::get_default_byte_value(int pos)
 {
     uint8_t res;
     switch(pos) {
+    case ESP_SECURE_SERIAL:
+        res = DEFAULT_SECURE_SERIAL;
+        break;
     case ESP_RADIO_MODE:
         res = DEFAULT_ESP_RADIO_MODE;
         break;
@@ -1068,7 +1072,7 @@ bool Settings_ESP3D::reset(bool networkonly)
     Settings_ESP3D::write_IP(ESP_STA_GATEWAY_VALUE, Settings_ESP3D::get_default_IP_value(ESP_STA_GATEWAY_VALUE));
     //STA static Mask
     Settings_ESP3D::write_IP(ESP_STA_MASK_VALUE, Settings_ESP3D::get_default_IP_value(ESP_STA_MASK_VALUE));
-     //STA static DNS
+    //STA static DNS
     Settings_ESP3D::write_IP(ESP_STA_DNS_VALUE, Settings_ESP3D::get_default_IP_value(ESP_STA_DNS_VALUE));
 #endif //WIFI_FEATURE || ETH_FEATURE
     if (networkonly) {
@@ -1095,7 +1099,8 @@ bool Settings_ESP3D::reset(bool networkonly)
     Settings_ESP3D::write_byte(ESP_SETUP,Settings_ESP3D::get_default_byte_value(ESP_SETUP));
     //Verbose boot
     Settings_ESP3D::write_byte(ESP_VERBOSE_BOOT,Settings_ESP3D::get_default_byte_value(ESP_VERBOSE_BOOT));
-
+    //Secure Serial
+    Settings_ESP3D::write_byte(ESP_SECURE_SERIAL,Settings_ESP3D::get_default_byte_value(ESP_SECURE_SERIAL));
 #if defined(DISPLAY_DEVICE) && defined(DISPLAY_TOUCH_DRIVER)
     //Calibration done (internal only)
     Settings_ESP3D::write_byte(ESP_CALIBRATION,Settings_ESP3D::get_default_byte_value(ESP_CALIBRATION));

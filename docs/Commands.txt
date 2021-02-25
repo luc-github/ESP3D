@@ -178,6 +178,8 @@ ESP_AUTO_NOTIFICATION   1022    //1 byte = flag
 ESP_VERBOSE_BOOT	1023	//1 byte = flag
 ESP_WEBDAV_ON           1024    //1 byte = flag
 ESP_WEBDAV_PORT  	1025	//4  bytes = int
+ESP_STA_DNS_VALUE       1029    //4  bytes= int
+ESP_SECURE_SERIAL       1033    //1 byte = flag
 
 * Get/Set Check update at boot state which can be ON, OFF
 [ESP402]<state>pwd=<admin password>

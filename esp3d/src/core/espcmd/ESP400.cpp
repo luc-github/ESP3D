@@ -209,6 +209,13 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print ("\",\"H\":\"session timeout\",\"M\":\"");
     output->print (Settings_ESP3D::get_min_byte(ESP_SESSION_TIMEOUT));
     output->print ("\"}");
+
+    //Secure Serial
+    output->print (",{\"F\":\"security/security\",\"P\":\"");
+    output->print (ESP_SECURE_SERIAL);
+    output->print ("\",\"T\":\"B\",\"V\":\"");
+    output->print (Settings_ESP3D::read_byte(ESP_SECURE_SERIAL));
+    output->print ("\",\"H\":\"serial\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
 #endif //AUTHENTICATION_FEATURE
 
 #ifdef HTTP_FEATURE

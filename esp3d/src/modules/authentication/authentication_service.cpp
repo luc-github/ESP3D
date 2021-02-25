@@ -48,7 +48,7 @@ uint8_t AuthenticationService::_current_nb_ip = 0;
 //#define ALLOW_MULTIPLE_SESSIONS
 
 //check authentification
-level_authenticate_type AuthenticationService::authenticated_level(const  char * pwd)
+level_authenticate_type AuthenticationService::authenticated_level(const  char * pwd, ESP3DOutput * output)
 {
 #ifdef AUTHENTICATION_FEATURE
     level_authenticate_type auth_type = LEVEL_GUEST;
@@ -60,7 +60,13 @@ level_authenticate_type AuthenticationService::authenticated_level(const  char *
         if (isuser (pwd) && (auth_type != LEVEL_ADMIN)) {
             auth_type = LEVEL_USER;
         }
+        return auth_type;
     } else {
+        if(output) {
+            if (output->client() !=ESP_HTTP_CLIENT) {
+                return auth_type;
+            }
+        }
 #if defined (HTTP_FEATURE)
         if (_webserver) {
             if (_webserver->hasHeader ("Authorization") ) {
@@ -92,6 +98,7 @@ level_authenticate_type AuthenticationService::authenticated_level(const  char *
     return auth_type;
 #else
     (void)pwd;
+    (void)output;
     return LEVEL_ADMIN;
 #endif //AUTHENTICATION_FEATURE
 }

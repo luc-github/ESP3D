@@ -53,7 +53,7 @@ bool Commands::ESP103(const char* cmd_params, level_authenticate_type auth_type,
         res += Settings_ESP3D::read_IP_String(ESP_STA_GATEWAY_VALUE);
         res += ", MSK:";
         res += Settings_ESP3D::read_IP_String(ESP_STA_MASK_VALUE);
-         res += ", DNS:";
+        res += ", DNS:";
         res += Settings_ESP3D::read_IP_String(ESP_STA_DNS_VALUE);
         output->printMSG (res.c_str());
     } else { //set

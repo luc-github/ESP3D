@@ -30,6 +30,7 @@ class SerialService : public Print
 public:
     SerialService();
     ~SerialService();
+    void setParameters();
     bool begin();
     bool end();
     void updateBaudRate(long br);
@@ -73,6 +74,7 @@ public:
     }
 private:
     bool _started;
+    bool _needauthentication;
     uint32_t _lastflush;
     uint8_t _buffer[ESP3D_SERIAL_BUFFER_SIZE + 1]; //keep space of 0x0 terminal
     size_t _buffer_size;

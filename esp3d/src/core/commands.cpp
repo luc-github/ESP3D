@@ -253,7 +253,7 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
     //do not overwrite previous authetic <time=YYYY-MM-DD#H24:MM:SS>ation level
     if (auth_type == LEVEL_GUEST) {
         String pwd=get_param (cmd_params, "pwd=");
-        auth_type = AuthenticationService::authenticated_level(pwd.c_str());
+        auth_type = AuthenticationService::authenticated_level(pwd.c_str(), output);
     }
 #endif //AUTHENTICATION_FEATURE
     //log_esp3d("Authentication = %d", auth_type);

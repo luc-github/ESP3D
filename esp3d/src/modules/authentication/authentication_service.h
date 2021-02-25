@@ -32,6 +32,7 @@ const char DEFAULT_ADMIN_LOGIN [] =      "admin";
 const char DEFAULT_USER_LOGIN [] =       "user";
 
 #include "../../include/esp3d_config.h"
+#include "../../core/esp3doutput.h"
 #if defined (AUTHENTICATION_FEATURE)
 #if defined (HTTP_FEATURE)
 #include <IPAddress.h>
@@ -58,7 +59,7 @@ typedef void Authwebserver;
 class AuthenticationService
 {
 public:
-    static level_authenticate_type  authenticated_level(const  char * pwd = nullptr);
+    static level_authenticate_type  authenticated_level(const  char * pwd = nullptr, ESP3DOutput * output= nullptr);
 #ifdef AUTHENTICATION_FEATURE
     static bool begin(Authwebserver * webserver);
     static void end();

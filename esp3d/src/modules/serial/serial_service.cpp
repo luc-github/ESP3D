@@ -26,6 +26,7 @@
 #if COMMUNICATION_PROTOCOL == MKS_SERIAL
 #include "../mks/mks_service.h"
 #endif //COMMUNICATION_PROTOCOL == MKS_SERIAL
+#include "../authentication/authentication_service.h"
 
 //Serial Parameters
 #define ESP_SERIAL_PARAM SERIAL_8N1
@@ -59,6 +60,7 @@ SerialService::SerialService()
 {
     _buffer_size = 0;
     _started = false;
+    _needauthentication = true;
 }
 
 //Destructor
@@ -79,12 +81,23 @@ void ESP3DSerialTaskfn( void * parameter )
 }
 #endif //ARDUINO_ARCH_ESP32 
 
+//extra parameters that do not need a begin
+void SerialService::setParameters()
+{
+#if defined (AUTHENTICATION_FEATURE)
+    _needauthentication = (Settings_ESP3D::read_byte (ESP_SECURE_SERIAL)==0)?false:true;
+#else
+    _needauthentication = false;
+#endif //AUTHENTICATION_FEATURE
+}
+
 //Setup Serial
 bool SerialService::begin()
 {
     _lastflush = millis();
     //read from settings
     long br = Settings_ESP3D::read_uint32(ESP_BAUD_RATE);
+    setParameters();
     _buffer_size = 0;
     //change only if different from current
     if (br != baudRate() || (ESP_RX_PIN != -1) || (ESP_TX_PIN != -1)) {
@@ -197,7 +210,7 @@ void SerialService::flushbuffer()
     ESP3DOutput output(ESP_SERIAL_CLIENT);
     _buffer[_buffer_size] = 0x0;
     //dispatch command
-    esp3d_commands.process(_buffer, _buffer_size, &output);
+    esp3d_commands.process(_buffer, _buffer_size, &output,_needauthentication?LEVEL_GUEST:LEVEL_ADMIN);
     _lastflush = millis();
     _buffer_size = 0;
 }
