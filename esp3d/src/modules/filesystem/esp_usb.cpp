@@ -1,5 +1,5 @@
 /*
-  esp_sd.cpp - ESP3D SD support class
+  esp_usb.cpp - ESP3D USB support class
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -19,35 +19,25 @@
 */
 
 #include "../../include/esp3d_config.h"
-#ifdef SD_DEVICE
-#include "esp_sd.h"
+#ifdef USB_DEVICE
+#include "esp_usb.h"
 #include "../../core/genLinkedList.h"
 #include <time.h>
 
-#if ((SD_DEVICE == ESP_SD_NATIVE) || (SD_DEVICE == ESP_SDFAT)) && defined (ARDUINO_ARCH_ESP8266)
-#define FS_NO_GLOBALS
-#define NO_GLOBAL_SD
-#include <SdFat.h>
-sdfat::File tSDFile_handle[ESP_MAX_SD_OPENHANDLE];
-#elif (SD_DEVICE == ESP_SDFAT) && defined (ARDUINO_ARCH_ESP32)
-#include <SdFat.h>
-File tSDFile_handle[ESP_MAX_SD_OPENHANDLE];
-#else
-#include <FS.h>
-File tSDFile_handle[ESP_MAX_SD_OPENHANDLE];
-#endif
+//File tUSBFile_handle[ESP_MAX_SD_OPENHANDLE];
 
-bool ESP_SD::_started = false;
-uint8_t ESP_SD::_state = ESP_SDCARD_NOT_PRESENT;
-uint8_t ESP_SD::_spi_speed_divider = 1;
-bool ESP_SD::_sizechanged = true;
-uint8_t ESP_SD::setState(uint8_t flag)
+
+bool ESP_USB::_started = false;
+uint8_t ESP_USB::_state = ESP_USBCARD_NOT_PRESENT;
+uint8_t ESP_USB::_spi_speed_divider = 1;
+bool ESP_USB::_sizechanged = true;
+uint8_t ESP_USB::setState(uint8_t flag)
 {
     _state =  flag;
     return _state;
 }
 
-bool  ESP_SD::accessSD()
+bool  ESP_USB::accessSD()
 {
     bool res = false;
 #if SD_DEVICE_CONNECTION == ESP_SHARED_SD
@@ -59,7 +49,7 @@ bool  ESP_SD::accessSD()
 #endif //SD_DEVICE_CONNECTION == ESP_SHARED_SD 
     return res;
 }
-void  ESP_SD::releaseSD()
+void  ESP_USB::releaseSD()
 {
 #if SD_DEVICE_CONNECTION == ESP_SHARED_SD
     digitalWrite(ESP_FLAG_SHARED_SD_PIN, !ESP_FLAG_SHARED_SD_VALUE);
@@ -67,13 +57,13 @@ void  ESP_SD::releaseSD()
 }
 
 
-void ESP_SD::handle()
+void ESP_USB::handle()
 {
 
 }
 
 //helper to format size to readable string
-String & ESP_SD::formatBytes (uint64_t bytes)
+String & ESP_USB::formatBytes (uint64_t bytes)
 {
     static String res;
     if (bytes < 1024) {
@@ -88,7 +78,7 @@ String & ESP_SD::formatBytes (uint64_t bytes)
     return res;
 }
 
-ESP_SDFile::ESP_SDFile(const char * name, const char * filename, bool isdir, size_t size)
+ESP_USBFile::ESP_USBFile(const char * name, const char * filename, bool isdir, size_t size)
 {
     _isdir = isdir;
     _dirlist = "";
@@ -100,12 +90,12 @@ ESP_SDFile::ESP_SDFile(const char * name, const char * filename, bool isdir, siz
     _size = size;
 }
 
-ESP_SDFile::~ESP_SDFile()
+ESP_USBFile::~ESP_USBFile()
 {
     //log_esp3d("Destructor %s index %d",(_isdir)?"Dir":"File", _index);
 }
 
-ESP_SDFile::operator bool() const
+ESP_USBFile::operator bool() const
 {
     if ((_index != -1) || (_filename.length() > 0)) {
         //log_esp3d("Bool yes %d %d",_index,  _filename.length());
@@ -115,37 +105,37 @@ ESP_SDFile::operator bool() const
     }
 }
 
-bool ESP_SDFile::isOpen()
+bool ESP_USBFile::isOpen()
 {
     return !(_index == -1);
 }
 
-const char* ESP_SDFile::name() const
+const char* ESP_USBFile::name() const
 {
     return _name.c_str();
 }
 
-const char* ESP_SDFile::filename() const
+const char* ESP_USBFile::filename() const
 {
     return _filename.c_str();
 }
 
-bool ESP_SDFile::isDirectory()
+bool ESP_USBFile::isDirectory()
 {
     return _isdir;
 }
 
-size_t ESP_SDFile::size()
+size_t ESP_USBFile::size()
 {
     return _size;
 }
 
-time_t ESP_SDFile::getLastWrite()
+time_t ESP_USBFile::getLastWrite()
 {
     return _lastwrite;
 }
 
-int ESP_SDFile::available()
+int ESP_USBFile::available()
 {
     if (_index == -1 || _isdir) {
         return 0;
@@ -153,7 +143,7 @@ int ESP_SDFile::available()
     return tSDFile_handle[_index].available();
 }
 
-size_t ESP_SDFile::write(uint8_t i)
+size_t ESP_USBFile::write(uint8_t i)
 {
     if ((_index == -1) || _isdir) {
         return 0;
@@ -161,7 +151,7 @@ size_t ESP_SDFile::write(uint8_t i)
     return tSDFile_handle[_index].write (i);
 }
 
-size_t ESP_SDFile::write(const uint8_t *buf, size_t size)
+size_t ESP_USBFile::write(const uint8_t *buf, size_t size)
 {
     if ((_index == -1) || _isdir) {
         return 0;
@@ -169,7 +159,7 @@ size_t ESP_SDFile::write(const uint8_t *buf, size_t size)
     return tSDFile_handle[_index].write (buf, size);
 }
 
-int ESP_SDFile::read()
+int ESP_USBFile::read()
 {
     if ((_index == -1) || _isdir) {
         return -1;
@@ -177,7 +167,7 @@ int ESP_SDFile::read()
     return tSDFile_handle[_index].read();
 }
 
-size_t ESP_SDFile::read(uint8_t* buf, size_t size)
+size_t ESP_USBFile::read(uint8_t* buf, size_t size)
 {
     if ((_index == -1) || _isdir) {
         return -1;
@@ -185,7 +175,7 @@ size_t ESP_SDFile::read(uint8_t* buf, size_t size)
     return tSDFile_handle[_index].read(buf, size);
 }
 
-void ESP_SDFile::flush()
+void ESP_USBFile::flush()
 {
     if ((_index == -1) || _isdir) {
         return;
@@ -193,7 +183,7 @@ void ESP_SDFile::flush()
     tSDFile_handle[_index].flush();
 }
 
-ESP_SDFile& ESP_SDFile::operator=(const ESP_SDFile & other)
+ESP_USBFile& ESP_USBFile::operator=(const ESP_USBFile & other)
 {
     //log_esp3d("Copy %s", other._filename.c_str());
     _isdir = other._isdir;
@@ -207,7 +197,7 @@ ESP_SDFile& ESP_SDFile::operator=(const ESP_SDFile & other)
     return *this;
 }
 
-bool ESP_SD::setSPISpeedDivider(uint8_t speeddivider)
+bool ESP_USB::setSPISpeedDivider(uint8_t speeddivider)
 {
     if (speeddivider > 0) {
         _spi_speed_divider = speeddivider;

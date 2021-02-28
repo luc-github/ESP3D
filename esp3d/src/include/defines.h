@@ -105,6 +105,11 @@
 #define ESP_SDCARD_NOT_PRESENT      1
 #define ESP_SDCARD_BUSY             2
 
+//USB state
+#define ESP_USB_IDLE             0
+#define ESP_USB_NOT_PRESENT      1
+#define ESP_USB_BUSY             2
+
 //Notifications
 #define ESP_NO_NOTIFICATION         0
 #define ESP_PUSHOVER_NOTIFICATION   1

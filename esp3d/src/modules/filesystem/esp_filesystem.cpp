@@ -26,7 +26,6 @@
 #include <esp_ota_ops.h>
 #endif //ARDUINO_ARCH_ESP32
 
-#define ESP_MAX_OPENHANDLE 4
 File tFile_handle[ESP_MAX_OPENHANDLE];
 
 bool ESP_FileSystem::_started = false;

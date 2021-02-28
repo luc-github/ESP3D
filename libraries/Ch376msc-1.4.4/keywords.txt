@@ -1,0 +1,75 @@
+#######################################
+# Syntax Coloring Map For Ch376
+####################################### 
+# Class
+#######################################
+
+Ch376msc	KEYWORD1
+
+#######################################
+# Methods and Functions 
+#######################################	
+
+init	KEYWORD2
+driveReady	KEYWORD2
+saveFileAttrb	KEYWORD2
+openFile	KEYWORD2
+closeFile	KEYWORD2
+moveCursor	KEYWORD2
+deleteFile	KEYWORD2
+pingDevice	KEYWORD2
+listDir	KEYWORD2
+readFile	KEYWORD2
+readFileUntil	KEYWORD2
+readRaw	KEYWORD2
+readLong	KEYWORD2
+readULong	KEYWORD2
+readDouble	KEYWORD2
+writeNum	KEYWORD2
+writeNumln	KEYWORD2
+writeFile	KEYWORD2
+writeRaw	KEYWORD2
+writeChar	KEYWORD2
+checkIntMessage	KEYWORD2
+cd	KEYWORD2
+resetFileList	KEYWORD2
+
+getFreeSectors	KEYWORD2
+getTotalSectors	KEYWORD2
+getFileSize	KEYWORD2
+getFileAttrb	KEYWORD2
+getYear	KEYWORD2
+getMonth	KEYWORD2
+getDay	KEYWORD2
+getHour	KEYWORD2
+getMinute	KEYWORD2
+getSecond	KEYWORD2
+getStatus	KEYWORD2
+getFileSystem	KEYWORD2
+getFileName	KEYWORD2
+getFileSizeStr	KEYWORD2
+getDeviceStatus	KEYWORD2
+getCHpresence	KEYWORD2
+getSource	KEYWORD2
+getError	KEYWORD2
+getCursorPos	KEYWORD2
+getEOF	KEYWORD2
+getChipVer	KEYWORD2
+
+setFileName	KEYWORD2
+setYear	KEYWORD2
+setMonth	KEYWORD2
+setDay	KEYWORD2
+setHour	KEYWORD2
+setMinute	KEYWORD2
+setSecond	KEYWORD2
+setSource	KEYWORD2
+
+#######################################
+# Constants
+#######################################
+CURSORBEGIN	LITERAL1
+CURSOREND	LITERAL1
+SECTORSIZE	LITERAL1
+SPI_SCK_KHZ	LITERAL1
+SPI_SCK_MHZ	LITERAL1
