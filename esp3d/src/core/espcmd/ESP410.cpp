@@ -46,7 +46,6 @@ bool Commands::ESP410(const char* cmd_params, level_authenticate_type auth_type,
     uint8_t total = 0;
     if (plain) {
         output->printLN ("Start Scan");
-        output->flush();
     }
     n = WiFi.scanNetworks ();
     if (!plain) {
