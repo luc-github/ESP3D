@@ -41,9 +41,11 @@ bool Commands::ESP710(const char* cmd_params, level_authenticate_type auth_type,
 #endif //AUTHENTICATION_FEATURE
     {
         if (parameter == "FORMAT") {
-            output->printMSG("Start Formating");
+            if (output->client()!=ESP_HTTP_CLIENT) output->printMSG("Start Formating");
+            else output->printLN("Start Formating");
             ESP_FileSystem::format();
-            output->printMSG("Format Done");
+            if (output->client()!=ESP_HTTP_CLIENT) output->printMSG("Format Done");
+            else output->printLN("Format Done");
         } else {
             output->printERROR ("Invalid parameter!");
             response = false;
