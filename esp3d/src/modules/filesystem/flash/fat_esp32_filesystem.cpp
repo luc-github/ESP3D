@@ -70,7 +70,11 @@ const char * ESP_FileSystem::FilesystemName()
 
 bool ESP_FileSystem::format()
 {
-    return FFat.format();
+    bool res = FFat.format();
+    if (res){
+        res = begin();
+    }
+    return res;
 }
 
 ESP_File ESP_FileSystem::open(const char* path, uint8_t mode)

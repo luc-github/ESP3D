@@ -74,7 +74,11 @@ const char * ESP_FileSystem::FilesystemName()
 
 bool ESP_FileSystem::format()
 {
-    return LittleFS.format();
+    bool res = LittleFS.format();
+    if (res){
+        res = begin();
+    }
+    return res;
 }
 
 ESP_File ESP_FileSystem::open(const char* path, uint8_t mode)
