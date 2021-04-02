@@ -41,7 +41,7 @@ void HTTP_Server::handle_login()
         AuthenticationService::ClearCurrentSession();
         _webserver->sendHeader("Set-Cookie","ESPSESSIONID=0");
         _webserver->sendHeader("Cache-Control","no-cache");
-        _webserver->send(200, "application/json", "{\"status\":\"ok\",\"authentication_lvl\":\"guest\"}");
+        _webserver->send(401, "application/json", "{\"status\":\"disconnected\",\"authentication_lvl\":\"guest\"}");
         return;
     }
     level_authenticate_type auth_level = AuthenticationService::authenticated_level();
