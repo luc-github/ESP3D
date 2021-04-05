@@ -209,13 +209,6 @@
 //NOTIFICATION_FEATURE : allow to push notifications
 #define NOTIFICATION_FEATURE
 
-//For ESP8266 Only, it define which secure client to use AXTls or BearSSL
-//#define USING_AXTLS
-
-//if not using AXTLS need to decrease size of packet to not be OOM
-#define BEARSSL_MFLN_SIZE   512
-#define BEARSSL_MFLN_SIZE_FALLBACK  4096
-
 //CAMERA_DEVICE: Enable the support of connected camera
 //CAMERA_MODEL_CUSTOM           0 //Edit the pins in include/pins.h
 //CAMERA_MODEL_ESP_EYE          1
@@ -298,6 +291,15 @@
 //SETTINGS_IN_EEPROM 0
 //SETTINGS_IN_PREFERENCES 1
 #define ESP_SAVE_SETTINGS SETTINGS_IN_EEPROM
+
+/************************************
+ *
+ * SSL Client
+ *
+ * **********************************/
+//Using BearSSL need to decrease size of packet to not be OOM on ESP8266
+#define BEARSSL_MFLN_SIZE   512
+#define BEARSSL_MFLN_SIZE_FALLBACK  4096
 
 /************************************
  *

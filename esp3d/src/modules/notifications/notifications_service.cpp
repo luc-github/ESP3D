@@ -38,14 +38,8 @@
 #include "../network/netconfig.h"
 
 #if defined( ARDUINO_ARCH_ESP8266)
-#if defined(USING_AXTLS)
-#include "WiFiClientSecureAxTLS.h"
-using namespace axTLS;
-typedef axTLS::WiFiClientSecure TSecureClient;
-#else
 #include <WiFiClientSecure.h>
 typedef WiFiClientSecure TSecureClient;
-#endif //USING_AXTLS
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
 #include <libb64/cdecode.h>
@@ -201,7 +195,7 @@ bool NotificationsService::sendPushoverMSG(const char * title, const char * mess
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     TSecureClient Notificationclient;
 #pragma GCC diagnostic pop
-#if defined(ARDUINO_ARCH_ESP8266) && !defined(USING_AXTLS)
+#if defined(ARDUINO_ARCH_ESP8266)
     Notificationclient.setInsecure();
     if (Notificationclient.probeMaxFragmentLength(_serveraddress.c_str(), _port, BEARSSL_MFLN_SIZE)) {
         log_esp3d("Handshake success");
@@ -210,7 +204,7 @@ bool NotificationsService::sendPushoverMSG(const char * title, const char * mess
         log_esp3d("Handshake failed");
         Notificationclient.setBufferSizes(BEARSSL_MFLN_SIZE_FALLBACK, 512);
     }
-#endif //ARDUINO_ARCH_ESP8266 && !USING_AXTLS
+#endif //ARDUINO_ARCH_ESP8266
     if (!Notificationclient.connect(_serveraddress.c_str(), _port)) {
         log_esp3d("Error connecting  server %s:%d", _serveraddress.c_str(), _port);
         return false;
@@ -249,7 +243,7 @@ bool NotificationsService::sendTelegramMSG(const char * title, const char * mess
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     TSecureClient Notificationclient;
 #pragma GCC diagnostic pop
-#if defined(ARDUINO_ARCH_ESP8266) && !defined(USING_AXTLS)
+#if defined(ARDUINO_ARCH_ESP8266)
     Notificationclient.setInsecure();
     if (Notificationclient.probeMaxFragmentLength(_serveraddress.c_str(), _port, BEARSSL_MFLN_SIZE)) {
         log_esp3d("Handshake success");
@@ -258,7 +252,7 @@ bool NotificationsService::sendTelegramMSG(const char * title, const char * mess
         log_esp3d("Handshake failed");
         Notificationclient.setBufferSizes(BEARSSL_MFLN_SIZE_FALLBACK, 512);
     }
-#endif //ARDUINO_ARCH_ESP8266 && !USING_AXTLS
+#endif //ARDUINO_ARCH_ESP8266
     if (!Notificationclient.connect(_serveraddress.c_str(), _port)) {
         log_esp3d("Error connecting  server %s:%d", _serveraddress.c_str(), _port);
         return false;
@@ -291,7 +285,7 @@ bool NotificationsService::sendEmailMSG(const char * title, const char * message
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     TSecureClient Notificationclient;
 #pragma GCC diagnostic pop
-#if defined(ARDUINO_ARCH_ESP8266) && !defined(USING_AXTLS)
+#if defined(ARDUINO_ARCH_ESP8266)
     Notificationclient.setInsecure();
     if (Notificationclient.probeMaxFragmentLength(_serveraddress.c_str(), _port, BEARSSL_MFLN_SIZE)) {
         log_esp3d("Handshake success");
@@ -300,7 +294,7 @@ bool NotificationsService::sendEmailMSG(const char * title, const char * message
         log_esp3d("Handshake failed");
         Notificationclient.setBufferSizes(BEARSSL_MFLN_SIZE_FALLBACK, 512);
     }
-#endif //ARDUINO_ARCH_ESP8266 && !USING_AXTLS
+#endif //ARDUINO_ARCH_ESP8266
     log_esp3d("Connect to server");
     if (!Notificationclient.connect(_serveraddress.c_str(), _port)) {
         log_esp3d("Error connecting  server %s:%d", _serveraddress.c_str(), _port);
@@ -394,7 +388,7 @@ bool NotificationsService::sendLineMSG(const char * title, const char * message)
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     TSecureClient Notificationclient;
 #pragma GCC diagnostic pop
-#if defined(ARDUINO_ARCH_ESP8266) && !defined(USING_AXTLS)
+#if defined(ARDUINO_ARCH_ESP8266)
     Notificationclient.setInsecure();
     if (Notificationclient.probeMaxFragmentLength(_serveraddress.c_str(), _port, BEARSSL_MFLN_SIZE)) {
         log_esp3d("Handshake success");
@@ -403,7 +397,7 @@ bool NotificationsService::sendLineMSG(const char * title, const char * message)
         log_esp3d("Handshake failed");
         Notificationclient.setBufferSizes(BEARSSL_MFLN_SIZE_FALLBACK, 512);
     }
-#endif //ARDUINO_ARCH_ESP8266 && !USING_AXTLS
+#endif //ARDUINO_ARCH_ESP8266
     (void)title;
     if (!Notificationclient.connect(_serveraddress.c_str(), _port)) {
         log_esp3d("Error connecting  server %s:%d", _serveraddress.c_str(), _port);
