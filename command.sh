@@ -57,10 +57,9 @@ function build_sketch()
         sed -i "s/#define FILESYSTEM_FEATURE ESP_LITTLEFS_FILESYSTEM/#define FILESYSTEM_FEATURE ESP_FAT_FILESYSTEM/g" $TRAVIS_BUILD_DIR/esp3d/configuration.h
     fi
     echo "Display configuration"
-    cat $TRAVIS_BUILD_DIR/esp3d/configuration.h
     # build sketch with arduino ide
     echo -e "\n Build $sketch \n"
-    arduino --verbose --verify $sketch
+    arduino $sketch
 
     # get build result from arduino
     local re=$?
