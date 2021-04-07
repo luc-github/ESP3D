@@ -16,6 +16,9 @@ cache:
   
 install:
   - pip install -U platformio
+  - wget http://downloads.arduino.cc/arduino-1.8.5-linux64.tar.xz
+  - tar xf arduino-1.8.5-linux64.tar.xz
+  - mv arduino-1.8.5 $HOME/arduino_ide
 
 env:
   - TARGET=esp32 PLATFORM=arduino BT=yes AUTHENTICATION=yes FILESYSTEM=FAT
@@ -28,9 +31,7 @@ env:
 before_script:
   - export AUTHOR_NAME="$(git log -1 $TRAVIS_COMMIT --pretty="%aN")"
   - platformio update
-  - wget http://downloads.arduino.cc/arduino-1.8.5-linux64.tar.xz
-  - tar xf arduino-1.8.5-linux64.tar.xz
-  - mv arduino-1.8.5 $HOME/arduino_ide
+  
   - cd $HOME/arduino_ide/hardware
   - mkdir esp8266com
   - cd esp8266com
