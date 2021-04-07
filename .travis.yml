@@ -1,4 +1,4 @@
-dist: xenial
+dist: focal
 sudo: require
 
 language: python
@@ -31,7 +31,6 @@ env:
 before_script:
   - export AUTHOR_NAME="$(git log -1 $TRAVIS_COMMIT --pretty="%aN")"
   - platformio update
-  
   - cd $HOME/arduino_ide/hardware
   - mkdir esp8266com
   - cd esp8266com
