@@ -36,5 +36,5 @@ if [[ "$ide" == "arduino" ]];
     arduino-builder -hardware "$ARDUINO_IDE_PATH/hardware" -tools "$ARDUINO_IDE_PATH/tools-builder" -tools "$ARDUINO_IDE_PATH/tools" -libraries "$ARDUINO_IDE_PATH/libraries" -fqbn=$fqbn -compile -logger=human -core-api-version=10810 ./esp3d/esp3d.ino 
 else
     platformio run -e esp32dev
-    platformio run -e esp8266dev
+    platformio run -e esp8266
 fi
