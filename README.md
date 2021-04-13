@@ -28,7 +28,7 @@ or PlatformIO
 
 # Chat
 
-Please use discord : https://discord.gg/Z4ujTwE
+Please use discord : [![discord](https://img.shields.io/discord/752822148795596940?color=blue&label=discord&logo=discord)](https://discord.gg/Z4ujTwE)
 
 # Credits: embedded code / inspiration code
 
