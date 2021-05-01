@@ -98,7 +98,7 @@ bool WiFiConfig::isPasswordValid (const char * password)
 
 int32_t WiFiConfig::getSignal (int32_t RSSI)
 {
-    if (RSSI <= -78) {
+    if (RSSI < MIN_RSSI) {
         return 0;
     }
     if (RSSI >= -50) {
