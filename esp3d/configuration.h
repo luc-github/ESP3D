@@ -51,6 +51,9 @@
 //ETH_FEATURE : enable Ethernet function
 //#define ETH_FEATURE
 
+//INHIBIT_NETCONFIG_ONBOOT : don't start networking on boot
+//#define INHIBIT_NETCONFIG_ONBOOT
+
 //BLUETOOTH_FEATURE : enable BT Serial function
 //#define BLUETOOTH_FEATURE
 

@@ -117,10 +117,12 @@ bool Esp3D::begin()
 #endif //DISPLAY_DEVICE
     //Setup Network
 #if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
+#if !defined(INHIBIT_NETCONFIG_ONBOOT)
     if (!NetConfig::begin()) {
         log_esp3d("Error setup network");
         res = false;
     }
+#endif //INHIBIT_NETCONFIG_ONBOOT
 #endif //WIFI_FEATURE
 #if defined(ESP_AUTOSTART_SCRIPT)
     esp3d_gcode_host.processscript(ESP_AUTOSTART_SCRIPT);
