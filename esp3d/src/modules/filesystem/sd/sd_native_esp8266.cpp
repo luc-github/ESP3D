@@ -719,7 +719,12 @@ bool ESP_SD::rmdir(const char *path)
 
 bool ESP_SDFile::seek(uint32_t pos, uint8_t mode)
 {
-    return tSDFile_handle[_index].seek(pos, (SeekMode)mode);
+    if (mode == SeekCur)
+        return tSDFile_handle[_index].seekCur(pos);
+    if (mode == SeekEnd)
+        return tSDFile_handle[_index].seekEnd(pos);
+    // if (mode == SeekSet)
+    return tSDFile_handle[_index].seekSet(pos);
 }
 
 void ESP_SD::closeAll()
