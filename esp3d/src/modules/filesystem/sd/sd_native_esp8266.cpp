@@ -19,17 +19,14 @@ sd_native_esp8266.cpp - ESP3D sd support class
 */
 #include "../../../include/esp3d_config.h"
 #if defined (ARDUINO_ARCH_ESP8266) && defined(SD_DEVICE)
-#if (SD_DEVICE == ESP_SD_NATIVE) || (SD_DEVICE == ESP_SDFAT)
+#if (SD_DEVICE == ESP_SD_NATIVE) 
 #define FS_NO_GLOBALS
 #include "../esp_sd.h"
 #include "../../../core/genLinkedList.h"
 #include "../../../core/settings_esp3d.h"
-#define NO_GLOBAL_SD
-#include "SdFat.h"
-extern sdfat::File tSDFile_handle[ESP_MAX_SD_OPENHANDLE];
-using namespace sdfat;
-
-SdFat SD;
+#include <SD.h>
+#include <SDFS.h>
+extern File tSDFile_handle[ESP_MAX_SD_OPENHANDLE];
 
 void dateTime (uint16_t* date, uint16_t* dtime)
 {
@@ -41,7 +38,7 @@ void dateTime (uint16_t* date, uint16_t* dtime)
     *dtime = FAT_TIME (tmstruct.tm_hour, tmstruct.tm_min, tmstruct.tm_sec);
 }
 
-time_t getDateTimeFile(sdfat::File & filehandle)
+time_t getDateTimeFile(File & filehandle)
 {
     static time_t dt = 0;
 #ifdef SD_TIMESTAMP_FEATURE
@@ -97,7 +94,7 @@ uint8_t ESP_SD::getState(bool refresh)
     //refresh content if card was removed
     if (SD.begin((ESP_SD_CS_PIN == -1)?SS:ESP_SD_CS_PIN, SD_SCK_HZ(F_CPU/_spi_speed_divider))) {
         log_esp3d("Init SD State ok");
-        if (SD.card()->cardSize() > 0 ) {
+        if (SD.size64()  > 0 ) {
             log_esp3d("SD available");
             _state = ESP_SDCARD_IDLE;
         } else {
@@ -147,28 +144,27 @@ void ESP_SD::end()
 
 uint64_t ESP_SD::totalBytes()
 {
-    uint64_t volTotal = SD.vol()->clusterCount();
-    uint8_t blocks = SD.vol()->blocksPerCluster();
-    return volTotal * blocks * 512;
+    return SD.size64();
 }
 
 uint64_t ESP_SD::usedBytes()
 {
-    if(freeBytes() >totalBytes() ) {
-        _sizechanged = true;
+    FSInfo64 info;
+    static uint64_t volUsed;
+    if (_sizechanged) {
+       if (!SDFS.info64(info)) return 0;
+       volUsed = info.usedBytes;
+        _sizechanged = false;
     }
-    return totalBytes() - freeBytes();
+    return volUsed;
 }
 
 uint64_t ESP_SD::freeBytes()
 {
-    static uint64_t volFree;
-    if (_sizechanged) {
-        volFree = SD.vol()->freeClusterCount();
-        _sizechanged = false;
+    if(usedBytes() >totalBytes() ) {
+        _sizechanged = true;
     }
-    uint8_t blocks = SD.vol()->blocksPerCluster();
-    return volFree * blocks * 512;
+    return totalBytes() - usedBytes();
 }
 
 uint ESP_SD::maxPathLength()
@@ -178,439 +174,14 @@ uint ESP_SD::maxPathLength()
 
 bool ESP_SD::rename(const char *oldpath, const char *newpath)
 {
-    return SD.rename(oldpath,newpath);
+    return (bool)SDFS.rename(oldpath,newpath);
 }
 
-//  strings needed in file system structures
-#define noName "NO NAME    "
-#define fat16str "FAT16   "
-#define fat32str "FAT32   "
-// constants for file system structure
-#define BU16 128
-#define BU32 8192
-#define ERASE_SIZE 262144L
-
-//------------------------------------------------------------------------------
-// write cached block to the card
-uint8_t writeCache(uint32_t lbn, Sd2Card & card, cache_t & cache)
-{
-    return card.writeBlock(lbn, cache.data);
-}
-
-//------------------------------------------------------------------------------
-// initialize appropriate sizes for SD capacity
-bool initSizes(uint32_t cardCapacityMB, uint8_t & sectorsPerCluster, uint8_t & numberOfHeads, uint8_t & sectorsPerTrack)
-{
-    if (cardCapacityMB <= 6) {
-        return false;
-    } else if (cardCapacityMB <= 16) {
-        sectorsPerCluster = 2;
-    } else if (cardCapacityMB <= 32) {
-        sectorsPerCluster = 4;
-    } else if (cardCapacityMB <= 64) {
-        sectorsPerCluster = 8;
-    } else if (cardCapacityMB <= 128) {
-        sectorsPerCluster = 16;
-    } else if (cardCapacityMB <= 1024) {
-        sectorsPerCluster = 32;
-    } else if (cardCapacityMB <= 32768) {
-        sectorsPerCluster = 64;
-    } else {
-        // SDXC cards
-        sectorsPerCluster = 128;
-    }
-
-    // set fake disk geometry
-    sectorsPerTrack = cardCapacityMB <= 256 ? 32 : 63;
-
-    if (cardCapacityMB <= 16) {
-        numberOfHeads = 2;
-    } else if (cardCapacityMB <= 32) {
-        numberOfHeads = 4;
-    } else if (cardCapacityMB <= 128) {
-        numberOfHeads = 8;
-    } else if (cardCapacityMB <= 504) {
-        numberOfHeads = 16;
-    } else if (cardCapacityMB <= 1008) {
-        numberOfHeads = 32;
-    } else if (cardCapacityMB <= 2016) {
-        numberOfHeads = 64;
-    } else if (cardCapacityMB <= 4032) {
-        numberOfHeads = 128;
-    } else {
-        numberOfHeads = 255;
-    }
-    return true;
-}
-
-//------------------------------------------------------------------------------
-// zero cache and optionally set the sector signature
-void clearCache(uint8_t addSig, cache_t & cache)
-{
-    memset(&cache, 0, sizeof(cache));
-    if (addSig) {
-        cache.mbr.mbrSig0 = BOOTSIG0;
-        cache.mbr.mbrSig1 = BOOTSIG1;
-    }
-}
-//------------------------------------------------------------------------------
-// zero FAT and root dir area on SD
-bool clearFatDir(uint32_t bgn, uint32_t count, Sd2Card & card, cache_t & cache, ESP3DOutput * output)
-{
-    clearCache(false, cache);
-    if (!card.writeStart(bgn, count)) {
-        return false;
-    }
-    for (uint32_t i = 0; i < count; i++) {
-        if ((i & 0XFF) == 0) {
-            if (output) {
-                output->print(".");
-            }
-        }
-        if (!card.writeData(cache.data)) {
-            return false;
-        }
-    }
-    if (!card.writeStop()) {
-        return false;
-    }
-    return true;
-}
-
-//------------------------------------------------------------------------------
-// return cylinder number for a logical block number
-uint16_t lbnToCylinder(uint32_t lbn, uint8_t numberOfHeads, uint8_t sectorsPerTrack)
-{
-    return lbn / (numberOfHeads * sectorsPerTrack);
-}
-//------------------------------------------------------------------------------
-// return head number for a logical block number
-uint8_t lbnToHead(uint32_t lbn, uint8_t numberOfHeads, uint8_t sectorsPerTrack)
-{
-    return (lbn % (numberOfHeads * sectorsPerTrack)) / sectorsPerTrack;
-}
-//------------------------------------------------------------------------------
-// return sector number for a logical block number
-uint8_t lbnToSector(uint32_t lbn, uint8_t sectorsPerTrack)
-{
-    return (lbn % sectorsPerTrack) + 1;
-}
-
-//------------------------------------------------------------------------------
-// format and write the Master Boot Record
-bool writeMbr(Sd2Card & card, cache_t & cache, uint8_t partType, uint32_t relSector, uint32_t partSize, uint8_t numberOfHeads, uint8_t sectorsPerTrack)
-{
-    clearCache(true, cache);
-    part_t* p = cache.mbr.part;
-    p->boot = 0;
-    uint16_t c = lbnToCylinder(relSector, numberOfHeads, sectorsPerTrack);
-    if (c > 1023) {
-        return false;
-    }
-    p->beginCylinderHigh = c >> 8;
-    p->beginCylinderLow = c & 0XFF;
-    p->beginHead = lbnToHead(relSector, numberOfHeads, sectorsPerTrack);
-    p->beginSector = lbnToSector(relSector, sectorsPerTrack);
-    p->type = partType;
-    uint32_t endLbn = relSector + partSize - 1;
-    c = lbnToCylinder(endLbn,numberOfHeads, sectorsPerTrack);
-    if (c <= 1023) {
-        p->endCylinderHigh = c >> 8;
-        p->endCylinderLow = c & 0XFF;
-        p->endHead = lbnToHead(endLbn, numberOfHeads, sectorsPerTrack);
-        p->endSector = lbnToSector(endLbn, sectorsPerTrack);
-    } else {
-        // Too big flag, c = 1023, h = 254, s = 63
-        p->endCylinderHigh = 3;
-        p->endCylinderLow = 255;
-        p->endHead = 254;
-        p->endSector = 63;
-    }
-    p->firstSector = relSector;
-    p->totalSectors = partSize;
-    if (!writeCache(0, card, cache)) {
-        return false;
-    }
-    return true;
-}
-
-//------------------------------------------------------------------------------
-// generate serial number from card size and micros since boot
-uint32_t volSerialNumber(uint32_t cardSizeBlocks)
-{
-    return (cardSizeBlocks << 8) + micros();
-}
-
-// format the SD as FAT16
-bool makeFat16(uint32_t & dataStart, Sd2Card & card, cache_t & cache, uint8_t numberOfHeads, uint8_t sectorsPerTrack, uint32_t cardSizeBlocks, uint8_t sectorsPerCluster, uint32_t &relSector,  uint8_t & partType, uint32_t &fatSize, uint32_t &fatStart, ESP3DOutput * output)
-{
-    uint32_t nc;
-    for (dataStart = 2 * BU16;; dataStart += BU16) {
-        nc = (cardSizeBlocks - dataStart)/sectorsPerCluster;
-        fatSize = (nc + 2 + 255)/256;
-        uint32_t r = BU16 + 1 + 2 * fatSize + 32;
-        if (dataStart < r) {
-            continue;
-        }
-        relSector = dataStart - r + BU16;
-        break;
-    }
-    // check valid cluster count for FAT16 volume
-    if (nc < 4085 || nc >= 65525) {
-        return false;
-    }
-    uint16_t reservedSectors = 1;
-    fatStart = relSector + reservedSectors;
-    uint32_t partSize = nc * sectorsPerCluster + 2 * fatSize + reservedSectors + 32;
-    if (partSize < 32680) {
-        partType = 0X01;
-    } else if (partSize < 65536) {
-        partType = 0X04;
-    } else {
-        partType = 0X06;
-    }
-    // write MBR
-    if (!writeMbr(card, cache, partType, relSector, partSize, numberOfHeads, sectorsPerTrack)) {
-        return false;
-    }
-    clearCache(true, cache);
-    fat_boot_t* pb = &cache.fbs;
-    pb->jump[0] = 0XEB;
-    pb->jump[1] = 0X00;
-    pb->jump[2] = 0X90;
-    for (uint8_t i = 0; i < sizeof(pb->oemId); i++) {
-        pb->oemId[i] = ' ';
-    }
-    pb->bytesPerSector = 512;
-    pb->sectorsPerCluster = sectorsPerCluster;
-    pb->reservedSectorCount = reservedSectors;
-    pb->fatCount = 2;
-    pb->rootDirEntryCount = 512;
-    pb->mediaType = 0XF8;
-    pb->sectorsPerFat16 = fatSize;
-    pb->sectorsPerTrack = sectorsPerTrack;
-    pb->headCount = numberOfHeads;
-    pb->hidddenSectors = relSector;
-    pb->totalSectors32 = partSize;
-    pb->driveNumber = 0X80;
-    pb->bootSignature = EXTENDED_BOOT_SIG;
-    pb->volumeSerialNumber = volSerialNumber(cardSizeBlocks);
-    memcpy(pb->volumeLabel, noName, sizeof(pb->volumeLabel));
-    memcpy(pb->fileSystemType, fat16str, sizeof(pb->fileSystemType));
-    // write partition boot sector
-    if (!writeCache(relSector, card, cache)) {
-        return false;
-    }
-    // clear FAT and root directory
-    clearFatDir(fatStart, dataStart - fatStart, card, cache, output);
-    clearCache(false, cache);
-    cache.fat16[0] = 0XFFF8;
-    cache.fat16[1] = 0XFFFF;
-    // write first block of FAT and backup for reserved clusters
-    if (!writeCache(fatStart, card, cache)
-            || !writeCache(fatStart + fatSize, card, cache)) {
-        return false;
-    }
-    return true;
-}
-
-// format the SD as FAT32
-bool makeFat32(uint32_t & dataStart, Sd2Card & card, cache_t & cache, uint8_t numberOfHeads, uint8_t sectorsPerTrack, uint32_t cardSizeBlocks, uint8_t sectorsPerCluster, uint32_t &relSector, uint8_t & partType, uint32_t &fatSize, uint32_t &fatStart, ESP3DOutput * output)
-{
-    uint32_t nc;
-    relSector = BU32;
-    for (dataStart = 2 * BU32;; dataStart += BU32) {
-        nc = (cardSizeBlocks - dataStart)/sectorsPerCluster;
-        fatSize = (nc + 2 + 127)/128;
-        uint32_t r = relSector + 9 + 2 * fatSize;
-        if (dataStart >= r) {
-            break;
-        }
-    }
-    // error if too few clusters in FAT32 volume
-    if (nc < 65525) {
-        return false;
-    }
-    uint16_t reservedSectors = dataStart - relSector - 2 * fatSize;
-    fatStart = relSector + reservedSectors;
-    uint32_t partSize = nc * sectorsPerCluster + dataStart - relSector;
-    // type depends on address of end sector
-    // max CHS has lbn = 16450560 = 1024*255*63
-    if ((relSector + partSize) <= 16450560) {
-        // FAT32
-        partType = 0X0B;
-    } else {
-        // FAT32 with INT 13
-        partType = 0X0C;
-    }
-    if (!writeMbr(card, cache, partType, relSector, partSize, numberOfHeads, sectorsPerTrack)) {
-        return false;
-    }
-    clearCache(true, cache);
-
-    fat32_boot_t* pb = &cache.fbs32;
-    pb->jump[0] = 0XEB;
-    pb->jump[1] = 0X00;
-    pb->jump[2] = 0X90;
-    for (uint8_t i = 0; i < sizeof(pb->oemId); i++) {
-        pb->oemId[i] = ' ';
-    }
-    pb->bytesPerSector = 512;
-    pb->sectorsPerCluster = sectorsPerCluster;
-    pb->reservedSectorCount = reservedSectors;
-    pb->fatCount = 2;
-    pb->mediaType = 0XF8;
-    pb->sectorsPerTrack = sectorsPerTrack;
-    pb->headCount = numberOfHeads;
-    pb->hidddenSectors = relSector;
-    pb->totalSectors32 = partSize;
-    pb->sectorsPerFat32 = fatSize;
-    pb->fat32RootCluster = 2;
-    pb->fat32FSInfo = 1;
-    pb->fat32BackBootBlock = 6;
-    pb->driveNumber = 0X80;
-    pb->bootSignature = EXTENDED_BOOT_SIG;
-    pb->volumeSerialNumber = volSerialNumber(cardSizeBlocks);
-    memcpy(pb->volumeLabel, noName, sizeof(pb->volumeLabel));
-    memcpy(pb->fileSystemType, fat32str, sizeof(pb->fileSystemType));
-    // write partition boot sector and backup
-    if (!writeCache(relSector, card, cache)
-            || !writeCache(relSector + 6, card, cache)) {
-        return false;
-    }
-    clearCache(true, cache);
-    // write extra boot area and backup
-    if (!writeCache(relSector + 2, card, cache)
-            || !writeCache(relSector + 8, card, cache)) {
-        return false;
-    }
-    fat32_fsinfo_t* pf = &cache.fsinfo;
-    pf->leadSignature = FSINFO_LEAD_SIG;
-    pf->structSignature = FSINFO_STRUCT_SIG;
-    pf->freeCount = 0XFFFFFFFF;
-    pf->nextFree = 0XFFFFFFFF;
-    // write FSINFO sector and backup
-    if (!writeCache(relSector + 1, card, cache)
-            || !writeCache(relSector + 7, card, cache)) {
-        return false;
-    }
-    clearFatDir(fatStart, 2 * fatSize + sectorsPerCluster, card, cache, output);
-    clearCache(false, cache);
-    cache.fat32[0] = 0x0FFFFFF8;
-    cache.fat32[1] = 0x0FFFFFFF;
-    cache.fat32[2] = 0x0FFFFFFF;
-    // write first block of FAT and backup for reserved clusters
-    if (!writeCache(fatStart, card, cache)
-            || !writeCache(fatStart + fatSize, card, cache)) {
-        return false;
-    }
-    return true;
-}
-
-bool eraseCard(Sd2Card & card, cache_t & cache, uint32_t cardSizeBlocks, ESP3DOutput * output)
-{
-    uint32_t firstBlock = 0;
-    uint32_t lastBlock;
-    if (output) {
-        output->printMSG("Erasing ", false);
-    }
-    do {
-        lastBlock = firstBlock + ERASE_SIZE - 1;
-        if (lastBlock >= cardSizeBlocks) {
-            lastBlock = cardSizeBlocks - 1;
-        }
-        if (!card.erase(firstBlock, lastBlock)) {
-            return false;
-        }
-        if (output) {
-            output->print(".");
-        }
-        firstBlock += ERASE_SIZE;
-    } while (firstBlock < cardSizeBlocks);
-
-    if (!card.readBlock(0, cache.data)) {
-        return false;
-    }
-    if (output) {
-        output->printLN("");
-    }
-    return true;
-}
-
-bool formatCard(uint32_t & dataStart, Sd2Card & card,
-                cache_t & cache, uint32_t cardSizeBlocks,
-                uint32_t &relSector,
-                uint8_t & partType,
-                uint32_t &fatSize, uint32_t &fatStart,
-                uint32_t cardCapacityMB, ESP3DOutput * output)
-{
-    // Fake disk geometry
-    uint8_t numberOfHeads;
-    uint8_t sectorsPerTrack;
-    // FAT parameters
-    uint8_t sectorsPerCluster;
-
-    initSizes(cardCapacityMB, sectorsPerCluster, numberOfHeads, sectorsPerTrack);
-    if (card.type() != SD_CARD_TYPE_SDHC) {
-        if (output) {
-            output->printMSG("Formating FAT16 ");
-        }
-        if(!makeFat16(dataStart, card, cache, numberOfHeads, sectorsPerTrack, cardSizeBlocks, sectorsPerCluster, relSector, partType, fatSize, fatStart, output)) {
-            return false;
-        }
-    } else {
-        if (output) {
-            output->printMSG("Formating FAT32 ", false);
-        }
-        if(!makeFat32(dataStart, card, cache, numberOfHeads, sectorsPerTrack, cardSizeBlocks, sectorsPerCluster, relSector, partType, fatSize, fatStart, output)) {
-            return false;
-        }
-    }
-    if (output) {
-        output->printLN("");
-    }
-    return true;
-}
 
 bool ESP_SD::format(ESP3DOutput * output)
 {
-    if (ESP_SD::getState(true) == ESP_SDCARD_IDLE) {
-        Sd2Card card;
-        uint32_t cardSizeBlocks;
-        uint32_t cardCapacityMB;
-        // cache for SD block
-        cache_t cache;
-
-        // MBR information
-        uint8_t partType;
-        uint32_t relSector;
-
-        // FAT parameters
-        uint32_t fatStart;
-        uint32_t fatSize;
-        uint32_t dataStart;
-        if (!card.begin((ESP_SD_CS_PIN == -1)?SS:ESP_SD_CS_PIN, SD_SCK_HZ(F_CPU/_spi_speed_divider))) {
-            return false;
-        }
-        cardSizeBlocks = card.cardSize();
-        if (cardSizeBlocks == 0) {
-            return false;
-        }
-        cardCapacityMB = (cardSizeBlocks + 2047)/2048;
-        if (output) {
-            String s = "Capacity detected :" + String((1.048576*cardCapacityMB)/1024) + "GB";
-            output->printMSG(s.c_str());
-        }
-        if (!eraseCard(card, cache, cardSizeBlocks, output)) {
-            return false;
-        }
-
-        if (!formatCard(dataStart, card, cache, cardSizeBlocks,
-                        relSector, partType,
-                        fatSize, fatStart, cardCapacityMB,output)) {
-            return false;
-        }
-        return true;
+     if (output) {
+        output->printERROR ("Not implemented!");
     }
     return false;
 }
@@ -635,8 +206,8 @@ ESP_SDFile ESP_SD::open(const char* path, uint8_t mode)
             return ESP_SDFile();
         }
     }
-    sdfat::File tmp = SD.open(path, (mode == ESP_FILE_READ)?FILE_READ:(mode == ESP_FILE_WRITE)?FILE_WRITE:FILE_WRITE);
-    ESP_SDFile esptmp(&tmp, tmp.isDir(),(mode == ESP_FILE_READ)?false:true, path);
+    File tmp = SD.open(path, (mode == ESP_FILE_READ)?FILE_READ:(mode == ESP_FILE_WRITE)?FILE_WRITE:FILE_WRITE);
+    ESP_SDFile esptmp(&tmp, tmp.isDirectory(),(mode == ESP_FILE_READ)?false:true, path);
     return esptmp;
 }
 
@@ -681,25 +252,20 @@ bool ESP_SD::rmdir(const char *path)
     String p = path;
     pathlist.push(p);
     while (pathlist.count() > 0) {
-        sdfat::File dir = SD.open(pathlist.getLast().c_str());
+        File dir = SD.open(pathlist.getLast().c_str());
         dir.rewindDirectory();
-        sdfat::File f = dir.openNextFile();
+        File f = dir.openNextFile();
         bool candelete = true;
         while (f) {
-            if (f.isDir()) {
+            if (f.isDirectory()) {
                 candelete = false;
-                String newdir;
-                char tmp[255];
-                f.getName(tmp,254);
-                newdir = tmp;
+                String newdir = f.name();
                 pathlist.push(newdir);
                 f.close();
-                f = sdfat::File();
+                f = File();
             } else {
-                char tmp[255];
-                f.getName(tmp,254);
                 _sizechanged = true;
-                SD.remove(tmp);
+                SD.remove(f.fullName());
                 f.close();
                 f = dir.openNextFile();
             }
@@ -726,7 +292,7 @@ void ESP_SD::closeAll()
 {
     for (uint8_t i = 0; i < ESP_MAX_SD_OPENHANDLE; i++) {
         tSDFile_handle[i].close();
-        tSDFile_handle[i] = sdfat::File();
+        tSDFile_handle[i] = File();
     }
 }
 
@@ -746,13 +312,11 @@ ESP_SDFile::ESP_SDFile(void* handle, bool isdir, bool iswritemode, const char * 
     bool set =false;
     for (uint8_t i=0; (i < ESP_MAX_SD_OPENHANDLE) && !set; i++) {
         if (!tSDFile_handle[i]) {
-            tSDFile_handle[i] = *((sdfat::File*)handle);
+            tSDFile_handle[i] = *((File*)handle);
             //filename
-            char tmp[255];
-            tSDFile_handle[i].getName(tmp,254);
             _filename = path;
             //name
-            _name = tmp;
+            _name = tSDFile_handle[i].name();
             if (_name.endsWith("/")) {
                 _name.remove( _name.length() - 1,1);
                 _isdir = true;
@@ -786,15 +350,9 @@ ESP_SDFile::ESP_SDFile(void* handle, bool isdir, bool iswritemode, const char * 
 //todo need also to add short filename
 const char* ESP_SDFile::shortname() const
 {
-    static char sname[13];
-    sdfat::File ftmp = SD.open(_filename.c_str());
-    if (ftmp) {
-        ftmp.getSFN(sname);
-        ftmp.close();
-        return sname;
-    } else {
-        return _name.c_str();
-    }
+    //not supported in native so return name
+    return _name.c_str();
+
 }
 
 void ESP_SDFile::close()
@@ -805,14 +363,14 @@ void ESP_SDFile::close()
         //reopen if mode = write
         //udate size + date
         if (_iswritemode && !_isdir) {
-            sdfat::File ftmp = SD.open(_filename.c_str());
+            File ftmp = SD.open(_filename.c_str());
             if (ftmp) {
                 _size = ftmp.size();
                 _lastwrite = getDateTimeFile(ftmp);
                 ftmp.close();
             }
         }
-        tSDFile_handle[_index] = sdfat::File();
+        tSDFile_handle[_index] = File();
         //log_esp3d("Closing File at index %d",_index);
         _index = -1;
     }
@@ -824,17 +382,16 @@ ESP_SDFile  ESP_SDFile::openNextFile()
         log_esp3d("openNextFile failed");
         return ESP_SDFile();
     }
-    sdfat::File tmp = tSDFile_handle[_index].openNextFile();
+    File tmp = tSDFile_handle[_index].openNextFile();
     if (tmp) {
-        char tmps[255];
-        tmp.getName(tmps,254);
-        log_esp3d("tmp name :%s %s", tmps, (tmp.isDir())?"isDir":"isFile");
+        String name = tmp.name();
+        log_esp3d("tmp name :%s %s", name.c_str(), (tmp.isDirectory())?"isDir":"isFile");
         String s = _filename ;
         if (s!="/") {
             s+="/";
         }
-        s += tmps;
-        ESP_SDFile esptmp(&tmp, tmp.isDir(),false, s.c_str());
+        s += name;
+        ESP_SDFile esptmp(&tmp, tmp.isDirectory(),false, s.c_str());
         esptmp.close();
         return esptmp;
     }
@@ -843,8 +400,8 @@ ESP_SDFile  ESP_SDFile::openNextFile()
 
 const char * ESP_SD::FilesystemName()
 {
-    return "SDFat";
+    return "SD native";
 }
 
 #endif //SD_DEVICE == ESP_SD_NATIVE
-#endif //ARCH_ESP32 && SD_DEVICE
+#endif //ARCH_ESP8266 && SD_DEVICE

@@ -25,7 +25,11 @@
 #include <time.h>
 
 #define ESP_MAX_SD_OPENHANDLE 4
-#if ((SD_DEVICE == ESP_SD_NATIVE) || (SD_DEVICE == ESP_SDFAT)) && defined (ARDUINO_ARCH_ESP8266)
+#if (SD_DEVICE == ESP_SD_NATIVE)  && defined (ARDUINO_ARCH_ESP8266)
+#define FS_NO_GLOBALS
+#include <SD.h>
+File tSDFile_handle[ESP_MAX_SD_OPENHANDLE];
+#elif (SD_DEVICE == ESP_SDFAT) && defined (ARDUINO_ARCH_ESP8266)
 #define FS_NO_GLOBALS
 #define NO_GLOBAL_SD
 #include <SdFat.h>
