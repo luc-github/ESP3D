@@ -718,7 +718,7 @@ void ESP_SD::closeAll()
 
 bool ESP_SDFile::seek(uint32_t pos, uint8_t mode)
 {
-    if (mode == SeekEnd) {
+    if (mode == ESP_SEEK_END) {
         return tSDFile_handle[_index].seek(-pos);    //based on SDFS comment
     }
     return tSDFile_handle[_index].seek(pos);
