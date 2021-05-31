@@ -159,6 +159,8 @@ void HTTP_Server::handleSDFileList ()
                 }
                 buffer2send+="{\"name\":\"";
                 buffer2send+=sub.name();
+                buffer2send+="\",\"shortname\":\"";
+                buffer2send+=sub.shortname();
                 buffer2send+="\",\"size\":\"";
                 if (sub.isDirectory()) {
                     buffer2send+="-1";

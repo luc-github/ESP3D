@@ -10,8 +10,18 @@ if isfile(configuration_file):
     for line in fh:
         entry = re.search('^#define(\s)*SD_DEVICE(\s)*ESP_SDFAT', line)
         if entry:
-            print("Add SDFat library to path")
-            env["LIBSOURCE_DIRS"].append("extra-libraries/SDFat")
+            if (env["PIOPLATFORM"] == "espressif8266"):
+                lib_ignore = env.GetProjectOption("lib_ignore")
+                lib_ignore.append("SD(esp8266)")
+                lib_ignore.append("SDFS")
+                print("Ignore libs:", lib_ignore)
+                env.GetProjectConfig().set(
+                    "env:" + env["PIOENV"], "lib_ignore", lib_ignore)
+                print("Add ESP8266SDFat library to path")
+                env["LIBSOURCE_DIRS"].append("extra-libraries/ESP8266SDFat")
+            else:
+                print("Add SDFat library to path")
+                env["LIBSOURCE_DIRS"].append("extra-libraries/SDFat")
     fh.close()
 else:
     print("No configuration.h file found")

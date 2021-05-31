@@ -25,10 +25,9 @@ sd_native_esp8266.cpp - ESP3D sd support class
 #include "../../../core/genLinkedList.h"
 #include "../../../core/settings_esp3d.h"
 #define NO_GLOBAL_SD
-#include "SdFat.h"
+#include <SdFat.h>
 extern sdfat::File tSDFile_handle[ESP_MAX_SD_OPENHANDLE];
 using namespace sdfat;
-
 SdFat SD;
 
 void dateTime (uint16_t* date, uint16_t* dtime)
@@ -719,7 +718,12 @@ bool ESP_SD::rmdir(const char *path)
 
 bool ESP_SDFile::seek(uint32_t pos, uint8_t mode)
 {
-    return tSDFile_handle[_index].seek(pos, (SeekMode)mode);
+    if (mode == SeekCur)
+        return tSDFile_handle[_index].seekCur(pos);
+    if (mode == SeekEnd)
+        return tSDFile_handle[_index].seekEnd(pos);
+    // if (mode == SeekSet)
+    return tSDFile_handle[_index].seekSet(pos);
 }
 
 void ESP_SD::closeAll()
@@ -843,7 +847,7 @@ ESP_SDFile  ESP_SDFile::openNextFile()
 
 const char * ESP_SD::FilesystemName()
 {
-    return "SDFat";
+    return "SDFat - " SD_FAT_VERSION_STR ;
 }
 
 #endif //SD_DEVICE == ESP_SDFAT

@@ -23,7 +23,7 @@ sd_native_esp8266.cpp - ESP3D sd support class
 #include "../esp_sd.h"
 #include "../../../core/genLinkedList.h"
 #include "../../../core/settings_esp3d.h"
-#include "SdFat.h"
+#include <SdFat.h>
 extern File tSDFile_handle[ESP_MAX_SD_OPENHANDLE];
 
 //Max Freq Working
@@ -837,7 +837,7 @@ ESP_SDFile  ESP_SDFile::openNextFile()
 
 const char * ESP_SD::FilesystemName()
 {
-    return "SDFat";
+    return "SDFat - " SD_FAT_VERSION_STR ;
 }
 
 #endif //SD_DEVICE == ESP_SD_NATIVE
