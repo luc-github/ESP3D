@@ -13,7 +13,7 @@ cp -r ./libraries/esp8266-oled-ssd1306-4.0.0 $HOME/arduino_ide/libraries/
 cp -r ./libraries/TFT_eSPI-1.4.11 $HOME/arduino_ide/libraries/
 cp -r ./libraries/lv_arduino-2.0.3 $HOME/arduino_ide/libraries/
 cp -r ./libraries/ESP8266-Arduino-Lua-0.0.30 $HOME/arduino_ide/libraries/
-cp -r ./libraries/SdFat-1.1.0 $HOME/arduino_ide/libraries/
 cp -r ./libraries/BMx280MI-1.2.0 $HOME/arduino_ide/libraries/
 cp -r ./libraries/LITTLEFS-1.0.5 $HOME/arduino_ide/libraries/
+#TODO add SDFat libraries according version and target 
 
