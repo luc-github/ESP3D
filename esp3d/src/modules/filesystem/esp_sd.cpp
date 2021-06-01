@@ -29,12 +29,12 @@
 #define FS_NO_GLOBALS
 #include <SD.h>
 File tSDFile_handle[ESP_MAX_SD_OPENHANDLE];
-#elif (SD_DEVICE == ESP_SDFAT) && defined (ARDUINO_ARCH_ESP8266)
+#elif ((SD_DEVICE == ESP_SDFAT) || (SD_DEVICE == ESP_SDFAT2)) && defined (ARDUINO_ARCH_ESP8266)
 #define FS_NO_GLOBALS
 #define NO_GLOBAL_SD
 #include <SdFat.h>
 sdfat::File tSDFile_handle[ESP_MAX_SD_OPENHANDLE];
-#elif (SD_DEVICE == ESP_SDFAT) && defined (ARDUINO_ARCH_ESP32)
+#elif ((SD_DEVICE == ESP_SDFAT) || (SD_DEVICE == ESP_SDFAT2)) && defined (ARDUINO_ARCH_ESP32)
 #include <SdFat.h>
 File tSDFile_handle[ESP_MAX_SD_OPENHANDLE];
 #else

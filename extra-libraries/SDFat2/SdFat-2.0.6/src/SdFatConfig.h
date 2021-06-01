@@ -29,6 +29,14 @@
 #ifndef SdFatConfig_h
 #define SdFatConfig_h
 #include <stdint.h>
+#define USE_TYPE_FILE 1
+#if !defined(USE_TYPE_FILE)
+#if( !defined(__has_include) || !__has_include(<FS.h>))
+#define USE_TYPE_FILE 1
+#else 
+#define USE_TYPE_FILE 0
+#endif
+#endif
 #ifdef __AVR__
 #include <avr/io.h>
 #endif  // __AVR__

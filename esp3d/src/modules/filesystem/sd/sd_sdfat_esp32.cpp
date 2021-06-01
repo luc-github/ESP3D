@@ -43,6 +43,7 @@ void dateTime (uint16_t* date, uint16_t* dtime)
 time_t getDateTimeFile(File & filehandle)
 {
     static time_t dt = 0;
+#ifdef SD_TIMESTAMP_FEATURE
     struct tm timefile;
     dir_t d;
     if(filehandle) {
@@ -64,6 +65,7 @@ time_t getDateTimeFile(File & filehandle)
     } else {
         log_esp3d("check stat file failed");
     }
+#endif //SD_TIMESTAMP_FEATURE
     return dt;
 }
 
@@ -840,5 +842,5 @@ const char * ESP_SD::FilesystemName()
     return "SDFat - " SD_FAT_VERSION_STR ;
 }
 
-#endif //SD_DEVICE == ESP_SD_NATIVE
+#endif //SD_DEVICE == ESP_SDFAT
 #endif //ARCH_ESP32 && SD_DEVICE

@@ -99,6 +99,7 @@
 #define ESP_SD_NATIVE               1
 #define ESP_SDIO                    2
 #define ESP_SDFAT                   3
+#define ESP_SDFAT2                  4
 
 //SD state
 #define ESP_SDCARD_IDLE             0

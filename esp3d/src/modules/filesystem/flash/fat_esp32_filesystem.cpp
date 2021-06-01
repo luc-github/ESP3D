@@ -71,7 +71,7 @@ const char * ESP_FileSystem::FilesystemName()
 bool ESP_FileSystem::format()
 {
     bool res = FFat.format();
-    if (res){
+    if (res) {
         res = begin();
     }
     return res;

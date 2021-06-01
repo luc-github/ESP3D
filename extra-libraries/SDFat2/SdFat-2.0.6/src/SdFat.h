@@ -419,20 +419,20 @@ class SdFs : public SdBase<FsVolume> {
 /** Select type for SdFat. */
 typedef SdFat32 SdFat;
 /** Select type for File. */
-#if !defined(__has_include) || !__has_include(<FS.h>)
+#if USE_TYPE_FILE 
 typedef File32 File;
 #endif
 /** Select type for SdBaseFile. */
 typedef FatFile SdBaseFile;
 #elif SDFAT_FILE_TYPE == 2
 typedef SdExFat SdFat;
-#if !defined(__has_include) || !__has_include(<FS.h>)
+#if USE_TYPE_FILE 
 typedef ExFile File;
 #endif
 typedef ExFatFile SdBaseFile;
 #elif SDFAT_FILE_TYPE == 3
 typedef SdFs SdFat;
-#if !defined(__has_include) || !__has_include(<FS.h>)
+#if USE_TYPE_FILE 
 typedef FsFile File;
 #endif
 typedef FsBaseFile SdBaseFile;

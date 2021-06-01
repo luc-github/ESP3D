@@ -246,10 +246,10 @@ void ESPWebDAVCore::dir(const String& path, Print* out)
             out->printf("[%s]\n", entry.name());
         else
             out->printf("%-40s%4dMiB %6dKiB %d\n",
-            entry.name(),
-            ((int)entry.size() + (1 << 19)) >> 20,
-            ((int)entry.size() + (1 <<  9)) >> 10,
-            (int)entry.size());
+                        entry.name(),
+                        ((int)entry.size() + (1 << 19)) >> 20,
+                        ((int)entry.size() + (1 <<  9)) >> 10,
+                        (int)entry.size());
         return true;
     }, /*false=subdir first*/false);
 }

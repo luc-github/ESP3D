@@ -75,7 +75,7 @@ const char * ESP_FileSystem::FilesystemName()
 bool ESP_FileSystem::format()
 {
     bool res = LittleFS.format();
-    if (res){
+    if (res) {
         res = begin();
     }
     return res;

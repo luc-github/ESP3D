@@ -19,7 +19,7 @@ sd_native_esp8266.cpp - ESP3D sd support class
 */
 #include "../../../include/esp3d_config.h"
 #if defined (ARDUINO_ARCH_ESP8266) && defined(SD_DEVICE)
-#if (SD_DEVICE == ESP_SD_NATIVE) 
+#if (SD_DEVICE == ESP_SD_NATIVE)
 #define FS_NO_GLOBALS
 #include "../esp_sd.h"
 #include "../../../core/genLinkedList.h"
@@ -152,8 +152,10 @@ uint64_t ESP_SD::usedBytes()
     FSInfo64 info;
     static uint64_t volUsed;
     if (_sizechanged) {
-       if (!SDFS.info64(info)) return 0;
-       volUsed = info.usedBytes;
+        if (!SDFS.info64(info)) {
+            return 0;
+        }
+        volUsed = info.usedBytes;
         _sizechanged = false;
     }
     return volUsed;
@@ -180,7 +182,7 @@ bool ESP_SD::rename(const char *oldpath, const char *newpath)
 
 bool ESP_SD::format(ESP3DOutput * output)
 {
-     if (output) {
+    if (output) {
         output->printERROR ("Not implemented!");
     }
     return false;
