@@ -106,6 +106,7 @@
 #define ESP_WEBDAV_PORT         1025    //4  bytes= int
 #define ESP_STA_DNS_VALUE       1029    //4  bytes= int
 #define ESP_SECURE_SERIAL       1033    //1 byte = flag
+#define ESP_BOOT_RADIO_STATE    1034    //1 byte = flag
 
 
 //Hidden password

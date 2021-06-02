@@ -1,5 +1,5 @@
 /*
- ESP115.cpp - ESP3D command class
+ ESP114.cpp - ESP3D command class
 
  Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -22,11 +22,11 @@
 #include "../commands.h"
 #include "../esp3doutput.h"
 #include "../settings_esp3d.h"
-#include "../../modules/network/netconfig.h"
 #include "../../modules/authentication/authentication_service.h"
-//Get/Set immediate Network (WiFi/BT/Ethernet) state which can be ON, OFF
-//[ESP115]<state>pwd=<admin password>
-bool Commands::ESP115(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
+
+//Set Boot radio state which can be ON, OFF
+//[ESP114]<state>pwd=<user/admin password>
+bool Commands::ESP114(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
     bool response = true;
     String parameter;
@@ -39,36 +39,31 @@ bool Commands::ESP115(const char* cmd_params, level_authenticate_type auth_type,
     (void)auth_type;
 #endif //AUTHENTICATION_FEATURE
     parameter = get_param (cmd_params, "");
+    //get
     if (parameter.length() == 0) {
-        if (NetConfig::started()) {
-            output->printMSG ("ON");
-        } else {
-            output->printMSG ("OFF");
-        }
-        return true;
-    }
+        output->printMSG((Settings_ESP3D::read_byte(ESP_BOOT_RADIO_STATE) == 0)?"OFF":"ON");
+    } else { //set
 #ifdef AUTHENTICATION_FEATURE
-    if (auth_type != LEVEL_ADMIN) {
-        output->printERROR("Wrong authentication!", 401);
-        return false;
-    }
-#endif //AUTHENTICATION_FEATURE
-    parameter.toUpperCase();
-    if((parameter == "ON") || (parameter == "OFF")) {
-        if (parameter == "ON") {
-            if (!NetConfig::begin()) {
-                output->printERROR ("Cannot setup network");
-                response = false;
-            }
-        } else {
-            output->printMSG ("OFF");
-            NetConfig::end();
+        if (auth_type != LEVEL_ADMIN) {
+            output->printERROR("Wrong authentication!", 401);
+            return false;
         }
-    } else {
-        output->printERROR ("Only mode ON and OFF are supported");
-        response = false;
+#endif //AUTHENTICATION_FEATURE
+        parameter.toUpperCase();
+        if (!((parameter == "ON") || (parameter == "OFF"))) {
+            output->printERROR("Only ON or OFF mode supported!");
+            return false;
+        } else {
+                if (!Settings_ESP3D::write_byte (ESP_BOOT_RADIO_STATE, (parameter == "ON")?1:0)) {
+                    output->printERROR ("Set failed!");
+                    response = false;
+                }
+                else {
+                    output->printMSG ("ok");
+                }
+        }
     }
     return response;
 }
 
-#endif //WIFI_FEATURE || ETH_FEATURE || BT_FEATURE 
+#endif //defined(WIFI_FEATURE) || defined(ETH_FEATURE) || defined(BT_FEATURE)

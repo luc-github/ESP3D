@@ -119,7 +119,7 @@
 #define DEFAULT_NOTIFICATION_SETTINGS ""
 #define DEFAULT_AUTO_NOTIFICATION_STATE 1
 #define DEFAULT_SECURE_SERIAL 1
-
+#define DEFAULT_BOOT_RADIO_STATE 1
 
 //default int values
 #define DEFAULT_ESP_INT         0L
@@ -240,6 +240,9 @@ uint8_t Settings_ESP3D::get_default_byte_value(int pos)
 {
     uint8_t res;
     switch(pos) {
+    case ESP_BOOT_RADIO_STATE:
+        res = DEFAULT_BOOT_RADIO_STATE;
+        break;
     case ESP_SECURE_SERIAL:
         res = DEFAULT_SECURE_SERIAL;
         break;
@@ -1047,6 +1050,7 @@ bool Settings_ESP3D::reset(bool networkonly)
 {
     //radio mode
     Settings_ESP3D::write_byte(ESP_RADIO_MODE,Settings_ESP3D::get_default_byte_value(ESP_RADIO_MODE));
+    Settings_ESP3D::write_byte(ESP_BOOT_RADIO_STATE,Settings_ESP3D::get_default_byte_value(ESP_BOOT_RADIO_STATE));
 #if defined (WIFI_FEATURE)
     //STA SSID
     Settings_ESP3D::write_string(ESP_STA_SSID,Settings_ESP3D::get_default_string_value(ESP_STA_SSID).c_str());

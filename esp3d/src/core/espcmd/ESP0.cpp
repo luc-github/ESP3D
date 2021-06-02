@@ -45,6 +45,7 @@ const char * help[]= {"[ESP] - display this help",
 #endif //WIFI_FEATURE || ETH_FEATURE
 #if defined(WIFI_FEATURE) || defined(ETH_FEATURE) || defined(BT_FEATURE)
                       "[ESP112](Hostname) - display/set Hostname",
+                      "[ESP114](State) -  display/set boot Network state which can be ON, OFF",
                       "[ESP115](State) -  display/set immediate Network state which can be ON, OFF",
 #endif //WIFI_FEATURE || ETH_FEATURE || BT_FEATURE
 #if defined(HTTP_FEATURE)

@@ -59,6 +59,7 @@ public:
 #endif //WIFI_FEATURE || ETH_FEATURE
 #if defined(WIFI_FEATURE) || defined(ETH_FEATURE) || defined(BT_FEATURE)
     bool ESP112(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+    bool ESP114(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     bool ESP115(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #endif //WIFI_FEATURE || BLUETOOTH_FEATURE || ETH_FEATURE
 #if defined(HTTP_FEATURE)

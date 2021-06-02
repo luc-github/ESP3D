@@ -71,6 +71,14 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (",{\"eth-sta\":\"4\"}");
 #endif  //ETH_FEATURE
     output->print ("]}");
+#if defined (WIFI_FEATURE) || defined (ETH_FEATURE) || defined(BT_FEATURE)
+    //Radio State at Boot 
+    output->print (",{\"F\":\"network/network\",\"P\":\"");
+    output->print (ESP_BOOT_RADIO_STATE);
+    output->print ("\",\"T\":\"B\",\"R\":\"1\",\"V\":\"");
+    output->print (Settings_ESP3D::read_byte(ESP_BOOT_RADIO_STATE));
+    output->print ("\",\"H\":\"radio_boot\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
+#endif // 
 #ifdef WIFI_FEATURE
     //STA SSID network/sta
     output->print (",{\"F\":\"network/sta\",\"P\":\"");

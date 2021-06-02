@@ -333,6 +333,11 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
     case 112:
         response = ESP112(cmd_params, auth_type, output);
         break;
+    //Get/Set boot Network (WiFi/BT/Ethernet) state which can be ON, OFF
+    //[ESP114]<state>pwd=<admin password>
+    case 114:
+        response = ESP114(cmd_params, auth_type, output);
+        break;
     //Get/Set immediate Network (WiFi/BT/Ethernet) state which can be ON, OFF
     //[ESP115]<state>pwd=<admin password>
     case 115:
