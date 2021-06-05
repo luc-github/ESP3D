@@ -129,7 +129,8 @@ const char * ServboolKeysVal[] = {"HTTP_active",
                                   "Time_DST",
                                   "CHECK_FOR_UPDATE",
                                   "Active_buzzer",
-                                  "Active_Internet_time"
+                                  "Active_Internet_time",
+                                  "Radio_enabled"
                                  } ;
 
 const uint16_t ServboolKeysPos[] = {ESP_HTTP_ON,
@@ -139,7 +140,8 @@ const uint16_t ServboolKeysPos[] = {ESP_HTTP_ON,
                                     ESP_TIME_IS_DST,
                                     ESP_SD_CHECK_UPDATE_AT_BOOT,
                                     ESP_BUZZER,
-                                    ESP_INTERNET_TIME
+                                    ESP_INTERNET_TIME,
+                                    ESP_BOOT_RADIO_STATE
                                    } ;
 
 const char * SysboolKeysVal[] = {"Active_Printer_LCD",
