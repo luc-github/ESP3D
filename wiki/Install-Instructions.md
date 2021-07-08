@@ -3,7 +3,7 @@ For people not willing to read check this great video from Chris Riley :
 
 ## Download and prepare the Arduino IDE: ##
 
-`1.1`  Install Arduino IDE version 1.6.8 from https://www.arduino.cc/en/Main/Software
+`1.1`  Install Arduino IDE version 1.X from https://www.arduino.cc/en/Main/Software
 
 `1.2`  Install the Arduino IDE
 
@@ -12,16 +12,16 @@ For people not willing to read check this great video from Chris Riley :
 `2.2`   Click OK  
 `2.3`   Click Tools -> Boards -> Board Manager   
 `2.4`   Scroll to near the bottom, and find "esp8266 by ESP8266 Community) and click on the row   
-`2.5`   On the "Select Version" dropdown, select version 2.2.0 and click Install   
+`2.5`   On the "Select Version" dropdown, select latest version and click Install   
 `2.6`   Wait for the ESP8266 support to be installed   
 
 `3.`   Download and install the SPIFFS Uploader tool    
 <B>EDIT:This part is no more necessary since FW 0.9.99 which contains self uploader </B>  
 `3.1`   Go to https://github.com/esp8266/Arduino/blob/master/doc/filesystem.rst#uploading-files-to-file-system   
-`3.2`   Download the ESP8266FS-0.2.0.zip tool from the page above   
+`3.2`   Download the ESP8266FS tool from the page above   
 `3.3`  Open a file manager to your Arduino sketchbook directory. If you don't know where that is, click File, Preferences in the Arduino IDE and look at the field: Sketchbook Location   
 `3.4`   Inside your sketchbook folder, create a new directory called 'tools'   
-`3.5`   Extract the content of ESP8266FS-0.2.0.zip into Tools (So it ends up with something like /home/user/Documented/sketchbook/tools/ESP8266FS/tool/esp8266fs.jar    
+`3.5`   Extract the content of ESP8266FS-x.x.x.zip into Tools (So it ends up with something like /home/user/Documented/sketchbook/tools/ESP8266FS/tool/esp8266fs.jar    
 `3.6`   Restart the Arduino IDE
 
 ## Download and install the code ##
