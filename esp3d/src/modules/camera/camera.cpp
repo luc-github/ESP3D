@@ -274,6 +274,7 @@ bool Camera::initHardware()
     gpio_config(&gpio_pwr_config);
     gpio_set_level(GPIO_NUM_32,0);
 #endif //CAMERA_DEVICE == CAMERA_MODEL_AI_THINKER 
+    delay(500);
     log_esp3d("Init camera config");
     esp_err_t err = esp_camera_init(&config);
     if (err != ESP_OK) {
