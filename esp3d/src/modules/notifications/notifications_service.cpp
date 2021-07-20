@@ -195,8 +195,8 @@ bool NotificationsService::sendPushoverMSG(const char * title, const char * mess
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     TSecureClient Notificationclient;
 #pragma GCC diagnostic pop
-#if defined(ARDUINO_ARCH_ESP8266)
     Notificationclient.setInsecure();
+#if defined(ARDUINO_ARCH_ESP8266)
     if (Notificationclient.probeMaxFragmentLength(_serveraddress.c_str(), _port, BEARSSL_MFLN_SIZE)) {
         log_esp3d("Handshake success");
         Notificationclient.setBufferSizes(BEARSSL_MFLN_SIZE, 512);
@@ -243,8 +243,8 @@ bool NotificationsService::sendTelegramMSG(const char * title, const char * mess
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     TSecureClient Notificationclient;
 #pragma GCC diagnostic pop
-#if defined(ARDUINO_ARCH_ESP8266)
     Notificationclient.setInsecure();
+#if defined(ARDUINO_ARCH_ESP8266)
     if (Notificationclient.probeMaxFragmentLength(_serveraddress.c_str(), _port, BEARSSL_MFLN_SIZE)) {
         log_esp3d("Handshake success");
         Notificationclient.setBufferSizes(BEARSSL_MFLN_SIZE, 512);
@@ -285,8 +285,8 @@ bool NotificationsService::sendEmailMSG(const char * title, const char * message
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     TSecureClient Notificationclient;
 #pragma GCC diagnostic pop
-#if defined(ARDUINO_ARCH_ESP8266)
     Notificationclient.setInsecure();
+#if defined(ARDUINO_ARCH_ESP8266)
     if (Notificationclient.probeMaxFragmentLength(_serveraddress.c_str(), _port, BEARSSL_MFLN_SIZE)) {
         log_esp3d("Handshake success");
         Notificationclient.setBufferSizes(BEARSSL_MFLN_SIZE, 512);
@@ -388,8 +388,8 @@ bool NotificationsService::sendLineMSG(const char * title, const char * message)
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     TSecureClient Notificationclient;
 #pragma GCC diagnostic pop
-#if defined(ARDUINO_ARCH_ESP8266)
     Notificationclient.setInsecure();
+#if defined(ARDUINO_ARCH_ESP8266)
     if (Notificationclient.probeMaxFragmentLength(_serveraddress.c_str(), _port, BEARSSL_MFLN_SIZE)) {
         log_esp3d("Handshake success");
         Notificationclient.setBufferSizes(BEARSSL_MFLN_SIZE, 512);
