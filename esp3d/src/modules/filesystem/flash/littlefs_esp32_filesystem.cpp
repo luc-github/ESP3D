@@ -239,14 +239,14 @@ ESP_File::ESP_File(void* handle, bool isdir, bool iswritemode, const char * path
             set = true;
         } else {
             log_esp3d("File %d busy", i);
-            log_esp3d(tFile_handle[i].name());
+            log_esp3d("%s", tFile_handle[i].name());
         }
     }
     if(!set) {
         log_esp3d("No handle available");
 #if defined(ESP_DEBUG_FEATURE)
         for (uint8_t i=0; (i < ESP_MAX_OPENHANDLE) ; i++) {
-            log_esp3d(tFile_handle[i].name());
+            log_esp3d("%s", tFile_handle[i].name());
         }
 #endif
     }
