@@ -18,7 +18,6 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "../../include/esp3d_config.h"
-#if defined (WIFI_FEATURE)
 #include "../commands.h"
 #include "../esp3doutput.h"
 #include "../settings_esp3d.h"
@@ -302,5 +301,3 @@ bool Commands::ESP0(const char* cmd_params, level_authenticate_type auth_type, E
     }
     return response;
 }
-
-#endif //WIFI_FEATURE

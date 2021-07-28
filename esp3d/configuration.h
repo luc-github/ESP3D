@@ -321,4 +321,16 @@
 #define NOTIFICATION_ESP_ONLINE "Hi, %ESP_NAME% is now online at %ESP_IP%"
 #define ESP_NOTIFICATION_TITLE "ESP3D Notification"
 
+#if !defined(WIFI_FEATURE) && !defined(ETH_FEATURE)
+#undef HTTP_FEATURE
+#undef TELNET_FEATURE
+#undef WEBDAV_FEATURE
+#undef FTP_FEATURE
+#undef WEB_UPDATE_FEATURE
+#undef CAPTIVE_PORTAL_FEATURE
+#undef SSDP_FEATURE
+#undef MDNS_FEATURE
+#undef NOTIFICATION_FEATURE
+#endif
+
 #endif //_CONFIGURATION_H
