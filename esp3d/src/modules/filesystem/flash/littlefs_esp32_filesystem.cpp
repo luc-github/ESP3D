@@ -28,7 +28,7 @@ extern File tFile_handle[ESP_MAX_OPENHANDLE];
 
 bool ESP_FileSystem::begin()
 {
-    _started = LITTLEFS.begin();
+    _started = LITTLEFS.begin(true);
     return _started;
 }
 

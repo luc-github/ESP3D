@@ -278,6 +278,10 @@ bool NetServices::begin()
         // Add service to MDNS-SD
         log_esp3d("Add mdns service http / tcp port %d", HTTP_Server::port());
         MDNS.addService("http", "tcp", HTTP_Server::port());
+        //ESP3D service
+        //TODO list all services available (http/tcp/ws/ftp/webdav/etc...) 
+        MDNS.addService("esp3d", "tcp", HTTP_Server::port());
+        MDNS.addServiceTxt("esp3d", "tcp", "version", FW_VERSION);
         //Add TXT records
         MDNS.addServiceTxt("http", "tcp", "ESP3D", FW_VERSION);
     }
@@ -363,9 +367,13 @@ void NetServices::end()
         if (!MDNS.removeService(hostname.c_str(),"http", "tcp")) {
             log_esp3d("failed");
         }
+        if (!MDNS.removeService(hostname.c_str(),"esp3d", "tcp")) {
+            log_esp3d("failed");
+        }
 #endif // ARDUINO_ARCH_ESP8266
 #if defined(ARDUINO_ARCH_ESP32)
         mdns_service_remove("_http", "_tcp");
+        mdns_service_remove("_esp3d", "_tcp");
 #endif // ARDUINO_ARCH_ESP32
         MDNS.end();
     }
