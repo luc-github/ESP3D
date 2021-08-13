@@ -20,10 +20,11 @@ The web interface files are present in data directory but UI has it's own reposi
     
 
 ## Sponsors 
-[<img width="200px" src="https://raw.githubusercontent.com/luc-github/ESP3D/3.0/images/sponsors-supporters/FYSETC/LOGO.png">](https://www.fysetc.com/)  
+[<img width="200px" src="https://raw.githubusercontent.com/luc-github/ESP3D/3.0/images/sponsors-supporters/FYSETC/LOGO.png" title="FYSETC">](https://www.fysetc.com/)&nbsp;&nbsp;
+[<img width="80px" src="https://avatars.githubusercontent.com/u/8650709?v=4" title="Spark-Concepts">](http://www.spark-concepts.com/)
 
 ## Supporters
-[<img src="https://raw.githubusercontent.com/luc-github/ESP3D/3.0/images/sponsors-supporters/PanucattDevices/Panucatt.jpg" />](http://www.panucatt.com/)
+[<img src="https://raw.githubusercontent.com/luc-github/ESP3D/3.0/images/sponsors-supporters/PanucattDevices/Panucatt.jpg" title="Panucatt Devices"/>](http://www.panucatt.com/)
 
 
 ## Become a sponsor or a supporter
