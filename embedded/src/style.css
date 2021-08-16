@@ -244,6 +244,14 @@ li {
   line-height: 2rem;
   padding: 2px 15px;
   margin: 0px 0px;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
+
+.panel-footer span {
+  background-color: white;
 }
 
 .panel-body {

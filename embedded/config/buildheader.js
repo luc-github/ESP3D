@@ -14,21 +14,32 @@ console.log(chalk.yellow("Converting bin to text file"));
 if (fs.existsSync(distPath + "out.tmp")) fs.rmSync(distPath + "out.tmp");
 if (fs.existsSync(distPath + "embedded.h")) fs.rmSync(distPath + "embedded.h");
 
-//Convert bin2C
-child_process.execSync(
-  "bin2c -o " + distPath + "out.tmp" + " -m " + distPath + "index.html.gz"
+const data = new Uint8Array(
+  fs.readFileSync(distPath + "index.html.gz", { flag: "r" })
 );
+console.log("data size is ", data.length);
+let out = "#define tool_html_gz_size  " + data.length + "\n";
+out += "const unsigned char tool_html_gz[" + data.length + "] PROGMEM = {\n   ";
+let nb = 0;
+data.forEach((byte, index) => {
+  out += " 0x" + (byte.toString(16).length == 1 ? "0" : "") + byte.toString(16);
+  if (index < data.length - 1) out += ",";
+  if (nb == 15) {
+    out += "\n   ";
+    nb = 0;
+  } else {
+    nb++;
+  }
+});
+
+out += "\n};\n";
+fs.writeFileSync(distPath + "out.tmp", out);
 
 //Check conversion
 if (fs.existsSync(distPath + "out.tmp")) {
   console.log(chalk.green("[ok]"));
 } else {
   console.log(chalk.red("[error]Conversion failed"));
-  console.log(
-    chalk.red(
-      "Be sure bin2c executable is in your path (https://github.com/AraHaan/bin2c)"
-    )
-  );
   return;
 }
 
@@ -39,11 +50,7 @@ fs.writeFileSync(
   fs.readFileSync(srcPath + "header.txt")
 );
 let bin2cfile = fs.readFileSync(distPath + "out.tmp").toString();
-let newfile = bin2cfile
-  .replace("] ", "] PROGMEM ")
-  .replace(/define.*dist_index_html_gz/, "define tool_html_gz")
-  .replace(/char.*dist_index_html_gz/, "char tool_html_gz");
-fs.appendFileSync(distPath + "embedded.h", newfile);
+fs.appendFileSync(distPath + "embedded.h", bin2cfile);
 fs.appendFileSync(
   distPath + "embedded.h",
   fs.readFileSync(srcPath + "footer.txt")

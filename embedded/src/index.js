@@ -459,18 +459,18 @@ function dispatchFileStatus(jsonresponse) {
     json = JSON.parse(jsonresponse);
     //ugly but code is smaller
     filecontentFooter.innerHTML =
-      "Status: " +
+      "<span>Status: " +
       json.status +
-      "&nbsp;&nbsp;|&nbsp;&nbsp;Total space: " +
+      "&nbsp;&nbsp;</span><span>|&nbsp;&nbsp;Total space: " +
       json.total +
-      "&nbsp;&nbsp;|&nbsp;&nbsp;Used space: " +
+      "&nbsp;&nbsp;</span><span>|&nbsp;&nbsp;Used space: " +
       json.used +
-      "&nbsp;&nbsp;|&nbsp;&nbsp;Occupation: " +
+      "&nbsp;&nbsp;</span><span>|&nbsp;&nbsp;Occupation: " +
       "<meter min='0' max='100' high='90' value='" +
       json.occupation +
       "'></meter>&nbsp;" +
       json.occupation +
-      "%";
+      "%</span>";
     json.files.sort(function (a, b) {
       return compareStrings(a.name, b.name);
     });
