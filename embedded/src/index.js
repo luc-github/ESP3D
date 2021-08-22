@@ -23,13 +23,14 @@ let firmwareButton;
 let refreshButton;
 let createDirButton;
 let message;
+let messageLimited;
 let websocketStarted = false;
 let wsSource;
 let wsMsg = "";
 let logOff = false;
 let pageId = "";
 let currentPath = "/";
-const version = "3.0.0.a1";
+const version = "3.0.0.a2";
 let xmlhttpupload;
 let prgfiletext;
 let prgfile;
@@ -53,6 +54,7 @@ window.onload = function () {
   fwInput = document.getElementById("filefw");
   filesInput = document.getElementById("files");
   message = document.getElementById("MSG");
+  messageLimited = document.getElementById("MSGLimited");
   prgfiletext = document.getElementById("prgfiletext");
   prgfile = document.getElementById("prgfile");
   document.getElementById("cmdBtn").addEventListener("click", function () {
@@ -294,7 +296,7 @@ function processFWJson(text) {
         "http://" +
         json.WebSocketIP +
         (window.location.port == 80 ? "" : ":" + window.location.port);
-      InfoMSG(
+      InfoMSGLimited(
         "It seems you are in limited environment,<br> please open a browser using<BR>" +
           address +
           "<br>to get all features working"
@@ -400,6 +402,11 @@ function uploadError(msg, nb) {
 function ErrorMSG(msg) {
   message.innerHTML = msg;
   message.className = "text-error";
+}
+
+function InfoMSGLimited(msg) {
+  messageLimited.innerHTML = msg;
+  messageLimited.className = "text-error";
 }
 
 function InfoMSG(msg) {
