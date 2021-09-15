@@ -112,12 +112,12 @@ void HTTP_Server::WebUpdateUpload ()
                     } else {
                         output.printERROR("Update failed!",500);
                         _upload_status=UPLOAD_STATUS_FAILED;
-                        pushError(ESP_ERROR_FILE_CLOSE, "File close failed");
+                        pushError(ESP_ERROR_UPDATE, "Update FW failed");
                     }
                 } else {
                     _upload_status=UPLOAD_STATUS_FAILED;
                     output.printERROR("Update failed!", 500);
-                    pushError(ESP_ERROR_FILE_CLOSE, "File close failed");
+                    pushError(ESP_ERROR_UPDATE, "Update FW failed");
                 }
             } else {
                 output.printERROR("Update failed!",500);

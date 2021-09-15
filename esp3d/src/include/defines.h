@@ -146,6 +146,7 @@
 #define ESP_ERROR_BUFFER_OVERFLOW   11
 #define ESP_ERROR_START_UPLOAD      12
 #define ESP_ERROR_SIZE              13
+#define ESP_ERROR_UPDATE            14
 
 //File system
 #define ESP_FILE_READ       0
