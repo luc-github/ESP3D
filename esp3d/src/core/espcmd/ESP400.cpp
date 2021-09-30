@@ -72,7 +72,7 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
 #endif  //ETH_FEATURE
     output->print ("]}");
 #if defined (WIFI_FEATURE) || defined (ETH_FEATURE) || defined(BT_FEATURE)
-    //Radio State at Boot 
+    //Radio State at Boot
     output->print (",{\"F\":\"network/network\",\"P\":\"");
     output->print (ESP_BOOT_RADIO_STATE);
     output->print ("\",\"T\":\"B\",\"R\":\"1\",\"V\":\"");

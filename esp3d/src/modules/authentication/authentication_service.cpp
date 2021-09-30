@@ -22,54 +22,54 @@
 #include "../../core/esp3doutput.h"
 #include "../../core/settings_esp3d.h"
 
-#if defined (AUTHENTICATION_FEATURE)
-#if defined (HTTP_FEATURE)
-#if defined (ARDUINO_ARCH_ESP32)
+#if defined(AUTHENTICATION_FEATURE)
+#if defined(HTTP_FEATURE)
+#if defined(ARDUINO_ARCH_ESP32)
 #include <WebServer.h>
 #endif //ARDUINO_ARCH_ESP32
-#if defined (ARDUINO_ARCH_ESP8266)
+#if defined(ARDUINO_ARCH_ESP8266)
 #include <ESP8266WebServer.h>
 #endif //ARDUINO_ARCH_ESP8266
-Authwebserver * AuthenticationService::_webserver = nullptr;
+Authwebserver *AuthenticationService::_webserver = nullptr;
 #endif //HTTP_FEATURE
 #endif //AUTHENTICATION_FEATURE
 
-#if defined (AUTHENTICATION_FEATURE)
-String AuthenticationService::_adminpwd="";
-String AuthenticationService::_userpwd="";
-#if defined (HTTP_FEATURE)
+#if defined(AUTHENTICATION_FEATURE)
+String AuthenticationService::_adminpwd = "";
+String AuthenticationService::_userpwd = "";
+#if defined(HTTP_FEATURE)
 uint32_t AuthenticationService::_sessionTimeout = 360000;
-auth_ip * AuthenticationService::_head = nullptr;
+auth_ip *AuthenticationService::_head = nullptr;
 uint8_t AuthenticationService::_current_nb_ip = 0;
-#endif //HTTP_FEATURE 
+#endif //HTTP_FEATURE
 #endif //AUTHENTICATION_FEATURE
 
 #define MAX_AUTH_IP 10
 //#define ALLOW_MULTIPLE_SESSIONS
 
 //check authentification
-level_authenticate_type AuthenticationService::authenticated_level(const  char * pwd, ESP3DOutput * output)
+level_authenticate_type AuthenticationService::authenticated_level(const char *pwd, ESP3DOutput *output)
 {
 #ifdef AUTHENTICATION_FEATURE
     level_authenticate_type auth_type = LEVEL_GUEST;
-    if(pwd != nullptr) {
+    if (pwd != nullptr) {
 
         if (isadmin(pwd)) {
             auth_type = LEVEL_ADMIN;
         }
-        if (isuser (pwd) && (auth_type != LEVEL_ADMIN)) {
+        if (isuser(pwd) && (auth_type != LEVEL_ADMIN)) {
             auth_type = LEVEL_USER;
         }
         return auth_type;
     } else {
-        if(output) {
-            if (output->client() !=ESP_HTTP_CLIENT) {
+        if (output) {
+            if (output->client() != ESP_HTTP_CLIENT) {
                 return auth_type;
             }
         }
-#if defined (HTTP_FEATURE)
+#if defined(HTTP_FEATURE)
         if (_webserver) {
-            if (_webserver->hasHeader ("Authorization") ) {
+            if (_webserver->hasHeader("Authorization")) {
                 //log_esp3d("Check authorization %",(_webserver->uri()).c_str());
                 if (_webserver->authenticate(DEFAULT_ADMIN_LOGIN, _adminpwd.c_str())) {
                     auth_type = LEVEL_ADMIN;
@@ -79,16 +79,16 @@ level_authenticate_type AuthenticationService::authenticated_level(const  char *
                     }
                 }
             }
-            if (_webserver->hasHeader ("Cookie") ) {
+            if (_webserver->hasHeader("Cookie")) {
                 //log_esp3d("Check Cookie %s",(_webserver->uri()).c_str());
-                String cookie = _webserver->header ("Cookie");
-                int pos = cookie.indexOf ("ESPSESSIONID=");
+                String cookie = _webserver->header("Cookie");
+                int pos = cookie.indexOf("ESPSESSIONID=");
                 if (pos != -1) {
-                    int pos2 = cookie.indexOf (";", pos);
-                    String sessionID = cookie.substring (pos + strlen ("ESPSESSIONID="), pos2);
+                    int pos2 = cookie.indexOf(";", pos);
+                    String sessionID = cookie.substring(pos + strlen("ESPSESSIONID="), pos2);
                     IPAddress ip = _webserver->client().remoteIP();
                     //check if cookie can be reset and clean table in same time
-                    auth_type = ResetAuthIP (ip, sessionID.c_str() );
+                    auth_type = ResetAuthIP(ip, sessionID.c_str());
                     //log_esp3d("Authentication = %d", auth_type);
                 }
             }
@@ -104,7 +104,7 @@ level_authenticate_type AuthenticationService::authenticated_level(const  char *
 }
 #ifdef AUTHENTICATION_FEATURE
 
-#if defined (HTTP_FEATURE)
+#if defined(HTTP_FEATURE)
 uint32_t AuthenticationService::setSessionTimeout(uint32_t timeout)
 {
     if (timeout >= 0) {
@@ -118,11 +118,11 @@ uint32_t AuthenticationService::getSessionTimeout()
 }
 #endif //HTTP_FEATURE
 
-bool AuthenticationService::begin(Authwebserver * webserver)
+bool AuthenticationService::begin(Authwebserver *webserver)
 {
     end();
     update();
-#if defined (HTTP_FEATURE)
+#if defined(HTTP_FEATURE)
     _webserver = webserver;
 #endif //HTTP_FEATURE
     //value is in ms but storage is in min
@@ -131,7 +131,7 @@ bool AuthenticationService::begin(Authwebserver * webserver)
 }
 void AuthenticationService::end()
 {
-#if defined (HTTP_FEATURE)
+#if defined(HTTP_FEATURE)
     _webserver = nullptr;
     ClearAllSessions();
 #endif //HTTP_FEATURE
@@ -139,8 +139,8 @@ void AuthenticationService::end()
 
 void AuthenticationService::update()
 {
-    _adminpwd=Settings_ESP3D::read_string (ESP_ADMIN_PWD);
-    _userpwd=Settings_ESP3D::read_string (ESP_USER_PWD);
+    _adminpwd = Settings_ESP3D::read_string(ESP_ADMIN_PWD);
+    _userpwd = Settings_ESP3D::read_string(ESP_USER_PWD);
 }
 
 void AuthenticationService::handle()
@@ -148,9 +148,9 @@ void AuthenticationService::handle()
 }
 
 //check admin password
-bool AuthenticationService::isadmin (const char *pwd)
+bool AuthenticationService::isadmin(const char *pwd)
 {
-    if (strcmp(_adminpwd.c_str(), pwd) !=0 ) {
+    if (strcmp(_adminpwd.c_str(), pwd) != 0) {
         return false;
     } else {
         return true;
@@ -158,20 +158,20 @@ bool AuthenticationService::isadmin (const char *pwd)
 }
 
 //check user password - admin password is also valid
-bool AuthenticationService::isuser (const char *pwd)
+bool AuthenticationService::isuser(const char *pwd)
 {
     //it is not user password
-    if (strcmp(_userpwd.c_str(), pwd)!=0) {
+    if (strcmp(_userpwd.c_str(), pwd) != 0) {
         //check admin password
-        return isadmin (pwd);
+        return isadmin(pwd);
     } else {
         return true;
     }
 }
 
-#if defined (HTTP_FEATURE)
+#if defined(HTTP_FEATURE)
 //add the information in the linked list if possible
-bool AuthenticationService::AddAuthIP (auth_ip * item)
+bool AuthenticationService::AddAuthIP(auth_ip *item)
 {
     if (_current_nb_ip > MAX_AUTH_IP) {
         return false;
@@ -183,20 +183,20 @@ bool AuthenticationService::AddAuthIP (auth_ip * item)
 }
 
 //Session ID based on IP and time using 16 char
-char * AuthenticationService::create_session_ID()
+char *AuthenticationService::create_session_ID()
 {
-    static char  sessionID[17];
-//reset SESSIONID
+    static char sessionID[17];
+    //reset SESSIONID
     for (int i = 0; i < 17; i++) {
         sessionID[i] = '\0';
     }
-//get time
+    //get time
     uint32_t now = millis();
-//get remote IP
+    //get remote IP
     IPAddress remoteIP = _webserver->client().remoteIP();
-//generate SESSIONID
-    if (0 > sprintf (sessionID, "%02X%02X%02X%02X%02X%02X%02X%02X", remoteIP[0], remoteIP[1], remoteIP[2], remoteIP[3], (uint8_t) ( (now >> 0) & 0xff), (uint8_t) ( (now >> 8) & 0xff), (uint8_t) ( (now >> 16) & 0xff), (uint8_t) ( (now >> 24) & 0xff) ) ) {
-        strcpy (sessionID, "NONE");
+    //generate SESSIONID
+    if (0 > sprintf(sessionID, "%02X%02X%02X%02X%02X%02X%02X%02X", remoteIP[0], remoteIP[1], remoteIP[2], remoteIP[3], (uint8_t)((now >> 0) & 0xff), (uint8_t)((now >> 8) & 0xff), (uint8_t)((now >> 16) & 0xff), (uint8_t)((now >> 24) & 0xff))) {
+        strcpy(sessionID, "NONE");
     }
     return sessionID;
 }
@@ -204,7 +204,7 @@ char * AuthenticationService::create_session_ID()
 bool AuthenticationService::ClearAllSessions()
 {
     while (_head) {
-        auth_ip * current = _head;
+        auth_ip *current = _head;
         _head = _head->_next;
         delete current;
     }
@@ -219,21 +219,21 @@ bool AuthenticationService::ClearCurrentSession()
     String cookie = _webserver->header("Cookie");
     int pos = cookie.indexOf("ESPSESSIONID=");
     String sessionID;
-    if (pos!= -1) {
-        int pos2 = cookie.indexOf(";",pos);
-        sessionID = cookie.substring(pos+strlen("ESPSESSIONID="),pos2);
+    if (pos != -1) {
+        int pos2 = cookie.indexOf(";", pos);
+        sessionID = cookie.substring(pos + strlen("ESPSESSIONID="), pos2);
     }
     return ClearAuthIP(_webserver->client().remoteIP(), sessionID.c_str());
 }
 
-bool AuthenticationService::CreateSession(level_authenticate_type auth_level, const char * username, const char* session_ID)
+bool AuthenticationService::CreateSession(level_authenticate_type auth_level, const char *username, const char *session_ID)
 {
-    auth_ip * current_auth = new auth_ip;
+    auth_ip *current_auth = new auth_ip;
     current_auth->level = auth_level;
-    current_auth->ip=_webserver->client().remoteIP();
+    current_auth->ip = _webserver->client().remoteIP();
     strcpy(current_auth->sessionID, session_ID);
-    strcpy(current_auth->userID,username);
-    current_auth->last_time=millis();
+    strcpy(current_auth->userID, username);
+    current_auth->last_time = millis();
 #ifndef ALLOW_MULTIPLE_SESSIONS
     //if not multiple session no need to keep all session, current one is enough
     ClearAllSessions();
@@ -246,13 +246,13 @@ bool AuthenticationService::CreateSession(level_authenticate_type auth_level, co
     }
 }
 
-bool AuthenticationService::ClearAuthIP (IPAddress ip, const char * sessionID)
+bool AuthenticationService::ClearAuthIP(IPAddress ip, const char *sessionID)
 {
-    auth_ip * current = _head;
-    auth_ip * previous = NULL;
+    auth_ip *current = _head;
+    auth_ip *previous = NULL;
     bool done = false;
     while (current) {
-        if ( (ip == current->ip) && (strcmp (sessionID, current->sessionID) == 0) ) {
+        if ((ip == current->ip) && (strcmp(sessionID, current->sessionID) == 0)) {
             //remove
             done = true;
             if (current == _head) {
@@ -275,12 +275,12 @@ bool AuthenticationService::ClearAuthIP (IPAddress ip, const char * sessionID)
 }
 
 //Get info
-auth_ip * AuthenticationService::GetAuth (IPAddress ip, const char * sessionID)
+auth_ip *AuthenticationService::GetAuth(IPAddress ip, const char *sessionID)
 {
-    auth_ip * current = _head;
+    auth_ip *current = _head;
     while (current) {
         if (ip == current->ip) {
-            if (strcmp (sessionID, current->sessionID) == 0) {
+            if (strcmp(sessionID, current->sessionID) == 0) {
                 //found
                 return current;
             }
@@ -292,20 +292,20 @@ auth_ip * AuthenticationService::GetAuth (IPAddress ip, const char * sessionID)
 }
 
 //Get time left for specific session
-uint32_t AuthenticationService::getSessionRemaining(const char * sessionID)
+uint32_t AuthenticationService::getSessionRemaining(const char *sessionID)
 {
-    auth_ip * current = _head;
+    auth_ip *current = _head;
     if ((sessionID == nullptr) || (strlen(sessionID) == 0)) {
         return 0;
     }
     while (current) {
-        if (strcmp (sessionID, current->sessionID) == 0) {
+        if (strcmp(sessionID, current->sessionID) == 0) {
             //found
             uint32_t now = millis();
             if ((now - current->last_time) > _sessionTimeout) {
                 return 0;
             }
-            return _sessionTimeout - (now-current->last_time);
+            return _sessionTimeout - (now - current->last_time);
         }
         //previous = current;
         current = current->_next;
@@ -314,16 +314,16 @@ uint32_t AuthenticationService::getSessionRemaining(const char * sessionID)
 }
 
 //Review all IP to reset timers
-level_authenticate_type AuthenticationService::ResetAuthIP (IPAddress ip, const char * sessionID)
+level_authenticate_type AuthenticationService::ResetAuthIP(IPAddress ip, const char *sessionID)
 {
-    auth_ip * current = _head;
-    auth_ip * previous = NULL;
+    auth_ip *current = _head;
+    auth_ip *previous = NULL;
     //get time
     //uint32_t now = millis();
     while (current) {
         //if time out is reached and time out is not disabled
         //if IP is not current one and time out is disabled
-        if ( (((millis() - current->last_time) > _sessionTimeout) && (_sessionTimeout!=0)) || ((ip != current->ip) && (_sessionTimeout==0)) ) {
+        if ((((millis() - current->last_time) > _sessionTimeout) && (_sessionTimeout != 0)) || ((ip != current->ip) && (_sessionTimeout == 0))) {
             //remove
             if (current == _head) {
                 _head = current->_next;
@@ -338,10 +338,10 @@ level_authenticate_type AuthenticationService::ResetAuthIP (IPAddress ip, const 
             }
         } else {
             if (ip == current->ip) {
-                if (strcmp (sessionID, current->sessionID) == 0) {
+                if (strcmp(sessionID, current->sessionID) == 0) {
                     //reset time
                     current->last_time = millis();
-                    return (level_authenticate_type) current->level;
+                    return (level_authenticate_type)current->level;
                 }
             }
             previous = current;
@@ -351,6 +351,5 @@ level_authenticate_type AuthenticationService::ResetAuthIP (IPAddress ip, const 
     return LEVEL_GUEST;
 }
 #endif //HTTP_FEATURE
-
 
 #endif //AUTHENTICATION_FEATURE

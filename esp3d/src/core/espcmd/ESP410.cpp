@@ -41,7 +41,9 @@ bool Commands::ESP410(const char* cmd_params, level_authenticate_type auth_type,
 #endif //AUTHENTICATION_FEATURE
     //Backup current mode
     uint8_t currentmode = WiFi.getMode();
-    if(currentmode==WIFI_AP)WiFi.mode(WIFI_AP_STA);
+    if(currentmode==WIFI_AP) {
+        WiFi.mode(WIFI_AP_STA);
+    }
     bool plain = hastag(cmd_params,"plain");
     int n = 0;
     uint8_t total = 0;

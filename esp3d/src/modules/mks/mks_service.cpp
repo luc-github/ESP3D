@@ -259,7 +259,9 @@ void MKSService::sendWifiHotspots()
     uint dataOffset = 1;
     uint8_t total_hotspots = 0;
     uint8_t currentmode = WiFi.getMode();
-    if(currentmode==WIFI_AP)WiFi.mode(WIFI_AP_STA);
+    if(currentmode==WIFI_AP) {
+        WiFi.mode(WIFI_AP_STA);
+    }
     clearFrame();
     //clean memory
     WiFi.scanDelete();

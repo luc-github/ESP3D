@@ -279,7 +279,7 @@ bool NetServices::begin()
         log_esp3d("Add mdns service http / tcp port %d", HTTP_Server::port());
         MDNS.addService("http", "tcp", HTTP_Server::port());
         //ESP3D service
-        //TODO list all services available (http/tcp/ws/ftp/webdav/etc...) 
+        //TODO list all services available (http/tcp/ws/ftp/webdav/etc...)
         MDNS.addService("esp3d", "tcp", HTTP_Server::port());
         MDNS.addServiceTxt("esp3d", "tcp", "version", FW_VERSION);
         //Add TXT records

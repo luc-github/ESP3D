@@ -277,8 +277,8 @@ bool ESP_SD::format(ESP3DOutput * output)
         return true;
     }
     if (output) {
-                output->printMSG("cannot erase");
-            }
+        output->printMSG("cannot erase");
+    }
     return false;
 }
 

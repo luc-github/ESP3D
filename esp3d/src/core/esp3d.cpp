@@ -117,13 +117,13 @@ bool Esp3D::begin()
 #endif //DISPLAY_DEVICE
     //Setup Network
 #if defined(WIFI_FEATURE) || defined(ETH_FEATURE) || defined(BLUETOOTH_FEATURE)
-    if (Settings_ESP3D::read_byte(ESP_BOOT_RADIO_STATE) == 1){
+    if (Settings_ESP3D::read_byte(ESP_BOOT_RADIO_STATE) == 1) {
         if (!NetConfig::begin()) {
-        log_esp3d("Error setup network");
-        res = false;
+            log_esp3d("Error setup network");
+            res = false;
         }
     }
-    
+
 #endif //WIFI_FEATURE
 #if defined(ESP_AUTOSTART_SCRIPT)
     esp3d_gcode_host.processscript(ESP_AUTOSTART_SCRIPT);

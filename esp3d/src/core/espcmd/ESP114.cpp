@@ -54,13 +54,12 @@ bool Commands::ESP114(const char* cmd_params, level_authenticate_type auth_type,
             output->printERROR("Only ON or OFF mode supported!");
             return false;
         } else {
-                if (!Settings_ESP3D::write_byte (ESP_BOOT_RADIO_STATE, (parameter == "ON")?1:0)) {
-                    output->printERROR ("Set failed!");
-                    response = false;
-                }
-                else {
-                    output->printMSG ("ok");
-                }
+            if (!Settings_ESP3D::write_byte (ESP_BOOT_RADIO_STATE, (parameter == "ON")?1:0)) {
+                output->printERROR ("Set failed!");
+                response = false;
+            } else {
+                output->printMSG ("ok");
+            }
         }
     }
     return response;
