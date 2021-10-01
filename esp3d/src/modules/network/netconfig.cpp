@@ -48,7 +48,7 @@ String NetConfig::_hostname = "";
 bool NetConfig::_needReconnect2AP = false;
 bool NetConfig::_events_registered = false;
 bool NetConfig::_started = false;
-uint8_t NetConfig::_mode = ESP_RADIO_OFF;
+uint8_t NetConfig::_mode = ESP_NO_NETWORK;
 
 //just simple helper to convert mac address to string
 char * NetConfig::mac2str (uint8_t mac [8])
@@ -237,7 +237,7 @@ bool NetConfig::begin()
     int8_t espMode =Settings_ESP3D::read_byte(ESP_RADIO_MODE);
     ESP3DOutput output(ESP_ALL_CLIENTS);
     log_esp3d("Starting Network");
-    if (espMode != NO_NETWORK) {
+    if (espMode != ESP_NO_NETWORK) {
         if (Settings_ESP3D::isVerboseBoot()) {
             output.printMSG("Starting Network");
         }
@@ -259,7 +259,7 @@ bool NetConfig::begin()
     //Get hostname
     _hostname = Settings_ESP3D::read_string(ESP_HOSTNAME);
     _mode = espMode;
-    if (espMode == NO_NETWORK) {
+    if (espMode == ESP_NO_NETWORK) {
         output.printMSG("Disable Network");
         WiFi.mode(WIFI_OFF);
         ESP3DGlobalOutput::display_IP();
@@ -347,7 +347,7 @@ void NetConfig::end()
 {
     NetServices::end();
     DEBUG_ESP3D_NETWORK_END
-    _mode = ESP_RADIO_OFF;
+    _mode = ESP_NO_NETWORK;
 #if defined (WIFI_FEATURE)
     WiFiConfig::end();
     _needReconnect2AP=false;

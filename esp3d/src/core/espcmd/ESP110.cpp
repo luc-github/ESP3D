@@ -42,7 +42,7 @@ bool Commands::ESP110(const char* cmd_params, level_authenticate_type auth_type,
     //get
     if (parameter.length() == 0) {
         int8_t wifiMode = Settings_ESP3D::read_byte(ESP_RADIO_MODE);
-        if (wifiMode == ESP_RADIO_OFF) {
+        if (wifiMode == ESP_NO_NETWORK) {
             output->printMSG("OFF");
         } else if (wifiMode == ESP_BT) {
             output->printMSG("BT");
@@ -91,7 +91,7 @@ bool Commands::ESP110(const char* cmd_params, level_authenticate_type auth_type,
             return false;
         }
 
-        int8_t bbuf = ESP_RADIO_OFF;
+        int8_t bbuf = ESP_NO_NETWORK;
 #ifdef WIFI_FEATURE
         if(parameter == "WIFI-STA") {
             bbuf = ESP_WIFI_STA;

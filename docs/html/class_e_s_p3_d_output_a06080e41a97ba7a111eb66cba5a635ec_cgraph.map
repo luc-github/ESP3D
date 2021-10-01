@@ -1,9 +1,0 @@
-<map id="ESP3DOutput::flush" name="ESP3DOutput::flush">
-<area shape="rect" id="node1" title=" " alt="" coords="5,81,144,108"/>
-<area shape="rect" id="node2" href="$class_serial_service.html#a2946015acf98d76100e513ae6e2d792d" title=" " alt="" coords="207,5,339,32"/>
-<area shape="rect" id="node3" href="$class_b_t_service.html#a44646c83d2a148cd8ae7d52a2e2765cd" title=" " alt="" coords="215,56,330,83"/>
-<area shape="rect" id="node4" href="$class_telnet___server.html#a6cf0a77d52c54d8705c4ac3cc960cea9" title=" " alt="" coords="205,107,340,133"/>
-<area shape="rect" id="node5" href="$class_e_s_p3_d_output.html#a0e7e634ea444a8b2855c55af7c48949a" title=" " alt="" coords="192,157,353,184"/>
-<area shape="rect" id="node6" href="$class_settings___e_s_p3_d.html#ad6b933a44e4a2356acfb030916e97dc7" title=" " alt="" coords="401,157,587,184"/>
-<area shape="rect" id="node7" href="$class_settings___e_s_p3_d.html#a952943fccb47ecb11266c53e8e0ed1b5" title=" " alt="" coords="635,150,781,191"/>
-</map>

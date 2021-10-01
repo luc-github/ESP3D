@@ -276,7 +276,7 @@ bool processingFileFunction (const char * section, const char * key, const char 
                 } else if (strcasecmp("ETH-STA",value)==0) {
                     b=ESP_ETH_STA;
                 } else if (strcasecmp("OFF",value)==0) {
-                    b=ESP_RADIO_OFF;
+                    b=ESP_NO_NETWORK;
                 } else {
                     P=-1;    //invalide value
                 }

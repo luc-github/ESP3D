@@ -72,11 +72,11 @@
 #define STATIC_IP_MODE  0
 
 //Network Mode
-#define ESP_RADIO_OFF 0
-#define ESP_WIFI_STA 1
-#define ESP_WIFI_AP  2
-#define ESP_BT       3
-#define ESP_ETH_STA  4
+#define ESP_NO_NETWORK 0
+#define ESP_WIFI_STA   1
+#define ESP_WIFI_AP    2
+#define ESP_BT         3
+#define ESP_ETH_STA    4
 //#define ESP_ETH_SRV  5
 
 //SD mount point

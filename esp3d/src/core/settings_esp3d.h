@@ -40,7 +40,6 @@
 #define DEFAULT_BT_FLAG 1
 #define DEFAULT_LCD_FLAG 1
 
-#define NO_NETWORK      0
 //position in EEPROM / preferences will use `P_` + <position> to make a string : P_0 for 0
 #define ESP_RADIO_MODE          0       //1 byte = flag
 #define ESP_STA_SSID            1       //33 bytes 32+1 = string  ; warning does not support multibyte char like chinese
