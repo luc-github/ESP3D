@@ -1277,11 +1277,21 @@ String Settings_ESP3D::IPtoString(uint32_t ip_int)
 const char * Settings_ESP3D::TargetBoard()
 {
 #ifdef ARDUINO_ARCH_ESP32
+#       if CONFIG_IDF_TARGET_ESP32
+#           define TYPE_BOARD "ESP32"
+#       elif CONFIG_IDF_TARGET_ESP32S2
+#           define TYPE_BOARD "ESP32-S2"
+#       elif CONFIG_IDF_TARGET_ESP32S3
+#           define TYPE_BOARD "ESP32-S3"
+#       elif CONFIG_IDF_TARGET_ESP32C3
+#          define TYPE_BOARD "ESP32-C3"
+#       endif
 #ifdef BOARD_HAS_PSRAM
-    return "ESP32 (PSRAM)";
+#define IS_PSRAM " (PSRAM)"
 #else
-    return "ESP32";
+#define IS_PSRAM ""
 #endif //BOARD_HAS_PSRAM
+    return TYPE_BOARD IS_PSRAM;
 #endif //ARDUINO_ARCH_ESP32
 #ifdef ARDUINO_ARCH_ESP8266
     return "ESP82XX";

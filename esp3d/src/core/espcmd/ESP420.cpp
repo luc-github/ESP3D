@@ -152,7 +152,11 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
     } else {
         output->print (": ");
     }
+#ifdef FILESYSTEM_FEATURE
     output->print(ESP_FileSystem::formatBytes (ESP.getFreeHeap()).c_str());
+#else
+    output->print(ESP.getFreeHeap());
+#endif//FILESYSTEM_FEATURE
 
 #ifdef ARDUINO_ARCH_ESP32
 #ifdef BOARD_HAS_PSRAM
@@ -193,7 +197,11 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
     } else {
         output->print (": ");
     }
+#ifdef FILESYSTEM_FEATURE
     output->print(ESP_FileSystem::formatBytes (ESP.getFlashChipSize()).c_str());
+#else
+    output->print(ESP.getFlashChipSize());
+#endif//FILESYSTEM_FEATURE
     if (!plain) {
         output->print ("\"}");
     } else {

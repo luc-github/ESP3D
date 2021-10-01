@@ -1,0 +1,15 @@
+ESP32:
+* be sure pyserial is installed: python -m pip install pyserial
+
+Linux:
+* add user to dialout group
+* check https://docs.platformio.org/en/latest//faq.html#platformio-udev-rules
+
+PlatformIO :
+* upload speed may need to be lower to 460800 if head packet error
+
+Arduino :
+* upload speed may need to be lower to 460800 if head packet error
+
+
+

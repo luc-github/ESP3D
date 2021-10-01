@@ -22,35 +22,35 @@ littlefs_esp32_filesystem.cpp - ESP3D littlefs filesystem configuration class
 #include "../esp_filesystem.h"
 #include "../../../core/genLinkedList.h"
 #include <FS.h>
-#include <LITTLEFS.h>
+#include <LittleFS.h>
 
 extern File tFile_handle[ESP_MAX_OPENHANDLE];
 
 bool ESP_FileSystem::begin()
 {
-    _started = LITTLEFS.begin(true);
+    _started = LittleFS.begin(true);
     return _started;
 }
 
 void ESP_FileSystem::end()
 {
-    LITTLEFS.end();
+    LittleFS.end();
     _started = false;
 }
 
 size_t ESP_FileSystem::freeBytes()
 {
-    return (LITTLEFS.totalBytes() - LITTLEFS.usedBytes());
+    return (LittleFS.totalBytes() - LittleFS.usedBytes());
 }
 
 size_t ESP_FileSystem::totalBytes()
 {
-    return LITTLEFS.totalBytes();
+    return LittleFS.totalBytes();
 }
 
 size_t ESP_FileSystem::usedBytes()
 {
-    return LITTLEFS.usedBytes();
+    return LittleFS.usedBytes();
 }
 
 uint ESP_FileSystem::maxPathLength()
@@ -60,7 +60,7 @@ uint ESP_FileSystem::maxPathLength()
 
 bool ESP_FileSystem::rename(const char *oldpath, const char *newpath)
 {
-    return LITTLEFS.rename(oldpath,newpath);
+    return LittleFS.rename(oldpath,newpath);
 }
 
 const char * ESP_FileSystem::FilesystemName()
@@ -70,7 +70,7 @@ const char * ESP_FileSystem::FilesystemName()
 
 bool ESP_FileSystem::format()
 {
-    bool res = LITTLEFS.format();
+    bool res = LittleFS.format();
     if (res) {
         res = begin();
     }
@@ -90,7 +90,7 @@ ESP_File ESP_FileSystem::open(const char* path, uint8_t mode)
         log_esp3d("%s is invalid path", path);
         return ESP_File();
     }
-    File tmp = LITTLEFS.open(path, (mode == ESP_FILE_READ)?FILE_READ:(mode == ESP_FILE_WRITE)?FILE_WRITE:FILE_APPEND);
+    File tmp = LittleFS.open(path, (mode == ESP_FILE_READ)?FILE_READ:(mode == ESP_FILE_WRITE)?FILE_WRITE:FILE_APPEND);
     if(tmp) {
         ESP_File esptmp(&tmp, tmp.isDirectory(),(mode == ESP_FILE_READ)?false:true, path);
         log_esp3d("%s is a %s", path,tmp.isDirectory()?"Dir":"File");
@@ -108,7 +108,7 @@ bool ESP_FileSystem::exists(const char* path)
     if (strcmp(path, "/") == 0) {
         return _started;
     }
-    res = LITTLEFS.exists(path);
+    res = LittleFS.exists(path);
     if (!res) {
         ESP_File root = ESP_FileSystem::open(path, ESP_FILE_READ);
         if (root) {
@@ -121,7 +121,7 @@ bool ESP_FileSystem::exists(const char* path)
 
 bool ESP_FileSystem::remove(const char *path)
 {
-    return LITTLEFS.remove(path);
+    return LittleFS.remove(path);
 }
 
 bool ESP_FileSystem::mkdir(const char *path)
@@ -135,7 +135,7 @@ bool ESP_FileSystem::mkdir(const char *path)
             p.remove(p.length()-1);
         }
     }
-    return LITTLEFS.mkdir(p);
+    return LittleFS.mkdir(p);
 }
 
 bool ESP_FileSystem::rmdir(const char *path)
@@ -157,7 +157,7 @@ bool ESP_FileSystem::rmdir(const char *path)
     GenLinkedList<String > pathlist;
     pathlist.push(p);
     while (pathlist.count() > 0) {
-        File dir = LITTLEFS.open(pathlist.getLast().c_str());
+        File dir = LittleFS.open(pathlist.getLast().c_str());
         File f = dir.openNextFile();
         bool candelete = true;
         while (f) {
@@ -168,14 +168,14 @@ bool ESP_FileSystem::rmdir(const char *path)
                 f.close();
                 f = File();
             } else {
-                LITTLEFS.remove(f.name());
+                LittleFS.remove(f.name());
                 f.close();
                 f = dir.openNextFile();
             }
         }
         if (candelete) {
             if (pathlist.getLast() !="/") {
-                res = LITTLEFS.rmdir(pathlist.getLast().c_str());
+                res = LittleFS.rmdir(pathlist.getLast().c_str());
             }
             pathlist.pop();
         }
@@ -260,7 +260,7 @@ void ESP_File::close()
         //reopen if mode = write
         //udate size + date
         if (_iswritemode && !_isdir) {
-            File ftmp = LITTLEFS.open(_filename.c_str());
+            File ftmp = LittleFS.open(_filename.c_str());
             if (ftmp) {
                 _size = ftmp.size();
                 _lastwrite = ftmp.getLastWrite();
