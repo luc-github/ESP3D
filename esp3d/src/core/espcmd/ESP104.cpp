@@ -1,5 +1,5 @@
 /*
- ESP110.cpp - ESP3D command class
+ ESP104.cpp - ESP3D command class
 
  Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -24,9 +24,9 @@
 #include "../settings_esp3d.h"
 #include "../../modules/network/netconfig.h"
 #include "../../modules/authentication/authentication_service.h"
-//Set radio state at boot which can be BT, WIFI-STA, WIFI-AP, ETH-STA, OFF
-//[ESP110]<state>pwd=<admin password>
-bool Commands::ESP110(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
+//Set STA fallback mode state at boot which can be BT, WIFI-AP,  OFF
+//[ESP104]<state>pwd=<admin password>
+bool Commands::ESP104(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
     bool response = true;
     String parameter;
@@ -41,19 +41,13 @@ bool Commands::ESP110(const char* cmd_params, level_authenticate_type auth_type,
     parameter = get_param (cmd_params, "");
     //get
     if (parameter.length() == 0) {
-        int8_t wifiMode = Settings_ESP3D::read_byte(ESP_RADIO_MODE);
+        int8_t wifiMode = Settings_ESP3D::read_byte(ESP_STA_FALLBACK_MODE);
         if (wifiMode == ESP_NO_NETWORK) {
             output->printMSG("OFF");
         } else if (wifiMode == ESP_BT) {
             output->printMSG("BT");
         } else if (wifiMode == ESP_WIFI_AP) {
             output->printMSG("WIFI-AP");
-        } else if (wifiMode == ESP_WIFI_STA) {
-            output->printMSG("WIFI-STA");
-//           } else if (wifiMode == ESP_ETH_SRV) {
-//               output->printMSG("ETH-SRV");
-        } else if (wifiMode == ESP_ETH_STA) {
-            output->printMSG("ETH-STA");
         } else {
             output->printMSG("??");
         }
@@ -70,7 +64,7 @@ bool Commands::ESP110(const char* cmd_params, level_authenticate_type auth_type,
                     (parameter == "BT") ||
 #endif //BLUETOOTH_FEATURE     
 #if defined( WIFI_FEATURE)
-                    (parameter == "WIFI-STA") || (parameter == "WIFI-AP") ||
+                    (parameter == "WIFI-AP") ||
 #endif //WIFI_FEATURE
 #if defined( ETH_FEATURE)
                     (parameter == "ETH-STA") || //(parameter == "ETH-SRV") ||
@@ -82,45 +76,29 @@ bool Commands::ESP110(const char* cmd_params, level_authenticate_type auth_type,
                                 "BT or "
 #endif //BLUETOOTH_FEATURE
 #ifdef WIFI_FEATURE
-                                "WIFI-STA or WIFI-AP or "
+                                "WIFI-AP or "
 #endif //WIFI_FEATURE
-#ifdef ETH_FEATURE
-                                "ETH-STA or "
-#endif //ETH_FEATURE
                                 "OFF mode supported!");
             return false;
         }
 
         int8_t bbuf = ESP_NO_NETWORK;
 #ifdef WIFI_FEATURE
-        if(parameter == "WIFI-STA") {
-            bbuf = ESP_WIFI_STA;
-        }
         if(parameter == "WIFI-AP") {
             bbuf = ESP_WIFI_AP;
         }
 #endif //WIFI_FEATURE
-#ifdef ETH_FEATURE
-        if(parameter == "ETH-STA") {
-            bbuf = ESP_ETH_STA;
-        }
-//            if(parameter == "ETH-SRV") {
-//                bbuf = ESP_ETH_SRV;
-//            }
-#endif //ETH_FEATURE
+
 #ifdef BLUETOOTH_FEATURE
         if(parameter == "BT") {
             bbuf = ESP_BT;
         }
 #endif //BLUETOOTH_FEATURE
-        if (!Settings_ESP3D::write_byte(ESP_RADIO_MODE, bbuf)) {
+        if (!Settings_ESP3D::write_byte(ESP_STA_FALLBACK_MODE, bbuf)) {
             output->printERROR ("Set failed!");
             response = false;
         } else {
-            if (!NetConfig::begin()) {
-                output->printERROR ("Cannot setup network");
-                response = false;
-            }
+            output->printMSG("Fallback mode updated");
         }
     }
     return response;

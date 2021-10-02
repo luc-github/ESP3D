@@ -139,6 +139,21 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (Settings_ESP3D::read_IP_String(ESP_STA_DNS_VALUE));
     output->print ("\",\"H\":\"DNS\"}");
 #endif  //WIFI_FEATURE || ETH_FEATURE
+#if defined (WIFI_FEATURE) || defined (ETH_FEATURE) || defined(BT_FEATURE)
+    //Sta fallback mode
+    output->print (",{\"F\":\"network/sta\",\"P\":\"");
+    output->print (ESP_STA_FALLBACK_MODE);
+    output->print ("\",\"T\":\"B\",\"R\":\"0\",\"V\":\"");
+    output->print (Settings_ESP3D::read_byte(ESP_STA_FALLBACK_MODE));
+    output->print ("\",\"H\":\"sta fallback mode\",\"O\":[{\"none\":\"0\"}");
+#ifdef WIFI_FEATURE
+    output->print (",{\"ap\":\"2\"}");
+#endif //WIFI_FEATURE
+#ifdef BLUETOOTH_FEATURE
+    output->print (",{\"bt\":\"3\"}");
+#endif  //BLUETOOTH_FEATURE
+    output->print ("]}");
+#endif //WIFI_FEATURE || ETH_FEATURE || BT_FEATURE
 #if defined(WIFI_FEATURE)
     //AP SSID network/ap
     output->print (",{\"F\":\"network/ap\",\"P\":\"");

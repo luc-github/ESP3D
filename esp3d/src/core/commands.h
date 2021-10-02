@@ -45,6 +45,9 @@ public:
     bool ESP102(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     bool ESP103(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #endif //WIFI_FEATURE ||ETH_FEATURE
+#if defined( WIFI_FEATURE) ||  defined( BLUETOOTH_FEATURE) || defined (ETH_FEATURE)
+    bool ESP104(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+#endif //WIFI_FEATURE || BLUETOOTH_FEATURE || ETH_FEATURE
 #if defined (WIFI_FEATURE)
     bool ESP105(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     bool ESP106(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
@@ -147,6 +150,7 @@ public:
 #endif //GLOBAL_FILESYSTEM_FEATURE
     bool ESP800(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     bool ESP900(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+    bool ESP901(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     bool ESP920(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #ifdef BUZZER_DEVICE
     bool ESP910(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);

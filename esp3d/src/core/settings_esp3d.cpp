@@ -63,12 +63,14 @@
 
 //default byte values
 #ifdef WIFI_FEATURE
+#define DEFAULT_STA_FALLBACK_MODE  ESP_WIFI_AP
 #if defined(STATION_WIFI_SSID) && defined(STATION_WIFI_PASSWORD)
 #define DEFAULT_ESP_RADIO_MODE  ESP_WIFI_STA
 #else
 #define DEFAULT_ESP_RADIO_MODE  ESP_WIFI_AP
 #endif //STATION_WIFI_SSID && STATION_WIFI_PASSWORD
 #else //WIFI_FEATURE
+#define DEFAULT_STA_FALLBACK_MODE  ESP_NO_NETWORK
 #ifdef BLUETOOTH_FEATURE
 #define DEFAULT_ESP_RADIO_MODE  ESP_BT
 #else //BLUETOOTH_FEATURE
@@ -242,6 +244,9 @@ uint8_t Settings_ESP3D::get_default_byte_value(int pos)
     switch(pos) {
     case ESP_BOOT_RADIO_STATE:
         res = DEFAULT_BOOT_RADIO_STATE;
+        break;
+    case ESP_STA_FALLBACK_MODE:
+        res = DEFAULT_STA_FALLBACK_MODE;
         break;
     case ESP_SECURE_SERIAL:
         res = DEFAULT_SECURE_SERIAL;
@@ -1051,6 +1056,7 @@ bool Settings_ESP3D::reset(bool networkonly)
     //radio mode
     Settings_ESP3D::write_byte(ESP_RADIO_MODE,Settings_ESP3D::get_default_byte_value(ESP_RADIO_MODE));
     Settings_ESP3D::write_byte(ESP_BOOT_RADIO_STATE,Settings_ESP3D::get_default_byte_value(ESP_BOOT_RADIO_STATE));
+    Settings_ESP3D::write_byte(ESP_STA_FALLBACK_MODE,Settings_ESP3D::get_default_byte_value(ESP_STA_FALLBACK_MODE));
 #if defined (WIFI_FEATURE)
     //STA SSID
     Settings_ESP3D::write_string(ESP_STA_SSID,Settings_ESP3D::get_default_string_value(ESP_STA_SSID).c_str());

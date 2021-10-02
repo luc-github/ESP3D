@@ -290,16 +290,16 @@ bool WiFiConfig::started()
 /**
  * begin WiFi setup
  */
-bool WiFiConfig::begin()
+bool WiFiConfig::begin(int8_t & espMode)
 {
     bool res = false;
     end();
     log_esp3d("Starting Wifi Config");
+    ESP3DOutput output(ESP_ALL_CLIENTS);
     if (Settings_ESP3D::isVerboseBoot()) {
-        ESP3DOutput output(ESP_ALL_CLIENTS);
         output.printMSG("Starting WiFi");
     }
-    int8_t wifiMode =Settings_ESP3D::read_byte(ESP_RADIO_MODE);
+    int8_t wifiMode = espMode;
     if (wifiMode == ESP_WIFI_AP) {
         log_esp3d("Starting AP mode");
         res = StartAP();
@@ -308,8 +308,18 @@ bool WiFiConfig::begin()
         res = StartSTA();
         //AP is backup mode
         if(!res) {
-            log_esp3d("Starting AP mode in safe mode");
-            res = StartAP();
+            if (Settings_ESP3D::isVerboseBoot()) {
+                output.printMSG("Starting fallback mode");
+            }
+            espMode =  Settings_ESP3D::read_byte(ESP_STA_FALLBACK_MODE);
+            if (espMode == ESP_WIFI_AP) {
+                log_esp3d("Starting AP mode in safe mode");
+                res = StartAP();
+            } else {
+                //let setup to handle the change
+                res = true;
+            }
+
         }
     }
     return res;

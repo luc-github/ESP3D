@@ -30,6 +30,9 @@ const char * help[]= {"[ESP] - display this help",
                       "[ESP102](Mode) - display/set STA IP mode (DHCP/STATIC)",
                       "[ESP103](IP=xxxx MSK=xxxx GW=xxxx) - display/set STA IP/Mask/GW",
 #endif //WIFI_FEATURE || ETH_FEATURE
+#if defined( WIFI_FEATURE) ||  defined( BLUETOOTH_FEATURE) || defined (ETH_FEATURE)
+                      "[ESP104](State) - display/set sta fallback mode which can be BT, AP, OFF",
+#endif // WIFI_FEATURE || BLUETOOTH_FEATURE || ETH_FEATURE
 #if defined (WIFI_FEATURE)
                       "[ESP105](SSID) - display/set AP SSID",
                       "[ESP106](Password) - set AP password",
@@ -37,15 +40,15 @@ const char * help[]= {"[ESP] - display this help",
                       "[ESP108](Chanel) - display/set AP chanel",
 #endif //WIFI_FEATURE
 #if defined( WIFI_FEATURE) ||  defined( BLUETOOTH_FEATURE) || defined (ETH_FEATURE)
-                      "[ESP110](State) - display/set radio state which can be STA, AP, OFF",
+                      "[ESP110](State) - display/set radio state which can be BT, STA, AP, OFF",
 #endif // WIFI_FEATURE || BLUETOOTH_FEATURE || ETH_FEATURE
 #if defined( WIFI_FEATURE) || defined (ETH_FEATURE)
                       "[ESP111](header)display current IP",
 #endif //WIFI_FEATURE || ETH_FEATURE
 #if defined(WIFI_FEATURE) || defined(ETH_FEATURE) || defined(BT_FEATURE)
                       "[ESP112](Hostname) - display/set Hostname",
-                      "[ESP114](State) -  display/set boot Network state which can be ON, OFF",
-                      "[ESP115](State) -  display/set immediate Network state which can be ON, OFF",
+                      "[ESP114](State) - display/set boot Network state which can be ON, OFF",
+                      "[ESP115](State) - display/set immediate Network state which can be ON, OFF",
 #endif //WIFI_FEATURE || ETH_FEATURE || BT_FEATURE
 #if defined(HTTP_FEATURE)
                       "[ESP120](State) - display/set HTTP state which can be ON, OFF",
@@ -129,7 +132,7 @@ const char * help[]= {"[ESP] - display this help",
 #endif //SD_DEVICE
 #if defined(FILESYSTEM_FEATURE)
                       "[ESP720](path) - List ESP Filesystem",
-                      "[ESP730](Action)=(path) - rmdir / remove / mkdir / exists / create on ESP FileSystem (path)",
+                      "[[ESP730]](Action)=(path) - rmdir / remove / mkdir / exists / create on ESP FileSystem (path)",
 #endif //FILESYSTEM_FEATURE
 #if defined (SD_DEVICE)
                       "[ESP740](path)  - List SD Filesystem",
@@ -137,10 +140,11 @@ const char * help[]= {"[ESP] - display this help",
 #endif //SD_DEVICE
 #if defined (GLOBAL_FILESYSTEM_FEATURE)
                       "[ESP780](path)  - List Global Filesystem",
-                      "[ESP750](Action)=(path) - rmdir / remove / mkdir / exists / create on Global Filesystem (path)",
+                      "[ESP790](Action)=(path) - rmdir / remove / mkdir / exists / create on Global Filesystem (path)",
 #endif //GLOBAL_FILESYSTEM_FEATURE
                       "[ESP800](plain)(time=YYYY-MM-DD-HH-MM-SS) - display FW Informations in plain/JSON",
                       "[ESP900](ENABLE/DISABLE) - display/set serial state",
+                      "[ESP901](ENABLE/DISABLE) - display/set verbose boot",
 #ifdef BUZZER_DEVICE
                       "[ESP910](ENABLE/DISABLE) - display/set buzzer state",
 #endif //BUZZER_DEVICE
@@ -156,6 +160,9 @@ const uint cmdlist[]= {0,
                        102,
                        103,
 #endif //WIFI_FEATURE || ETH_FEATURE
+#if defined( WIFI_FEATURE) ||  defined( BLUETOOTH_FEATURE) || defined (ETH_FEATURE)
+                       104,
+#endif // WIFI_FEATURE || BLUETOOTH_FEATURE || ETH_FEATURE
 #if defined (WIFI_FEATURE)
                        105,
                        106,
@@ -170,6 +177,7 @@ const uint cmdlist[]= {0,
 #endif //WIFI_FEATURE || ETH_FEATURE
 #if defined(WIFI_FEATURE) || defined(ETH_FEATURE) || defined(BT_FEATURE)
                        112,
+                       114,
                        115,
 #endif //WIFI_FEATURE || ETH_FEATURE || BT_FEATURE
 #if defined(HTTP_FEATURE)
@@ -197,7 +205,7 @@ const uint cmdlist[]= {0,
 #endif //FTP_FEATURE
 #if defined(WEBDAV_FEATURE)
                        190,
-                       111,
+                       191,
 #endif //WEBDAV_FEATURE
 #if defined (SD_DEVICE)
                        200,
@@ -205,6 +213,9 @@ const uint cmdlist[]= {0,
 #ifdef DIRECT_PIN_FEATURE
                        201,
 #endif //DIRECT_PIN_FEATURE
+#if defined (SD_DEVICE)
+                       202,
+#endif //SD_DEVICE
 #ifdef SENSOR_DEVICE
                        210,
 #endif //SENSOR_DEVICE
@@ -235,6 +246,7 @@ const uint cmdlist[]= {0,
 #if defined(NOTIFICATION_FEATURE)
                        600,
                        610,
+                       620,
 #endif //NOTIFICATION_FEATURE
 #if defined(FILESYSTEM_FEATURE) && defined(ESP_GCODE_HOST_FEATURE)
                        700,
@@ -259,9 +271,12 @@ const uint cmdlist[]= {0,
 #endif //GLOBAL_FILESYSTEM_FEATURE
                        800,
                        900,
+                       901,
 #ifdef BUZZER_DEVICE
                        910,
+
 #endif //BUZZER_DEVICE
+                       920,
                        0
                       };
 

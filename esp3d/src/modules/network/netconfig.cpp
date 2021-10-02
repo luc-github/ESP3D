@@ -274,33 +274,45 @@ bool NetConfig::begin()
 #if defined (WIFI_FEATURE)
     if ((espMode == ESP_WIFI_AP) || (espMode == ESP_WIFI_STA)) {
         output.printMSG("Setup wifi");
-        res = WiFiConfig::begin();
+        res = WiFiConfig::begin(espMode);
         //in case STA failed and fallback to AP mode
-        if (WiFi.getMode() == WIFI_AP) {
-            _mode = ESP_WIFI_AP;
-        }
+        _mode = ESP_WIFI_AP;
     }
 #endif //WIFI_FEATURE
 #if defined (ETH_FEATURE)
     //if ((espMode == ESP_ETH_STA) || (espMode == ESP_ETH_SRV)) {
     if ((espMode == ESP_ETH_STA)) {
         WiFi.mode(WIFI_OFF);
-        res = EthConfig::begin();
+        res = EthConfig::begin(espMode);
     }
 #endif //ETH_FEATURE
+
 #if defined (BLUETOOTH_FEATURE)
-    if ((espMode == ESP_BT)) {
+    if (espMode == ESP_BT) {
         WiFi.mode(WIFI_OFF);
-        if (Settings_ESP3D::isVerboseBoot()) {
-            ESP3DOutput output(ESP_ALL_CLIENTS);
-            String msg = "BT On";
-            ESP3DGlobalOutput::SetStatus(msg.c_str());
-            output.printMSG(msg.c_str());
-            output.flush();
-        }
+        String msg = "BT On";
+        ESP3DGlobalOutput::SetStatus(msg.c_str());
         res = bt_service.begin();
     }
+#else
+    //if BT and no BT enabled let's go to no network
+    if (espMode == ESP_BT) {
+        espMode = ESP_NO_NETWORK;
+    }
 #endif //BLUETOOTH_FEATURE
+
+    if (espMode == ESP_NO_NETWORK) {
+        output.printMSG("Disable Network");
+        WiFi.mode(WIFI_OFF);
+        ESP3DGlobalOutput::display_IP();
+        if (Settings_ESP3D::isVerboseBoot()) {
+            ESP3DOutput output(ESP_ALL_CLIENTS);
+            ESP3DGlobalOutput::SetStatus(RADIO_OFF_MSG);
+            output.printMSG(RADIO_OFF_MSG);
+            output.flush();
+        }
+        return true;
+    }
     //if network is up, let's start services
     if (res) {
         _started = true;

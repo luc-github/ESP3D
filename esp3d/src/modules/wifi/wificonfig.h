@@ -70,7 +70,7 @@ public:
     static const char * AP_Mask_String();
     static const char*  getConnectedSTA(uint8_t * totalcount = NULL, bool reset = false);
     static bool started();
-    static bool begin();
+    static bool begin(int8_t & espMode);
     static void end();
     static void handle();
 private :

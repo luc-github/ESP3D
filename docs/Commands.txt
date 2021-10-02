@@ -14,6 +14,9 @@ Note:
 * Set/Get STA IP/Mask/GW/DNS
 [ESP103]IP=<IP> MSK=<IP> GW=<IP> DNS=<IP> pwd=<admin password>
 
+* Set/Get sta fallback mode which can be WIFI-AP, BT, OFF
+[ESP104]<state>pwd=<admin password>
+
 *  Set/Get AP SSID 
 [ESP105]<SSID>pwd=<admin password>
 
@@ -234,6 +237,9 @@ rmdir / remove / mkdir / exists / create
 
 * Get state / Set Enable / Disable Serial Communication
 [ESP900]<ENABLE/DISABLE>[pwd=<admin/user password>]
+
+* Get state / Set Enable / Disable verbose boot
+[ESP901]<ENABLE/DISABLE>[pwd=<admin/user password>]
 
 * Get state / Set Enable / Disable buzzer
 [ESP910]<ENABLE/DISABLE>[pwd=<admin/user password>]

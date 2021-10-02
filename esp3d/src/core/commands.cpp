@@ -288,6 +288,13 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
         response = ESP103(cmd_params, auth_type, output);
         break;
 #endif //WIFI_FEATURE ||ETH_FEATURE
+#if defined( WIFI_FEATURE) ||  defined( BLUETOOTH_FEATURE) || defined (ETH_FEATURE)
+    //Set fallback mode which can be BT,  WIFI-AP, OFF
+    //[ESP104]<state>pwd=<admin password>
+    case 104:
+        response = ESP104(cmd_params, auth_type, output);
+        break;
+#endif //WIFI_FEATURE || BLUETOOTH_FEATURE || ETH_FEATURE)
 #if defined (WIFI_FEATURE)
     //AP SSID
     //[ESP105]<SSID>[pwd=<admin password>]
@@ -622,6 +629,11 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
     //[ESP900]<ENABLE/DISABLE>
     case 900:
         response = ESP900(cmd_params, auth_type, output);
+        break;
+    //Get state / Set Enable / Disable Verbose boot
+    //[ESP901]<ENABLE/DISABLE>
+    case 901:
+        response = ESP901(cmd_params, auth_type, output);
         break;
 #ifdef BUZZER_DEVICE
     //Get state / Set Enable / Disable buzzer

@@ -30,7 +30,7 @@ let wsMsg = "";
 let logOff = false;
 let pageId = "";
 let currentPath = "/";
-const version = "3.0.0.a2";
+const version = "3.0.0.a3";
 let xmlhttpupload;
 let prgfiletext;
 let prgfile;
@@ -490,25 +490,29 @@ function dispatchFileStatus(jsonresponse) {
       else newPath = currentPath.substring(0, pos);
       console.log("newpath:" + newPath);
       content +=
-        "<tr ><td>" +
+        "<div class='fileLine'>" +
+        "<div class='fileLineHead'>"+
+          "<div class='filetype'>"+
         backIcon() +
-        "</td><td class='fileitem' id='updir'> Up..</td><td colspan='3'></td></tr>";
+        "</div><div class='fileitem' id='updir'> Up..</div></div></div>";
       eventslisteners.push({ action: "updir", id: "updir", target: newPath });
     }
     for (let i1 = 0; i1 < json.files.length; i1++) {
       if (String(json.files[i1].size) == "-1") {
         content +=
-          "<tr><td>" +
+          "<div class='fileLine'>" +
+          "<div class='fileLineHead'>"+
+          "<div class='filetype'>"+
           dirIcon() +
-          "</td><td class='fileitem' id='Dir" +
+          "</div><div class='fileitem' id='Dir" +
           i1 +
           "'>" +
           json.files[i1].name +
-          "</td><td></td><td class='fileicon'  id='DirDel" +
+          "</div></div><div class='fileicon'  id='DirDel" +
           i1 +
           "'>" +
           trashIcon() +
-          "</td><td></td></tr>";
+          "</div></div>";
         eventslisteners.push({
           action: "dir",
           id: "Dir" + i1,
@@ -531,19 +535,21 @@ function dispatchFileStatus(jsonresponse) {
           showESP3Dbutton = true;
         }
         content +=
-          "<tr><td>" +
+          "<div class='fileLine' >" +
+          "<div class='fileLineHead'>"+
+          "<div class='filetype'>"+
           fileIcon() +
-          "</td><td class='fileitem'  id='File" +
+          "</div><div class='fileitem'  id='File" +
           i1 +
           "'>" +
           json.files[i1].name +
-          "</td><td>" +
+          "</div></div><div class='fileLineTail'><div class='filesize'>" +
           json.files[i1].size +
-          "</td><td class='fileicon'  id='FileDel" +
+          "</div><div class='fileicon'  id='FileDel" +
           i1 +
           "'>" +
           trashIcon() +
-          "</td><td></td></tr>";
+          "</div></div></div>";
         eventslisteners.push({
           action: "file",
           id: "File" + i1,

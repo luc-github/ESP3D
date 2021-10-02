@@ -282,6 +282,23 @@ bool processingFileFunction (const char * section, const char * key, const char 
                 }
             }
         }
+        //STA fallback mode BT, WIFI-AP, OFF
+        if (!done) {
+            if (strcasecmp("sta_fallback",key)==0) {
+                T='B';
+                P = ESP_STA_FALLBACK_MODE;
+                done = true;
+                if (strcasecmp("BT",value)==0) {
+                    b=ESP_BT;
+                } else if (strcasecmp("WIFI-AP",value)==0) {
+                    b=ESP_WIFI_AP;
+                } else if (strcasecmp("OFF",value)==0) {
+                    b=ESP_NO_NETWORK;
+                } else {
+                    P=-1;    //invalide value
+                }
+            }
+        }
 
         //STA IP Mode DHCP / STATIC
         if (!done) {

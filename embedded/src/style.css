@@ -269,20 +269,37 @@ li {
   display: none;
 }
 
-.table {
-  border: 0px;
-  border-spacing: 0;
-  max-width: 100%;
+.filesize,
+.filetype,
+.fileitem,
+.fileicon {
+  padding: 5px 5px;
+  border-radius: 5px 5px;
+  background-color: white;
 }
 
-.table th,
-.table td {
-  white-space: nowrap;
-  padding: 8px;
+.fileLineTail {
+  background-color: white;
+  display: flex;
+  justify-content: space-between;
+  column-gap: 10px;
+}
+
+.fileLineHead {
+  background-color: white;
+  display: flex;
+  justify-content: space-between;
+  column-gap: 10px;
+}
+
+.fileLine {
+  display: flex;
+  justify-content: space-between;
   line-height: 1.42857143;
-  vertical-align: top;
+  vertical-align: center;
   border-top: 1px solid #5755d9;
   background-color: white;
+  padding: 8px;
 }
 
 svg {

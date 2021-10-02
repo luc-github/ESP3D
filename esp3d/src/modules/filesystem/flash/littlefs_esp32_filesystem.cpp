@@ -108,9 +108,13 @@ bool ESP_FileSystem::exists(const char* path)
     if (strcmp(path, "/") == 0) {
         return _started;
     }
-    res = LittleFS.exists(path);
+    String p = path;
+    if(p[0]!='/') {
+        p="/"+p;
+    }
+    res = LittleFS.exists(p);
     if (!res) {
-        ESP_File root = ESP_FileSystem::open(path, ESP_FILE_READ);
+        ESP_File root = ESP_FileSystem::open(p.c_str(), ESP_FILE_READ);
         if (root) {
             res = root.isDirectory();
         }
@@ -121,7 +125,11 @@ bool ESP_FileSystem::exists(const char* path)
 
 bool ESP_FileSystem::remove(const char *path)
 {
-    return LittleFS.remove(path);
+    String p = path;
+    if(p[0]!='/') {
+        p="/"+p;
+    }
+    return LittleFS.remove(p.c_str());
 }
 
 bool ESP_FileSystem::mkdir(const char *path)
@@ -260,11 +268,14 @@ void ESP_File::close()
         //reopen if mode = write
         //udate size + date
         if (_iswritemode && !_isdir) {
-            File ftmp = LittleFS.open(_filename.c_str());
+            String s = _filename[0]=='/'?"":"/" + _filename;
+            File ftmp = LittleFS.open(s.c_str());
             if (ftmp) {
                 _size = ftmp.size();
                 _lastwrite = ftmp.getLastWrite();
                 ftmp.close();
+            } else {
+                log_esp3d("Error opening %s", s.c_str());
             }
         }
         tFile_handle[_index] = File();

@@ -52,7 +52,7 @@
 //#define ETH_FEATURE
 
 //BLUETOOTH_FEATURE : enable BT Serial function
-//#define BLUETOOTH_FEATURE
+#define BLUETOOTH_FEATURE
 
 //HTTP_FEATURE : enable HTTP function
 #define HTTP_FEATURE
@@ -165,7 +165,7 @@
 //FS_SD          mount SD FS
 //FS_USBDISK     mount USB disk FS
 
-#define WEBDAV_FEATURE  FS_FLASH
+//#define WEBDAV_FEATURE  FS_FLASH
 
 //FTP_FEATURE : enable FTP feature
 //FS_ROOT        mount all FS

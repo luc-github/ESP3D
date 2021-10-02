@@ -129,16 +129,16 @@ bool BTService::begin()
     //Get hostname
     //this allow to adjust if necessary
     _btname = Settings_ESP3D::read_string(ESP_HOSTNAME);
-    if (Settings_ESP3D::read_byte(ESP_RADIO_MODE) == ESP_BT) {
-        if (!SerialBT.begin(_btname)) {
-            output.printERROR("BT failed start");
-            res = false;
-        } else {
-            SerialBT.register_callback(&my_spp_cb);
-            String stmp = "BT Started with: '" + _btname + "'";
-            output.printMSG(stmp.c_str());
-        }
+
+    if (!SerialBT.begin(_btname)) {
+        output.printERROR("BT failed start");
+        res = false;
+    } else {
+        SerialBT.register_callback(&my_spp_cb);
+        String stmp = "Bluetooth Started with: '" + _btname + "'";
+        output.printMSG(stmp.c_str());
     }
+
     return res;
 }
 
@@ -149,8 +149,6 @@ void BTService::end()
 {
     flush();
     SerialBT.end();
-    ESP3DOutput output(ESP_ALL_CLIENTS);
-    output.printMSG("Bluetooth Off");
     _buffer_size = 0;
 }
 

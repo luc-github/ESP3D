@@ -80,28 +80,35 @@ bool EthConfig::StartSTA()
 /**
  * begin WiFi setup
  */
-bool EthConfig::begin()
+bool EthConfig::begin(int8_t & espMode)
 {
     bool res = false;
     ESP3DOutput output(ESP_ALL_CLIENTS);
     end();
     _started = ETH.begin();
     if (_started) {
-        output.printMSG("Starting Ethernet");
+        if (Settings_ESP3D::isVerboseBoot()) {
+            output.printMSG("Starting Ethernet");
+        }
         res=true;
     } else {
         output.printERROR("Failed Starting Ethernet");
     }
     ETH.setHostname(NetConfig::hostname(true));
 
-    int8_t espMode =Settings_ESP3D::read_byte(ESP_RADIO_MODE);
     //DHCP is only for Client
     if (espMode == ESP_ETH_STA) {
         if(!StartSTA()) {
-            res = false;
-            output.printMSG ("Failed Starting Client");
+            if (Settings_ESP3D::isVerboseBoot()) {
+                output.printMSG("Starting fallback mode");
+            }
+            espMode =  Settings_ESP3D::read_byte(ESP_STA_FALLBACK_MODE);
+            res = true;
         } else {
-            output.printMSG ("Client started");
+            if (Settings_ESP3D::isVerboseBoot()) {
+                output.printMSG ("Client started");
+            }
+
         }
 
     } else {
