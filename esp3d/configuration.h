@@ -52,7 +52,7 @@
 //#define ETH_FEATURE
 
 //BLUETOOTH_FEATURE : enable BT Serial function
-#define BLUETOOTH_FEATURE
+//#define BLUETOOTH_FEATURE
 
 //HTTP_FEATURE : enable HTTP function
 #define HTTP_FEATURE
