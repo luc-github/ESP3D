@@ -24,7 +24,6 @@
 #include "../../core/esp3doutput.h"
 #include "../../core/esp3d.h"
 #include <esp_camera.h>
-#include "fd_forward.h"
 #include <soc/soc.h> //not sure this one is needed
 #include <soc/rtc_cntl_reg.h>
 
@@ -33,7 +32,6 @@
 
 #define DEFAULT_FRAME_SIZE FRAMESIZE_SVGA
 #define JPEG_COMPRESSION 80
-#define MIN_WIDTH_COMPRESSION 400
 
 Camera esp3d_camera;
 
@@ -67,7 +65,6 @@ void Camera::handle_snap(WebServer * webserver)
     bool res_error = false;
     size_t _jpg_buf_len = 0;
     uint8_t * _jpg_buf = NULL;
-    dl_matrix3du_t *image_matrix = NULL;
     webserver->sendHeader(String(F("Content-Type")), String(F("image/jpeg")),true);
     webserver->sendHeader(String(F("Content-Disposition")), String(F("inline; filename=capture.jpg")),true);
     webserver->setContentLength(CONTENT_LENGTH_UNKNOWN);
@@ -78,44 +75,17 @@ void Camera::handle_snap(WebServer * webserver)
         log_esp3d("Camera capture failed");
         webserver->send (500, "text/plain", "Capture failed");
     } else {
-        if(fb->width > MIN_WIDTH_COMPRESSION) {
-            if(fb->format != PIXFORMAT_JPEG) {
-                bool jpeg_converted = frame2jpg(fb, JPEG_COMPRESSION, &_jpg_buf, &_jpg_buf_len);
-                esp_camera_fb_return(fb);
-                fb = NULL;
-                if(!jpeg_converted) {
-                    log_esp3d("JPEG compression failed");
-                    res_error = true;
-                }
-            } else {
-                _jpg_buf_len = fb->len;
-                _jpg_buf = fb->buf;
+        if(fb->format != PIXFORMAT_JPEG) {
+            bool jpeg_converted = frame2jpg(fb, JPEG_COMPRESSION, &_jpg_buf, &_jpg_buf_len);
+            esp_camera_fb_return(fb);
+            fb = NULL;
+            if(!jpeg_converted) {
+                log_esp3d("JPEG compression failed");
+                res_error = true;
             }
         } else {
-            image_matrix = dl_matrix3du_alloc(1, fb->width, fb->height, 3);
-
-            if (!image_matrix) {
-                log_esp3d("dl_matrix3du_alloc failed");
-                res_error = true;
-            } else {
-                if(!fmt2rgb888(fb->buf, fb->len, fb->format, image_matrix->item)) {
-                    log_esp3d("fmt2rgb888 failed");
-                    res_error = true;
-                } else {
-                    if (fb->format != PIXFORMAT_JPEG) {
-                        if(!fmt2jpg(image_matrix->item, fb->width*fb->height*3, fb->width, fb->height, PIXFORMAT_RGB888, 90, &_jpg_buf, &_jpg_buf_len)) {
-                            log_esp3d("fmt2jpg failed");
-                            res_error = true;
-                        }
-                        esp_camera_fb_return(fb);
-                        fb = NULL;
-                    } else {
-                        _jpg_buf = fb->buf;
-                        _jpg_buf_len = fb->len;
-                    }
-                }
-                dl_matrix3du_free(image_matrix);
-            }
+            _jpg_buf_len = fb->len;
+            _jpg_buf = fb->buf;
         }
     }
     if (!res_error) {
