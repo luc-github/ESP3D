@@ -47,10 +47,10 @@ bool Commands::ESP410(const char* cmd_params, level_authenticate_type auth_type,
     bool plain = hastag(cmd_params,"plain");
     int n = 0;
     uint8_t total = 0;
+    n = WiFi.scanNetworks ();
     if (plain) {
         output->printLN ("Start Scan");
     }
-    n = WiFi.scanNetworks ();
     if (!plain) {
         output->print ("{\"AP_LIST\":[");
     }
@@ -104,7 +104,9 @@ bool Commands::ESP410(const char* cmd_params, level_authenticate_type auth_type,
     if (!plain) {
         output->printLN ("]}");
     } else {
-        output->printLN ("");
+        if(total>0) {
+            output->printLN ("");
+        }
         output->printLN ("End Scan");
     }
     WiFi.mode((WiFiMode_t)currentmode);
