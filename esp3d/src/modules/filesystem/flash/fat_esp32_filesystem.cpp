@@ -257,7 +257,8 @@ void ESP_File::close()
         //reopen if mode = write
         //udate size + date
         if (_iswritemode && !_isdir) {
-            File ftmp = FFat.open(_filename.c_str());
+            String s = _filename[0]=='/'?"":"/" + _filename;
+            File ftmp = FFat.open(s.c_str());
             if (ftmp) {
                 _size = ftmp.size();
                 _lastwrite = ftmp.getLastWrite();
