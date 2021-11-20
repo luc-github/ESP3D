@@ -37,14 +37,19 @@ As based of MKS protocol 1KB looks a good start
     - Tail: CRC + tail tag (TBD)
 
 ### Ack  
+
     - communication may rely on pins like for MKS or response packet using also same block description so transfer can be done when GCODE command is send to printer, and printer can ack/raise error or answer GCODE command also when transfer is on going.
     - so tranfer is not blocking and polling is not a noise
+  
 ### Error checking
+
     - The error check will rely on CRC instead of checksum because more reliable
     - The error control can be a mix between a resend and automatically adjust/decrease the transfer baud rate in case of EMI issues
 
 ### Performance
+
     - The goal is to be as close as possible as current MKS transfer = 100KB, do not expect instant magical transfer but better one.
 
 ### Libraries 
+
     - CRC library seems a good candidat for CRC part
