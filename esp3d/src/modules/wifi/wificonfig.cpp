@@ -251,14 +251,8 @@ bool WiFiConfig::StartAP()
     //IP
     int32_t IP = Settings_ESP3D::read_IP(ESP_AP_IP_VALUE);
     IPAddress ip(IP);
+    IPAddress gw(0,0,0,0);
     IPAddress mask(DEFAULT_AP_MASK_VALUE);
-    //Set static IP
-    log_esp3d("Use: %s / %s / %s", ip.toString().c_str(),ip.toString().c_str(),mask.toString().c_str());
-    if (!WiFi.softAPConfig(ip, ip, mask)) {
-        output.printERROR("Set IP to AP failed");
-    } else {
-        output.printMSG(ip.toString().c_str());
-    }
     //Start AP
     if(WiFi.softAP(SSID.c_str(), (password.length() > 0)?password.c_str():nullptr, channel)) {
         String stmp = "AP SSID: '" + SSID;
@@ -270,6 +264,14 @@ bool WiFiConfig::StartAP()
         output.printMSG(stmp.c_str());
         log_esp3d("%s",stmp.c_str());
         //must be done after starting AP not before
+        Hal::wait(100);
+        //Set static IP
+        log_esp3d("Use: %s / %s / %s", ip.toString().c_str(),ip.toString().c_str(),mask.toString().c_str());
+        if (!WiFi.softAPConfig(ip, gw, mask)) {
+            output.printERROR("Set IP to AP failed");
+        } else {
+            output.printMSG(ip.toString().c_str());
+        }
 #if defined (ARDUINO_ARCH_ESP32)
         WiFi.setSleep(false);
         WiFi.softAPsetHostname(NetConfig::hostname(true));
