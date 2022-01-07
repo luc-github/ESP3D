@@ -1244,6 +1244,8 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
             ESPCOM::print ( (const char *) CONFIG::intTostr (ESP_EMAIL_NOTIFICATION), output, espresponse);
             ESPCOM::print (F("\"},{\"Line\":\""), output, espresponse);
             ESPCOM::print ( (const char *) CONFIG::intTostr (ESP_LINE_NOTIFICATION), output, espresponse);
+            ESPCOM::print (F("\"},{\"IFTTT\":\""), output, espresponse);
+            ESPCOM::print ( (const char *) CONFIG::intTostr (ESP_IFTTT_NOTIFICATION), output, espresponse);
             ESPCOM::print (F("\"}]}"), output, espresponse);
             ESPCOM::println (F (","), output, espresponse);
             //Token 1
@@ -1737,7 +1739,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
             }
             char sbuf[MAX_DATA_LENGTH + 1];
             static String tmp;
-            tmp = (Ntype == ESP_PUSHOVER_NOTIFICATION)?"PUSHOVER":(Ntype == ESP_EMAIL_NOTIFICATION)?"EMAIL":(Ntype == ESP_LINE_NOTIFICATION)?"LINE":"NONE";
+            tmp = (Ntype == ESP_PUSHOVER_NOTIFICATION)?"PUSHOVER":(Ntype == ESP_EMAIL_NOTIFICATION)?"EMAIL":(Ntype == ESP_LINE_NOTIFICATION)?"LINE":(Ntype == ESP_IFTTT_NOTIFICATION)?"IFTTT":"NONE";
             if (CONFIG::read_string (ESP_NOTIFICATION_SETTINGS, sbuf, MAX_NOTIFICATION_SETTINGS_LENGTH) ) {
                 tmp+= " ";
                 tmp += sbuf;
@@ -1758,6 +1760,8 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
                     Ntype = ESP_EMAIL_NOTIFICATION;
                 } else if (parameter == "LINE") {
                     Ntype = ESP_LINE_NOTIFICATION;
+                } else if (parameter == "IFTTT") {
+                    Ntype = ESP_IFTTT_NOTIFICATION;    
                 } else {
                     ESPCOM::println (INCORRECT_CMD_MSG, output, espresponse);
                     return false;

@@ -343,42 +343,27 @@ bool NotificationsService::sendIFTTTMSG(const char * title, const char * message
 {
     String data;
     String postcmd;
-
     bool res;
-
-    #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     TSecureClient Notificationclient;
-    #pragma GCC diagnostic pop
-    #if defined(ARDUINO_ARCH_ESP8266) && !defined(USING_AXTLS)
-        Notificationclient.setInsecure();
-    #endif //ARDUINO_ARCH_ESP8266 && !USING_AXTLS
-    (void)title;
+#pragma GCC diagnostic pop
+#if defined(ARDUINO_ARCH_ESP8266) && !defined(USING_AXTLS)
+    Notificationclient.setInsecure();
+#endif //ARDUINO_ARCH_ESP8266 && !USING_AXTLS
     if (!Notificationclient.connect(_serveraddress.c_str(), _port)) {
         //log_esp3d("Error connecting  server %s:%d", _serveraddress.c_str(), _port);
         return false;
     }
 
-    std::string authTokens;
-
-    //split authentication 
-    authTokens = _token1.c_str();
-    std::string webhookEvent = authTokens.substr(0, authTokens.find(";"));
-    std::string authToken = authTokens.substr(1, authTokens.find(";"));
-
-    //build data for post
-    data = "message=";
-    data += message;
     //build post query
-    postcmd  = "POST /trigger/" + webhookEvent + "/with/key/" + authToken + "?value1=value1&value2=value2&value3=value3" + " HTTP/1.1\r\nHost: notify-api.line.me\r\nConnection: close\r\nCache-Control: no-cache\r\nUser-Agent: ESP3D\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\nContent-Type: application/x-www-form-urlencoded\r\n";
-    postcmd  += "Content-Length: ";
-    postcmd  += data.length();
-    postcmd  +="\r\n\r\n";
-    postcmd  +=data;
+        
+    postcmd  = "POST /trigger/" + _token1 + "/with/key/" + _token2 +"/?value1=" + title + "&value2=" + message + "&value3=" + wifi_config.get_hostname() + " HTTP/1.1\r\nHost: maker.ifttt.com\r\nConnection: close\r\nCache-Control: no-cache\r\nUser-Agent: ESP3D\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\nContent-Type: application/x-www-form-urlencoded\r\n";
+
     //log_esp3d("Query: %s", postcmd.c_str());
     //send query
     Notificationclient.print(postcmd);
-    res = Wait4Answer(Notificationclient, "{", "\"status\":200",  LINETIMEOUT);
+    res = Wait4Answer(Notificationclient, "{", "\"status\":1",  PUSHOVERTIMEOUT);
     Notificationclient.stop();
     return res;
 }
