@@ -59,6 +59,10 @@ typedef WiFiClientSecure TSecureClient;
 #define LINESERVER "notify-api.line.me"
 #define LINEPORT    443
 
+#define IFTTTTIMEOUT 5000
+#define IFTTTSERVER "maker.ifttt.com"
+#define IFTTTPORT    443
+
 #define EMAILTIMEOUT 5000
 
 NotificationsService notificationsservice;
@@ -132,6 +136,8 @@ const char * NotificationsService::getTypeString()
         return "Email";
     case ESP_LINE_NOTIFICATION:
         return "Line";
+    case ESP_IFTTT_NOTIFICATION:
+        return "IFTTT";
     default:
         break;
     }
@@ -153,6 +159,9 @@ bool NotificationsService::sendMSG(const char * title, const char * message)
             break;
         case ESP_LINE_NOTIFICATION :
             return sendLineMSG(title,message);
+            break;
+        case ESP_IFTTT_NOTIFICATION :
+            return sendIFTTTMSG(title,message);
             break;
         default:
             break;
@@ -329,6 +338,51 @@ bool NotificationsService::sendLineMSG(const char * title, const char * message)
     Notificationclient.stop();
     return res;
 }
+//IFTTT
+bool NotificationsService::sendIFTTTMSG(const char * title, const char * message)
+{
+    String data;
+    String postcmd;
+
+    bool res;
+
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+    TSecureClient Notificationclient;
+    #pragma GCC diagnostic pop
+    #if defined(ARDUINO_ARCH_ESP8266) && !defined(USING_AXTLS)
+        Notificationclient.setInsecure();
+    #endif //ARDUINO_ARCH_ESP8266 && !USING_AXTLS
+    (void)title;
+    if (!Notificationclient.connect(_serveraddress.c_str(), _port)) {
+        //log_esp3d("Error connecting  server %s:%d", _serveraddress.c_str(), _port);
+        return false;
+    }
+
+    std::string authTokens;
+
+    //split authentication 
+    authTokens = _token1.c_str();
+    std::string webhookEvent = authTokens.substr(0, authTokens.find(";"));
+    std::string authToken = authTokens.substr(1, authTokens.find(";"));
+
+    //build data for post
+    data = "message=";
+    data += message;
+    //build post query
+    postcmd  = "POST /trigger/" + webhookEvent + "/with/key/" + authToken + "?value1=value1&value2=value2&value3=value3" + " HTTP/1.1\r\nHost: notify-api.line.me\r\nConnection: close\r\nCache-Control: no-cache\r\nUser-Agent: ESP3D\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\nContent-Type: application/x-www-form-urlencoded\r\n";
+    postcmd  += "Content-Length: ";
+    postcmd  += data.length();
+    postcmd  +="\r\n\r\n";
+    postcmd  +=data;
+    //log_esp3d("Query: %s", postcmd.c_str());
+    //send query
+    Notificationclient.print(postcmd);
+    res = Wait4Answer(Notificationclient, "{", "\"status\":200",  LINETIMEOUT);
+    Notificationclient.stop();
+    return res;
+}
+
 //Email#serveraddress:port
 bool NotificationsService::getPortFromSettings()
 {
@@ -386,7 +440,6 @@ bool NotificationsService::getEmailFromSettings()
     return true;
 }
 
-
 bool NotificationsService::begin()
 {
     bool res = true;
@@ -416,6 +469,17 @@ bool NotificationsService::begin()
         _port = LINEPORT;
         _serveraddress = LINESERVER;
         break;
+    case ESP_IFTTT_NOTIFICATION:
+        if (CONFIG::read_string (ESP_NOTIFICATION_TOKEN1, sbuf, MAX_NOTIFICATION_TOKEN_LENGTH) ) {
+            _token1 = sbuf;
+        }
+        if (CONFIG::read_string (ESP_NOTIFICATION_TOKEN2, sbuf, MAX_NOTIFICATION_TOKEN_LENGTH) ) {
+            _token2 = sbuf;
+        }
+        _port = IFTTTPORT;
+        _serveraddress = IFTTTSERVER;
+        break;
+
     case ESP_EMAIL_NOTIFICATION:
         if (CONFIG::read_string (ESP_NOTIFICATION_TOKEN1, sbuf, MAX_NOTIFICATION_TOKEN_LENGTH) ) {
             _token1 = base64::encode(sbuf);
@@ -461,5 +525,6 @@ void NotificationsService::handle()
     if (_started) {
     }
 }
+
 
 #endif //NOTIFICATION_FEATURE
