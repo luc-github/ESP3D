@@ -30,7 +30,7 @@ let wsMsg = "";
 let logOff = false;
 let pageId = "";
 let currentPath = "/";
-const version = "3.0.0.a3";
+const version = "3.0.0.a4";
 let xmlhttpupload;
 let prgfiletext;
 let prgfile;
@@ -304,7 +304,7 @@ function processFWJson(text) {
     }
   }
   if (json.Hostname) document.title = json.Hostname;
-  startSocket(json.WebSocketIP, json.WebSocketport, json.WebCommunication);
+  startSocket(json.WebSocketIP, json.WebSocketPort, json.WebCommunication);
   SendFileCommand("list", "all");
 }
 
@@ -491,8 +491,8 @@ function dispatchFileStatus(jsonresponse) {
       console.log("newpath:" + newPath);
       content +=
         "<div class='fileLine'>" +
-        "<div class='fileLineHead'>"+
-          "<div class='filetype'>"+
+        "<div class='fileLineHead'>" +
+        "<div class='filetype'>" +
         backIcon() +
         "</div><div class='fileitem' id='updir'> Up..</div></div></div>";
       eventslisteners.push({ action: "updir", id: "updir", target: newPath });
@@ -501,8 +501,8 @@ function dispatchFileStatus(jsonresponse) {
       if (String(json.files[i1].size) == "-1") {
         content +=
           "<div class='fileLine'>" +
-          "<div class='fileLineHead'>"+
-          "<div class='filetype'>"+
+          "<div class='fileLineHead'>" +
+          "<div class='filetype'>" +
           dirIcon() +
           "</div><div class='fileitem' id='Dir" +
           i1 +
@@ -536,8 +536,8 @@ function dispatchFileStatus(jsonresponse) {
         }
         content +=
           "<div class='fileLine' >" +
-          "<div class='fileLineHead'>"+
-          "<div class='filetype'>"+
+          "<div class='fileLineHead'>" +
+          "<div class='filetype'>" +
           fileIcon() +
           "</div><div class='fileitem'  id='File" +
           i1 +

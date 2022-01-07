@@ -208,7 +208,7 @@ bool Commands::ESP800(const char* cmd_params, level_authenticate_type auth_type,
     if (plain) {
         output->print("Web Socket port:");
     } else {
-        output->print(",\"WebSocketport\":\"");
+        output->print(",\"WebSocketPort\":\"");
     }
 #if defined (ASYNCWEBSERVER_FEATURE)
     output->print(HTTP_Server::port());

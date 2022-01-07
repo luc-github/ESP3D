@@ -11,8 +11,9 @@ module.exports = {
   devServer: {
     historyApiFallback: true, // to make our SPA works after a full reload, so that it serves 'index.html' when 404 response
     open: true,
-    contentBase: path.resolve(__dirname, "./dist"),
-    inline: true,
+    static: {
+      directory: path.resolve(__dirname, "./dist"),
+    },
     port: 8088,
     proxy: {
       context: () => true,
