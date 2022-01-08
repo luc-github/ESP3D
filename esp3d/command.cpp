@@ -1721,7 +1721,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
         }
         break;
     //Set/Get Notification settings
-    //[ESP610]type=<NONE/PUSHOVER/EMAIL/LINE> T1=<token1> T2=<token2> TS=<Settings> [pwd=<admin password>]
+    //[ESP610]type=<NONE/PUSHOVER/EMAIL/LINE/IFTTT> T1=<token1> T2=<token2> TS=<Settings> [pwd=<admin password>]
     //Get will give type and settings only not the protected T1/T2
     case 610:
 #ifdef AUTHENTICATION_FEATURE
