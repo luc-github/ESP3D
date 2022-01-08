@@ -375,7 +375,7 @@ bool NotificationsService::sendIFTTTMSG(const char * title, const char * message
     //log_esp3d("Query: %s", postcmd.c_str());
     //send query
     Notificationclient.print(postcmd);
-    res = Wait4Answer(Notificationclient, "{", "\"status\":200",  IFTTTTIMEOUT);
+    res = Wait4Answer(Notificationclient, "Congratulations", "Congratulations",  IFTTTTIMEOUT);
     Notificationclient.stop();
     return res;
 }
