@@ -198,6 +198,7 @@ bool NotificationsService::sendPushoverMSG(const char * title, const char * mess
     data += message;
     data += "&device=";
     data += wifi_config.get_hostname();
+    
     //build post query
     postcmd  = "POST /1/messages.json HTTP/1.1\r\nHost: api.pushover.net\r\nConnection: close\r\nCache-Control: no-cache\r\nUser-Agent: ESP3D\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\nContent-Length: ";
     postcmd  += data.length();
@@ -356,14 +357,25 @@ bool NotificationsService::sendIFTTTMSG(const char * title, const char * message
         return false;
     }
 
+    //build data for post
+
+    data ="value1=";
+    data += title;
+    data += "&value2=";
+    data += message;
+    data += "&value3=";
+    data += wifi_config.get_hostname();
+    
     //build post query
-        
-    postcmd  = "POST /trigger/" + _token1 + "/with/key/" + _token2 +"/?value1=" + title + "&value2=" + message + "&value3=" + wifi_config.get_hostname() + " HTTP/1.1\r\nHost: maker.ifttt.com\r\nConnection: close\r\nCache-Control: no-cache\r\nUser-Agent: ESP3D\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\nContent-Type: application/x-www-form-urlencoded\r\n";
+    postcmd  = "POST /trigger/" + _token1 + "/with/key/" + _token2 + "  HTTP/1.1\r\nHost: maker.ifttt.com\r\nConnection: close\r\nCache-Control: no-cache\r\nUser-Agent: ESP3D\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: ";
+    postcmd  += data.length();
+    postcmd  +="\r\n\r\n";
+    postcmd  +=data;
 
     //log_esp3d("Query: %s", postcmd.c_str());
     //send query
     Notificationclient.print(postcmd);
-    res = Wait4Answer(Notificationclient, "{", "\"status\":1",  PUSHOVERTIMEOUT);
+    res = Wait4Answer(Notificationclient, "{", "\"status\":200",  IFTTTTIMEOUT);
     Notificationclient.stop();
     return res;
 }
