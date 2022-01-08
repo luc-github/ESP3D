@@ -40,7 +40,7 @@ const char * help[]= {"[ESP] - display this help",
                       "[ESP108](Chanel) - display/set AP chanel",
 #endif //WIFI_FEATURE
 #if defined( WIFI_FEATURE) ||  defined( BLUETOOTH_FEATURE) || defined (ETH_FEATURE)
-                      "[ESP110](State) - display/set radio state which can be BT, STA, AP, OFF",
+                      "[ESP110](State) - display/set radio state which can be BT, WIFI-STA, WIFI-AP, ETH-STA, OFF",
 #endif // WIFI_FEATURE || BLUETOOTH_FEATURE || ETH_FEATURE
 #if defined( WIFI_FEATURE) || defined (ETH_FEATURE)
                       "[ESP111](header)display current IP",
