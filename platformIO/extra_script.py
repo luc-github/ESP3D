@@ -14,6 +14,7 @@ if isfile(configuration_file):
             if (env["PIOPLATFORM"] == "espressif8266"):
                 lib_ignore = env.GetProjectOption("lib_ignore")
                 lib_ignore.append("SD(esp8266)")
+                lib_ignore.append("SD")
                 lib_ignore.append("SDFS")
                 print("Ignore libs:", lib_ignore)
                 env.GetProjectConfig().set(

@@ -47,6 +47,8 @@ uint8_t ESP_SD::getState(bool refresh)
     }
     if (!refresh) {
         return _state;  //to avoid refresh=true + busy to reset SD and waste time
+    } else {
+        _sizechanged = true;
     }
 //SD is idle or not detected, let see if still the case
 

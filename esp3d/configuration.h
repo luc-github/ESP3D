@@ -130,8 +130,9 @@
 //SD_DEVICE: to access SD Card files directly instead of access by serial using printer Board FW
 //ESP_SD_NATIVE               1 //esp32 / esp8266
 //ESP_SDIO                    2 //esp32 only
-//ESP_SDFAT                   3 //esp8266 (same as native) / esp32
-//#define SD_DEVICE    ESP_SD_NATIVE
+//ESP_SDFAT                   3 //esp8266  / esp32
+//ESP_SDFAT2                  4 //esp8266  / esp32
+//#define SD_DEVICE    ESP_SDFAT2
 
 //SDIO mode
 #define SD_ONE_BIT_MODE true
