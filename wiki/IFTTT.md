@@ -5,7 +5,6 @@ IFFT is a wrapper that allows several kind of notifications, please refer to htt
 
 1 - If you do not have IFTTT account you can create for free to use up to 5 applets.
 ![](https://raw.githubusercontent.com/luc-github/ESP3D/2.1.x/wiki/images/IFTTT/accountCreation1.png)
-    https://raw.githubusercontent.com/luc-github/ESP3D/2.1.x/wiki/images/IFTTT/accountCreation1.png
 
 2 - Create New applet   
 ![](https://raw.githubusercontent.com/luc-github/ESP3D/2.1.x/wiki/images/IFTTT/createWebHook1.png)
@@ -66,11 +65,11 @@ IFFT is a wrapper that allows several kind of notifications, please refer to htt
 `[ESP600]Hi there, test from ESP3D`
 
 7 - Verify the workflow
- * Go to Applets
+ * Go to Applets   
    ![](https://raw.githubusercontent.com/luc-github/ESP3D/2.1.x/wiki/images/IFTTT/applets.png) 
- * Select Activity
+ * Select Activity   
    ![](https://raw.githubusercontent.com/luc-github/ESP3D/2.1.x/wiki/images/IFTTT/activity1.png) 
- * Select the flow to display
+ * Select the flow to display   
    ![](https://raw.githubusercontent.com/luc-github/ESP3D/2.1.x/wiki/images/IFTTT/activity2.png) 
   
 
