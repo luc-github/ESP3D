@@ -26,3 +26,4 @@ Just add following command in your slicer's end script, or manualy on your GCODE
 * [Pushover Notification](https://github.com/luc-github/ESP3D/wiki/Pushover) (https://pushover.net/) not Free
 * [Email using SMTP and HTTPS](https://github.com/luc-github/ESP3D/wiki/Email_and_SMTP) Free
 * [Telegram Notification](https://github.com/luc-github/ESP3D/wiki/Telegram) Free (from ESP3D 3.0 version)
+* [IFTTT Notification](https://github.com/luc-github/ESP3D/wiki/IFTTT) Free up to 5 applets
