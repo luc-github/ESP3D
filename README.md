@@ -10,6 +10,10 @@ Use the webUI 3.0 : https://github.com/luc-github/ESP3D-WEBUI/blob/3.0/dist/prin
 please use Arduino ide 1.8.9+ with [![Release Version](https://img.shields.io/badge/ESP32-git-yellow?style=plastic&logo=github)](https://github.com/espressif/arduino-esp32) or [![Release Version](https://img.shields.io/badge/ESP8266-git-yellow?style=plastic&logo=github)](https://github.com/esp8266/Arduino/)  
 or PlatformIO
 
+Because ESP3D 3.0 is actually a set of several projects: [ESP3D](https://github.com/luc-github/ESP3D), [ESP3D-WEBUI](https://github.com/luc-github/ESP3D-WEBUI), [ESP3DLib](https://github.com/luc-github/ESP3DLib), [ESP32SSDP](https://github.com/luc-github/ESP32SSDP), [svg-icons](https://github.com/luc-github/svg-icons)
+
+I did a project board to put all majors tasks/issues in one places : [ESP3D Project](https://github.com/users/luc-github/projects/1/views/1)
+
 # TODO List to move to beta
 
 - [Finish web UI Major features (3D printing and GRBL)](https://github.com/luc-github/ESP3D-WEBUI/issues/94#issuecomment-660600551)
