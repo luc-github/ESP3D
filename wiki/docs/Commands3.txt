@@ -14,6 +14,9 @@ Note:
 * Set/Get STA IP/Mask/GW 
 [ESP103]IP=<IP> MSK=<IP> GW=<IP> pwd=<admin password>
 
+* Set/Get Fallback mode which can be BT, SETUP, OFF
+[ESP104]<state>pwd=<admin password>
+
 *  Set/Get AP SSID 
 [ESP105]<SSID>pwd=<admin password>
 
@@ -26,7 +29,7 @@ Note:
 * Set/Get AP channel 
 [ESP108]<channel>pwd=<admin password>
 
-* Set/Get radio state which can be WIFI-STA, WIFI-AP, BT, ETH-STA, ETH-AP, OFF
+* Set/Get radio state which can be WIFI-STA, WIFI-AP, BT, ETH-STA, WIFI-SETUP, OFF
 [ESP110]<state>pwd=<admin password>
 
 * Get current IP
