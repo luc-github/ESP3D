@@ -224,7 +224,7 @@ bool WiFiConfig::StartSTA()
  * Setup and start Access point
  */
 
-bool WiFiConfig::StartAP()
+bool WiFiConfig::StartAP(bool setupMode)
 {
     ESP3DOutput output(ESP_ALL_CLIENTS);
     //Sanity check
@@ -259,7 +259,10 @@ bool WiFiConfig::StartAP()
         if (password.length() > 0) {
             stmp +="' is started and protected by password";
         } else {
-            stmp +=" is started not protected by passord";
+            stmp +=" is started not protected by password";
+        }
+        if (setupMode) {
+            stmp += " (setup mode)";
         }
         output.printMSG(stmp.c_str());
         log_esp3d("%s",stmp.c_str());
@@ -267,7 +270,7 @@ bool WiFiConfig::StartAP()
         Hal::wait(100);
         //Set static IP
         log_esp3d("Use: %s / %s / %s", ip.toString().c_str(),ip.toString().c_str(),mask.toString().c_str());
-        if (!WiFi.softAPConfig(ip, gw, mask)) {
+        if (!WiFi.softAPConfig(ip, setupMode?ip:gw, mask)) {
             output.printERROR("Set IP to AP failed");
         } else {
             output.printMSG(ip.toString().c_str());
@@ -302,9 +305,9 @@ bool WiFiConfig::begin(int8_t & espMode)
         output.printMSG("Starting WiFi");
     }
     int8_t wifiMode = espMode;
-    if (wifiMode == ESP_WIFI_AP) {
+    if (wifiMode == ESP_WIFI_AP || wifiMode == ESP_AP_SETUP) {
         log_esp3d("Starting AP mode");
-        res = StartAP();
+        res = StartAP(wifiMode == ESP_AP_SETUP);
     } else if (wifiMode == ESP_WIFI_STA) {
         log_esp3d("Starting STA");
         res = StartSTA();
@@ -314,9 +317,10 @@ bool WiFiConfig::begin(int8_t & espMode)
                 output.printMSG("Starting fallback mode");
             }
             espMode =  Settings_ESP3D::read_byte(ESP_STA_FALLBACK_MODE);
-            if (espMode == ESP_WIFI_AP) {
-                log_esp3d("Starting AP mode in safe mode");
-                res = StartAP();
+            NetConfig::setMode(espMode);
+            if (espMode == ESP_AP_SETUP) {
+                log_esp3d("Starting AP mode in setup mode");
+                res = StartAP(true);
             } else {
                 //let setup to handle the change
                 res = true;

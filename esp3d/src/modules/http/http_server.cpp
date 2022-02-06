@@ -30,6 +30,7 @@
 #endif //ARDUINO_ARCH_ESP8266
 #include "http_server.h"
 #include "../authentication/authentication_service.h"
+#include "../network/netconfig.h"
 #include "../../core/settings_esp3d.h"
 #include "../filesystem/esp_filesystem.h"
 #include "../websocket/websocket_server.h"
@@ -79,7 +80,7 @@ void HTTP_Server::init_handlers()
     }
 #endif //SSDP_FEATURE
 #ifdef CAPTIVE_PORTAL_FEATURE
-    if(WiFi.getMode() == WIFI_AP) {
+    if(NetConfig::getMode() == ESP_AP_SETUP) {
         _webserver->on ("/generate_204", HTTP_ANY,  handle_root);
         _webserver->on ("/gconnectivitycheck.gstatic.com", HTTP_ANY, handle_root);
         //do not forget the / at the end

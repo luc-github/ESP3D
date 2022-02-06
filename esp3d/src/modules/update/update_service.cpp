@@ -273,6 +273,8 @@ bool processingFileFunction (const char * section, const char * key, const char 
                     b=ESP_WIFI_STA;
                 } else if (strcasecmp("WIFI-AP",value)==0) {
                     b=ESP_WIFI_AP;
+                } else if (strcasecmp("WIFI-SETUP",value)==0) {
+                    b=ESP_AP_SETUP;
                 } else if (strcasecmp("ETH-STA",value)==0) {
                     b=ESP_ETH_STA;
                 } else if (strcasecmp("OFF",value)==0) {
@@ -290,8 +292,8 @@ bool processingFileFunction (const char * section, const char * key, const char 
                 done = true;
                 if (strcasecmp("BT",value)==0) {
                     b=ESP_BT;
-                } else if (strcasecmp("WIFI-AP",value)==0) {
-                    b=ESP_WIFI_AP;
+                } else if (strcasecmp("WIFI-SETUP",value)==0) {
+                    b=ESP_AP_SETUP;
                 } else if (strcasecmp("OFF",value)==0) {
                     b=ESP_NO_NETWORK;
                 } else {

@@ -54,6 +54,8 @@ bool Commands::ESP110(const char* cmd_params, level_authenticate_type auth_type,
 //               output->printMSG("ETH-SRV");
         } else if (wifiMode == ESP_ETH_STA) {
             output->printMSG("ETH-STA");
+        } else if (wifiMode == ESP_AP_SETUP) {
+            output->printMSG("WIFI-SETUP");
         } else {
             output->printMSG("??");
         }
@@ -70,7 +72,7 @@ bool Commands::ESP110(const char* cmd_params, level_authenticate_type auth_type,
                     (parameter == "BT") ||
 #endif //BLUETOOTH_FEATURE     
 #if defined( WIFI_FEATURE)
-                    (parameter == "WIFI-STA") || (parameter == "WIFI-AP") ||
+                    (parameter == "WIFI-STA") || (parameter == "WIFI-AP") || (parameter == "WIFI-SETUP") ||
 #endif //WIFI_FEATURE
 #if defined( ETH_FEATURE)
                     (parameter == "ETH-STA") || //(parameter == "ETH-SRV") ||
@@ -82,7 +84,7 @@ bool Commands::ESP110(const char* cmd_params, level_authenticate_type auth_type,
                                 "BT or "
 #endif //BLUETOOTH_FEATURE
 #ifdef WIFI_FEATURE
-                                "WIFI-STA or WIFI-AP or "
+                                "WIFI-STA or WIFI-AP or WIFI-SETUP or "
 #endif //WIFI_FEATURE
 #ifdef ETH_FEATURE
                                 "ETH-STA or "
@@ -98,6 +100,9 @@ bool Commands::ESP110(const char* cmd_params, level_authenticate_type auth_type,
         }
         if(parameter == "WIFI-AP") {
             bbuf = ESP_WIFI_AP;
+        }
+        if(parameter == "WIFI-SETUP") {
+            bbuf = ESP_AP_SETUP;
         }
 #endif //WIFI_FEATURE
 #ifdef ETH_FEATURE

@@ -62,7 +62,7 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (Settings_ESP3D::read_byte(ESP_RADIO_MODE));
     output->print ("\",\"H\":\"radio mode\",\"O\":[{\"none\":\"0\"}");
 #ifdef WIFI_FEATURE
-    output->print (",{\"sta\":\"1\"},{\"ap\":\"2\"}");
+    output->print (",{\"sta\":\"1\"},{\"ap\":\"2\"},{\"setup\":\"5\"}");
 #endif //WIFI_FEATURE
 #ifdef BLUETOOTH_FEATURE
     output->print (",{\"bt\":\"3\"}");
@@ -147,7 +147,7 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     output->print (Settings_ESP3D::read_byte(ESP_STA_FALLBACK_MODE));
     output->print ("\",\"H\":\"sta fallback mode\",\"O\":[{\"none\":\"0\"}");
 #ifdef WIFI_FEATURE
-    output->print (",{\"ap\":\"2\"}");
+    output->print (",{\"setup\":\"5\"}");
 #endif //WIFI_FEATURE
 #ifdef BLUETOOTH_FEATURE
     output->print (",{\"bt\":\"3\"}");

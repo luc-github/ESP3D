@@ -61,6 +61,7 @@ public:
     static void end();
     static void handle();
     static uint8_t getMode();
+    static void setMode(uint8_t mode);
     static bool started()
     {
         return _started;

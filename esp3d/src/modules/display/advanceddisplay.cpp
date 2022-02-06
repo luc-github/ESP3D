@@ -319,6 +319,7 @@ bool Display::display_IP(bool force)
             case ESP_WIFI_STA:
                 s = WiFi.localIP().toString();
                 break;
+            case ESP_AP_SETUP:
             case ESP_WIFI_AP:
                 s = WiFi.softAPIP().toString();
                 break;

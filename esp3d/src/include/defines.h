@@ -77,6 +77,7 @@
 #define ESP_WIFI_AP    2
 #define ESP_BT         3
 #define ESP_ETH_STA    4
+#define ESP_AP_SETUP   5
 //#define ESP_ETH_SRV  5
 
 //SD mount point

@@ -192,7 +192,7 @@ bool NetServices::begin()
 #endif //MDNS_FEATURE && ARDUINO_ARCH_ESP8266
 
 #ifdef CAPTIVE_PORTAL_FEATURE
-    if(WiFi.getMode() == WIFI_AP) {
+    if(NetConfig::getMode() == ESP_AP_SETUP) {
         // if DNSServer is started with "*" for domain name, it will reply with
         // provided IP to all DNS request
         if (dnsServer.start(DNS_PORT, "*", WiFi.softAPIP())) {
@@ -349,7 +349,7 @@ void NetServices::end()
     notificationsservice.end();
 #endif //NOTIFICATION_FEATURE
 #ifdef CAPTIVE_PORTAL_FEATURE
-    if(WiFi.getMode() == WIFI_AP) {
+    if(NetConfig::getMode() == ESP_AP_SETUP) {
         dnsServer.stop();
     }
 #endif //CAPTIVE_PORTAL_FEATURE
@@ -421,7 +421,7 @@ void NetServices::handle()
         ArduinoOTA.handle();
 #endif //OTA_FEATURE
 #ifdef CAPTIVE_PORTAL_FEATURE
-        if (WiFi.getMode()== WIFI_AP ) {
+        if (NetConfig::getMode() == ESP_AP_SETUP) {
             dnsServer.processNextRequest();
         }
 #endif //CAPTIVE_PORTAL_FEATURE

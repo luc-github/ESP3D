@@ -46,8 +46,8 @@ bool Commands::ESP104(const char* cmd_params, level_authenticate_type auth_type,
             output->printMSG("OFF");
         } else if (wifiMode == ESP_BT) {
             output->printMSG("BT");
-        } else if (wifiMode == ESP_WIFI_AP) {
-            output->printMSG("WIFI-AP");
+        } else if (wifiMode == ESP_AP_SETUP) {
+            output->printMSG("WIFI-SETUP");
         } else {
             output->printMSG("??");
         }
@@ -64,7 +64,7 @@ bool Commands::ESP104(const char* cmd_params, level_authenticate_type auth_type,
                     (parameter == "BT") ||
 #endif //BLUETOOTH_FEATURE     
 #if defined( WIFI_FEATURE)
-                    (parameter == "WIFI-AP") ||
+                    (parameter == "WIFI-SETUP") ||
 #endif //WIFI_FEATURE
 #if defined( ETH_FEATURE)
                     (parameter == "ETH-STA") || //(parameter == "ETH-SRV") ||
@@ -76,7 +76,7 @@ bool Commands::ESP104(const char* cmd_params, level_authenticate_type auth_type,
                                 "BT or "
 #endif //BLUETOOTH_FEATURE
 #ifdef WIFI_FEATURE
-                                "WIFI-AP or "
+                                "WIFI-SETUP or "
 #endif //WIFI_FEATURE
                                 "OFF mode supported!");
             return false;
@@ -84,8 +84,8 @@ bool Commands::ESP104(const char* cmd_params, level_authenticate_type auth_type,
 
         int8_t bbuf = ESP_NO_NETWORK;
 #ifdef WIFI_FEATURE
-        if(parameter == "WIFI-AP") {
-            bbuf = ESP_WIFI_AP;
+        if(parameter == "WIFI-SETUP") {
+            bbuf = ESP_AP_SETUP;
         }
 #endif //WIFI_FEATURE
 

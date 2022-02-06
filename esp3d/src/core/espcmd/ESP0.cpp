@@ -31,7 +31,7 @@ const char * help[]= {"[ESP] - display this help",
                       "[ESP103](IP=xxxx MSK=xxxx GW=xxxx) - display/set STA IP/Mask/GW",
 #endif //WIFI_FEATURE || ETH_FEATURE
 #if defined( WIFI_FEATURE) ||  defined( BLUETOOTH_FEATURE) || defined (ETH_FEATURE)
-                      "[ESP104](State) - display/set sta fallback mode which can be BT, AP, OFF",
+                      "[ESP104](State) - display/set sta fallback mode which can be BT, SETUP, OFF",
 #endif // WIFI_FEATURE || BLUETOOTH_FEATURE || ETH_FEATURE
 #if defined (WIFI_FEATURE)
                       "[ESP105](SSID) - display/set AP SSID",
@@ -40,7 +40,7 @@ const char * help[]= {"[ESP] - display this help",
                       "[ESP108](Chanel) - display/set AP chanel",
 #endif //WIFI_FEATURE
 #if defined( WIFI_FEATURE) ||  defined( BLUETOOTH_FEATURE) || defined (ETH_FEATURE)
-                      "[ESP110](State) - display/set radio state which can be BT, WIFI-STA, WIFI-AP, ETH-STA, OFF",
+                      "[ESP110](State) - display/set radio state which can be BT, WIFI-STA, WIFI-AP, WIFI-SETUP, ETH-STA, OFF",
 #endif // WIFI_FEATURE || BLUETOOTH_FEATURE || ETH_FEATURE
 #if defined( WIFI_FEATURE) || defined (ETH_FEATURE)
                       "[ESP111](header)display current IP",

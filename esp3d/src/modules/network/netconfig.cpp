@@ -221,6 +221,11 @@ void NetConfig::onWiFiEvent(WiFiEvent_t event)
     }
 }
 
+void NetConfig::setMode(uint8_t mode)
+{
+    _mode=mode;
+}
+
 uint8_t NetConfig::getMode()
 {
     return _mode;
@@ -272,11 +277,9 @@ bool NetConfig::begin()
         return true;
     }
 #if defined (WIFI_FEATURE)
-    if ((espMode == ESP_WIFI_AP) || (espMode == ESP_WIFI_STA)) {
+    if ((espMode == ESP_AP_SETUP) || (espMode == ESP_WIFI_AP) || (espMode == ESP_WIFI_STA)) {
         output.printMSG("Setup wifi");
         res = WiFiConfig::begin(espMode);
-        //in case STA failed and fallback to AP mode
-        _mode = ESP_WIFI_AP;
     }
 #endif //WIFI_FEATURE
 #if defined (ETH_FEATURE)

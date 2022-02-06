@@ -56,7 +56,7 @@ class WiFiConfig
 public:
     static bool isPasswordValid (const char * password);
     static bool isSSIDValid (const char * ssid);
-    static bool StartAP();
+    static bool StartAP(bool setupMode = false);
     static bool StartSTA();
     static void StopWiFi();
     static int32_t getSignal (int32_t RSSI);
