@@ -23,22 +23,21 @@ The web interface files are present in data directory but UI has it's own reposi
     
 
 ## Sponsors 
-[<img width="200px" src="https://raw.githubusercontent.com/luc-github/ESP3D/3.0/images/sponsors-supporters/FYSETC/LOGO.png" title="FYSETC">](https://www.fysetc.com/)&nbsp;&nbsp;
-[<img width="80px" src="https://user-images.githubusercontent.com/8822552/84999946-1078ac80-b152-11ea-84ce-84803b1ab02e.png" title="Bart Dring">](https://github.com//bdring)&nbsp;&nbsp;
-[<img width="80px" src="https://avatars.githubusercontent.com/u/8650709?v=4" title="Spark-Concepts">](http://www.spark-concepts.com/)
+[<img width="200px" src="https://raw.githubusercontent.com/luc-github/ESP3D-WEBUI/2.1/images/sponsors-supporters/MKS/mksmakerbase.jpg" title="MKS Makerbase">](https://github.com/makerbase-mks)&nbsp;&nbsp;
 
 ## Supporters
-[<img height="80px" src="https://raw.githubusercontent.com/luc-github/ESP3D/3.0/images/sponsors-supporters/PanucattDevices/Panucatt.jpg" title="Panucatt Devices"/>](http://www.panucatt.com/)
-
 
 ## Become a sponsor or a supporter
- * A sponsor is a recurent donator <a href="https://liberapay.com/ESP3D/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a>   
- The sponsors are automaticaly displayed by github, if your tier is `10 US$/month` or more, to thank you for your support, your logo / avatar will be also added to the readme page with eventually with a link to your site.    
+ * A sponsor is a recurent donator    
+If your tier is `10 US$/month` or more, to thank you for your support, your logo / avatar will be added to the readme page with eventually with a link to your site.    
+ * A supporter is per time donator 
+ If your donation is over `120 US$` per year, to thank you for your support, your logo / avatar will be added to the readme page with eventually with a link to your site.  
 
- * A supporter is per time donator [<img src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG_global.gif" border="0" alt="PayPal – The safer, easier way to pay online.">](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Y8FFE7NA4LJWQ)   
- If your donation is over `120 US$` per year, to thank you for your support, your logo / avatar will be added to the readme page with eventually with a link to your site.    
+ Every support is welcome, indeed helping users / developing new features need time and devices, donations contribute a lot to make things happen, thank you.
 
- Every support is welcome, giving support/ developing new features need time and devices, donations contribute a lot to make things happen, thank you.
+* liberapay <a href="https://liberapay.com/ESP3D/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a> 
+* Paypal [<img src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG_global.gif" border="0" alt="PayPal – The safer, easier way to pay online.">](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=FQL59C749A78L)
+* ko-fi [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/G2G0C0QT7)   
 
 ## Features
 * Serial/Wifi bridge using configurable port 8888
