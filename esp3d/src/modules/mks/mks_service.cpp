@@ -627,8 +627,8 @@ bool MKSService::sendNetworkFrame()
             //Wifi_key Segment
             strcpy((char *)&_frame[dataOffset], s.c_str());
             dataOffset+=s.length();
-        } else if (NetConfig::getMode() == ESP_WIFI_AP || (NetConfig::getMode() == ESP_AP_SETUP) {
-        log_esp3d("AP Mode");
+        } else if (NetConfig::getMode() == ESP_WIFI_AP || (NetConfig::getMode() == ESP_AP_SETUP)) {
+            log_esp3d("AP Mode");
             ///////////////////////////////////
             //IP Segment
             //IP value
@@ -671,61 +671,61 @@ bool MKSService::sendNetworkFrame()
         //Cloud Services port Segment
         //hard coded
         _frame[MKS_FRAME_DATA_OFFSET +4] = (telnet_server.port()) & 0xff;
-                                           _frame[MKS_FRAME_DATA_OFFSET +5] = ((telnet_server.port()) >> 8 ) & 0xff;
-                                           log_esp3d("Cloud port: %d", (telnet_server.port()));
+        _frame[MKS_FRAME_DATA_OFFSET +5] = ((telnet_server.port()) >> 8 ) & 0xff;
+        log_esp3d("Cloud port: %d", (telnet_server.port()));
 
-                                           //////////////////////////////////
-                                           //Cloud State Segment
-                                           //hard coded as disabled in upstream FW
-                                           _frame[dataOffset] = MKS_FRAME_CLOUD_DISABLED_STATE;
-                                           dataOffset++;
-                                           //////////////////////////////////
-                                           //Cloud host len Segment
-                                           //Use ESP3D IP instead
-                                           s = NetConfig::localIPAddress().toString();
-                                           _frame[dataOffset] = s.length();
-                                           dataOffset++;
-                                           //////////////////////////////////
-                                           //Cloud host Segment
-                                           //Use ESP3D IP instead
-                                           strcpy((char *)&_frame[dataOffset], s.c_str());
-                                           dataOffset+=s.length();
-                                           //////////////////////////////////
-                                           //Cloud host port Segment
-                                           //use webserver port instead
-                                           _frame[dataOffset] = (HTTP_Server::port()) & 0xff;
-                                           dataOffset++;
-                                           _frame[dataOffset] = ((HTTP_Server::port())>> 8 ) & 0xff;
-                                           dataOffset++;
-                                           //////////////////////////////////
-                                           //Module id len Segment
-                                           //Use hostname instead
-                                           _frame[dataOffset] = strlen(_moduleId);
-                                           dataOffset++;
-                                           //////////////////////////////////
-                                           //Module id  Segment
-                                           strcpy((char *)&_frame[dataOffset], _moduleId);
-                                           dataOffset+=strlen(_moduleId);
-                                           //////////////////////////////////
-                                           //FW version len Segment
-                                           _frame[dataOffset] = strlen(FW_VERSION)+6;
-                                           dataOffset++;
-                                           //////////////////////////////////
-                                           //FW version  Segment
-                                           strcpy((char *)&_frame[dataOffset], "ESP3D_" FW_VERSION);
-                                           dataOffset+=strlen(FW_VERSION)+6;
-                                           //////////////////////////////////
-                                           //Tail Segment
-                                           _frame[dataOffset] = MKS_FRAME_TAIL_FLAG;
+        //////////////////////////////////
+        //Cloud State Segment
+        //hard coded as disabled in upstream FW
+        _frame[dataOffset] = MKS_FRAME_CLOUD_DISABLED_STATE;
+        dataOffset++;
+        //////////////////////////////////
+        //Cloud host len Segment
+        //Use ESP3D IP instead
+        s = NetConfig::localIPAddress().toString();
+        _frame[dataOffset] = s.length();
+        dataOffset++;
+        //////////////////////////////////
+        //Cloud host Segment
+        //Use ESP3D IP instead
+        strcpy((char *)&_frame[dataOffset], s.c_str());
+        dataOffset+=s.length();
+        //////////////////////////////////
+        //Cloud host port Segment
+        //use webserver port instead
+        _frame[dataOffset] = (HTTP_Server::port()) & 0xff;
+        dataOffset++;
+        _frame[dataOffset] = ((HTTP_Server::port())>> 8 ) & 0xff;
+        dataOffset++;
+        //////////////////////////////////
+        //Module id len Segment
+        //Use hostname instead
+        _frame[dataOffset] = strlen(_moduleId);
+        dataOffset++;
+        //////////////////////////////////
+        //Module id  Segment
+        strcpy((char *)&_frame[dataOffset], _moduleId);
+        dataOffset+=strlen(_moduleId);
+        //////////////////////////////////
+        //FW version len Segment
+        _frame[dataOffset] = strlen(FW_VERSION)+6;
+        dataOffset++;
+        //////////////////////////////////
+        //FW version  Segment
+        strcpy((char *)&_frame[dataOffset], "ESP3D_" FW_VERSION);
+        dataOffset+=strlen(FW_VERSION)+6;
+        //////////////////////////////////
+        //Tail Segment
+        _frame[dataOffset] = MKS_FRAME_TAIL_FLAG;
 
-                                           //////////////////////////////////
-                                           //Data len Segment
-                                           //Calculated from above
-                                           _frame[MKS_FRAME_DATALEN_OFFSET] = (dataOffset-4) & 0xff;
-                                           _frame[MKS_FRAME_DATALEN_OFFSET+1] = ((dataOffset-4) >> 8) & 0xff;
-                                           log_esp3d("Size of data in frame %d ", dataOffset-4);
+        //////////////////////////////////
+        //Data len Segment
+        //Calculated from above
+        _frame[MKS_FRAME_DATALEN_OFFSET] = (dataOffset-4) & 0xff;
+        _frame[MKS_FRAME_DATALEN_OFFSET+1] = ((dataOffset-4) >> 8) & 0xff;
+        log_esp3d("Size of data in frame %d ", dataOffset-4);
         if (canSendFrame()) {
-        ESP3DOutput output(ESP_SERIAL_CLIENT);
+            ESP3DOutput output(ESP_SERIAL_CLIENT);
             if (output.write(_frame,dataOffset+1) == (dataOffset+1)) {
                 log_esp3d("Ok");
                 sendFrameDone();
