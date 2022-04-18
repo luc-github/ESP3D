@@ -14,6 +14,7 @@ For people not willing to read check this great video from Chris Riley :
 `2.4`   Scroll to near the bottom, and find "esp8266 by ESP8266 Community) and click on the row
 `2.5`   On the "Select Version" dropdown, select latest version and click Install
 `2.6`   Wait for the ESP8266 support to be installed
+`2.7`   Download the latest release and manually copy the libraries present in the ESP3D-x.y.z/libraries directory into your Arduino/libraries directory. (no need if using platformIO). These versions are verified to work with ESP3D, any others (newer version) may cause untested behavior.
 
 `3.`   Download and install the SPIFFS Uploader tool
 <B>EDIT:This part is no more necessary since FW 0.9.99 which contains self uploader </B>
