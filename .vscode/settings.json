@@ -41,6 +41,9 @@
         "typeinfo": "cpp"
     },
     "files.trimTrailingWhitespace": true,
+    "[markdown]": {
+        "files.trimTrailingWhitespace": false
+    },
     "files.trimFinalNewlines": true,
     "files.insertFinalNewline": true,
 }
