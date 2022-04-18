@@ -1,10 +1,12 @@
+# Arduino IDE board configuration
+
 The ESP8266 comes in various models:
 
 configure your Arduino IDE -> Tools -> Boards as:
 
 # Known working configs
 
-### The latest ESP01 and ESP12Es come with 4Mb of  flash:  For those 
+### The latest ESP01 and ESP12Es come with 4Mb of  flash:  For those
 * Board: Generic ESP8266 Module
 * Flash Mode: DIO
 * Flash Frequency: 40Mhz
