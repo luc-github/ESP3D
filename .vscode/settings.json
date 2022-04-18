@@ -39,5 +39,8 @@
         "type_traits": "cpp",
         "utility": "cpp",
         "typeinfo": "cpp"
-    }
+    },
+    "files.trimTrailingWhitespace": true,
+    "files.trimFinalNewlines": true,
+    "files.insertFinalNewline": true,
 }
