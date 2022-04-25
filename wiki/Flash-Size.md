@@ -1,38 +1,43 @@
+# Arduino IDE board configuration
+
 The ESP8266 comes in various models:
 
 configure your Arduino IDE -> Tools -> Boards as:
 
 # Known working configs
 
-### The latest ESP01 and ESP12Es come with 4Mb of  flash:  For those 
+### The latest ESP01 and ESP12Es come with 4Mb of  flash:  For those
 * Board: Generic ESP8266 Module
+* Upload Speed:  115200
+* CPU frequency: 160 MHz
+* Flash Size:  4M (3M SPIFFS)
 * Flash Mode: DIO
 * Flash Frequency: 40Mhz
-* Flash Size:  4M (3M SPIFFS)
+* Reset Method: CK
 * Debug Port: Disabled
 * Debug Level: None
-* Reset Method: CK
-* Upload Speed:  115200
 
 ### Some of the older devices come with 1M flash
 * Board: Generic ESP8266 Module
+* Upload Speed:  115200
+* CPU frequency: 160 MHz
+* Flash Size:  1M (128K SPIFFS)
 * Flash Mode: DIO
 * Flash Frequency: 40Mhz
-* Flash Size:  1M (128K SPIFFS)
+* Reset Method: CK
 * Debug Port: Disabled
 * Debug Level: None
-* Reset Method: CK
-* Upload Speed:  115200
 
 ### Though now no longer supported, it is possible to run the firmware on devices like the ESP07 with 512K of flash:
 * Board: Generic ESP8266 Module
+* Upload Speed:  115200
+* CPU frequency: 160 MHz
+* Flash Size:  512k (128K SPIFFS)
 * Flash Mode: DIO
 * Flash Frequency: 40Mhz
-* Flash Size:  512k (128K SPIFFS)
+* Reset Method: CK
 * Debug Port: Disabled
 * Debug Level: None
-* Reset Method: CK
-* Upload Speed:  115200
 
 # Figuring out the Flash Size
 If you are unsure how much flash memory your particular module has. you can figure it out from the Arduino IDE:

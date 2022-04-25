@@ -74,6 +74,9 @@ if Authentication is enabled :
 ## Direct commands:    
 Check wiki : https://github.com/luc-github/ESP3D/wiki/Direct-ESP3D-commands
 
+## Installation instructions
+See [Wiki](https://github.com/luc-github/ESP3D/wiki/Install-Instructions)
+
 ## Installation
 Feedback on 2.0 was : ESP3D being a library is not really useful and make setup more complex, so now we are back to simple application.   
 
@@ -146,6 +149,3 @@ and Wifi boards for 3D printers : https://www.panucatt.com/ProductDetails.asp?Pr
 
 
 If you use ESP3D on your product, drop me a message so I can link your product page here.   
-
-
-
