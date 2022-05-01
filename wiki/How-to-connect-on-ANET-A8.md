@@ -8,13 +8,13 @@ You will also have to unsolder the resistors R52 and R53 – they are zero ohm r
 
 ![R52 and R53 position](http://lokspace.eu/wp-content/uploads/2017/01/image08-300x300.jpg)
 
-### Step 2 
+### Step 2
 
 Now prepare the printer’s motherboard. It requires a simple modification, that does not interfere with it’s operation afterwards – just solder 3 pin x 2 row male header on J8, and add 2 jumpers (or jumper wires) as shown on the picture:
 
 ![Header and jumper position](http://lokspace.eu/wp-content/uploads/2017/01/image05-300x300.jpg)
 
-###  Step 3
+### Step 3
 
 Connect the ESP to J3 repsecting pinout
 
