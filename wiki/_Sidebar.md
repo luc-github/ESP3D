@@ -19,7 +19,6 @@
 * [AZSMZ mini and AZSMZ lcd](https://github.com/luc-github/ESP3D/wiki/AZSMZ-mini-and-AZSMZ-lcd)
 * [Azteeg X5 mini](https://github.com/luc-github/ESP3D/wiki/Azteeg-X5-mini)
 * [BIQU KFB2.0](https://github.com/luc-github/ESP3D/wiki/BIQU-KFB2.0)
-* [Wanhao D6 / MonoPrice Maker Ultimate](https://github.com/luc-github/ESP3D/wiki/Wanhao-D6---MonoPrice-Maker-Ultimate)
 * [MKS BASE V1.2 and above](https://github.com/luc-github/ESP3D/wiki/MKS-GEN-v1.2-(1.3-and-above-maybe))
 * [Creality CR-10 / Ender3](https://github.com/luc-github/ESP3D/wiki/Creality-CR-10-Ender-3)
 * [Creality Ender 4](https://github.com/luc-github/ESP3D/wiki/Creality-Ender-4)
