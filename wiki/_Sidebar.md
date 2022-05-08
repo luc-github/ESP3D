@@ -25,6 +25,7 @@
 * [Smoothieboard](https://github.com/luc-github/ESP3D/wiki/Smoothieboard)
 * [Anycubic i3 mega - Trigorilla 8bit](https://github.com/luc-github/ESP3D/wiki/Trigorilla)
 * [Anet A8](https://github.com/luc-github/ESP3D/wiki/How-to-connect-on-ANET-A8)
+* [Weedo Tina2](https://github.com/luc-github/ESP3D/wiki/Weedo-Tina2)
 
 ### ESP daughterboard wiring
 
