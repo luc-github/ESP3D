@@ -20,6 +20,10 @@
 
 #include <pgmspace.h>
 #include "config.h"
+#ifdef ESP32CAMERA
+#include "esp32camera.h"
+#endif
+
 #if !defined(ASYNCWEBSERVER)
 
 #include "webinterface.h"
@@ -94,10 +98,10 @@ void pushError(int code, const char * st, uint16_t web_error = 500, uint16_t tim
             delay(10);
         }
     }
-} 
+}
 
 //abort reception of packages
-void cancelUpload(){  
+void cancelUpload(){
     if (web_interface) {
         if (web_interface->web_server.client().available() > 0) {
             HTTPUpload& upload = (web_interface->web_server).upload();
@@ -105,12 +109,12 @@ void cancelUpload(){
 #if defined (ARDUINO_ARCH_ESP8266)
             web_interface->web_server.client().stopAll();
 #endif
-#if defined (ARDUINO_ARCH_ESP32) 
+#if defined (ARDUINO_ARCH_ESP32)
             errno = ECONNABORTED;
             web_interface->web_server.client().stop();
 #endif
             delay(100);
-        } 
+        }
     }
 }
 
@@ -629,7 +633,7 @@ void SPIFFSFileupload()
                     upload_filename = filename;
                     filename = "/user" + upload_filename;
                 }
-                
+
                 if (SPIFFS.exists (filename) ) {
                     SPIFFS.remove (filename);
                 }
@@ -646,7 +650,7 @@ void SPIFFSFileupload()
     #if defined ( ARDUINO_ARCH_ESP32)
                     uint32_t freespace = SPIFFS.totalBytes() - SPIFFS.usedBytes();
     #endif
-                    
+
                     if (filesize > freespace) {
                         web_interface->_upload_status=UPLOAD_STATUS_FAILED;
                         pushError(ESP_ERROR_NOT_ENOUGH_SPACE, "Upload rejected, not enough space");
@@ -739,20 +743,20 @@ void WebUpdateUpload()
                 ESPCOM::println (F ("Update Firmware"), PRINTER_PIPE);
                 web_interface->_upload_status= UPLOAD_STATUS_ONGOING;
                 String  sizeargname  = upload.filename + "S";
-                
+
     #if defined ( ARDUINO_ARCH_ESP8266)
                 WiFiUDP::stopAll();
     #endif
                 size_t flashsize = 0;
     #if defined ( ARDUINO_ARCH_ESP8266)
                 maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
-    #else 
+    #else
                 if (esp_ota_get_running_partition()) {
                     const esp_partition_t* partition = esp_ota_get_next_update_partition(NULL);
                     if (partition) {
                         maxSketchSpace = partition->size;
                     }
-                }  
+                }
     #endif
                 if ((web_interface->web_server).hasArg (sizeargname.c_str()) ) {
                     flashsize = (web_interface->web_server).arg (sizeargname).toInt();
@@ -808,12 +812,12 @@ void WebUpdateUpload()
             }
         }
     }
-    
+
     if (web_interface->_upload_status==UPLOAD_STATUS_FAILED) {
         cancelUpload();
         Update.end();
     }
-    
+
     CONFIG::wait(0);
 }
 
@@ -1185,7 +1189,7 @@ void handle_serial_SDFileList()
         web_interface->web_server.send(401, "application/json", "{\"status\":\"Authentication failed!\"}");
         return;
     }
-    
+
     log_esp3d("Serial SD upload done");
     String sstatus="Ok";
     if ((web_interface->_upload_status == UPLOAD_STATUS_FAILED) || (web_interface->_upload_status == UPLOAD_STATUS_FAILED)) {
@@ -1284,7 +1288,6 @@ void SDFile_serial_upload()
                             purge_serial();
                             web_interface->_upload_status= UPLOAD_STATUS_ONGOING;
                             log_esp3d("Creation Ok");
-                            
                         } else  {
                             web_interface->_upload_status= UPLOAD_STATUS_FAILED;
                             log_esp3d("Creation failed");
@@ -1369,7 +1372,7 @@ void SDFile_serial_upload()
             }
         }
     }
-    
+
     if (web_interface->_upload_status == UPLOAD_STATUS_FAILED) {
         ESPCOM::println (F ("Upload failed"), PRINTER_PIPE);
         lineNb++;
@@ -1377,6 +1380,32 @@ void SDFile_serial_upload()
         cancelUpload();
     }
 #endif //USE_AS_UPDATER_ONLY
+}
+
+void handle_camera_status()
+{
+#ifdef ESP32CAMERA
+    WebServer *srv = &web_interface->web_server;
+    srv->sendHeader("Access-Control-Allow-Origin", "*");
+    if (!srv->hasArg("var") || !srv->hasArg("val")) {
+        // No request arguments -> send current status
+        srv->sendHeader("Access-Control-Allow-Origin", "*");
+        srv->send(200, "application/json", getCameraStatusJSON());
+        return;
+    }
+
+    // Otherwise modify current status
+    String variable = srv->arg("var");
+    String value = srv->arg("val");
+    if (setCameraStatus(variable, value) != 0){
+        srv->send(500, "text/plain", "Set param failed");
+        return;
+    }
+
+    srv->send(200, "text/plain", "OK");
+#else
+    handle_not_found();
+#endif
 }
 
 #endif

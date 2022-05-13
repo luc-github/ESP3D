@@ -32,6 +32,7 @@ extern void handle_not_found();
 extern void handle_web_command();
 extern void handle_web_command_silent();
 extern void handle_serial_SDFileList();
+extern void handle_camera_status();
 extern void SDFile_serial_upload();
 extern WebSocketsServer * socket_server;
 extern void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length);

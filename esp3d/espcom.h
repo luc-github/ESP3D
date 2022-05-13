@@ -48,6 +48,7 @@ public:
     static void send2TCP (const __FlashStringHelper *data, bool async = false);
     static void send2TCP (String data, bool async = false);
     static void send2TCP (const char * data, bool async = false);
+    static void printf2TCP(bool async, const char * fmt, ...);
 #endif
     static bool block_2_printer;
 #ifdef ESP_OLED_FEATURE

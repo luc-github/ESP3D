@@ -88,6 +88,10 @@ DHTesp dht;
 #include "syncwebserver.h"
 #endif
 
+#if defined (ESP32CAMERA)
+#include "esp32camera.h"
+#endif //defined (ESP32CAMERA)
+
 //Contructor
 Esp3D::Esp3D()
 {
@@ -243,6 +247,11 @@ void Esp3D::begin(uint16_t startdelayms, uint16_t recoverydelayms)
 
     	}
     #endif*/
+#ifdef ESP32CAMERA
+    if (cameraInit()) {
+        startCameraFrameServer();
+    }
+#endif
 
 #ifdef ASYNCWEBSERVER
     if (WiFi.getMode() != WIFI_AP) {

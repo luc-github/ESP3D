@@ -41,6 +41,9 @@
 
 //FEATURES - comment to disable //////////////////////////////////////////////////////////
 
+// Support for camera bundled with ESP32-CAM modules
+#define ESP32CAMERA
+
 //WEB_UPDATE_FEATURE: allow to flash fw using web UI
 #define WEB_UPDATE_FEATURE
 
@@ -234,19 +237,23 @@ extern const char * pathToFileName(const char * path);
 #include <FS.h>
 #define DEBUG_PIPE NO_PIPE
 #define LOG(string) { FS_FILE logfile = SPIFFS.open("/log.txt", "a+");logfile.print(string);logfile.close();}
+#define LOGF(...) { FS_FILE logfile = SPIFFS.open("/log.txt", "a+");logfile.printf(__VA_ARGS__);logfile.close();}
 #endif
 
 #ifdef DEBUG_OUTPUT_SERIAL
 #define DEBUG_PIPE SERIAL_PIPE
 #define LOG(string) {Serial.print(string);}
+#define LOGF(...) {Serial.printf(__VA_ARGS__);}
 #endif
 #ifdef DEBUG_OUTPUT_TCP
 #include "espcom.h"
 #define LOG(string) {ESPCOM::send2TCP(string, false);}
+#define LOGF(...) {ESPCOM::printf2TCP(false, __VA_ARGS__);}
 #define DEBUG_PIPE TCP_PIPE
 #endif
 #else
 #define LOG(string) {}
+#define LOGF(...) {}
 #define DEBUG_PIPE NO_PIPE
 #endif
 

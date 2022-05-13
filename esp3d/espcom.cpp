@@ -385,6 +385,21 @@ void ESPCOM::send2TCP (const char * data, bool async)
         }
     }
 }
+void ESPCOM::printf2TCP(bool async, const char * fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    int size = vsnprintf(NULL, 0, fmt, args);
+    if (size <= 0) {
+        return;
+    }
+
+    size = size > 1024 ? 1024 : size; // Limit temp string size to some reasonable maximum
+    std::unique_ptr<char[]> data(new char[size]);
+    vsnprintf(data.get(), size, fmt, args);
+    va_end(args);
+    send2TCP(data.get(), async);
+}
 #endif
 
 bool ESPCOM::processFromSerial (bool async)

@@ -357,6 +357,7 @@ WEBINTERFACE_CLASS::WEBINTERFACE_CLASS (int port) : web_server (port)
     web_server.on ("/command_silent", HTTP_ANY, handle_web_command_silent);
     //Serial SD management
     web_server.on ("/upload_serial", HTTP_ANY, handle_serial_SDFileList, SDFile_serial_upload);
+    web_server.on ("/cam_status", HTTP_ANY, handle_camera_status);
 
     blockserial = false;
     restartmodule = false;
