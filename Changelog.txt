@@ -1,0 +1,27 @@
+## What's Changed
+
+# Updates
+* Update CI to use github-actions instead of Travis
+* Update platformio.ini to support more features
+* Create wiki source directory and github-action to sync with wiki
+* Add ESP01S in platformIO thanks @padcom
+* Added support for IFTTT Webhook integration thanks @KingBain
+
+# Fixes
+* Fix compilation issues with esp32 core 1.0.5
+* Fix wrong detection of [ESPXXX]Command if used in macro or web command and sent to printer using M118
+* Fix warnings in updater only mode
+* Fix several warnings in code and libs 
+* Fix typo in pushError function (wrong type)
+
+# Wiki / Documentation / Readme
+* Add connection diagram for weedo tina2 thanks @atsju
+* Add recommended extensions for easier linting thanks @atsju
+* Update feature request template thanks @atsju
+* Update Wiki / Readme thanks @atsju
+* Update Readme thanks @jschwalbe
+* Update funding methods
+* Update chat from gitter to discord
+* Update index.html.gz (use english mono language)
+
+**Full Changelog**: https://github.com/luc-github/ESP3D/compare/v2.1.1...v2.1.2
