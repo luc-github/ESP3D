@@ -17,11 +17,21 @@ export COMMIT_FORMATTED="[$BACKTICK${GITHUB_SHA:0:7}$BACKTICK](https://github.co
 if [[ "$status" == "success" ]];
 then
     echo "Success build"
-    curl -v -H User-Agent:bot -H Content-Type:application/json -d '{"avatar_url":"https://pngimg.com/uploads/github/github_PNG90.png","username":"github-action","embeds":[{"author":{"name":"Build #'"$step"' Passed - '"$GITHUB_ACTOR_NAME"'","url":"https://github.com/'"$GITHUB_REPOSITORY"'/actions/runs/'"$GITHUB_RUN_ID"'"},"url":"https://github.com/'"$GITHUB_REPOSITORY"'/actions/runs/'"$GITHUB_RUN_ID"'","title":"['"$GITHUB_REPOSITORY"':job#'"$GITHUB_RUN_NUMBER"'] ","color":65280,"fields":[{"name":"_ _", "value": "'"$COMMIT_FORMATTED"' - '"$BODYMESSAGE"'"}],"timestamp":"'"$TIMESTAMP"'","footer":{"text":"ESP3D CI"}}]}' $DISCORD_WEBHOOK_URL;
+    if [ -z "$DISCORD_WEBHOOK_URL" ];
+    then
+        echo "no need bot"
+    else
+        curl -v -H User-Agent:bot -H Content-Type:application/json -d '{"avatar_url":"https://pngimg.com/uploads/github/github_PNG90.png","username":"github-action","embeds":[{"author":{"name":"Build #'"$step"' Passed - '"$GITHUB_ACTOR_NAME"'","url":"https://github.com/'"$GITHUB_REPOSITORY"'/actions/runs/'"$GITHUB_RUN_ID"'"},"url":"https://github.com/'"$GITHUB_REPOSITORY"'/actions/runs/'"$GITHUB_RUN_ID"'","title":"['"$GITHUB_REPOSITORY"':job#'"$GITHUB_RUN_NUMBER"'] ","color":65280,"fields":[{"name":"_ _", "value": "'"$COMMIT_FORMATTED"' - '"$BODYMESSAGE"'"}],"timestamp":"'"$TIMESTAMP"'","footer":{"text":"ESP3D CI"}}]}' $DISCORD_WEBHOOK_URL;
+    fi
 else
     echo "Build failed"
-    curl -v -H User-Agent:bot -H Content-Type:application/json -d '{"avatar_url":"https://pngimg.com/uploads/github/github_PNG90.png","username":"github-action","embeds":[{"author":{"name":"Build #'"$step"' Failed - '"$GITHUB_ACTOR_NAME"'","url":"https://github.com/'"$GITHUB_REPOSITORY"'/actions/runs/'"$GITHUB_RUN_ID"'"},"url":"https://github.com/'"$GITHUB_REPOSITORY"'/actions/runs/'"$GITHUB_RUN_ID"'","title":"['"$GITHUB_REPOSITORY"':job#'"$GITHUB_RUN_NUMBER"'] ","color":16711680,"fields":[{"name":"_ _", "value": "'"$COMMIT_FORMATTED"' - '"$BODYMESSAGE"'"}],"timestamp":"'"$TIMESTAMP"'","footer":{"text":"ESP3D CI"}}]}' $DISCORD_WEBHOOK_URL;
-    exit 1
+    if [ -z "$DISCORD_WEBHOOK_URL" ];
+    then
+        echo "no need bot"
+    else
+       curl -v -H User-Agent:bot -H Content-Type:application/json -d '{"avatar_url":"https://pngimg.com/uploads/github/github_PNG90.png","username":"github-action","embeds":[{"author":{"name":"Build #'"$step"' Failed - '"$GITHUB_ACTOR_NAME"'","url":"https://github.com/'"$GITHUB_REPOSITORY"'/actions/runs/'"$GITHUB_RUN_ID"'"},"url":"https://github.com/'"$GITHUB_REPOSITORY"'/actions/runs/'"$GITHUB_RUN_ID"'","title":"['"$GITHUB_REPOSITORY"':job#'"$GITHUB_RUN_NUMBER"'] ","color":16711680,"fields":[{"name":"_ _", "value": "'"$COMMIT_FORMATTED"' - '"$BODYMESSAGE"'"}],"timestamp":"'"$TIMESTAMP"'","footer":{"text":"ESP3D CI"}}]}' $DISCORD_WEBHOOK_URL;
+    fi
+exit 1
 fi
 
 
