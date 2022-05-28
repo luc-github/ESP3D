@@ -2,6 +2,18 @@
 
 If your motherboard doesn't support wifi, this repo will help you add an ESP32 board with an ESP8266 MCU. The ESP32 board supports wifi and will connect to your printer using a serial UART port thus acting as a wifi to UART bridge. The board needs to be programmed and connected properly to your printer to work. The printer motherboard will also need to be reprogrammed to enable the UART port that will be used with ESP32 board.
 
+Connection between ESP and printer board needs 4 wires:
+
+- ESP Tx needs to connect to Rx on MCU of printer board.
+- ESP Rx needs to connect to Tx on MCU of printer board.  
+- You also need to power supply ESP with with GND and 3V3 or 5V.
+
+ESP8266 MCU supports only 3V3. Power supply it with 5V will fry it but note that some ESP32 boards have onboard regulators any might support 5V.
+
+Although not 100% respecting datasheet of ESP8266 [the I/O seem to be 5V tolerant](https://ba0sh1.com/2016/08/03/is-esp8266-io-really-5v-tolerant/) so you can have your ESP Rx pin connected to a 5V supplied MCU. To be on the safe side having an 1-10k serial resistor between MCU Tx and ESP Rx will limit the current drawn by ESP. The extra clean way would be to have a good bidirectional level shiffter but this requires additional components and some electronics skills to choose correct parts.
+
+## Connection diagrams for some printers and ESP boards
+
 - [Printer motherboards](#Printer-motherboards)
   - [Anet A8 boards](#Anet-A8-boards)
   - [Anycubic i3 mega - Trigorilla 8bit board](#Anycubic-i3-mega---Trigorilla-8bit-board)
@@ -215,4 +227,8 @@ Note the Mega2560 is 5V powered and ESP is 3V3 powered.
 
 Vast majority of printers have an USB port that is converted to UART before going to MCU. Many printers also have additional (unused) UART port you can use. When possible, always use the additional port for connecting ESP to printer board. When no additional UART port is available you might use the Tx and Rx lines between USB/UART converter and MCU but it's recommended to cut (in a reversible way) the line to USB/UART converter to avoid conflicts.
 
+If the board is ATmega based the simplest way to find a usable UART port for the ESP is to open ATmega datasheet.
+
 ## ESP32 board
+
+UNDER CONSTRUCTION
