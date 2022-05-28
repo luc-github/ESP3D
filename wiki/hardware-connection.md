@@ -53,21 +53,21 @@ Although not 100% respecting datasheet of ESP8266 [the I/O seem to be 5V toleran
 
 You will also have to unsolder the resistors R52 and R53 – they are zero ohm resistors, and serve no other purpose than connecting the atmega chip directly to the onboard USB to UART converter (the CH340 chip). Do it VERY careful – you don’t want to damage your board. If you don’t feel confident – don’t do it.
 
-<img src='http://lokspace.eu/wp-content/uploads/2017/01/image08-300x300.jpg' width='200'>  
+<img src='http://lokspace.eu/wp-content/uploads/2017/01/image08-300x300.jpg' width='200'><br>
 click to enlarge
 
 #### Step 2
 
 Now prepare the printer’s motherboard. It requires a simple modification, that does not interfere with it’s operation afterwards – just solder 3 pin x 2 row male header on J8, and add 2 jumpers (or jumper wires) as shown on the picture:
 
-<img src='http://lokspace.eu/wp-content/uploads/2017/01/image05-300x300.jpg' width='200'>  
+<img src='http://lokspace.eu/wp-content/uploads/2017/01/image05-300x300.jpg' width='200'><br>
 click to enlarge
 
 #### Step 3
 
 Connect the ESP to J3 repsecting pinout
 
-<img src='http://lokspace.eu/wp-content/uploads/2017/01/image00-232x300.jpg' width='200'>  
+<img src='http://lokspace.eu/wp-content/uploads/2017/01/image00-232x300.jpg' width='200'><br>
 click to enlarge
 
 |ESP|J3|
@@ -84,7 +84,7 @@ For more Info check <http://lokspace.eu/anet-a8-wifi-mod/>
 
 Unlike older boards this board does not require you to remove any resistors.  
 You will have to solder two wires from number 9 and number 10 its recommender to connect these to pin 1 and 2 of J3 connector.  
-<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/Anet/board.jpg' width='200'>  
+<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/Anet/board.jpg' width='200'><br>
 click to enlarge
 
 ---
@@ -96,24 +96,24 @@ To connect the ESP12e to the UART0. (Credits:<https://www.lesimprimantes3d.fr/fo
 5V (buck to 3.3v if directly connect to ESP - most development ESP boards already have this voltage limited built-in - but check!) and GND can be taken from the AUX3 exposed connector.  
 UART0 is normally used by USB port so don't use both together - so this hack piggybacks on that same port at UART level.  
 
-<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/Trigorilla/board.jpg' width='200'>
+<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/Trigorilla/board.jpg' width='200'><br>
 click to enlarge
 
-<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/Trigorilla/nodemcu.jpg' width='200'>
+<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/Trigorilla/nodemcu.jpg' width='200'><br>
 click to enlarge
 
 ---
 
 ### AZSMZ LCD board
 
-<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/AZSMZ-mini/AZSMZ-12864-LCD.jpg' width='200'>
+<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/AZSMZ-mini/AZSMZ-12864-LCD.jpg' width='200'><br>
 click to enlarge
 
 ---
 
 ### AZSMZ-mini board
 
-<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/AZSMZ-mini/AZSMZ-mini.jpg' width='200'>
+<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/AZSMZ-mini/AZSMZ-mini.jpg' width='200'><br>
 click to enlarge
 
 If you don't have the soldering skills to grab the connectors from the unpopulated ethernet connection, you can also get 3.3v and GND from the ISP header (bottom left on the diagram above).
@@ -122,7 +122,7 @@ If you don't have the soldering skills to grab the connectors from the unpopulat
 
 ### Azteeg X5 mini board
 
-<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/AzteegX5-mini/azteeg.PNG' width='200'>
+<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/AzteegX5-mini/azteeg.PNG' width='200'><br>
 click to enlarge
 
 ---
@@ -131,7 +131,7 @@ click to enlarge
 
 all in one Ramps1.4/Mega2560 R3 controller based
 
-<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/BIQU-KFB2.0/board.jpg' width='200'>
+<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/BIQU-KFB2.0/board.jpg' width='200'><br>
 click to enlarge
 
 ---
@@ -140,12 +140,12 @@ click to enlarge
 
 For the Sanguino based CR-10 and Ender printers you will need to solder to any of the via circled (can also be done in the backside of board), or to the legs of the Arduino or ftdi. Connect TX from the board to RX of Wemos D1 mini and RX from board to TX of Wemos D1 mini. 5v and GND are located in the six pin header next to the LCD connector.
 
-<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/CR10/board.jpg' width='200'>
+<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/CR10/board.jpg' width='200'><br>
 click to enlarge  
 
 Since soldering might be difficult because the solder points are so close to each other, another option is to scrape off the insulation from the traces on the backside and solder there. Be extra careful not to scrape the surrounding ground plane. You need suitable fine scraping tools for this. The picture below shows an Ender-2 PCB.
 
-<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/CR10/traces.jpg' width='200'>
+<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/CR10/traces.jpg' width='200'><br>
 click to enlarge
 
 ---
@@ -154,44 +154,44 @@ click to enlarge
 
 You will need to solder to small circle, or to the legs of the ATmega2560 (RXD0 pin 2, TXD0 pin 3)
 
-<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/ender4/board.jpg' width='200'>
+<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/ender4/board.jpg' width='200'><br>
 click to enlarge
 
 ---
 
 ### Davinci 1.0/2.0 board
 
-<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/Davinci/davinci.png' width='200'>
+<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/Davinci/davinci.png' width='200'><br>
 click to enlarge  
 
-<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/Davinci/board.jpg' width='200'>
+<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/Davinci/board.jpg' width='200'><br>
 click to enlarge  
 
-<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/Davinci/boardconnected.jpg' width='200'>
+<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/Davinci/boardconnected.jpg' width='200'><br>
 click to enlarge  
 
-<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/Davinci/backside.jpg' width='200'>
+<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/Davinci/backside.jpg' width='200'><br>
 click to enlarge  
 
-<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/Davinci/screen.jpg' width='200'>
+<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/Davinci/screen.jpg' width='200'><br>
 click to enlarge  
 
 ---
 
 ### Davinci 1.0A board
 
-<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/Davinci/davinciA-1.jpg' width='200'>
+<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/Davinci/davinciA-1.jpg' width='200'><br>
 click to enlarge  
 
-<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/Davinci/davinciA-4.jpg' width='200'>
+<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/Davinci/davinciA-4.jpg' width='200'><br>
 click to enlarge  
 
-<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/Davinci/davinciA-2.jpg' width='200'>
+<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/Davinci/davinciA-2.jpg' width='200'><br>
 click to enlarge  
 
 Alternate Module placement for increased WiFi range (outside metal chassis, antenna has vertical polarization)
 
-<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/Davinci/davinciA-3.jpg' width='200'>  
+<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/Davinci/davinciA-3.jpg' width='200'><br>
 click to enlarge
 
 ---
@@ -201,7 +201,7 @@ click to enlarge
 To connect the ESP3D to the MKS GEN v1.2 (but the v1.3 and above 1.4 is the most used today).
 
 I have used an ESP12E with the standard schematics, with one important difference, the two resistor connected to the RX pin are substituted by a 1N4148 diode, like in the Adafruit Huzzah board.  
-<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/MKS-1.2/wires.png' width='200'>  
+<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/MKS-1.2/wires.png' width='200'><br>
 click to enlarge
 
 ESP12E is connected to the AUX1
@@ -209,23 +209,23 @@ ESP12E is connected to the AUX1
 ESP12E RX is connected to the pin NEAR GND of the upper row (Marked TXD on pinout.)  
 ESP12E TX is connected to the adiacent pin at the end of the upper row (Marked RXD on pinout.)
 
-<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/MKS-1.2/board.png' width='200'>  
+<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/MKS-1.2/board.png' width='200'><br>
 click to enlarge
 
 ---
 
 ### MKS Smoothieware board
 
-<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/MKS-SMOOTHIEWARE/MKS-smoothie.png' width='200'>  
+<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/MKS-SMOOTHIEWARE/MKS-smoothie.png' width='200'><br>
 click to enlarge
 
 ---
 
 ### RADDS board
 
-<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/RADDS/RADDS.png' width='200'>  
+<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/RADDS/RADDS.png' width='200'><br>
 click to enlarge  
-<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/RADDS/screen.jpg' width='200'>  
+<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/RADDS/screen.jpg' width='200'><br>
 click to enlarge
 
 ---
@@ -233,19 +233,19 @@ click to enlarge
 ### RAMPS 1.4/Re-ARM board
 
 Ramps 1.4 can be used on Arduino Mega (repetier/marlin) and Re-ARM for ramps boards (smoothieware/marlin)  
-<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/RAMPS1.4/RAMPS.PNG' width='200'>  
+<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/RAMPS1.4/RAMPS.PNG' width='200'><br>
 click to enlarge
 
 Alternative pins if use Re-ARM (J4/UART port)
 
-<img src='https://i.ibb.co/cDMKGbK/Screenshot-20190803-022151.png' width='200'>  
+<img src='https://i.ibb.co/cDMKGbK/Screenshot-20190803-022151.png' width='200'><br>
 click to enlarge
 
 ---
 
 ### Smoothieboard board
 
-<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/Smoothieware/smoothieboard-wiring.png' width='200'>  
+<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/Smoothieware/smoothieboard-wiring.png' width='200'><br>
 click to enlarge
 
 ---
@@ -254,7 +254,7 @@ click to enlarge
 
 This printer is also brand labelled as **Monoprice MP cadet 3D printer**
 
-<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/TINA2/weedo_tina2.jpg' width='200'>  
+<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/TINA2/weedo_tina2.jpg' width='200'><br>
 click to enlarge
 
 In marlin this connection is **serial port 3**.
@@ -276,14 +276,14 @@ If the board is ATmega based the simplest way to find a usable UART port for the
 - Use GPIO2 to ground to reset all settings in hard way - 2-6 sec after boot / not before!! Set GPIO2 to ground before boot change boot mode and go to special boot that do not reach FW. Currently boot take 10 sec - giving 8 seconds to connect GPIO2 to GND and do an hard recovery for settings   
 - Use GPIO0 to ground to be in update mode 
 
-<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/HW/Wires.png' width='200'>  
+<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/HW/Wires.png' width='200'><br>
 click to enlarge
 
 ---
 
 ### ESP-01 serial wifi module
 
-<img src='https://www.keyestudio.com/u_file/1901/products/11/ff587ce89a.jpg' width='200'>  
+<img src='https://www.keyestudio.com/u_file/1901/products/11/ff587ce89a.jpg' width='200'><br>
 click to enlarge
 
 more info about the Breakout PCB: <https://www.keyestudio.com/keyestudio-esp-01s-wifi-to-serial-shield-module-for-arduino-esp8266-wifi-p0499-p0499.html>
@@ -293,12 +293,12 @@ more info about the Breakout PCB: <https://www.keyestudio.com/keyestudio-esp-01s
 ### ESP-12E/F
 
 ESP need 3.3v, it is not 5v tolerant, if printer board use more than 3.3V like 5V on ramps.  
-<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/HW/WiresESP12E.png' width='200'>  
+<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/HW/WiresESP12E.png' width='200'><br>
 click to enlarge
 
 you can also use Logic LevelConverter Bi-Directional
 
-<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/HW/logic.PNG' width='200'>  
+<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/HW/logic.PNG' width='200'><br>
 click to enlarge
 
 In order to flash some ESP12E/F boards via their UART interface, the following pins need to be connected:
@@ -329,7 +329,8 @@ We can flash our loved ESP3D to cheap ESP-12F based serial wifi module (eg [from
 ### ESP32-Cam
 
 Once the board is programmed, the wiring to the printer board should be like this:
-<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/ESP/ESPcam32.png' width='200'>  
+
+<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/ESP/ESPcam32.png' width='200'><br>
 click to enlarge
 
 Note: 5V is power supply input and 3V3 is output from regulator. UART Tx and RX signals will be 3.3V
@@ -338,14 +339,14 @@ Note: 5V is power supply input and 3V3 is output from regulator. UART Tx and RX 
 
 ### NodeMCU V2/V3
 
-<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/NodeMCU/NodeMCU.PNG' width='200'>  
+<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/NodeMCU/NodeMCU.PNG' width='200'><br>
 click to enlarge
 
 ---
 
 ### Sonoff
 
-<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/Sonoff/Sonoff.png' width='200'>  
+<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/Sonoff/Sonoff.png' width='200'><br>
 click to enlarge
 
 Relay is connected by GPIO12, it can be handled using ESP201 command:
@@ -364,8 +365,8 @@ So `[ESP201]P12 V0` should be off and `[ESP201]P12 V1` should be on
 
 ### Wemos D1 mini
 
-<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/D1_mini/FB_IMG_1510306696875.jpg' width='200'>  
+<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/D1_mini/FB_IMG_1510306696875.jpg' width='200'><br>
 click to enlarge
 
-<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/D1_mini/20171111_215253.jpg' width='200'>  
+<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/D1_mini/20171111_215253.jpg' width='200'><br>
 click to enlarge
