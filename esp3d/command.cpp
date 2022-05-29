@@ -760,7 +760,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
         ESPCOM::println (String(v).c_str(), output, espresponse);
     }
     break;
-    
+
     //Get full EEPROM settings content
     //[ESP400]
     case 400: {
@@ -1303,8 +1303,8 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
                 ESPCOM::print ( (const char *) CONFIG::intTostr (bbuf), output, espresponse);
             }
             ESPCOM::print (F ("\",\"H\":\"Auto notification\",\"O\":[{\"No\":\"0\"},{\"Yes\":\"1\"}]}"), output, espresponse);
-            
-            
+
+
 #endif //NOTIFICATION_FEATURE
         }
 
@@ -1597,7 +1597,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
     break;
     //Set ESP mode
     //cmd is RESET, SAFEMODE, RESTART
-    //[ESP444]<cmd>pwd=<admin password>
+    //[ESP444]<cmd> pwd=<admin password>
     case 444:
         parameter = get_param (cmd_params, "", true);
 #ifdef AUTHENTICATION_FEATURE
@@ -1667,7 +1667,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
     }
 #ifdef AUTHENTICATION_FEATURE
     //Change / Reset user password
-    //[ESP555]<password>pwd=<admin password>
+    //[ESP555]<password> pwd=<admin password>
     case 555: {
         if (auth_type == LEVEL_ADMIN) {
             parameter = get_param (cmd_params, "", true);
@@ -1761,7 +1761,7 @@ bool COMMAND::execute_command (int cmd, String cmd_params, tpipe output, level_a
                 } else if (parameter == "LINE") {
                     Ntype = ESP_LINE_NOTIFICATION;
                 } else if (parameter == "IFTTT") {
-                    Ntype = ESP_IFTTT_NOTIFICATION;    
+                    Ntype = ESP_IFTTT_NOTIFICATION;
                 } else {
                     ESPCOM::println (INCORRECT_CMD_MSG, output, espresponse);
                     return false;
