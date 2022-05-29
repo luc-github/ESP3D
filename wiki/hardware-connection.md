@@ -1,16 +1,20 @@
 # Hardware connection
 
-If your motherboard doesn't support wifi, this repo will help you add an ESP32 board with an ESP8266 MCU. The ESP32 board supports wifi and will connect to your printer using a serial UART port thus acting as a wifi to UART bridge. The board needs to be programmed and connected properly to your printer to work. The printer motherboard will also need to be reprogrammed to enable the UART port that will be used with ESP32 board.
+If your motherboard doesn't support wifi, this repo will help you add an ESP board flashed with ESP3D firmware. The ESP32 or ESP8266 MCU on ESP board supports wifi and will connect to your printer using a serial UART port thus acting as a wifi to UART bridge. The board needs to be programmed and connected properly to your printer to work. The printer motherboard will also need to be reprogrammed to enable the UART port that will be used with ESP board.
 
 Connection between ESP and printer board needs 4 wires:
 
 - ESP Tx needs to connect to Rx on MCU of printer board.
 - ESP Rx needs to connect to Tx on MCU of printer board.  
-- You also need to power supply ESP with with GND and 3V3 or 5V.
+- You also need to power supply ESP board with with GND and 3V3 or 5V.
 
-ESP8266 MCU supports only 3V3. Power supply it with 5V will fry it but note that some ESP32 boards have onboard regulators any might support 5V.
+## Connecting ESP board (ESP MCU is 3.3V) to 5V printer board
 
-Although not 100% respecting datasheet of ESP8266 [the I/O seem to be 5V tolerant](https://ba0sh1.com/2016/08/03/is-esp8266-io-really-5v-tolerant/) so you can have your ESP Rx pin connected to a 5V supplied MCU. To be on the safe side having an 1-10k serial resistor between MCU Tx and ESP Rx will limit the current drawn by ESP. The extra clean way would be to have a good bidirectional level shiffter but this requires additional components and some electronics skills to choose correct parts.
+__Disclaimer__ : this wiki is for reference - you are responsible of your board support or not 5V, we are not responsible for any damage of wrong wiring.
+
+ESP32 and ESP8266 MCU are supporting only 3V3. Power supply them with 5V will fry them but note that some ESP boards have onboard regulators any might support 5V for power supply. Tx and Rx signals will be at 3.3V even when board is supplied with 5V.
+
+Although not 100% respecting datasheet of ESP8266 [the I/O seem to be 5V tolerant](https://ba0sh1.com/2016/08/03/is-esp8266-io-really-5v-tolerant/). [I/O of ESP32 seem also 5V tolerant](https://www.ridiculously-simple.com/2021/05/19/are-the-esp32-and-esp8266-5v-tolerant-yes-they-officially-are/) so you can have your ESP Rx pin connected to a 5V supplied MCU. To be on the safe side having an 1-10k serial resistor between MCU Tx and ESP Rx will limit the current drawn by ESP. The extra clean way would be to have a good bidirectional level shiffter but this requires additional components and some electronics skills to choose correct parts.
 
 ## Connection diagrams for some printers and ESP boards
 
@@ -32,7 +36,7 @@ Although not 100% respecting datasheet of ESP8266 [the I/O seem to be 5V toleran
   - [Smoothieboard board](#Smoothieboard-board)
   - [Weedo Tina2 board](#Weedo-Tina2-board)
   - [For printer boards not listed here](#For-printer-boards-not-listed-here)
-- [ESP32 board](#ESP32-board)
+- [ESP boards](#ESP-boards)
   - [ESP-01](#ESP-01)
   - [ESP-01 serial wifi module](#ESP-01-serial-wifi-module)
   - [ESP-12E/F](#ESP-12E/F)
@@ -269,7 +273,7 @@ Vast majority of printers have an USB port that is converted to UART before goin
 
 If the board is ATmega based the simplest way to find a usable UART port for the ESP is to open ATmega datasheet.
 
-## ESP32 board
+## ESP boards
 
 ### ESP-01
 
