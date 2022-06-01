@@ -10,11 +10,25 @@ Connection between ESP and printer board needs 4 wires:
 
 ## Connecting ESP board (ESP MCU is 3.3V) to 5V printer board
 
-__Disclaimer__ : this wiki is for reference - you are responsible of your board support or not 5V, we are not responsible for any damage of wrong wiring.
+__Disclaimer__ : this wiki is for reference - you are responsible of your board supporting or not 5V, we are not responsible for any damage of wrong wiring.
 
-ESP32 and ESP8266 MCU are supporting only 3V3. Power supply them with 5V will fry them but note that some ESP boards have onboard regulators any might support 5V for power supply. Tx and Rx signals will be at 3.3V even when board is supplied with 5V.
+ESP32 and ESP8266 MCU are supporting only 3V3. Power supply them with 5V will likelly fry them immediatelly. As MCU is supplied at 3.3V, Tx and Rx signals will be at 3.3V even when board is supplied with 5V. Wether Rx pin is supporting 5V is controversial so we will keep on the safe side and only take datahseet as reference. It's not recommended to have any signal (including Rx) be higher than power supply (3.3V here).
 
-Although not 100% respecting datasheet of ESP8266 [the I/O seem to be 5V tolerant](https://ba0sh1.com/2016/08/03/is-esp8266-io-really-5v-tolerant/). [I/O of ESP32 seem also 5V tolerant](https://www.ridiculously-simple.com/2021/05/19/are-the-esp32-and-esp8266-5v-tolerant-yes-they-officially-are/) so you can have your ESP Rx pin connected to a 5V supplied MCU. To be on the safe side having an 1-10k serial resistor between MCU Tx and ESP Rx will limit the current drawn by ESP. The extra clean way would be to have a good bidirectional level shiffter but this requires additional components and some electronics skills to choose correct parts.
+There are several points to take care. One should check that
+
+1. MCU1 Tx voltage is lower than MCU2 supply voltage
+2. Voh_min of Tx is higher than Vih_min of Rx (to check both ways)
+3. Vol_max of Tx is lower than Vil_max of Rx (to check both ways)
+
+1 is mandatory and [resistor voltage divider bridge](https://en.wikipedia.org/wiki/Voltage_divider) or level shiffter is recommended  
+2 & 3 are not destructive there is just a slight risk signals are not read correctly. But it will work in most case as the limit values given by datasheets are rarelly met in mild conditions (using near 25°C and low current flowing from Tx to Rx)
+
+For the divider bridge a value of R1=1k and R2=2.2k will be fine.
+You could also use 10k and 22k or anything near a factor 2.
+
+<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/dividerBridge.png' width='200'><br>
+click to enlarge
+
 
 ## Connection diagrams for some printers and ESP boards
 
