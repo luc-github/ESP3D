@@ -23,32 +23,49 @@
 #include "../esp3doutput.h"
 #include "../settings_esp3d.h"
 #include "../../modules/authentication/authentication_service.h"
+#define COMMANDID   550
 //Change admin password
-//[ESP550]<password>pwd=<admin password>
+//[ESP550]<password> json=<no> pwd=<admin password>
 bool Commands::ESP550(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
-    bool response = true;
+    bool noError = true;
+    bool json = has_tag (cmd_params, "json");
+    String response;
     String parameter;
-    if (auth_type == LEVEL_GUEST) {
-        parameter = get_param (cmd_params, "");
+    int errorCode = 200; //unless it is a server error use 200 as default and set error in json instead
+    if (auth_type == LEVEL_ADMIN) {
+        parameter = clean_param(get_param (cmd_params, ""));
         if (parameter.length() != 0) {
             if (Settings_ESP3D::isLocalPasswordValid (parameter.c_str() ) ) {
                 if (!Settings_ESP3D::write_string (ESP_ADMIN_PWD, parameter.c_str())) {
-                    output->printERROR ("Set failed!");
-                    response = false;
+                    response = format_response(COMMANDID, json, false, "Set failed");
+                    noError = false;
                 } else {
-                    output->printMSG ("ok");
+                    response = format_response(COMMANDID, json, true, "ok");
                 }
             } else {
-                output->printERROR ("Invalid parameter!");
-                response = false;
+                response = format_response(COMMANDID, json, false, "Invalid parameter");
+                noError = false;
             }
+        } else {
+            response = format_response(COMMANDID, json, false, "Missing parameter");
+            noError = false;
         }
     } else {
-        output->printERROR("Wrong authentication!", 401);
-        response = false;
+        response = format_response(COMMANDID, json, false, "Wrong authentication level");
+        noError = false;
+        errorCode = 401;
     }
-    return response;
+    if (noError) {
+        if (json) {
+            output->printLN (response.c_str() );
+        } else {
+            output->printMSG (response.c_str() );
+        }
+    } else {
+        output->printERROR(response.c_str(), errorCode);
+    }
+    return noError;
 }
 
 #endif //AUTHENTICATION_FEATURE

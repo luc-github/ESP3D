@@ -22,7 +22,17 @@
 #define _ESP3D_CONFIG_H
 #include <Arduino.h>
 #include "../include/defines.h"
+#if defined __has_include
+#  if __has_include ("../../configuration.h")
 #include "../../configuration.h"
+#else
+#undef DISABLED
+#undef _BV
+#include "../esp3dlib_config.h"
+#include "./Marlin/FlushableHardwareSerial.h"
+#endif
+#endif
+
 #include "../include/pins.h"
 #include "../include/sanity_esp3d.h"
 #include "../core/hal.h"

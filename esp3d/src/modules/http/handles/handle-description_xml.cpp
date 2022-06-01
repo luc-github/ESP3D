@@ -34,6 +34,13 @@
 #endif //ARDUINO_ARCH_ESP8266
 void HTTP_Server::handle_SSDP()
 {
-    SSDP.schema(_webserver->client());
+    if (_webserver) {
+#if defined (ARDUINO_ARCH_ESP32)
+        _webserver->send(200, "text/xml", SSDP.getSchema());
+#endif //ARDUINO_ARCH_ESP32
+#if defined (ARDUINO_ARCH_ESP8266)
+        SSDP.schema(_webserver->client());
+#endif //ARDUINO_ARCH_ESP8266
+    }
 }
 #endif //HTTP_FEATURE && SSDP_FEATURE

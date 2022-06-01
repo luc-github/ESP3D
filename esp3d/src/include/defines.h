@@ -39,14 +39,17 @@
 #define USE_SERIAL_2 3
 
 //Communication protocols
-#define RAW_SERIAL 0
-#define MKS_SERIAL 1
+#define RAW_SERIAL    0
+#define MKS_SERIAL    1
+#define SOCKET_SERIAL 2
 
 //Display
-#define OLED_I2C_SSD1306        1
-#define OLED_I2C_SSDSH1106      2
-#define TFT_SPI_ILI9341_320X240 3
-#define TFT_SPI_ILI9488_480X320 4
+#define OLED_I2C_SSD1306_128X64        1
+#define OLED_I2C_SSDSH1106_132X64      2
+#define TFT_SPI_ILI9341_320X240        3
+#define TFT_SPI_ILI9488_480X320        4
+#define TFT_SPI_ST7789_240X240         5
+#define TFT_SPI_ST7789_135X240         6
 
 //UI type for display
 #define UI_TYPE_BASIC      1
@@ -113,6 +116,7 @@
 #define ESP_EMAIL_NOTIFICATION      2
 #define ESP_LINE_NOTIFICATION       3
 #define ESP_TELEGRAM_NOTIFICATION   4
+#define ESP_IFTTT_NOTIFICATION      5
 
 //SENSOR
 #define NO_SENSOR_DEVICE   0

@@ -29,13 +29,15 @@ class Commands
 public:
     Commands();
     ~Commands();
-    void process(uint8_t * sbuf, size_t len, ESP3DOutput * output, level_authenticate_type auth = LEVEL_GUEST, ESP3DOutput * outputonly = nullptr);
+    void process(uint8_t * sbuf, size_t len, ESP3DOutput * output, level_authenticate_type auth = LEVEL_GUEST, ESP3DOutput * outputonly = nullptr, uint8_t outputignore = 0);
     bool is_esp_command(uint8_t * sbuf, size_t len);
     bool execute_internal_command(int cmd, const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     int get_space_pos(const char * string, uint from = 0);
     const char* get_param (const char * cmd_params, const char * label);
     const char* get_label (const char * cmd_params, const char * labelseparator, uint8_t startindex = 0);
-    bool hastag (const char * cmd_params, const char * tag);
+    const char * clean_param (const char * cmd_params);
+    const char * format_response(uint cmdID, bool isjson = false, bool isok=true, const char * message="");
+    bool has_tag (const char * cmd_params, const char * tag);
     bool ESP0(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #if defined (WIFI_FEATURE)
     bool ESP100(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
@@ -114,6 +116,7 @@ public:
 #ifdef SENSOR_DEVICE
     bool ESP210(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #endif //SENSOR_DEVICE
+    bool ESP220(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     bool ESP290(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     bool ESP400(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     bool ESP401(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
@@ -131,9 +134,10 @@ public:
     bool ESP610(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     bool ESP620(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #endif //NOTIFICATION_FEATURE
-#if defined(FILESYSTEM_FEATURE) && defined(ESP_GCODE_HOST_FEATURE)
+#if defined(GCODE_HOST_FEATURE)
     bool ESP700(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
-#endif //FILESYSTEM_FEATURE
+    bool ESP701(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+#endif //GCODE_HOST_FEATURE
 #if defined(FILESYSTEM_FEATURE)
     bool ESP710(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     bool ESP720(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
@@ -149,8 +153,9 @@ public:
     bool ESP790(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #endif //GLOBAL_FILESYSTEM_FEATURE
     bool ESP800(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+#if COMMUNICATION_PROTOCOL != SOCKET_SERIAL
     bool ESP900(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
-    bool ESP901(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+#endif //COMMUNICATION_PROTOCOL != SOCKET_SERIAL
     bool ESP920(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #ifdef BUZZER_DEVICE
     bool ESP910(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);

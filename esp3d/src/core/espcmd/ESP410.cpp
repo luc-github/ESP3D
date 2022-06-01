@@ -26,93 +26,118 @@
 #include "../../modules/authentication/authentication_service.h"
 //Get available AP list (limited to 30)
 //output is JSON or plain text according parameter
-//[ESP410]<plain>
+//[ESP410]json=<no>
+#define COMMANDID   410
 bool Commands::ESP410(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
-    bool response = true;
+    bool noError = true;
+    bool json = has_tag (cmd_params, "json");
+    String response;
     String parameter;
+    int errorCode = 200; //unless it is a server error use 200 as default and set error in json instead
+
 #ifdef AUTHENTICATION_FEATURE
     if (auth_type == LEVEL_GUEST) {
-        output->printERROR("Wrong authentication!", 401);
-        return false;
+        response = format_response(COMMANDID, json, false, "Guest user can't use this command");
+        noError = false;
+        errorCode = 401;
     }
 #else
     (void)auth_type;
 #endif //AUTHENTICATION_FEATURE
-    //Backup current mode
-    uint8_t currentmode = WiFi.getMode();
-    bool plain = hastag(cmd_params,"plain");
-    int n = 0;
-    uint8_t total = 0;
-    if (plain) {
-        output->printLN ("Start Scan");
-    }
-    if(currentmode==WIFI_AP) {
-        WiFi.mode(WIFI_AP_STA);
-    }
-    n = WiFi.scanNetworks ();
-    if(currentmode==WIFI_AP) {
-        WiFi.mode((WiFiMode_t)currentmode);
-    }
-    if (!plain) {
-        output->print ("{\"AP_LIST\":[");
-    }
-    for (int i = 0; i < n; ++i) {
-        if (WiFi.RSSI (i)>= MIN_RSSI) {
-            if (total > 0) {
-                if (!plain) {
-                    output->print (",");
-                } else {
-                    output->printLN ("");
+    if (noError) {
+        parameter = clean_param(get_param (cmd_params, ""));
+        if (parameter.length() == 0) {
+            //Backup current mode
+            uint8_t currentmode = WiFi.getMode();
+            int n = 0;
+            uint8_t total = 0;
+            if (!json) {
+                output->printMSGLine ("Start Scan");
+            }
+            if(currentmode==WIFI_AP) {
+                WiFi.mode(WIFI_AP_STA);
+            }
+            n = WiFi.scanNetworks ();
+            if(currentmode==WIFI_AP) {
+                WiFi.mode((WiFiMode_t)currentmode);
+            }
+            if (json) {
+                output->print ("{\"cmd\":\"410\",\"status\":\"ok\",\"data\":[");
+            }
+            String line;
+            for (int i = 0; i < n; ++i) {
+                line = "";
+                if (WiFi.RSSI (i)>= MIN_RSSI) {
+                    if (total > 0) {
+                        if (json) {
+                            line+=",";
+                        }
+                    }
+                    total++;
+                    if (json) {
+                        line += "{\"SSID\":\"";
+                        line +=ESP3DOutput::encodeString(WiFi.SSID (i).c_str());
+                    } else {
+                        line +=WiFi.SSID (i).c_str();
+                    }
+                    if (json) {
+                        line +="\",\"SIGNAL\":\"";
+                    } else {
+                        line +="\t";
+                    }
+                    line += String(WiFiConfig::getSignal (WiFi.RSSI (i) ));
+                    if (!json) {
+                        line +="%";
+                    }
+                    if (json) {
+                        line +="\",\"IS_PROTECTED\":\"";
+                    }
+                    if (WiFi.encryptionType (i) == ENC_TYPE_NONE) {
+                        if (json) {
+                            line +="0";
+                        } else {
+                            line +="\tOpen";
+                        }
+                    } else {
+                        if (json) {
+                            line +="1";
+                        } else {
+                            line +="\tSecure";
+                        }
+                    }
+                    if (json) {
+                        line +="\"}";
+                    }
+                    if (json) {
+                        output->print (line.c_str());
+                    } else {
+                        output->printMSGLine (line.c_str());
+                    }
                 }
             }
-            total++;
-            if (!plain) {
-                output->print ("{\"SSID\":\"");
-                output->print (encodeString(WiFi.SSID (i).c_str()));
+            WiFi.scanDelete();
+            if (json) {
+                output->printLN ("]}");
             } else {
-                output->print (WiFi.SSID (i).c_str());
+                output->printMSGLine ("End Scan");
             }
-            if (!plain) {
-                output->print ("\",\"SIGNAL\":\"");
-            } else {
-                output->print ("\t");
-            }
-            output->print (String(WiFiConfig::getSignal (WiFi.RSSI (i) )));
-            if (plain) {
-                output->print("%");
-            }
-            if (!plain) {
-                output->print ("\",\"IS_PROTECTED\":\"");
-            }
-            if (WiFi.encryptionType (i) == ENC_TYPE_NONE) {
-                if (!plain) {
-                    output->print ("0");
-                } else {
-                    output->print ("\tOpen");
-                }
-            } else {
-                if (!plain) {
-                    output->print ("1");
-                } else {
-                    output->print ("\tSecure");
-                }
-            }
-            if (!plain) {
-                output->print ("\"}");
-            }
+            return true;
+        } else {
+            response = format_response(COMMANDID, json, false, "This command doesn't take parameters");
+            noError = false;
         }
     }
-    WiFi.scanDelete();
-    if (!plain) {
-        output->printLN ("]}");
+    if (noError) {
+        if (json) {
+            output->printLN (response.c_str() );
+        } else {
+            output->printMSG (response.c_str() );
+        }
     } else {
-        if(total>0) {
-            output->printLN ("");
-        }
-        output->printLN ("End Scan");
+        output->printERROR(response.c_str(), errorCode);
     }
-    return response;
+    return noError;
 }
 
 #endif //WIFI_FEATURE

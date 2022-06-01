@@ -24,40 +24,58 @@
 #include "../settings_esp3d.h"
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/filesystem/esp_sd.h"
+#define COMMANDID   715
 //Format SD Filesystem
-//[ESP715]FORMATSD pwd=<admin password>
+//[ESP715]FORMATSD json=<no> pwd=<admin password>
 bool Commands::ESP715(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
-    bool response = true;
+    bool noError = true;
+    bool json = has_tag (cmd_params, "json");
+    String response;
     String parameter;
-    parameter = get_param (cmd_params, "");
+    int errorCode = 200; //unless it is a server error use 200 as default and set error in json instead
 #ifdef AUTHENTICATION_FEATURE
     if (auth_type != LEVEL_ADMIN) {
-        output->printERROR("Wrong authentication!", 401);
-        response = false;
-    } else
+        response = format_response(COMMANDID, json, false, "Wrong authentication level");
+        noError = false;
+        errorCode = 401;
+    }
 #else
     (void)auth_type;
 #endif //AUTHENTICATION_FEATURE
-    {
-        if (parameter == "FORMATSD") {
-            bool isactive = ESP_SD::accessSD();
-            output->printMSG("Start Formating");
-            if (ESP_SD::format(output)) {
-                output->printMSG("Format Done");
+    if (noError) {
+        if (has_tag (cmd_params, "FORMATSD")) {
+            if (!ESP_SD::accessFS()) {
+                response = format_response(COMMANDID, json, false, "Not available");
+                noError = false;
             } else {
-                output->printERROR ("Format failed!");
-                response = false;
-            }
-            if (!isactive) {
-                ESP_SD::releaseSD();
+                ESP_SD::setState(ESP_SDCARD_BUSY);
+                if (!json) {
+                    output->printMSGLine("Start Formating");
+                }
+                if (ESP_SD::format(output)) {
+                    response = format_response(COMMANDID, json, true, "ok");
+                } else {
+                    response = format_response(COMMANDID, json, false, "Format failed");
+                    noError = false;
+                }
+                ESP_SD::releaseFS();
             }
         } else {
-            output->printERROR ("Invalid parameter!");
-            response = false;
+            response = format_response(COMMANDID, json, false, "Invalid parameter");
+            noError = false;
         }
     }
-    return response;
+    if (noError) {
+        if (json) {
+            output->printLN (response.c_str() );
+        } else {
+            output->printMSGLine (response.c_str() );
+        }
+    } else {
+        output->printERROR(response.c_str(), errorCode);
+    }
+    return noError;
 }
 
 #endif //SD_DEVICE

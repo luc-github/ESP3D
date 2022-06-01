@@ -17,6 +17,7 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+//#define ESP_DEBUG_FEATURE DEBUG_OUTPUT_SERIAL0
 #include "../../../include/esp3d_config.h"
 #if defined (HTTP_FEATURE) && defined(SD_DEVICE)
 #include "../http_server.h"
@@ -44,10 +45,6 @@ void HTTP_Server::handleSDFileList ()
         status = "Upload failed";
         _upload_status = UPLOAD_STATUS_NONE;
     }
-    if (ESP_SD::getState(true) != ESP_SDCARD_IDLE) {
-        _webserver->send (200, "text/plain", "{\"status\":\"no SD card\"}");
-        return;
-    }
 
     if (_webserver->hasArg ("quiet")) {
         if(_webserver->arg ("quiet") == "yes") {
@@ -56,7 +53,21 @@ void HTTP_Server::handleSDFileList ()
             return;
         }
     }
-    bool isactive = ESP_SD::accessSD();
+
+    if (!ESP_SD::accessFS()) {
+        _upload_status = UPLOAD_STATUS_NONE;
+        _webserver->send (200, "text/plain", "{\"status\":\"not available\"}");
+        return;
+    }
+
+    if (ESP_SD::getState(true) == ESP_SDCARD_NOT_PRESENT)  {
+        _webserver->send (200, "text/plain", "{\"status\":\"no SD card\"}");
+        log_esp3d("Release Sd called");
+        ESP_SD::releaseFS();
+        return;
+    }
+    ESP_SD::setState(ESP_SDCARD_BUSY );
+
     //get current path
     if (_webserver->hasArg ("path") ) {
         path += _webserver->arg ("path") ;
@@ -131,6 +142,10 @@ void HTTP_Server::handleSDFileList ()
                     status = shortname + " created";
                 }
             }
+        }
+        //force refresh
+        if (_webserver->arg ("action") == "list") {
+            ESP_SD::refreshStats(true);
         }
     }
     String buffer2send ;
@@ -217,9 +232,8 @@ void HTTP_Server::handleSDFileList ()
     _webserver->sendContent_P(buffer2send.c_str(),buffer2send.length());
     _webserver->sendContent("");
     _upload_status = UPLOAD_STATUS_NONE;
-    if (!isactive) {
-        ESP_SD::releaseSD();
-    }
+    log_esp3d("Release Sd called");
+    ESP_SD::releaseFS();
 }
 
 #endif //HTTP_FEATURE && SD_DEVICE

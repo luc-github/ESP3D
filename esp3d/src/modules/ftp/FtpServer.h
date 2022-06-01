@@ -96,6 +96,8 @@ public:
     const char* clientIPAddress();
     bool isUser(const char * user);
     bool isPassword(const char * password);
+    bool accessFS(const char* path);
+    void releaseFS();
 private:
     void    iniVariables();
     void    clientConnected();
@@ -120,7 +122,7 @@ private:
     bool getFileModTime(const char * path,time_t & time);
     bool timeStamp( const char * path, uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second );
     int8_t  readChar();
-
+    uint8_t _fsType;
     FTP_SERVER * ftpServer;
     FTP_SERVER * dataServer;
     uint16_t ctrlPort; // Command port on wich server is listening

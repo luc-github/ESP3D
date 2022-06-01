@@ -24,75 +24,99 @@
 #include "../settings_esp3d.h"
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/filesystem/esp_filesystem.h"
+#define COMMANDID   730
 // Action on ESP Filesystem
 //rmdir / remove / mkdir / exists / create
-//[ESP730]<Action>=<path> pwd=<admin password>
+//[ESP730]<Action>=<path> json=<no> pwd=<admin password>
 bool Commands::ESP730(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
-    bool response = true;
+    bool noError = true;
+    bool json = has_tag (cmd_params, "json");
+    String response;
     String parameter;
-    parameter = get_param (cmd_params, "");
+    bool hasParam = false;
+    int errorCode = 200; //unless it is a server error use 200 as default and set error in json instead;
 #ifdef AUTHENTICATION_FEATURE
     if (auth_type != LEVEL_ADMIN) {
-        output->printERROR("Wrong authentication!", 401);
-        return false;
+        response = format_response(COMMANDID, json, false, "Wrong authentication level");
+        noError = false;
+        errorCode = 401;
     }
 #else
     (void)auth_type;
 #endif //AUTHENTICATION_FEATURE
-    parameter = get_param (cmd_params, "mkdir=");
-    if (parameter.length() != 0) {
-        if (ESP_FileSystem::mkdir(parameter.c_str())) {
-            output->printMSG ("ok");
-        } else {
-            output->printERROR ("failed!");
-            response = false;
+    if (noError) {
+        parameter = get_param (cmd_params, "mkdir=");
+        if (parameter.length() != 0) {
+            hasParam = true;
+            if (!ESP_FileSystem::mkdir(parameter.c_str())) {
+                response = format_response(COMMANDID, json, false, "mkdir failed");
+                noError = false;
+            }
+
         }
-        return response;
-    }
-    parameter = get_param (cmd_params, "rmdir=");
-    if (parameter.length() != 0) {
-        if (ESP_FileSystem::rmdir(parameter.c_str())) {
-            output->printMSG ("ok");
-        } else {
-            output->printERROR ("failed!");
-            response = false;
+        if (noError && !hasParam) {
+            parameter = get_param (cmd_params, "rmdir=");
+            if (parameter.length() != 0) {
+                hasParam = true;
+                if (!ESP_FileSystem::rmdir(parameter.c_str())) {
+                    response = format_response(COMMANDID, json, false, "rmdir failed");
+                    noError = false;
+                }
+            }
         }
-        return response;
-    }
-    parameter = get_param (cmd_params, "remove=");
-    if (parameter.length() != 0) {
-        if (ESP_FileSystem::remove(parameter.c_str())) {
-            output->printMSG ("ok");
-        } else {
-            output->printERROR ("failed!");
-            response = false;
+        if (noError && !hasParam) {
+            parameter = get_param (cmd_params, "remove=");
+            if (parameter.length() != 0) {
+                hasParam = true;
+                if (!ESP_FileSystem::remove(parameter.c_str())) {
+                    response = format_response(COMMANDID, json, false, "remove failed");
+                    noError = false;
+                }
+            }
         }
-        return response;
-    }
-    parameter = get_param (cmd_params, "exists=");
-    if (parameter.length() != 0) {
-        if (ESP_FileSystem::exists(parameter.c_str())) {
-            output->printMSG ("yes");
-        } else {
-            output->printMSG ("no");
+        if (noError && !hasParam) {
+            parameter = get_param (cmd_params, "exists=");
+            if (parameter.length() != 0) {
+                hasParam = true;
+                if (ESP_FileSystem::exists(parameter.c_str())) {
+                    response = format_response(COMMANDID, json, true, "yes");
+                } else {
+                    response = format_response(COMMANDID, json, false, "no");
+                }
+            }
         }
-        return response;
-    }
-    parameter = get_param (cmd_params, "create=");
-    if (parameter.length() != 0) {
-        ESP_File f = ESP_FileSystem::open(parameter.c_str(), ESP_FILE_WRITE);
-        if (f.isOpen()) {
-            f.close();
-            output->printMSG ("ok");
-        } else {
-            output->printERROR ("failed!");
-            response = false;
+        if (noError && !hasParam) {
+            parameter = get_param (cmd_params, "create=");
+            if (parameter.length() != 0) {
+                hasParam = true;
+                ESP_File f = ESP_FileSystem::open(parameter.c_str(), ESP_FILE_WRITE);
+                if (!f.isOpen()) {
+                    response = format_response(COMMANDID, json, false, "create failed");
+                    noError = false;
+                } else {
+                    f.close();
+                }
+            }
         }
-        return response;
+        if (hasParam && noError && response.length() == 0) {
+            response = format_response(COMMANDID, json, true, "ok");
+        }
+        if (!hasParam) {
+            response = format_response(COMMANDID, json, false, "Missing parameter");
+            noError = false;
+        }
     }
-    output->printERROR ("Incorrect command!");
-    return false;
+    if (noError) {
+        if (json) {
+            output->printLN (response.c_str() );
+        } else {
+            output->printMSG (response.c_str() );
+        }
+    } else {
+        output->printERROR(response.c_str(), errorCode);
+    }
+    return noError;
 }
 
 #endif //FILESYSTEM_FEATURE

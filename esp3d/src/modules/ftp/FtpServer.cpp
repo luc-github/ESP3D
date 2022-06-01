@@ -65,7 +65,7 @@
  * 2019-10-27 Modified version for ESP3D by Luc LEBOSSE @luc-github
  * support for ESP8266 and ESP32 in ESP3D project
  */
-
+//#define ESP_DEBUG_FEATURE DEBUG_OUTPUT_SERIAL0
 #include "../../include/esp3d_config.h"
 #if defined (FTP_FEATURE)
 #include <WiFiServer.h>
@@ -197,7 +197,41 @@ bool FtpServer::begin()
     cmdStage = FTP_Stop;
     iniVariables();
     _started = true;
+    _fsType = FS_UNKNOWN;
     return _started;
+}
+
+bool FtpServer::accessFS(const char* path)
+{
+    if (_fsType != FS_UNKNOWN) {
+        log_esp3d("FTP: accessFS: already accessed");
+        return false;
+    }
+    _fsType = FTPFS::getFSType(path);
+    if (FTPFS::accessFS(_fsType)) {
+#if FTP_FEATURE == FS_SD
+        if( FTPFS::getState(true) == ESP_SDCARD_NOT_PRESENT) {
+            log_esp3d("FTP: accessFS:No SD card");
+            _fsType = FS_UNKNOWN;
+            FTPFS::releaseFS();
+            return false;
+        } else {
+            FTPFS::setState(ESP_SDCARD_BUSY );
+            log_esp3d("FTP: accessFS: Accessed granted");
+        }
+#endif //FTP_FEATURE == FS_SD
+        return true;
+    }
+    log_esp3d("FTP: accessFS: Access denied");
+    return false;
+}
+void FtpServer::releaseFS()
+{
+    if (_fsType != FS_UNKNOWN) {
+        FTPFS::releaseFS(_fsType);
+        log_esp3d("FTP: accessFS: Access revoked");
+        _fsType = FS_UNKNOWN;
+    }
 }
 
 void FtpServer::iniVariables()
@@ -233,6 +267,7 @@ void FtpServer::handle()
 
     if( cmdStage == FTP_Stop ) {
         log_esp3d("FTP_STOP");
+        releaseFS();
         if( client.connected()) {
             disconnectClient();
         }
@@ -268,19 +303,27 @@ void FtpServer::handle()
     if( transferStage == FTP_Retrieve ) { // Retrieve data
         if( ! doRetrieve()) {
             transferStage = FTP_Close;
+        } else {
+            releaseFS();
         }
     } else if( transferStage == FTP_Store ) { // Store data
         if( ! doStore()) {
             transferStage = FTP_Close;
+        } else {
+            releaseFS();
         }
     } else if( transferStage == FTP_List ||
                transferStage == FTP_Nlst) { // LIST or NLST
         if( ! doList()) {
             transferStage = FTP_Close;
+        } else {
+            releaseFS();
         }
     } else if( transferStage == FTP_Mlsd ) { // MLSD listing
         if( ! doMlsd()) {
             transferStage = FTP_Close;
+        } else {
+            releaseFS();
         }
     } else if( cmdStage > FTP_Client &&
                ! ((int32_t) ( millisEndConnection - millis() ) > 0 )) {
@@ -350,6 +393,7 @@ void FtpServer::disconnectClient()
 
 bool FtpServer::processCommand()
 {
+    log_esp3d("Process Command");
     ///////////////////////////////////////
     //                                   //
     //      AUTHENTICATION COMMANDS      //
@@ -458,7 +502,14 @@ bool FtpServer::processCommand()
             // if found, ends the string on its position
             if( ok ) {
                 * pSep = 0;
-                ok = FTPFS::exists( cwdName );
+                log_esp3d("FTP: check accessFS");
+                if (accessFS(cwdName)) {
+                    ok = FTPFS::exists( cwdName );
+                    log_esp3d("FTP: releaseFS");
+                    releaseFS();
+                } else {
+                    ok = false;
+                }
             }
         }
         // if an error appends, move to root
@@ -483,6 +534,8 @@ bool FtpServer::processCommand()
     else if( CommandIs( "QUIT" )) {
         log_esp3d("QUIT");
         client << F("221 Goodbye") << eol;
+        log_esp3d("FTP: releaseFS");
+        releaseFS();
         disconnectClient();
         cmdStage = FTP_Stop;
     }
@@ -589,21 +642,35 @@ bool FtpServer::processCommand()
     else if( CommandIs( "DELE" )) {
         char path[ FTP_CWD_SIZE ];
         if(haveParameter() && makeExistsPath( path )) {
-            if( FTPFS::remove( path )) {
-                client << F("250 Deleted ") << parameter << eol;
+            log_esp3d("FTP: check accessFS");
+            if( accessFS(path)) {
+                if( FTPFS::remove( path )) {
+                    client << F("250 Deleted ") << parameter << eol;
+                } else {
+                    client << F("450 Can't delete ") << parameter << eol;
+                }
+                log_esp3d("FTP: releaseFS");
+                releaseFS();
             } else {
-                client << F("450 Can't delete ") << parameter << eol;
+                client << F("550 Can't access ") << parameter << eol;
             }
+        } else {
+            client << F("550 Can't access ") << parameter << eol;
         }
     }
-    //
-    //  LIST - List
-    //  NLST - Name List
-    //  MLSD - Listing for Machine Processing (see RFC 3659)
-    //
+//
+//  LIST - List
+//  NLST - Name List
+//  MLSD - Listing for Machine Processing (see RFC 3659)
+//
     else if( CommandIs( "LIST" ) || CommandIs( "NLST" ) || CommandIs( "MLSD" )) {
+        bool access = false;
         if( dataConnect()) {
-            dir = FTPFS::open(cwdName);
+            log_esp3d("FTP: check accessFS");
+            access = accessFS(cwdName);
+            if (access) {
+                dir = FTPFS::open(cwdName);
+            }
         }
         if (dir) {
             nbMatch = 0;
@@ -615,122 +682,154 @@ bool FtpServer::processCommand()
                 transferStage = FTP_Mlsd;
             }
         } else {
+            //we got access but file opening failed, so let's release the FS
+            if (access) {
+                log_esp3d("FTP: releaseFS");
+                releaseFS();
+            }
             client << F("550 Can't open directory ") << cwdName << eol;
             data.stop();
         }
     }
-    //
-    //  MLST - Listing for Machine Processing (see RFC 3659)
-    //
+//
+//  MLST - Listing for Machine Processing (see RFC 3659)
+//
     else if( CommandIs( "MLST" )) {
         char path[ FTP_CWD_SIZE ];
         time_t t = 0;
         char dtStr[ 15 ];
         bool isdir = false;
         if( haveParameter() && makeExistsPath( path )) {
-            if( ! getFileModTime( path, t )) {
-                client << F("550 Unable to retrieve time for ") << parameter << eol;
-            } else {
-                if( file = FTPFS::open(path)) {
-                    isdir = file.isDirectory();
-                    t = file.getLastWrite();
-                    file.close();
+            log_esp3d("FTP: check accessFS");
+            if (accessFS(path)) {
+                if( ! getFileModTime( path, t )) {
+                    client << F("550 Unable to retrieve time for ") << parameter << eol;
+                } else {
+                    if( file = FTPFS::open(path)) {
+                        isdir = file.isDirectory();
+                        t = file.getLastWrite();
+                        file.close();
+                    }
+                    client << F("250-Begin") << eol
+                           << F(" Type=") << ( isdir ? F("dir") : F("file"))
+                           << F(";Modify=") << makeDateTimeStr( dtStr, t );
+                    if( ! isdir ) {
+                        client << F(";Size=") << file.size();
+                    }
+                    client << F("; ") << path << eol
+                           << F("250 End.") << eol;
                 }
-                client << F("250-Begin") << eol
-                       << F(" Type=") << ( isdir ? F("dir") : F("file"))
-                       << F(";Modify=") << makeDateTimeStr( dtStr, t );
-                if( ! isdir ) {
-                    client << F(";Size=") << file.size();
-                }
-                client << F("; ") << path << eol
-                       << F("250 End.") << eol;
+                log_esp3d("FTP: releaseFS");
+                releaseFS();
             }
         }
     }
-    //
-    //  NOOP
-    //
+//
+//  NOOP
+//
     else if( CommandIs( "NOOP" )) {
         client << F("200 Zzz...") << eol;
     }
-    //
-    //  RETR - Retrieve
-    //
+//
+//  RETR - Retrieve
+//
     else if( CommandIs( "RETR" )) {
         char path[ FTP_CWD_SIZE ];
         if( haveParameter() && makeExistsPath( path )) {
-            file = FTPFS::open(path);
-            if( ! file.isOpen()) {
-                client << F("450 Can't open ") << parameter << eol;
-            } else if( dataConnect( false )) {
-                log_esp3d(" Sending %s", parameter);
-                client << F("150-Connected to port ") << dataPort << eol;
-                client << F("150 ") << file.size() << F(" bytes to download") << eol;
-                millisBeginTrans = millis();
-                bytesTransfered = 0;
-                transferStage = FTP_Retrieve;
-            }
-        }
-    }
-    //
-    //  STOR - Store
-    //  APPE - Append
-    //
-    else if( CommandIs( "STOR" ) || CommandIs( "APPE" )) {
-        char path[ FTP_CWD_SIZE ];
-        if( haveParameter() && makePath( path )) {
-            if( FTPFS::exists( path )) {
-                file = FTPFS::open( path, ESP_FILE_WRITE | ( CommandIs( "APPE" ) ? ESP_FILE_APPEND : ESP_FILE_WRITE ));
-            } else {
-                file = FTPFS::open( path, ESP_FILE_WRITE );
-            }
-            if( ! file.isOpen() ) {
-                client << F("451 Can't open/create ") << parameter << eol;
-            } else if( ! dataConnect()) {
-                file.close();
-            } else {
-                log_esp3d(" Receiving %s", parameter);
-                millisBeginTrans = millis();
-                bytesTransfered = 0;
-                transferStage = FTP_Store;
-            }
-        }
-    }
-    //
-    //  MKD - Make Directory
-    //
-    else if( CommandIs( "MKD" ) || CommandIs( "XMKD" )) {
-        char path[ FTP_CWD_SIZE ];
-        if( haveParameter() && makePath( path )) {
-            if( FTPFS::exists( path )) {
-                client << F("521 \"") << parameter << F("\" directory already exists") << eol;
-            } else {
-                log_esp3d(" Creating directory %s", parameter);
-                if( FTPFS::mkdir( path )) {
-                    client << F("257 \"") << parameter << F("\"") << F(" created") << eol;
-                } else {
-                    client << F("550 Can't create \"") << parameter << F("\"") << eol;
+            log_esp3d("FTP: check accessFS");
+            if( accessFS(path)) {
+                file = FTPFS::open(path);
+                if( ! file.isOpen()) {
+                    client << F("450 Can't open ") << parameter << eol;
+                    log_esp3d("FTP: releaseFS");
+                    releaseFS();
+                } else if( dataConnect( false )) {
+                    log_esp3d(" Sending %s", parameter);
+                    client << F("150-Connected to port ") << dataPort << eol;
+                    client << F("150 ") << file.size() << F(" bytes to download") << eol;
+                    millisBeginTrans = millis();
+                    bytesTransfered = 0;
+                    transferStage = FTP_Retrieve;
                 }
             }
         }
     }
-    //
-    //  RMD - Remove a Directory
-    //
-    else if( CommandIs( "RMD" ) || CommandIs( "XRMD" )) {
+//
+//  STOR - Store
+//  APPE - Append
+//
+    else if( CommandIs( "STOR" ) || CommandIs( "APPE" )) {
         char path[ FTP_CWD_SIZE ];
-        if( haveParameter() && makeExistsPath( path )) {
-            if( FTPFS::rmdir( path )) {
-                log_esp3d(" Deleting %s", path);
-                client << F("250 \"") << parameter << F("\" deleted") << eol;
-            } else {
-                client << F("550 Can't remove \"") << parameter << F("\". Directory not empty?") << eol;
+        if( haveParameter() && makePath( path )) {
+            log_esp3d("FTP: check accessFS");
+            if(accessFS(path)) {
+                if( FTPFS::exists( path )) {
+                    file = FTPFS::open( path, ESP_FILE_WRITE | ( CommandIs( "APPE" ) ? ESP_FILE_APPEND : ESP_FILE_WRITE ));
+                } else {
+                    file = FTPFS::open( path, ESP_FILE_WRITE );
+                }
+                if( ! file.isOpen() ) {
+                    client << F("451 Can't open/create ") << parameter << eol;
+                    log_esp3d("FTP: releaseFS");
+                    releaseFS();
+                } else if( ! dataConnect()) {
+                    file.close();
+                    log_esp3d("FTP: releaseFS");
+                    releaseFS();
+                } else {
+                    log_esp3d(" Receiving %s", parameter);
+                    millisBeginTrans = millis();
+                    bytesTransfered = 0;
+                    transferStage = FTP_Store;
+                }
             }
         }
     }
-    //
-    //  RNFR - Rename From
-    //
+//
+//  MKD - Make Directory
+//
+    else if( CommandIs( "MKD" ) || CommandIs( "XMKD" )) {
+        char path[ FTP_CWD_SIZE ];
+        if( haveParameter() && makePath( path )) {
+            log_esp3d("FTP: check accessFS");
+            if (accessFS(path)) {
+                if( FTPFS::exists( path )) {
+                    client << F("521 \"") << parameter << F("\" directory already exists") << eol;
+                } else {
+                    log_esp3d(" Creating directory %s", parameter);
+                    if( FTPFS::mkdir( path )) {
+                        client << F("257 \"") << parameter << F("\"") << F(" created") << eol;
+                    } else {
+                        client << F("550 Can't create \"") << parameter << F("\"") << eol;
+                    }
+                }
+                log_esp3d("FTP: releaseFS");
+                releaseFS();
+            }
+        }
+    }
+//
+//  RMD - Remove a Directory
+//
+    else if( CommandIs( "RMD" ) || CommandIs( "XRMD" )) {
+        char path[ FTP_CWD_SIZE ];
+        if( haveParameter() && makeExistsPath( path )) {
+            log_esp3d("FTP: check accessFS");
+            if (accessFS(path)) {
+                if( FTPFS::rmdir( path )) {
+                    log_esp3d(" Deleting %s", path);
+                    client << F("250 \"") << parameter << F("\" deleted") << eol;
+                } else {
+                    client << F("550 Can't remove \"") << parameter << F("\". Directory not empty?") << eol;
+                }
+                log_esp3d("FTP: releaseFS");
+                releaseFS();
+            }
+        }
+    }
+//
+//  RNFR - Rename From
+//
     else if( CommandIs( "RNFR" )) {
         rnfrName[ 0 ] = 0;
         if( haveParameter() && makeExistsPath( rnfrName )) {
@@ -739,65 +838,70 @@ bool FtpServer::processCommand()
             rnfrCmd = true;
         }
     }
-    //
-    //  RNTO - Rename To
-    //
+//
+//  RNTO - Rename To
+//
     else if( CommandIs( "RNTO" )) {
         char path[ FTP_CWD_SIZE ];
         char dirp[ FTP_FIL_SIZE ];
         if( strlen( rnfrName ) == 0 || ! rnfrCmd ) {
             client << F("503 Need RNFR before RNTO") << eol;
         } else if( haveParameter() && makePath( path )) {
-            if( FTPFS::exists( path )) {
-                client << F("553 ") << parameter << F(" already exists") << eol;
-            } else {
-                strcpy( dirp, path );
-                char * psep = strrchr( dirp, '/' );
-                bool fail = psep == NULL;
-                if( ! fail ) {
-                    if( psep == dirp ) {
-                        psep ++;
-                    }
-                    * psep = 0;
-                    FTPFile f = FTPFS::open( dirp );
-                    f.close();
-                    fail = ! f.isDirectory();
-                    if( fail ) {
-                        client << F("550 \"") << dirp << F("\" is not directory") << eol;
-                    } else {
-                        log_esp3d(" Renaming %s to %s", rnfrName, path);
-                        if( FTPFS::rename( rnfrName, path )) {
-                            client << F("250 File successfully renamed or moved") << eol;
+            log_esp3d("FTP: check accessFS");
+            if (accessFS(path)) {
+                if( FTPFS::exists( path )) {
+                    client << F("553 ") << parameter << F(" already exists") << eol;
+                } else {
+                    strcpy( dirp, path );
+                    char * psep = strrchr( dirp, '/' );
+                    bool fail = psep == NULL;
+                    if( ! fail ) {
+                        if( psep == dirp ) {
+                            psep ++;
+                        }
+                        * psep = 0;
+                        FTPFile f = FTPFS::open( dirp );
+                        f.close();
+                        fail = ! f.isDirectory();
+                        if( fail ) {
+                            client << F("550 \"") << dirp << F("\" is not directory") << eol;
                         } else {
-                            fail = true;
+                            log_esp3d(" Renaming %s to %s", rnfrName, path);
+                            if( FTPFS::rename( rnfrName, path )) {
+                                client << F("250 File successfully renamed or moved") << eol;
+                            } else {
+                                fail = true;
+                            }
                         }
                     }
+                    if( fail ) {
+                        client << F("451 Rename/move failure") << eol;
+                    }
                 }
-                if( fail ) {
-                    client << F("451 Rename/move failure") << eol;
-                }
+                log_esp3d("FTP: releaseFS");
+                releaseFS();
             }
         }
         rnfrCmd = false;
     }
 
-    //
-    //  SYST - System
-    //
+//
+//  SYST - System
+//
     else if( CommandIs( "SYST" )) {
         client << F("215 ESP3D") << eol;
     }
 
 
-    ///////////////////////////////////////
-    //                                   //
-    //   EXTENSIONS COMMANDS (RFC 3659)  //
-    //                                   //
-    ///////////////////////////////////////
+///////////////////////////////////////
+//                                   //
+//   EXTENSIONS COMMANDS (RFC 3659)  //
+//                                   //
+///////////////////////////////////////
 
-    //
-    //  MDTM && MFMT - File Modification Time (see RFC 3659)
-    //
+//
+//  MDTM && MFMT - File Modification Time (see RFC 3659)
+//
     else if( CommandIs( "MDTM" ) || CommandIs( "MFMT" )) {
         if( haveParameter()) {
             char path[ FTP_CWD_SIZE ];
@@ -822,9 +926,15 @@ bool FtpServer::processCommand()
                 } else if( mdtm ) { // get file modification time
                     time_t t = 0;
                     char dtStr[ 15 ];
-                    //TODO: add date time support
-                    if( getFileModTime( path, t)) {
-                        client << "213 " << makeDateTimeStr( dtStr, t ) << eol;
+                    log_esp3d("FTP: check accessFS");
+                    if (accessFS(path)) {
+                        if( getFileModTime( path, t)) {
+                            client << "213 " << makeDateTimeStr( dtStr, t ) << eol;
+                        } else {
+                            client << "550 Unable to retrieve time" << eol;
+                        }
+                        log_esp3d("FTP: releaseFS");
+                        releaseFS();
                     } else {
                         client << "550 Unable to retrieve time" << eol;
                     }
@@ -832,52 +942,62 @@ bool FtpServer::processCommand()
             }
         }
     }
-    //
-    //  SIZE - Size of the file
-    //
+//
+//  SIZE - Size of the file
+//
     else if( CommandIs( "SIZE" )) {
         char path[ FTP_CWD_SIZE ];
         if( haveParameter() && makeExistsPath( path )) {
-            file = FTPFS::open( path );
-        }
-        if( ! file.isOpen()) {
-            client << F("450 Can't open ") << parameter << eol;
-        } else {
-            client << F("213 ") << file.size() << eol;
-            file.close();
+            log_esp3d("FTP: check accessFS");
+            if (accessFS(path)) {
+                file = FTPFS::open( path );
+            }
+            if( ! file.isOpen()) {
+                client << F("450 Can't open ") << parameter << eol;
+            } else {
+                client << F("213 ") << file.size() << eol;
+                file.close();
+            }
+            log_esp3d("FTP: releaseFS");
+            releaseFS();
         }
     }
-    //
-    //  SITE - System command
-    //
+//
+//  SITE - System command
+//
     else if( CommandIs( "SITE" )) {
         if( ParameterIs( "FREE" )) {
+            log_esp3d("FTP: check accessFS");
+            if (accessFS(cwdName)) {
 #if FTP_FEATURE == FS_ROOT
-            uint8_t fs = FTPFS::getFSType(cwdName);
-            uint64_t capacity = FTPFS::totalBytes(fs);
-            uint64_t free = FTPFS::freeBytes(fs);
+                uint8_t fs = FTPFS::getFSType(cwdName);
+                uint64_t capacity = FTPFS::totalBytes(fs);
+                uint64_t free = FTPFS::freeBytes(fs);
 #else
 #if FTP_FEATURE == FS_FLASH
-            size_t capacity;
-            size_t free;
+                size_t capacity;
+                size_t free;
 #endif
 #if FTP_FEATURE == FS_SD
-            uint64_t capacity;
-            uint64_t free;
+                uint64_t capacity;
+                uint64_t free;
 #endif
 
-            capacity = FTPFS::totalBytes();
-            free = FTPFS::freeBytes();
+                capacity = FTPFS::totalBytes();
+                free = FTPFS::freeBytes();
 #endif
-            client << F("200 ") << FTPFS::formatBytes(free) << F(" free of ")
-                   << FTPFS::formatBytes(capacity) << F(" capacity") << eol;
+                client << F("200 ") << FTPFS::formatBytes(free) << F(" free of ")
+                       << FTPFS::formatBytes(capacity) << F(" capacity") << eol;
+                log_esp3d("FTP: releaseFS");
+                releaseFS();
+            }
         } else {
             client << F("500 Unknow SITE command ") << parameter << eol;
         }
     }
-    //
-    //  Unrecognized commands ...
-    //
+//
+//  Unrecognized commands ...
+//
     else {
         client << F("500 Unknow command") << eol;
     }

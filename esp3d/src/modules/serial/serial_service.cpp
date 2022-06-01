@@ -19,6 +19,7 @@
 */
 
 #include "../../include/esp3d_config.h"
+#if COMMUNICATION_PROTOCOL == MKS_SERIAL || COMMUNICATION_PROTOCOL == RAW_SERIAL
 #include "serial_service.h"
 #include "../../core/settings_esp3d.h"
 #include "../../core/esp3doutput.h"
@@ -439,3 +440,5 @@ void SerialService::swap()
     ESP3D_SERIAL.swap();
 #endif //ARDUINO_ARCH_ESP8266
 }
+
+#endif //COMMUNICATION_PROTOCOL == MKS_SERIAL || COMMUNICATION_PROTOCOL == RAW_SERIAL

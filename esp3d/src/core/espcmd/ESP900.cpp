@@ -18,48 +18,66 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "../../include/esp3d_config.h"
+#if COMMUNICATION_PROTOCOL != SOCKET_SERIAL
 #include "../commands.h"
 #include "../esp3doutput.h"
 #include "../settings_esp3d.h"
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/serial/serial_service.h"
+#define COMMANDID   900
 //Get state / Set Enable / Disable Serial Communication
-//[ESP900]<ENABLE/DISABLE>[pwd=<admin password>]
+//[ESP900]<ENABLE/DISABLE> json=<no> [pwd=<admin password>]
 bool Commands::ESP900(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
-    bool response = true;
+    bool noError = true;
+    bool json = has_tag (cmd_params, "json");
+    String response;
     String parameter;
+    int errorCode = 200; //unless it is a server error use 200 as default and set error in json instead
 #ifdef AUTHENTICATION_FEATURE
     if (auth_type == LEVEL_GUEST) {
-        output->printERROR("Wrong authentication!", 401);
-        return false;
+        response = format_response(COMMANDID, json, false, "Guest user can't use this command");
+        noError = false;
+        errorCode = 401;
     }
 #else
     (void)auth_type;
 #endif //AUTHENTICATION_FEATURE
-    parameter = get_param (cmd_params, "");
-    //get
-    if (parameter.length() == 0) {
-        if (serial_service.started()) {
-            output->printMSG("ENABLED");
-        } else {
-            output->printMSG("DISABLED");
-        }
-    } else { //set
-        if (parameter == "ENABLE" ) {
-            if (serial_service.begin()) {
-                output->printMSG ("Serial communication enabled");
+    if (noError) {
+        parameter = clean_param(get_param (cmd_params, ""));
+        //get
+        if (parameter.length() == 0) {
+            if (serial_service.started()) {
+                response = format_response(COMMANDID, json, true, "ENABLED");
             } else {
-                output->printERROR("Cannot enable serial communication!", 500);
-                response = false;
+                response = format_response(COMMANDID, json, true, "DISABLED");
             }
-        } else  if (parameter == "DISABLE" ) {
-            output->printMSG ("Serial communication disabled");
-            serial_service.end();
-        } else {
-            output->printERROR("Incorrect command!");
-            response = false;
+        } else { //set
+            if (parameter == "ENABLE" ) {
+                if (serial_service.begin()) {
+                    response = format_response(COMMANDID, json, true, "ok");
+                } else {
+                    response = format_response(COMMANDID, json, false, "Cannot enable serial communication");
+                    noError = false;
+                }
+            } else if (parameter == "DISABLE" ) {
+                response = format_response(COMMANDID, json, true, "ok");
+                serial_service.end();
+            } else {
+                response = format_response(COMMANDID, json, false, "Incorrect command");
+                noError = false;
+            }
         }
     }
-    return response;
+    if (noError) {
+        if (json) {
+            output->printLN (response.c_str() );
+        } else {
+            output->printMSG (response.c_str() );
+        }
+    } else {
+        output->printERROR(response.c_str(), errorCode);
+    }
+    return noError;
 }
+#endif

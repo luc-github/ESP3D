@@ -33,10 +33,12 @@ public:
     bool begin();
     void handle();
     bool end();
+    bool started();
     static bool reset();
     static void restart_esp(bool need_restart = true);
 private:
     static bool restart;
+    bool _started;
     void restart_now();
 };
 #endif //_ESP3D_H

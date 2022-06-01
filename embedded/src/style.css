@@ -208,6 +208,12 @@ li {
   color: red;
 }
 
+.text-error-login {
+background-color: white;
+color: red;
+text-align: center;
+}
+
 .disabled {
   pointer-events: none;
 }
@@ -330,7 +336,10 @@ li:hover {
   background-color: #5755d9;
   color: #5755d9;
 }
-
+.m-1{
+  margin-left: 1rem;
+  margin-right: 1rem;
+}
 button > svg {
   background-color: #5755d9;
   text-decoration-color: #ffffff;

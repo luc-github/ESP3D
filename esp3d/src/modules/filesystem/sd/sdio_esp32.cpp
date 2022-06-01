@@ -119,19 +119,35 @@ void ESP_SD::end()
     _started = false;
 }
 
-uint64_t ESP_SD::totalBytes()
+void ESP_SD::refreshStats(bool force)
 {
-    return SD_MMC.totalBytes();
+    if (force || _sizechanged) {
+        freeBytes(true);
+    }
+    _sizechanged = false;
 }
 
-uint64_t ESP_SD::usedBytes()
+uint64_t ESP_SD::totalBytes(bool refresh)
 {
-    return SD_MMC.usedBytes();
+    static uint64_t _totalBytes = 0;
+    if (refresh || _totalBytes==0) {
+        _totalBytes = SD_MMC.totalBytes();;
+    }
+    return _totalBytes;
 }
 
-uint64_t ESP_SD::freeBytes()
+uint64_t ESP_SD::usedBytes(bool refresh)
 {
-    return (SD_MMC.totalBytes() - SD_MMC.usedBytes());
+    static uint64_t _usedBytes = 0;
+    if (refresh || _usedBytes==0) {
+        _usedBytes = SD_MMC.usedBytes();
+    }
+    return _usedBytes;
+}
+
+uint64_t ESP_SD::freeBytes(bool refresh)
+{
+    return (totalBytes(refresh) - usedBytes(refresh));
 }
 
 uint ESP_SD::maxPathLength()

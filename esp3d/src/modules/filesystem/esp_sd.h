@@ -68,15 +68,17 @@ class ESP_SD
 public:
     static String & formatBytes (uint64_t bytes);
     static bool begin();
-    static bool  accessSD();
-    static void  releaseSD();
+    static bool  accessFS(uint8_t FS = FS_SD);
+    static void  releaseFS(uint8_t FS = FS_SD);
+    static uint8_t getFSType(const char * path=nullptr);
     static void handle();
     static void end();
-    static uint8_t getState(bool refresh);
+    static uint8_t getState(bool refresh=false);
     static uint8_t setState(uint8_t state);
-    static uint64_t totalBytes();
-    static uint64_t usedBytes();
-    static uint64_t freeBytes();
+    static void refreshStats(bool force = false);
+    static uint64_t totalBytes(bool refresh = false);
+    static uint64_t usedBytes(bool refresh = false);
+    static uint64_t freeBytes(bool refresh = false);
     static uint maxPathLength();
     static const char * FilesystemName();
     static bool format(ESP3DOutput * output = nullptr);
@@ -92,8 +94,18 @@ public:
         return _spi_speed_divider;
     }
     static bool setSPISpeedDivider(uint8_t speeddivider);
+#if SD_DEVICE_CONNECTION == ESP_SHARED_SD
+    static bool enableSharedSD();
+    static bool isEnabled()
+    {
+        return _enabled;
+    }
+#endif // SD_DEVICE_CONNECTION == ESP_SHARED_SD
 private:
     static bool _started;
+#if SD_DEVICE_CONNECTION == ESP_SHARED_SD
+    static bool _enabled;
+#endif // SD_DEVICE_CONNECTION == ESP_SHARED_SD
     static uint8_t _state;
     static uint8_t _spi_speed_divider;
     static bool _sizechanged;

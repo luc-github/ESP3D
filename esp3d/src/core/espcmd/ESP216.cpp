@@ -25,40 +25,58 @@
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/display/display.h"
 //Take screen snapshot
-//[ESP216]<SNAP>[pwd=<user password>]
+//[ESP216]<SNAP> json=<no>[pwd=<user password>]
+#define COMMANDID   216
 bool Commands::ESP216(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
-    bool response = true;
+    bool noError = true;
+    bool json = has_tag (cmd_params, "json");
+    String response;
     String parameter;
+    int errorCode = 200; //unless it is a server error use 200 as default and set error in json instead
 #ifdef AUTHENTICATION_FEATURE
     if (auth_type == LEVEL_GUEST) {
-        output->printERROR("Wrong authentication!", 401);
-        return false;
+        response = format_response(COMMANDID, json, false, "Guest user can't use this command");
+        noError = false;
+        errorCode = 401;
     }
 #else
     (void)auth_type;
 #endif //AUTHENTICATION_FEATURE
-    parameter = get_param (cmd_params, "");
-    //get
-    if (parameter.length() == 0) {
-        output->printERROR("Invalid parameter!");
-        response = false;
-    } else { //set
-        parameter.toUpperCase();
-        if (parameter == "SNAP") {
-            output->printMSG("Creating snapshot");
-            if(esp3d_display.snapshot()) {
-                output->printMSG("Snapshot saved");
+    if (noError) {
+        parameter = clean_param(get_param (cmd_params, ""));
+        //get
+        if (parameter.length() == 0) {
+            response = format_response(COMMANDID, json, false, "Invalid parameter");
+            noError = false;
+        } else { //set
+            parameter.toUpperCase();
+            if (has_tag (cmd_params, "SNAP")) {
+                if (!json) {
+                    output->printMSG("Creating snapshot");
+                }
+                if(esp3d_display.snapshot()) {
+                    response = format_response(COMMANDID, json, true, "ok");
+                } else {
+                    response = format_response(COMMANDID, json, false, "Cannot save snapshot");
+                    noError = false;
+                }
             } else {
-                output->printERROR("Error!");
+                response = format_response(COMMANDID, json, false, "Invalid parameter");
                 response = false;
             }
-        } else {
-            output->printERROR("Invalid parameter!");
-            response = false;
         }
     }
-    return response;
+    if (noError) {
+        if (json) {
+            output->printLN (response.c_str() );
+        } else {
+            output->printMSG (response.c_str() );
+        }
+    } else {
+        output->printERROR(response.c_str(), errorCode);
+    }
+    return noError;
 }
 
 #endif //DISPLAY_SNAPSHOT_FEATURE

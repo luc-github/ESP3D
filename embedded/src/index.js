@@ -38,6 +38,8 @@ let uploadType = 0;
 let restartTime;
 let loginLink;
 let loginModal;
+let loginUser = "";
+let loginMsg;
 
 window.onload = function () {
   consolePanel = document.getElementById("consolePanel");
@@ -68,6 +70,21 @@ window.onload = function () {
     );
     input.value = "";
   });
+
+  document
+    .getElementById("loginInput")
+    .addEventListener("keydown", function (event) {
+      if (event.keyCode === 13) {
+        document.getElementById("passwordInput").focus();
+      }
+    });
+  document
+    .getElementById("passwordInput")
+    .addEventListener("keydown", function (event) {
+      if (event.keyCode === 13) {
+        document.getElementById("loginbutton").click();
+      }
+    });
   document
     .getElementById("customCmdTxt")
     .addEventListener("keyup", function (event) {
@@ -80,14 +97,23 @@ window.onload = function () {
     if (isConsoleExpanded) consoleBody.style.display = "block";
     else consoleBody.style.display = "none";
   });
+  loginMsg = document.getElementById("loginMsg");
   loginLink = document.getElementById("loginLink");
   loginModal = document.getElementById("loginpage");
   loginLink.addEventListener("click", function () {
     loginModal.classList.remove("hide");
   });
+  document
+    .getElementById("disconnectbutton")
+    .addEventListener("click", function () {
+      document.getElementById("loginInput").value = "";
+      document.getElementById("loginbutton").click();
+    });
+
   document.getElementById("loginbutton").addEventListener("click", function () {
     loginModal.classList.add("hide");
     let user = document.getElementById("loginInput").value.trim();
+    loginUser = user;
     let password = document.getElementById("passwordInput").value.trim();
     let url = new URL("http://" + window.location.host + "/login");
     url.searchParams.append("USER", user);
@@ -98,8 +124,7 @@ window.onload = function () {
       if (xmlhttp.readyState == 4) {
         if (xmlhttp.status != 200) {
           if (xmlhttp.status == 401) {
-            loginModal.classList.remove("hide");
-            loginLink.classList.remove("hide");
+            handle401();
           } else {
             console.log(xmlhttp.status);
             ErrorMSG(
@@ -113,6 +138,7 @@ window.onload = function () {
     };
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
+    document.getElementById("passwordInput").value = "";
   });
 
   refreshButton = document.getElementById("refresh");
@@ -184,6 +210,19 @@ window.onload = function () {
   getFWData();
   initMenus();
 };
+
+function handle401() {
+  loginModal.classList.remove("hide");
+  loginLink.classList.remove("hide");
+  if (loginUser.length > 0) {
+    loginMsg.classList.remove("hide");
+  } else {
+    loginMsg.classList.add("hide");
+  }
+  firmware.classList.add("hide");
+  fileSystem.classList.add("hide");
+  consolePanel.classList.add("hide");
+}
 
 function padNumber(num, size) {
   let s = num.toString().padStart(size, "0");
@@ -268,6 +307,12 @@ function processFWJson(text) {
     consoleContentUpdate(text);
     return;
   }
+  if (!json.status || !json.cmd || !json.data) {
+    ErrorMSG("Wrong version of webUI");
+    consoleContentUpdate(text);
+    return;
+  }
+  json = json.data;
   if (json.FWVersion) {
     let verLink = document.getElementById("verLink");
     verLink.innerHTML = "v" + json.FWVersion;
@@ -287,7 +332,7 @@ function processFWJson(text) {
     window.open(url);
   });
   consolePanel.classList.remove("hide");
-  if (json.Filesystem && json.Filesystem != "None")
+  if (json.FileSystem && json.FileSystem != "none")
     fileSystem.classList.remove("hide");
   if (json.WebUpdate == "Enabled") firmware.classList.remove("hide");
   if (json.WiFiMode && json.WebSocketIP) {
@@ -365,6 +410,11 @@ function startSocket(ip, port, sync) {
             firmware.classList.add("hide");
             fileSystem.classList.add("hide");
             document.getElementById("verLink").classList.add("disabled");
+            loginModal.classList.add("hide");
+            loginUser = "";
+            document.getElementById("loginInput").value = "";
+            document.getElementById("passwordInput").value = "";
+            document.cookie = "";
           }
         }
         if (tval[0] == "ERROR") {
@@ -416,7 +466,7 @@ function InfoMSG(msg) {
 
 function getFWData() {
   let url = new URL("http://" + window.location.host + "/command");
-  url.searchParams.append("cmd", "[ESP800]time=" + getPCTime());
+  url.searchParams.append("cmd", "[ESP800]json=YES time=" + getPCTime());
   httpGet(url, processFWJson);
 }
 
@@ -646,8 +696,7 @@ function httpGet(url, processfn) {
         ErrorMSG("");
         processfn(xmlhttp.responseText);
       } else if (xmlhttp.status == 401) {
-        loginModal.classList.remove("hide");
-        loginLink.classList.remove("hide");
+        handle401();
       } else {
         console.log(xmlhttp.status);
         ErrorMSG("Error: board does not answered properly " + xmlhttp.status);
@@ -714,8 +763,7 @@ function uploadFiles() {
     if (xmlhttpupload.status === 200) {
       dispatchFileStatus(xmlhttpupload.responseText);
     } else if (xmlhttp.status == 401) {
-      loginModal.classList.remove("hide");
-      loginLink.classList.remove("hide");
+      handle401();
     } else uploadError("Error", xmlhttpupload.status);
   };
 
@@ -778,8 +826,7 @@ function uploadFirmware() {
         if (restartTime == 0) location.reload();
       }, 1000);
     } else if (xmlhttp.status == 401) {
-      loginModal.classList.remove("hide");
-      loginLink.classList.remove("hide");
+      handle401();
     } else uploadError("Error", xmlhttpupload.status);
   };
 

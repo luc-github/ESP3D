@@ -30,71 +30,112 @@
 #include "../../modules/ethernet/ethconfig.h"
 #endif //ETH_FEATURE
 #include "../../modules/authentication/authentication_service.h"
+#define COMMANDID   103
 //Change STA IP/Mask/GW
-//[ESP103]IP=<IP> MSK=<IP> GW=<IP> pwd=<admin password>
+//[ESP103]IP=<IP> MSK=<IP> GW=<IP> [json=no] [pwd=<admin password>
 bool Commands::ESP103(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
-    bool response = true;
+    bool noError = true;
+    bool json = has_tag (cmd_params, "json");
+    String response;
     String parameter;
+    int errorCode = 200; //unless it is a server error use 200 as default and set error in json instead
 #ifdef AUTHENTICATION_FEATURE
     if (auth_type == LEVEL_GUEST) {
-        output->printERROR("Wrong authentication!", 401);
-        return false;
+        response = format_response(COMMANDID, json, false, "Guest user can't use this command");
+        noError = false;
+        errorCode = 401;
     }
 #else
     (void)auth_type;
 #endif //AUTHENTICATION_FEATURE
-    parameter = get_param (cmd_params, "");
-    //get
-    if (parameter.length() == 0) {
-        String res = "IP:";
-        res += Settings_ESP3D::read_IP_String(ESP_STA_IP_VALUE);
-        res += ", GW:";
-        res += Settings_ESP3D::read_IP_String(ESP_STA_GATEWAY_VALUE);
-        res += ", MSK:";
-        res += Settings_ESP3D::read_IP_String(ESP_STA_MASK_VALUE);
-        res += ", DNS:";
-        res += Settings_ESP3D::read_IP_String(ESP_STA_DNS_VALUE);
-        output->printMSG (res.c_str());
-    } else { //set
+    if (noError) {
+        parameter = clean_param(get_param (cmd_params, ""));
+        //get
+        if (parameter.length() == 0) {
+            String res;
+            if(json) {
+                res+= "{\"ip\":\"";
+            } else {
+                res+= "IP:";
+            }
+            res += Settings_ESP3D::read_IP_String(ESP_STA_IP_VALUE);
+            if(json) {
+                res+= "\",\"gw\":\"";
+            } else {
+                res += ", GW:";
+            }
+            res += Settings_ESP3D::read_IP_String(ESP_STA_GATEWAY_VALUE);
+            if(json) {
+                res+= "\",\"msk\":\"";
+            } else {
+                res += ", MSK:";
+            }
+            res += Settings_ESP3D::read_IP_String(ESP_STA_MASK_VALUE);
+            if(json) {
+                res+= "\",\"dns\":\"";
+            } else {
+                res += ", DNS:";
+            }
+            res += Settings_ESP3D::read_IP_String(ESP_STA_DNS_VALUE);
+            if(json) {
+                res+= "\"}";
+            }
+            response = format_response(COMMANDID, json, true, res.c_str());
+        } else { //set
 #ifdef AUTHENTICATION_FEATURE
-        if (auth_type != LEVEL_ADMIN) {
-            output->printERROR("Wrong authentication!", 401);
-            return false;
-        }
+            if (auth_type != LEVEL_ADMIN) {
+                response = format_response(COMMANDID, json, false, "Wrong authentication level");
+                noError = false;
+                errorCode = 401;
+            }
 #endif //AUTHENTICATION_FEATURE
+            if (noError) {
+                String IP = get_param (cmd_params, "IP=");
+                String GW = get_param (cmd_params, "GW=");
+                String MSK = get_param (cmd_params, "MSK=");
+                String DNS = get_param (cmd_params, "DNS=");
+                if ( !NetConfig::isValidIP(IP.c_str())) {
+                    response = format_response(COMMANDID, json, false, "Incorrect IP");
+                    noError = false;
+                }
+                if ( !NetConfig::isValidIP(GW.c_str())) {
+                    response = format_response(COMMANDID, json, false, "Incorrect gateway");
+                    noError = false;
+                }
+                if ( !NetConfig::isValidIP(MSK.c_str())) {
+                    response = format_response(COMMANDID, json, false, "Incorrect mask");
+                    noError = false;
+                }
+                if ( !NetConfig::isValidIP(DNS.c_str())) {
+                    response = format_response(COMMANDID, json, false, "Incorrect dns");
+                    noError = false;
+                }
+                if(noError) {
 
-        String IP = get_param (cmd_params, "IP=");
-        String GW = get_param (cmd_params, "GW=");
-        String MSK = get_param (cmd_params, "MSK=");
-        String DNS = get_param (cmd_params, "DNS=");
-        if ( !NetConfig::isValidIP(IP.c_str())) {
-            output->printERROR ("Incorrect IP!");
-            return false;
-        }
-        if ( !NetConfig::isValidIP(GW.c_str())) {
-            output->printERROR ("Incorrect gateway!");
-            return false;
-        }
-        if ( !NetConfig::isValidIP(MSK.c_str())) {
-            output->printERROR ("Incorrect mask!");
-            return false;
-        }
-        if ( !NetConfig::isValidIP(DNS.c_str())) {
-            output->printERROR ("Incorrect dns!");
-            return false;
-        }
-        if ( !Settings_ESP3D::write_IP_String(ESP_STA_IP_VALUE, IP.c_str()) ||
-                !Settings_ESP3D::write_IP_String(ESP_STA_GATEWAY_VALUE, GW.c_str()) ||
-                !Settings_ESP3D::write_IP_String(ESP_STA_DNS_VALUE, DNS.c_str()) ||
-                !Settings_ESP3D::write_IP_String(ESP_STA_MASK_VALUE, MSK.c_str())) {
-            output->printERROR ("Set failed!");
-            response = false;
-        } else {
-            output->printMSG ("ok");
+                    if ( !Settings_ESP3D::write_IP_String(ESP_STA_IP_VALUE, IP.c_str()) ||
+                            !Settings_ESP3D::write_IP_String(ESP_STA_GATEWAY_VALUE, GW.c_str()) ||
+                            !Settings_ESP3D::write_IP_String(ESP_STA_DNS_VALUE, DNS.c_str()) ||
+                            !Settings_ESP3D::write_IP_String(ESP_STA_MASK_VALUE, MSK.c_str())) {
+                        response = format_response(COMMANDID, json, false, "Set failed");
+                        noError = false;
+                    } else {
+                        response = format_response(COMMANDID, json, true, "ok");
+                    }
+                }
+            }
         }
     }
-    return response;
+    if (noError) {
+        if (json) {
+            output->printLN (response.c_str() );
+        } else {
+            output->printMSG (response.c_str() );
+        }
+    } else {
+        output->printERROR(response.c_str(), errorCode);
+    }
+    return noError;
 }
 
 #endif //WIFI_FEATURE || ETH_FEATURE

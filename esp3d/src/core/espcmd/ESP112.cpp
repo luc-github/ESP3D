@@ -25,43 +25,63 @@
 #include "../../modules/network/netconfig.h"
 #include "../../modules/authentication/authentication_service.h"
 //Get/Set hostname
-//[ESP112]<Hostname> pwd=<admin password>
+//[ESP112]<Hostname> [json=no] pwd=<admin password>
+#define COMMANDID   112
 bool Commands::ESP112(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
-    bool response = true;
+    bool noError = true;
+    bool json = has_tag (cmd_params, "json");
+    String response;
     String parameter;
+    int errorCode = 200; //unless it is a server error use 200 as default and set error in json instead
+
 #ifdef AUTHENTICATION_FEATURE
     if (auth_type == LEVEL_GUEST) {
-        output->printERROR("Wrong authentication!", 401);
-        return false;
+        response = format_response(COMMANDID, json, false, "Guest user can't use this command");
+        noError = false;
+        errorCode = 401;
     }
 #else
     (void)auth_type;
 #endif //AUTHENTICATION_FEATURE
-    parameter = get_param (cmd_params, "");
-    //Get hostname
-    if (parameter.length() == 0) {
-        output->printMSG (Settings_ESP3D::read_string(ESP_HOSTNAME));
-    } else { //set host name
+    if (noError) {
+        parameter = clean_param(get_param (cmd_params, ""));
+        //Get hostname
+        if (parameter.length() == 0) {
+            response = format_response(COMMANDID, json, true, Settings_ESP3D::read_string(ESP_HOSTNAME));
+        } else { //set host name
 #ifdef AUTHENTICATION_FEATURE
-        if (auth_type != LEVEL_ADMIN) {
-            output->printERROR("Wrong authentication!", 401);
-            return false;
-        }
+            if (auth_type != LEVEL_ADMIN) {
+                response = format_response(COMMANDID, json, false, "Wrong authentication level");
+                noError = false;
+                errorCode = 401;
+            }
 #endif //AUTHENTICATION_FEATURE
-        if (!NetConfig::isHostnameValid (parameter.c_str())) {
-            output->printERROR ("Incorrect hostname!");
-            response = false;
-        } else {
-            if (!Settings_ESP3D::write_string (ESP_HOSTNAME, parameter.c_str())) {
-                output->printERROR ("Set failed!");
-                response = false;
-            } else {
-                output->printMSG ("ok");
+            if (noError) {
+                if (!NetConfig::isHostnameValid (parameter.c_str())) {
+                    response = format_response(COMMANDID, json, false, "Incorrect hostname");
+                    noError = false;
+                } else {
+                    if (!Settings_ESP3D::write_string (ESP_HOSTNAME, parameter.c_str())) {
+                        response = format_response(COMMANDID, json, false, "Set failed");
+                        noError = false;
+                    } else {
+                        response = format_response(COMMANDID, json, true, "ok");
+                    }
+                }
             }
         }
     }
-    return response;
+    if (noError) {
+        if (json) {
+            output->printLN (response.c_str() );
+        } else {
+            output->printMSG (response.c_str() );
+        }
+    } else {
+        output->printERROR(response.c_str(), errorCode);
+    }
+    return noError;
 }
 
 #endif //WIFI_FEATURE || ETH_FEATURE || BT_FEATURE 

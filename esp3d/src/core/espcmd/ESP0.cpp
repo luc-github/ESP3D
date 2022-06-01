@@ -21,7 +21,7 @@
 #include "../commands.h"
 #include "../esp3doutput.h"
 #include "../settings_esp3d.h"
-const char * help[]= {"[ESP] - display this help",
+const char * help[]= {"[ESP] (id) - display this help",
 #if defined (WIFI_FEATURE)
                       "[ESP100](SSID) - display/set STA SSID",
                       "[ESP101](Password) - set STA password",
@@ -59,7 +59,7 @@ const char * help[]= {"[ESP] - display this help",
                       "[ESP131](Port) - display/set Telnet port",
 #endif //TELNET_FEATURE
 #if defined(TIMESTAMP_FEATURE)
-                      "[ESP140](SYNC) (srv1=xxxx) (srv2=xxxx) (srv3=xxxx) (zone=xxx) (dst=YES/NO) (time=YYYY-MM-DD#H24:MM:SS) - sync/display/set current time/time servers",
+                      "[ESP140](SYNC) (srv1=xxxx) (srv2=xxxx) (srv3=xxxx) (zone=xxx) (dst=YES/NO) (time=YYYY-MM-DD#H24:MM:SS) (SYNC) (NOW)- sync/display/set current time/time servers",
 #endif //TIMESTAMP_FEATURE
                       "[ESP150](delay=time) (verbose=ON/OFF)- display/set boot delay in ms / Verbose boot",
 #if defined(WS_DATA_FEATURE)
@@ -78,10 +78,10 @@ const char * help[]= {"[ESP] - display this help",
                       "[ESP191](Port) - display/set WebDav port",
 #endif //WEBDAV_FEATURE
 #if defined (SD_DEVICE)
-                      "[ESP200] - display SD Card Status",
+                      "[ESP200] (json) (RELEASE) (REFRESH)- display/set SD Card Status",
 #endif //SD_DEVICE
 #ifdef DIRECT_PIN_FEATURE
-                      "[ESP201](Pxxx) (Vxxx) (PULLUP=YES RAW=YES ANALOG=NO ANALOG_RANGE=255 CLEARCHANNELS=NO) - read / set  pin value",
+                      "[ESP201](P=xxx) (V=xxx) (PULLUP=YES RAW=YES ANALOG=NO ANALOG_RANGE=255) - read / set  pin value",
 #endif //DIRECT_PIN_FEATURE
 #if defined (SD_DEVICE)
                       "[ESP202] SPEED=(factor) - display / set  SD Card  SD card Speed factor (1 2 4 6 8 16 32)",
@@ -98,6 +98,7 @@ const char * help[]= {"[ESP] - display this help",
                       "[ESP216](SNAP) - Take screen snapshot",
 #endif //DISPLAY_SNAPSHOT_FEATURE
 #endif //DISPLAY_DEVICE
+                      "[ESP220] - Show used pins",
 #ifdef BUZZER_DEVICE
                       "[ESP250]F=(frequency) D=(duration) - play sound on buzzer",
 #endif //BUZZER_DEVICE
@@ -118,21 +119,22 @@ const char * help[]= {"[ESP] - display this help",
 #endif //AUTHENTICATION_FEATURE
 #if defined(NOTIFICATION_FEATURE)
                       "[ESP600](message) - send notification",
-                      "[ESP610]type=(NONE/PUSHOVER/EMAIL/LINE) (T1=xxx) (T2=xxx) (TS=xxx) - display/set Notification settings",
+                      "[ESP610]type=(NONE/PUSHOVER/EMAIL/LINE/TELEGRAM/IFTTT) (T1=xxx) (T2=xxx) (TS=xxx) - display/set Notification settings",
                       "[ESP620]URL=http://XXXXXX  - send GET notification",
 #endif //NOTIFICATION_FEATURE
-#if defined(FILESYSTEM_FEATURE) && defined(ESP_GCODE_HOST_FEATURE)
+#if defined(GCODE_HOST_FEATURE)
                       "[ESP700](filename) - read ESP Filesystem file",
-#endif //FILESYSTEM_FEATURE
+                      "[ESP701]action=(PAUSE/RESUME/ABORT) - query and control ESP700 stream",
+#endif //GCODE_HOST_FEATURE
 #if defined(FILESYSTEM_FEATURE)
-                      "[ESP710]FORMAT - Format ESP Filesystem",
+                      "[ESP710]FORMATFS - Format ESP Filesystem",
 #endif //FILESYSTEM_FEATURE
 #if defined (SD_DEVICE)
                       "[ESP715]FORMATSD - Format SD Filesystem",
 #endif //SD_DEVICE
 #if defined(FILESYSTEM_FEATURE)
                       "[ESP720](path) - List ESP Filesystem",
-                      "[[ESP730]](Action)=(path) - rmdir / remove / mkdir / exists / create on ESP FileSystem (path)",
+                      "[ESP730](Action)=(path) - rmdir / remove / mkdir / exists / create on ESP FileSystem (path)",
 #endif //FILESYSTEM_FEATURE
 #if defined (SD_DEVICE)
                       "[ESP740](path)  - List SD Filesystem",
@@ -143,12 +145,13 @@ const char * help[]= {"[ESP] - display this help",
                       "[ESP790](Action)=(path) - rmdir / remove / mkdir / exists / create on Global Filesystem (path)",
 #endif //GLOBAL_FILESYSTEM_FEATURE
                       "[ESP800](plain)(time=YYYY-MM-DD-HH-MM-SS) - display FW Informations in plain/JSON",
+#if COMMUNICATION_PROTOCOL != SOCKET_SERIAL
                       "[ESP900](ENABLE/DISABLE) - display/set serial state",
-                      "[ESP901](ENABLE/DISABLE) - display/set verbose boot",
+#endif //COMMUNICATION_PROTOCOL != SOCKET_SERIAL
 #ifdef BUZZER_DEVICE
                       "[ESP910](ENABLE/DISABLE) - display/set buzzer state",
 #endif //BUZZER_DEVICE
-                      "[ESP920](client)=(ON/OFF) - display/set SERIAL / LCD / PRINTER_LCD/ WEBSOCKET / TELNET /BT / ALL client state",
+                      "[ESP920](client)=(ON/OFF) - display/set SERIAL / SCREEN / REMOTE_SCREEN / WEBSOCKET / TELNET /BT / ALL client state if available",
                       ""
                      };
 const uint cmdlist[]= {0,
@@ -228,6 +231,7 @@ const uint cmdlist[]= {0,
                        216,
 #endif //DISPLAY_SNAPSHOT_FEATURE
 #endif //DISPLAY_DEVICE
+                       220,
 #ifdef BUZZER_DEVICE
                        250,
 #endif //BUZZER_DEVICE
@@ -248,9 +252,10 @@ const uint cmdlist[]= {0,
                        610,
                        620,
 #endif //NOTIFICATION_FEATURE
-#if defined(FILESYSTEM_FEATURE) && defined(ESP_GCODE_HOST_FEATURE)
+#if defined(GCODE_HOST_FEATURE)
                        700,
-#endif //FILESYSTEM_FEATURE
+                       701,
+#endif //GCODE_HOST_FEATURE
 #if defined(FILESYSTEM_FEATURE)
                        710,
 #endif //FILESYSTEM_FEATURE
@@ -270,8 +275,9 @@ const uint cmdlist[]= {0,
                        790,
 #endif //GLOBAL_FILESYSTEM_FEATURE
                        800,
+#if COMMUNICATION_PROTOCOL != SOCKET_SERIAL
                        900,
-                       901,
+#endif //COMMUNICATION_PROTOCOL != SOCKET_SERIAL
 #ifdef BUZZER_DEVICE
                        910,
 
@@ -285,34 +291,72 @@ const uint cmdlist[]= {0,
 //[ESP0] or [ESP]<command>
 bool Commands::ESP0(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
-    bool response = true;
+    bool noError = true;
     String parameter;
     const uint cmdNb = sizeof(help)/sizeof(char*);
     (void)auth_type;
-    parameter = get_param (cmd_params, "");
+    bool json=has_tag(cmd_params,"json");
+    parameter = clean_param(get_param (cmd_params, ""));
     if (parameter.length() == 0) {
-        output->printLN("[List of ESP3D commands]");
+
+        if (json) {
+            output->print("{\"cmd\":\"0\",\"status\":\"ok\",\"data\":[");
+        } else {
+            output->printMSGLine("[List of ESP3D commands]");
+        }
+
         for (uint i = 0; i < cmdNb -1; i++) {
-            output->printLN(help[i]);
+            if (json) {
+                output->print("{\"id\":\"");
+                output->print(String(cmdlist[i]).c_str());
+                output->print("\",\"help\":\"");
+                output->print(String(help[i]).c_str());
+                output->print("\"}");
+                if (i < cmdNb - 2) {
+                    output->print(",");
+                }
+            } else {
+                output->printMSGLine(help[i]);
+
+            }
+
+        }
+        if (json) {
+            output->printLN("]}");
         }
     } else {
         bool found = false;
-        uint cmdval = String(cmd_params).toInt();
+        uint cmdval = parameter.toInt();
         if (sizeof(help)/sizeof(char*) != sizeof(cmdlist)/sizeof(uint)) {
-            output->printLN("Error in code");
+            String s = "Error in code:" + String(sizeof(help)/sizeof(char*)) + "entries vs " + String(sizeof(cmdlist)/sizeof(uint));
+            output->printLN(s.c_str());
             return false;
         }
         for (uint i = 0; i < cmdNb-1; i++) {
             if (cmdlist[i] == cmdval) {
-                output->printLN(help[i]);
+                if (json) {
+                    output->print("{\"cmd\":\"0\",\"status\":\"ok\",\"data\":{\"id\":\"");
+                    output->print(String(cmdval).c_str());
+                    output->print("\",\"help\":\"");
+                    output->print(help[i]);
+                    output->printLN("\"}}");
+                } else {
+                    output->printMSGLine(help[i]);
+                }
                 found = true;
             }
         }
         if (!found) {
-            String tmp = "This command is not supported: ";
-            tmp+= cmd_params;
-            output->printLN(tmp.c_str());
+            String msg = "This command is not supported: ";
+            msg+= parameter;
+            noError=false;
+            String response = format_response(0, json, noError, msg.c_str());
+            if (json) {
+                output->printLN (response.c_str() );
+            } else {
+                output->printERROR (response.c_str() );
+            }
         }
     }
-    return response;
+    return noError;
 }

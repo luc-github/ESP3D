@@ -17,6 +17,7 @@ fat_esp32_filesystem.cpp - ESP3D fat filesystem configuration class
   License along with This code; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+//#define ESP_DEBUG_FEATURE DEBUG_OUTPUT_SERIAL0
 #include "../../../include/esp3d_config.h"
 #if (FILESYSTEM_FEATURE == ESP_FAT_FILESYSTEM)
 #include "../esp_filesystem.h"
@@ -79,7 +80,7 @@ bool ESP_FileSystem::format()
 
 ESP_File ESP_FileSystem::open(const char* path, uint8_t mode)
 {
-    log_esp3d("open %s", path);
+    log_esp3d("open %s as %s", path,(mode == ESP_FILE_WRITE?"write":"read") );
     //do some check
     if(((strcmp(path,"/") == 0) && ((mode == ESP_FILE_WRITE) || (mode == ESP_FILE_APPEND))) || (strlen(path) == 0)) {
         log_esp3d("reject  %s", path);
@@ -94,6 +95,7 @@ ESP_File ESP_FileSystem::open(const char* path, uint8_t mode)
     if(tmp) {
         ESP_File esptmp(&tmp, tmp.isDirectory(),(mode == ESP_FILE_READ)?false:true, path);
         log_esp3d("%s is a %s", path,tmp.isDirectory()?"Dir":"File");
+        log_esp3d("path is %s and filename path is %s", path, tmp.path());
         return esptmp;
     } else {
         log_esp3d("open %s failed", path);
@@ -214,12 +216,12 @@ ESP_File::ESP_File(void* handle, bool isdir, bool iswritemode, const char * path
         if (!tFile_handle[i]) {
             tFile_handle[i] = *((File*)handle);
             //filename
-            _filename = tFile_handle[i].name();
+            _filename = tFile_handle[i].path();
             //name
             if (_filename == "/") {
                 _name = "/";
             } else {
-                _name = _filename;
+                _name = tFile_handle[i].name();
                 if (_name[0] == '/') {
                     _name.remove( 0, 1);
                 }
@@ -236,6 +238,7 @@ ESP_File::ESP_File(void* handle, bool isdir, bool iswritemode, const char * path
             log_esp3d("Opening File at index %d",_index);
             log_esp3d("name: %s", _name.c_str());
             log_esp3d("filename: %s", _filename.c_str());
+            log_esp3d("path: %s", tFile_handle[i].path());
             set = true;
         }
     }
@@ -252,15 +255,17 @@ bool ESP_File::seek(uint32_t pos, uint8_t mode)
 void ESP_File::close()
 {
     if (_index != -1) {
-        log_esp3d("Closing File at index %d", _index);
+        log_esp3d("Closing File %s at index %d", _filename.c_str(), _index);
+        log_esp3d("name: %s", _name.c_str());
         tFile_handle[_index].close();
         //reopen if mode = write
         //udate size + date
         if (_iswritemode && !_isdir) {
-            String s = _filename[0]=='/'?"":"/" + _filename;
-            File ftmp = FFat.open(s.c_str());
+            log_esp3d("Updating %s size", _filename.c_str());
+            File ftmp = FFat.open(_filename.c_str());
             if (ftmp) {
                 _size = ftmp.size();
+                log_esp3d("Size is %d",_size);
                 _lastwrite = ftmp.getLastWrite();
                 ftmp.close();
             }

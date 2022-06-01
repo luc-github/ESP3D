@@ -54,7 +54,6 @@ uint8_t ESP_SD::getState(bool refresh)
 
     SD.end();
     _state = ESP_SDCARD_NOT_PRESENT;
-    bool isactive = accessSD();
 //using default value for speed ? should be parameter
 //refresh content if card was removed
     log_esp3d("Spi : CS: %d,  Miso: %d, Mosi: %d, SCK: %d",ESP_SD_CS_PIN!=-1?ESP_SD_CS_PIN:SS, ESP_SD_MISO_PIN!=-1?ESP_SD_MISO_PIN:MISO, ESP_SD_MOSI_PIN!=-1?ESP_SD_MOSI_PIN:MOSI, ESP_SD_SCK_PIN!=-1?ESP_SD_SCK_PIN:SCK);
@@ -62,9 +61,6 @@ uint8_t ESP_SD::getState(bool refresh)
         if ( SD.cardSize() > 0 ) {
             _state = ESP_SDCARD_IDLE;
         }
-    }
-    if (!isactive) {
-        releaseSD();
     }
     return _state;
 }
@@ -102,19 +98,35 @@ void ESP_SD::end()
     _started = false;
 }
 
-uint64_t ESP_SD::totalBytes()
+void ESP_SD::refreshStats(bool force)
 {
-    return SD.totalBytes();
+    if (force || _sizechanged) {
+        freeBytes(true);
+    }
+    _sizechanged = false;
 }
 
-uint64_t ESP_SD::usedBytes()
+uint64_t ESP_SD::totalBytes(bool refresh)
 {
-    return SD.usedBytes();
+    static uint64_t _totalBytes = 0;
+    if (refresh || _totalBytes==0) {
+        _totalBytes = SD.totalBytes();;
+    }
+    return _totalBytes;
 }
 
-uint64_t ESP_SD::freeBytes()
+uint64_t ESP_SD::usedBytes(bool refresh)
 {
-    return (SD.totalBytes() - SD.usedBytes());
+    static uint64_t _usedBytes = 0;
+    if (refresh || _usedBytes==0) {
+        _usedBytes = SD.usedBytes();
+    }
+    return _usedBytes;
+}
+
+uint64_t ESP_SD::freeBytes(bool refresh)
+{
+    return (totalBytes(refresh) - usedBytes(refresh));
 }
 
 uint ESP_SD::maxPathLength()

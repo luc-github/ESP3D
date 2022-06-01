@@ -31,6 +31,12 @@ File tFile_handle[ESP_MAX_OPENHANDLE];
 
 bool ESP_FileSystem::_started = false;
 
+uint8_t ESP_FileSystem::getFSType(const char * path)
+{
+    (void)path;
+    return FS_FLASH;
+}
+
 //helper to format size to readable string
 String & ESP_FileSystem::formatBytes (uint64_t bytes)
 {
@@ -45,6 +51,20 @@ String & ESP_FileSystem::formatBytes (uint64_t bytes)
         res = String ((float)(bytes / 1024.0 / 1024.0 / 1024.0),2) + " GB";
     }
     return res;
+}
+
+bool  ESP_FileSystem::accessFS(uint8_t FS)
+{
+    (void)FS;
+    if (!_started) {
+        _started = begin();
+    }
+    return _started;
+}
+void  ESP_FileSystem::releaseFS(uint8_t FS)
+{
+    //nothing to do
+    (void)FS;
 }
 
 size_t ESP_FileSystem::max_update_size()

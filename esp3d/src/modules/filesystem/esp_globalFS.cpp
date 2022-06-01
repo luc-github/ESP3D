@@ -17,12 +17,11 @@
   License along with This code; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-
+//#define ESP_DEBUG_FEATURE DEBUG_OUTPUT_SERIAL0
 #include "../../include/esp3d_config.h"
 #if defined(GLOBAL_FILESYSTEM_FEATURE)
 #include "esp_globalFS.h"
 //#include "../../core/genLinkedList.h"
-
 
 //to verify FS is accessible
 bool ESP_GBFS::isavailable(uint8_t FS)
@@ -69,13 +68,7 @@ uint64_t ESP_GBFS::totalBytes(uint8_t FS)
 #endif //FILESYSTEM_FEATURE 
 #ifdef SD_DEVICE
     if(FS == FS_SD) {
-        uint64_t size = 0;
-        bool isactive = ESP_SD::accessSD();
-        size =ESP_SD::totalBytes();
-        if (!isactive) {
-            ESP_SD::releaseSD();
-        }
-        return size;
+        return ESP_SD::totalBytes();
     }
 #endif //SD_DEVICE   
     return 0;
@@ -90,13 +83,7 @@ uint64_t ESP_GBFS::usedBytes(uint8_t FS)
 #endif //FILESYSTEM_FEATURE 
 #ifdef SD_DEVICE
     if(FS == FS_SD) {
-        uint64_t size = 0;
-        bool isactive = ESP_SD::accessSD();
-        size = ESP_SD::usedBytes();
-        if (!isactive) {
-            ESP_SD::releaseSD();
-        }
-        return size;
+        return ESP_SD::usedBytes();
     }
 #endif //SD_DEVICE   
     return 0;
@@ -118,6 +105,48 @@ uint ESP_GBFS::maxPathLength()
     return size;
 }
 
+bool  ESP_GBFS::accessFS(uint8_t FS)
+{
+    if(FS == FS_ROOT) {
+        return true;
+    }
+#ifdef FILESYSTEM_FEATURE
+    if(FS == FS_FLASH) {
+        return ESP_FileSystem::accessFS();
+    }
+#endif //FILESYSTEM_FEATURE 
+#ifdef SD_DEVICE
+    if(FS == FS_SD) {
+        bool canAccess =  ESP_SD::accessFS();
+        if(canAccess) {
+            if (ESP_SD::getState(true) == ESP_SDCARD_NOT_PRESENT) {
+                canAccess = false;
+                ESP_SD::releaseFS();
+            } else {
+                ESP_SD::setState(ESP_SDCARD_BUSY );
+                canAccess = true;
+            }
+
+        }
+        return canAccess;
+    }
+#endif //SD_DEVICE   
+    return false;
+}
+void  ESP_GBFS::releaseFS(uint8_t FS)
+{
+#ifdef FILESYSTEM_FEATURE
+    if(FS == FS_FLASH) {
+        ESP_FileSystem::releaseFS();
+    }
+#endif //FILESYSTEM_FEATURE 
+#ifdef SD_DEVICE
+    if(FS == FS_SD) {
+        ESP_SD::releaseFS();
+    }
+#endif //SD_DEVICE   
+}
+
 uint64_t ESP_GBFS::freeBytes(uint8_t FS)
 {
 #ifdef FILESYSTEM_FEATURE
@@ -127,13 +156,7 @@ uint64_t ESP_GBFS::freeBytes(uint8_t FS)
 #endif //FILESYSTEM_FEATURE 
 #ifdef SD_DEVICE
     if(FS == FS_SD) {
-        uint64_t size = 0;
-        bool isactive = ESP_SD::accessSD();
-        size = ESP_SD::freeBytes();
-        if (!isactive) {
-            ESP_SD::releaseSD();
-        }
-        return size;
+        return ESP_SD::freeBytes();
     }
 #endif //SD_DEVICE   
     return 0;
@@ -149,13 +172,7 @@ bool format(uint8_t FS, ESP3DOutput * output = nullptr)
 #endif //FILESYSTEM_FEATURE 
 #ifdef SD_DEVICE
     if(FS == FS_SD) {
-        bool res = false;
-        bool isactive = ESP_SD::accessSD();
-        res = ESP_SD::format(output);
-        if (!isactive) {
-            ESP_SD::releaseSD();
-        }
-        return res;
+        return ESP_SD::format(output);
     }
 #endif //SD_DEVICE 
     output->printERROR("Not available");
@@ -216,7 +233,6 @@ const char * ESP_GBFS::getRealPath(const char * path)
 //path exists on / or SD or FS
 bool ESP_GBFS::exists(const char* path)
 {
-
 #if defined (FILESYSTEM_FEATURE) || defined(SD_DEVICE)
     uint8_t t = getFSType(path);
     if (t == FS_ROOT) {
@@ -229,13 +245,7 @@ bool ESP_GBFS::exists(const char* path)
 #endif //FILESYSTEM_FEATURE
 #if defined (SD_DEVICE)
     if (t == FS_SD) {
-        bool res = false;
-        bool isactive = ESP_SD::accessSD();
-        res = ESP_SD::exists(getRealPath(path));
-        if (!isactive) {
-            ESP_SD::releaseSD();
-        }
-        return res;
+        return ESP_SD::exists(getRealPath(path));
     }
 #endif //SD_DEVICE
 #endif // FILESYSTEM_FEATURE || SD_DEVICE
@@ -256,13 +266,7 @@ bool ESP_GBFS::remove(const char *path)
 #endif //FILESYSTEM_FEATURE
 #if defined (SD_DEVICE)
     if (t == FS_SD) {
-        bool res = false;
-        bool isactive = ESP_SD::accessSD();
-        res = ESP_SD::remove(getRealPath(path));
-        if (!isactive) {
-            ESP_SD::releaseSD();
-        }
-        return res;
+        return ESP_SD::remove(getRealPath(path));
     }
 #endif //SD_DEVICE
 #endif // FILESYSTEM_FEATURE || SD_DEVICE
@@ -283,13 +287,7 @@ bool ESP_GBFS::rename(const char *oldpath, const char *newpath)
 #endif //FILESYSTEM_FEATURE
 #if defined (SD_DEVICE)
     if (t == FS_SD) {
-        bool res = false;
-        bool isactive = ESP_SD::accessSD();
-        res = ESP_SD::rename(getRealPath(oldpath), getRealPath(newpath));
-        if (!isactive) {
-            ESP_SD::releaseSD();
-        }
-        return res;
+        return ESP_SD::rename(getRealPath(oldpath), getRealPath(newpath));
     }
 #endif //SD_DEVICE
 #endif // FILESYSTEM_FEATURE || SD_DEVICE
@@ -310,13 +308,7 @@ bool ESP_GBFS::mkdir(const char *path)
 #endif //FILESYSTEM_FEATURE
 #if defined (SD_DEVICE)
     if (t == FS_SD) {
-        bool res = false;
-        bool isactive = ESP_SD::accessSD();
-        res = ESP_SD::mkdir(getRealPath(path));
-        if (!isactive) {
-            ESP_SD::releaseSD();
-        }
-        return res;
+        return ESP_SD::mkdir(getRealPath(path));
     }
 #endif //SD_DEVICE
 #endif // FILESYSTEM_FEATURE || SD_DEVICE
@@ -337,13 +329,7 @@ bool ESP_GBFS::rmdir(const char *path)
 #endif //FILESYSTEM_FEATURE
 #if defined (SD_DEVICE)
     if (t == FS_SD) {
-        bool res = false;
-        bool isactive = ESP_SD::accessSD();
-        res = ESP_SD::rmdir(getRealPath(path));
-        if (!isactive) {
-            ESP_SD::releaseSD();
-        }
-        return res;
+        return ESP_SD::rmdir(getRealPath(path));;
     }
 #endif //SD_DEVICE
 #endif // FILESYSTEM_FEATURE || SD_DEVICE
@@ -364,20 +350,24 @@ void ESP_GBFS::closeAll()
 ESP_GBFile ESP_GBFS::open(const char* path, uint8_t mode)
 {
     ESP_GBFile f;
+    log_esp3d("open %s", path);
 #if defined (FILESYSTEM_FEATURE) || defined(SD_DEVICE)
     uint8_t t = getFSType(path);
+    log_esp3d("type %d", t);
     if ((t == FS_ROOT) &&  (mode == ESP_FILE_READ)) {
-        f = ESP_GBFile(FS_ROOT);
-        //reset index;
+        f = ESP_GBFile(FS_ROOT,"/" );
+        log_esp3d("root");
         getNextFS(true);
     }
 #if defined (FILESYSTEM_FEATURE)
     if (t == FS_FLASH) {
+        log_esp3d("open flash : %s", getRealPath(path));
         f = ESP_FileSystem::open(getRealPath(path), mode);
     }
 #endif //FILESYSTEM_FEATURE
 #if defined (SD_DEVICE)
     if (t == FS_SD) {
+        log_esp3d("open SD : %s", getRealPath(path));
         f = ESP_SD::open(getRealPath(path), mode);
     }
 #endif //SD_DEVICE
@@ -393,9 +383,10 @@ ESP_GBFile::ESP_GBFile()
 }
 
 //File handle for the root
-ESP_GBFile::ESP_GBFile(uint8_t FS)
+ESP_GBFile::ESP_GBFile(uint8_t FS, const char *name)
 {
     _type = FS;
+    _name = name;
 }
 
 //Handle for flash file
@@ -451,7 +442,7 @@ bool ESP_GBFile::seek(uint32_t pos, uint8_t mode)
 {
 #if defined(FILESYSTEM_FEATURE) || defined(SD_DEVICE)
     if (_type == FS_ROOT) {
-        //TBD
+        return false;
     }
 #endif //FILESYSTEM_FEATURE || SD_DEVICE
 #ifdef FILESYSTEM_FEATURE
@@ -464,6 +455,7 @@ bool ESP_GBFile::seek(uint32_t pos, uint8_t mode)
         return _sdFile.seek(pos,mode);
     }
 #endif //SD_DEVICE 
+    return false;
 }
 
 void ESP_GBFile::close()
@@ -510,7 +502,7 @@ const char* ESP_GBFile::name() const
     static String s;
 #if defined(FILESYSTEM_FEATURE) || defined(SD_DEVICE)
     if (_type == FS_ROOT) {
-        return "/";
+        return _name.c_str();
     }
 #endif //FILESYSTEM_FEATURE || SD_DEVICE
 #ifdef FILESYSTEM_FEATURE
@@ -738,6 +730,7 @@ ESP_GBFile& ESP_GBFile::operator=(const ESP_GBFile & other)
     _sdFile = other._sdFile;
 #endif //SD_DEVICE 
     _type = other._type;
+    _name= other._name;
     return *this;
 }
 
@@ -786,6 +779,7 @@ const char * ESP_GBFS::getNextFS(bool reset)
         index++;
         return _rootlist[i].c_str();
     }
+    index = 0;
     return "";
 }
 
@@ -795,8 +789,7 @@ ESP_GBFile ESP_GBFile::openNextFile()
     if (_type == FS_ROOT) {
         String path = ESP_GBFS::getNextFS();
         if (path.length() > 0) {
-            f = ESP_GBFS::open(path.c_str());
-            f.close();
+            f = ESP_GBFile(FS_ROOT, &path[1]);
         }
     }
 #ifdef FILESYSTEM_FEATURE

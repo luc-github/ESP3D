@@ -35,7 +35,7 @@ class ESP_GBFile
 {
 public:
     ESP_GBFile();
-    ESP_GBFile(uint8_t FS);
+    ESP_GBFile(uint8_t FS, const char *name=nullptr);
 #ifdef FILESYSTEM_FEATURE
     ESP_GBFile(ESP_File & flashFile);
 #endif //FILESYSTEM_FEATURE
@@ -76,11 +76,14 @@ private:
     ESP_SDFile _sdFile;
 #endif //SD_DEVICE 
     uint8_t _type;
+    String _name;
 };
 
 class ESP_GBFS
 {
 public:
+    static bool  accessFS(uint8_t FS);
+    static void  releaseFS(uint8_t FS);
     static bool isavailable(uint8_t FS=FS_UNKNOWN);
     static uint64_t totalBytes(uint8_t FS=FS_UNKNOWN);
     static uint64_t usedBytes(uint8_t FS=FS_UNKNOWN);

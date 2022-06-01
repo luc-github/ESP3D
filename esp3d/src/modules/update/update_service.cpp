@@ -144,8 +144,8 @@ const uint16_t ServboolKeysPos[] = {ESP_HTTP_ON,
                                     ESP_BOOT_RADIO_STATE
                                    } ;
 
-const char * SysboolKeysVal[] = {"Active_Printer_LCD",
-                                 "Active_ESP3D_LCD",
+const char * SysboolKeysVal[] = {"Active_Remote_Screen",
+                                 "Active_ESP3D_Screen",
                                  "Active_Serial ",
                                  "Active_WebSocket",
                                  "Active_Telnet",
@@ -154,8 +154,8 @@ const char * SysboolKeysVal[] = {"Active_Printer_LCD",
                                  "Secure_serial"
                                 } ;
 
-const uint16_t SysboolKeysPos[] = {ESP_PRINTER_LCD_FLAG,
-                                   ESP_LCD_FLAG,
+const uint16_t SysboolKeysPos[] = {ESP_REMOTE_SCREEN_FLAG,
+                                   ESP_SCREEN_FLAG,
                                    ESP_SERIAL_FLAG,
                                    ESP_WEBSOCKET_FLAG,
                                    ESP_TELNET_FLAG,
@@ -334,7 +334,7 @@ bool processingFileFunction (const char * section, const char * key, const char 
                 b=v;
             }
         }
-        //Notification type None / PushOver / Line / Email / Telegram
+        //Notification type None / PushOver / Line / Email / Telegram / IFTTT
         if (!done) {
             if (strcasecmp("NOTIF_TYPE",key)==0) {
                 T='B';
@@ -350,6 +350,8 @@ bool processingFileFunction (const char * section, const char * key, const char 
                     b=ESP_EMAIL_NOTIFICATION;
                 } else if (strcasecmp("Telegram",value)==0) {
                     b=ESP_TELEGRAM_NOTIFICATION;
+                } else if (strcasecmp("IFTTT",value)==0) {
+                    b=ESP_IFTTT_NOTIFICATION;
                 } else {
                     P=-1;    //invalide value
                 }
@@ -395,8 +397,6 @@ bool processingFileFunction (const char * section, const char * key, const char 
                     b=UNKNOWN_FW;
                 } else if (strcasecmp("MARLIN",value)==0) {
                     b=MARLIN;
-                } else if (strcasecmp("MARLINKIMBRA",value)==0) {
-                    b=MARLINKIMBRA;
                 } else if (strcasecmp("GRBL",value)==0) {
                     b=GRBL;
                 } else if (strcasecmp("REPETIER",value)==0) {
@@ -501,31 +501,31 @@ bool UpdateService::begin()
 {
     bool res = false;
     if(Settings_ESP3D::read_byte(ESP_SD_CHECK_UPDATE_AT_BOOT)!=0) {
-        bool isactive = ESP_SD::accessSD();
-        log_esp3d("Update SD for update requestest");
-        if(ESP_SD::getState(true) == ESP_SDCARD_IDLE) {
-            ESP_ConfigFile updateConfig(CONFIG_FILE, processingFileFunction);
-            if (updateConfig.processFile()) {
-                log_esp3d("Processing ini file done");
-                if(updateConfig.revokeFile()) {
-                    log_esp3d("Revoking ini file done");
+        if (ESP_SD::accessFS()) {
+            log_esp3d("Update SD for update requestest");
+            if(ESP_SD::getState(true) != ESP_SDCARD_NOT_PRESENT) {
+                ESP_SD::setState(ESP_SDCARD_BUSY );
+                ESP_ConfigFile updateConfig(CONFIG_FILE, processingFileFunction);
+                if (updateConfig.processFile()) {
+                    log_esp3d("Processing ini file done");
+                    if(updateConfig.revokeFile()) {
+                        log_esp3d("Revoking ini file done");
+                        res = true;
+                    } else {
+                        log_esp3d("Revoking ini file failed");
+                    }
+                } else {
+                    log_esp3d("Processing ini file failed");
+                }
+                if (flash(FW_FILE,U_FLASH)) {
                     res = true;
                 } else {
-                    log_esp3d("Revoking ini file failed");
-                }
-            } else {
-                log_esp3d("Processing ini file failed");
-            }
-            if (flash(FW_FILE,U_FLASH)) {
-                res = true;
-            } else {
-                if (flash(FS_FILE,U_FS)) {
-                    res = true;
+                    if (flash(FS_FILE,U_FS)) {
+                        res = true;
+                    }
                 }
             }
-        }
-        if (!isactive) {
-            ESP_SD::releaseSD();
+            ESP_SD::releaseFS();
         }
     } else {
         log_esp3d("No need to check for update");

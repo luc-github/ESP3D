@@ -24,76 +24,119 @@
 #include "../settings_esp3d.h"
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/filesystem/esp_globalFS.h"
+#define COMMANDID   790
 // Action on Global Filesystem
 //rmdir / remove / mkdir / exists /create
-//[ESP790]<Action>=<path> pwd=<admin password>
+//[ESP790]<Action>=<path> json=<no> pwd=<admin password>
 bool Commands::ESP790(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
-    bool response = true;
+    bool noError = true;
+    bool json = has_tag (cmd_params, "json");
+    String response;
     String parameter;
-    parameter = get_param (cmd_params, "");
+    bool hasParam = false;
+    int errorCode = 200; //unless it is a server error use 200 as default and set error in json instead;
 #ifdef AUTHENTICATION_FEATURE
     if (auth_type != LEVEL_ADMIN) {
-        output->printERROR("Wrong authentication!", 401);
-        return false;
+        response = format_response(COMMANDID, json, false, "Wrong authentication level");
+        noError = false;
+        errorCode = 401;
     }
 #else
     (void)auth_type;
 #endif //AUTHENTICATION_FEATURE
-    parameter = get_param (cmd_params, "mkdir=");
-    if (parameter.length() != 0) {
-        if (ESP_GBFS::mkdir(parameter.c_str())) {
-            output->printMSG ("ok");
+    if (noError) {
+        parameter = clean_param(get_param (cmd_params, ""));
+        parameter.replace("mkdir=", "path=");
+        parameter.replace("rmdir=", "path=");
+        parameter.replace("exists=", "path=");
+        parameter.replace("create=", "path=");
+        parameter.replace("remove=", "path=");
+        String path = get_param (parameter.c_str(), "path=");
+        if (path.length()!=0) {
+            uint8_t fsType = ESP_GBFS::getFSType(path.c_str());
+            if (!ESP_GBFS::accessFS(fsType)) {
+                response = format_response(COMMANDID, json, false, "Not available");
+                noError = false;
+            } else {
+                parameter = get_param (cmd_params, "mkdir=");
+                if (parameter.length() != 0) {
+                    hasParam = true;
+                    if (!ESP_GBFS::mkdir(parameter.c_str())) {
+                        response = format_response(COMMANDID, json, false, "mkdir failed");
+                        noError = false;
+                    }
+                }
+                if (noError && !hasParam) {
+                    parameter = get_param (cmd_params, "rmdir=");
+                    if (parameter.length() != 0) {
+                        hasParam = true;
+                        if (!ESP_GBFS::rmdir(parameter.c_str())) {
+                            response = format_response(COMMANDID, json, false, "rmdir failed");
+                            noError = false;
+                        }
+                    }
+                }
+                if (noError && !hasParam) {
+                    parameter = get_param (cmd_params, "remove=");
+                    if (parameter.length() != 0) {
+                        hasParam = true;
+                        if (ESP_GBFS::remove(parameter.c_str())) {
+                            response = format_response(COMMANDID, json, false, "remove failed");
+                            noError = false;
+                        }
+                    }
+                }
+                if (noError && !hasParam) {
+                    parameter = get_param (cmd_params, "exists=");
+                    if (parameter.length() != 0) {
+                        hasParam = true;
+                        if (ESP_GBFS::exists(parameter.c_str())) {
+                            response = format_response(COMMANDID, json, true, "yes");
+                        } else {
+                            response = format_response(COMMANDID, json, false, "no");
+                        }
+                    }
+                }
+                if (noError && !hasParam) {
+                    parameter = get_param (cmd_params, "create=");
+                    if (parameter.length() != 0) {
+                        hasParam = true;
+                        ESP_GBFile f;
+                        f = ESP_GBFS::open(parameter.c_str(), ESP_FILE_WRITE);
+                        if (!f.isOpen()) {
+                            response = format_response(COMMANDID, json, false, "create failed");
+                            noError = false;
+                        } else {
+                            f.close();
+                        }
+                    }
+                }
+                if (hasParam && noError && response.length() == 0) {
+                    response = format_response(COMMANDID, json, true, "ok");
+                }
+                if (!hasParam) {
+                    response = format_response(COMMANDID, json, false, "Missing parameter");
+                    noError = false;
+                }
+
+                ESP_GBFS::releaseFS(fsType);
+            }
         } else {
-            output->printERROR ("failed!");
-            response = false;
+            response = format_response(COMMANDID, json, false, "Missing parameter");
+            noError = false;
         }
-        return response;
     }
-    parameter = get_param (cmd_params, "rmdir=");
-    if (parameter.length() != 0) {
-        if (ESP_GBFS::rmdir(parameter.c_str())) {
-            output->printMSG ("ok");
+    if (noError) {
+        if (json) {
+            output->printLN (response.c_str() );
         } else {
-            output->printERROR ("failed!");
-            response = false;
+            output->printMSG (response.c_str() );
         }
-        return response;
+    } else {
+        output->printERROR(response.c_str(), errorCode);
     }
-    parameter = get_param (cmd_params, "remove=");
-    if (parameter.length() != 0) {
-        if (ESP_GBFS::remove(parameter.c_str())) {
-            output->printMSG ("ok");
-        } else {
-            output->printERROR ("failed!");
-            response = false;
-        }
-        return response;
-    }
-    parameter = get_param (cmd_params, "exists=");
-    if (parameter.length() != 0) {
-        if (ESP_GBFS::exists(parameter.c_str())) {
-            output->printMSG ("yes");
-        } else {
-            output->printMSG ("no");
-        }
-        return response;
-    }
-    parameter = get_param (cmd_params, "create=");
-    if (parameter.length() != 0) {
-        ESP_GBFile f;
-        f = ESP_GBFS::open(parameter.c_str(), ESP_FILE_WRITE);
-        if (f.isOpen()) {
-            f.close();
-            output->printMSG ("ok");
-        } else {
-            output->printERROR ("failed!");
-            response = false;
-        }
-        return response;
-    }
-    output->printERROR ("Incorrect command!");
-    return false;
+    return noError;
 }
 
 #endif //GLOBAL_FILESYSTEM_FEATURE

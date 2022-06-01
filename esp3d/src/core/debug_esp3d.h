@@ -39,7 +39,7 @@
 #if (ESP_DEBUG_FEATURE == DEBUG_OUTPUT_SERIAL0) || (ESP_DEBUG_FEATURE == DEBUG_OUTPUT_SERIAL1) || (ESP_DEBUG_FEATURE == DEBUG_OUTPUT_SERIAL2)
 
 extern void initDebug();
-
+#ifndef ESP3DLIB_ENV
 #if ESP_DEBUG_FEATURE == DEBUG_OUTPUT_SERIAL0
 #define DEBUG_OUTPUT_SERIAL Serial
 #endif //DEBUG_OUTPUT_SERIAL0
@@ -49,9 +49,11 @@ extern void initDebug();
 #if ESP_DEBUG_FEATURE == DEBUG_OUTPUT_SERIAL2
 #define DEBUG_OUTPUT_SERIAL Serial2
 #endif //DEBUG_OUTPUT_SERIAL2
-
 #undef DEBUG_ESP3D_INIT
 #define DEBUG_ESP3D_INIT initDebug();
+#else 
+#define DEBUG_OUTPUT_SERIAL MYSERIAL1
+#endif //ESP3DLIB_ENV
 #define log_esp3d(format, ...) DEBUG_OUTPUT_SERIAL.printf("[ESP3D][%s:%u] %s(): " format "\r\n", pathToFileName(__FILE__), __LINE__, __FUNCTION__, ##__VA_ARGS__)
 #define log_esp3ds(format, ...) DEBUG_OUTPUT_SERIAL.printf(format, ##__VA_ARGS__)
 #endif //DEBUG_OUTPUT_SERIAL0 || DEBUG_OUTPUT_SERIAL1 || DEBUG_OUTPUT_SERIAL2

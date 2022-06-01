@@ -28,17 +28,19 @@
 #define UNKNOWN_FW      0
 #define GRBL            10
 #define MARLIN          20
-#define MARLINKIMBRA    35
+#define MARLIN_EMBEDDED 30
 #define SMOOTHIEWARE    40
 #define REPETIER        50
+#define FLUIDNC         60
+#define REPRAP          70
 
 //Default flags
 #define DEFAULT_SERIAL_OUTPUT_FLAG 1
-#define DEFAULT_PRINTER_LCD_FLAG 1
+#define DEFAULT_REMOTE_SCREEN_FLAG 1
 #define DEFAULT_WEBSOCKET_FLAG 1
 #define DEFAULT_TELNET_FLAG 1
 #define DEFAULT_BT_FLAG 1
-#define DEFAULT_LCD_FLAG 1
+#define DEFAULT_SCREEN_FLAG 1
 
 //position in EEPROM / preferences will use `P_` + <position> to make a string : P_0 for 0
 #define ESP_RADIO_MODE          0       //1 byte = flag
@@ -80,7 +82,7 @@
 #define ESP_TIME_SERVER1        464     //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese
 #define ESP_TIME_SERVER2        593     //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese
 #define ESP_TIME_SERVER3        722     //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese
-#define ESP_PRINTER_LCD_FLAG    851     //1  bytes = flag
+#define ESP_REMOTE_SCREEN_FLAG    851     //1  bytes = flag
 #define ESP_SD_MOUNT            852     //1  bytes = flag
 #define ESP_SESSION_TIMEOUT     853     //1  bytes = flag
 #define ESP_WEBSOCKET_FLAG      854     //1  bytes = flag
@@ -94,7 +96,7 @@
 #define ESP_SETUP               1005    //1 byte = flag
 #define ESP_TELNET_FLAG         1006    //1 byte = flag
 #define ESP_BT_FLAG             1007    //1 byte = flag
-#define ESP_LCD_FLAG            1008    //1 byte = flag
+#define ESP_SCREEN_FLAG            1008    //1 byte = flag
 #define ESP_FTP_CTRL_PORT       1009    //4  bytes = int
 #define ESP_FTP_DATA_ACTIVE_PORT       1013    //4  bytes = int
 #define ESP_FTP_DATA_PASSIVE_PORT      1017    //4  bytes = int

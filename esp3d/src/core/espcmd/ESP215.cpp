@@ -24,35 +24,56 @@
 #include "../settings_esp3d.h"
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/display/display.h"
+#define COMMANDID   215
 //Touch Calibration
-//[ESP215]<CALIBRATE>[pwd=<user password>]
+//[ESP215]<CALIBRATE> json=<no> [pwd=<user password>]
 bool Commands::ESP215(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
-    bool response = true;
+    bool noError = true;
+    bool json = has_tag (cmd_params, "json");
+    String response;
     String parameter;
+    int errorCode = 200; //unless it is a server error use 200 as default and set error in json instead
 #ifdef AUTHENTICATION_FEATURE
     if (auth_type == LEVEL_GUEST) {
-        output->printERROR("Wrong authentication!", 401);
-        return false;
+        response = format_response(COMMANDID, json, false, "Guest user can't use this command");
+        noError = false;
+        errorCode = 401;
     }
 #else
     (void)auth_type;
 #endif //AUTHENTICATION_FEATURE
-    parameter = get_param (cmd_params, "");
-    //get
-    if (parameter.length() == 0) {
-        output->printMSG((Settings_ESP3D::read_byte(ESP_CALIBRATION)==1)?"Done":"Not done");
-    } else { //set
-        parameter.toUpperCase();
-        if (parameter == "CALIBRATE") {
-            output->printMSG("Please follow screen instructions");
-            esp3d_display.startCalibration();
-        } else {
-            output->printERROR("Invalid parameter!");
-            response = false;
+    if (noError) {
+        parameter = clean_param(get_param (cmd_params, ""));
+        //get
+        if (parameter.length() == 0) {
+            response = format_response(COMMANDID, json, true, (Settings_ESP3D::read_byte(ESP_CALIBRATION)==1)?"Done":"Not done");
+        } else { //set
+            parameter.toUpperCase();
+            if (has_tag (cmd_params, "CALIBRATE") {
+            if (!json) {
+                    output->printMSG("Please follow screen instructions");
+                }
+                response = format_response(COMMANDID, json, true, ok);
+                esp3d_display.startCalibration();
+            } else {
+                if (parameter.indexOf("CALIBRATE") == -1) {
+                    response = format_response(COMMANDID, json, false, "Invalid parameter");
+                    noError = false;
+                }
+            }
         }
     }
-    return response;
+    if (noError) {
+        if (json) {
+            output->printLN (response.c_str() );
+        } else {
+            output->printMSG (response.c_str() );
+        }
+    } else {
+        output->printERROR(response.c_str(), errorCode);
+    }
+    return noError;
 }
 
 #endif //DISPLAY_DEVICE && DISPLAY_TOUCH_DRIVER

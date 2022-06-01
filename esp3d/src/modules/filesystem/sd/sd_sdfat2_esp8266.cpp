@@ -1,5 +1,5 @@
 /*
-sd_native_esp8266.cpp - ESP3D sd support class
+sd_sdfat2_esp8266.cpp - ESP3D sd support class
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -17,6 +17,7 @@ sd_native_esp8266.cpp - ESP3D sd support class
   License along with This code; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+//#define ESP_DEBUG_FEATURE DEBUG_OUTPUT_SERIAL0
 #include "../../../include/esp3d_config.h"
 #if defined (ARDUINO_ARCH_ESP8266) && defined(SD_DEVICE)
 #if (SD_DEVICE == ESP_SDFAT2)
@@ -107,7 +108,6 @@ uint8_t ESP_SD::getState(bool refresh)
     }
     //SD is idle or not detected, let see if still the case
     _state = ESP_SDCARD_NOT_PRESENT;
-    bool isactive = accessSD();
     //refresh content if card was removed
     if (SD.begin((ESP_SD_CS_PIN == -1)?SS:ESP_SD_CS_PIN, SD_SCK_HZ(F_CPU/_spi_speed_divider))) {
         log_esp3d("Init SD State ok");
@@ -121,9 +121,6 @@ uint8_t ESP_SD::getState(bool refresh)
         log_esp3d("Init SD State failed");
     }
     log_esp3d("SD State is %d", _state);
-    if (!isactive) {
-        releaseSD();
-    }
     return _state;
 }
 
@@ -159,37 +156,46 @@ void ESP_SD::end()
     _started = false;
 }
 
-uint64_t ESP_SD::totalBytes()
+void ESP_SD::refreshStats(bool force)
 {
+    if (force || _sizechanged) {
+        usedBytes(true);
+    }
+    _sizechanged = false;
+}
+
+uint64_t ESP_SD::totalBytes(bool refresh)
+{
+    static uint64_t _totalBytes = 0;
     if (!SD.volumeBegin()) {
         return 0;
     }
-    uint64_t volTotal = SD.clusterCount();
-    uint8_t sectors = SD.sectorsPerCluster();
-    return volTotal * sectors * 512;
-}
-
-uint64_t ESP_SD::usedBytes()
-{
-    if(freeBytes() >totalBytes() ) {
-        _sizechanged = true;
+    if (refresh || _totalBytes==0) {
+        _totalBytes = SD.clusterCount();
+        uint8_t sectors = SD.sectorsPerCluster();
+        _totalBytes =  _totalBytes * sectors * 512;
     }
-    return totalBytes() - freeBytes();
+    return _totalBytes;
 }
 
-uint64_t ESP_SD::freeBytes()
+uint64_t ESP_SD::usedBytes(bool refresh)
 {
-    static uint64_t volFree;
+    return totalBytes(refresh) - freeBytes(refresh);
+}
+
+uint64_t ESP_SD::freeBytes(bool refresh)
+{
+    static uint64_t _freeBytes = 0;
     if (!SD.volumeBegin()) {
-        _sizechanged = true;
         return 0;
     }
-    if (_sizechanged) {
-        volFree = SD.freeClusterCount();
-        _sizechanged = false;
+    if (refresh || _freeBytes==0) {
+
+        _freeBytes = SD.freeClusterCount();
+        uint8_t sectors = SD.sectorsPerCluster();
+        _freeBytes = _freeBytes * sectors * 512;
     }
-    uint8_t sectors = SD.sectorsPerCluster();
-    return volFree * sectors * 512;
+    return _freeBytes;
 }
 
 uint ESP_SD::maxPathLength()

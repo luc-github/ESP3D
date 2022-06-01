@@ -17,6 +17,7 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+//#define ESP_DEBUG_FEATURE DEBUG_OUTPUT_SERIAL0
 #include "../../../include/esp3d_config.h"
 #if defined (HTTP_FEATURE) && defined(SD_DEVICE)
 #include "../http_server.h"
@@ -28,9 +29,20 @@
 #endif //ARDUINO_ARCH_ESP8266
 #include "../../filesystem/esp_sd.h"
 #include "../../authentication/authentication_service.h"
+#ifdef ESP_BENCHMARK_FEATURE
+#include "../../../core/benchmark.h"
+#endif //ESP_BENCHMARK_FEATURE
+#if defined(ESP3DLIB_ENV) && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
+#include "../../serial2socket/serial2socket.h"
+#endif // ESP3DLIB_ENV && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
+
 //SD files uploader handle
 void HTTP_Server::SDFileupload ()
 {
+#ifdef ESP_BENCHMARK_FEATURE
+    static uint64_t bench_start;
+    static size_t bench_transfered;
+#endif//ESP_BENCHMARK_FEATURE
     //get authentication status
     level_authenticate_type auth_level= AuthenticationService::authenticated_level();
     static String filename;
@@ -43,11 +55,33 @@ void HTTP_Server::SDFileupload ()
         HTTPUpload& upload = _webserver->upload();
         String upload_filename = upload.filename;
         if ((_upload_status != UPLOAD_STATUS_FAILED) || (upload.status == UPLOAD_FILE_START)) {
-
+#if defined(ESP3DLIB_ENV) && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
+            Serial2Socket.pause(true);
+#endif // ESP3DLIB_ENV && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
             //Upload start
             if (upload.status == UPLOAD_FILE_START) {
+#ifdef ESP_BENCHMARK_FEATURE
+                bench_start = millis();
+                bench_transfered = 0;
+#endif//ESP_BENCHMARK_FEATURE
                 _upload_status = UPLOAD_STATUS_ONGOING;
-                ESP_SD::accessSD();
+                if (!ESP_SD::accessFS()) {
+                    _upload_status=UPLOAD_STATUS_FAILED;
+                    pushError(ESP_ERROR_NO_SD, "Upload rejected");
+                    return;
+                }
+                if (ESP_SD::getState(true) == ESP_SDCARD_NOT_PRESENT)  {
+                    log_esp3d("Release Sd called");
+                    ESP_SD::releaseFS();
+                    _upload_status=UPLOAD_STATUS_FAILED;
+                    pushError(ESP_ERROR_NO_SD, "Upload rejected");
+#if defined(ESP3DLIB_ENV) && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
+                    Serial2Socket.pause(false);
+#endif // ESP3DLIB_ENV && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
+                    return;
+                }
+                ESP_SD::setState(ESP_SDCARD_BUSY );
+
                 if (upload_filename[0] != '/') {
                     filename = "/" + upload_filename;
                 } else {
@@ -69,10 +103,7 @@ void HTTP_Server::SDFileupload ()
                     fsUploadFile.close();
                 }
                 String  sizeargname  = upload.filename + "S";
-                //TODO add busy state and handle it for upload
-                if (ESP_SD::getState(true) != ESP_SDCARD_IDLE) {
-                    _upload_status=UPLOAD_STATUS_FAILED;
-                }
+                log_esp3d("Uploading file %s", filename.c_str());
                 if (_upload_status!=UPLOAD_STATUS_FAILED) {
                     if (_webserver->hasArg (sizeargname.c_str()) ) {
                         size_t freespace = ESP_SD::totalBytes() - ESP_SD::usedBytes();
@@ -84,16 +115,19 @@ void HTTP_Server::SDFileupload ()
                     }
                 }
                 if (_upload_status!=UPLOAD_STATUS_FAILED) {
+                    log_esp3d("Try file creation");
                     //create file
                     fsUploadFile = ESP_SD::open(filename.c_str(), ESP_FILE_WRITE);
                     //check If creation succeed
                     if (fsUploadFile) {
                         //if yes upload is started
                         _upload_status= UPLOAD_STATUS_ONGOING;
+                        log_esp3d("Try file creation");
                     } else {
                         //if no set cancel flag
                         _upload_status=UPLOAD_STATUS_FAILED;
                         pushError(ESP_ERROR_FILE_CREATION, "File creation failed");
+                        log_esp3d("File creation failed");
                     }
 
                 }
@@ -101,15 +135,21 @@ void HTTP_Server::SDFileupload ()
             } else if(upload.status == UPLOAD_FILE_WRITE) {
                 //check if file is available and no error
                 if(fsUploadFile && _upload_status == UPLOAD_STATUS_ONGOING) {
+#ifdef ESP_BENCHMARK_FEATURE
+                    bench_transfered += upload.currentSize;
+#endif//ESP_BENCHMARK_FEATURE
                     //no error so write post date
-                    if(upload.currentSize != fsUploadFile.write(upload.buf, upload.currentSize)) {
+                    int writeddatanb=fsUploadFile.write(upload.buf, upload.currentSize);
+                    if(upload.currentSize != (size_t)writeddatanb) {
                         //we have a problem set flag UPLOAD_STATUS_FAILED
+                        log_esp3d("File write failed du to mismatch size %d vs %d", writeddatanb, upload.currentSize);
                         _upload_status=UPLOAD_STATUS_FAILED;
                         pushError(ESP_ERROR_FILE_WRITE, "File write failed");
                     }
                 } else {
                     //we have a problem set flag UPLOAD_STATUS_FAILED
                     _upload_status=UPLOAD_STATUS_FAILED;
+                    log_esp3d("Error detected");
                     pushError(ESP_ERROR_FILE_WRITE, "File write failed");
                 }
                 //Upload end
@@ -119,6 +159,9 @@ void HTTP_Server::SDFileupload ()
                 if(fsUploadFile) {
                     //close it
                     fsUploadFile.close();
+#ifdef ESP_BENCHMARK_FEATURE
+                    benchMark("SD upload", bench_start, millis(), bench_transfered);
+#endif//ESP_BENCHMARK_FEATURE
                     //check size
                     String  sizeargname  = upload.filename + "S";
                     //fsUploadFile = ESP_SD::open (filename, ESP_FILE_READ);
@@ -138,12 +181,20 @@ void HTTP_Server::SDFileupload ()
                     _upload_status=UPLOAD_STATUS_FAILED;
                     pushError(ESP_ERROR_FILE_CLOSE, "File close failed");
                 }
-                ESP_SD::releaseSD();
+                log_esp3d("Release Sd called");
+                ESP_SD::releaseFS();
+#if defined(ESP3DLIB_ENV) && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
+                Serial2Socket.pause(false);
+#endif // ESP3DLIB_ENV && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
                 //Upload cancelled
             } else {
                 if (_upload_status == UPLOAD_STATUS_ONGOING) {
                     _upload_status = UPLOAD_STATUS_FAILED;
-                    ESP_SD::releaseSD();
+                    log_esp3d("Release Sd called");
+                    ESP_SD::releaseFS();
+#if defined(ESP3DLIB_ENV) && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
+                    Serial2Socket.pause(false);
+#endif // ESP3DLIB_ENV && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
                 }
             }
         }
@@ -159,7 +210,12 @@ void HTTP_Server::SDFileupload ()
                 ESP_SD::remove (filename.c_str());
             }
         }
-        ESP_SD::releaseSD();
+        log_esp3d("Release Sd called");
+        ESP_SD::releaseFS();
+#if defined(ESP3DLIB_ENV) && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
+        Serial2Socket.pause(false);
+#endif // ESP3DLIB_ENV && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
     }
+    Hal::wait(5);
 }
 #endif //HTTP_FEATURE && SD_DEVICE

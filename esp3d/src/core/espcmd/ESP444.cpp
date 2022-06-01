@@ -24,33 +24,57 @@
 #include "../../modules/authentication/authentication_service.h"
 //Set ESP State
 //cmd are RESTART / RESET
-//[ESP444]<cmd><pwd=admin>
+//[ESP444]<cmd> json=<no> <pwd=admin>
+#define COMMANDID   444
 bool Commands::ESP444(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
-    bool response = true;
+    bool noError = true;
+    bool json = has_tag (cmd_params, "json");
+    String response;
     String parameter;
+    int errorCode = 200; //unless it is a server error use 200 as default and set error in json instead
 #ifdef AUTHENTICATION_FEATURE
     if (auth_type != LEVEL_ADMIN) {
-        output->printERROR("Wrong authentication!", 401);
-        return false;
+        response = format_response(COMMANDID, json, false, "Wrong authentication level");
+        noError = false;
+        errorCode = 401;
     }
 #else
     (void)auth_type;
 #endif //AUTHENTICATION_FEATURE
-    if (hastag(cmd_params,"RESTART")) {
-        output->printMSG ("Restart ongoing");
-        output->flush();
-        Hal::wait(100);
-        Esp3D::restart_esp();
-    } else if (hastag(cmd_params,"RESET")) {
-        if (Esp3D::reset()) {
-            output->printMSG ("Reset done");
+    if (noError) {
+        if (has_tag(cmd_params,"RESET")) {
+            if (Esp3D::reset()) {
+                response = format_response(COMMANDID, json, true, "ok");
+            } else {
+                response = format_response(COMMANDID, json, false, "Reset failed");
+                noError = false;
+            }
+        }
+        if (noError && has_tag(cmd_params,"RESTART")) {
+            if (!json) {
+                output->printMSG ("Restart ongoing");
+            } else {
+                response = format_response(COMMANDID, json, true, "Restart ongoing");
+                output->printLN (response.c_str());
+            }
+            output->flush();
+            Hal::wait(100);
+            Esp3D::restart_esp();
+        }
+        if (noError && !has_tag(cmd_params,"RESTART") && !has_tag(cmd_params,"RESET")) {
+            response = format_response(COMMANDID, json, false, "Invalid parameter");
+            noError = false;
+        }
+    }
+    if (noError) {
+        if (json) {
+            output->printLN (response.c_str() );
         } else {
-            output->printERROR ("Reset failed");
+            output->printMSG (response.c_str() );
         }
     } else {
-        response = false;
-        output->printERROR ("Invalid parameter!");
+        output->printERROR(response.c_str(), errorCode);
     }
-    return response;
+    return noError;
 }

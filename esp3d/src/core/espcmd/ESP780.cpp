@@ -27,86 +27,180 @@
 #if defined(SD_TIMESTAMP_FEATURE) ||  defined(FILESYSTEM_TIMESTAMP_FEATURE)
 #include "../../modules/time/time_server.h"
 #endif //SD_TIMESTAMP_FEATURE || FILESYSTEM_TIMESTAMP_FEATURE
+#define COMMANDID   780
 //List Global Filesystem
-//[ESP780]<Root> pwd=<admin password>
+//[ESP780]<Root> json=<no> pwd=<admin password>
 bool Commands::ESP780(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
-    bool response = true;
+    bool noError = true;
+    bool json = has_tag (cmd_params, "json");
+    String response;
     String parameter;
-    parameter = get_param (cmd_params, "");
+    int errorCode = 200; //unless it is a server error use 200 as default and set error in json instead
 #ifdef AUTHENTICATION_FEATURE
     if (auth_type != LEVEL_ADMIN) {
-        output->printERROR("Wrong authentication!", 401);
-        return false;
+        response = format_response(COMMANDID, json, false, "Wrong authentication level");
+        noError = false;
+        errorCode = 401;
     }
 #else
     (void)auth_type;
 #endif //AUTHENTICATION_FEATURE
-    if (parameter.length() == 0) {
-        parameter = "/";
-    }
-    uint8_t fs = ESP_GBFS::getFSType(parameter.c_str());
-    output->printf("Directory on Global FS : %s", parameter.c_str());
-    output->printLN("");
-    if (ESP_GBFS::exists(parameter.c_str())) {
-        ESP_GBFile f;
-        f = ESP_GBFS::open(parameter.c_str(), ESP_FILE_READ);
-        uint countf = 0;
-        uint countd = 0;
-        if (f) {
-            //Check directories
-            ESP_GBFile sub;
-            sub = f.openNextFile();
-            while (sub) {
-                if (sub.isDirectory()) {
-                    countd++;
-                    output->print("<DIR> \t");
-                    output->print(sub.name());
-                    output->print(" \t");
-                    output->printLN("");
-                }
-                sub.close();
-                sub = f.openNextFile();
-            }
-            f.close();
-            f = ESP_GBFS::open(parameter.c_str(), ESP_FILE_READ);
-            //Check files
-            sub = f.openNextFile();
-            while (sub) {
-                if (!sub.isDirectory()) {
-                    countf++;
-                    output->print("      \t");
-                    output->print(sub.name());
-                    output->print(" \t");
-                    output->print(ESP_GBFS::formatBytes(sub.size()).c_str());
-                    output->print(" \t");
-#if defined(SD_TIMESTAMP_FEATURE) ||  defined(FILESYSTEM_TIMESTAMP_FEATURE)
-                    output->print(timeserver.current_time(sub.getLastWrite()));
-                    output->print(" \t");
-#endif //SD_TIMESTAMP_FEATURE ||  FILESYSTEM_TIMESTAMP_FEATURE              
-                    output->printLN("");
-                }
-                sub.close();
-                sub = f.openNextFile();
-            }
-            f.close();
-            output->printf("%d file%s, %d dir%s", countf, (countf > 1)?"(s)":"", countd, (countd > 1)?"(s)":"");
-            output->printLN("");
-            if (fs != FS_ROOT) {
-                String t = ESP_GBFS::formatBytes(ESP_GBFS::totalBytes(fs));
-                String u = ESP_GBFS::formatBytes(ESP_GBFS::usedBytes(fs));
-                String f = ESP_GBFS::formatBytes(ESP_GBFS::freeBytes(fs));
-                output->printf("Total %s, Used %s, Available: %s", t.c_str(), u.c_str(),f.c_str());
-                output->printLN("");
-            }
+    if (noError) {
+        parameter = clean_param(get_param (cmd_params, ""));
+        if (parameter.length() == 0) {
+            parameter = "/";
+        }
+        uint8_t fsType = ESP_GBFS::getFSType(parameter.c_str());
+        if (fsType==FS_UNKNOWN) {
+            response = format_response(COMMANDID, json, false, "Invalid path");
+            noError = false;
         } else {
-            output->printERROR ("Invalid directory!");
+            if (!ESP_GBFS::accessFS(fsType)) {
+                response = format_response(COMMANDID, json, false, "Not available");
+                noError = false;
+            } else {
+                String line = "";
+                ESP_GBFile f;
+                f = ESP_GBFS::open(parameter.c_str(), ESP_FILE_READ);
+                uint countf = 0;
+                uint countd = 0;
+                if (f) {
+                    if(json) {
+                        line = "{\"cmd\":\"720\",\"status\":\"ok\",\"data\":{\"path\":\"" + parameter + "\",\"files\":[";
+                        output->print (line.c_str());
+                    } else {
+                        line = "Directory on Global FS : " + parameter;
+                        output->printMSGLine(line.c_str());
+                    }
+                    //Check directories
+                    ESP_GBFile sub;
+                    sub  = f.openNextFile();
+                    while (sub) {
+                        if (sub.isDirectory()) {
+                            line="";
+                            countd++;
+                            if (json) {
+                                line="";
+                                if (countd > 1) {
+                                    line += ",";
+                                }
+                                line += "{\"name\":\"" ;
+                                line+=sub.name() ;
+                                line+= "\",\"size\":\"-1\"}";
+                            } else {
+                                line = "[DIR] \t";
+                                line+= sub.name();
+                            }
+                            if (json) {
+                                output->print (line.c_str());
+                            } else {
+                                output->printMSGLine(line.c_str());
+                            }
+                        }
+                        sub.close();
+                        sub = f.openNextFile();
+                    }
+                    f.close();
+                    f = ESP_GBFS::open(parameter.c_str(), ESP_FILE_READ);
+                    //Check files
+                    sub = f.openNextFile();
+                    while (sub) {
+                        if (!sub.isDirectory()) {
+                            String time = "";
+                            line="";
+                            countf++;
+#ifdef FILESYSTEM_TIMESTAMP_FEATURE
+                            time = timeserver.current_time(sub.getLastWrite());
+#endif //FILESYSTEM_TIMESTAMP_FEATURE
+                            if (json) {
+                                if (countd > 0 || countf>1) {
+                                    line += ",";
+                                }
+                                line+= "{\"name\":\"";
+                                line+=sub.name() ;
+                                line+="\",\"size\":\"";
+                                line+=ESP_GBFS::formatBytes(sub.size());
+                                if (time.length() > 0) {
+                                    line += "\",\"time\":\"";
+                                    line += time;
+                                }
+                                line+="\"}";
+                            } else {
+                                line+="     \t ";
+                                line+=sub.name();
+                                line+=" \t";
+                                line+=ESP_GBFS::formatBytes(sub.size());
+                                line+=" \t";
+                                line+=time;
+                            }
+                            if (json) {
+                                output->print (line.c_str());
+                            } else {
+                                output->printMSGLine(line.c_str());
+                            }
+                        }
+                        sub.close();
+                        sub = f.openNextFile();
+                    }
+                    f.close();
+                    if (json) {
+                        line = "], \"total\":\"";
+                        line += ESP_GBFS::formatBytes(ESP_GBFS::totalBytes());
+                        line += "\",\"used\":\"";
+                        line += ESP_GBFS::formatBytes(ESP_GBFS::usedBytes());
+                        line+="\",\"occupation\":\"";
+                        uint64_t total =ESP_GBFS::totalBytes();
+                        if (total==0) {
+                            total=1;
+                        }
+                        float occupation = 100.0*ESP_GBFS::usedBytes()/total;
+                        if ((occupation < 1) && (ESP_GBFS::usedBytes()>0)) {
+                            occupation=1;
+                        }
+                        line+= String((int)round(occupation));
+                        line+="\"}}";
+                        output->printLN (line.c_str());
+                    } else {
+                        line =String(countf) + " file";
+                        if (countf > 1) {
+                            line += "s";
+                        }
+                        line += " , " + String(countd) + " dir";
+                        if (countd > 1) {
+                            line += "s";
+                        }
+                        output->printMSGLine(line.c_str());
+                        line = "Total ";
+                        line+=ESP_GBFS::formatBytes(ESP_GBFS::totalBytes(fsType));
+                        line+=", Used ";
+                        line+=ESP_GBFS::formatBytes(ESP_GBFS::usedBytes(fsType));
+                        line+=", Available: ";
+                        line+=ESP_GBFS::formatBytes(ESP_GBFS::freeBytes(fsType));
+                        if (fsType!=FS_ROOT) {
+                            output->printMSGLine(line.c_str());
+                        }
+                    }
+                    ESP_GBFS::releaseFS(fsType);
+                    return true;
+                } else {
+                    response = format_response(COMMANDID, json, false, "Invalid path");
+                    noError = false;
+                }
+                ESP_GBFS::releaseFS(fsType);
+            }
+        }
+    }
+    if (noError) {
+        if (json) {
+            output->printLN (response.c_str() );
+        } else {
+            output->printMSG (response.c_str() );
         }
     } else {
-        output->printERROR ("Invalid directory!");
-        response = false;
+        output->printERROR(response.c_str(), errorCode);
     }
-    return response;
+    return noError;
 }
 
 #endif //GLOBAL_FILESYSTEM_FEATURE

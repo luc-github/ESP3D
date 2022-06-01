@@ -27,6 +27,7 @@
     Modified 22 Jan 2021 by Luc Lebosse (ESP3D Integration)
 
 */
+//#define ESP_DEBUG_FEATURE DEBUG_OUTPUT_SERIAL0
 #include "../../include/esp3d_config.h"
 
 #if defined (WEBDAV_FEATURE)
@@ -91,6 +92,8 @@ const char *wdays[]  = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 void ESPWebDAVCore::begin()
 {
     _maxPathLength = WebDavFS::maxPathLength();
+    _davRoot = "/";
+    _fsRoot = "/";
 }
 
 void ESPWebDAVCore::stripSlashes(String& name)
@@ -193,15 +196,19 @@ int ESPWebDAVCore::allowed(const String& uri, uint32_t ownash)
 
 int ESPWebDAVCore::allowed(const String& uri, const String& xml /* = emptyString */)
 {
+    log_esp3d("allowed: '%s' , xml:%s", uri.c_str(), xml.c_str());
+#if WEBDAV_LOCK_SUPPORT > 1
     uint32_t hpash, anyownash;
     if (ifHeader.length()) {
         int code = extractLockToken(ifHeader, "(<", ">", hpash, anyownash);
         if (code != 200) {
+            log_esp3d("lock: extractLockToken failed: %d", code);
             return code;
         }
         if (anyownash == 0)
             // malformed
         {
+            log_esp3d("lock: malformed If: '%s'", ifHeader.c_str());
             return 412;    // PUT failed with 423 not 412
         }
     } else {
@@ -210,6 +217,11 @@ int ESPWebDAVCore::allowed(const String& uri, const String& xml /* = emptyString
         anyownash = startIdx > 0 && endIdx > 0 ? crc32(&(xml.c_str()[startIdx + 7]), endIdx - startIdx - 7) : 0;
     }
     return allowed(uri, anyownash);
+#else
+    (void)uri;
+    (void)xml;
+    return true;
+#endif
 }
 
 
@@ -382,7 +394,7 @@ void ESPWebDAVCore::handleIssue(int code, const char* text)
     err += ' ';
     err += text;
 
-    log_esp3d("Issue:\ntext='%s'", text);
+    log_esp3d("Issue:\ncode=%d\ntext='%s'", code, text);
     log_esp3d("message='%s'", message.c_str());
     log_esp3d("err='%s'", err.c_str());
 
@@ -393,6 +405,7 @@ void ESPWebDAVCore::handleIssue(int code, const char* text)
 void ESPWebDAVCore::handleRequest()
 {
     payload.clear();
+    replaceFront(uri, _davRoot, _fsRoot);
 
     ResourceType resource = RESOURCE_NONE;
 
@@ -406,6 +419,7 @@ void ESPWebDAVCore::handleRequest()
         }
         log_esp3d("Depth: %d",depth);
     }
+    log_esp3d("URI: %s", uri.c_str());
     WebDavFile file;
     if (WebDavFS::exists(uri.c_str()) || (uri=="/")) {
         // does uri refer to a file or directory or a null?
@@ -437,8 +451,8 @@ void ESPWebDAVCore::handleRequest()
     if (method.equals("PUT"))
         // payload is managed
     {
-        handlePut(resource);
         file.close();
+        handlePut(resource);
         return ;
     }
 
@@ -471,22 +485,22 @@ void ESPWebDAVCore::handleRequest()
 
     // handle options
     if (method.equals("OPTIONS")) {
-        handleOptions(resource);
         file.close();
+        handleOptions(resource);
         return ;
     }
 
 #if WEBDAV_LOCK_SUPPORT
     // handle file locks
     if (method.equals("LOCK")) {
-        handleLock(resource);
         file.close();
+        handleLock(resource);
         return;
     }
 
     if (method.equals("UNLOCK")) {
-        handleUnlock(resource);
         file.close();
+        handleUnlock(resource);
         return ;
     }
 #endif
@@ -499,8 +513,8 @@ void ESPWebDAVCore::handleRequest()
 
     // directory creation
     if (method.equals("MKCOL")) {
-        handleDirectoryCreate(resource);
         file.close();
+        handleDirectoryCreate(resource);
         return;
     }
 
@@ -513,8 +527,8 @@ void ESPWebDAVCore::handleRequest()
 
     // delete a file or directory
     if (method.equals("DELETE")) {
-        handleDelete(resource);
         file.close();
+        handleDelete(resource);
         return;
     }
 
@@ -536,7 +550,6 @@ void ESPWebDAVCore::handleOptions(ResourceType resource)
 {
     (void)resource;
     log_esp3d("Processing OPTION");
-
     send("200 OK", NULL, "");
 }
 
@@ -764,8 +777,11 @@ String ESPWebDAVCore::date2date(time_t date)
 }
 
 
-void ESPWebDAVCore::sendPropResponse(bool isDir, const String& fullResPath, size_t size, time_t lastWrite, time_t creationDate)
+void ESPWebDAVCore::sendPropResponse(bool isDir, const String& fullResPathFS, size_t size, time_t lastWrite, time_t creationDate)
 {
+    String fullResPath = fullResPathFS;
+    replaceFront(fullResPath, _fsRoot, _davRoot);
+    fullResPath = c2enc(fullResPath);
     String blah;
     blah.reserve(100);
     blah += F("<D:response xmlns:esp=\"DAV:\"><D:href>");
@@ -803,11 +819,16 @@ void ESPWebDAVCore::sendPropResponse(bool isDir, const String& fullResPath, size
 void ESPWebDAVCore::handleGet(ResourceType resource, WebDavFile& file, bool isGet)
 {
     log_esp3d("Processing GET (ressource=%d)", (int)resource);
-    auto v = isVirtual(uri);
 
     // does URI refer to an existing file resource
-    if (resource != RESOURCE_FILE && !v) {
-        return handleIssue(404, "Not found");
+    auto v = isVirtual(uri);
+    if (!v) {
+        if (resource == RESOURCE_DIR) {
+            return handleIssue(200, "GET/HEAD on dir");
+        }
+        if (resource != RESOURCE_FILE) {
+            return handleIssue(404, "Not found");
+        }
     }
 
     // no lock on GET
@@ -843,7 +864,7 @@ void ESPWebDAVCore::handleGet(ResourceType resource, WebDavFile& file, bool isGe
     if (_rangeStart == 0 && (_rangeEnd < 0 || _rangeEnd == (int)fileSize - 1)) {
         _rangeEnd = fileSize - 1;
         remaining = fileSize;
-        setContentLength(chunked ? CONTENT_LENGTH_UNKNOWN : remaining);
+        setContentLength(remaining);
         send("200 OK", contentType.c_str(), "");
     } else {
         if (_rangeEnd == -1 || _rangeEnd >= (int)fileSize) {
@@ -855,7 +876,7 @@ void ESPWebDAVCore::handleGet(ResourceType resource, WebDavFile& file, bool isGe
         snprintf(buf, sizeof(buf), "bytes %d-%d/%d", _rangeStart, _rangeEnd, (int)fileSize);
         sendHeader("Content-Range", buf);
         remaining = _rangeEnd - _rangeStart + 1;
-        setContentLength(chunked ? CONTENT_LENGTH_UNKNOWN : remaining);
+        setContentLength(remaining);
         send("206 Partial Content", contentType.c_str(), "");
     }
 
@@ -866,8 +887,7 @@ void ESPWebDAVCore::handleGet(ResourceType resource, WebDavFile& file, bool isGe
             if (transferStatusFn) {
                 transferStatusFn(file.name(), (100 * _rangeStart) / fileSize, false);
             }
-            if ((chunked && !sendContent(&internal.c_str()[_rangeStart], remaining))
-                    || (!chunked && client->write(&internal.c_str()[_rangeStart], remaining) != (size_t)remaining)) {
+            if (client->write(&internal.c_str()[_rangeStart], remaining) != (size_t)remaining) {
                 log_esp3d("file->net short transfer");
             } else if (transferStatusFn) {
                 transferStatusFn(file.name(), (100 * (_rangeStart + remaining)) / fileSize, false);
@@ -883,11 +903,8 @@ void ESPWebDAVCore::handleGet(ResourceType resource, WebDavFile& file, bool isGe
                 size_t numRead = file.read((uint8_t*)buf, toRead);
                 log_esp3d("read %d bytes from file", (int)numRead);
 
-                if ((chunked && !sendContent(buf, numRead))
-                        || (!chunked && client->write(buf, numRead) != numRead)) {
+                if (client->write(buf, numRead) != numRead) {
                     log_esp3d("file->net short transfer");
-                    ///XXXX transmit error ?
-                    //return handleWriteRead("Unable to send file content", &file);
                     break;
                 }
 
@@ -1080,6 +1097,7 @@ void ESPWebDAVCore::handleMove(ResourceType resource, WebDavFile& src)
     stripHost(dest);
     stripSlashes(dest);
     stripName(dest);
+    replaceFront(dest, _davRoot, _fsRoot);
     log_esp3d("Move destination: %s", dest.c_str());
 
     int code;
@@ -1135,9 +1153,11 @@ bool ESPWebDAVCore::mkFullDir(String fullDir)
 {
     bool ret = true;
     stripSlashes(fullDir);
-    for (int idx = 0; (idx = fullDir.indexOf('/', idx + 1)) > 0;) {
-        ///XXXoptiomizeme without substr
-        if (!WebDavFS::mkdir(fullDir.substring(0, idx).c_str())) {
+    int idx = 0;
+    while (idx != -1) {
+        idx = fullDir.indexOf('/', idx + 1);
+        String part = idx == -1? /*last part*/fullDir: fullDir.substring(0, idx);
+        if (!WebDavFS::mkdir(part.c_str())) {
             ret = false;
             break;
         }
@@ -1162,10 +1182,6 @@ bool ESPWebDAVCore::deleteDir(const String& dir)
 
     log_esp3d("delete dir '%s'", uri.c_str());
     WebDavFS::rmdir(uri.c_str());
-    // observation: with littleFS, when the last file of a directory is
-    // removed, the parent directory is removed, hierarchy must be rebuilded.
-    mkFullDir(uri);
-
     return true;
 }
 
@@ -1188,8 +1204,10 @@ void ESPWebDAVCore::handleDelete(ResourceType resource)
     if (resource == RESOURCE_FILE)
         // delete a file
     {
+        log_esp3d("DELETE file '%s'", uri.c_str());
         retVal = WebDavFS::remove(uri.c_str());
     } else {
+        log_esp3d("DELETE dir '%s'", uri.c_str());
         retVal = deleteDir(uri);
     }
 
@@ -1292,6 +1310,8 @@ void ESPWebDAVCore::handleCopy(ResourceType resource, WebDavFile& src)
             }
         }
     }
+    replaceFront(destPath, _davRoot, _fsRoot);
+    replaceFront(destParentPath, _davRoot, _fsRoot);
 
     log_esp3d("copy: src='%s'=>'%s' dest='%s'=>'%s' parent:'%s'",
               uri.c_str(), src.filename(),
@@ -1391,13 +1411,14 @@ bool ESPWebDAVCore::parseRequest(const String& givenMethod,
     stripSlashes(uri);
     client = givenClient;
     contentTypeFn = givenContentTypeFn;
+    uint8_t fsType =  WebDavFS::getFSType(uri.c_str());
 
     log_esp3d("############################################");
     log_esp3d(">>>>>>>>>> RECV");
 
     log_esp3d("method: %s",method.c_str());
     log_esp3d(" url: %s",uri.c_str());
-
+    log_esp3d(" FS: %d",fsType);
     // parse and finish all headers
     String headerName;
     String headerValue;
@@ -1408,7 +1429,7 @@ bool ESPWebDAVCore::parseRequest(const String& givenMethod,
     // no new client is waiting, allow more time to current client
     m_persistent_timer_ms = millis();
 
-    m_persistent = ((millis() - m_persistent_timer_ms) < m_persistent_timer_init_ms);
+    m_persistent = false;// ((millis() - m_persistent_timer_ms) < m_persistent_timer_init_ms);
 
     // reset all variables
     _chunked = false;
@@ -1421,54 +1442,69 @@ bool ESPWebDAVCore::parseRequest(const String& givenMethod,
     overwrite.clear();
     ifHeader.clear();
     lockTokenHeader.clear();
-
-    while (1) {
-        String req = client->readStringUntil('\r');
-        client->readStringUntil('\n');
-        if (req == "")
-            // no more headers
-        {
-            break;
+    bool fsAvailable = true;
+    if (WebDavFS::accessFS(fsType)) {
+#if WEBDAV_FEATURE == FS_SD
+        //if not global FS and FS is SD, need to manually check/set the SD card state
+        if( WebDavFS::getState(true) == ESP_SDCARD_NOT_PRESENT) {
+            fsAvailable = false;
+        } else {
+            ESP_SD::setState(ESP_SDCARD_BUSY );
         }
+#endif // WEBDAV_FEATURE == FS_SD
+        if (fsAvailable) {
+            while (1) {
+                String req = client->readStringUntil('\r');
+                client->readStringUntil('\n');
+                if (req == "")
+                    // no more headers
+                {
+                    break;
+                }
 
-        int headerDiv = req.indexOf(':');
-        if (headerDiv == -1) {
-            break;
+                int headerDiv = req.indexOf(':');
+                if (headerDiv == -1) {
+                    break;
+                }
+
+                headerName = req.substring(0, headerDiv);
+                headerValue = req.substring(headerDiv + 2);
+                log_esp3d("\t%s: %s", headerName.c_str(), headerValue.c_str());
+
+                if (headerName.equalsIgnoreCase("Host")) {
+                    hostHeader = headerValue;
+                } else if (headerName.equalsIgnoreCase("Depth")) {
+                    depthHeader = headerValue;
+                } else if (headerName.equalsIgnoreCase("Content-Length")) {
+                    contentLengthHeader = headerValue.toInt();
+                } else if (headerName.equalsIgnoreCase("Destination")) {
+                    destinationHeader = headerValue;
+                } else if (headerName.equalsIgnoreCase("Range")) {
+                    processRange(headerValue);
+                } else if (headerName.equalsIgnoreCase("Overwrite")) {
+                    overwrite = headerValue;
+                } else if (headerName.equalsIgnoreCase("If")) {
+                    ifHeader = headerValue;
+                } else if (headerName.equalsIgnoreCase("Lock-Token")) {
+                    lockTokenHeader = headerValue;
+                }
+            }
+            log_esp3d("<<<<<<<<<< RECV");
+            handleRequest();
+        } else {
+            handleIssue(404, "Not found");
         }
-
-        headerName = req.substring(0, headerDiv);
-        headerValue = req.substring(headerDiv + 2);
-        log_esp3d("\t%s: %s", headerName.c_str(), headerValue.c_str());
-
-        if (headerName.equalsIgnoreCase("Host")) {
-            hostHeader = headerValue;
-        } else if (headerName.equalsIgnoreCase("Depth")) {
-            depthHeader = headerValue;
-        } else if (headerName.equalsIgnoreCase("Content-Length")) {
-            contentLengthHeader = headerValue.toInt();
-        } else if (headerName.equalsIgnoreCase("Destination")) {
-            destinationHeader = headerValue;
-        } else if (headerName.equalsIgnoreCase("Range")) {
-            processRange(headerValue);
-        } else if (headerName.equalsIgnoreCase("Overwrite")) {
-            overwrite = headerValue;
-        } else if (headerName.equalsIgnoreCase("If")) {
-            ifHeader = headerValue;
-        } else if (headerName.equalsIgnoreCase("Lock-Token")) {
-            lockTokenHeader = headerValue;
-        }
+        WebDavFS::releaseFS(fsType);
+    } else {
+        handleIssue(404, "Not found");
     }
-    log_esp3d("<<<<<<<<<< RECV");
 
-    bool ret = true;
-    /*ret =*/ handleRequest();
-
-    // finalize the response
+// finalize the response
     if (_chunked) {
         sendContent("");
     }
 
-    return ret;
+    return true;
 }
 
 
@@ -1673,15 +1709,19 @@ int ESPWebDAVCore::hhtoi(const char* c)
 
 String ESPWebDAVCore::enc2c(const String& encoded)
 {
-    String ret = encoded;
-    for (size_t i = 0; ret.length() >= 2 && i < ret.length() - 2; i++)
-        if (ret[i] == '%') {
-            int v = hhtoi(ret.c_str() + i + 1);
-            if (v > 0) {
-                ret[i] = v < 128 ? (char)v : '=';
-                ret.remove(i + 1, 2);
-            }
+    int v;
+    String ret;
+    ret.reserve(encoded.length());
+    for (size_t i = 0; i < encoded.length(); i++) {
+        if (   encoded[i] == '%'
+                && (i + 3) <= encoded.length()
+                && (v = hhtoi(encoded.c_str() + i + 1)) > 0) {
+            ret += v;
+            i += 2;
+        } else {
+            ret += encoded[i];
         }
+    }
     return ret;
 }
 
@@ -1689,22 +1729,44 @@ String ESPWebDAVCore::enc2c(const String& encoded)
 String ESPWebDAVCore::c2enc(const String& decoded)
 {
     size_t l = decoded.length();
-    for (size_t i = 0; i < decoded.length() - 2; i++)
-        if (!isalnum(decoded[i])) {
+    for (size_t i = 0; i < decoded.length(); i++) {
+        if (!notEncodable(decoded[i])) {
             l += 2;
         }
+    }
     String ret;
     ret.reserve(l);
     for (size_t i = 0; i < decoded.length(); i++) {
         char c = decoded[i];
-        if (isalnum(c) || c == '.' || c == '-' || c == '_') {
+        if (notEncodable(c)) {
             ret += c;
-        } else {
+        }
+
+        else {
             ret += '%';
-            ret += itoH(decoded[i] >> 4);
-            ret += itoH(decoded[i] & 0xf);
+            ret += itoH(c >> 4);
+            ret += itoH(c & 0xf);
         }
     }
     return ret;
 }
+
+bool ESPWebDAVCore::notEncodable (char c)
+{
+    return c > 32 && c < 127;
+}
+
+void ESPWebDAVCore::replaceFront (String& str, const String& from, const String& to)
+{
+    if (from.length() && to.length() && str.indexOf(from) == 0) {
+        String repl;
+        repl.reserve(str.length() + to.length() - from.length() + 1);
+        repl = to;
+        size_t skip = from.length() == 1? 0: from.length();
+        repl += str.c_str() + skip;
+        str = repl;
+        stripSlashes(str);
+    }
+}
+
 #endif //WEBDAV_FEATURE

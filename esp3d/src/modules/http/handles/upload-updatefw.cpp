@@ -32,12 +32,15 @@
 #include "../../filesystem/esp_filesystem.h"
 #include "../../authentication/authentication_service.h"
 #include "../../../core/esp3doutput.h"
+#if defined(ESP3DLIB_ENV) && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
+#include "../../serial2socket/serial2socket.h"
+#endif // ESP3DLIB_ENV && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
 //File upload for Web update
 void HTTP_Server::WebUpdateUpload ()
 {
     static size_t last_upload_update;
     static uint32_t downloadsize = 0;
-    ESP3DOutput  output(ESP_PRINTER_LCD_CLIENT);
+    ESP3DOutput  output(ESP_REMOTE_SCREEN_CLIENT);
     //only admin can update FW
     if (AuthenticationService::authenticated_level() != LEVEL_ADMIN) {
         _upload_status = UPLOAD_STATUS_FAILED;
@@ -47,6 +50,9 @@ void HTTP_Server::WebUpdateUpload ()
         //get current file ID
         HTTPUpload& upload = _webserver->upload();
         if ((_upload_status != UPLOAD_STATUS_FAILED) || (upload.status == UPLOAD_FILE_START)) {
+#if defined(ESP3DLIB_ENV) && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
+            Serial2Socket.pause();
+#endif // ESP3DLIB_ENV && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
             //Upload start
             if(upload.status == UPLOAD_FILE_START) {
                 output.printMSG("Update Firmware");
@@ -119,6 +125,9 @@ void HTTP_Server::WebUpdateUpload ()
                     output.printERROR("Update failed!", 500);
                     pushError(ESP_ERROR_UPDATE, "Update FW failed");
                 }
+#if defined(ESP3DLIB_ENV) && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
+                Serial2Socket.pause(false);
+#endif // ESP3DLIB_ENV && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
             } else {
                 output.printERROR("Update failed!",500);
                 _upload_status=UPLOAD_STATUS_FAILED;
@@ -128,6 +137,9 @@ void HTTP_Server::WebUpdateUpload ()
     if(_upload_status == UPLOAD_STATUS_FAILED) {
         cancelUpload();
         Update.end();
+#if defined(ESP3DLIB_ENV) && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
+        Serial2Socket.pause(false);
+#endif // ESP3DLIB_ENV && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
     }
 }
 #endif //HTTP_FEATURE && WEB_UPDATE_FEATURE

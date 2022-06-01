@@ -24,62 +24,71 @@
 #include "../settings_esp3d.h"
 #include "../../modules/network/netconfig.h"
 #include "../../modules/authentication/authentication_service.h"
+#define COMMANDID   110
 //Set radio state at boot which can be BT, WIFI-STA, WIFI-AP, ETH-STA, OFF
-//[ESP110]<state>pwd=<admin password>
+//[ESP110]<state>  json=<no> pwd=<admin password>
 bool Commands::ESP110(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
-    bool response = true;
+    bool noError = true;
+    bool json = has_tag (cmd_params, "json");
+    String response;
     String parameter;
+    int errorCode = 200; //unless it is a server error use 200 as default and set error in json instead
+
 #ifdef AUTHENTICATION_FEATURE
     if (auth_type == LEVEL_GUEST) {
-        output->printERROR("Wrong authentication!", 401);
-        return false;
+        response = format_response(COMMANDID, json, false, "Guest user can't use this command");
+        noError = false;
+        errorCode = 401;
     }
 #else
     (void)auth_type;
 #endif //AUTHENTICATION_FEATURE
-    parameter = get_param (cmd_params, "");
-    //get
-    if (parameter.length() == 0) {
-        int8_t wifiMode = Settings_ESP3D::read_byte(ESP_RADIO_MODE);
-        if (wifiMode == ESP_NO_NETWORK) {
-            output->printMSG("OFF");
-        } else if (wifiMode == ESP_BT) {
-            output->printMSG("BT");
-        } else if (wifiMode == ESP_WIFI_AP) {
-            output->printMSG("WIFI-AP");
-        } else if (wifiMode == ESP_WIFI_STA) {
-            output->printMSG("WIFI-STA");
+    if (noError) {
+        parameter = clean_param(get_param (cmd_params, ""));
+        //get
+        if (parameter.length() == 0) {
+            int8_t wifiMode = Settings_ESP3D::read_byte(ESP_RADIO_MODE);
+            if (wifiMode == ESP_NO_NETWORK) {
+                response = format_response(COMMANDID, json, true, "OFF");
+            } else if (wifiMode == ESP_BT) {
+                response = format_response(COMMANDID, json, true, "BT");
+            } else if (wifiMode == ESP_WIFI_AP) {
+                response = format_response(COMMANDID, json, true, "WIFI-AP");
+            } else if (wifiMode == ESP_WIFI_STA) {
+                response = format_response(COMMANDID, json, true, "WIFI-STA");
 //           } else if (wifiMode == ESP_ETH_SRV) {
 //               output->printMSG("ETH-SRV");
-        } else if (wifiMode == ESP_ETH_STA) {
-            output->printMSG("ETH-STA");
-        } else if (wifiMode == ESP_AP_SETUP) {
-            output->printMSG("WIFI-SETUP");
-        } else {
-            output->printMSG("??");
-        }
-    } else { //set
+            } else if (wifiMode == ESP_ETH_STA) {
+                response = format_response(COMMANDID, json, true, "ETH-STA");
+            } else if (wifiMode == ESP_AP_SETUP) {
+                response = format_response(COMMANDID, json, true, "WIFI-SETUP");
+            } else {
+                response = format_response(COMMANDID, json, true, "???");
+            }
+        } else { //set
 #ifdef AUTHENTICATION_FEATURE
-        if (auth_type != LEVEL_ADMIN) {
-            output->printERROR("Wrong authentication!", 401);
-            return false;
-        }
+            if (auth_type != LEVEL_ADMIN) {
+                response = format_response(COMMANDID, json, false, "Wrong authentication level");
+                noError = false;
+                errorCode = 401;
+            }
 #endif //AUTHENTICATION_FEATURE
-        parameter.toUpperCase();
-        if (!(
+            if (noError) {
+                parameter.toUpperCase();
+                if (!(
 #if defined( BLUETOOTH_FEATURE)
-                    (parameter == "BT") ||
+                            (parameter == "BT") ||
 #endif //BLUETOOTH_FEATURE     
 #if defined( WIFI_FEATURE)
-                    (parameter == "WIFI-STA") || (parameter == "WIFI-AP") || (parameter == "WIFI-SETUP") ||
+                            (parameter == "WIFI-STA") || (parameter == "WIFI-AP") || (parameter == "WIFI-SETUP") ||
 #endif //WIFI_FEATURE
 #if defined( ETH_FEATURE)
-                    (parameter == "ETH-STA") || //(parameter == "ETH-SRV") ||
+                            (parameter == "ETH-STA") || //(parameter == "ETH-SRV") ||
 #endif //ETH_FEATURE
-                    (parameter == "OFF"))) {
+                            (parameter == "OFF"))) {
 
-            output->printERROR ("Only "
+                    String res ="Only "
 #ifdef BLUETOOTH_FEATURE
                                 "BT or "
 #endif //BLUETOOTH_FEATURE
@@ -89,46 +98,61 @@ bool Commands::ESP110(const char* cmd_params, level_authenticate_type auth_type,
 #ifdef ETH_FEATURE
                                 "ETH-STA or "
 #endif //ETH_FEATURE
-                                "OFF mode supported!");
-            return false;
-        }
-
-        int8_t bbuf = ESP_NO_NETWORK;
+                                "OFF mode supported!";
+                    response = format_response(COMMANDID, json, false, res.c_str());
+                    noError = false;
+                }
+                if (noError) {
+                    int8_t bbuf = ESP_NO_NETWORK;
 #ifdef WIFI_FEATURE
-        if(parameter == "WIFI-STA") {
-            bbuf = ESP_WIFI_STA;
-        }
-        if(parameter == "WIFI-AP") {
-            bbuf = ESP_WIFI_AP;
-        }
-        if(parameter == "WIFI-SETUP") {
-            bbuf = ESP_AP_SETUP;
-        }
+                    if(parameter == "WIFI-STA") {
+                        bbuf = ESP_WIFI_STA;
+                    }
+                    if(parameter == "WIFI-AP") {
+                        bbuf = ESP_WIFI_AP;
+                    }
+                    if(parameter == "WIFI-SETUP") {
+                        bbuf = ESP_AP_SETUP;
+                    }
 #endif //WIFI_FEATURE
 #ifdef ETH_FEATURE
-        if(parameter == "ETH-STA") {
-            bbuf = ESP_ETH_STA;
-        }
+                    if(parameter == "ETH-STA") {
+                        bbuf = ESP_ETH_STA;
+                    }
 //            if(parameter == "ETH-SRV") {
 //                bbuf = ESP_ETH_SRV;
 //            }
 #endif //ETH_FEATURE
 #ifdef BLUETOOTH_FEATURE
-        if(parameter == "BT") {
-            bbuf = ESP_BT;
-        }
+                    if(parameter == "BT") {
+                        bbuf = ESP_BT;
+                    }
 #endif //BLUETOOTH_FEATURE
-        if (!Settings_ESP3D::write_byte(ESP_RADIO_MODE, bbuf)) {
-            output->printERROR ("Set failed!");
-            response = false;
-        } else {
-            if (!NetConfig::begin()) {
-                output->printERROR ("Cannot setup network");
-                response = false;
+                    if (!Settings_ESP3D::write_byte(ESP_RADIO_MODE, bbuf)) {
+                        response = format_response(COMMANDID, json, false, "Set failed");
+                        noError = false;
+                    } else {
+                        if (!NetConfig::begin()) {
+                            response = format_response(COMMANDID, json, false, "Cannot setup network");
+                            noError = false;
+                        } else {
+                            response = format_response(COMMANDID, json, true, "ok");
+                        }
+                    }
+                }
             }
         }
     }
-    return response;
+    if (noError) {
+        if (json) {
+            output->printLN (response.c_str() );
+        } else {
+            output->printMSG (response.c_str() );
+        }
+    } else {
+        output->printERROR(response.c_str(), errorCode);
+    }
+    return noError;
 }
 
 #endif //WIFI_FEATURE

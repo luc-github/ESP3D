@@ -17,29 +17,36 @@
   License along with This code; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+//#define ESP_DEBUG_FEATURE DEBUG_OUTPUT_SERIAL0
 #include "../include/esp3d_config.h"
 #include "esp3d.h"
 #include "commands.h"
 #include "esp3doutput.h"
 #include "settings_esp3d.h"
+#if COMMUNICATION_PROTOCOL == MKS_SERIAL
+#include "../modules/mks/mks_service.h"
+#endif //COMMUNICATION_PROTOCOL == MKS_SERIAL
 
 Commands esp3d_commands;
 
 Commands::Commands()
 {
 }
+
 Commands::~Commands()
 {
 }
 
 //dispatch the command
-void Commands::process(uint8_t * sbuf, size_t len, ESP3DOutput * output, level_authenticate_type auth, ESP3DOutput * outputonly )
+void Commands::process(uint8_t * sbuf, size_t len, ESP3DOutput * output, level_authenticate_type auth, ESP3DOutput * outputonly, uint8_t outputignore )
 {
+    log_esp3d("Client is %d, has only %d, has ignore %d", output?output->client():0, outputonly?outputonly->client():0, outputignore);
     if(is_esp_command(sbuf,len)) {
         size_t slen = len;
         String tmpbuf = (const char*)sbuf;
-        if (tmpbuf.startsWith("echo: ")) {
+        if (tmpbuf.startsWith("echo:")) {
             tmpbuf.replace("echo: ", "");
+            tmpbuf.replace("echo:", "");
             slen = tmpbuf.length();
         }
 
@@ -48,11 +55,15 @@ void Commands::process(uint8_t * sbuf, size_t len, ESP3DOutput * output, level_a
         cmd[1] = tmpbuf[5] == ']'?0:tmpbuf[5];
         cmd[2] = tmpbuf[6] == ']'?0:tmpbuf[6];
         cmd[3] = 0x0;
-        log_esp3d("It is ESP command");
+        log_esp3d("It is ESP command %s",cmd);
+        log_esp3d("Respond to client  %d",(outputonly == nullptr)?output->client():outputonly->client());
         execute_internal_command (String((const char*)cmd).toInt(), (slen > (strlen((const char *)cmd)+5))?(const char*)&tmpbuf[strlen((const char *)cmd)+5]:"", auth, (outputonly == nullptr)?output:outputonly);
     } else {
         //Dispatch to all clients but current or to define output
-        if ((output->client() == ESP_HTTP_CLIENT) && (outputonly == nullptr)) {
+#if defined(HTTP_FEATURE)
+        //the web command will never get answer as answer go to websocket
+        //This is sanity check as the http client should already answered
+        if (output->client() == ESP_HTTP_CLIENT && !output->footerSent()) {
             if (auth != LEVEL_GUEST) {
                 output->printMSG("");
             } else {
@@ -60,10 +71,21 @@ void Commands::process(uint8_t * sbuf, size_t len, ESP3DOutput * output, level_a
                 return;
             }
         }
+#endif //HTTP_FEATURE
         if (outputonly == nullptr) {
-            output->dispatch(sbuf, len);
+            log_esp3d("Dispatch from %d, but %d", output->client(), outputignore);
+            output->dispatch(sbuf, len, outputignore);
         } else {
+            log_esp3d("Dispatch from %d to only  %d", output->client(), outputonly->client());
+#if COMMUNICATION_PROTOCOL == MKS_SERIAL
+            if (outputonly->client() == ESP_SERIAL_CLIENT) {
+                MKSService::sendGcodeFrame((const char *)sbuf);
+            } else {
+                outputonly->write(sbuf, len);
+            }
+#else
             outputonly->write(sbuf, len);
+#endif //COMMUNICATION_PROTOCOL == MKS_SERIAL
         }
     }
 }
@@ -156,6 +178,58 @@ const char* Commands::get_label (const char * cmd_params, const char * labelsepa
     return res.c_str();
 }
 
+const char *  Commands::format_response(uint cmdID, bool isjson, bool isok, const char * message)
+{
+    static String res;
+    res ="";
+    if (!isjson) {
+        res += message;
+    } else {
+        res = "{\"cmd\":\"";
+        res += String(cmdID);
+        res += "\",\"status\":\"";
+        if (isok) {
+            res += "ok";
+        } else {
+            res += "error";
+        }
+        res += "\",\"data\":";
+        if (message[0]!='{') {
+            res+="\"";
+        }
+        res += message;
+        if (message[0]!='{') {
+            res += "\"";
+        }
+        res +="}";
+    }
+    return res.c_str();
+}
+
+const char * Commands::clean_param (const char * cmd_params)
+{
+    static String res;
+    res = cmd_params;
+    if (strlen(cmd_params) == 0) {
+        return "";
+    }
+    String tmp = cmd_params;
+    tmp.trim();
+    if (tmp =="json" || tmp.startsWith("json ")) {
+        return "";
+    }
+    if(tmp.indexOf("json=") != -1) {
+        //remove formating flag
+        res = tmp.substring(0,tmp.indexOf("json="));
+    } else {
+        if(tmp.endsWith(" json")) {
+            //remove formating flag
+            res = tmp.substring(0,tmp.length()-5);
+        }
+    }
+    return res.c_str();
+}
+
 //extract parameter with corresponding label
 //if label is empty give whole line without authentication label/parameter
 const char * Commands::get_param (const char * cmd_params, const char * label)
@@ -190,7 +264,6 @@ const char * Commands::get_param (const char * cmd_params, const char * label)
     //extract parameter
     res = tmp.substring (start, end);
 
-
 #ifdef AUTHENTICATION_FEATURE
     //if no label remove authentication parameters
     if (strlen(label) == 0) {
@@ -217,11 +290,13 @@ const char * Commands::get_param (const char * cmd_params, const char * label)
 
 }
 
-bool Commands::hastag (const char * cmd_params, const char *tag)
+bool Commands::has_tag (const char * cmd_params, const char *tag)
 {
+    log_esp3d("Checking for tag: %s, in %s", tag, cmd_params);
     String tmp = "";
     String stag = " ";
     if ((strlen(cmd_params) == 0) || (strlen(tag) == 0)) {
+        log_esp3d("No value provided for tag");
         return false;
     }
     stag += tag;
@@ -229,8 +304,23 @@ bool Commands::hastag (const char * cmd_params, const char *tag)
     tmp.trim();
     tmp = " " + tmp;
     if (tmp.indexOf(stag) == -1) {
+        log_esp3d("No tag detected");
         return false;
     }
+    log_esp3d("Tag detected");
+    //to support plain , plain=yes , plain=no
+    String param =  String(tag) + "=";
+    log_esp3d("Checking  %s , in %s", param.c_str());
+    String parameter = get_param (cmd_params, param.c_str());
+    if (parameter.length() != 0) {
+        log_esp3d("Parameter is %s", parameter.c_str());
+        if (parameter == "YES" ||parameter == "true" ||parameter == "TRUE" || parameter == "yes" || parameter == "1") {
+            return true;
+        }
+        log_esp3d("No parameter to enable  %s ", param.c_str());
+        return false;
+    }
+    log_esp3d("No parameter for %s but tag detected", param.c_str());
     return true;
 }
 
@@ -433,8 +523,8 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
         break;
 #endif //WEBDAV_FEATURE
 #if defined (SD_DEVICE)
-    //Get SD Card Status
-    //[ESP200] pwd=<user/admin password>
+    //Get/Set SD Card Status
+    //[ESP200] json=<YES/NO> <RELEASESD> <REFRESH> pwd=<user/admin password>
     case 200:
         response = ESP200(cmd_params, auth_type, output);
         break;
@@ -493,6 +583,11 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
         break;
 #endif //BUZZER_DEVICE
 #endif //DISPLAY_DEVICE
+    //Show pins
+    //[ESP220][pwd=<user password>]
+    case 220:
+        response = ESP220(cmd_params, auth_type, output);
+        break;
     //Delay command
     //[ESP290]<delay in ms>[pwd=<user password>]
     case 290:
@@ -564,21 +659,6 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
     case 710:
         response = ESP710(cmd_params, auth_type, output);
         break;
-#endif //FILESYSTEM_FEATURE 
-#if defined(SD_DEVICE)
-    //Format ESP Filesystem
-    //[ESP715]FORMATSD pwd=<admin password>
-    case 715:
-        response = ESP715(cmd_params, auth_type, output);
-        break;
-#endif //SD_DEVICE 
-#if defined(FILESYSTEM_FEATURE) && defined(ESP_GCODE_HOST_FEATURE)
-    //Open local file
-    //[ESP700]<filename>
-    case 700:
-        response = ESP700(cmd_params, auth_type, output);
-        break;
-
     //List ESP Filesystem
     //[ESP720]<Root> pwd=<admin password>
     case 720:
@@ -590,7 +670,26 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
     case 730:
         response = ESP730(cmd_params, auth_type, output);
         break;
-#endif //FILESYSTEM_FEATURE
+#endif //FILESYSTEM_FEATURE 
+#if defined(SD_DEVICE)
+    //Format ESP Filesystem
+    //[ESP715]FORMATSD pwd=<admin password>
+    case 715:
+        response = ESP715(cmd_params, auth_type, output);
+        break;
+#endif //SD_DEVICE 
+#if defined(GCODE_HOST_FEATURE)
+    //Open local file
+    //[ESP700]<filename>
+    case 700:
+        response = ESP700(cmd_params, auth_type, output);
+        break;
+    //Get Status and Control ESP700 stream
+    //[ESP701]action=<PAUSE/RESUME/ABORT>
+    case 701:
+        response = ESP701(cmd_params, auth_type, output);
+        break;
+#endif //GCODE_HOST_FEATURE
 #if defined (SD_DEVICE)
     //List SD Filesystem
     //[ESP740]<Root> pwd=<admin password>
@@ -625,16 +724,13 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
         response = ESP800(cmd_params, auth_type, output);
         break;
 
+#if COMMUNICATION_PROTOCOL != SOCKET_SERIAL
     //Get state / Set Enable / Disable Serial Communication
     //[ESP900]<ENABLE/DISABLE>
     case 900:
         response = ESP900(cmd_params, auth_type, output);
         break;
-    //Get state / Set Enable / Disable Verbose boot
-    //[ESP901]<ENABLE/DISABLE>
-    case 901:
-        response = ESP901(cmd_params, auth_type, output);
-        break;
+#endif //COMMUNICATION_PROTOCOL != SOCKET_SERIAL
 #ifdef BUZZER_DEVICE
     //Get state / Set Enable / Disable buzzer
     //[ESP910]<ENABLE/DISABLE>
@@ -644,7 +740,7 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
 #endif //BUZZER_DEVICE
     case 920:
         //Get state / Set state of output message clients
-        //[ESP910]<SERIAL / LCD / PRINTER_LCD/ WEBSOCKET / TELNET /BT / ALL>=<ON/OFF>[pwd=<admin password>]
+        //[ESP910]<SERIAL / SCREEN / REMOTE_SCREEN/ WEBSOCKET / TELNET /BT / ALL>=<ON/OFF>[pwd=<admin password>]
         response = ESP920(cmd_params, auth_type, output);
         break;
     default:

@@ -64,35 +64,23 @@
 //#define WS_DATA_FEATURE
 
 //DISPLAY_DEVICE: allow screen output
-//OLED_I2C_SSD1306          1
-//OLED_I2C_SSDSH1106        2
-//TFT_SPI_ILI9341_320X240   3
-//TFT_SPI_ILI9488_480X320 4
-//#define DISPLAY_DEVICE TFT_SPI_ILI9488_480X320
+//OLED_I2C_SSD1306_128X64   1
+//OLED_I2C_SSDSH1106_132X64 2
+//TFT_SPI_ST7789_240X240    5
+//TFT_SPI_ST7789_135X240    6
+//#define DISPLAY_DEVICE TFT_SPI_ST7789_240X240
 
-//UI_TYPE_BASIC      1
-//UI_TYPE_ADVANCED   2
-#define DISPLAY_UI_TYPE UI_TYPE_ADVANCED
-
-//UI_COLORED         1
-//UI_MONOCHROME      2
-#define DISPLAY_UI_COLOR UI_COLORED
+//#define DISPLAY_I2C_ADDR            0x3c
+//#define DISPLAY_I2C_PIN_RST         16 //comment if not applicable
+//#define DISPLAY_FLIP_VERTICALY      1
+//#define DISPLAY_TOUCH_DRIVER        XPT2046_SPI
+//#define DISPLAY_LED_PIN             27  //-1 if none
 
 //BUZZER_DEVICE: allow to connect passive buzzer
 //#define BUZZER_DEVICE
 
-#if defined (DISPLAY_DEVICE)
-//for ILI9143 edit User_Setup.h of TFT_eSPI library
-#if (DISPLAY_DEVICE == OLED_I2C_SSD1306) || (DISPLAY_DEVICE == OLED_I2C_SSDSH1106)
-#define DISPLAY_I2C_PIN_RST         16 //comment if not applicable
-#define DISPLAY_I2C_ADDR            0x3c
-#endif //(DISPLAY_DEVICE == OLED_I2C_SSD1306) || (DISPLAY_DEVICE == OLED_I2C_SSDSH1106)
-#define DISPLAY_FLIP_VERTICALY      1 //comment to disable
-#if (DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240) || (DISPLAY_DEVICE == TFT_SPI_ILI9488_480X320)
-#define DISPLAY_TOUCH_DRIVER        XPT2046_SPI
-#define DISPLAY_LED_PIN             27  //-1 if none
-#endif //(DISPLAY_DEVICE == TFT_SPI_ILI9341_320X240) || (DISPLAY_DEVICE == TFT_SPI_ILI9488_480X320)
-#endif //DISPLAY_DEVICE
+//Printer has display and can show message using `M117 <Message>`
+//#define PRINTER_HAS_DISPLAY
 
 //INPUT_DEVICE: allow input
 //ROTARY_ENCODER        1
@@ -134,6 +122,8 @@
 //ESP_SDFAT2                  4 //esp8266  / esp32
 //#define SD_DEVICE    ESP_SDFAT2
 
+#if defined(SD_DEVICE)
+
 //SDIO mode
 #define SD_ONE_BIT_MODE true
 
@@ -141,15 +131,24 @@
 //ESP_NO_SD
 //ESP_DIRECT_SD
 //ESP_SHARED_SD
-//#define SD_DEVICE_CONNECTION  ESP_DIRECT_SD
+#define SD_DEVICE_CONNECTION  ESP_SHARED_SD
+
+
+#if SD_DEVICE_CONNECTION == ESP_SHARED_SD
+//Pin used by multiplexer or hardware switch to select SD device
+#define ESP_FLAG_SHARED_SD_PIN 0
+//value to enable SD device on ESP
+#define ESP_FLAG_SHARED_SD_VALUE 0
+#endif //SD_DEVICE_CONNECTION  ESP_SHARED_SD
 
 //pin if reader has insert detection feature
 //let -1 or comment if none
-//#define ESP_SD_DETECT_PIN       4
+#define ESP_SD_DETECT_PIN       4
 //value expected for ESP_SD_DETECT_PIN (0 or 1)
-#define ESP_SD_DETECT_VALUE      0
+#define ESP_SD_DETECT_VALUE     0
 
-//#define ESP_SD_CS_PIN   5
+#define ESP_SD_CS_PIN   5
+#endif //SD_DEVICE
 
 //FILESYSTEM_FEATURE: to host some files on flash
 //ESP_SPIFFS_FILESYSTEM       0
@@ -230,13 +229,14 @@
 //if you do not know what is that then better left it commented
 //#define ESP_ACCESS_CONTROL_ALLOW_ORIGIN
 
-//ESP_GCODE_HOST_FEATURE : allow to send GCODE with ack
-#define ESP_GCODE_HOST_FEATURE
+//GCODE_HOST_FEATURE : allow to send GCODE with ack
+#define GCODE_HOST_FEATURE
 
 //ESP_AUTOSTART_SCRIPT : to do some actions / send GCODE at start, need ESP_GCODE_HOST_FEATURE enabled
 //can be  a line od several GCODES separated by `\n` e.g. "M21\nM117 SD mounted\n"
 //can be  a file name, if exists, commands inside will be processed, e.g "/FS:/autostart.esp"
-//#define ESP_AUTOSTART_SCRIPT "M117 Mouning SD\nM21\n"
+//#define ESP_AUTOSTART_SCRIPT "M117 Mounting SD;M21"
+//#define ESP_AUTOSTART_SCRIPT_FILE "autoscript.gco"
 
 //ESP_LUA_INTERPRETER_FEATURE : add lua scripting feature
 //#define ESP_LUA_INTERPRETER_FEATURE
@@ -281,6 +281,13 @@
 //Serial rx buffer size is 256 but can be extended
 #define SERIAL_RX_BUFFER_SIZE 512
 
+/************************************
+ *
+ * Benchmark report
+ *
+ * **********************************/
+//#define ESP_BENCHMARK_FEATURE
+
 //Serial need speed up on esp32
 #define SERIAL_INDEPENDANT_TASK
 
@@ -301,6 +308,13 @@
 //Using BearSSL need to decrease size of packet to not be OOM on ESP8266
 #define BEARSSL_MFLN_SIZE   512
 #define BEARSSL_MFLN_SIZE_FALLBACK  4096
+
+/************************************
+ *
+ * Disable sanity check
+ *
+ * **********************************/
+//#define ESP_NO_SANITY_CHECK
 
 /************************************
  *
@@ -333,5 +347,14 @@
 #undef MDNS_FEATURE
 #undef NOTIFICATION_FEATURE
 #endif
+
+/************************************
+ *
+ * Printer display (M117 support)
+ *
+ * **********************************/
+#if defined(PRINTER_HAS_DISPLAY)
+#define HAS_SERIAL_DISPLAY ""
+#endif //PRINTER_HAS_DISPLAY
 
 #endif //_CONFIGURATION_H

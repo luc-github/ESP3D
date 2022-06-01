@@ -41,302 +41,371 @@
 #ifdef CAMERA_DEVICE
 #include "../../modules/camera/camera.h"
 #endif //CAMERA_DEVICE
+#define COMMANDID   800
 //get fw version firmare target and fw version
 //eventually set time with pc time
 //output is JSON or plain text according parameter
-//[ESP800]<plain><time=YYYY-MM-DD-HH-MM-SS>
+//[ESP800]json=<no><time=YYYY-MM-DD-HH-MM-SS>
 bool Commands::ESP800(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
-    bool response = true;
+    bool noError = true;
+    bool json = has_tag (cmd_params, "json");
+    String response;
     String parameter;
+    int errorCode = 200; //unless it is a server error use 200 as default and set error in json instead
 #ifdef AUTHENTICATION_FEATURE
     if (auth_type == LEVEL_GUEST) {
-        output->printERROR("Wrong authentication!", 401);
-        return false;
+        response = format_response(COMMANDID, json, false, "Guest user can't use this command");
+        noError = false;
+        errorCode = 401;
     }
 #else
     (void)auth_type;
 #endif //AUTHENTICATION_FEATURE
-    bool plain = hastag(cmd_params,"plain");
+    if (noError) {
+        parameter = get_param (cmd_params, "setup=");
+        if(parameter.length() > 0) {
+            if (!Settings_ESP3D::write_byte (ESP_SETUP, parameter =="0"?0:1)) {
+                response = format_response(COMMANDID, json, false, "Save setup flag failed");
+                noError = false;
+            }
+        }
+    }
+    if (noError) {
 #ifdef TIMESTAMP_FEATURE
-    String newtime = get_param (cmd_params, "time=");
-    String tparm = (timeserver.is_internet_time())?"Auto":"Manual";
-    if (!timeserver.is_internet_time() && (newtime.length() > 0)) {
-        if (!timeserver.setTime(newtime.c_str())) {
-            tparm="Failed to set";
+        String newtime = get_param (cmd_params, "time=");
+        String tparm = (timeserver.is_internet_time())?"Auto":"Manual";
+        if (!timeserver.is_internet_time() && (newtime.length() > 0)) {
+            if (!timeserver.setTime(newtime.c_str())) {
+                tparm="Failed to set";
+            }
+        } else {
+            if (!timeserver.is_internet_time() && (newtime.length() == 0)) {
+                tparm="Not set";
+            }
         }
-    } else {
-        if (!timeserver.is_internet_time() && (newtime.length() == 0)) {
-            tparm="Not set";
-        }
-    }
 #endif //TIMESTAMP_FEATURE
-    parameter = get_param (cmd_params, "setup=");
-    if(parameter.length() > 0) {
-        Settings_ESP3D::write_byte (ESP_SETUP, parameter =="0"?0:1);
-    }
-    //FW version
-    if (plain) {
-        output->print("FW version:");
-    } else {
-        output->print("{\"FWVersion\":\"");
-    }
-    output->print(FW_VERSION);
-    if(plain) {
-        output->printLN("");
-    } else {
-        output->print("\"");
-    }
 
-    //FW target
-    if (plain) {
-        output->print("FW target:");
-    } else {
-        output->print(",\"FWTarget\":\"");
-    }
-    output->print(Settings_ESP3D::GetFirmwareTargetShortName());
-    if(plain) {
-        output->printLN("");
-    } else {
-        output->print("\"");
-    }
-    //FW ID
-    if (plain) {
-        output->print("FW ID:");
-    } else {
-        output->print(",\"FWTargetID\":\"");
-    }
-    output->print(Settings_ESP3D::GetFirmwareTarget());
-    if(plain) {
-        output->printLN("");
-    } else {
-        output->print("\"");
-    }
-    //Setup done
-    if (plain) {
-        output->print("Setup:");
-    } else {
-        output->print(",\"Setup\":\"");
-    }
-    output->print(Settings_ESP3D::read_byte (ESP_SETUP) == 0?F("Enabled"):F("Disabled"));
-    if(plain) {
-        output->printLN("");
-    } else {
-        output->print("\"");
-    }
-    //SD connection
-    if (plain) {
-        output->print("SD connection:");
-    } else {
-        output->print(",\"SDConnection\":\"");
-    }
-    if (Settings_ESP3D::GetSDDevice() == ESP_DIRECT_SD) {
-        output->print("direct");
-    } else if (Settings_ESP3D::GetSDDevice() == ESP_SHARED_SD) {
-        output->print("shared");
-    } else {
-        output->print("none");
-    }
-    if(plain) {
-        output->printLN("");
-    } else {
-        output->print("\"");
-    }
-    //Serial protocol
-    if (plain) {
-        output->print("Serial protocol:");
-    } else {
-        output->print(",\"serialprotocol\":\"");
-    }
+        String line = "";
+        if(json) {
+            line = "{\"cmd\":\"800\",\"status\":\"ok\",\"data\":{";
+        }
+        //FW version
+        if (json) {
+            line+="\"FWVersion\":\"";
+        } else {
+            line+="FW version:";
+        }
+#if defined (SHORT_BUILD_VERSION)
+        line+=SHORT_BUILD_VERSION;
+        line+="-";
+#endif //SHORT_BUILD_VERSION
+        line+=FW_VERSION;
+        if (json) {
+            line +="\"";
+            output->print (line.c_str());
+        } else {
+            output->printMSGLine(line.c_str());
+        }
+        line="";
+        //FW target
+        if (json) {
+            line+=",\"FWTarget\":\"";
+        } else {
+            line+="FW target:";
+        }
+        line+=Settings_ESP3D::GetFirmwareTargetShortName();
+        if (json) {
+            line +="\"";
+            output->print (line.c_str());
+        } else {
+            output->printMSGLine(line.c_str());
+        }
+        line="";
+        //FW ID
+        if (json) {
+            line+=",\"FWTargetID\":\"";
+        } else {
+            line+="FW ID:";
+        }
+        line+=Settings_ESP3D::GetFirmwareTarget();
+        if (json) {
+            line +="\"";
+            output->print (line.c_str());
+        } else {
+            output->printMSGLine(line.c_str());
+        }
+        line="";
+        //Setup done
+        if (json) {
+            line+=",\"Setup\":\"";
+        } else {
+            line+= "Setup:";
+        }
+        line+=Settings_ESP3D::read_byte (ESP_SETUP) == 0?F("Enabled"):F("Disabled");
+        if (json) {
+            line +="\"";
+            output->print (line.c_str());
+        } else {
+            output->printMSGLine(line.c_str());
+        }
+        line="";
+
+        //SD connection
+        if (json) {
+            line+=",\"SDConnection\":\"";
+        } else {
+            line+= "SD connection:";
+        }
+        if (Settings_ESP3D::GetSDDevice() == ESP_DIRECT_SD) {
+            line+="direct";
+        } else if (Settings_ESP3D::GetSDDevice() == ESP_SHARED_SD) {
+            line+="shared";
+        } else {
+            line+="none";
+        }
+        if (json) {
+            line +="\"";
+            output->print (line.c_str());
+        } else {
+            output->printMSGLine(line.c_str());
+        }
+        line="";
+        //Serial protocol
+        if (json) {
+            line+=",\"SerialProtocol\":\"";
+        } else {
+            line+= "Serial protocol:";
+        }
+
 #if COMMUNICATION_PROTOCOL ==  MKS_SERIAL
-    output->print("MKS");
-#endif //COMMUNICATION_PROTOCOL ==  MKS_SERIAL 
+        line+="MKS";
+#endif //COMMUNICATION_PROTOCOL ==  MKS_SERIAL
 #if COMMUNICATION_PROTOCOL ==  RAW_SERIAL
-    output->print("RAW");
-#endif //COMMUNICATION_PROTOCOL ==  RAW_SERIAL 
-    if(plain) {
-        output->printLN("");
-    } else {
-        output->print("\"");
-    }
-    //Authentication
-    if (plain) {
-        output->print("Authentication:");
-    } else {
-        output->print(",\"Authentication\":\"");
-    }
+        line+="Raw";
+#endif //COMMUNICATION_PROTOCOL ==  RAW_SERIAL
+#if COMMUNICATION_PROTOCOL ==  SOCKET_SERIAL
+        line+="Socket";
+#endif //COMMUNICATION_PROTOCOL ==  SOCKET_SERIAL
+        if (json) {
+            line +="\"";
+            output->print (line.c_str());
+        } else {
+            output->printMSGLine(line.c_str());
+        }
+        line="";
+        //Authentication
+        if (json) {
+            line+=",\"Authentication\":\"";
+        } else {
+            line+= "Authentication:";
+        }
+
 #ifdef AUTHENTICATION_FEATURE
-    output->print("Enabled");
+        line+="Enabled";
 #else
-    output->print("Disabled");
+        line+="Disabled";
 #endif //AUTHENTICATION_FEATURE
-    if(plain) {
-        output->printLN("");
-    } else {
-        output->print("\"");
-    }
+        if (json) {
+            line +="\"";
+            output->print (line.c_str());
+        } else {
+            output->printMSGLine(line.c_str());
+        }
+        line="";
 #if (defined(WIFI_FEATURE) || defined(ETH_FEATURE)) && defined(HTTP_FEATURE)
-    //Web Communication
-    if (plain) {
-        output->print("Web Communication:");
-    } else {
-        output->print(",\"WebCommunication\":\"");
-    }
+        //Web Communication
+        if (json) {
+            line+=",\"WebCommunication\":\"";
+        } else {
+            line+= "Web Communication:";
+        }
 #if defined (ASYNCWEBSERVER_FEATURE)
-    output->print("Asynchronous");
+        line+="Asynchronous";
 #else
-    output->print("Synchronous");
+        line+="Synchronous";
 #endif //ASYNCWEBSERVER_FEATURE
-    if(plain) {
-        output->printLN("");
-    } else {
-        output->print("\"");
-    }
-    //WebSocket IP
-    if (plain) {
-        output->print("Web Socket IP:");
-    } else {
-        output->print(",\"WebSocketIP\":\"");
-    }
-    output->print(NetConfig::localIP().c_str());
-    if(plain) {
-        output->printLN("");
-    } else {
-        output->print("\"");
-    }
-    //WebSocket Port
-    if (plain) {
-        output->print("Web Socket port:");
-    } else {
-        output->print(",\"WebSocketPort\":\"");
-    }
+        if (json) {
+            line +="\"";
+            output->print (line.c_str());
+        } else {
+            output->printMSGLine(line.c_str());
+        }
+        line="";
+        //WebSocket IP
+        if (json) {
+            line+=",\"WebSocketIP\":\"";
+        } else {
+            line+= "Web Socket IP:";
+        }
+        line+=NetConfig::localIP().c_str();
+        if (json) {
+            line +="\"";
+            output->print (line.c_str());
+        } else {
+            output->printMSGLine(line.c_str());
+        }
+        line="";
+        //WebSocket Port
+        if (json) {
+            line+=",\"WebSocketPort\":\"";
+        } else {
+            line+= "Web Socket Port:";
+        }
 #if defined (ASYNCWEBSERVER_FEATURE)
-    output->print(HTTP_Server::port());
+        line+=HTTP_Server::port();
 #else
-    output->print(HTTP_Server::port() +1);
+        line+=(HTTP_Server::port() +1);
 #endif
-    if(plain) {
-        output->printLN("");
-    } else {
-        output->print("\"");
-    }
+        if (json) {
+            line +="\"";
+            output->print (line.c_str());
+        } else {
+            output->printMSGLine(line.c_str());
+        }
+        line="";
 
 #endif // (WIFI_FEATURE) || ETH_FEATURE) && HTTP_FEATURE)
 #if defined(WIFI_FEATURE) || defined(ETH_FEATURE) || defined(BT_FEATURE)
-    //Hostname
-    if (plain) {
-        output->print("Hostname:");
-    } else {
-        output->print(",\"Hostname\":\"");
-    }
-    output->print(NetConfig::hostname());
-    if(plain) {
-        output->printLN("");
-    } else {
-        output->print("\"");
-    }
+        //Hostname
+        if (json) {
+            line+=",\"Hostname\":\"";
+        } else {
+            line+= "Hostname:";
+        }
+        line+=NetConfig::hostname();
+        if (json) {
+            line +="\"";
+            output->print (line.c_str());
+        } else {
+            output->printMSGLine(line.c_str());
+        }
+        line="";
 #endif //WIFI_FEATURE|| ETH_FEATURE || BT_FEATURE
 #if defined(WIFI_FEATURE)
-    if (WiFiConfig::started()) {
-        //WiFi mode
-        if (plain) {
-            output->print("WiFi mode:");
-        } else {
-            output->print(",\"WiFiMode\":\"");
+        if (WiFiConfig::started()) {
+            //WiFi mode
+            if (json) {
+                line+=",\"WiFiMode\":\"";
+            } else {
+                line+= "WiFi mode:";
+            }
+            line+=(WiFi.getMode() == WIFI_AP)?"AP":"STA";
+            if (json) {
+                line +="\"";
+                output->print (line.c_str());
+            } else {
+                output->printMSGLine(line.c_str());
+            }
+            line="";
         }
-        output->print((WiFi.getMode() == WIFI_AP)?"AP":"STA");
-        if(plain) {
-            output->printLN("");
-        } else {
-            output->print("\"");
-        }
-    }
 #endif //WIFI_FEATURE
 #if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
-    //Update
-    if (plain) {
-        output->print("Web Update:");
-    } else {
-        output->print(",\"WebUpdate\":\"");
-    }
+        //Update
+        if (json) {
+            line+=",\"WebUpdate\":\"";
+        } else {
+            line+= "Web update:";
+        }
 #ifdef WEB_UPDATE_FEATURE
-    if (ESP_FileSystem::max_update_size()!=0) {
-        output->print("Enabled");
-    } else {
-        output->print("Disabled");
-    }
+        if (ESP_FileSystem::max_update_size()!=0) {
+            line+="Enabled";
+        } else {
+            line+="Disabled";
+        }
 #else
-    output->print("Disabled");
+        line+="Disabled";
 #endif //WEB_UPDATE_FEATURE
-    if(plain) {
-        output->printLN("");
-    } else {
-        output->print("\"");
-    }
+        if (json) {
+            line +="\"";
+            output->print (line.c_str());
+        } else {
+            output->printMSGLine(line.c_str());
+        }
+        line="";
 #endif //WIFI_FEATURE|| ETH_FEATURE
 
-//Hostname
-    if (plain) {
-        output->print("Filesystem:");
-    } else {
-        output->print(",\"Filesystem\":\"");
-    }
+        //FS
+        if (json) {
+            line+=",\"FileSystem\":\"";
+        } else {
+            line+= "File system:";
+        }
 #if defined(FILESYSTEM_FEATURE)
-    output->print(ESP_FileSystem::FilesystemName());
+        line+=ESP_FileSystem::FilesystemName();
 #else
-    output->print("none");
+        line+="none";
 #endif //FILESYSTEM_FEATURE
-    if(plain) {
-        output->printLN("");
-    } else {
-        output->print("\"");
-    }
-//time server
-    if (plain) {
-        output->print("Time:");
-    } else {
-        output->print(",\"Time\":\"");
-    }
+        if (json) {
+            line +="\"";
+            output->print (line.c_str());
+        } else {
+            output->printMSGLine(line.c_str());
+        }
+        line="";
+        //time server
+        if (json) {
+            line+=",\"Time\":\"";
+        } else {
+            line+= "Time:";
+        }
 #ifdef TIMESTAMP_FEATURE
-    output->print(tparm.c_str());
+        line+=tparm;
 #else
-    output->print("none");
+        line+="none";
 #endif //TIMESTAMP_FEATURE
-    if(plain) {
-        output->printLN("");
-    } else {
-        output->print("\"");
-    }
+        if (json) {
+            line +="\"";
+            output->print (line.c_str());
+        } else {
+            output->printMSGLine(line.c_str());
+        }
+        line="";
 #ifdef CAMERA_DEVICE
-    //camera ID
-    if (plain) {
-        output->print("Camera ID:");
-    } else {
-        output->print(",\"Cam_ID\":\"");
-    }
-    output->print(esp3d_camera.GetModel());
-    if(plain) {
-        output->printLN("");
-    } else {
-        output->print("\"");
-    }
-    //camera Name
-    if (plain) {
-        output->print("Camera Name:");
-    } else {
-        output->print(",\"Cam_name\":\"");
-    }
-    output->print(esp3d_camera.GetModelString());
-    if(plain) {
-        output->printLN("");
-    } else {
-        output->print("\"");
-    }
+        //camera ID
+        if (json) {
+            line+=",\"CameraID\":\"";
+        } else {
+            line+= "Camera ID:";
+        }
+        line+=esp3d_camera.GetModel();
+        if (json) {
+            line +="\"";
+            output->print (line.c_str());
+        } else {
+            output->printMSGLine(line.c_str());
+        }
+        line="";
+        //camera Name
+        if (json) {
+            line+=",\"CameraName\":\"";
+        } else {
+            line+= "Camera name:";
+        }
+        line+=esp3d_camera.GetModelString();
+        if (json) {
+            line +="\"";
+            output->print (line.c_str());
+        } else {
+            output->printMSGLine(line.c_str());
+        }
+        line="";
 #endif //CAMERA_DEVICE
-    //final
-    if(!plain) {
-        output->printLN("}");
+
+        if(json) {
+            output->printLN("}}");
+        }
+        return true;
     }
-    return response;
+    if (noError) {
+        if (json) {
+            output->printLN (response.c_str() );
+        } else {
+            output->printMSG (response.c_str() );
+        }
+    } else {
+        output->printERROR(response.c_str(), errorCode);
+    }
+    return noError;
 }
 

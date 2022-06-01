@@ -43,6 +43,18 @@ void WebSocket_Server::pushMSG (const char * data)
     }
 }
 
+void WebSocket_Server::enableOnly (uint num)
+{
+    //some sanity check
+    if (_websocket_server) {
+        for (uint8_t i=0; i<WEBSOCKETS_SERVER_CLIENT_MAX; i++)
+            if(i!=num && _websocket_server->clientIsConnected(i)) {
+                _websocket_server->disconnect(i);
+            }
+    }
+}
+
+
 void WebSocket_Server::pushMSG (uint num, const char * data)
 {
     if (_websocket_server) {
@@ -102,6 +114,7 @@ void handle_Websocket_Terminal_Event(uint8_t num, uint8_t type, uint8_t * payloa
         websocket_terminal_server.pushMSG(num, msg.c_str());
         msg = "activeID:" + String(num);
         websocket_terminal_server.pushMSG(msg.c_str());
+        websocket_terminal_server.enableOnly(num);
         log_esp3d("[%u] Socket connected port %d", num,websocket_terminal_server.port());
     }
     break;

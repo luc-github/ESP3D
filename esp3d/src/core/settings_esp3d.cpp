@@ -63,7 +63,7 @@
 
 //default byte values
 #ifdef WIFI_FEATURE
-#define DEFAULT_STA_FALLBACK_MODE  ESP_WIFI_AP
+#define DEFAULT_STA_FALLBACK_MODE  ESP_AP_SETUP
 #if defined(STATION_WIFI_SSID) && defined(STATION_WIFI_PASSWORD)
 #define DEFAULT_ESP_RADIO_MODE  ESP_WIFI_STA
 #else
@@ -203,10 +203,16 @@ bool Settings_ESP3D::isVerboseBoot(bool fromsettings)
 
 uint8_t Settings_ESP3D::GetFirmwareTarget(bool fromsettings)
 {
+#if defined( FIXED_FW_TARGET )
+    (void)fromsettings;
+    _FirmwareTarget = FIXED_FW_TARGET;
+#else
     if(fromsettings) {
         _FirmwareTarget = read_byte (ESP_TARGET_FW);
     }
+#endif //#if defined( FIXED_FW_TARGET )
     return _FirmwareTarget;
+
 }
 
 uint8_t Settings_ESP3D::GetSDDevice()
@@ -221,12 +227,13 @@ uint8_t Settings_ESP3D::GetSDDevice()
 const char* Settings_ESP3D::GetFirmwareTargetShortName()
 {
     static String response;
+
     if  ( _FirmwareTarget == REPETIER) {
         response = F ("repetier");
     } else if ( _FirmwareTarget == MARLIN) {
         response = F ("marlin");
-    } else if ( _FirmwareTarget == MARLINKIMBRA) {
-        response = F ("marlinkimbra");
+    } else if ( _FirmwareTarget == MARLIN_EMBEDDED) {
+        response = F ("marlin");
     } else if ( _FirmwareTarget == SMOOTHIEWARE) {
         response = F ("smoothieware");
     } else if ( _FirmwareTarget == GRBL) {
@@ -248,9 +255,11 @@ uint8_t Settings_ESP3D::get_default_byte_value(int pos)
     case ESP_STA_FALLBACK_MODE:
         res = DEFAULT_STA_FALLBACK_MODE;
         break;
+#if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
     case ESP_SECURE_SERIAL:
         res = DEFAULT_SECURE_SERIAL;
         break;
+#endif //#if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
     case ESP_RADIO_MODE:
         res = DEFAULT_ESP_RADIO_MODE;
         break;
@@ -296,8 +305,8 @@ uint8_t Settings_ESP3D::get_default_byte_value(int pos)
     case ESP_SERIAL_FLAG:
         res = DEFAULT_SERIAL_OUTPUT_FLAG;
         break;
-    case ESP_PRINTER_LCD_FLAG:
-        res = DEFAULT_PRINTER_LCD_FLAG;
+    case ESP_REMOTE_SCREEN_FLAG:
+        res = DEFAULT_REMOTE_SCREEN_FLAG;
         break;
     case ESP_WEBSOCKET_FLAG:
         res = DEFAULT_WEBSOCKET_FLAG;
@@ -308,8 +317,8 @@ uint8_t Settings_ESP3D::get_default_byte_value(int pos)
     case ESP_BT_FLAG:
         res = DEFAULT_BT_FLAG;
         break;
-    case ESP_LCD_FLAG:
-        res = DEFAULT_LCD_FLAG;
+    case ESP_SCREEN_FLAG:
+        res = DEFAULT_SCREEN_FLAG;
         break;
 #ifdef FTP_FEATURE
     case ESP_FTP_ON:
@@ -1110,7 +1119,9 @@ bool Settings_ESP3D::reset(bool networkonly)
     //Verbose boot
     Settings_ESP3D::write_byte(ESP_VERBOSE_BOOT,Settings_ESP3D::get_default_byte_value(ESP_VERBOSE_BOOT));
     //Secure Serial
+#if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
     Settings_ESP3D::write_byte(ESP_SECURE_SERIAL,Settings_ESP3D::get_default_byte_value(ESP_SECURE_SERIAL));
+#endif //COMMUNICATION PROTOCOL
 #if defined(DISPLAY_DEVICE) && defined(DISPLAY_TOUCH_DRIVER)
     //Calibration done (internal only)
     Settings_ESP3D::write_byte(ESP_CALIBRATION,Settings_ESP3D::get_default_byte_value(ESP_CALIBRATION));
@@ -1192,11 +1203,11 @@ bool Settings_ESP3D::reset(bool networkonly)
     Settings_ESP3D::write_byte(ESP_TARGET_FW,Settings_ESP3D::get_default_byte_value(ESP_TARGET_FW));
     //Output flags
     Settings_ESP3D::write_byte(ESP_SERIAL_FLAG,Settings_ESP3D::get_default_byte_value(ESP_SERIAL_FLAG));
-    Settings_ESP3D::write_byte(ESP_PRINTER_LCD_FLAG,Settings_ESP3D::get_default_byte_value(ESP_PRINTER_LCD_FLAG));
+    Settings_ESP3D::write_byte(ESP_REMOTE_SCREEN_FLAG,Settings_ESP3D::get_default_byte_value(ESP_REMOTE_SCREEN_FLAG));
     Settings_ESP3D::write_byte(ESP_WEBSOCKET_FLAG,Settings_ESP3D::get_default_byte_value(ESP_WEBSOCKET_FLAG));
     Settings_ESP3D::write_byte(ESP_TELNET_FLAG,Settings_ESP3D::get_default_byte_value(ESP_TELNET_FLAG));
     Settings_ESP3D::write_byte(ESP_BT_FLAG,Settings_ESP3D::get_default_byte_value(ESP_BT_FLAG));
-    Settings_ESP3D::write_byte(ESP_LCD_FLAG,Settings_ESP3D::get_default_byte_value(ESP_LCD_FLAG));
+    Settings_ESP3D::write_byte(ESP_SCREEN_FLAG,Settings_ESP3D::get_default_byte_value(ESP_SCREEN_FLAG));
 #ifdef SD_DEVICE
     //SPI SD Divider
     Settings_ESP3D::write_byte(ESP_SD_SPEED_DIV,Settings_ESP3D::get_default_byte_value(ESP_SD_SPEED_DIV));

@@ -24,42 +24,57 @@
 #include "../settings_esp3d.h"
 #include "../../modules/filesystem/esp_sd.h"
 #include "../../modules/authentication/authentication_service.h"
+#define COMMANDID   202
 //Get/Set SD card Speed factor 1 2 4 6 8 16 32
-//[ESP202]SPEED=<value>pwd=<user/admin password>
+//[ESP202]SPEED=<value> json=<no> pwd=<user/admin password>
 bool Commands::ESP202(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
-    (void)cmd_params;
+    bool noError = true;
+    bool json = has_tag (cmd_params, "json");
+    String response;
+    String parameter;
+    int errorCode = 200; //unless it is a server error use 200 as default and set error in json instead
 #ifdef AUTHENTICATION_FEATURE
     if (auth_type == LEVEL_GUEST) {
-        output->printERROR("Wrong authentication!", 401);
-        return false;
+        response = format_response(COMMANDID, json, false, "Guest user can't use this command");
+        noError = false;
+        errorCode = 401;
     }
 #else
     (void)auth_type;
 #endif //AUTHENTICATION_FEATURE
-    bool response = true;
-    String parameter;
-    parameter = get_param (cmd_params, "");
-    //get
-    if (parameter.length() == 0) {
-        String r = "SPEED="  + String(Settings_ESP3D::read_byte (ESP_SD_SPEED_DIV));
-        output->printMSG (r.c_str());
-    } else { //set
-        parameter = get_param (cmd_params, "SPEED=");
-        if ((parameter == "1") || (parameter == "2") || (parameter == "4")|| (parameter == "6")|| (parameter == "8")|| (parameter == "16")|| (parameter == "32")) {
-            if (!Settings_ESP3D::write_byte (ESP_SD_SPEED_DIV, parameter.toInt())) {
-                response = false;
-                output->printERROR ("Set failed!");
+    if (noError) {
+        parameter = clean_param(get_param (cmd_params, ""));
+        //get
+        if (parameter.length() == 0) {
+            response = format_response(COMMANDID, json, true, String(Settings_ESP3D::read_byte (ESP_SD_SPEED_DIV)).c_str());
+        } else { //set
+            parameter = get_param (cmd_params, "SPEED=");
+            if ((parameter == "1") || (parameter == "2") || (parameter == "4")|| (parameter == "6")|| (parameter == "8")|| (parameter == "16")|| (parameter == "32")) {
+                if (!Settings_ESP3D::write_byte (ESP_SD_SPEED_DIV, parameter.toInt())) {
+                    response = format_response(COMMANDID, json, false, "Set failed");
+                    noError = false;
+
+                } else {
+                    ESP_SD::setSPISpeedDivider(parameter.toInt());
+                    response = format_response(COMMANDID, json, true, "ok");
+                }
             } else {
-                ESP_SD::setSPISpeedDivider(parameter.toInt());
-                output->printMSG ("ok");
+                response = format_response(COMMANDID, json, false, "Invalid parameter");
+                noError = false;
             }
-        } else {
-            output->printERROR ("Invalid parameter!");
-            response = false;
         }
     }
-    return response;
+    if (noError) {
+        if (json) {
+            output->printLN (response.c_str() );
+        } else {
+            output->printMSG (response.c_str() );
+        }
+    } else {
+        output->printERROR(response.c_str(), errorCode);
+    }
+    return noError;
 }
 
 #endif //SD_DEVICE

@@ -4,6 +4,12 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Chrome, Firefox OS and Opera -->
+    <meta name="theme-color" content="#5755d9">
+    <!-- Windows Phone -->
+    <meta name="msapplication-navbutton-color" content="#5755d9">
+    <!-- iOS Safari -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="#5755d9">
     <title>Document</title>
   </head>
   <body>
@@ -29,6 +35,8 @@
         <div class="controlBar">
           <input
             class="formControl"
+            spellcheck="false" 
+            autocorrect="off" 
             autocomplete="off"
             type="text"
             value=""
@@ -44,7 +52,7 @@
       </div>
     </div>
     <div id="fileSystem" class="panel hide">
-      <div id="fileSystemHeader" class="panel-header">Filesystem</div>
+      <div id="fileSystemHeader" class="panel-header">FileSystem</div>
       <div id="fileSystemBody" class="panel-body no-footer">
         <div class="controlBar">
           <input class="hide" type="file" value="" id="files" multiple />
@@ -94,16 +102,18 @@
         <div class="modal-body">
           <div class="controlBar">
             <div class="label">User:</div>
-            <input type="text" id="loginInput" />
+            <input type="text" id="loginInput" spellcheck="false" autocorrect="off" autocomplete="off" />
           </div>
           <hr />
           <div class="controlBar">
             <div class="label">Password:</div>
-            <input type="password" id="passwordInput" />
+            <input type="password" id="passwordInput" spellcheck="false" autocorrect="off" autocomplete="off"/>
           </div>
         </div>
+        <div id="loginMsg" class="hide text-error-login">Invalid user or password</div>
         <div class="modal-footer">
-          <button type="button" class="btn" id="loginbutton">Login</button>
+          <button type="button" class="btn m-1" id="disconnectbutton">Disconnect</button>
+          <button type="button" class="btn m-1" id="loginbutton">Login</button>
         </div>
       </div>
     </div>

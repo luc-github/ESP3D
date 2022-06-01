@@ -24,44 +24,63 @@
 #include "../settings_esp3d.h"
 #include "../../modules/authentication/authentication_service.h"
 //Set SD Check at boot state which can be ON, OFF
-//[ESP402]<state>pwd=<admin password>
+//[ESP402]<state> json=<no> pwd=<admin password>
+#define COMMANDID   402
 bool Commands::ESP402(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
-    bool response = true;
+    bool noError = true;
+    bool json = has_tag (cmd_params, "json");
+    String response;
     String parameter;
+    int errorCode = 200; //unless it is a server error use 200 as default and set error in json instead
+
 #ifdef AUTHENTICATION_FEATURE
     if (auth_type == LEVEL_GUEST) {
-        output->printERROR("Wrong authentication!", 401);
-        return false;
+        response = format_response(COMMANDID, json, false, "Guest user can't use this command");
+        noError = false;
+        errorCode = 401;
     }
 #else
     (void)auth_type;
 #endif //AUTHENTICATION_FEATURE
-    parameter = get_param (cmd_params, "");
-    //get
-    if (parameter.length() == 0) {
-        output->printMSG((Settings_ESP3D::read_byte(ESP_SD_CHECK_UPDATE_AT_BOOT) == 0)?"OFF":"ON");
-    } else { //set
+    if (noError) {
+        parameter = clean_param(get_param (cmd_params, ""));
+        if (parameter.length() == 0) {
+            response = format_response(COMMANDID, json, true, (Settings_ESP3D::read_byte(ESP_SD_CHECK_UPDATE_AT_BOOT) == 0)?"OFF":"ON");
+        } else { //set
 #ifdef AUTHENTICATION_FEATURE
-        if (auth_type != LEVEL_ADMIN) {
-            output->printERROR("Wrong authentication!", 401);
-            return false;
-        }
-#endif //AUTHENTICATION_FEATURE
-        parameter.toUpperCase();
-        if (!((parameter == "ON") || (parameter == "OFF"))) {
-            output->printERROR("Only ON or OFF mode supported!");
-            return false;
-        } else {
-            if (!Settings_ESP3D::write_byte (ESP_SD_CHECK_UPDATE_AT_BOOT, (parameter == "ON")?1:0)) {
-                output->printERROR ("Set failed!");
-                response = false;
+            if (auth_type != LEVEL_ADMIN) {
+                response = format_response(COMMANDID, json, false, "Wrong authentication level");
+                noError = false;
+                errorCode = 401;
             }
-
-            output->printMSG ("ok");
+#endif //AUTHENTICATION_FEATURE
+            if (noError) {
+                parameter.toUpperCase();
+                if (!((parameter == "ON") || (parameter == "OFF"))) {
+                    response = format_response(COMMANDID, json, false, "Only ON or OFF mode supported");
+                    noError = false;
+                } else {
+                    if (!Settings_ESP3D::write_byte (ESP_SD_CHECK_UPDATE_AT_BOOT, (parameter == "ON")?1:0)) {
+                        response = format_response(COMMANDID, json, false, "Set failed");
+                        noError = false;
+                    } else {
+                        response = format_response(COMMANDID, json, true, "ok");
+                    }
+                }
+            }
         }
     }
-    return response;
+    if (noError) {
+        if (json) {
+            output->printLN (response.c_str() );
+        } else {
+            output->printMSG (response.c_str() );
+        }
+    } else {
+        output->printERROR(response.c_str(), errorCode);
+    }
+    return noError;
 }
 
 #endif //SD_UPDATE_FEATURE

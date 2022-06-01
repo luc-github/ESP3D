@@ -27,84 +27,174 @@
 #ifdef FILESYSTEM_TIMESTAMP_FEATURE
 #include "../../modules/time/time_server.h"
 #endif //FILESYSTEM_TIMESTAMP_FEATURE
-
+#define COMMANDID   720
 //List ESP Filesystem
-//[ESP720]<Root> pwd=<admin password>
+//[ESP720]<Root> json=<no> pwd=<admin password>
 bool Commands::ESP720(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
-    bool response = true;
+    bool noError = true;
+    bool json = has_tag (cmd_params, "json");
+    String response;
     String parameter;
-    parameter = get_param (cmd_params, "");
+    int errorCode = 200; //unless it is a server error use 200 as default and set error in json instead
 #ifdef AUTHENTICATION_FEATURE
     if (auth_type != LEVEL_ADMIN) {
-        output->printERROR("Wrong authentication!", 401);
-        return false;
+        response = format_response(COMMANDID, json, false, "Wrong authentication level");
+        noError = false;
+        errorCode = 401;
     }
 #else
     (void)auth_type;
 #endif //AUTHENTICATION_FEATURE
-    if (parameter.length() == 0) {
-        parameter = "/";
-    }
-    output->printf("Directory on FS : %s", parameter.c_str());
-    output->printLN("");
-    if (ESP_FileSystem::exists(parameter.c_str())) {
-        ESP_File f ;
-        f = ESP_FileSystem::open(parameter.c_str(), ESP_FILE_READ);
-        uint countf = 0;
-        uint countd = 0;
-        if (f) {
-            //Check directories
-            ESP_File sub;
-            sub = f.openNextFile();
-            while (sub) {
-                if (sub.isDirectory()) {
-                    countd++;
-                    output->print("<DIR> \t");
-                    output->print(sub.name());
-                    output->print(" \t");
-                    output->printLN("");
-                }
-                sub.close();
-                sub = f.openNextFile();
-            }
-            f.close();
+    if (noError) {
+        parameter = clean_param(get_param (cmd_params, ""));
+        if (parameter.length() == 0) {
+            parameter = "/";
+        }
+
+        if (ESP_FileSystem::exists(parameter.c_str())) {
+            String line = "";
+            ESP_File f ;
             f = ESP_FileSystem::open(parameter.c_str(), ESP_FILE_READ);
-            //Check files
-            sub = f.openNextFile();
-            while (sub) {
-                if (!sub.isDirectory()) {
-                    countf++;
-                    output->print("      \t");
-                    output->print(sub.name());
-                    output->print(" \t");
-                    output->print(ESP_FileSystem::formatBytes(sub.size()).c_str());
-                    output->print(" \t");
-#ifdef FILESYSTEM_TIMESTAMP_FEATURE
-                    output->print(timeserver.current_time(sub.getLastWrite()));
-                    output->print(" \t");
-#endif //FILESYSTEM_TIMESTAMP_FEATURE              
-                    output->printLN("");
+            uint countf = 0;
+            uint countd = 0;
+            if (f) {
+                if(json) {
+                    line = "{\"cmd\":\"720\",\"status\":\"ok\",\"data\":{\"path\":\"" + parameter + "\",\"files\":[";
+                    output->print (line.c_str());
+                } else {
+                    line = "Directory on FS : " + parameter;
+                    output->printMSGLine(line.c_str());
                 }
-                sub.close();
+                //Check directories
+                ESP_File sub;
                 sub = f.openNextFile();
+                while (sub) {
+                    if (sub.isDirectory()) {
+                        line="";
+                        countd++;
+                        if (json) {
+                            line="";
+                            if (countd > 1) {
+                                line += ",";
+                            }
+                            line += "{\"name\":\"" ;
+                            line+=sub.name() ;
+                            line+= "\",\"size\":\"-1\"}";
+                        } else {
+                            line = "[DIR] \t";
+                            line+= sub.name();
+                        }
+                        if (json) {
+                            output->print (line.c_str());
+                        } else {
+                            output->printMSGLine(line.c_str());
+                        }
+                    }
+                    sub.close();
+                    sub = f.openNextFile();
+                }
+                f.close();
+                f = ESP_FileSystem::open(parameter.c_str(), ESP_FILE_READ);
+                //Check files
+                sub = f.openNextFile();
+                while (sub) {
+                    if (!sub.isDirectory()) {
+                        countf++;
+                        String time = "";
+                        line="";
+#ifdef FILESYSTEM_TIMESTAMP_FEATURE
+                        time = timeserver.current_time(sub.getLastWrite());
+#endif //FILESYSTEM_TIMESTAMP_FEATURE
+                        if (json) {
+                            line="";
+                            if (countd > 0 || countf>1) {
+                                line += ",";
+                            }
+                            line+= "{\"name\":\"";
+                            line+=sub.name() ;
+                            line+="\",\"size\":\"";
+                            line+=ESP_FileSystem::formatBytes(sub.size());
+                            if (time.length() > 0) {
+                                line += "\",\"time\":\"";
+                                line += time;
+                            }
+                            line+="\"}";
+                        } else {
+                            line+="     \t ";
+                            line+=sub.name();
+                            line+=" \t";
+                            line+=ESP_FileSystem::formatBytes(sub.size());
+                            line+=" \t";
+                            line+=time;
+                        }
+                        if (json) {
+                            output->print (line.c_str());
+                        } else {
+                            output->printMSGLine(line.c_str());
+                        }
+                    }
+                    sub.close();
+                    sub = f.openNextFile();
+                }
+                f.close();
+
+                if (json) {
+                    line = "], \"total\":\"";
+                    line += ESP_FileSystem::formatBytes(ESP_FileSystem::totalBytes());
+                    line += "\",\"used\":\"";
+                    line += ESP_FileSystem::formatBytes(ESP_FileSystem::usedBytes());
+                    line+="\",\"occupation\":\"";
+                    uint64_t total =ESP_FileSystem::totalBytes();
+                    if (total==0) {
+                        total=1;
+                    }
+                    float occupation = 100.0*ESP_FileSystem::usedBytes()/total;
+                    if ((occupation < 1) && (ESP_FileSystem::usedBytes()>0)) {
+                        occupation=1;
+                    }
+                    line+= String((int)round(occupation));
+                    line+="\"}}";
+                    output->printLN (line.c_str());
+                } else {
+                    line =String(countf) + " file";
+                    if (countf > 1) {
+                        line += "s";
+                    }
+                    line += " , " + String(countd) + " dir";
+                    if (countd > 1) {
+                        line += "s";
+                    }
+                    output->printMSGLine(line.c_str());
+                    line = "Total ";
+                    line+=ESP_FileSystem::formatBytes(ESP_FileSystem::totalBytes());
+                    line+=", Used ";
+                    line+=ESP_FileSystem::formatBytes(ESP_FileSystem::usedBytes());
+                    line+=", Available: ";
+                    line+=ESP_FileSystem::formatBytes(ESP_FileSystem::freeBytes());
+                    output->printMSGLine(line.c_str());
+                }
+
+                return true;
+            } else {
+                response = format_response(COMMANDID, json, false, "Invalid directory");
+                noError = false;
             }
-            f.close();
-            output->printf("%d file%s, %d dir%s", countf, (countf > 1)?"(s)":"", countd, (countd > 1)?"(s)":"");
-            output->printLN("");
-            String t = ESP_FileSystem::formatBytes(ESP_FileSystem::totalBytes());
-            String u = ESP_FileSystem::formatBytes(ESP_FileSystem::usedBytes());
-            String f = ESP_FileSystem::formatBytes(ESP_FileSystem::freeBytes());
-            output->printf("Total %s, Used %s, Available: %s", t.c_str(), u.c_str(),f.c_str());
-            output->printLN("");
         } else {
-            output->printERROR ("Invalid directory!");
+            response = format_response(COMMANDID, json, false, "Invalid directory");
+            noError = false;
+        }
+    }
+    if (noError) {
+        if (json) {
+            output->printLN (response.c_str() );
+        } else {
+            output->printMSG (response.c_str() );
         }
     } else {
-        output->printERROR ("Invalid directory!");
-        response = false;
+        output->printERROR(response.c_str(), errorCode);
     }
-    return response;
+    return noError;
 }
 
 #endif //FILESYSTEM_FEATURE

@@ -134,11 +134,9 @@ bool EthConfig::begin(int8_t & espMode)
         Hal::wait(1000);
         stmp +=".";
         output.printMSG (stmp.c_str());
-        ESP3DGlobalOutput::SetStatus(stmp.c_str());
     }
     if (!ETH.linkUp()) {
         output.printMSG ("Cable disconnected");
-        ESP3DGlobalOutput::SetStatus("Cable disconnected");
     }
     return res;
 }

@@ -36,25 +36,27 @@
 #include "../../core/settings_esp3d.h"
 #include "../../core/esp3doutput.h"
 #include "../network/netconfig.h"
+#include <WiFiClientSecure.h>
 
 #if defined( ARDUINO_ARCH_ESP8266)
-#include <WiFiClientSecure.h>
-typedef WiFiClientSecure TSecureClient;
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
 #include <libb64/cdecode.h>
 #endif //ARDUINO_ARCH_ESP8266
 
 #if defined(ARDUINO_ARCH_ESP32)
-#include <WiFiClientSecure.h>
-typedef WiFiClientSecure TSecureClient;
 #include <WiFi.h>
 #include <HTTPClient.h>
 extern "C" {
 #include "libb64/cdecode.h"
 }
 #endif //ARDUINO_ARCH_ESP32
-
+#if defined (HTTP_FEATURE) || defined(WS_DATA_FEATURE)
+#include "../websocket/websocket_server.h"
+#endif //HTTP_FEATURE || WS_DATA_FEATURE
+#if defined (DISPLAY_DEVICE)
+#include "../display/display.h"
+#endif //DISPLAY_DEVICE
 #include <base64.h>
 
 #define PUSHOVERTIMEOUT 5000
@@ -69,11 +71,29 @@ extern "C" {
 #define TELEGRAMSERVER "api.telegram.org"
 #define TELEGRAMPORT    443
 
+#define IFTTTTIMEOUT 5000
+#define IFTTTSERVER "maker.ifttt.com"
+#define IFTTTPORT    443
+
 #define EMAILTIMEOUT 5000
 
 NotificationsService notificationsservice;
 
-bool Wait4Answer(TSecureClient & client, const char * linetrigger, const char * expected_answer,  uint32_t timeout)
+#if defined(ARDUINO_ARCH_ESP8266)
+void NotificationsService::BearSSLSetup(WiFiClientSecure & Notificationclient)
+{
+    if (Notificationclient.probeMaxFragmentLength(_serveraddress.c_str(), _port, BEARSSL_MFLN_SIZE)) {
+        log_esp3d("Handshake success");
+        Notificationclient.setBufferSizes(BEARSSL_MFLN_SIZE, 512);
+    } else {
+        log_esp3d("Handshake failed");
+        Notificationclient.setBufferSizes(BEARSSL_MFLN_SIZE_FALLBACK, 512);
+    }
+}
+#endif //ARDUINO_ARCH_ESP8266
+
+//TODO: put error in variable to allow better error handling
+bool NotificationsService::Wait4Answer(WiFiClientSecure & client, const char * linetrigger, const char * expected_answer,  uint32_t timeout)
 {
     if(client.connected()) {
         String answer;
@@ -152,6 +172,8 @@ const char * NotificationsService::getTypeString()
         return "line";
     case ESP_TELEGRAM_NOTIFICATION:
         return "telegram";
+    case ESP_IFTTT_NOTIFICATION:
+        return "IFTTT";
     default:
         break;
     }
@@ -165,6 +187,16 @@ bool NotificationsService::sendMSG(const char * title, const char * message)
         return false;
     }
     if (!((strlen(title) == 0) && (strlen(message) == 0))) {
+        //push to webui by default
+#if defined (HTTP_FEATURE) || defined(WS_DATA_FEATURE)
+        String msg = "NOTIFICATION:";
+
+        msg += message;
+        websocket_terminal_server.pushMSG(msg.c_str());
+#endif //HTTP_FEATURE || WS_DATA_FEATURE
+#ifdef DISPLAY_DEVICE
+        esp3d_display.setStatus(message);
+#endif //DISPLAY_DEVICE
         switch(_notificationType) {
         case ESP_PUSHOVER_NOTIFICATION:
             return sendPushoverMSG(title,message);
@@ -178,14 +210,18 @@ bool NotificationsService::sendMSG(const char * title, const char * message)
         case ESP_TELEGRAM_NOTIFICATION :
             return sendTelegramMSG(title,message);
             break;
+        case ESP_IFTTT_NOTIFICATION :
+            return sendIFTTTMSG(title,message);
+            break;
         default:
             break;
         }
     }
-    return false;
+    return true;
 }
 //Messages are currently limited to 1024 4-byte UTF-8 characters
 //but we do not do any check
+//TODO: put error in variable to allow better error handling
 bool NotificationsService::sendPushoverMSG(const char * title, const char * message)
 {
     String data;
@@ -193,17 +229,11 @@ bool NotificationsService::sendPushoverMSG(const char * title, const char * mess
     bool res;
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-    TSecureClient Notificationclient;
+    WiFiClientSecure Notificationclient;
 #pragma GCC diagnostic pop
     Notificationclient.setInsecure();
 #if defined(ARDUINO_ARCH_ESP8266)
-    if (Notificationclient.probeMaxFragmentLength(_serveraddress.c_str(), _port, BEARSSL_MFLN_SIZE)) {
-        log_esp3d("Handshake success");
-        Notificationclient.setBufferSizes(BEARSSL_MFLN_SIZE, 512);
-    } else {
-        log_esp3d("Handshake failed");
-        Notificationclient.setBufferSizes(BEARSSL_MFLN_SIZE_FALLBACK, 512);
-    }
+    BearSSLSetup(Notificationclient);
 #endif //ARDUINO_ARCH_ESP8266
     if (!Notificationclient.connect(_serveraddress.c_str(), _port)) {
         log_esp3d("Error connecting  server %s:%d", _serveraddress.c_str(), _port);
@@ -234,6 +264,7 @@ bool NotificationsService::sendPushoverMSG(const char * title, const char * mess
 }
 
 //Telegram
+//TODO: put error in variable to allow better error handling
 bool NotificationsService::sendTelegramMSG(const char * title, const char * message)
 {
     String data;
@@ -241,17 +272,11 @@ bool NotificationsService::sendTelegramMSG(const char * title, const char * mess
     bool res;
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-    TSecureClient Notificationclient;
+    WiFiClientSecure Notificationclient;
 #pragma GCC diagnostic pop
     Notificationclient.setInsecure();
 #if defined(ARDUINO_ARCH_ESP8266)
-    if (Notificationclient.probeMaxFragmentLength(_serveraddress.c_str(), _port, BEARSSL_MFLN_SIZE)) {
-        log_esp3d("Handshake success");
-        Notificationclient.setBufferSizes(BEARSSL_MFLN_SIZE, 512);
-    } else {
-        log_esp3d("Handshake failed");
-        Notificationclient.setBufferSizes(BEARSSL_MFLN_SIZE_FALLBACK, 512);
-    }
+    BearSSLSetup(Notificationclient);
 #endif //ARDUINO_ARCH_ESP8266
     if (!Notificationclient.connect(_serveraddress.c_str(), _port)) {
         log_esp3d("Error connecting  server %s:%d", _serveraddress.c_str(), _port);
@@ -279,21 +304,16 @@ bool NotificationsService::sendTelegramMSG(const char * title, const char * mess
     return res;
 }
 
+//TODO: put error in variable to allow better error handling
 bool NotificationsService::sendEmailMSG(const char * title, const char * message)
 {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-    TSecureClient Notificationclient;
+    WiFiClientSecure Notificationclient;
 #pragma GCC diagnostic pop
     Notificationclient.setInsecure();
 #if defined(ARDUINO_ARCH_ESP8266)
-    if (Notificationclient.probeMaxFragmentLength(_serveraddress.c_str(), _port, BEARSSL_MFLN_SIZE)) {
-        log_esp3d("Handshake success");
-        Notificationclient.setBufferSizes(BEARSSL_MFLN_SIZE, 512);
-    } else {
-        log_esp3d("Handshake failed");
-        Notificationclient.setBufferSizes(BEARSSL_MFLN_SIZE_FALLBACK, 512);
-    }
+    BearSSLSetup(Notificationclient);
 #endif //ARDUINO_ARCH_ESP8266
     log_esp3d("Connect to server");
     if (!Notificationclient.connect(_serveraddress.c_str(), _port)) {
@@ -386,17 +406,11 @@ bool NotificationsService::sendLineMSG(const char * title, const char * message)
     bool res;
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-    TSecureClient Notificationclient;
+    WiFiClientSecure Notificationclient;
 #pragma GCC diagnostic pop
     Notificationclient.setInsecure();
 #if defined(ARDUINO_ARCH_ESP8266)
-    if (Notificationclient.probeMaxFragmentLength(_serveraddress.c_str(), _port, BEARSSL_MFLN_SIZE)) {
-        log_esp3d("Handshake success");
-        Notificationclient.setBufferSizes(BEARSSL_MFLN_SIZE, 512);
-    } else {
-        log_esp3d("Handshake failed");
-        Notificationclient.setBufferSizes(BEARSSL_MFLN_SIZE_FALLBACK, 512);
-    }
+    BearSSLSetup(Notificationclient);
 #endif //ARDUINO_ARCH_ESP8266
     (void)title;
     if (!Notificationclient.connect(_serveraddress.c_str(), _port)) {
@@ -421,6 +435,50 @@ bool NotificationsService::sendLineMSG(const char * title, const char * message)
     Notificationclient.stop();
     return res;
 }
+
+//IFTTT
+bool NotificationsService::sendIFTTTMSG(const char * title, const char * message)
+{
+    String data;
+    String postcmd;
+    bool res;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+    WiFiClientSecure Notificationclient;
+#pragma GCC diagnostic pop
+    Notificationclient.setInsecure();
+#if defined(ARDUINO_ARCH_ESP8266)
+    BearSSLSetup(Notificationclient);
+#endif //ARDUINO_ARCH_ESP8266
+    (void)title;
+    if (!Notificationclient.connect(_serveraddress.c_str(), _port)) {
+        log_esp3d("Error connecting  server %s:%d", _serveraddress.c_str(), _port);
+        return false;
+    }
+
+    //build data for post
+
+    data ="value1=";
+    data += title;
+    data += "&value2=";
+    data += message;
+    data += "&value3=";
+    data += NetConfig::hostname();
+
+    //build post query
+    postcmd  = "POST /trigger/" + _token1 + "/with/key/" + _token2 + "  HTTP/1.1\r\nHost: maker.ifttt.com\r\nConnection: close\r\nCache-Control: no-cache\r\nUser-Agent: ESP3D\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: ";
+    postcmd  += data.length();
+    postcmd  +="\r\n\r\n";
+    postcmd  +=data;
+
+    //log_esp3d("Query: %s", postcmd.c_str());
+    //send query
+    Notificationclient.print(postcmd);
+    res = Wait4Answer(Notificationclient, "Congratulations", "Congratulations",  IFTTTTIMEOUT);
+    Notificationclient.stop();
+    return res;
+}
+
 //Email#serveraddress:port
 bool NotificationsService::getPortFromSettings()
 {
@@ -503,6 +561,7 @@ bool NotificationsService::begin()
     _notificationType = Settings_ESP3D::read_byte(ESP_NOTIFICATION_TYPE);
     switch(_notificationType) {
     case 0: //no notification = no error but no start
+        _started=true;
         return true;
     case ESP_PUSHOVER_NOTIFICATION:
         _token1 = Settings_ESP3D::read_string(ESP_NOTIFICATION_TOKEN1);
@@ -520,6 +579,12 @@ bool NotificationsService::begin()
         _token1 = Settings_ESP3D::read_string(ESP_NOTIFICATION_TOKEN1);
         _port = LINEPORT;
         _serveraddress = LINESERVER;
+        break;
+    case ESP_IFTTT_NOTIFICATION:
+        _token1 = Settings_ESP3D::read_string(ESP_NOTIFICATION_TOKEN1);
+        _token2 = Settings_ESP3D::read_string(ESP_NOTIFICATION_TOKEN2);
+        _port = IFTTTPORT;
+        _serveraddress = IFTTTSERVER;
         break;
     case ESP_EMAIL_NOTIFICATION:
         _token1 = base64::encode(Settings_ESP3D::read_string(ESP_NOTIFICATION_TOKEN1));

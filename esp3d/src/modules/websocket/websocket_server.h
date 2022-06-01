@@ -71,6 +71,7 @@ public:
     void set_currentID(uint8_t current_id);
     uint8_t get_currentID();
     void closeClients();
+    void enableOnly (uint num);
     bool started()
     {
         return _started;

@@ -1,5 +1,5 @@
 /*
-sd_native_esp8266.cpp - ESP3D sd support class
+sd_sdfat_esp8266.cpp - ESP3D sd support class
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -94,7 +94,6 @@ uint8_t ESP_SD::getState(bool refresh)
     }
     //SD is idle or not detected, let see if still the case
     _state = ESP_SDCARD_NOT_PRESENT;
-    bool isactive = accessSD();
     //refresh content if card was removed
     if (SD.begin((ESP_SD_CS_PIN == -1)?SS:ESP_SD_CS_PIN, SD_SCK_HZ(F_CPU/_spi_speed_divider))) {
         log_esp3d("Init SD State ok");
@@ -108,9 +107,6 @@ uint8_t ESP_SD::getState(bool refresh)
         log_esp3d("Init SD State failed");
     }
     log_esp3d("SD State is %d", _state);
-    if (!isactive) {
-        releaseSD();
-    }
     return _state;
 }
 
@@ -146,30 +142,40 @@ void ESP_SD::end()
     _started = false;
 }
 
-uint64_t ESP_SD::totalBytes()
+void ESP_SD::refreshStats(bool force)
 {
-    uint64_t volTotal = SD.vol()->clusterCount();
-    uint8_t blocks = SD.vol()->blocksPerCluster();
-    return volTotal * blocks * 512;
+    if (force || _sizechanged) {
+        usedBytes(true);
+    }
+    _sizechanged = false;
 }
 
-uint64_t ESP_SD::usedBytes()
+uint64_t ESP_SD::totalBytes(bool refresh)
 {
-    if(freeBytes() >totalBytes() ) {
-        _sizechanged = true;
+    static uint64_t _totalBytes = 0;
+    if (refresh || _totalBytes==0) {
+        _totalBytes = SD.vol()->clusterCount();
+        uint8_t blocks = SD.vol()->blocksPerCluster();
+        _totalBytes =  _totalBytes * blocks * 512;
     }
-    return totalBytes() - freeBytes();
+    return _totalBytes;
 }
 
-uint64_t ESP_SD::freeBytes()
+uint64_t ESP_SD::usedBytes(bool refresh)
 {
-    static uint64_t volFree;
-    if (_sizechanged) {
-        volFree = SD.vol()->freeClusterCount();
-        _sizechanged = false;
+    return totalBytes(refresh) - freeBytes(refresh);
+}
+
+uint64_t ESP_SD::freeBytes(bool refresh)
+{
+    static uint64_t _freeBytes = 0;
+    if (_freeBytes== 0 || refresh) {
+        _freeBytes = SD.vol()->freeClusterCount();
+        uint8_t blocks = SD.vol()->blocksPerCluster();
+        _freeBytes = _freeBytes * blocks * 512;
     }
-    uint8_t blocks = SD.vol()->blocksPerCluster();
-    return volFree * blocks * 512;
+
+    return _freeBytes;
 }
 
 uint ESP_SD::maxPathLength()

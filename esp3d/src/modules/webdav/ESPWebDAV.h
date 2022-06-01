@@ -98,17 +98,40 @@ public:
     {
         transferStatusFn = cb;
     }
+    bool isIgnored (const String& uri)
+    {
+        return _userIgnoreFunction && _userIgnoreFunction(uri);
+    }
+    void setIgnored (std::function<bool(const String& uri)> userFunction)
+    {
+        _userIgnoreFunction = userFunction;
+    }
+
+    const String& getDAVRoot ()
+    {
+        return _davRoot;
+    }
+    void setDAVRoot (const String& davRoot)
+    {
+        _davRoot = davRoot;
+    }
+    void setFsRoot  (const String& fsRoot)
+    {
+        _fsRoot = fsRoot;
+    }
 
     static void stripSlashes(String& name);
     static String date2date(time_t date);
     static String enc2c(const String& encoded);
     static String c2enc(const String& decoded);
+    static void replaceFront (String& str, const String& from, const String& to);
 
 protected:
 
     static int htoi(char c);
     static int hhtoi(const char* c);
     static char itoH(int c);
+    static bool notEncodable (char c);
 
     //XXXFIXME this function must be replaced by some Stream::to()
     size_t readBytesWithTimeout(uint8_t *buf, size_t size);
@@ -195,6 +218,14 @@ protected:
 
     ContentTypeFunction contentTypeFn = nullptr;
     TransferStatusCallback transferStatusFn = nullptr;
+
+    std::function<bool(const String& uri)> _userIgnoreFunction = nullptr;
+
+    // allowing to rewrite DAV root in FS
+    //                  (dav://<server>/<davroot>/path <=> FS://<fsroot>/path)
+    // empty by default (dav://<server>/<davroot>/path <=> FS://<davroot>/path)
+    String      _davRoot;
+    String      _fsRoot;
 };
 
 class ESPWebDAV: public ESPWebDAVCore
@@ -205,6 +236,7 @@ public:
     {
         ESPWebDAVCore::begin();
         this->server = srv;
+        m_persistent = false;
     }
     void end()
     {

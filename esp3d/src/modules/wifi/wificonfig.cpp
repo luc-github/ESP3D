@@ -96,15 +96,19 @@ bool WiFiConfig::isPasswordValid (const char * password)
  * Get WiFi signal strength
  */
 
-int32_t WiFiConfig::getSignal (int32_t RSSI)
+int32_t WiFiConfig::getSignal (int32_t RSSI, bool filter)
 {
-    if (RSSI < MIN_RSSI) {
+    if (RSSI < MIN_RSSI && filter) {
+        return 0;
+    }
+    if (RSSI <= -100 && !filter) {
         return 0;
     }
     if (RSSI >= -50) {
         return 100;
     }
     return (2 * (RSSI + 100) );
+
 }
 
 /*
@@ -147,7 +151,6 @@ bool WiFiConfig::ConnectSTA2AP()
             dot++;
             break;
         }
-        ESP3DGlobalOutput::SetStatus(msg.c_str());
         if (Settings_ESP3D::isVerboseBoot()) {
             output.printMSG(msg.c_str());
             output.flush();
@@ -156,7 +159,6 @@ bool WiFiConfig::ConnectSTA2AP()
         count++;
         status = WiFi.status();
     }
-    ESP3DGlobalOutput::SetStatus("");
     return (status == WL_CONNECTED);
 }
 
@@ -250,9 +252,18 @@ bool WiFiConfig::StartAP(bool setupMode)
     int8_t channel = Settings_ESP3D::read_byte (ESP_AP_CHANNEL);
     //IP
     int32_t IP = Settings_ESP3D::read_IP(ESP_AP_IP_VALUE);
+
     IPAddress ip(IP);
     IPAddress gw(0,0,0,0);
     IPAddress mask(DEFAULT_AP_MASK_VALUE);
+#if defined (ARDUINO_ARCH_ESP8266)
+    log_esp3d("Use: %s / %s / %s", ip.toString().c_str(),ip.toString().c_str(),mask.toString().c_str());
+    if (!WiFi.softAPConfig(ip, setupMode?ip:gw, mask)) {
+        output.printERROR("Set IP to AP failed");
+    } else {
+        output.printMSG(ip.toString().c_str());
+    }
+#endif //ARDUINO_ARCH_ESP8266
     //Start AP
     if(WiFi.softAP(SSID.c_str(), (password.length() > 0)?password.c_str():nullptr, channel)) {
         String stmp = "AP SSID: '" + SSID;
@@ -266,8 +277,11 @@ bool WiFiConfig::StartAP(bool setupMode)
         }
         output.printMSG(stmp.c_str());
         log_esp3d("%s",stmp.c_str());
+#if defined (ARDUINO_ARCH_ESP32)
         //must be done after starting AP not before
-        Hal::wait(100);
+        //https://github.com/espressif/arduino-esp32/issues/4222
+        //on some phone 100 is ok but on some other it is not enough so 2000 is ok
+        Hal::wait(2000);
         //Set static IP
         log_esp3d("Use: %s / %s / %s", ip.toString().c_str(),ip.toString().c_str(),mask.toString().c_str());
         if (!WiFi.softAPConfig(ip, setupMode?ip:gw, mask)) {
@@ -275,7 +289,6 @@ bool WiFiConfig::StartAP(bool setupMode)
         } else {
             output.printMSG(ip.toString().c_str());
         }
-#if defined (ARDUINO_ARCH_ESP32)
         WiFi.setSleep(false);
         WiFi.softAPsetHostname(NetConfig::hostname(true));
 #endif //ARDUINO_ARCH_ESP32

@@ -59,7 +59,7 @@ public:
     static bool StartAP(bool setupMode = false);
     static bool StartSTA();
     static void StopWiFi();
-    static int32_t getSignal (int32_t RSSI);
+    static int32_t getSignal (int32_t RSSI, bool filter=true);
     static const char* getSleepModeString ();
     static const char* getPHYModeString (uint8_t wifimode);
     static bool is_AP_visible();

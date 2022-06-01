@@ -24,35 +24,51 @@
 #include "../settings_esp3d.h"
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/notifications/notifications_service.h"
+#define COMMANDID   620
 //Send Notification using URL
-//[ESP620]URL=<encoded url> [pwd=<admin/user password>]
+//[ESP620]URL=<encoded url> json=<no>[pwd=<admin/user password>]
 bool Commands::ESP620(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
-    bool response = true;
+    bool noError = true;
+    bool json = has_tag (cmd_params, "json");
+    String response;
     String parameter;
+    int errorCode = 200; //unless it is a server error use 200 as default and set error in json instead
 #ifdef AUTHENTICATION_FEATURE
     if (auth_type == LEVEL_GUEST) {
-        output->printERROR("Wrong authentication!", 401);
-        return false;
+        response = format_response(COMMANDID, json, false, "Guest user can't use this command");
+        noError = false;
+        errorCode = 401;
     }
 #else
     (void)auth_type;
 #endif //AUTHENTICATION_FEATURE
-    parameter = get_param (cmd_params, "");
-    //get
-    if (parameter.length() == 0) {
-        output->printERROR ("Invalid message!");
-        return false;
-    } else {
-        parameter = get_param (cmd_params, "URL=");
-        if (notificationsservice.GET(parameter.c_str())) {
-            output->printMSG ("ok");
+    if (noError) {
+        parameter = get_param (cmd_params, "");
+        //get
+        if (parameter.length() == 0) {
+            response = format_response(COMMANDID, json, false, "Message is missing");
+            noError = false;
         } else {
-            output->printERROR ("Cannot send notification!");
-            return false;
+            parameter = get_param (cmd_params, "URL=");
+            if (notificationsservice.GET(parameter.c_str())) {
+                response = format_response(COMMANDID, json, true, "ok");
+            } else {
+                response = format_response(COMMANDID, json, false, "Send notification failed");
+                noError = false;
+            }
         }
     }
-    return response;
+    if (noError) {
+        if (json) {
+            output->printLN (response.c_str() );
+        } else {
+            output->printMSG (response.c_str() );
+        }
+    } else {
+        output->printERROR(response.c_str(), errorCode);
+    }
+    return noError;
 }
 
 #endif //NOTIFICATION_FEATURE

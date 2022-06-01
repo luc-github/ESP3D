@@ -23,6 +23,7 @@
     Modified 8 May 2015 by Hristo Gochkov (proper post and file upload handling)
     Modified 22 Jan 2021 by Luc Lebosse (ESP3D Integration)
 */
+//#define ESP_DEBUG_FEATURE DEBUG_OUTPUT_SERIAL0
 #include "../../include/esp3d_config.h"
 
 #if defined (WEBDAV_FEATURE)
@@ -112,6 +113,7 @@ String ESPWebDAV::urlDecode(const String& text)
 void ESPWebDAV::handleClient()
 {
     if (!server) {
+        log_esp3d("handleClient: server is null");
         return;
     }
 
@@ -126,6 +128,8 @@ void ESPWebDAV::handleClient()
     }
 
     if (!locClient || !locClient.available()) {
+        // no current client
+        //do not put debug here or it will flood the serial
         return;
     }
 
@@ -135,6 +139,7 @@ void ESPWebDAV::handleClient()
     if (!m_persistent)
         // close the connection
     {
+        log_esp3d("CLOSE CONNECTION-------------------------------------------------------");
         locClient.stop();
     }
 }
@@ -151,6 +156,7 @@ bool ESPWebDAV::parseRequest()
     int addr_start = req.indexOf(' ');
     int addr_end = req.indexOf(' ', addr_start + 1);
     if (addr_start == -1 || addr_end == -1) {
+        log_esp3d("Invalid request %s", req.c_str());
         return false;
     }
 

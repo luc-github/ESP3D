@@ -24,13 +24,10 @@
 #include <Ticker.h>
 #include "buzzer.h"
 #include "../../core/settings_esp3d.h"
-#include "../../core/hal.h"
+#include <Arduino.h>
 BuzzerDevice esp3d_buzzer;
 Ticker buzzer_tick;
 #define BEEP_DURATION    200
-#if defined(ARDUINO_ARCH_ESP8266)
-extern void tone(uint8_t _pin, unsigned int frequency, unsigned long duration);
-#endif //ARDUINO_ARCH_ESP8266
 
 
 void process()
@@ -38,7 +35,7 @@ void process()
     if (esp3d_buzzer.started()) {
         tone_data * current = esp3d_buzzer.getNextTone();
         if (current) {
-            Hal::toneESP(ESP3D_BUZZER_PIN,(unsigned int)current->frequency, (unsigned long) current->duration, false);
+            tone(ESP3D_BUZZER_PIN,(unsigned int)current->frequency, (unsigned long) current->duration);
             buzzer_tick.once_ms(current->duration, process);
         }
     }
@@ -95,7 +92,7 @@ void BuzzerDevice::beep(int count, int delay, int frequency)
 
 void BuzzerDevice::no_tone()
 {
-    Hal::no_tone(ESP3D_BUZZER_PIN);
+    noTone(ESP3D_BUZZER_PIN);
 }
 
 bool BuzzerDevice::isPlaying()

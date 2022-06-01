@@ -17,7 +17,7 @@
   License along with This code; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-
+//#define ESP_DEBUG_FEATURE DEBUG_OUTPUT_SERIAL0
 #include "../../include/esp3d_config.h"
 #ifdef SD_DEVICE
 #include "esp_sd.h"
@@ -36,11 +36,55 @@ File tSDFile_handle[ESP_MAX_SD_OPENHANDLE];
 sdfat::File tSDFile_handle[ESP_MAX_SD_OPENHANDLE];
 #elif ((SD_DEVICE == ESP_SDFAT) || (SD_DEVICE == ESP_SDFAT2)) && defined (ARDUINO_ARCH_ESP32)
 #include <SdFat.h>
+#if (SD_DEVICE == ESP_SDFAT2)
+#if SDFAT_FILE_TYPE == 1
+typedef File32 File;
+#elif SDFAT_FILE_TYPE == 2
+typedef ExFile File;
+#elif SDFAT_FILE_TYPE == 3
+typedef FsFile File;
+#else  // SDFAT_FILE_TYPE
+#error Invalid SDFAT_FILE_TYPE
+#endif  // SDFAT_FILE_TYPE
+#endif
 File tSDFile_handle[ESP_MAX_SD_OPENHANDLE];
 #else
 #include <FS.h>
 File tSDFile_handle[ESP_MAX_SD_OPENHANDLE];
 #endif
+
+#if defined (ESP3DLIB_ENV)
+#include "../../include/Marlin/cardreader.h"
+#endif // ESP3DLIB_ENV
+
+#if SD_DEVICE_CONNECTION == ESP_SHARED_SD
+bool ESP_SD::_enabled = false;
+
+bool ESP_SD::enableSharedSD()
+{
+    if(_enabled) {
+        return false;
+    }
+    _enabled = true;
+#if defined (ESP_FLAG_SHARED_SD_PIN)
+    //need to check if SD is in use ?
+    //Method : TBD
+    //1 - check sd cs state ? what about SDIO then ?
+    //2 - check M27 status ?
+    log_esp3d("SD shared enabled PIN %d with %d", ESP_FLAG_SHARED_SD_PIN, ESP_FLAG_SHARED_SD_VALUE);
+    digitalWrite(ESP_FLAG_SHARED_SD_PIN, ESP_FLAG_SHARED_SD_VALUE);
+#endif // ESP_FLAG_SHARED_SD_PIN
+#if defined (ESP3DLIB_ENV)
+    //check if card is not currently in use
+    if (card.isMounted() && (IS_SD_PRINTING() ||IS_SD_FETCHING() ||IS_SD_PAUSED() ||  IS_SD_FILE_OPEN())) {
+        _enabled = false;
+    } else {
+        card.release();
+    }
+#endif // ESP3DLIB_ENV
+    return _enabled;
+}
+#endif // SD_DEVICE_CONNECTION == ESP_SHARED_SD
 
 bool ESP_SD::_started = false;
 uint8_t ESP_SD::_state = ESP_SDCARD_NOT_PRESENT;
@@ -52,23 +96,48 @@ uint8_t ESP_SD::setState(uint8_t flag)
     return _state;
 }
 
-bool  ESP_SD::accessSD()
+uint8_t ESP_SD::getFSType(const char * path)
 {
-    bool res = false;
-#if SD_DEVICE_CONNECTION == ESP_SHARED_SD
-    //need to send the current state to avoid
-    res =  (digitalRead(ESP_FLAG_SHARED_SD_PIN) == ESP_FLAG_SHARED_SD_VALUE);
-    if (!res) {
-        digitalWrite(ESP_FLAG_SHARED_SD_PIN, ESP_FLAG_SHARED_SD_VALUE);
-    }
-#endif //SD_DEVICE_CONNECTION == ESP_SHARED_SD 
-    return res;
+    (void)path;
+    return FS_SD;
 }
-void  ESP_SD::releaseSD()
+
+bool  ESP_SD::accessFS(uint8_t FS)
 {
+    (void)FS;
+    //if card is busy do not let another task access SD and so prevent a release
+    if (_state == ESP_SDCARD_BUSY) {
+        log_esp3d("SD Busy");
+        return false;
+    }
 #if SD_DEVICE_CONNECTION == ESP_SHARED_SD
+    if  (ESP_SD::enableSharedSD()) {
+        log_esp3d("Access SD");
+        return true;
+    } else {
+        log_esp3d("Enable shared SD failed");
+        return false;
+    }
+#else
+    log_esp3d("Access SD");
+    return true;
+#endif // SD_DEVICE_CONNECTION == ESP_SHARED_SD
+}
+void  ESP_SD::releaseFS(uint8_t FS)
+{
+    (void)FS;
+#if SD_DEVICE_CONNECTION == ESP_SHARED_SD
+#if defined (ESP_FLAG_SHARED_SD_PIN)
+    log_esp3d("SD shared disabled PIN %d with %d", ESP_FLAG_SHARED_SD_PIN, ESP_FLAG_SHARED_SD_VALUE);
     digitalWrite(ESP_FLAG_SHARED_SD_PIN, !ESP_FLAG_SHARED_SD_VALUE);
+#endif // ESP_FLAG_SHARED_SD_PIN
+#if defined (ESP3DLIB_ENV)
+    log_esp3d("Release SD");
+    card.mount();
+#endif // ESP3DLIB_ENV
+    _enabled = false;
 #endif //SD_DEVICE_CONNECTION == ESP_SHARED_SD 
+    setState(ESP_SDCARD_IDLE);
 }
 
 

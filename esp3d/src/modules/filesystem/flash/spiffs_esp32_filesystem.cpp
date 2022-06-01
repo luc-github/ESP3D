@@ -17,6 +17,7 @@
   License along with This code; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+//#define ESP_DEBUG_FEATURE DEBUG_OUTPUT_SERIAL0
 #include "../../../include/esp3d_config.h"
 #if (FILESYSTEM_FEATURE == ESP_SPIFFS_FILESYSTEM) && defined(ARDUINO_ARCH_ESP32)
 #include "../esp_filesystem.h"
@@ -180,8 +181,8 @@ bool ESP_FileSystem::rmdir(const char *path)
     if (ftmp) {
         File pfile = ftmp.openNextFile();
         while (pfile) {
-            log_esp3d("File: %s",pfile.name());
-            if (!SPIFFS.remove(pfile.name())) {
+            log_esp3d("File: %s",pfile.path());
+            if (!SPIFFS.remove(pfile.path())) {
                 pfile.close();
                 return false;
             }
@@ -223,7 +224,7 @@ ESP_File::ESP_File(void* handle, bool isdir, bool iswritemode, const char * path
         if (!tFile_handle[i]) {
             tFile_handle[i] = *((File*)handle);
             //filename
-            _filename = tFile_handle[i].name();
+            _filename = tFile_handle[i].path();
 
             //if root
             if (_filename == "/") {
@@ -241,7 +242,7 @@ ESP_File::ESP_File(void* handle, bool isdir, bool iswritemode, const char * path
             if (_filename == "/.") {
                 _name = "/";
             } else {
-                _name = _filename;
+                _name =  tFile_handle[i].name();
                 if (_name.endsWith("/.")) {
                     _name.remove( _name.length() - 2,2);
                     _isfakedir = true;

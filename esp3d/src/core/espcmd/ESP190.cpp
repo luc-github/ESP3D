@@ -24,51 +24,72 @@
 #include "../settings_esp3d.h"
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/webdav/webdav_server.h"
+#define COMMANDID   190
 //Set WebDav state which can be ON, OFF, CLOSE
-//[ESP190]<state>pwd=<admin password>
+//[ESP190]<state> json=<no> pwd=<admin password>
 bool Commands::ESP190(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
-    bool response = true;
+    bool noError = true;
+    bool json = has_tag (cmd_params, "json");
+    String response;
     String parameter;
+    int errorCode = 200; //unless it is a server error use 200 as default and set error in json instead
 #ifdef AUTHENTICATION_FEATURE
     if (auth_type == LEVEL_GUEST) {
-        output->printERROR("Wrong authentication!", 401);
-        return false;
+        response = format_response(COMMANDID, json, false, "Guest user can't use this command");
+        noError = false;
+        errorCode = 401;
     }
 #else
     (void)auth_type;
 #endif //AUTHENTICATION_FEATURE
-    parameter = get_param (cmd_params, "");
-    //get
-    if (parameter.length() == 0) {
-        output->printMSG((Settings_ESP3D::read_byte(ESP_WEBDAV_ON) == 0)?"OFF":"ON");
-        //webdav_server.dir();
-    } else { //set
-#ifdef AUTHENTICATION_FEATURE
-        if (auth_type != LEVEL_ADMIN) {
-            output->printERROR("Wrong authentication!", 401);
-            return false;
-        }
-#endif //AUTHENTICATION_FEATURE
-        parameter.toUpperCase();
-        if (!((parameter == "ON") || (parameter == "OFF") || (parameter == "CLOSE"))) {
-            output->printERROR("Only ON or OFF or CLOSE mode supported!");
-            return false;
-        } else {
-            if (parameter == "CLOSE") {
-                webdav_server.closeClient();
-                output->printMSG ("ok");
-            } else {
-                if (!Settings_ESP3D::write_byte (ESP_WEBDAV_ON, (parameter == "ON")?1:0)) {
-                    output->printERROR ("Set failed!");
-                    response = false;
-                }
+    if (noError) {
+        parameter = clean_param(get_param (cmd_params, ""));
 
-                output->printMSG ("ok");
+        //get
+        if (parameter.length() == 0) {
+            response = format_response(COMMANDID, json, true, (Settings_ESP3D::read_byte(ESP_WEBDAV_ON) == 0)?"OFF":"ON");
+            //webdav_server.dir();
+        } else { //set
+#ifdef AUTHENTICATION_FEATURE
+            if (auth_type != LEVEL_ADMIN) {
+                response = format_response(COMMANDID, json, false, "Wrong authentication level");
+                noError = false;
+                errorCode = 401;
+            }
+#endif //AUTHENTICATION_FEATURE
+            if (noError) {
+                parameter.toUpperCase();
+                if (!((parameter == "ON") || (parameter == "OFF") || (parameter == "CLOSE"))) {
+                    response = format_response(COMMANDID, json, false, "Only ON or OFF or CLOSE mode supported!");
+                    noError = false;
+                } else {
+                    if (parameter == "CLOSE") {
+                        webdav_server.closeClient();
+
+                    } else {
+                        if (!Settings_ESP3D::write_byte (ESP_WEBDAV_ON, (parameter == "ON")?1:0)) {
+                            response = format_response(COMMANDID, json, false, "Set failed");
+                            noError = false;
+                        }
+                    }
+                    if (noError) {
+                        response = format_response(COMMANDID, json, true, "ok");
+                    }
+                }
             }
         }
     }
-    return response;
+    if (noError) {
+        if (json) {
+            output->printLN (response.c_str() );
+        } else {
+            output->printMSG (response.c_str() );
+        }
+    } else {
+        output->printERROR(response.c_str(), errorCode);
+    }
+    return noError;
 }
 
 #endif //WEBDAV_FEATURE

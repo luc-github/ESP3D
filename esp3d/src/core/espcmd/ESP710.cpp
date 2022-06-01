@@ -24,40 +24,47 @@
 #include "../settings_esp3d.h"
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/filesystem/esp_filesystem.h"
+#define COMMANDID   710
 //Format ESP Filesystem
-//[ESP710]FORMAT pwd=<admin password>
+//[ESP710]FORMATFS json=<no> pwd=<admin password>
 bool Commands::ESP710(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
-    bool response = true;
+    bool noError = true;
+    bool json = has_tag (cmd_params, "json");
+    String response;
     String parameter;
-    parameter = get_param (cmd_params, "");
+    int errorCode = 200; //unless it is a server error use 200 as default and set error in json instead
 #ifdef AUTHENTICATION_FEATURE
     if (auth_type != LEVEL_ADMIN) {
-        output->printERROR("Wrong authentication!", 401);
-        response = false;
-    } else
+        response = format_response(COMMANDID, json, false, "Wrong authentication level");
+        noError = false;
+        errorCode = 401;
+    }
 #else
     (void)auth_type;
 #endif //AUTHENTICATION_FEATURE
-    {
-        if (parameter == "FORMAT") {
-            if (output->client()!=ESP_HTTP_CLIENT) {
-                output->printMSG("Start Formating");
-            } else {
-                output->printLN("Start Formating");
+    if (noError) {
+        if (has_tag (cmd_params, "FORMATFS")) {
+            if (!json) {
+                output->printMSGLine("Start Formating");
             }
             ESP_FileSystem::format();
-            if (output->client()!=ESP_HTTP_CLIENT) {
-                output->printMSG("Format Done");
-            } else {
-                output->printLN("Format Done");
-            }
+            response = format_response(COMMANDID, json, true, "ok");
         } else {
-            output->printERROR ("Invalid parameter!");
-            response = false;
+            response = format_response(COMMANDID, json, false, "Invalid parameter");
+            noError = false;
         }
     }
-    return response;
+    if (noError) {
+        if (json) {
+            output->printLN (response.c_str() );
+        } else {
+            output->printMSGLine (response.c_str() );
+        }
+    } else {
+        output->printERROR(response.c_str(), errorCode);
+    }
+    return noError;
 }
 
 #endif //FILESYSTEM_FEATURE

@@ -27,8 +27,6 @@
 #include "../authentication/authentication_service.h"
 class ESP3DOutput;
 
-#define DEFAULT_TIMOUT 16000
-#define MAX_TRY_2_SEND 5
 #define ERROR_NO_ERROR          0
 #define ERROR_TIME_OUT          1
 #define ERROR_CANNOT_SEND_DATA  2
@@ -38,48 +36,118 @@ class ESP3DOutput;
 #define ERROR_RESEND            6
 #define ERROR_NUMBER_MISMATCH   7
 #define ERROR_LINE_IGNORED      8
+#define ERROR_FILE_SYSTEM       9
+#define ERROR_CHECKSUM          10
+#define ERROR_UNKNOW            11
+#define ERROR_FILE_NOT_FOUND    12
+#define ERROR_STREAM_ABORTED    13
+
+#define HOST_NO_STREAM     0
+#define HOST_START_STREAM  1
+#define HOST_READ_LINE     2
+#define HOST_PROCESS_LINE  3
+#define HOST_WAIT4_ACK     4
+#define HOST_PAUSE_STREAM  5
+#define HOST_RESUME_STREAM 6
+#define HOST_STOP_STREAM   7
+#define HOST_ERROR_STREAM  8
+#define HOST_ABORT_STREAM  9
+
+#define TYPE_SCRIPT_STREAM 0
+#define TYPE_FS_STREAM     1
+#define TYPE_SD_STREAM     2
+
+#define  ESP_HOST_BUFFER_SIZE 255
 
 class GcodeHost
 {
 public:
     GcodeHost();
     ~GcodeHost();
-    bool begin(bool waitwhenidle = false);
+    bool begin();
     void end();
     void handle();
-    bool sendCommand(const char* command, bool checksum = false, bool wait4ack = true, const char * ack=nullptr);
+    bool push(const uint8_t * sbuf, size_t len);
+    void flush();
+    /*bool sendCommand(const char* command, bool checksum = false, bool wait4ack = true, const char * ack=nullptr);*/
     uint32_t currentCommandNumber()
     {
-        return _commandnumber;
+        return _commandNumber;
     }
     void setCommandNumber(uint32_t n)
     {
-        _commandnumber = n;
+        _commandNumber = n;
     }
     bool resetCommandNumbering();
     uint8_t Checksum(const char * command, uint32_t commandSize);
     String CheckSumCommand(const char* command, uint32_t commandnb);
-    size_t wait_for_data(uint32_t timeout = DEFAULT_TIMOUT);
-    bool wait_for_ack(uint32_t timeout = DEFAULT_TIMOUT, bool checksum=false, const char * ack=nullptr);
-    bool purge(uint32_t timeout = DEFAULT_TIMOUT);
-    uint32_t Get_commandNumber(String & response);
-    bool waitWhenIdle()
-    {
-        return _waitwhenidle;
-    }
+
+    /*bool wait_for_ack(uint32_t timeout = DEFAULT_TIMOUT, bool checksum=false, const char * ack=nullptr);*/
+
+    uint32_t getCommandNumber(String & response);
+
     uint8_t getErrorNum()
     {
         return _error;
     }
-    bool processFile(const char * filename, level_authenticate_type auth_type, ESP3DOutput * output);
-    bool processFSFile(const char * filename, level_authenticate_type auth_type, ESP3DOutput * output);
-    bool processLine(const char * line, level_authenticate_type auth_type, ESP3DOutput * output);
-    bool processscript(const char * line);
+
+    uint8_t getStatus()
+    {
+        return _step;
+    }
+
+    size_t totalSize()
+    {
+        return _totalSize;
+    }
+    size_t processedSize()
+    {
+        return _processedSize;
+    }
+    uint8_t getFSType()
+    {
+        return _fsType;
+    }
+    const char * fileName()
+    {
+        if (_fileName.length() == 0) {
+            return nullptr;
+        }
+        return _fileName.c_str();
+    }
+    bool processScript(const char * line, level_authenticate_type auth_type = LEVEL_ADMIN, ESP3DOutput * output=nullptr);
+    bool processFile(const char * filename, level_authenticate_type auth_type= LEVEL_ADMIN, ESP3DOutput * output=nullptr);
+    bool abort();
+    bool pause();
+    bool resume();
+    void startStream();
+    void readNextCommand();
+    void endStream();
+    void processCommand();
+    bool isCommand();
+    bool isAckNeeded();
+    bool isAck(String & line);
+
 private:
-    uint32_t _commandnumber;
-    uint32_t _needcommandnumber;
-    bool _waitwhenidle;
+    uint8_t _buffer [ESP_HOST_BUFFER_SIZE+1];
+    size_t _bufferSize;
+    size_t _totalSize;
+    size_t _processedSize;
+    uint32_t _commandNumber;
+    uint32_t _needCommandNumber;
     uint8_t _error;
+    uint8_t _step;
+    uint8_t _nextStep;
+    uint32_t _currentPosition;
+    String _fileName;
+    String _script;
+    uint8_t _fsType;
+    String _currentCommand;
+    String _response;
+    ESP3DOutput _outputStream;
+    level_authenticate_type _auth_type;
+    uint64_t _startTimeOut;
+    bool _needRelease ;
 };
 
 extern GcodeHost esp3d_gcode_host;

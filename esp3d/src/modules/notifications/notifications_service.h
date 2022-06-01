@@ -23,6 +23,8 @@
 #ifndef _NOTIFICATIONS_SERVICE_H
 #define _NOTIFICATIONS_SERVICE_H
 
+#include <WiFiClientSecure.h>
+
 
 class NotificationsService
 {
@@ -54,14 +56,19 @@ private:
     String _settings;
     String _serveraddress;
     uint16_t _port;
+#if defined(ARDUINO_ARCH_ESP8266)
+    void BearSSLSetup(WiFiClientSecure & Notificationclient);
+#endif//ARDUINO_ARCH_ESP8266
     bool decode64(const char* encodedURL, char *decodedURL);
     bool sendPushoverMSG(const char * title, const char * message);
     bool sendEmailMSG(const char * title, const char * message);
     bool sendLineMSG(const char * title, const char * message);
     bool sendTelegramMSG(const char * title, const char * message);
+    bool sendIFTTTMSG(const char * title, const char * message);
     bool getPortFromSettings();
     bool getServerAddressFromSettings();
     bool getEmailFromSettings();
+    bool Wait4Answer(WiFiClientSecure & client, const char * linetrigger, const char * expected_answer,  uint32_t timeout);
 };
 
 extern NotificationsService notificationsservice;
