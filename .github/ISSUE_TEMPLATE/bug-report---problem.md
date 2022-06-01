@@ -30,7 +30,7 @@ assignees: ''
 **ESP3D Firmware:**
 
 - ESP3D FW version: [e.g. 2.1b4] <!-- To get ESP3D informations type `[ESP420]plain` or tell us commit/release you are using -->
-- Web UI Version:[e.g. 2.1b14] <!-- Can be found in web page header -->
+- ESP3D-WebUI Version:[e.g. 2.1b14] <!-- Can be found in web page header -->
 - Wifi mode:[e.g. STA/AP]
 - Flash method: [Arduino Ide / PlatformIO]  
     If you build with Arduino:
