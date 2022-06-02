@@ -29,15 +29,12 @@ assignees: ''
 
 **ESP3D Firmware:**
 
-<!--   tips: 
-         - to get ESP3D informations type `[ESP420]plain`
-         - to get WebUI version check your menu header-->
-
-- ESP core version: [e.g. 2.5.2]
-- Version:[e.g. 2.1b4]
-- Web UI Version:[e.g. 2.1b14]
+- ESP3D FW version: [e.g. 2.1b4] <!-- To get ESP3D informations type `[ESP420]plain` or tell us commit/release you are using -->
+- ESP3D-WebUI Version:[e.g. 2.1b14] <!-- Can be found in web page header -->
 - Wifi mode:[e.g. STA/AP]
-- Flash method: [Arduino Ide / PlatformIO]
+- Flash method: [Arduino Ide / PlatformIO]  
+    If you build with Arduino:
+    - Arduino ESP8266 package version: [e.g. 2.5.2] <!-- Go to Arduino->tools->boards->board manager->esp8266 -->
 - Any change done in FW:
 
 **Target Firmware:**
