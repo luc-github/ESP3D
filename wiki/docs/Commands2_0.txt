@@ -1,48 +1,48 @@
-* Change STA SSID 
+* Change STA SSID
 [ESP100]<SSID>
 if authentication is on, need admin password
-[ESP100]<SSID>pwd=<admin password>
+[ESP100]<SSID> pwd=<admin password>
 
-* Change STA Password 
+* Change STA Password
 [ESP101]<Password>
 if authentication is on, need admin password
-[ESP101]<Password>pwd=<admin password>
+[ESP101]<Password> pwd=<admin password>
 
-* Change Hostname 
+* Change Hostname
 [ESP102]<hostname>
 if authentication is on, need admin password
-[ESP102]<hostname>pwd=<admin password>
+[ESP102]<hostname> pwd=<admin password>
 
-* Change Wifi mode (STA/AP) 
+* Change Wifi mode (STA/AP)
 [ESP103]<mode>
 if authentication is on, need admin password
-[ESP103]<mode>pwd=<admin password>
+[ESP103]<mode> pwd=<admin password>
 
-* Change STA IP mode (DHCP/STATIC) 
+* Change STA IP mode (DHCP/STATIC)
 [ESP104]<mode>
 if authentication is on, need admin password
-[ESP104]<mode>pwd=<admin password>
+[ESP104]<mode> pwd=<admin password>
 
-* Change AP SSID 
+* Change AP SSID
 [ESP105]<SSID>
 if authentication is on, need admin password
-[ESP105]<SSID>pwd=<admin password>
+[ESP105]<SSID> pwd=<admin password>
 
-* Change AP Password 
+* Change AP Password
 [ESP106]<Password>
 if authentication is on, need admin password
-[ESP106]<Password>pwd=<admin password>
+[ESP106]<Password> pwd=<admin password>
 
-* Change AP IP mode (DHCP/STATIC) 
+* Change AP IP mode (DHCP/STATIC)
 [ESP107]<mode>
 if authentication is on, need admin password
-[ESP107]<mode>pwd=<admin password>
+[ESP107]<mode> pwd=<admin password>
 
 * Set wifi on/off
 [ESP110]<state>
 state can be ON, OFF, RESTART
 if authentication is on, need admin password
-[ESP110]<state>pwd=<admin password>
+[ESP110]<state> pwd=<admin password>
 
 * Get current IP
 [ESP111]<header answer>
@@ -77,7 +77,7 @@ if RAW=YES do not set pinmode just read value
 
 *Get full EEPROM settings content
 but do not give any passwords
-can filter if only need wifi or printer 
+can filter if only need wifi or printer
 [ESP400]<network/printer>
 
 *Set EEPROM setting
@@ -130,10 +130,10 @@ output is JSON or plain text according parameter
 cmd can be RESET, SAFEMODE, CONFIG, RESTART
 [ESP444]<cmd>
 if authentication is on, need admin password for RESET, RESTART and SAFEMODE
-[ESP444]<cmd>pwd=<admin password>
+[ESP444]<cmd> pwd=<admin password>
 
 * Change / Reset user password
-[ESP555]<password>pwd=<admin password>
+[ESP555]<password> pwd=<admin password>
 if no password set it use default one
 
 * Send GCode with check sum caching right line numbering
@@ -141,7 +141,7 @@ if no password set it use default one
 
 * Send line checksum
 [ESP601]<line>
-    
+
 * Read SPIFFS file and send each line to serial
 [ESP700]<filename>
 
@@ -159,5 +159,3 @@ if no password set it use default one
 
 * Check SD presence
 [ESP802]
-
-
