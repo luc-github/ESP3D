@@ -2,11 +2,30 @@
 
 ## Table of contents
 
--- SECTION UNDER CONSTRUCTION --
+- [Building with PlatformIO and VScode (recommended method)](#Building-with-PlatformIO-and-VScode-(recommended-method))
+- [Building with Arduino IDE](#Building-with-Arduino-IDE)
+  - [Video guide by Chris Riley](#Video-guide-by-Chris-Riley)
+  - [Written guide](#Written-guide)
+- [Common steps for all methods](#Common-steps-for-all-methods)
+- [Additional tips](#Additional-tips)
+- [Full ESP erase](#Full-ESP-erase)
 
-## Building with PlotformIO and VScode
+## Building with PlatformIO and VScode (recommended method)
 
--- SECTION UNDER CONSTRUCTION --
+1. Download and install [Visual Studio Code](https://code.visualstudio.com/)
+2. Download [latest release](https://github.com/luc-github/ESP3D/releases/latest) of this project
+    - Extract it anywhere
+3. Open the forlder containing the project from within VScode (file->open folder)
+4. Let VScode install exptension packages recommended by the project. 
+    - A popup should appear in lower right corner
+    - It will install extensions listed in .vscode/extensions.json
+    - Wait for complete installation
+5. Build with PlatformIO
+    - Click to open the platformIO tab on the left  (or ctrl+maj+P and type `View: Show PlatformIO`)
+    - Unwrap target corresponding to your board
+    - Click on `Upload` to build and upload FW to ESP board
+
+Follow additional steps [here](#Common-steps-for-all-methods)
 
 ## Building with Arduino IDE
 
@@ -39,6 +58,11 @@
 5. Upload the sketch
     - Configure your ESP8266 or ESP32 for upload (USB to serial plugged in, GPIO0 and GPIO15 pulled low, RST pulled high)
     - Click the Upload button in Arduino IDE (Or press Ctrl+U)
+
+Follow additional steps [here](#Common-steps-for-all-methods)
+
+## Common steps for all methods
+
 6. Starting the board
     - Reboot the ESP8266 or ESP32 into run mode (USB to serial removed , GPIO0 pulled high,  GPIO15 pulled low, RST pulled high)
     - Find the wifi AP (Access Point) called **ESP3D** (or ESP8266 in older versions)
@@ -52,14 +76,13 @@
     - If authentication is enabled use pair user/password **admin**/**admin**
     - I recommend changing to Station mode and connecting to your home/office Wifi instead of staying in AP mode
     - You may want to change the Baud rate
-    - You can change to DHCP,  or at the very least setup a Static IP you are familiar with
-
-### Wire up and use
-
-9. Connect ESP board to your printer motherboard.  
+    - You can change to DHCP, or at the very least setup a Static IP you are familiar with
+9. Connect ESP board to your printer motherboard
     - More details can be found [here](https://github.com/luc-github/ESP3D/wiki/Hardware-connection)
 
-### Tips
+## Additional tips
+
+- If you plan to access your ESP from public network, think about [cybersecurity](https://github.com/luc-github/ESP8266/wiki/Cybersecurity-concerns)
 
 - You can use Arduino serial monitor or PlatformIO `Monitor` target to see debug info from ESP and send commends for configuration. Commands are documented in wiki/docs folder
 
@@ -67,9 +90,11 @@
 
 - If you mess up a configuration you can pull down GPIO2 during reset/powerup to wipe the settings stored in EEPROM.
 
-## Still having issue ?
+- If behavior is not consistent, you may need to erase the full flash on ESP board.
 
-If behavior is not consistent, you may need to erase the full flash, for that use the esptool present in your ESP core instalation in tools directory with option `--chip auto erase_flash`  
+## Full ESP erase
+
+To erase the full flash, you can use the esptool present in your ESP core instalation in tools directory with option `--chip auto erase_flash`  
 So in my case on git version of ESP32 under windows :  
 `C:\Users\user\Documents\Arduino\hardware\espressif\esp32\tools\esptool>esptool.exe --chip auto erase_flash`
 
