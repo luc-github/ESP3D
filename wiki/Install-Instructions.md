@@ -94,8 +94,9 @@ Follow additional steps [here](#Common-steps-for-all-methods)
 
 ## Full ESP erase
 
-There are several options to erase flash:
+There are several options to erase flash configuration:
 
+- Execute `[ESP444]RESET` after upload and restart the board
 - In Arduino IDE, you can configure erase method in tools->Erase Flash->All Flash content. This will erase whole memory at next upload.
 - Using PlatformIO if there is a target Patform->Erase Flash for your board
 - Using [esptool](https://github.com/espressif/esptool) with command `esptool.exe --chip auto erase_flash`
