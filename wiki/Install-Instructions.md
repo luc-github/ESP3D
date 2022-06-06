@@ -96,7 +96,7 @@ Follow additional steps [here](#Common-steps-for-all-methods)
 
 There are several options to erase flash configuration:
 
-- Execute `[ESP444]RESET` after upload and restart the board
+- Execute `[ESP710]FORMAT` after upload and restart the board. It's also possible to do `[ESP444]RESET` to reset only EEPROM parameters without erasing SPIFF memory.
 - In Arduino IDE, you can configure erase method in tools->Erase Flash->All Flash content. This will erase whole memory at next upload.
 - Using PlatformIO if there is a target Patform->Erase Flash for your board
 - Using [esptool](https://github.com/espressif/esptool) with command `esptool.exe --chip auto erase_flash`
