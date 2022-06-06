@@ -94,8 +94,8 @@ Follow additional steps [here](#Common-steps-for-all-methods)
 
 ## Full ESP erase
 
-To erase the full flash, you can use the esptool present in your ESP core instalation in tools directory with option `--chip auto erase_flash`  
-So in my case on git version of ESP32 under windows :  
-`C:\Users\user\Documents\Arduino\hardware\espressif\esp32\tools\esptool>esptool.exe --chip auto erase_flash`
+There are several options to erase flash:
 
-esptool can also be found here : <https://github.com/espressif/esptool>
+- In Arduino IDE, you can configure erase method in tools->Erase Flash->All Flash content. This will erase whole memory at next upload.
+- Using PlatformIO if there is a target Patform->Erase Flash for your board
+- Using [esptool](https://github.com/espressif/esptool) with command `esptool.exe --chip auto erase_flash`
