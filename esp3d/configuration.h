@@ -318,6 +318,20 @@
 
 /************************************
  *
+ * Target Firmware (default is UNKNOWN_FW)
+ *
+ * **********************************/
+//UNKNOWN_FW      0
+//GRBL            10
+//MARLIN          20
+//SMOOTHIEWARE    40
+//REPETIER        50
+///REPRAP         70
+
+//#define DEFAULT_FW UNKNOWN_FW
+
+/************************************
+ *
  * Customize ESP3D
  *
  * **********************************/

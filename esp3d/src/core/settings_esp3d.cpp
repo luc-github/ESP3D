@@ -104,7 +104,9 @@
 #define DEFAULT_SSID_VISIBLE    1
 #define DEFAULT_OUTPUT_FLAG     ESP_ALL_CLIENTS
 #define DEFAULT_SDREADER_SPEED  4
+#ifndef DEFAULT_FW
 #define DEFAULT_FW              UNKNOWN_FW
+#endif //DEFAULT_FW
 #define DEFAULT_TIME_ZONE       0
 #define DEFAULT_TIME_DST        0
 #define DEFAULT_SD_MOUNT        ESP_SD_ROOT
@@ -147,7 +149,7 @@ const char DEFAULT_AP_PASSWORD []  =     "12345678";
 const char DEFAULT_STA_SSID []   =       STATION_WIFI_SSID;
 const char DEFAULT_STA_PASSWORD []  =    STATION_WIFI_PASSWORD;
 #else
-const char DEFAULT_STA_SSID []   =       "ESP3D";
+const char DEFAULT_STA_SSID []   =       "NETWORK_SSID";
 const char DEFAULT_STA_PASSWORD []  =    "12345678";
 #endif //STATION_WIFI_SSID && STATION_WIFI_PASSWORD
 #endif //WIFI_FEATURE
@@ -175,7 +177,7 @@ const uint8_t DEFAULT_MASK_VALUE[]  =      {255, 255, 255, 0};
 const uint8_t DEFAULT_ADDRESS_VALUE[]   =  {0, 0, 0, 0};
 #endif //WIFI_FEATURE || ETH_FEATURE
 
-uint8_t Settings_ESP3D::_FirmwareTarget = UNKNOWN_FW;
+uint8_t Settings_ESP3D::_FirmwareTarget = DEFAULT_FW;
 bool Settings_ESP3D::_isverboseboot = DEFAULT_VERBOSE_BOOT;
 
 bool Settings_ESP3D::begin()
