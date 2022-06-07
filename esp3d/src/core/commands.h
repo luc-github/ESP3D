@@ -161,6 +161,9 @@ public:
     bool ESP910(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     bool ESP250(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #endif //BUZZER_DEVICE
+#if defined(ARDUINO_ARCH_ESP32) && (CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3)
+    bool ESP999(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+#endif //ARDUINO_ARCH_ESP32
 };
 
 extern Commands esp3d_commands;

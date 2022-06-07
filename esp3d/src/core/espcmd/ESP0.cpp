@@ -152,6 +152,9 @@ const char * help[]= {"[ESP] (id) - display this help",
                       "[ESP910](ENABLE/DISABLE) - display/set buzzer state",
 #endif //BUZZER_DEVICE
                       "[ESP920](client)=(ON/OFF) - display/set SERIAL / SCREEN / REMOTE_SCREEN / WEBSOCKET / TELNET /BT / ALL client state if available",
+#if defined(ARDUINO_ARCH_ESP32) && (CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3)
+                      "[ESP999](QUIETBOOT) [pwd=<admin/user password>] - set quiet boot mode",
+#endif //ARDUINO_ARCH_ESP32
                       ""
                      };
 const uint cmdlist[]= {0,
@@ -283,6 +286,9 @@ const uint cmdlist[]= {0,
 
 #endif //BUZZER_DEVICE
                        920,
+#if defined(ARDUINO_ARCH_ESP32) && (CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3)
+                       999,
+#endif //ARDUINO_ARCH_ESP32 && CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
                        0
                       };
 

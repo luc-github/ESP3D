@@ -743,6 +743,13 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
         //[ESP910]<SERIAL / SCREEN / REMOTE_SCREEN/ WEBSOCKET / TELNET /BT / ALL>=<ON/OFF>[pwd=<admin password>]
         response = ESP920(cmd_params, auth_type, output);
         break;
+#if defined(ARDUINO_ARCH_ESP32) && (CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3)
+    case 999:
+        //Set quiet boot if strapping pin is High
+        //[ESP999]<QUIETBOOT> [pwd=<admin/user password>]
+        response = ESP999(cmd_params, auth_type, output);
+        break;
+#endif //ARDUINO_ARCH_ESP32
     default:
         output->printERROR ("Invalid Command");
         response = false;

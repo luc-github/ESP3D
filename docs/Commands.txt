@@ -284,5 +284,8 @@ rmdir / remove / mkdir / exists /create
 * Get state / Set Enable / Disable buzzer
 [ESP910]<ENABLE/DISABLE> json=<no> [pwd=<admin/user password>]
 
-*Get state / Set state of  output message clients
+* Get state / Set state of  output message clients
 [ESP920]<SERIAL / SCREEN / REMOTE_SCREEN/ WEBSOCKET / TELNET /BT / ALL>=<ON/OFF> json=<no> [pwd=<admin/user password>]
+
+* Set quiet boot if strapping pin is High
+[ESP999]QUIETBOOT [pwd=<admin/user password>]
