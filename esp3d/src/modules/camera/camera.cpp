@@ -209,11 +209,13 @@ bool Camera::initHardware()
     config.pin_sscb_scl = SIOC_GPIO_NUM;
     config.pin_pwdn = PWDN_GPIO_NUM;
     config.pin_reset = RESET_GPIO_NUM;
-    config.xclk_freq_hz = 10000000;
+    config.xclk_freq_hz = 20000000;
     config.pixel_format = PIXFORMAT_JPEG;
     config.jpeg_quality = 5;
     config.fb_count = 1;
     config.frame_size = DEFAULT_FRAME_SIZE;
+    config.fb_location = CAMERA_FB_IN_PSRAM;
+    config.grab_mode = CAMERA_GRAB_LATEST;
     if(!psramFound()) {
         _initialised = false;
         log_esp3d("psram is not enabled");
@@ -317,15 +319,18 @@ const char *Camera::GetModelString()
     case CAMERA_MODEL_WROVER_KIT:
         return "WROVER Kit";
         break;
+    case CAMERA_MODEL_ESP32S3_EYE:
     case CAMERA_MODEL_ESP_EYE:
         return "ESP Eye";
         break;
-    case CAMERA_MODEL_M5STACK_PSRAM:
-        return "M5Stack with PSRam";
-        break;
     case CAMERA_MODEL_M5STACK_WIDE:
-        return "M5Stack wide";
+    case CAMERA_MODEL_M5STACK_V2_PSRAM:
+    case CAMERA_MODEL_M5STACK_PSRAM:
+        return "M5Stack";
         break;
+    case CAMERA_MODEL_ESP32_CAM_BOARD:
+    case CAMERA_MODEL_ESP32S2_CAM_BOARD:
+    case CAMERA_MODEL_ESP32S3_CAM_LCD:
     case CAMERA_MODEL_AI_THINKER:
         return "ESP32 Cam";
         break;
