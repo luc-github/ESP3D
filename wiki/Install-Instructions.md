@@ -51,8 +51,8 @@ Follow additional steps [here](#Common-steps-for-all-methods)
     - Copy the libraries present in the ESP3D-x.y.z/libraries directory into your Arduino/libraries directory. These versions are verified to work with ESP3D, any others (newer version) may cause untested behavior. More information about libraries installation options [here](https://docs.arduino.cc/software/ide-v1/tutorials/installing-libraries)
     - Open the Arduino IDE and open the project file esp3d/esp3d.ino (ESP8266/esp8266.ino for older versions)
 4. Configure for your board
-    - [Get flash sise of your board](https://github.com/luc-github/ESP8266/wiki/Flash-Size#figuring-out-the-flash-size)
-    - Apply [correct setting](https://github.com/luc-github/ESP8266/wiki/Flash-Size) in Arduinio -> tools ->board
+    - [Get flash sise of your board](https://github.com/luc-github/ESP3D/wiki/Flash-Size#figuring-out-the-flash-size)
+    - Apply [correct setting](https://github.com/luc-github/ESP3D/wiki/Flash-Size) in Arduinio -> tools ->board
     - Double check you have the clock speed set to 160Mhz
     - Double check you have the correct Flash size selected
 5. Upload the sketch
@@ -82,13 +82,13 @@ Follow additional steps [here](#Common-steps-for-all-methods)
 
 ## Additional tips
 
-- If you plan to access your ESP from public network, think about [cybersecurity](https://github.com/luc-github/ESP8266/wiki/Cybersecurity-concerns)
+- If you plan to access your ESP from public network, think about [cybersecurity](https://github.com/luc-github/ESP3D/wiki/Cybersecurity-concerns)
 
 - You can use Arduino serial monitor or PlatformIO `Monitor` target to see debug info from ESP and send commends for configuration. Commands are documented in wiki/docs folder
 
-- After applying power the ESP takes approx 10 seconds before it will send `M117 <ip address>` on the serial port. If your printer is connected to the ESP, and has an LCD connected, the M117 command is "Print this message to the LCD" - i.e after a successful boot it will print the IP address to the printer's LCD
+- After applying power the ESP takes several seconds before it will send `M117 <ip address>` on the serial port. The delay can be up to 30 seconds depending on configuration. If your printer is connected to the ESP, and has an LCD connected, the M117 command is "Print this message to the LCD" - i.e after a successful boot it will print the IP address to the printer's LCD
 
-- If you mess up a configuration you can pull down GPIO2 during reset/powerup to wipe the settings stored in EEPROM.
+- Depending on configuration file, you may pull down GPIO2 during reset/powerup to wipe the settings stored in EEPROM.
 
 - If behavior is not consistent, you may need to erase the full flash on ESP board.
 
@@ -96,7 +96,7 @@ Follow additional steps [here](#Common-steps-for-all-methods)
 
 There are several options to erase flash configuration:
 
-- Execute `[ESP710]FORMAT` after upload and restart the board. It's also possible to do `[ESP444]RESET` to reset only EEPROM parameters without erasing SPIFF memory.
+- Execute `[ESP710]FORMAT` (or `[ESP710]FORMATFS` for newer versions) after upload and restart the board. It's also possible to do `[ESP444]RESET` to reset only EEPROM parameters without erasing SPIFF memory.
 - In Arduino IDE, you can configure erase method in tools->Erase Flash->All Flash content. This will erase whole memory at next upload.
 - Using PlatformIO if there is a target Patform->Erase Flash for your board
 - Using [esptool](https://github.com/espressif/esptool) with command `esptool.exe --chip auto erase_flash`
