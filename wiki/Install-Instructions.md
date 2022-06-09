@@ -40,7 +40,9 @@ Follow additional steps [here](#Common-steps-for-all-methods)
     - Install the Arduino IDE
 2. Additional libraries
     - Open the Arduino IDE go to File -> Preferences
-    - In the "Additional Boards Manager URL" field, paste: <http://arduino.esp8266.com/stable/package_esp8266com_index.json>
+    - In the "Additional Boards Manager URL" field, add following URLs:
+        - <https://arduino.esp8266.com/stable/package_esp8266com_index.json> details about installation [here](https://github.com/esp8266/Arduino#installing-with-boards-manager)
+        - <https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json> details about installation [here](https://docs.espressif.com/projects/arduino-esp32/en/latest/installing.html)
     - Click OK
     - Click Tools -> Boards -> Board Manager
     - Scroll to near the bottom, and find "esp8266 by ESP8266 Community" and click on the row
