@@ -33,6 +33,7 @@ bool Commands::ESP140(const char* cmd_params, level_authenticate_type auth_type,
     bool json = has_tag (cmd_params, "json");
     String response;
     String parameter;
+    bool hasParam = false;
     int errorCode = 200; //unless it is a server error use 200 as default and set error in json instead
 
 #ifdef AUTHENTICATION_FEATURE
@@ -55,12 +56,11 @@ bool Commands::ESP140(const char* cmd_params, level_authenticate_type auth_type,
             }
 #endif //AUTHENTICATION_FEATURE
             if (noError) {
-                bool hasParam = false;
-                String s = get_param (cmd_params, "srv1=");
-                if (s.length() > 0 ) {
+                parameter = get_param (cmd_params, "srv1=");
+                if (parameter.length() > 0 ) {
                     hasParam = true;
-                    if(s.length() < Settings_ESP3D::get_max_string_size(ESP_TIME_SERVER1)) {
-                        if (!Settings_ESP3D::write_string (ESP_TIME_SERVER1, s.c_str())) {
+                    if(parameter.length() < Settings_ESP3D::get_max_string_size(ESP_TIME_SERVER1)) {
+                        if (!Settings_ESP3D::write_string (ESP_TIME_SERVER1, parameter.c_str())) {
                             response = format_response(COMMANDID, json, false, "Set server 1 failed");
                             noError = false;
                         }
@@ -68,11 +68,11 @@ bool Commands::ESP140(const char* cmd_params, level_authenticate_type auth_type,
                 }
             }
             if (noError) {
-                s = get_param (cmd_params, "srv2=");
-                if (s.length() > 0 ) {
+                parameter = get_param (cmd_params, "srv2=");
+                if (parameter.length() > 0 ) {
                     hasParam = true;
-                    if (s.length() < Settings_ESP3D::get_max_string_size(ESP_TIME_SERVER2)) {
-                        if (!Settings_ESP3D::write_string (ESP_TIME_SERVER2, s.c_str())) {
+                    if (parameter.length() < Settings_ESP3D::get_max_string_size(ESP_TIME_SERVER2)) {
+                        if (!Settings_ESP3D::write_string (ESP_TIME_SERVER2, parameter.c_str())) {
                             response = format_response(COMMANDID, json, false, "Set server 2 failed");
                             noError = false;
                         }
@@ -80,11 +80,11 @@ bool Commands::ESP140(const char* cmd_params, level_authenticate_type auth_type,
                 }
             }
             if (noError) {
-                s = get_param (cmd_params, "srv3=");
-                if (s.length() > 0 ) {
+                parameter = get_param (cmd_params, "srv3=");
+                if (parameter.length() > 0 ) {
                     hasParam = true;
-                    if ( s.length() < Settings_ESP3D::get_max_string_size(ESP_TIME_SERVER3)) {
-                        if (!Settings_ESP3D::write_string (ESP_TIME_SERVER3, s.c_str())) {
+                    if ( parameter.length() < Settings_ESP3D::get_max_string_size(ESP_TIME_SERVER3)) {
+                        if (!Settings_ESP3D::write_string (ESP_TIME_SERVER3, parameter.c_str())) {
                             response = format_response(COMMANDID, json, false, "Set server 3 failed");
                             noError = false;
                         }
@@ -92,11 +92,11 @@ bool Commands::ESP140(const char* cmd_params, level_authenticate_type auth_type,
                 }
             }
             if (noError) {
-                s = get_param (cmd_params, "zone=");
-                if (s.length() > 0 ) {
+                parameter = get_param (cmd_params, "zone=");
+                if (parameter.length() > 0 ) {
                     hasParam = true;
-                    if ((s.toInt() <= (int8_t)Settings_ESP3D::get_max_byte(ESP_TIMEZONE)) && (s.toInt() >= (int8_t)Settings_ESP3D::get_min_byte(ESP_TIMEZONE))) {
-                        if (!Settings_ESP3D::write_byte (ESP_TIMEZONE, s.toInt())) {
+                    if ((parameter.toInt() <= (int8_t)Settings_ESP3D::get_max_byte(ESP_TIMEZONE)) && (parameter.toInt() >= (int8_t)Settings_ESP3D::get_min_byte(ESP_TIMEZONE))) {
+                        if (!Settings_ESP3D::write_byte (ESP_TIMEZONE, parameter.toInt())) {
                             response = format_response(COMMANDID, json, false, "Set time zone failed");
                             noError = false;
                         }
@@ -104,12 +104,12 @@ bool Commands::ESP140(const char* cmd_params, level_authenticate_type auth_type,
                 }
             }
             if (noError) {
-                s = get_param (cmd_params, "dst=");
-                if (s.length() > 0 ) {
+                parameter = get_param (cmd_params, "dst=");
+                if (parameter.length() > 0 ) {
                     hasParam = true;
-                    s.toUpperCase();
-                    if (s.length() > 0 ) {
-                        if (!Settings_ESP3D::write_byte (ESP_TIME_IS_DST, (s == "NO")?0:1)) {
+                    parameter.toUpperCase();
+                    if (parameter.length() > 0 ) {
+                        if (!Settings_ESP3D::write_byte (ESP_TIME_IS_DST, (parameter == "NO")?0:1)) {
                             response = format_response(COMMANDID, json, false, "Set dayligh failed");
                             noError = false;
                         }
@@ -117,17 +117,19 @@ bool Commands::ESP140(const char* cmd_params, level_authenticate_type auth_type,
                 }
             }
             if (noError) {
-                s = get_param (cmd_params, "time=");
-                s.toUpperCase();
-                if (s.length() > 0 ) {
+                parameter = get_param (cmd_params, "time=");
+                parameter.toUpperCase();
+                if (parameter.length() > 0 ) {
                     hasParam = true;
-                    if(!timeserver.setTime(s.c_str())) {
+                    if(!timeserver.setTime(parameter.c_str())) {
                         response = format_response(COMMANDID, json, false, "Set time failed");
                         noError = false;
                     }
                 }
             }
+            parameter =clean_param(get_param (cmd_params, ""));
             if (noError) {
+
                 if (has_tag(parameter.c_str(), "SYNC")) {
                     hasParam=true;
                     if (timeserver.is_internet_time()) {
@@ -180,13 +182,13 @@ bool Commands::ESP140(const char* cmd_params, level_authenticate_type auth_type,
             } else {
                 tmp += ", zone=";
             }
-            tmp+= Settings_ESP3D::READ_byte (ESP_TIMEZONE);
+            tmp+= Settings_ESP3D::read_byte (ESP_TIMEZONE);
             if (json) {
                 tmp += "\",\"dst\":\"";
             } else {
                 tmp += ", dst=";
             }
-            tmp+= Settings_ESP3D::READ_byte (ESP_TIME_IS_DST)?"YES":"NO";
+            tmp+= Settings_ESP3D::read_byte (ESP_TIME_IS_DST)?"YES":"NO";
             if (json) {
                 tmp += "\"}";
             }

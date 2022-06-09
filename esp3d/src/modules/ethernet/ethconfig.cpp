@@ -147,7 +147,7 @@ bool EthConfig::begin(int8_t & espMode)
 
 void EthConfig::end()
 {
-    esp_eth_disable();
+    //esp_eth_disable();
     _started = false;
 }
 

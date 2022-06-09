@@ -32,7 +32,7 @@
 class EthConfig
 {
 public:
-    static bool begin();
+    static bool begin(int8_t & espMode);
     static bool StartSTA();
     //static bool StartSRV();
     static void end();
