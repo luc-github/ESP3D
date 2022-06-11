@@ -168,22 +168,6 @@ bool WiFiConfig::ConnectSTA2AP()
 bool WiFiConfig::StartSTA()
 {
     log_esp3d("StartSTA");
-#if defined (ARDUINO_ARCH_ESP32)
-    esp_wifi_start();
-#endif //ARDUINO_ARCH_ESP32
-    //Sanity check
-    if((WiFi.getMode() == WIFI_STA) || (WiFi.getMode() == WIFI_AP_STA)) {
-        if(WiFi.isConnected()) {
-            WiFi.disconnect();
-        } else {
-#if defined (ARDUINO_ARCH_ESP32)
-            WiFi.setMinSecurity(WIFI_AUTH_WEP);
-            WiFi.setScanMethod(WIFI_ALL_CHANNEL_SCAN);
-            WiFi.setSortMethod(WIFI_CONNECT_AP_BY_SIGNAL);
-#endif //ARDUINO_ARCH_ESP32
-            WiFi.begin();
-        }
-    }
     if((WiFi.getMode() == WIFI_AP) || (WiFi.getMode() == WIFI_AP_STA)) {
         WiFi.softAPdisconnect();
     }
@@ -192,6 +176,9 @@ bool WiFiConfig::StartSTA()
     WiFi.mode(WIFI_STA);
 #if defined (ARDUINO_ARCH_ESP32)
     esp_wifi_start();
+    WiFi.setMinSecurity(WIFI_AUTH_WEP);
+    WiFi.setScanMethod(WIFI_ALL_CHANNEL_SCAN);
+    WiFi.setSortMethod(WIFI_CONNECT_AP_BY_SIGNAL);
 #endif //ARDUINO_ARCH_ESP32
     //Get parameters for STA
     String SSID = Settings_ESP3D::read_string(ESP_STA_SSID);
