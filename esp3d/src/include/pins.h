@@ -50,6 +50,8 @@
 #define USE_BOARD_HEADER 0
 #endif //USE_BOARD_HEADER
 
+#if defined (CAMERA_DEVICE)
+
 #if CAMERA_DEVICE == CAMERA_MODEL_CUSTOM
 #define CAM_LED_PIN       4
 #define CAM_PULLUP1       -1
@@ -393,6 +395,7 @@
 #define PCLK_GPIO_NUM 13
 #endif //CAMERA_MODEL_ESP32S3_EYE
 
+#endif //CAMERA_DEVICE
 
 //Pins for the support of SD Card Reader
 //-1 means use default pins of your board defined core

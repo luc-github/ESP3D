@@ -178,13 +178,13 @@
 #define DIRECT_PIN_FEATURE
 
 //TIMESTAMP_FEATURE: set time system
-//#define TIMESTAMP_FEATURE
+#define TIMESTAMP_FEATURE
 
 //FILESYSTEM_TIMESTAMP_FEATURE: display last write time from Flash files
 //#define FILESYSTEM_TIMESTAMP_FEATURE
 
 //FILESYSTEM_TIMESTAMP_FEATURE:display last write time from SD files
-//#define SD_TIMESTAMP_FEATURE
+#define SD_TIMESTAMP_FEATURE
 
 //MDNS_FEATURE: this feature allow  type the name defined
 //in web browser by default: http:\\esp8266.local and connect
@@ -226,7 +226,7 @@
 //#define USE_BOARD_HEADER 1 //CAMERA_MODEL_ESP32_CAM_BOARD /CAMERA_MODEL_ESP32S2_CAM_BOARD
 //#define CAMERA_DEVICE_FLIP_VERTICALY  //comment to disable
 //#define CAMERA_DEVICE_FLIP_HORIZONTALY//comment to disable
-#define CUSTOM_CAMERA_NAME "ESP32-CAM"
+//#define CUSTOM_CAMERA_NAME "ESP32-CAM"
 
 
 //Allow remote access by enabling cross origin access

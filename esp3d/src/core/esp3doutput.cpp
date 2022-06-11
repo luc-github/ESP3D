@@ -558,7 +558,6 @@ size_t ESP3DOutput::printERROR(const char * s, int code_error)
     if (_client == ESP_SCREEN_CLIENT) {
         return print(s);
     }
-    _code = code_error;
     if (_client == ESP_HTTP_CLIENT) {
 #ifdef HTTP_FEATURE
         (void)code_error;
@@ -571,7 +570,7 @@ size_t ESP3DOutput::printERROR(const char * s, int code_error)
                     display ="";
                 }
                 display += s;
-                _webserver->send (_code, "text/plain", display.c_str());
+                _webserver->send (code_error, "text/plain", display.c_str());
                 _headerSent = true;
                 _footerSent = true;
                 return display.length();

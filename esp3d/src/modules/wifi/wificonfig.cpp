@@ -176,6 +176,11 @@ bool WiFiConfig::StartSTA()
         if(WiFi.isConnected()) {
             WiFi.disconnect();
         } else {
+#if defined (ARDUINO_ARCH_ESP32)
+            WiFi.setMinSecurity(WIFI_AUTH_WEP);
+            WiFi.setScanMethod(WIFI_ALL_CHANNEL_SCAN);
+            WiFi.setSortMethod(WIFI_CONNECT_AP_BY_SIGNAL);
+#endif //ARDUINO_ARCH_ESP32
             WiFi.begin();
         }
     }
