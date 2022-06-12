@@ -1,4 +1,4 @@
-# Firmware support
+# Printer firmware compatibility
 
 ## References
 
@@ -10,7 +10,7 @@ Marlin | <http://marlinfw.org/meta/gcode/>
 Marlinkimbra |<https://github.com/MagoKimbra/MarlinKimbra/blob/V4_2_9/Documentation/GCodes.md>
 Smoothieware | <http://smoothieware.org/supported-g-codes>
 GRBL | <https://github.com/gnea/grbl/wiki/Grbl-v1.1-Commands>
-Reprap | <https://duet3d.dozuki.com/Wiki/Gcode>
+Reprap | <https://docs.duet3d.com/en/User_manual/Reference/Gcodes>
 
 ---
 
