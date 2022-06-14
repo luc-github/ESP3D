@@ -94,9 +94,6 @@ const char * help[]= {"[ESP] (id) - display this help",
 #if defined(DISPLAY_TOUCH_DRIVER)
                       "[ESP215](CALIBRATE) - display state / start touch calibration",
 #endif //DISPLAY_TOUCH_DRIVER
-#if defined(DISPLAY_SNAPSHOT_FEATURE)
-                      "[ESP216](SNAP) - Take screen snapshot",
-#endif //DISPLAY_SNAPSHOT_FEATURE
 #endif //DISPLAY_DEVICE
                       "[ESP220] - Show used pins",
 #ifdef BUZZER_DEVICE
@@ -230,9 +227,6 @@ const uint cmdlist[]= {0,
 #if defined(DISPLAY_TOUCH_DRIVER)
                        215,
 #endif //DISPLAY_TOUCH_DRIVER
-#if defined(DISPLAY_SNAPSHOT_FEATURE)
-                       216,
-#endif //DISPLAY_SNAPSHOT_FEATURE
 #endif //DISPLAY_DEVICE
                        220,
 #ifdef BUZZER_DEVICE

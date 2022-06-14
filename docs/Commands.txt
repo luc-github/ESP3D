@@ -122,9 +122,6 @@ Flash pins (6~11) cannot be used
 * Touch Calibration 
 [ESP215]<CALIBRATE> json=<no> [pwd=<user password>]
 
-* Take screen snapshot
-[ESP216]<SNAP> json=<no> [pwd=<user password>]
-
 * Show defined pins
 [ESP220]<SNAP> json=<no> [pwd=<user password>]
 

@@ -268,12 +268,6 @@
 #define DEBUG_ESP3D_OUTPUT_PORT  8000
 #endif //ESP_DEBUG_FEATURE
 
-#if defined (DISPLAY_DEVICE) && (DISPLAY_UI_TYPE == UI_TYPE_ADVANCED)
-//allows to use [ESP216]SNAP to do screen capture
-#define DISPLAY_SNAPSHOT_FEATURE
-#define AUTO_SNAPSHOT_FEATURE
-#endif //DISPLAY_DEVICE
-
 /************************************
  *
  * Serial Communications

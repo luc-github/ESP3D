@@ -568,13 +568,6 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
         response = ESP215(cmd_params, auth_type, output);
         break;
 #endif //DISPLAY_TOUCH_DRIVER
-#if defined(DISPLAY_SNAPSHOT_FEATURE)
-    //Take screen snapshot
-    //[ESP216]<SNAP>[pwd=<user password>]
-    case 216:
-        response = ESP216(cmd_params, auth_type, output);
-        break;
-#endif //DISPLAY_SNAPSHOT_FEATURE
 #ifdef BUZZER_DEVICE
     //Play sound
     //[ESP250]F=<frequency> D=<duration> [pwd=<user password>]
