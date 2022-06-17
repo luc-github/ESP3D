@@ -19,7 +19,7 @@
 */
 
 #include "../../include/esp3d_config.h"
-#ifdef RECOVERY_FEATURE
+#if defined(RECOVERY_FEATURE)
 #include "recovery_service.h"
 #include "../../core/settings_esp3d.h"
 #include "../../core/esp3doutput.h"
@@ -61,6 +61,7 @@ void handlePinResetInterrupt()
 #if defined(ESP3D_RESET_PIN) &&  ESP3D_RESET_PIN !=-1
         pinMode(ESP3D_RESET_PIN, INPUT_PULLUP);
         attachInterrupt(digitalPinToInterrupt(ESP3D_RESET_PIN), handlePinResetInterrupt, FALLING);
+#endif //ESP3D_RESET_PIN
 #endif //PIN_RESET_FEATURE
         if (!res) {
             end();
