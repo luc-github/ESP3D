@@ -19,7 +19,6 @@
 */
 
 #include "src/core/esp3d.h"
-#error test
 //global variable
 Esp3D myesp3d;
 

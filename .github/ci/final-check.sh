@@ -8,7 +8,7 @@ cd $GITHUB_WORKSPACE
 echo $STEPS_CONTEXT
 step=$1
 status=$2
-export BODYMESSAGE="$(git log -1 $GITHUB_SHA --pretty="%B")"
+export BODYMESSAGE="$(git log -1 $GITHUB_SHA --pretty=oneline --abbrev-commit)"
 export BACKTICK='`';
 export TIMESTAMP=$(date --utc +%FT%TZ);
 export GITHUB_ACTOR_NAME="$(git log -1 $GITHUB_SHA --pretty="%aN")";
