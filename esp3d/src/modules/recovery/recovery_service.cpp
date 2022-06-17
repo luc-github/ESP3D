@@ -57,7 +57,8 @@ void handlePinResetInterrupt()
     bool RecoveryService::begin() {
         bool res = true;
         end();
-#ifdef PIN_RESET_FEATURE
+#if defined (PIN_RESET_FEATURE)
+#if defined(ESP3D_RESET_PIN) &&  ESP3D_RESET_PIN !=-1
         pinMode(ESP3D_RESET_PIN, INPUT_PULLUP);
         attachInterrupt(digitalPinToInterrupt(ESP3D_RESET_PIN), handlePinResetInterrupt, FALLING);
 #endif //PIN_RESET_FEATURE
