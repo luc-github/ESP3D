@@ -1,5 +1,5 @@
 /*
-  config.h - ESP3D configuration file
+  configuration.h - ESP3D configuration file
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -209,6 +209,10 @@
 //NOTIFICATION_FEATURE : allow to push notifications
 #define NOTIFICATION_FEATURE
 
+//Notifications messages
+#define NOTIFICATION_ESP_ONLINE "Hi, %ESP_NAME% is now online at %ESP_IP%"
+#define ESP_NOTIFICATION_TITLE "ESP3D Notification"
+
 //CAMERA_DEVICE: Enable the support of connected camera (Only Camera with PSRAM are supported)
 //CAMERA_MODEL_CUSTOM           0 //Edit the pins in include/pins.h
 //CAMERA_MODEL_ESP_EYE          1
@@ -338,18 +342,16 @@
  * **********************************/
 #if defined( ARDUINO_ARCH_ESP8266)
 #define ESP_MODEL_NAME "ESP8266"
-#define ESP_MODEL_URL "http://espressif.com/en/products/esp8266/"
 #endif //ARDUINO_ARCH_ESP8266
 #if defined( ARDUINO_ARCH_ESP32)
 #define ESP_MODEL_NAME "ESP32"
-#define ESP_MODEL_URL "https://www.espressif.com/en/products/hardware/esp-wroom-32/overview"
 #endif //ARDUINO_ARCH_ESP32
+#define ESP_MODEL_URL "https://www.espressif.com/en/products"
 #define ESP_MODEL_NUMBER "ESP3D 3.0"
 #define ESP_MANUFACTURER_NAME "Espressif Systems"
 #define ESP_MANUFACTURER_URL "http://espressif.com"
 
-#define NOTIFICATION_ESP_ONLINE "Hi, %ESP_NAME% is now online at %ESP_IP%"
-#define ESP_NOTIFICATION_TITLE "ESP3D Notification"
+
 
 #if !defined(WIFI_FEATURE) && !defined(ETH_FEATURE)
 #undef HTTP_FEATURE
