@@ -131,8 +131,10 @@ bool Hal::begin()
 #if defined(ESP_SD_DETECT_PIN) && ESP_SD_DETECT_PIN != -1
     pinMode (ESP_SD_DETECT_PIN, INPUT);
 #endif
+#if defined(ESP_FLAG_SHARED_SD_PIN) && ESP_FLAG_SHARED_SD_PIN != -1
     pinMode (ESP_FLAG_SHARED_SD_PIN, OUTPUT);
     digitalWrite(ESP_FLAG_SHARED_SD_PIN, !ESP_FLAG_SHARED_SD_VALUE);
+#endif //ESP_FLAG_SHARED_SD_PIN
 #endif //SD_DEVICE_CONNECTION == ESP_SHARED_SD 
     return true;
 }

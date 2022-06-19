@@ -66,7 +66,7 @@ bool ESP_SD::enableSharedSD()
         return false;
     }
     _enabled = true;
-#if defined (ESP_FLAG_SHARED_SD_PIN)
+#if defined (ESP_FLAG_SHARED_SD_PIN)  && ESP_FLAG_SHARED_SD_PIN != -1
     //need to check if SD is in use ?
     //Method : TBD
     //1 - check sd cs state ? what about SDIO then ?
@@ -127,7 +127,7 @@ void  ESP_SD::releaseFS(uint8_t FS)
 {
     (void)FS;
 #if SD_DEVICE_CONNECTION == ESP_SHARED_SD
-#if defined (ESP_FLAG_SHARED_SD_PIN)
+#if defined (ESP_FLAG_SHARED_SD_PIN)  && ESP_FLAG_SHARED_SD_PIN != -1
     log_esp3d("SD shared disabled PIN %d with %d", ESP_FLAG_SHARED_SD_PIN, ESP_FLAG_SHARED_SD_VALUE);
     digitalWrite(ESP_FLAG_SHARED_SD_PIN, !ESP_FLAG_SHARED_SD_VALUE);
 #endif // ESP_FLAG_SHARED_SD_PIN
