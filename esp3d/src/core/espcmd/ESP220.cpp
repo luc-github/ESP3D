@@ -62,7 +62,7 @@ bool Commands::ESP220(const char* cmd_params, level_authenticate_type auth_type,
             } else {
                 line +=": ";
             }
-            line +=String(ESP_SD_CS_PIN);
+            line +=String(ESP_SD_CS_PIN==-1?SS:ESP_SD_CS_PIN);
             if (json) {
                 line +="\"}";
                 output->print (line.c_str());
@@ -79,7 +79,7 @@ bool Commands::ESP220(const char* cmd_params, level_authenticate_type auth_type,
             } else {
                 line +=": ";
             }
-            line +=String(ESP_SD_MOSI_PIN);
+            line +=String(ESP_SD_MOSI_PIN==-1?MOSI:ESP_SD_MOSI_PIN);
             if (json) {
                 line +="\"}";
                 output->print (line.c_str());
@@ -96,7 +96,7 @@ bool Commands::ESP220(const char* cmd_params, level_authenticate_type auth_type,
             } else {
                 line +=": ";
             }
-            line +=String(ESP_SD_MISO_PIN);
+            line +=String(ESP_SD_MISO_PIN==-1?MISO:ESP_SD_MISO_PIN);
             if (json) {
                 line +="\"}";
                 output->print (line.c_str());
@@ -113,7 +113,7 @@ bool Commands::ESP220(const char* cmd_params, level_authenticate_type auth_type,
             } else {
                 line +=": ";
             }
-            line +=String(ESP_SD_SCK_PIN);
+            line +=String(ESP_SD_SCK_PIN==-1?SCK:ESP_SD_SCK_PIN);
             if (json) {
                 line +="\"}";
                 output->print (line.c_str());
@@ -138,6 +138,7 @@ bool Commands::ESP220(const char* cmd_params, level_authenticate_type auth_type,
                 output->printMSGLine(line.c_str());
             }
             line="";
+#if ESP_SD_DETECT_PIN !=-1
             if (json) {
                 line += "{\"id\":\"";
             }
@@ -155,6 +156,7 @@ bool Commands::ESP220(const char* cmd_params, level_authenticate_type auth_type,
                 output->printMSGLine(line.c_str());
             }
             line="";
+#endif //ESP_SD_DETECT_PIN !=-1
 #if SD_DEVICE_CONNECTION == ESP_SHARED_SD && defined(ESP_FLAG_SHARED_SD_PIN)
             if (json) {
                 line += "{\"id\":\"";
