@@ -123,9 +123,10 @@
 //#define SD_DEVICE    ESP_SDFAT2
 
 #if defined(SD_DEVICE)
-
 //SDIO mode
-#define SD_ONE_BIT_MODE true
+//SD_ONE_BIT_MODE
+//SD_FOUR_BIT_MODE
+//#define SDIO_BIT_MODE SD_ONE_BIT_MODE
 
 //SD Device Connection type (default is ESP_NO_SD if not defined)
 //ESP_NO_SD

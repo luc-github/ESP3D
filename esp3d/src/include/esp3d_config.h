@@ -28,8 +28,12 @@
 #else
 #undef DISABLED
 #undef _BV
+#  if __has_include ("../esp3dlib_config.h")
 #include "../esp3dlib_config.h"
 #include "./Marlin/FlushableHardwareSerial.h"
+#else
+#error "No configuration file found"
+#endif
 #endif
 #endif
 

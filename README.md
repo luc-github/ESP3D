@@ -1,16 +1,18 @@
 # ESP3D 3.0 alpha stage
 
 <img src="https://github.com/luc-github/ESP3D/blob/3.0/images/Screen/logo2.png">
-<H3>Do not use it for production, in alpha stage - breaking changes can happen anytime - just be aware of that, but feel free to test it and feedback</H3>   
+<H3>Do not use it for production, in alpha stage for 3D printer/Sand-Table and pre-alpha for CNC (no dedicated UI yet) - breaking changes can happen anytime - just be aware of that, but feel free to test it and feedback</H3>
 
+To compile ESP3D you need to edit the configuration.h according your needs, you can also generate it, using the configurator which simplify a lot this step: https://luc-github.github.io/
 
-Use the webUI 3.0 : https://github.com/luc-github/ESP3D-WEBUI/blob/3.0/dist/printer/production/index.html.gz  
+ESP3D V3 use ESP3D-WebUI 3.0, but it is built according your system and your system firmware: https://github.com/luc-github/ESP3D-WEBUI/3.0/dist/, so you need to use the right one, the [configurator](https://luc-github.github.io/) may also help you to download the correct version for your needs.
+
 [Latest development version ![Development Version](https://img.shields.io/badge/Devt-v3.0-yellow?style=plastic) ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/luc-github/ESP3D/3.0?style=plastic)](https://github.com/luc-github/ESP3D/tree/3.0) [![github-ci](https://github.com/luc-github/ESP3D/workflows/build-ci/badge.svg)](https://github.com/luc-github/ESP3D/actions/workflows/build-ci.yml) [![Development  Version](https://img.shields.io/badge/Devt-v3.0-yellow?style=plastic&label=WebUI)](https://github.com/luc-github/ESP3D-WEBUI/tree/3.0)
 
 please use Arduino ide 1.8.9+ with [![Release Version](https://img.shields.io/badge/ESP32-git-yellow?style=plastic&logo=github)](https://github.com/espressif/arduino-esp32) or [![Release Version](https://img.shields.io/badge/ESP8266-git-yellow?style=plastic&logo=github)](https://github.com/esp8266/Arduino/)  
 or PlatformIO
 
-Because ESP3D 3.0 is actually a set of several projects: [ESP3D](https://github.com/luc-github/ESP3D), [ESP3D-WEBUI](https://github.com/luc-github/ESP3D-WEBUI), [ESP3DLib](https://github.com/luc-github/ESP3DLib), [ESP32SSDP](https://github.com/luc-github/ESP32SSDP), [svg-icons](https://github.com/luc-github/svg-icons)
+Because ESP3D 3.0 is actually a set of several projects: [ESP3D](https://github.com/luc-github/ESP3D), [ESP3D-Configurator](https://github.com/luc-github/ESP3D-Configurator), [ESP3D-WEBUI](https://github.com/luc-github/ESP3D-WEBUI), [ESP3DLib](https://github.com/luc-github/ESP3DLib), [ESP32SSDP](https://github.com/luc-github/ESP32SSDP), [svg-icons](https://github.com/luc-github/svg-icons)
 
 I did a project board to put all majors tasks/issues in one places : [ESP3D Project](https://github.com/users/luc-github/projects/1/views/1)
 

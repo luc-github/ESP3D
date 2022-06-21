@@ -194,6 +194,10 @@
 #define ESP_SDFAT                   3
 #define ESP_SDFAT2                  4
 
+//SDIO Mode
+#define SD_ONE_BIT_MODE             1
+#define SD_FOUR_BIT_MODE            0
+
 //SD state
 #define ESP_SDCARD_IDLE             0
 #define ESP_SDCARD_NOT_PRESENT      1
