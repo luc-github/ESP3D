@@ -230,7 +230,7 @@
 * ESP_SHARED_SD //Printer SD Card is also connected to ESP3D
 * Does your system has SD card and how it is connected to your ESP3D
 */
-#define SD_DEVICE_CONNECTION ESP_DIRECT_SD
+//#define SD_DEVICE_CONNECTION ESP_DIRECT_SD
 
 /* SD card library
 * ESP_SD_NATIVE //esp32 / esp8266
@@ -238,7 +238,7 @@
 * ESP_SDFAT     //esp8266  / esp32
 * ESP_SDFAT2    //esp8266  / esp32
 */
-#define SD_DEVICE ESP_SDFAT2
+//#define SD_DEVICE ESP_SDFAT2
 
 /* Sdio bit mode
 * Mode used by SDIO library 1 bit / 4bits
@@ -411,7 +411,7 @@
 /* Buzzer pin
 * The pin used for the passive buzzer
 */
-#define ESP3D_BUZZER_PIN 33
+//#define ESP3D_BUZZER_PIN 33
 
 /************************************
 *
@@ -423,12 +423,12 @@
 /* Sensor pin
 * The pin used for the sensor
 */
-#define ESP3D_SENSOR_PIN 34
+//#define ESP3D_SENSOR_PIN 34
 
 /* Sensor Unit
 *  Unit of the sensor result
 */
-#define SENSOR__UNIT "C"
+//#define SENSOR__UNIT "C"
 
 /************************************
 *
