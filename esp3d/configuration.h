@@ -497,7 +497,7 @@
 
 /* Enable direct control pin
 * Controls pins using [ESP201]
-*
+*/
 #define DIRECT_PIN_FEATURE
 
 /************************************
