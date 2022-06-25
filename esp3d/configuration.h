@@ -392,7 +392,7 @@
 
 /* TFT led pin
 * The pin used for the backlight
-*
+*/
 //#define DISPLAY_LED_PIN -1
 
 /************************************
