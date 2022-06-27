@@ -33,7 +33,7 @@ public:
     void end();
     bool initHardware();
     bool stopHardware();
-    void handle_snap(WebServer * webserver);
+    bool handle_snap(WebServer * webserver, const char *path=NULL, const char* filename=NULL);
     void handle();
     int command(const char * param, const char * value);
     uint8_t GetModel();

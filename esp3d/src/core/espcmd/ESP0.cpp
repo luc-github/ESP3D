@@ -67,7 +67,8 @@ const char * help[]= {"[ESP] (id) - display this help",
                       "[ESP161](Port) - display/set WebSocket port",
 #endif //WS_DATA_FEATURE
 #if defined(CAMERA_DEVICE)
-                      "[ESP170](plain) (label=value) - display(JSON/plain)/set Camera commands",
+                      "[ESP170](json) (label=value) - display/set Camera commands",
+                      "[ESP171] (path=<target path>) (filename=<target filename>) Save frame to target path and filename",
 #endif //CAMERA_DEVICE
 #if defined(FTP_FEATURE)
                       "[ESP180](State) - display/set FTP state which can be ON, OFF",
@@ -203,6 +204,7 @@ const uint cmdlist[]= {0,
 #endif //WS_DATA_FEATURE
 #if defined(CAMERA_DEVICE)
                        170,
+                       171,
 #endif //CAMERA_DEVICE
 #if defined(FTP_FEATURE)
                        180,

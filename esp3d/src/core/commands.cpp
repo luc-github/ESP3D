@@ -492,10 +492,15 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
 #endif //WS_DATA_FEATURE
 #ifdef CAMERA_DEVICE
     //Get/Set Camera command value / list all values in JSON/plain
-    //[ESP170]label=<value>pwd=<admin password>
+    //[ESP170]label=<value> pwd=<admin/user password>
     //label can be: light/framesize/quality/contrast/brightness/saturation/gainceiling/colorbar/awb/agc/aec/hmirror/vflip/awb_gain/agc_gain/aec_value/aec2/cw/bpc/wpc/raw_gma/lenc/special_effect/wb_mode/ae_level
     case 170:
         response = ESP170(cmd_params, auth_type, output);
+        break;
+    //Save frame to target path and filename (default target = today date, default name=timestamp.jpg)
+    //[ESP171]path=<target path> filename=<target filename> pwd=<admin/user password>
+    case 171:
+        response = ESP171(cmd_params, auth_type, output);
         break;
 #endif //CAMERA_DEVICE
 #ifdef FTP_FEATURE

@@ -82,7 +82,10 @@ The json format is {
 
 * Get/Set Camera command value / list all values in JSON/plain
 label can be: light/framesize/quality/contrast/brightness/saturation/gainceiling/colorbar/awb/agc/aec/hmirror/vflip/awb_gain/agc_gain/aec_value/aec2/cw/bpc/wpc/raw_gma/lenc/special_effect/wb_mode/ae_level
-[ESP170]<plain><label=value> json=<no> pwd=<admin password>
+[ESP170]<label=value> json=<no> pwd=<admin password>
+
+* Save frame to target path and filename (default target = today date, default name=timestamp.jpg)
+[ESP171] <path=target path> <filename=target filename> 
 
 * Get/Set Ftp state which can be ON, OFF, CLOSE
 [ESP180]<state> json=<no> pwd=<admin password>

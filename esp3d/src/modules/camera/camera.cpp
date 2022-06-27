@@ -26,8 +26,10 @@
 #include <esp_camera.h>
 #include <soc/soc.h> //not sure this one is needed
 #include <soc/rtc_cntl_reg.h>
-
 #include <WebServer.h>
+#if defined (SD_DEVICE)
+#include "../filesystem/esp_sd.h"
+#endif //SD_DEVICE
 
 
 #define DEFAULT_FRAME_SIZE FRAMESIZE_SVGA
@@ -35,45 +37,54 @@
 
 Camera esp3d_camera;
 
-void Camera::handle_snap(WebServer * webserver)
+bool Camera::handle_snap(WebServer * webserver, const char *path, const char* filename)
 {
     log_esp3d("Camera stream reached");
     if (!_initialised) {
         log_esp3d("Camera not started");
-        webserver->send (500, "text/plain", "Camera not started");
-        return;
+        if (webserver) {
+            webserver->send (500, "text/plain", "Camera not started");
+        }
+        return false;
     }
     sensor_t * s = esp_camera_sensor_get();
-    if (webserver->hasArg ("framesize") ) {
-        if(s->status.framesize != webserver->arg ("framesize").toInt()) {
-            command("framesize", webserver->arg ("framesize").c_str());
+    if (webserver) {
+        if (webserver->hasArg ("framesize") ) {
+            if(s->status.framesize != webserver->arg ("framesize").toInt()) {
+                command("framesize", webserver->arg ("framesize").c_str());
+            }
         }
-    }
-    if (webserver->hasArg ("hmirror") ) {
-        command("hmirror", webserver->arg ("hmirror").c_str());
-    }
-    if (webserver->hasArg ("vflip") ) {
-        command("vflip", webserver->arg ("vflip").c_str());
-    }
-    if (webserver->hasArg ("wb_mode") ) {
-        command("wb_mode", webserver->arg ("wb_mode").c_str());
-    }
+        if (webserver->hasArg ("hmirror") ) {
+            command("hmirror", webserver->arg ("hmirror").c_str());
+        }
+        if (webserver->hasArg ("vflip") ) {
+            command("vflip", webserver->arg ("vflip").c_str());
+        }
+        if (webserver->hasArg ("wb_mode") ) {
+            command("wb_mode", webserver->arg ("wb_mode").c_str());
+        }
 #ifdef ESP_ACCESS_CONTROL_ALLOW_ORIGIN
-    webserver->enableCrossOrigin(true);
+        webserver->enableCrossOrigin(true);
 #endif //ESP_ACCESS_CONTROL_ALLOw_ORIGIN
+    }
     camera_fb_t * fb = NULL;
     bool res_error = false;
     size_t _jpg_buf_len = 0;
     uint8_t * _jpg_buf = NULL;
-    webserver->sendHeader(String(F("Content-Type")), String(F("image/jpeg")),true);
-    webserver->sendHeader(String(F("Content-Disposition")), String(F("inline; filename=capture.jpg")),true);
-    webserver->setContentLength(CONTENT_LENGTH_UNKNOWN);
-    webserver->send(200);
+    if (webserver) {
+        webserver->sendHeader(String(F("Content-Type")), String(F("image/jpeg")),true);
+        webserver->sendHeader(String(F("Content-Disposition")), String(F("inline; filename=capture.jpg")),true);
+        webserver->setContentLength(CONTENT_LENGTH_UNKNOWN);
+        webserver->send(200);
+    }
     log_esp3d("Camera capture ongoing");
     fb = esp_camera_fb_get();
     if (!fb) {
         log_esp3d("Camera capture failed");
-        webserver->send (500, "text/plain", "Capture failed");
+        if (webserver) {
+            webserver->send (500, "text/plain", "Capture failed");
+        }
+        res_error=true;
     } else {
         if(fb->format != PIXFORMAT_JPEG) {
             bool jpeg_converted = frame2jpg(fb, JPEG_COMPRESSION, &_jpg_buf, &_jpg_buf_len);
@@ -89,7 +100,49 @@ void Camera::handle_snap(WebServer * webserver)
         }
     }
     if (!res_error) {
-        webserver->sendContent_P ((const char *)_jpg_buf, _jpg_buf_len);
+        if(webserver) {
+            webserver->sendContent_P ((const char *)_jpg_buf, _jpg_buf_len);
+        }
+#if defined (SD_DEVICE)
+        if (filename!=nullptr && path!=nullptr) {
+            if (!ESP_SD::accessFS()) {
+                res_error = true;
+                log_esp3d("SD not available");
+            } else {
+                if (ESP_SD::getState(true) == ESP_SDCARD_NOT_PRESENT) {
+                    res_error = true;
+                    log_esp3d("No SD");
+                } else {
+                    ESP_SD::setState(ESP_SDCARD_BUSY );
+                    String wpath = path[0]=='/' ? path : String("/")+path;
+                    if (!ESP_SD::exists(wpath.c_str())) {
+                        res_error = !ESP_SD::mkdir(wpath.c_str());
+                    }
+                    if (!res_error) {
+                        if (wpath[wpath.length()-1]!='/') {
+                            wpath += "/";
+                        }
+                        wpath +=filename ;
+                        ESP_SDFile f = ESP_SD::open(wpath.c_str(), ESP_FILE_WRITE);
+                        if (f) {
+                            f.write((const uint8_t *)_jpg_buf, _jpg_buf_len);
+                            f.close();
+                            log_esp3d("Camera capture done");
+                        } else {
+                            res_error = true;
+                            log_esp3d("Failed to open file for writing");
+                        }
+                    }
+                }
+                ESP_SD::releaseFS();
+            }
+
+        }
+#endif //SD_DEVICE
+        if (!webserver && filename==nullptr && path==nullptr) {
+            log_esp3d("No output defined");
+            res_error = true;
+        }
     }
 
     if(fb) {
@@ -100,7 +153,10 @@ void Camera::handle_snap(WebServer * webserver)
         free(_jpg_buf);
         _jpg_buf = NULL;
     }
-    webserver->sendContent("");
+    if(webserver) {
+        webserver->sendContent("");
+    }
+    return !res_error;
 }
 
 Camera::Camera()
