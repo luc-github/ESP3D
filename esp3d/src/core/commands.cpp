@@ -528,11 +528,13 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
     case 200:
         response = ESP200(cmd_params, auth_type, output);
         break;
+#if  SD_DEVICE != ESP_SDIO
     //Get/Set SD card Speed factor 1 2 4 6 8 16 32
     //[ESP202]SPEED=<value>pwd=<user/admin password>
     case 202:
         response = ESP202(cmd_params, auth_type, output);
         break;
+#endif //SD_DEVICE != ESP_SDIO
 #ifdef SD_UPDATE_FEATURE
     //Get/Set SD Check at boot state which can be ON, OFF
     //[ESP402]<state>pwd=<admin password>

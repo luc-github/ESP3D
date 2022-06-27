@@ -96,7 +96,9 @@ public:
 #endif //WEBDAV_FEATURE
 #if defined (SD_DEVICE)
     bool ESP200(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+#if SD_DEVICE != ESP_SDIO
     bool ESP202(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+#endif //SD_DEVICE != ESP_SDIO
 #ifdef SD_UPDATE_FEATURE
     bool ESP402(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #endif //SD_UPDATE_FEATURE

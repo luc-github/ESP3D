@@ -84,7 +84,9 @@ const char * help[]= {"[ESP] (id) - display this help",
                       "[ESP201](P=xxx) (V=xxx) (PULLUP=YES RAW=YES ANALOG=NO ANALOG_RANGE=255) - read / set  pin value",
 #endif //DIRECT_PIN_FEATURE
 #if defined (SD_DEVICE)
+#if SD_DEVICE != ESP_SDIO
                       "[ESP202] SPEED=(factor) - display / set  SD Card  SD card Speed factor (1 2 4 6 8 16 32)",
+#endif //SD_DEVICE != ESP_SDIO
 #endif //SD_DEVICE
 #ifdef SENSOR_DEVICE
                       "[ESP210](type=NONE/xxx) (interval=xxxx) - display and read/set SENSOR info",
@@ -216,7 +218,7 @@ const uint cmdlist[]= {0,
 #ifdef DIRECT_PIN_FEATURE
                        201,
 #endif //DIRECT_PIN_FEATURE
-#if defined (SD_DEVICE)
+#if defined (SD_DEVICE)  && SD_DEVICE != ESP_SDIO
                        202,
 #endif //SD_DEVICE
 #ifdef SENSOR_DEVICE

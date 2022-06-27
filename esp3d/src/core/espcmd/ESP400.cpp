@@ -522,13 +522,15 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
             output->print (Settings_ESP3D::get_min_int32_value(ESP_SENSOR_INTERVAL));
             output->print ("\"}");
 #endif //SENSOR_DEVICE
-#ifdef SD_DEVICE
+#if defined(SD_DEVICE)
+#if SD_DEVICE != ESP_SDIO
             //SPI SD Divider
             output->print(",{\"F\":\"device/sd\",\"P\":\"");
             output->print(ESP_SD_SPEED_DIV);
             output->print("\",\"T\":\"B\",\"V\":\"");
             output->print (Settings_ESP3D::read_byte(ESP_SD_SPEED_DIV));
             output->print("\",\"H\":\"speedx\",\"O\":[{\"1\":\"1\"},{\"2\":\"2\"},{\"3\":\"3\"},{\"4\":\"4\"},{\"6\":\"6\"},{\"8\":\"8\"},{\"16\":\"16\"},{\"32\":\"32\"}]}");
+#endif //SD_DEVICE != ESP_SDIO
 #ifdef SD_UPDATE_FEATURE
             //SD CHECK UPDATE AT BOOT feature
             output->print(",{\"F\":\"device/sd\",\"P\":\"");

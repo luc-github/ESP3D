@@ -18,7 +18,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "../../include/esp3d_config.h"
-#if defined (SD_DEVICE)
+#if defined (SD_DEVICE) && SD_DEVICE != ESP_SDIO
 #include "../commands.h"
 #include "../esp3doutput.h"
 #include "../settings_esp3d.h"

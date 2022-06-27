@@ -7,7 +7,7 @@ shopt -s globstar
 cd $HOME/arduino_ide/hardware
 mkdir esp8266com
 cd esp8266com
-git clone https://github.com/esp8266/Arduino.git esp8266
+git clone -b 3.0.2 https://github.com/esp8266/Arduino.git esp8266
 cd esp8266
 git submodule update --init
 cd tools
