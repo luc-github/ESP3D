@@ -27,80 +27,72 @@ RecoveryService recovery_service;
 
 #ifdef PIN_RESET_FEATURE
 #include "../../core/esp3d.h"
-volatile bool interruptswitch =false;
-#ifdef ARDUINO_ARCH_ESP32
-portMUX_TYPE espmux = portMUX_INITIALIZER_UNLOCKED;
-#endif //ARDUINO_ARCH_ESP32
+bool interruptswitch =false;
 
-#ifdef ARDUINO_ARCH_ESP8266
-void handlePinResetInterrupt()
+
+RecoveryService::RecoveryService()
 {
-#endif //ARDUINO_ARCH_ESP8266
-#ifdef ARDUINO_ARCH_ESP32
-    void IRAM_ATTR handlePinResetInterrupt() {
-        portENTER_CRITICAL_ISR(&espmux);
-#endif //ARDUINO_ARCH_ESP32
-        interruptswitch = true;
-#ifdef ARDUINO_ARCH_ESP32
-        portEXIT_CRITICAL_ISR(&espmux);
-#endif //ARDUINO_ARCH_ESP32
-    }
-#endif //PIN_RESET_FEATURE
+    _started = false;
+}
+RecoveryService::~RecoveryService()
+{
+    end();
+}
 
-    RecoveryService::RecoveryService() {
-        _started = false;
-    }
-    RecoveryService::~RecoveryService() {
+bool RecoveryService::begin()
+{
+    bool res = true;
+    end();
+
+#if defined (PIN_RESET_FEATURE) && defined(ESP3D_RESET_PIN) &&  ESP3D_RESET_PIN !=-1
+    pinMode(ESP3D_RESET_PIN, INPUT_PULLUP);
+    //attach interrupt to pin is conflicting with camera device because it already attach interrupt to pin
+#endif //PIN_RESET_FEATURE
+    if (!res) {
         end();
     }
+    _started = res;
+    return _started;
+}
 
-    bool RecoveryService::begin() {
-        bool res = true;
-        end();
-#if defined (PIN_RESET_FEATURE)
-#if defined(ESP3D_RESET_PIN) &&  ESP3D_RESET_PIN !=-1
-        pinMode(ESP3D_RESET_PIN, INPUT_PULLUP);
-        attachInterrupt(digitalPinToInterrupt(ESP3D_RESET_PIN), handlePinResetInterrupt, FALLING);
-#endif //ESP3D_RESET_PIN
+
+void RecoveryService::end()
+{
+    if(!_started) {
+        return;
+    }
+    _started = false;
+}
+
+
+bool RecoveryService::started()
+{
+    return _started;
+}
+
+void RecoveryService::handle()
+{
+    if (_started) {
+#if defined(PIN_RESET_FEATURE) && defined(ESP3D_RESET_PIN) &&  ESP3D_RESET_PIN !=-1
+        //attach interrupt to pin is conflicting with camera device because it already attach interrupt to pin
+        //so use digitalread to check pin state
+        interruptswitch = !digitalRead(ESP3D_RESET_PIN);
 #endif //PIN_RESET_FEATURE
-        if (!res) {
-            end();
-        }
-        _started = res;
-        return _started;
-    }
-
-
-    void RecoveryService::end() {
-        if(!_started) {
-            return;
-        }
-#ifdef PIN_RESET_FEATURE
-        detachInterrupt(digitalPinToInterrupt(ESP3D_RESET_PIN));
-#endif //PIN_RESET_FEATURE
-        _started = false;
-    }
-
-
-    bool RecoveryService::started() {
-        return _started;
-    }
-
-    void RecoveryService::handle() {
-        if (_started) {
-#ifdef PIN_RESET_FEATURE
-            if (interruptswitch) {
-                static uint32_t lastreset = 0;
-                interruptswitch = false;
-                if ((millis() - lastreset) > 1000) {
-                    lastreset = millis();
-                    ESP3DOutput  output(ESP_ALL_CLIENTS);
-                    output.printMSG("Reset requested");
-                    Esp3D::reset();
-                }
+        if (interruptswitch) {
+            static uint32_t lastreset = 0;
+            interruptswitch = false;
+            if ((millis() - lastreset) > 1000) {
+                lastreset = millis();
+                ESP3DOutput  output(ESP_ALL_CLIENTS);
+                output.printMSG("Reset requested");
+                Esp3D::reset();
+                output.flush();
+                Hal::wait(100);
+                Esp3D::restart_esp();
             }
-#endif //PIN_RESET_FEATURE
         }
+#endif //PIN_RESET_FEATURE
     }
+}
 
 #endif //RECOVERY_FEATURE

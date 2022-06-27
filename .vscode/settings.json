@@ -3,5 +3,6 @@
     "files.associations": {
         "*.tcc": "cpp",
         "fstream": "cpp"
-    }
+    },
+    "cmake.configureOnOpen": false
 }
