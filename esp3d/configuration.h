@@ -261,7 +261,7 @@
 /* SD card detect pin
 * The pin used to detect SD card
 */
-//#define ESP_DETECT_PIN 4
+//#define ESP_SD_DETECT_PIN 4
 
 /* SD card detect pin value
 * State of SD card detect pin when card is present
