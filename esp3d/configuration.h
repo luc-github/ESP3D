@@ -48,7 +48,7 @@
 * RAW_SERIAL // Basic serial protocol, without data change
 * MKS_SERIAL // This is a MakerBase communication protocol, used with MKS printers and TFT, it encapsulated data in a custom protocol
 */
-#define COMMUNICATION_PROTOCOL MKS_SERIAL
+#define COMMUNICATION_PROTOCOL RAW_SERIAL
 
 /* Serial port
 * which serial ESP use to communicate to printer (ESP32 has 3 serials available, ESP8266 only 2)
