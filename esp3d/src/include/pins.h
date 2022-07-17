@@ -260,29 +260,6 @@
 #define PCLK_GPIO_NUM     22
 #endif //CAMERA_MODEL_AI_THINKER
 
-#if CAMERA_DEVICE == CAMERA_MODEL_TTGO_T_JOURNAL
-#define CAM_LED_PIN       -1
-#define CAM_PULLUP1       -1
-#define CAM_PULLUP2       -1
-#define PWDN_GPIO_NUM      0
-#define RESET_GPIO_NUM    15
-#define XCLK_GPIO_NUM     27
-#define SIOD_GPIO_NUM     25
-#define SIOC_GPIO_NUM     23
-
-#define Y9_GPIO_NUM       19
-#define Y8_GPIO_NUM       36
-#define Y7_GPIO_NUM       18
-#define Y6_GPIO_NUM       39
-#define Y5_GPIO_NUM        5
-#define Y4_GPIO_NUM       34
-#define Y3_GPIO_NUM       35
-#define Y2_GPIO_NUM       17
-#define VSYNC_GPIO_NUM    22
-#define HREF_GPIO_NUM     26
-#define PCLK_GPIO_NUM     21
-#endif //CAMERA_MODEL_TTGO_T_JOURNAL
-
 #if CAMERA_DEVICE == CAMERA_MODEL_ESP32_CAM_BOARD
 #define CAM_LED_PIN       -1
 #define CAM_PULLUP1       -1
