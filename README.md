@@ -1,7 +1,7 @@
 # ESP3D 3.0 alpha stage
 
 <img src="https://github.com/luc-github/ESP3D/blob/3.0/images/Screen/logo2.png">
-<H3>Do not use it for production, in alpha stage for 3D printer/Sand-Table and pre-alpha for CNC (no dedicated UI yet) - breaking changes can happen anytime - just be aware of that, but feel free to test it and feedback</H3>
+<H3>Do not use it for production, in alpha stage for 3D printer/Sand-Table and CNC - breaking changes can happen anytime - just be aware of that, but feel free to test it and feedback</H3>
 
 To compile ESP3D you need to edit the configuration.h according your needs, you can also generate it, using the configurator which simplify a lot this step: https://luc-github.github.io/
 
