@@ -34,7 +34,7 @@
 const unsigned char realTimeCommands[]= {'!','~','?',0x18,0x84,0x85,0x90,0x92,0x93,0x94,0x95,0x96,0x97,0x99,0x9A,0x9B,0x9C,0x9D,0x9E,0xA0,0xA1};
 bool isRealTimeCommand(unsigned char c)
 {
-    for(int i=0; i<sizeof(realTimeCommands); i++) {
+    for(unsigned int i=0; i<sizeof(realTimeCommands); i++) {
         if(c==realTimeCommands[i]) {
             return true;
         }
