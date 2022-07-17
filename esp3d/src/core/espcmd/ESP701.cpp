@@ -106,7 +106,7 @@ bool Commands::ESP701(const char* cmd_params, level_authenticate_type auth_type,
                 if (esp3d_gcode_host.getErrorNum()!=ERROR_NO_ERROR) {
                     noError = false;
                     if(json) {
-                        resp= "{\"state\":\"no stream\",\"code\":\"" + String(esp3d_gcode_host.getErrorNum()) + "\"}";
+                        resp= "{\"status\":\"no stream\",\"code\":\"" + String(esp3d_gcode_host.getErrorNum()) + "\"}";
                     } else {
                         resp = "no stream, last error " + String(esp3d_gcode_host.getErrorNum());
                     }
