@@ -787,7 +787,11 @@ uint8_t Settings_ESP3D::read_byte (int pos, bool * haserror)
         return value;
     }
     String p = "P_" + String(pos);
-    value  = prefs.getChar(p.c_str(), get_default_byte_value(pos));
+    if (prefs.isKey(p.c_str())) {
+        value  = prefs.getChar(p.c_str(), get_default_byte_value(pos));
+    } else {
+        value  = get_default_byte_value(pos);
+    }
     prefs.end();
 #endif //SETTINGS_IN_PREFERENCES
     if(haserror) {
@@ -901,7 +905,11 @@ const char * Settings_ESP3D::read_string (int pos, bool *haserror)
         return "";
     }
     String p = "P_" + String(pos);
-    res = prefs.getString(p.c_str(), get_default_string_value(pos));
+    if (prefs.isKey(p.c_str())) {
+        res = prefs.getString(p.c_str(), get_default_string_value(pos));
+    } else {
+        res = get_default_string_value(pos);
+    }
     prefs.end();
 
     if (res.length() > size_max) {
@@ -996,7 +1004,11 @@ uint32_t Settings_ESP3D::read_uint32(int pos, bool * haserror)
         return res;
     }
     String p = "P_" + String(pos);
-    res = prefs.getUInt(p.c_str(), res);
+    if (prefs.isKey(p.c_str())) {
+        res = prefs.getUInt(p.c_str(), res);
+    } else {
+        res = get_default_int32_value(pos);
+    }
     prefs.end();
 #endif //SETTINGS_IN_PREFERENCES
     if (haserror) {
