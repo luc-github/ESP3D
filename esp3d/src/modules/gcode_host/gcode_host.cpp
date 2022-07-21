@@ -256,16 +256,23 @@ void GcodeHost::readNextCommand()
             } else {
                 _processedSize++;
                 _currentPosition++;
-                if (!(((char)c =='\n') || ((char)c =='\r') || ((char)c == ';'))) {
+                if (!(((char)c =='\n') || ((char)c =='\r') || ((char)c == ';'))) { //Added ';' as endline/end of command/comment character
                     _currentCommand+=(char)c;
                 } else {
+                    //if comment, continue forwards to the end of the line
                     if ((char)c == ';'){
                         while(!((char)c == '\n') || ((char)c =='\r')){
+                            c = FSfileHandle.read();
                             _processedSize++;
                             _currentPosition++;
                         }
+                        //in the case of full line comments, continue on to the next line
+                        if (_currentCommand.length() != 0){
+                            processing = false;
+                        }
+                    } else {
+                        processing = false;
                     }
-                    processing = false;
                 }
             }
         }
@@ -285,16 +292,23 @@ void GcodeHost::readNextCommand()
             } else {
                 _processedSize++;
                 _currentPosition++;
-                if (!(((char)c =='\n') || ((char)c =='\r') || ((char)c == ';'))) {
+                if (!(((char)c =='\n') || ((char)c =='\r') || ((char)c == ';'))) { //Added ';' as endline/end of command/comment character
                     _currentCommand+=(char)c;
                 } else {
+                    //if comment, continue forwards to the end of the line
                     if ((char)c == ';'){
                         while(!((char)c == '\n') || ((char)c =='\r')){
                             _processedSize++;
                             _currentPosition++;
+                            c = FSfileHandle.read();
                         }
+                        //in the case of full line comments, continue on to the next line
+                        if (_currentCommand.length() != 0){
+                            processing = false;
+                        }
+                    } else {
+                        processing = false;
                     }
-                    processing = false;
                 }
             }
         }
