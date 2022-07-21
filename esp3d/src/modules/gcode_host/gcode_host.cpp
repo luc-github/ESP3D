@@ -298,9 +298,9 @@ void GcodeHost::readNextCommand()
                     //if comment, continue forwards to the end of the line
                     if ((char)c == ';'){
                         while(!((char)c == '\n') || ((char)c =='\r')){
+                            c = FSfileHandle.read();
                             _processedSize++;
                             _currentPosition++;
-                            c = FSfileHandle.read();
                         }
                         //in the case of full line comments, continue on to the next line
                         if (_currentCommand.length() != 0){
