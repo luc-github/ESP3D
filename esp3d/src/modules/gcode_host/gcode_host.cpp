@@ -256,9 +256,15 @@ void GcodeHost::readNextCommand()
             } else {
                 _processedSize++;
                 _currentPosition++;
-                if (!(((char)c =='\n') || ((char)c =='\r'))) {
+                if (!(((char)c =='\n') || ((char)c =='\r') || ((char)c == ';'))) {
                     _currentCommand+=(char)c;
                 } else {
+                    if ((char)c == ';'){
+                        while(!((char)c == '\n') || ((char)c =='\r')){
+                            _processedSize++;
+                            _currentPosition++;
+                        }
+                    }
                     processing = false;
                 }
             }
@@ -279,9 +285,15 @@ void GcodeHost::readNextCommand()
             } else {
                 _processedSize++;
                 _currentPosition++;
-                if (!(((char)c =='\n') || ((char)c =='\r'))) {
+                if (!(((char)c =='\n') || ((char)c =='\r') || ((char)c == ';'))) {
                     _currentCommand+=(char)c;
                 } else {
+                    if ((char)c == ';'){
+                        while(!((char)c == '\n') || ((char)c =='\r')){
+                            _processedSize++;
+                            _currentPosition++;
+                        }
+                    }
                     processing = false;
                 }
             }
