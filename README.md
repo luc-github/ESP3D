@@ -3,7 +3,8 @@
 <img src="https://github.com/luc-github/ESP3D/blob/3.0/images/Screen/logo2.png">
 <H3>Do not use it for production, in alpha stage for 3D printer/Sand-Table and CNC - breaking changes can happen anytime - just be aware of that, but feel free to test it and feedback</H3>
 
-To compile ESP3D you need to edit the configuration.h according your needs, you can also generate it, using the configurator which simplify a lot this step: https://luc-github.github.io/
+To compile ESP3D you need to edit the configuration.h according your needs.   
+You can also generate it, using [![Development  Version](https://img.shields.io/badge/Configurator-ESP3D-red?style=for-the-badge&logo=preact)](https://luc-github.github.io/) which simplify a lot this step or click here: https://luc-github.github.io/      
 
 ESP3D V3 use ESP3D-WebUI 3.0, but it is built according your system and your system firmware: https://github.com/luc-github/ESP3D-WEBUI/3.0/dist/, so you need to use the right one, the [configurator](https://luc-github.github.io/) may also help you to download the correct version for your needs.
 
