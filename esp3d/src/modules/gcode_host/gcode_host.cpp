@@ -537,9 +537,9 @@ void GcodeHost::handle()
         authorCommand("M0"); //M0 is unconditional stop in marlin
         _step = HOST_STREAM_PAUSED;
         break;
-    case HOST_STREAM_PAUSED:
+    //case HOST_STREAM_PAUSED: //rejected at first if statement
         //TODO Anything to do on pause?
-        break;
+    //    break;
     case HOST_RESUME_STREAM:
         //Any extra action to resume stream?
         authorCommand("M108"); //break and continue in marlin
@@ -634,7 +634,7 @@ void GcodeHost::resetCommandNumbering()
     } else {
         resetcmd = "M110 N0";
     }
-    _commandNumber = 0;
+    _commandNumber = 1;
     //need to use process to send command
     //return _outputStream.printLN(resetcmd.c_str());
     authorCommand("M110", "N0");
