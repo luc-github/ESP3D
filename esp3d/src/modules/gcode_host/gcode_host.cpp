@@ -290,8 +290,11 @@ void GcodeHost::readNextCommand()
         
             if (_processedSize >= _totalSize){ //in the case of a missing last line ending, this should end the final line
                 processing = false;
+                //TODO stop stream after the current command is processed? may be unnecessary if file system reads -1 at file end reliably.
             }
         }
+        _processedSize++; //one more increment to pair with the initial read.
+        _currentPosition++;
         
 
         if (_currentCommand.length() == 0) {
