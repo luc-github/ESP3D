@@ -52,6 +52,7 @@ class ESP3DOutput;
 #define HOST_STOP_STREAM   7
 #define HOST_ERROR_STREAM  8
 #define HOST_ABORT_STREAM  9
+#define HOST_WAIT4_HEATING 10
 
 #define TYPE_SCRIPT_STREAM 0
 #define TYPE_FS_STREAM     1

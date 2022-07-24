@@ -34,6 +34,7 @@ ESP_SDFile SDfileHandle;
 #endif //FILESYSTEM_FEATURE
 
 #define ESP_HOST_TIMEOUT 16000
+#define ESP_HOST_HEATING_TIMEOUT 60000
 #define MAX_TRY_2_SEND 5
 
 
@@ -195,7 +196,7 @@ void GcodeHost::startStream()
 #endif //SD_DEVICE
     _currentPosition = 0;
     _response = "";
-    _currentPosition = 0;
+    _currentPosition = 0; //Duplicate?
     _error = ERROR_NO_ERROR;
     _step = HOST_READ_LINE;
     _nextStep = HOST_READ_LINE;
@@ -248,70 +249,86 @@ void GcodeHost::readNextCommand()
 #if defined(FILESYSTEM_FEATURE)
     if (_fsType ==TYPE_FS_STREAM) {
         bool processing = true;
-        while (processing) {
-            //to handle file without endline
-            int c = FSfileHandle.read();
-            if (c == -1) {
+        int c = FSfileHandle.read();
+        while (((char)c == ' ') || ((char)c =='\n') || ((char)c =='\r')){ //ignore any leading spaces and empty lines (May be unnecessary?: Marlin does strip leading whitespace, but this reduces unnecessary data throughput which is surely a positive)
+            _processedSize++;
+            _currentPosition++;
+            c = FSfileHandle.read();
+        }
+        while(processing){
+            if (c == -1) { //do file reads reliably return this at the end of files?
                 processing = false;
+            }
+            else if (!(((char)c =='\n') || ((char)c =='\r') || ((char)c == ';'))) { //Added ';' as endline/end of command/comment character
+                _currentCommand+=(char)c;
             } else {
-                _processedSize++;
-                _currentPosition++;
-                if (!(((char)c =='\n') || ((char)c =='\r') || ((char)c == ';'))) { //Added ';' as endline/end of command/comment character
-                    _currentCommand+=(char)c;
-                } else {
-                    //if comment, continue forwards to the end of the line
-                    if ((char)c == ';'){
-                        while(!((char)c == '\n') || ((char)c =='\r')){
-                            c = FSfileHandle.read();
-                            _processedSize++;
-                            _currentPosition++;
-                        }
-                        //in the case of full line comments, continue on to the next line
-                        if (_currentCommand.length() != 0){
-                            processing = false;
-                        }
-                    } else {
+                //if comment, continue forwards to the end of the line
+                if ((char)c == ';'){
+                    while(!((char)c == '\n') || ((char)c =='\r')){
+                        _processedSize++;
+                        _currentPosition++;
+                        c = FSfileHandle.read();
+                    }
+                    //in the case of full line comments, continue on to the next line
+                    if (_currentCommand.length() != 0){
                         processing = false;
                     }
+                } else { //empty lines shouldn't be able to sneak through to here, so if we reach here, we've reached the end of a command - no length check needed.
+                    processing = false;
                 }
             }
+            _processedSize++;
+            _currentPosition++;
+            if (_processedSize >= _totalSize){ //in the case of a missing last line ending, this should end the final line
+                processing = false;
+            }
         }
+        
+
         if (_currentCommand.length() == 0) {
             _step = HOST_STOP_STREAM;
         }
     }
 #endif //FILESYSTEM_FEATURE
 #if defined(SD_DEVICE)
-    if (_fsType ==TYPE_SD_STREAM) {
+    if (_fsType ==TYPE_FS_STREAM) {
         bool processing = true;
-        while (processing) {
-            //to handle file without endline
-            int c = SDfileHandle.read();
-            if (c == -1) {
+        int c = SDfileHandle.read();
+        while (((char)c == ' ') || ((char)c =='\n') || ((char)c =='\r')){ //ignore any leading spaces and empty lines (May be unnecessary?: Marlin does strip leading whitespace, but this reduces unnecessary data throughput which is surely a positive)
+            _processedSize++;
+            _currentPosition++;
+            c = SDfileHandle.read();
+        }
+        while(processing){
+            if (c == -1) { //do file reads reliably return this at the end of files?
                 processing = false;
+            }
+            else if (!(((char)c =='\n') || ((char)c =='\r') || ((char)c == ';'))) { //Added ';' as endline/end of command/comment character
+                _currentCommand+=(char)c;
             } else {
-                _processedSize++;
-                _currentPosition++;
-                if (!(((char)c =='\n') || ((char)c =='\r') || ((char)c == ';'))) { //Added ';' as endline/end of command/comment character
-                    _currentCommand+=(char)c;
-                } else {
-                    //if comment, continue forwards to the end of the line
-                    if ((char)c == ';'){
-                        while(!((char)c == '\n') || ((char)c =='\r')){
-                            c = FSfileHandle.read();
-                            _processedSize++;
-                            _currentPosition++;
-                        }
-                        //in the case of full line comments, continue on to the next line
-                        if (_currentCommand.length() != 0){
-                            processing = false;
-                        }
-                    } else {
+                //if comment, continue forwards to the end of the line
+                if ((char)c == ';'){
+                    while(!((char)c == '\n') || ((char)c =='\r')){
+                        _processedSize++;
+                        _currentPosition++;
+                        c = SDfileHandle.read();
+                    }
+                    //in the case of full line comments, continue on to the next line
+                    if (_currentCommand.length() != 0){
                         processing = false;
                     }
+                } else { //empty lines shouldn't be able to sneak through to here, so if we reach here, we've reached the end of a command - no length check needed.
+                    processing = false;
                 }
             }
+            _processedSize++;
+            _currentPosition++;
+            if (_processedSize >= _totalSize){ //in the case of a missing last line ending, this should end the final line
+                processing = false;
+            }
         }
+        
+
         if (_currentCommand.length() == 0) {
             _step = HOST_STOP_STREAM;
         }
@@ -401,6 +418,14 @@ void GcodeHost::handle()
     case HOST_WAIT4_ACK:
         if (millis() - _startTimeOut > ESP_HOST_TIMEOUT) {
             log_esp3d("Timeout waiting for ack");
+            _error = ERROR_TIME_OUT;
+            _step = HOST_ERROR_STREAM;
+        }
+        break;
+        //NOT YET IMPLEMENTED TODO
+    case HOST_WAIT4_HEATING:
+        if (millis() - _startTimeOut > ESP_HOST_HEATING_TIMEOUT) {
+            log_esp3d("Timeout waiting for heatup ack");
             _error = ERROR_TIME_OUT;
             _step = HOST_ERROR_STREAM;
         }
