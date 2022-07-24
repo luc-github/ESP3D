@@ -53,6 +53,7 @@ class ESP3DOutput;
 #define HOST_ERROR_STREAM  8
 #define HOST_ABORT_STREAM  9
 #define HOST_WAIT4_HEATING 10
+#define HOST_STREAM_PAUSED 11
 
 #define TYPE_SCRIPT_STREAM 0
 #define TYPE_FS_STREAM     1
@@ -79,7 +80,7 @@ public:
     {
         _commandNumber = n;
     }
-    bool resetCommandNumbering();
+    void resetCommandNumbering();
     uint8_t Checksum(const char * command, uint32_t commandSize);
     String CheckSumCommand(const char* command, uint32_t commandnb);
 
@@ -129,6 +130,8 @@ public:
     void startStream();
     void readNextCommand();
     void endStream();
+    void authorCommand(String commandIn, String param);
+    void authorCommand(String commandIn);
     void processCommand();
     bool isCommand();
     bool isAckNeeded();

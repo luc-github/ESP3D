@@ -124,7 +124,7 @@ void GcodeHost::flush()
     if (isAck(_response)) {
         //check if we have proper ok response
         //like if numbering is enabled
-        if(_step == HOST_WAIT4_ACK) {
+        if((_step == HOST_WAIT4_ACK) || (_step == HOST_WAIT4_HEATING)) {
             _step=HOST_READ_LINE;
         } else {
             log_esp3d("Got ok but out of the query");
@@ -194,11 +194,12 @@ void GcodeHost::startStream()
         }
     }
 #endif //SD_DEVICE
+    resetCommandNumbering();
     _currentPosition = 0;
     _response = "";
     _currentPosition = 0; //Duplicate?
     _error = ERROR_NO_ERROR;
-    _step = HOST_READ_LINE;
+    _step = HOST_WAIT4_ACK;
     _nextStep = HOST_READ_LINE;
     _processedSize = 0;
 }
@@ -369,11 +370,82 @@ bool GcodeHost::isCommand()
     }
     return true;
 }
+
 bool GcodeHost::isAckNeeded()
 {
     //TODO: what command do not need for ack ?
     return true;
 }
+void GcodeHost::authorCommand(String commandIn, String param)
+{
+    //TODO write function to send ESP authored commands to printer.
+    String cmd = commandIn + " " + param + '\n';
+
+#if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
+    ESP3DOutput output(ESP_SOCKET_SERIAL_CLIENT);
+#endif//COMMUNICATION_PROTOCOL
+#if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
+    ESP3DOutput output(ESP_SERIAL_CLIENT);
+#endif //COMMUNICATION_PROTOCOL == SOCKET_SERIAL
+    ESP3DOutput outputhost(ESP_STREAM_HOST_CLIENT);
+
+#if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
+        esp3d_commands.process((uint8_t *)cmd.c_str(), cmd.length(),&_outputStream, _auth_type,&output,_outputStream.client()==ESP_ECHO_SERIAL_CLIENT?ESP_SOCKET_SERIAL_CLIENT:0 ) ;
+#endif //COMMUNICATION_PROTOCOL == SOCKET_SERIAL            
+#if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
+        log_esp3d("Command is not ESP command:%s, client is %d and only is %d",cmd.c_str(), (&_outputStream?_outputStream.client():0),(&output?output.client():0));
+        esp3d_commands.process((uint8_t *)cmd.c_str(), cmd.length(),&_outputStream, _auth_type,&output) ;
+#endif //COMMUNICATION_PROTOCOL == SOCKET_SERIAL
+    _startTimeOut =millis();
+    log_esp3d("Command is GCODE command");
+    if (isAckNeeded()) {
+        if ((cmd.indexOf("M190") == -1) && (cmd.indexOf("M109") == -1)){
+            _step = HOST_WAIT4_ACK;
+            log_esp3d("Command wait for ack");
+        } else {
+            _step = HOST_WAIT4_HEATING;
+            log_esp3d("Command wait for post heating ack");
+        }
+    } else {
+        _step = HOST_READ_LINE;
+    }
+}
+
+void GcodeHost::authorCommand(String commandIn)
+{
+    //TODO write function to send ESP authored commands to printer.
+    String cmd = commandIn + '\n';
+
+#if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
+    ESP3DOutput output(ESP_SOCKET_SERIAL_CLIENT);
+#endif//COMMUNICATION_PROTOCOL
+#if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
+    ESP3DOutput output(ESP_SERIAL_CLIENT);
+#endif //COMMUNICATION_PROTOCOL == SOCKET_SERIAL
+    ESP3DOutput outputhost(ESP_STREAM_HOST_CLIENT);
+
+#if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
+        esp3d_commands.process((uint8_t *)cmd.c_str(), cmd.length(),&_outputStream, _auth_type,&output,_outputStream.client()==ESP_ECHO_SERIAL_CLIENT?ESP_SOCKET_SERIAL_CLIENT:0 ) ;
+#endif //COMMUNICATION_PROTOCOL == SOCKET_SERIAL            
+#if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
+        log_esp3d("Command is not ESP command:%s, client is %d and only is %d",cmd.c_str(), (&_outputStream?_outputStream.client():0),(&output?output.client():0));
+        esp3d_commands.process((uint8_t *)cmd.c_str(), cmd.length(),&_outputStream, _auth_type,&output) ;
+#endif //COMMUNICATION_PROTOCOL == SOCKET_SERIAL
+    _startTimeOut =millis();
+    log_esp3d("Command is GCODE command");
+    if (isAckNeeded()) {
+        if ((cmd.indexOf("M190") == -1) && (cmd.indexOf("M109") == -1)){
+            _step = HOST_WAIT4_ACK;
+            log_esp3d("Command wait for ack");
+        } else {
+            _step = HOST_WAIT4_HEATING;
+            log_esp3d("Command wait for post heating ack");
+        }
+    } else {
+        _step = HOST_READ_LINE;
+    }
+}
+
 void GcodeHost::processCommand()
 {
     if (!isCommand()) {
@@ -381,7 +453,8 @@ void GcodeHost::processCommand()
         _step = HOST_READ_LINE;
     } else {
         log_esp3d("Command %s is valid", _currentCommand.c_str());
-        String cmd = _currentCommand + "\n";
+        //String cmd = _currentCommand + "\n";
+        String cmd = _currentCommand;
         bool isESPcmd = esp3d_commands.is_esp_command((uint8_t *)_currentCommand.c_str(), _currentCommand.length());
         //TODO need to change if ESP3D
 #if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
@@ -402,13 +475,21 @@ void GcodeHost::processCommand()
 #endif //COMMUNICATION_PROTOCOL == SOCKET_SERIAL            
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
             log_esp3d("Command is not ESP command:%s, client is %d and only is %d",cmd.c_str(), (&_outputStream?_outputStream.client():0),(&output?output.client():0));
-            esp3d_commands.process((uint8_t *)cmd.c_str(), cmd.length(),&_outputStream, _auth_type,&output) ;
+            cmd = CheckSumCommand(cmd.c_str(), _commandNumber);
+            cmd = cmd + "\n";
+            esp3d_commands.process((uint8_t *)cmd.c_str(), cmd.length(),&_outputStream, _auth_type,&output);
+            _commandNumber++;
 #endif //COMMUNICATION_PROTOCOL == SOCKET_SERIAL           
             _startTimeOut =millis();
             log_esp3d("Command is GCODE command");
             if (isAckNeeded()) {
-                _step = HOST_WAIT4_ACK;
-                log_esp3d("Command wait for ack");
+                if ((cmd.indexOf("M190") == -1) && (cmd.indexOf("M109") == -1)){
+                    _step = HOST_WAIT4_ACK;
+                    log_esp3d("Command wait for ack");
+                } else {
+                    _step = HOST_WAIT4_HEATING;
+                    log_esp3d("Command wait for post heating ack");
+                }
             } else {
                 _step = HOST_READ_LINE;
             }
@@ -418,7 +499,7 @@ void GcodeHost::processCommand()
 
 void GcodeHost::handle()
 {
-    if (_step == HOST_NO_STREAM) {
+    if ((_step == HOST_NO_STREAM) || (_step == HOST_STREAM_PAUSED)) {
         return;
     }
     switch(_step) {
@@ -453,10 +534,16 @@ void GcodeHost::handle()
         break;
     case HOST_PAUSE_STREAM:
         //TODO pause stream
+        authorCommand("M0"); //M0 is unconditional stop in marlin
+        _step = HOST_STREAM_PAUSED;
+        break;
+    case HOST_STREAM_PAUSED:
+        //TODO Anything to do on pause?
         break;
     case HOST_RESUME_STREAM:
         //Any extra action to resume stream?
-        _step = HOST_READ_LINE;
+        authorCommand("M108"); //break and continue in marlin
+        _step = _nextStep;
         break;
     case HOST_STOP_STREAM:
         endStream();
@@ -492,6 +579,8 @@ bool  GcodeHost::abort()
     }
     log_esp3d("Aborting script");
     //TODO: what to do in addition ?
+    //Emergency stop for Marlin added (Maybe need a switch for other firmwares? -> should be mostly universal)
+    authorCommand("M112");
     _error=ERROR_STREAM_ABORTED;
     //we do not use step to do faster abort
     endStream();
@@ -500,7 +589,7 @@ bool  GcodeHost::abort()
 
 bool GcodeHost::pause()
 {
-    if (_step == HOST_NO_STREAM) {
+    if ((_step == HOST_NO_STREAM) || (_step == HOST_STREAM_PAUSED)) {
         return false;
     }
     _nextStep = HOST_PAUSE_STREAM;
@@ -509,10 +598,10 @@ bool GcodeHost::pause()
 
 bool GcodeHost::resume()
 {
-    if (_step != HOST_PAUSE_STREAM) {
+    if (_step != HOST_STREAM_PAUSED) {
         return false;
     }
-    _step = _nextStep;
+    _step = HOST_RESUME_STREAM;
     return true;
 }
 
@@ -536,7 +625,8 @@ String GcodeHost::CheckSumCommand(const char* command, uint32_t commandnb)
     return commandchecksum;
 }
 
-bool GcodeHost::resetCommandNumbering()
+//bool GcodeHost::resetCommandNumbering()
+void GcodeHost::resetCommandNumbering()
 {
     String resetcmd = "M110 N0";
     if (Settings_ESP3D::GetFirmwareTarget() == SMOOTHIEWARE) {
@@ -544,9 +634,10 @@ bool GcodeHost::resetCommandNumbering()
     } else {
         resetcmd = "M110 N0";
     }
-    _commandNumber = 1;
+    _commandNumber = 0;
     //need to use process to send command
-    return _outputStream.printLN(resetcmd.c_str());
+    //return _outputStream.printLN(resetcmd.c_str());
+    authorCommand("M110", "N0");
 }
 
 uint32_t GcodeHost::getCommandNumber(String & response)
