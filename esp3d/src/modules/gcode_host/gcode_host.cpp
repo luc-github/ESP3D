@@ -125,7 +125,8 @@ void GcodeHost::flush()
         //check if we have proper ok response
         //like if numbering is enabled
         if((_step == HOST_WAIT4_ACK) || (_step == HOST_WAIT4_HEATING)) {
-            _step=HOST_READ_LINE;
+            //_step=HOST_READ_LINE;
+            _step = _nextStep;
         } else {
             log_esp3d("Got ok but out of the query");
         }
@@ -535,7 +536,8 @@ void GcodeHost::handle()
     case HOST_PAUSE_STREAM:
         //TODO pause stream
         authorCommand("M0"); //M0 is unconditional stop in marlin
-        _step = HOST_STREAM_PAUSED;
+        _nextStep = HOST_STREAM_PAUSED;
+        //_step = HOST_WAIT4_ACK;
         break;
     //case HOST_STREAM_PAUSED: //rejected at first if statement
         //TODO Anything to do on pause?
@@ -543,7 +545,7 @@ void GcodeHost::handle()
     case HOST_RESUME_STREAM:
         //Any extra action to resume stream?
         authorCommand("M108"); //break and continue in marlin
-        _step = _nextStep;
+        //_nextStep = HOST_READ_LINE;
         break;
     case HOST_STOP_STREAM:
         endStream();
@@ -602,6 +604,7 @@ bool GcodeHost::resume()
         return false;
     }
     _step = HOST_RESUME_STREAM;
+    _nextStep = HOST_READ_LINE;
     return true;
 }
 
