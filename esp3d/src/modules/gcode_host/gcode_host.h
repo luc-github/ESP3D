@@ -91,6 +91,11 @@ public:
         return _error;
     }
 
+    void  setErrorNum(uint8_t error)
+    {
+        _error = error;
+    }
+
     uint8_t getStatus()
     {
         return _step;
