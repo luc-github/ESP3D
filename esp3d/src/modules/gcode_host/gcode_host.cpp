@@ -256,29 +256,38 @@ void GcodeHost::readNextCommand()
             c = FSfileHandle.read();
         }
         while(processing){
-            if (c == -1) { //do file reads reliably return this at the end of files?
+            if (c == -1) { //do file reads reliably return this at the end of files? it appears to...
                 processing = false;
             }
             else if (!(((char)c =='\n') || ((char)c =='\r') || ((char)c == ';'))) { //Added ';' as endline/end of command/comment character
                 _currentCommand+=(char)c;
-            } else {
-                //if comment, continue forwards to the end of the line
-                if ((char)c == ';'){
-                    while(!((char)c == '\n') || ((char)c =='\r')){
+                _processedSize++;
+                _currentPosition++;
+                c = FSfileHandle.read();
+            } else if ((char)c == ';'){
+                while(!(((char)c == '\n') || ((char)c =='\r'))){ //Skip past any comments to the end of the line
+                    _processedSize++;
+                    _currentPosition++;
+                    c = FSfileHandle.read();
+                }
+                //in the case of full line comments, continue on to the next line
+                if (_currentCommand.length() != 0){
+                    processing = false;
+                } else {
+                    _processedSize++;
+                    _currentPosition++;
+                    c = FSfileHandle.read();
+                }
+            } else if (((char)c == '\n') || ((char)c =='\r')){
+                if (_currentCommand.length() != 0){
+                        processing = false;
+                    } else {
                         _processedSize++;
                         _currentPosition++;
                         c = FSfileHandle.read();
                     }
-                    //in the case of full line comments, continue on to the next line
-                    if (_currentCommand.length() != 0){
-                        processing = false;
-                    }
-                } else { //empty lines shouldn't be able to sneak through to here, so if we reach here, we've reached the end of a command - no length check needed.
-                    processing = false;
-                }
             }
-            _processedSize++;
-            _currentPosition++;
+        
             if (_processedSize >= _totalSize){ //in the case of a missing last line ending, this should end the final line
                 processing = false;
             }
@@ -300,29 +309,38 @@ void GcodeHost::readNextCommand()
             c = SDfileHandle.read();
         }
         while(processing){
-            if (c == -1) { //do file reads reliably return this at the end of files?
+            if (c == -1) { //do file reads reliably return this at the end of files? it appears to...
                 processing = false;
             }
             else if (!(((char)c =='\n') || ((char)c =='\r') || ((char)c == ';'))) { //Added ';' as endline/end of command/comment character
                 _currentCommand+=(char)c;
-            } else {
-                //if comment, continue forwards to the end of the line
-                if ((char)c == ';'){
-                    while(!((char)c == '\n') || ((char)c =='\r')){
+                _processedSize++;
+                _currentPosition++;
+                c = SDfileHandle.read();
+            } else if ((char)c == ';'){
+                while(!(((char)c == '\n') || ((char)c =='\r'))){ //Skip past any comments to the end of the line
+                    _processedSize++;
+                    _currentPosition++;
+                    c = SDfileHandle.read();
+                }
+                //in the case of full line comments, continue on to the next line
+                if (_currentCommand.length() != 0){
+                    processing = false;
+                } else {
+                    _processedSize++;
+                    _currentPosition++;
+                    c = SDfileHandle.read();
+                }
+            } else if (((char)c == '\n') || ((char)c =='\r')){
+                if (_currentCommand.length() != 0){
+                        processing = false;
+                    } else {
                         _processedSize++;
                         _currentPosition++;
                         c = SDfileHandle.read();
                     }
-                    //in the case of full line comments, continue on to the next line
-                    if (_currentCommand.length() != 0){
-                        processing = false;
-                    }
-                } else { //empty lines shouldn't be able to sneak through to here, so if we reach here, we've reached the end of a command - no length check needed.
-                    processing = false;
-                }
             }
-            _processedSize++;
-            _currentPosition++;
+        
             if (_processedSize >= _totalSize){ //in the case of a missing last line ending, this should end the final line
                 processing = false;
             }
