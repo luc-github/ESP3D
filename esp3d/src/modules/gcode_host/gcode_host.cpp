@@ -491,7 +491,7 @@ bool GcodeHost::resume()
     if (_step != HOST_PAUSE_STREAM) {
         return false;
     }
-    _step = HOST_PAUSE_STREAM;
+    _step = _nextStep;
     return true;
 }
 
