@@ -265,10 +265,10 @@ size_t ESP3DOutput::dispatch (const uint8_t * sbuf, size_t len, uint8_t ignoreCl
     if (!(_client == ESP_SERIAL_CLIENT || ESP_SERIAL_CLIENT==ignoreClient)) {
         if (isOutput(ESP_SERIAL_CLIENT)) {
 #if COMMUNICATION_PROTOCOL == MKS_SERIAL
-            log_esp3d("Dispatch  to gcode frame");
+            log_esp3d("Dispatch to gcode frame");
             MKSService::sendGcodeFrame((const char *)sbuf);
 #else
-            log_esp3d("Dispatch  to serial service");
+            log_esp3d("Dispatch to serial service");
             serial_service.write(sbuf, len);
 #endif //COMMUNICATION_PROTOCOL == MKS_SERIAL
         }
@@ -303,7 +303,7 @@ size_t ESP3DOutput::dispatch (const uint8_t * sbuf, size_t len, uint8_t ignoreCl
 #if defined (TELNET_FEATURE)
     if (!(_client == ESP_TELNET_CLIENT || ESP_TELNET_CLIENT==ignoreClient)) {
         if (isOutput(ESP_TELNET_CLIENT) && telnet_server.started()) {
-            log_esp3d("Dispatch  to telnet");
+            log_esp3d("Dispatch to telnet");
             telnet_server.write(sbuf, len);
         }
     }
