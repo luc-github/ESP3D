@@ -257,7 +257,7 @@ size_t ESP3DOutput::dispatch (const uint8_t * sbuf, size_t len, uint8_t ignoreCl
     log_esp3d("Dispatch %d chars from client %d and ignore %d", len, _client, ignoreClient);
 #if defined(GCODE_HOST_FEATURE)
     if (!(_client == ESP_STREAM_HOST_CLIENT || ESP_STREAM_HOST_CLIENT==ignoreClient)) {
-        log_esp3d("Dispatch  to gcode host");
+        log_esp3d("Dispatch to gcode host");
         esp3d_gcode_host.push(sbuf, len);
     }
 #endif //GCODE_HOST_FEATURE
