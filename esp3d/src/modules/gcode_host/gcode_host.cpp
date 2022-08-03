@@ -330,7 +330,7 @@ void GcodeHost::processCommand()
         if (isESPcmd) {
             esp3d_commands.process((uint8_t *)cmd.c_str(), cmd.length(),&outputhost, _auth_type) ;
             //we display error in output but it is not a blocking error
-            log_esp3d("Command is ESP command: %s, client is %d", cmd.c_str(), );
+            log_esp3d("Command is ESP command: %s", cmd.c_str() );
             _step = HOST_READ_LINE;
         } else {
 #if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
