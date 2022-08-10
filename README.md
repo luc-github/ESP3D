@@ -22,8 +22,8 @@ I did a project board to put all majors tasks/issues in one places : [ESP3D Proj
 - [Finish web UI Major features (3D printing and GRBL)](https://github.com/luc-github/ESP3D-WEBUI/issues/94#issuecomment-660600551)
 - Do user documentation: Readme / features list description / wiki/ Features videos etc...
 - Complete all planned features  
-- Test current features heavily
-- Collect some feedback
+- Test current features heavily   
+- Collect some feedback  
 
 # TODO List in beta
 
