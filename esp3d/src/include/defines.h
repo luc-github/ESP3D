@@ -267,4 +267,7 @@
 #define FS_UNKNOWN     254
 #define MAX_FS 3
 
+//Host path
+#define ESP3D_HOST_PATH "/"
+
 #endif //_DEFINES_ESP3D_H

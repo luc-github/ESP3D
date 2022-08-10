@@ -48,6 +48,6 @@ Telnet_Server telnet_debug;
 
 //Websocket
 #if ESP_DEBUG_FEATURE == DEBUG_OUTPUT_WEBSOCKET
-WebSocket_Server websocket_debug;
+WebSocket_Server websocket_debug("debug");
 #endif // ESP_DEBUG_FEATURE == DEBUG_OUTPUT_WEBSOCKET
 #endif //ESP_DEBUG_FEATURE

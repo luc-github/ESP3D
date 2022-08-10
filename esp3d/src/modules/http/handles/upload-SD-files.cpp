@@ -99,6 +99,35 @@ void HTTP_Server::SDFileupload ()
                 if (ESP_SD::exists (filename.c_str()) ) {
                     ESP_SD::remove (filename.c_str());
                 }
+                String path = _webserver->arg ("path");
+                if (path[0] != '/') {
+                    path = "/" + path;
+                }
+                if (path[path.length()-1] != '/') {
+                    path = path + "/";
+                }
+                if (_webserver->hasArg("createPath") && path.length() > 1) {
+                    if (_webserver->arg("createPath")== "true")  {
+                        int pos = path.indexOf('/',1);
+                        while (pos != -1) {
+                            String currentPath = path.substring(0, pos);
+                            if (!ESP_SD::exists (currentPath.c_str()) ) {
+                                if ( !ESP_SD::mkdir (currentPath.c_str()) ) {
+                                    pushError(ESP_ERROR_FILE_CREATION, "Failed to create path", 500);
+                                    _upload_status=UPLOAD_STATUS_FAILED;
+                                    break;
+                                }
+                            }
+                            if (pos+1 >= path.length()-1) {
+                                pos=-1;
+                                break;
+                            } else {
+                                pos = path.indexOf('/',pos+1);
+                            }
+
+                        }
+                    }
+                }
                 if (fsUploadFile.isOpen() ) {
                     fsUploadFile.close();
                 }

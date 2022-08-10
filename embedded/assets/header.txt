@@ -1,5 +1,5 @@
 /*
-  version.h - ESP3D version file
+  favicon.h - ESP3D data file
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -14,15 +14,9 @@
   Lesser General Public License for more details.
 
   You should have received a copy of the GNU Lesser General Public
-  License along with This code; if not, write to the Free Software
+  License along with this code; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _VERSION_ESP3D_H
-#define _VERSION_ESP3D_H
-
-//version and sources location
-#define FW_VERSION "3.0.0.a204"
-#define REPOSITORY "https://github.com/luc-github/ESP3D/tree/3.0"
-
-#endif //_VERSION_ESP3D_H
+#ifndef __favicon_h
+#define __favicon_h
