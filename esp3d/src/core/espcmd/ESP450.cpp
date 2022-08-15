@@ -62,6 +62,9 @@ bool Commands::ESP450(const char* cmd_params, level_authenticate_type auth_type,
 
             for (uint16_t i = 0; i < n; i++) {
                 line = "";
+                if (strlen(esp3d_mDNS.answerHostname(i)) == 0) {
+                    continue;
+                }
                 if (i > 0) {
                     if (json) {
                         line+=",";
