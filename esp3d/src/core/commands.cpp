@@ -623,6 +623,13 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
     case 444:
         response = ESP444(cmd_params, auth_type, output);
         break;
+#ifdef MDNS_FEATURE
+    //Get ESP3D list
+    //[ESP450] pwd=<admin/user password>
+    case 450:
+        response = ESP450(cmd_params, auth_type, output);
+        break;
+#endif //MDNS_FEATURE
 #ifdef AUTHENTICATION_FEATURE
     //Change admin password
     //[ESP550]<password>pwd=<admin password>

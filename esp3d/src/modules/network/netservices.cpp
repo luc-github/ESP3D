@@ -24,18 +24,15 @@
 #include "netservices.h"
 #include "../../core/settings_esp3d.h"
 #include "../../core/esp3doutput.h"
-#if defined( ARDUINO_ARCH_ESP8266)
 #ifdef MDNS_FEATURE
-#include <ESP8266mDNS.h>
+#include "../mDNS/mDNS.h"
 #endif //MDNS_FEATURE
+#if defined( ARDUINO_ARCH_ESP8266)
 #ifdef SSDP_FEATURE
 #include <ESP8266SSDP.h>
 #endif //SSDP_FEATURE
 #endif //ARDUINO_ARCH_ESP8266
 #if defined( ARDUINO_ARCH_ESP32)
-#ifdef MDNS_FEATURE
-#include <ESPmDNS.h>
-#endif //MDNS_FEATURE
 #ifdef SSDP_FEATURE
 #include <ESP32SSDP.h>
 #endif //SSDP_FEATURE
@@ -106,20 +103,7 @@ bool NetServices::begin()
 #endif //TIMESTAMP_FEATURE
 
 #if defined(MDNS_FEATURE) && defined(ARDUINO_ARCH_ESP8266)
-    if(WiFi.getMode() != WIFI_AP) {
-        String lhostname =hostname;
-        lhostname.toLowerCase();
-        log_esp3d("Start mdsn for %s", hostname.c_str());
-        if (!MDNS.begin(hostname.c_str())) {
-            output.printERROR("mDNS failed to start");
-            _started =false;
-        } else {
-            String stmp = "mDNS started with '" + lhostname + ".local'";
-            if (Settings_ESP3D::isVerboseBoot()) {
-                output.printMSG(stmp.c_str());
-            }
-        }
-    }
+    esp3d_mDNS.begin(hostname.c_str());
 #endif //MDNS_FEATURE && ARDUINO_ARCH_ESP8266
 
 #ifdef OTA_FEATURE
@@ -176,19 +160,7 @@ bool NetServices::begin()
 #endif
 
 #if defined(MDNS_FEATURE) && defined(ARDUINO_ARCH_ESP32)
-    if(WiFi.getMode() != WIFI_AP) {
-        String lhostname =hostname;
-        lhostname.toLowerCase();
-        if (!MDNS.begin(hostname.c_str())) {
-            output.printERROR("mDNS failed to start");
-            _started =false;
-        } else {
-            String stmp = "mDNS started with '" + lhostname + ".local'";
-            if (Settings_ESP3D::isVerboseBoot()) {
-                output.printMSG(stmp.c_str());
-            }
-        }
-    }
+    esp3d_mDNS.begin(hostname.c_str());
 #endif //MDNS_FEATURE && ARDUINO_ARCH_ESP8266
 
 #ifdef CAPTIVE_PORTAL_FEATURE
@@ -274,17 +246,7 @@ bool NetServices::begin()
     }
 #endif //HTTP_FEATURE 
 #ifdef MDNS_FEATURE
-    if(WiFi.getMode() != WIFI_AP) {
-        // Add service to MDNS-SD
-        log_esp3d("Add mdns service http / tcp port %d", HTTP_Server::port());
-        MDNS.addService("http", "tcp", HTTP_Server::port());
-        //ESP3D service
-        //TODO list all services available (http/tcp/ws/ftp/webdav/etc...)
-        MDNS.addService("esp3d", "tcp", HTTP_Server::port());
-        MDNS.addServiceTxt("esp3d", "tcp", "version", FW_VERSION);
-        //Add TXT records
-        MDNS.addServiceTxt("http", "tcp", "ESP3D", FW_VERSION);
-    }
+    esp3d_mDNS.addESP3DServices(HTTP_Server::port());
 #endif //MDNS_FEATURE
 #ifdef SSDP_FEATURE
     //SSDP service presentation
@@ -359,24 +321,7 @@ void NetServices::end()
 #endif //ARDUINO_ARCH_ESP32
 #endif //SSDP_FEATURE
 #ifdef MDNS_FEATURE
-    if(WiFi.getMode() != WIFI_AP) {
-#if defined(ARDUINO_ARCH_ESP8266)
-        String hostname = Settings_ESP3D::read_string(ESP_HOSTNAME);
-        hostname.toLowerCase();
-        log_esp3d("Remove mdns for %s", hostname.c_str());
-        if (!MDNS.removeService(hostname.c_str(),"http", "tcp")) {
-            log_esp3d("failed");
-        }
-        if (!MDNS.removeService(hostname.c_str(),"esp3d", "tcp")) {
-            log_esp3d("failed");
-        }
-#endif // ARDUINO_ARCH_ESP8266
-#if defined(ARDUINO_ARCH_ESP32)
-        mdns_service_remove("_http", "_tcp");
-        mdns_service_remove("_esp3d", "_tcp");
-#endif // ARDUINO_ARCH_ESP32
-        MDNS.end();
-    }
+    esp3d_mDNS.end();
 #endif //MDNS_FEATURE
 
 #ifdef OTA_FEATURE
@@ -413,9 +358,7 @@ void NetServices::handle()
         MKSService::handle();
 #endif //COMMUNICATION_PROTOCOL == MKS_SERIAL
 #ifdef MDNS_FEATURE
-#if defined(ARDUINO_ARCH_ESP8266)
-        MDNS.update();
-#endif //ARDUINO_ARCH_ESP8266
+        esp3d_mDNS.handle();
 #endif //MDNS_FEATURE
 #ifdef OTA_FEATURE
         ArduinoOTA.handle();

@@ -104,7 +104,7 @@ void HTTP_Server::FSFileupload ()
                                     break;
                                 }
                             }
-                            if (pos+1 >= path.length()-1) {
+                            if ((uint)(pos+1) >= path.length()-1) {
                                 pos=-1;
                                 break;
                             } else {

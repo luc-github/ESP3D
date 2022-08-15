@@ -125,6 +125,9 @@ public:
 #endif //WIFI_FEATURE
     bool ESP420(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     bool ESP444(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+#ifdef MDNS_FEATURE
+    bool ESP450(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+#endif //MDNS_FEATURE
 #if defined (AUTHENTICATION_FEATURE)
     bool ESP550(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     bool ESP555(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);

@@ -113,6 +113,9 @@ const char * help[]= {"[ESP] (id) - display this help",
 #endif //WIFI_FEATURE
                       "[ESP420](plain) - display ESP3D current status in plain/JSON",
                       "[ESP444](Cmd) - set ESP3D state (RESET/RESTART)",
+#ifdef MDNS_FEATURE
+                      "[ESP450]display ESP3D list on network",
+#endif //MDNS_FEATURE
 #if defined (AUTHENTICATION_FEATURE)
                       "[ESP550](password) - change admin password",
                       "[ESP555](password) - change user password",
@@ -244,6 +247,9 @@ const uint cmdlist[]= {0,
 #endif //WIFI_FEATURE
                        420,
                        444,
+#ifdef MDNS_FEATURE
+                       450,
+#endif //MDNS_FEATURE
 #if defined (AUTHENTICATION_FEATURE)
                        550,
                        555,
