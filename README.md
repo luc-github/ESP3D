@@ -8,7 +8,7 @@ You can also generate it, using [![Development  Version](https://img.shields.io/
 or click here: https://luc-github.github.io/      
 
 ESP3D V3 use ESP3D-WebUI 3.0, but it is built according your system and your system firmware:   
- https://github.com/luc-github/ESP3D-WEBUI/3.0/dist/, so you need to use the right one, the [ESP3D-Configurator](https://luc-github.github.io/) may also help you to download the correct version for your needs.
+ https://github.com/luc-github/ESP3D-WEBUI/tree/3.0/dist/, so you need to use the right one, the [ESP3D-Configurator](https://luc-github.github.io/) may also help you to download the correct version for your needs.
 
 [Latest development version ![Development Version](https://img.shields.io/badge/Devt-v3.0-yellow?style=plastic) ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/luc-github/ESP3D/3.0?style=plastic)](https://github.com/luc-github/ESP3D/tree/3.0) [![github-ci](https://github.com/luc-github/ESP3D/workflows/build-ci/badge.svg)](https://github.com/luc-github/ESP3D/actions/workflows/build-ci.yml) [![Development  Version](https://img.shields.io/badge/Devt-v3.0-yellow?style=plastic&label=WebUI)](https://github.com/luc-github/ESP3D-WEBUI/tree/3.0)
 
