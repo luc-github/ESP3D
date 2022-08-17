@@ -7,6 +7,7 @@
 * Raw TCP / serial bridge support (light telnet)
 * Boot delay configuration
 * Websocket / serial bridge support
+* Serial / Serial bridge support
 * Bluetooth Serial bridge support (when BT supported)
 * MKS Serial protocol support
 * Serial commands configurations

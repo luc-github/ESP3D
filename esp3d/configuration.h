@@ -50,13 +50,23 @@
 */
 #define COMMUNICATION_PROTOCOL RAW_SERIAL
 
-/* Serial port
+/* Main Serial port
 * which serial ESP use to communicate to printer (ESP32 has 3 serials available, ESP8266 only 2)
 * USE_SERIAL_0 //for ESP8266/32, also used by bootloader output, so consider to make it quiet
 * USE_SERIAL_1 //for ESP8266/32
 * USE_SERIAL_2 //for ESP32 Only
 */
+//Main serial port
 #define ESP_SERIAL_OUTPUT USE_SERIAL_0
+
+/* Bridge Serial port (deprecated on esp8266 as second serial is)
+* which serial ESP use to bridge to another device (ESP32 has 3 serials available, ESP8266 only 2)
+* USE_SERIAL_0 //for ESP8266/32, also used by bootloader output, so consider to make it quiet
+* USE_SERIAL_1 //for ESP8266/32
+* USE_SERIAL_2 //for ESP32 Only\
+* Comment if not used
+*/
+//#define ESP_SERIAL_BRIDGE_OUTPUT USE_SERIAL_1
 
 /* Serial buffer size
 *  Maximum size of the serial buffer

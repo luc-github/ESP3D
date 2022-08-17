@@ -241,7 +241,7 @@ size_t Telnet_Server::write(uint8_t c)
 
 size_t Telnet_Server::write(const uint8_t *buffer, size_t size)
 {
-    if (isConnected() && (size>0)) {
+    if (isConnected() && (size>0) && _started) {
         if ((size_t)availableForWrite() >= size) {
             //push data to connected telnet client
             return _telnetClients.write(buffer, size);

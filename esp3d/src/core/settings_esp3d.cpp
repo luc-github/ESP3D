@@ -114,6 +114,7 @@
 #define DEFAULT_SENSOR_TYPE     NO_SENSOR_DEVICE
 #define DEFAULT_HTTP_ON         1
 #define DEFAULT_FTP_ON          1
+#define DEFAULT_SERIAL_BRIDGE_ON 1
 #define DEFAULT_WEBDAV_ON       1
 #define DEFAULT_TELNET_ON       1
 #define DEFAULT_WEBSOCKET_ON    1
@@ -128,6 +129,7 @@
 //default int values
 #define DEFAULT_ESP_INT         0L
 #define DEFAULT_BAUD_RATE       115200L
+#define DEFAULT_SERIAL_BRIDGE_BAUD_RATE 115200L
 #define DEFAULT_HTTP_PORT       80L
 #define DEFAULT_FTP_CTRL_PORT   21L
 #define DEFAULT_FTP_ACTIVE_PORT 20L
@@ -319,6 +321,14 @@ uint8_t Settings_ESP3D::get_default_byte_value(int pos)
     case ESP_BT_FLAG:
         res = DEFAULT_BT_FLAG;
         break;
+#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
+    case ESP_SERIAL_BRIDGE_FLAG:
+        res = DEFAULT_SERIAL_BRIDGE_FLAG;
+        break;
+    case ESP_SERIAL_BRIDGE_ON:
+        res = DEFAULT_SERIAL_BRIDGE_ON;
+        break;
+#endif //defined()
     case ESP_SCREEN_FLAG:
         res = DEFAULT_SCREEN_FLAG;
         break;
@@ -394,6 +404,11 @@ uint32_t Settings_ESP3D::get_default_int32_value(int pos)
     case ESP_BAUD_RATE:
         res = DEFAULT_BAUD_RATE;
         break;
+    case ESP_SERIAL_BRIDGE_BAUD:
+#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
+        res = DEFAULT_SERIAL_BRIDGE_BAUD_RATE;
+        break;
+#endif //ESP_SERIAL_BRIDGE_OUT;UT
     case ESP_BOOT_DELAY:
         res = DEFAULT_BOOT_DELAY;
         break;
@@ -1217,6 +1232,7 @@ bool Settings_ESP3D::reset(bool networkonly)
     Settings_ESP3D::write_byte(ESP_TARGET_FW,Settings_ESP3D::get_default_byte_value(ESP_TARGET_FW));
     //Output flags
     Settings_ESP3D::write_byte(ESP_SERIAL_FLAG,Settings_ESP3D::get_default_byte_value(ESP_SERIAL_FLAG));
+    Settings_ESP3D::write_byte(ESP_SERIAL_BRIDGE_FLAG,Settings_ESP3D::get_default_byte_value(ESP_SERIAL_BRIDGE_FLAG));
     Settings_ESP3D::write_byte(ESP_REMOTE_SCREEN_FLAG,Settings_ESP3D::get_default_byte_value(ESP_REMOTE_SCREEN_FLAG));
     Settings_ESP3D::write_byte(ESP_WEBSOCKET_FLAG,Settings_ESP3D::get_default_byte_value(ESP_WEBSOCKET_FLAG));
     Settings_ESP3D::write_byte(ESP_TELNET_FLAG,Settings_ESP3D::get_default_byte_value(ESP_TELNET_FLAG));

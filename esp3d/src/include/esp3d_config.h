@@ -61,7 +61,7 @@
  * **********************************/
 
 //Make Flag more generic
-#if defined(PIN_RESET_FEATURE) || defined(SD_RECOVERY_FEATURE)
+#if (defined(PIN_RESET_FEATURE) && defined(ESP3D_RESET_PIN) && ESP3D_RESET_PIN!=-1) || defined(SD_RECOVERY_FEATURE)
 #define RECOVERY_FEATURE
 #endif //PIN_RESET_FEATURE || SD_RECOVERY_FEATURE
 

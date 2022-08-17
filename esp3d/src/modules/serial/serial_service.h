@@ -28,16 +28,20 @@
 class SerialService : public Print
 {
 public:
-    SerialService();
+    SerialService(uint8_t id);
     ~SerialService();
     void setParameters();
-    bool begin();
+    bool begin(uint8_t serialIndex);
     bool end();
     void updateBaudRate(long br);
     void handle();
     void process();
     bool reset();
     long baudRate();
+    uint8_t serialIndex()
+    {
+        return _serialIndex;
+    }
     const long * get_baudratelist(uint8_t * count);
     void flush();
     void swap();
@@ -73,6 +77,11 @@ public:
         return _started;
     }
 private:
+    uint8_t _serialIndex;
+    uint8_t _client;
+    uint8_t _id;
+    uint8_t _rxPin;
+    uint8_t _txPin;
     bool _started;
     bool _needauthentication;
     uint32_t _lastflush;
@@ -83,6 +92,10 @@ private:
 };
 
 extern SerialService serial_service;
+
+#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
+extern SerialService serial_bridge_service;
+#endif //ESP_SERIAL_BRIDGE_OUTPUT
 
 #endif //_SERIAL_SERVICES_H
 

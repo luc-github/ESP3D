@@ -150,11 +150,16 @@ const char * help[]= {"[ESP] (id) - display this help",
                       "[ESP800](plain)(time=YYYY-MM-DD-HH-MM-SS) - display FW Informations in plain/JSON",
 #if COMMUNICATION_PROTOCOL != SOCKET_SERIAL
                       "[ESP900](ENABLE/DISABLE) - display/set serial state",
+                      "[ESP901]<BAUD RATE> - display/set serial baud rate",
 #endif //COMMUNICATION_PROTOCOL != SOCKET_SERIAL
 #ifdef BUZZER_DEVICE
                       "[ESP910](ENABLE/DISABLE) - display/set buzzer state",
 #endif //BUZZER_DEVICE
                       "[ESP920](client)=(ON/OFF) - display/set SERIAL / SCREEN / REMOTE_SCREEN / WEBSOCKET / TELNET /BT / ALL client state if available",
+#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
+                      "[ESP930](ON/OFF/CLOSE) - display/set serial bridge state",
+                      "[ESP931]<BAUD RATE> - display/set serial bridge baud rate",
+#endif //defined(ESP_SERIAL_BRIDGE_OUTPUT)
 #if defined(ARDUINO_ARCH_ESP32) && (CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3)
                       "[ESP999](QUIETBOOT) [pwd=<admin/user password>] - set quiet boot mode",
 #endif //ARDUINO_ARCH_ESP32
@@ -284,12 +289,17 @@ const uint cmdlist[]= {0,
                        800,
 #if COMMUNICATION_PROTOCOL != SOCKET_SERIAL
                        900,
+                       901,
 #endif //COMMUNICATION_PROTOCOL != SOCKET_SERIAL
 #ifdef BUZZER_DEVICE
                        910,
 
 #endif //BUZZER_DEVICE
                        920,
+#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
+                       930,
+                       935,
+#endif //defined(ESP_SERIAL_BRIDGE_OUTPUT)
 #if defined(ARDUINO_ARCH_ESP32) && (CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3)
                        999,
 #endif //ARDUINO_ARCH_ESP32 && CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3

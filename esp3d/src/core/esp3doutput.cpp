@@ -1,5 +1,5 @@
 /*
-  esp3Doutput.h -  output functions class
+  esp3d output.h -  output functions class
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -20,7 +20,7 @@
 //#define ESP_DEBUG_FEATURE DEBUG_OUTPUT_SERIAL0
 #include "../include/esp3d_config.h"
 #include "esp3doutput.h"
-#if COMMUNICATION_PROTOCOL != SOCKET_SERIAL
+#if COMMUNICATION_PROTOCOL != SOCKET_SERIAL || defined(ESP_SERIAL_BRIDGE_OUTPUT)
 #include "../modules/serial/serial_service.h"
 #endif // COMMUNICATION_PROTOCOL != SOCKET_SERIAL
 #if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
@@ -61,6 +61,9 @@ uint8_t ESP3DOutput::_screenoutputflags = DEFAULT_SCREEN_FLAG;
 #if defined (BLUETOOTH_FEATURE)
 uint8_t ESP3DOutput::_BToutputflags = DEFAULT_BT_FLAG;
 #endif //BLUETOOTH_FEATURE
+#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
+uint8_t ESP3DOutput::_serialBridgeoutputflags = DEFAULT_SERIAL_BRIDGE_FLAG;
+#endif //ESP_SERIAL_BRIDGE_OUTPUT
 #if defined (HTTP_FEATURE)
 #if defined (ARDUINO_ARCH_ESP32)
 #include <WebServer.h>
@@ -77,6 +80,9 @@ const uint8_t activeClients [] = {
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
     ESP_SERIAL_CLIENT,
 #endif // ESP_SERIAL_CLIENT
+#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
+    ESP_SERIAL_BRIDGE_CLIENT,
+#endif //ESP_SERIAL_BRIDGE_OUTPUT
 #if defined (TELNET_FEATURE)
     ESP_TELNET_CLIENT,
 #endif //TELNET_FEATURE
@@ -199,6 +205,9 @@ bool ESP3DOutput::isOutput(uint8_t flag, bool fromsettings)
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL || COMMUNICATION_PROTOCOL == SOCKET_SERIAL
         _serialoutputflags= Settings_ESP3D::read_byte (ESP_SERIAL_FLAG);
 #endif // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
+#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
+        _serialBridgeoutputflags= Settings_ESP3D::read_byte (ESP_SERIAL_BRIDGE_FLAG);
+#endif //ESP_SERIAL_BRIDGE_OUTPUT
 #if defined(HAS_DISPLAY) || defined(HAS_SERIAL_DISPLAY)
         _remotescreenoutputflags= Settings_ESP3D::read_byte (ESP_REMOTE_SCREEN_FLAG);
 #endif // defined(HAS_DISPLAY) || defined(HAS_SERIAL_DISPLAY)
@@ -221,6 +230,11 @@ bool ESP3DOutput::isOutput(uint8_t flag, bool fromsettings)
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL || COMMUNICATION_PROTOCOL == SOCKET_SERIAL
         return _serialoutputflags;
 #endif // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
+        return 0;
+    case ESP_SERIAL_BRIDGE_CLIENT:
+#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
+        return _serialBridgeoutputflags;
+#endif //ESP_SERIAL_BRIDGE_OUTPUT
         return 0;
     case ESP_REMOTE_SCREEN_CLIENT:
 #if defined(HAS_DISPLAY) || defined(HAS_SERIAL_DISPLAY)
@@ -299,7 +313,15 @@ size_t ESP3DOutput::dispatch (const uint8_t * sbuf, size_t len, uint8_t ignoreCl
             bt_service.write(sbuf, len);
         }
     }
-#endif //BLUETOOTH_FEATURE 
+#endif //BLUETOOTH_FEATURE
+#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
+    if (!(_client == ESP_SERIAL_BRIDGE_CLIENT || ESP_SERIAL_BRIDGE_CLIENT==ignoreClient)) {
+        if (isOutput(ESP_SERIAL_BRIDGE_CLIENT) && serial_bridge_service.started()) {
+            log_esp3d("Dispatch to serial bridge");
+            serial_bridge_service.write(sbuf, len);
+        }
+    }
+#endif //ESP_SERIAL_BRIDGE_OUTPUT 
 #if defined (TELNET_FEATURE)
     if (!(_client == ESP_TELNET_CLIENT || ESP_TELNET_CLIENT==ignoreClient)) {
         if (isOutput(ESP_TELNET_CLIENT) && telnet_server.started()) {
@@ -346,6 +368,11 @@ void ESP3DOutput::flush()
         bt_service.flush();
         break;
 #endif //BLUETOOTH_FEATURE 
+#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
+    case ESP_SERIAL_BRIDGE_CLIENT:
+        serial_bridge_service.flush();
+        break;
+#endif //ESP_SERIAL_BRIDGE_OUTPUT
 #if defined (TELNET_FEATURE)
     case ESP_TELNET_CLIENT:
         telnet_server.flush();
@@ -611,6 +638,10 @@ int ESP3DOutput::availableforwrite()
     case ESP_SERIAL_CLIENT:
         return serial_service.availableForWrite();
 #endif //COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
+#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
+    case ESP_SERIAL_BRIDGE_CLIENT:
+        return serial_bridge_service.availableForWrite();
+#endif //ESP_SERIAL_BRIDGE_OUTPUT
 #if defined (BLUETOOTH_FEATURE)
     case ESP_BT_CLIENT:
         return bt_service.availableForWrite();
@@ -653,10 +684,13 @@ size_t ESP3DOutput::write(uint8_t c)
 #endif //COMMUNICATION_PROTOCOL == SOCKET_SERIAL
 #if defined (BLUETOOTH_FEATURE)
     case ESP_BT_CLIENT:
-        if(bt_service.started()) {
-            return bt_service.write(c);
-        }
+        return bt_service.write(c);
 #endif //BLUETOOTH_FEATURE 
+#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
+    case ESP_SERIAL_BRIDGE_CLIENT:
+        return  serial_bridge_service.write(c);
+        break;
+#endif //ESP_SERIAL_BRIDGE_OUTPUT
 #if defined (TELNET_FEATURE)
     case ESP_TELNET_CLIENT:
         return telnet_server.write(c);
@@ -667,21 +701,21 @@ size_t ESP3DOutput::write(uint8_t c)
 #endif //WS_DATA_FEATURE 
     case ESP_ALL_CLIENTS:
 #if defined (BLUETOOTH_FEATURE)
-        if(bt_service.started()) {
-            bt_service.write(c);
-        }
+        bt_service.write(c);
 #endif //BLUETOOTH_FEATURE 
+#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
+        serial_bridge_service.write(c);
+#endif //ESP_SERIAL_BRIDGE_OUTPUT
 #if defined (TELNET_FEATURE)
-        if(telnet_server.started()) {
-            telnet_server.write(c);
-        }
+        telnet_server.write(c);
 #endif //TELNET_FEATURE 
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
-        return serial_service.write(c);
+        serial_service.write(c);
 #endif //COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
 #if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
-        return  MYSERIAL1.write(c);
+        MYSERIAL1.write(c);
 #endif //COMMUNICATION_PROTOCOL == SOCKET_SERIAL
+        return 1;
     default :
         return 0;
     }
@@ -716,24 +750,19 @@ size_t ESP3DOutput::write(const uint8_t *buffer, size_t size)
 #endif //DISPLAY_DEVICE
 #if defined (BLUETOOTH_FEATURE)
     case ESP_BT_CLIENT:
-        if(bt_service.started()) {
-            return bt_service.write(buffer, size);
-        }
-        break;
+        return bt_service.write(buffer, size);
 #endif //BLUETOOTH_FEATURE 
+#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
+    case ESP_SERIAL_BRIDGE_CLIENT:
+        return serial_bridge_service.write(buffer, size);
+#endif //ESP_SERIAL_BRIDGE_OUTPUT
 #if defined (TELNET_FEATURE)
     case ESP_TELNET_CLIENT:
-        if(telnet_server.started()) {
-            return telnet_server.write(buffer, size);
-        }
-        break;
+        return telnet_server.write(buffer, size);
 #endif //TELNET_FEATURE
 #if defined (WS_DATA_FEATURE)
     case ESP_WEBSOCKET_CLIENT:
-        if(websocket_data_server.started()) {
-            return websocket_data_server.write(buffer, size);
-        }
-        break;
+        return websocket_data_server.write(buffer, size);
 #endif //WS_DATA_FEATURE
 #if defined(GCODE_HOST_FEATURE)
     case  ESP_STREAM_HOST_CLIENT: {
@@ -770,21 +799,21 @@ size_t ESP3DOutput::write(const uint8_t *buffer, size_t size)
 #endif //COMMUNICATION_PROTOCOL == SOCKET_SERIAL
     case ESP_ALL_CLIENTS:
 #if defined (BLUETOOTH_FEATURE)
-        if(bt_service.started()) {
-            bt_service.write(buffer, size);
-        }
+        bt_service.write(buffer, size);
 #endif //BLUETOOTH_FEATURE
+#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
+        serial_bridge_service.write(buffer, size);
+#endif //ESP_SERIAL_BRIDGE_OUTPUT
 #if defined (TELNET_FEATURE)
-        if(telnet_server.started()) {
-            telnet_server.write(buffer, size);
-        }
+        telnet_server.write(buffer, size);
 #endif //TELNET_FEATURE
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
-        return serial_service.write(buffer, size);
+        serial_service.write(buffer, size);
 #endif //COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
 #if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
-        return  MYSERIAL1.write(buffer, size);
+        MYSERIAL1.write(buffer, size);
 #endif //COMMUNICATION_PROTOCOL == SOCKET_SERIAL
+        return size;
     default :
         break;
     }

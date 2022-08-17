@@ -93,6 +93,7 @@ const uint16_t IPKeysPos[] = {ESP_STA_IP_VALUE,
                              } ;
 
 const char * ServintKeysVal[] = {
+    "Serial_Bridge_Baud"
     "HTTP_Port",
     "TELNET_Port",
     "SENSOR_INTERVAL",
@@ -104,6 +105,7 @@ const char * ServintKeysVal[] = {
 } ;
 
 const uint16_t ServintKeysPos[] = {
+    ESP_SERIAL_BRIDGE_BAUD,
     ESP_HTTP_PORT,
     ESP_TELNET_PORT,
     ESP_SENSOR_INTERVAL,
@@ -122,7 +124,8 @@ const uint16_t SysintKeysPos[] = {ESP_BAUD_RATE,
                                   ESP_BOOT_DELAY
                                  } ;
 
-const char * ServboolKeysVal[] = {"HTTP_active",
+const char * ServboolKeysVal[] = {"Serial_Bridge_active",
+                                  "HTTP_active",
                                   "TELNET_active",
                                   "WebSocket_active",
                                   "WebDav_active",
@@ -133,7 +136,8 @@ const char * ServboolKeysVal[] = {"HTTP_active",
                                   "Radio_enabled"
                                  } ;
 
-const uint16_t ServboolKeysPos[] = {ESP_HTTP_ON,
+const uint16_t ServboolKeysPos[] = {ESP_SERIAL_BRIDGE_ON,
+                                    ESP_HTTP_ON,
                                     ESP_TELNET_ON,
                                     ESP_WEBSOCKET_ON,
                                     ESP_WEBDAV_ON,
@@ -144,7 +148,8 @@ const uint16_t ServboolKeysPos[] = {ESP_HTTP_ON,
                                     ESP_BOOT_RADIO_STATE
                                    } ;
 
-const char * SysboolKeysVal[] = {"Active_Remote_Screen",
+const char * SysboolKeysVal[] = {"Active_Serial_Bridge",
+                                 "Active_Remote_Screen",
                                  "Active_ESP3D_Screen",
                                  "Active_Serial ",
                                  "Active_WebSocket",
@@ -154,7 +159,8 @@ const char * SysboolKeysVal[] = {"Active_Remote_Screen",
                                  "Secure_serial"
                                 } ;
 
-const uint16_t SysboolKeysPos[] = {ESP_REMOTE_SCREEN_FLAG,
+const uint16_t SysboolKeysPos[] = {ESP_SERIAL_BRIDGE_FLAG,
+                                   ESP_REMOTE_SCREEN_FLAG,
                                    ESP_SCREEN_FLAG,
                                    ESP_SERIAL_FLAG,
                                    ESP_WEBSOCKET_FLAG,

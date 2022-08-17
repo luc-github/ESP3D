@@ -24,17 +24,26 @@
 //   * UART 1 allows only TX on 2 if UART 0 is not (2, 3)
 #ifndef ESP_RX_PIN
 #define ESP_RX_PIN -1
-#endif //~ESP_RX_PIN
+#endif //ESP_RX_PIN
 #ifndef ESP_TX_PIN
 #define ESP_TX_PIN -1
-#endif //~ESP_TX_PIN
+#endif //ESP_TX_PIN
+
+#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
+#ifndef ESP_BRIDGE_RX_PIN
+#define ESP_BRIDGE_RX_PIN -1
+#endif //ESP_BRIDGE_RX_PIN
+#ifndef ESP_BRIDGE_TX_PIN
+#define ESP_BRIDGE_TX_PIN -1
+#endif //ESP_BRIDGE_TX_PIN
+#endif //ESP_SERIAL_BRIDGE_OUTPUT
 
 #ifndef ESP_DEBUG_RX_PIN
 #define ESP_DEBUG_RX_PIN -1
-#endif //~ESP_DEBUG_RX_PIN
+#endif //ESP_DEBUG_RX_PIN
 #ifndef ESP_DEBUG_TX_PIN
 #define ESP_DEBUG_TX_PIN -1
-#endif //~ESP_DEBUG_TX_PIN
+#endif //ESP_DEBUG_TX_PIN
 
 //I2C Pins
 #ifndef ESP_SDA_PIN
@@ -397,7 +406,7 @@
 #endif //ESP_SD_DETECT_PIN 
 
 #if defined (PIN_RESET_FEATURE) && !defined(ESP3D_RESET_PIN)
-#define ESP3D_RESET_PIN 0
+#define ESP3D_RESET_PIN -1
 #endif //PIN_RESET_FEATURE
 
 #ifdef SD_DEVICE_CONNECTION

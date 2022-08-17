@@ -197,7 +197,7 @@ bool Commands::ESP220(const char* cmd_params, level_authenticate_type auth_type,
             }
             line="";
 #endif //BUZZER_DEVICE
-#ifdef PIN_RESET_FEATURE
+#if defined(PIN_RESET_FEATURE) && defined(ESP3D_RESET_PIN) &&  ESP3D_RESET_PIN !=-1
             hasPin = true;
             if (json) {
                 line += "{\"id\":\"";

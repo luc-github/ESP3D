@@ -209,7 +209,10 @@ label can be: light/framesize/quality/contrast/brightness/saturation/gainceiling
         ESP_WEBDAV_ON           1024    //1 byte = flag   
         ESP_WEBDAV_PORT  	    1025	//4  bytes = int   
         ESP_STA_DNS_VALUE       1029    //4  bytes= int    
-        ESP_SECURE_SERIAL       1033    //1 byte = flag    \
+        ESP_SECURE_SERIAL       1033    //1 byte = flag   
+        ESP_SERIAL_BRIDGE_ON    1036    //1 byte = flag
+        ESP_SERIAL_BRIDGE_FLAG  1037    //1 byte = flag
+        ESP_SERIAL_BRIDGE_BAUD  1038    //4  bytes= int
 ```
 
 * Get/Set Check update at boot state which can be ON, OFF   
@@ -285,15 +288,21 @@ label can be: light/framesize/quality/contrast/brightness/saturation/gainceiling
 
 * Get state / Set Enable / Disable Serial Communication   
     `[ESP900]<ENABLE/DISABLE> json=<no> pwd=<admin/user password>`
-
-* Get state / Set Enable / Disable verbose boot   
-    `[ESP901]<ENABLE/DISABLE> json=<no> pwd=<admin/user password>`
+    
+* Get / Set Serial Baud Rate
+    `[ESP901]<BAUD RATE> json=<no> pwd=<admin/user password>`
 
 * Get state / Set Enable / Disable buzzer   
     `[ESP910]<ENABLE/DISABLE> json=<no> pwd=<admin/user password>`
 
 * Get state / Set state of  output message clients   
-    `[ESP920]<SERIAL / SCREEN / REMOTE_SCREEN/ WEBSOCKET / TELNET /BT / ALL>=<ON/OFF> json=<no> pwd=<admin/user password>`
+    `[ESP920]<SERIAL / SCREEN / REMOTE_SCREEN/ WEBSOCKET / TELNET /BT / ALL>=<ON/OFF> json=<no> pwd=<admin/user password>`  
+
+* Get state / Set Enable / Disable Serial Bridge Communication   
+    `[ESP930]<ENABLE/DISABLE> json=<no> pwd=<admin/user password>`    
+* Get / Set Serial Bridge Baud Rate
+    `[ESP931]<BAUD RATE> json=<no> pwd=<admin/user password>`
+
 
 * Set quiet boot if strapping pin is High   
     `[ESP999]QUIETBOOT pwd=<admin/user password>`

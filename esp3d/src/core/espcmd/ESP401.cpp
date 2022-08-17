@@ -23,7 +23,7 @@
 #include "../settings_esp3d.h"
 #include "../../modules/authentication/authentication_service.h"
 #define COMMANDID   401
-#if COMMUNICATION_PROTOCOL != SOCKET_SERIAL
+#if COMMUNICATION_PROTOCOL != SOCKET_SERIAL || defined(ESP_SERIAL_BRIDGE_OUTPUT)
 #include "../../modules/serial/serial_service.h"
 #endif // COMMUNICATION_PROTOCOL != SOCKET_SERIAL
 #ifdef SENSOR_DEVICE
@@ -90,6 +90,14 @@ bool Commands::ESP401(const char* cmd_params, level_authenticate_type auth_type,
                     } else {
                         //dynamique refresh is better than restart the boards
                         switch(spos.toInt()) {
+#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
+                        case ESP_SERIAL_BRIDGE_ON:
+                            if (!serial_bridge_service.started()) {
+                                serial_bridge_service.begin(ESP_SERIAL_BRIDGE_OUTPUT);
+                            }
+                            break;
+#endif //ESP_SERIAL_BRIDGE_OUTPUT
+                        case ESP_SERIAL_BRIDGE_FLAG:
                         case ESP_SERIAL_FLAG:
                         case ESP_REMOTE_SCREEN_FLAG:
                         case ESP_WEBSOCKET_FLAG:
@@ -166,6 +174,11 @@ bool Commands::ESP401(const char* cmd_params, level_authenticate_type auth_type,
                             serial_service.updateBaudRate(sval.toInt());
                             break;
 #endif // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
+#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
+                        case ESP_SERIAL_BRIDGE_BAUD:
+                            serial_bridge_service.updateBaudRate(sval.toInt());
+                            break;
+#endif //defined(ESP_SERIAL_BRIDGE_OUTPUT)
                         default:
                             break;
                         }

@@ -1,5 +1,5 @@
 /*
- ESP900.cpp - ESP3D command class
+ ESP930.cpp - ESP3D command class
 
  Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -18,16 +18,16 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "../../include/esp3d_config.h"
-#if COMMUNICATION_PROTOCOL != SOCKET_SERIAL
+#if defined (ESP_SERIAL_BRIDGE_OUTPUT)
 #include "../commands.h"
 #include "../esp3doutput.h"
 #include "../settings_esp3d.h"
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/serial/serial_service.h"
-#define COMMANDID   900
-//Get state / Set Enable / Disable Serial Communication
-//[ESP900]<ENABLE/DISABLE> json=<no> [pwd=<admin password>]
-bool Commands::ESP900(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
+#define COMMANDID   930
+//Set Bridge Serial state which can be ON, OFF, CLOSE
+//[ESP930]<state> json=<no> pwd=<admin password>
+bool Commands::ESP930(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
     bool noError = true;
     bool json = has_tag (cmd_params, "json");
@@ -46,29 +46,39 @@ bool Commands::ESP900(const char* cmd_params, level_authenticate_type auth_type,
     if (noError) {
         parameter = clean_param(get_param (cmd_params, ""));
         //get
-        String r;
         if (parameter.length() == 0) {
-            if (serial_service.started()) {
-                r="ENABLED";
-            } else {
-                r="DISABLED";
-            }
-            r+=" - Serial" + String(serial_service.serialIndex());
-            response = format_response(COMMANDID, json, true, r.c_str());
+            String r = (Settings_ESP3D::read_byte(ESP_SERIAL_BRIDGE_ON) == 0)?"OFF":"ON";
+            r+=" - Serial" + String(serial_bridge_service.serialIndex());
+            response = format_response(COMMANDID, json, true, r.c_str() );
         } else { //set
-            if (parameter == "ENABLE" ) {
-                if (serial_service.begin(ESP_SERIAL_OUTPUT)) {
-                    response = format_response(COMMANDID, json, true, "ok");
-                } else {
-                    response = format_response(COMMANDID, json, false, "Cannot enable serial communication");
-                    noError = false;
-                }
-            } else if (parameter == "DISABLE" ) {
-                response = format_response(COMMANDID, json, true, "ok");
-                serial_service.end();
-            } else {
-                response = format_response(COMMANDID, json, false, "Incorrect command");
+#ifdef AUTHENTICATION_FEATURE
+            if (auth_type != LEVEL_ADMIN) {
+                response = format_response(COMMANDID, json, false, "Wrong authentication level");
                 noError = false;
+                errorCode = 401;
+            }
+#endif //AUTHENTICATION_FEATURE
+            if (noError) {
+                parameter.toUpperCase();
+                if (!((parameter == "ON") || (parameter == "OFF") || (parameter == "CLOSE"))) {
+                    response = format_response(COMMANDID, json, false, "Only ON or OFF or CLOSE mode supported!");
+                    noError = false;
+                } else {
+                    if (parameter == "CLOSE") {
+                        serial_bridge_service.end();
+                    } else {
+                        if (!Settings_ESP3D::write_byte (ESP_SERIAL_BRIDGE_ON, (parameter == "ON")?1:0)) {
+                            response = format_response(COMMANDID, json, false, "Set failed");
+                            noError = false;
+                        }
+                        if(noError && parameter == "ON" && !serial_bridge_service.started()) {
+                            serial_bridge_service.begin(ESP_SERIAL_BRIDGE_OUTPUT);
+                        }
+                    }
+                    if (noError) {
+                        response = format_response(COMMANDID, json, true, "ok");
+                    }
+                }
             }
         }
     }
@@ -83,4 +93,5 @@ bool Commands::ESP900(const char* cmd_params, level_authenticate_type auth_type,
     }
     return noError;
 }
-#endif
+
+#endif //TELNET_FEATURE

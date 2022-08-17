@@ -25,7 +25,7 @@
 #include "../../core/esp3doutput.h"
 RecoveryService recovery_service;
 
-#ifdef PIN_RESET_FEATURE
+#if defined(PIN_RESET_FEATURE)&& defined(ESP3D_RESET_PIN) &&  ESP3D_RESET_PIN !=-1
 #include "../../core/esp3d.h"
 bool interruptswitch =false;
 

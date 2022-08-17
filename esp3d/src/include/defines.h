@@ -32,8 +32,8 @@
 #define MARLIN_EMBEDDED 30
 #define SMOOTHIEWARE    40
 #define REPETIER        50
-#define FLUIDNC         60
 #define REPRAP          70
+#define GRBLHAL         80
 
 //Default flags
 #define DEFAULT_SERIAL_OUTPUT_FLAG 1
@@ -42,6 +42,7 @@
 #define DEFAULT_TELNET_FLAG 1
 #define DEFAULT_BT_FLAG 1
 #define DEFAULT_SCREEN_FLAG 1
+#define DEFAULT_SERIAL_BRIDGE_FLAG 1
 
 //position in EEPROM / preferences will use `P_` + <position> to make a string : P_0 for 0
 #define ESP_RADIO_MODE          0       //1 byte = flag
@@ -110,6 +111,9 @@
 #define ESP_SECURE_SERIAL       1033    //1 byte = flag
 #define ESP_BOOT_RADIO_STATE    1034    //1 byte = flag
 #define ESP_STA_FALLBACK_MODE   1035    //1 byte = flag
+#define ESP_SERIAL_BRIDGE_ON    1036    //1 byte = flag
+#define ESP_SERIAL_BRIDGE_FLAG  1037    //1 byte = flag
+#define ESP_SERIAL_BRIDGE_BAUD  1038    //4  bytes= int
 
 //Hidden password
 #define HIDDEN_PASSWORD "********"
@@ -126,6 +130,11 @@
 #define USE_SERIAL_0 1
 #define USE_SERIAL_1 2
 #define USE_SERIAL_2 3
+
+//Serial service ID
+#define MAIN_SERIAL   1
+#define BRIDGE_SERIAL 2
+
 
 //Communication protocols
 #define RAW_SERIAL    0
