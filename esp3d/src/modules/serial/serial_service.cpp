@@ -157,8 +157,8 @@ bool SerialService::begin(uint8_t serialIndex)
         Serials[_serialIndex]->setRxBufferSize (SERIAL_RX_BUFFER_SIZE);
 #ifdef ARDUINO_ARCH_ESP8266
         Serials[_serialIndex]->begin(br, ESP_SERIAL_PARAM, SERIAL_FULL, (_txPin == -1)?1:_txPin);
-        if (_rx != -1) {
-            Serials[_serialIndex]->pins((_txPin == -1)?1:_txPin, _rxPin)
+        if (_rxPin != -1) {
+            Serials[_serialIndex]->pins((_txPin == -1)?1:_txPin, _rxPin);
         }
 
 #endif //ARDUINO_ARCH_ESP8266
