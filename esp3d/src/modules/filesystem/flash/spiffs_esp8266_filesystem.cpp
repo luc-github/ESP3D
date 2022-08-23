@@ -20,7 +20,6 @@
 #include "../../../include/esp3d_config.h"
 #if (FILESYSTEM_FEATURE == ESP_SPIFFS_FILESYSTEM) && defined (ARDUINO_ARCH_ESP8266)
 #include "../esp_filesystem.h"
-#include "../../../core/genLinkedList.h"
 #include <FS.h>
 Dir tDir_handle[ESP_MAX_OPENHANDLE];
 extern File tFile_handle[ESP_MAX_OPENHANDLE];

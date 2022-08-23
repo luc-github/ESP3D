@@ -21,7 +21,7 @@ fat_esp32_filesystem.cpp - ESP3D fat filesystem configuration class
 #include "../../../include/esp3d_config.h"
 #if (FILESYSTEM_FEATURE == ESP_FAT_FILESYSTEM)
 #include "../esp_filesystem.h"
-#include "../../../core/genLinkedList.h"
+#include <stack>
 #include <FS.h>
 #include "FFat.h"
 
@@ -156,10 +156,10 @@ bool ESP_FileSystem::rmdir(const char *path)
         return false;
     }
     bool res = true;
-    GenLinkedList<String > pathlist;
+    std::stack <String > pathlist;
     pathlist.push(p);
-    while (pathlist.count() > 0) {
-        File dir = FFat.open(pathlist.getLast().c_str());
+    while (pathlist.size() > 0) {
+        File dir = FFat.open(pathlist.top().c_str());
         File f = dir.openNextFile();
         bool candelete = true;
         while (f) {
@@ -176,15 +176,15 @@ bool ESP_FileSystem::rmdir(const char *path)
             }
         }
         if (candelete) {
-            if (pathlist.getLast() !="/") {
-                res = FFat.rmdir(pathlist.getLast().c_str());
+            if (pathlist.top() !="/") {
+                res = FFat.rmdir(pathlist.top().c_str());
             }
             pathlist.pop();
         }
         dir.close();
     }
     p = String();
-    log_esp3d("count %d", pathlist.count());
+    log_esp3d("count %d", pathlist.size());
     return res;
 }
 

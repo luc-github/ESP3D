@@ -20,7 +20,7 @@ littlefs_esp8266_filesystem.cpp - ESP3D littlefs filesystem configuration class
 #include "../../../include/esp3d_config.h"
 #if (FILESYSTEM_FEATURE == ESP_LITTLEFS_FILESYSTEM) && defined(ARDUINO_ARCH_ESP8266)
 #include "../esp_filesystem.h"
-#include "../../../core/genLinkedList.h"
+#include <stack>
 #include <FS.h>
 #include <LittleFS.h>
 
@@ -157,7 +157,7 @@ bool ESP_FileSystem::rmdir(const char *path)
         return false;
     }
     bool res = true;
-    GenLinkedList<String > pathlist;
+    std::stack <String> pathlist;
     String spath = path;
     spath.trim();
     if (spath[spath.length()-1] != '/') {
@@ -167,15 +167,15 @@ bool ESP_FileSystem::rmdir(const char *path)
         spath ="/" + spath;
     }
     pathlist.push(spath);
-    while (pathlist.count() > 0) {
-        spath=pathlist.getLast();
+    while (pathlist.size() > 0) {
+        spath=pathlist.top();
         bool candelete = true;
         if (LittleFS.exists(spath.c_str()))  {
-            Dir dir = LittleFS.openDir(pathlist.getLast().c_str());
+            Dir dir = LittleFS.openDir(pathlist.top().c_str());
             while (dir.next()) {
                 if (dir.isDirectory()) {
                     candelete = false;
-                    String newdir = pathlist.getLast() + dir.fileName() + "/";
+                    String newdir = pathlist.top() + dir.fileName() + "/";
                     pathlist.push(newdir);
                 } else {
                     log_esp3d("remove %s", dir.fileName().c_str());

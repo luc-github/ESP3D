@@ -21,7 +21,6 @@
 #include "../../include/esp3d_config.h"
 #if defined(GLOBAL_FILESYSTEM_FEATURE)
 #include "esp_globalFS.h"
-//#include "../../core/genLinkedList.h"
 
 //to verify FS is accessible
 bool ESP_GBFS::isavailable(uint8_t FS)

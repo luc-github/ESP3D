@@ -23,7 +23,7 @@ sd_sdfat2_esp8266.cpp - ESP3D sd support class
 #if (SD_DEVICE == ESP_SDFAT2)
 #define FS_NO_GLOBALS
 #include "../esp_sd.h"
-#include "../../../core/genLinkedList.h"
+#include <stack>
 #include "../../../core/settings_esp3d.h"
 #define NO_GLOBAL_SD
 #include <SdFat.h>
@@ -351,11 +351,11 @@ bool ESP_SD::rmdir(const char *path)
         return false;
     }
     bool res = true;
-    GenLinkedList<String > pathlist;
+    std::stack <String > pathlist;
     String p = path;
     pathlist.push(p);
-    while (pathlist.count() > 0) {
-        sdfat::File dir = SD.open(pathlist.getLast().c_str());
+    while (pathlist.size() > 0) {
+        sdfat::File dir = SD.open(pathlist.top().c_str());
         dir.rewindDirectory();
         sdfat::File f = dir.openNextFile();
         bool candelete = true;
@@ -379,15 +379,15 @@ bool ESP_SD::rmdir(const char *path)
             }
         }
         if (candelete) {
-            if (pathlist.getLast() !="/") {
-                res = SD.rmdir(pathlist.getLast().c_str());
+            if (pathlist.top() !="/") {
+                res = SD.rmdir(pathlist.top().c_str());
             }
             pathlist.pop();
         }
         dir.close();
     }
     p = String();
-    log_esp3d("count %d", pathlist.count());
+    log_esp3d("count %d", pathlist.size());
     return res;
 }
 

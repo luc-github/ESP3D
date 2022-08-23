@@ -21,7 +21,6 @@
 #include "../../include/esp3d_config.h"
 #ifdef SD_DEVICE
 #include "esp_sd.h"
-#include "../../core/genLinkedList.h"
 #include <time.h>
 
 #define ESP_MAX_SD_OPENHANDLE 4
