@@ -200,8 +200,7 @@
 //SD READER FS type supported
 #define ESP_SD_NATIVE               1
 #define ESP_SDIO                    2
-#define ESP_SDFAT                   3
-#define ESP_SDFAT2                  4
+#define ESP_SDFAT2                  3
 
 //SDIO Mode
 #define SD_ONE_BIT_MODE             1

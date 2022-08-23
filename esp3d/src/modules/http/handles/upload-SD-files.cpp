@@ -118,7 +118,7 @@ void HTTP_Server::SDFileupload ()
                                     break;
                                 }
                             }
-                            if (pos+1 >= path.length()-1) {
+                            if ((size_t)(pos+1) >= path.length()-1) {
                                 pos=-1;
                                 break;
                             } else {

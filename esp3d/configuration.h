@@ -245,7 +245,6 @@
 /* SD card library
 * ESP_SD_NATIVE //esp32 / esp8266
 * ESP_SDIO      //esp32 only
-* ESP_SDFAT     //esp8266  / esp32
 * ESP_SDFAT2    //esp8266  / esp32
 */
 //#define SD_DEVICE ESP_SDFAT2

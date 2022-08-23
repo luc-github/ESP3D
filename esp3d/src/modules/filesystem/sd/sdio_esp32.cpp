@@ -243,20 +243,25 @@ bool ESP_SD::rmdir(const char *path)
         p.remove( p.length() - 1,1);
     }
     pathlist.push(p);
-    while (pathlist.size() > 0) {
+    while (pathlist.size() > 0 && res) {
         File dir = SD_MMC.open(pathlist.top().c_str());
         File f = dir.openNextFile();
         bool candelete = true;
-        while (f) {
+        while (f && res) {
             if (f.isDirectory()) {
                 candelete = false;
-                String newdir = f.name();
+                String newdir = pathlist.top()+ '/';
+                newdir+= f.name();
                 pathlist.push(newdir);
                 f.close();
                 f = File();
             } else {
-                SD_MMC.remove(f.name());
+                String filepath = pathlist.top()+ '/';
+                filepath+= f.name();
                 f.close();
+                if (!SD_MMC.remove(filepath.c_str())) {
+                    res = false;
+                }
                 f = dir.openNextFile();
             }
         }

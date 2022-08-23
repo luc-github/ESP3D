@@ -153,46 +153,40 @@ bool ESP_FileSystem::mkdir(const char *path)
 
 bool ESP_FileSystem::rmdir(const char *path)
 {
-    if (!exists(path)) {
+    String p = path;
+    if (!p.endsWith("/")) {
+        p+= '/';
+    }
+    if (!p.startsWith("/")) {
+        p = '/'+p;
+    }
+    if (!exists(p.c_str())) {
         return false;
     }
     bool res = true;
     std::stack <String> pathlist;
-    String spath = path;
-    spath.trim();
-    if (spath[spath.length()-1] != '/') {
-        spath+="/";
-    }
-    if (spath[0] != '/') {
-        spath ="/" + spath;
-    }
-    pathlist.push(spath);
+    pathlist.push(p);
     while (pathlist.size() > 0) {
-        spath=pathlist.top();
+
         bool candelete = true;
-        if (LittleFS.exists(spath.c_str()))  {
-            Dir dir = LittleFS.openDir(pathlist.top().c_str());
-            while (dir.next()) {
-                if (dir.isDirectory()) {
-                    candelete = false;
-                    String newdir = pathlist.top() + dir.fileName() + "/";
-                    pathlist.push(newdir);
-                } else {
-                    log_esp3d("remove %s", dir.fileName().c_str());
-                    String s = spath + dir.fileName();
-                    LittleFS.remove(s);
-                }
+        Dir dir = LittleFS.openDir(pathlist.top().c_str());
+        while (dir.next()) {
+            if (dir.isDirectory()) {
+                candelete = false;
+                String newdir = pathlist.top() + dir.fileName() + "/";
+                pathlist.push(newdir);
+            } else {
+                String filepath = pathlist.top()+ '/';
+                filepath+= dir.fileName();
+                log_esp3d("remove %s", filepath.c_str());
+                LittleFS.remove(filepath.c_str());
             }
         }
         if (candelete) {
-            if (spath !="/") {
-                if (spath[spath.length()-1] == '/') {
-                    spath.remove(spath.length()-1);
+            if (pathlist.top() !="/") {
+                if (LittleFS.exists(pathlist.top().c_str())) {
+                    res = LittleFS.rmdir(pathlist.top().c_str());
                 }
-                if (LittleFS.exists(spath.c_str()))  {
-                    res = LittleFS.rmdir(spath.c_str());
-                }
-                log_esp3d("rmdir %s %d", spath.c_str(), res);
             }
             pathlist.pop();
         }

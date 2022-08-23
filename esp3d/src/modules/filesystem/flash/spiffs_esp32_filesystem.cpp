@@ -168,11 +168,11 @@ bool ESP_FileSystem::rmdir(const char *path)
 {
     String spath = path;
     spath.trim();
-    if(spath[0]!='/') {
-        spath="/"+spath;
+    if (!spath.startsWith("/")) {
+        spath = '/'+spath;
     }
-    if (spath[spath.length()-1] == '/') {
-        if (spath!="/") {
+    if (spath!= "/") {
+        if (spath.endsWith("/")) {
             spath.remove(spath.length()-1);
         }
     }

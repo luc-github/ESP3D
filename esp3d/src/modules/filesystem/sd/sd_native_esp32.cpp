@@ -209,30 +209,42 @@ bool ESP_SD::mkdir(const char *path)
 
 bool ESP_SD::rmdir(const char *path)
 {
-    if (!exists(path)) {
+
+    String p = path;
+    if (!p.startsWith("/")) {
+        p = '/'+p;
+    }
+    if (p!= "/") {
+        if (p.endsWith("/")) {
+            p.remove(p.length()-1);
+        }
+    }
+    if (!exists(p.c_str())) {
         return false;
     }
     bool res = true;
     std::stack <String > pathlist;
-    String p = path;
-    if (p.endsWith("/")) {
-        p.remove( p.length() - 1,1);
-    }
     pathlist.push(p);
-    while (pathlist.size() > 0) {
+    while (pathlist.size() > 0 && res) {
         File dir = SD.open(pathlist.top().c_str());
         File f = dir.openNextFile();
         bool candelete = true;
-        while (f) {
+        while (f && res) {
             if (f.isDirectory()) {
                 candelete = false;
-                String newdir = f.name();
+                String newdir = pathlist.top()+ '/';
+                newdir+= f.name();
                 pathlist.push(newdir);
                 f.close();
                 f = File();
             } else {
-                SD.remove(f.name());
+
+                String filepath = pathlist.top()+ '/';
+                filepath+= f.name();
                 f.close();
+                if(!SD.remove(filepath.c_str())) {
+                    res = false;
+                }
                 f = dir.openNextFile();
             }
         }

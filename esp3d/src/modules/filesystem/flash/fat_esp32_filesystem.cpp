@@ -143,35 +143,39 @@ bool ESP_FileSystem::mkdir(const char *path)
 bool ESP_FileSystem::rmdir(const char *path)
 {
     String p = path;
-    if(p[0]!='/') {
-        p="/"+p;
+    if (!p.startsWith("/")) {
+        p = '/'+p;
     }
-    if (p[p.length()-1] == '/') {
-        if (p!="/") {
+    if (p!= "/") {
+        if (p.endsWith("/")) {
             p.remove(p.length()-1);
         }
     }
-
     if (!exists(p.c_str())) {
         return false;
     }
     bool res = true;
     std::stack <String > pathlist;
     pathlist.push(p);
-    while (pathlist.size() > 0) {
+    while (pathlist.size() > 0 && res) {
         File dir = FFat.open(pathlist.top().c_str());
         File f = dir.openNextFile();
         bool candelete = true;
-        while (f) {
+        while (f && res) {
             if (f.isDirectory()) {
                 candelete = false;
-                String newdir = f.name();
+                String newdir = pathlist.top()+ '/';
+                newdir+= f.name();
                 pathlist.push(newdir);
                 f.close();
                 f = File();
             } else {
-                FFat.remove(f.name());
+                String filepath = pathlist.top()+ '/';
+                filepath+= f.name();
                 f.close();
+                if (!FFat.remove(filepath.c_str())) {
+                    res = false;
+                }
                 f = dir.openNextFile();
             }
         }

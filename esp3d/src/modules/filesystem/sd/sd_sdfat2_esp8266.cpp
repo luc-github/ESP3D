@@ -347,25 +347,32 @@ bool ESP_SD::mkdir(const char *path)
 
 bool ESP_SD::rmdir(const char *path)
 {
-    if (!exists(path)) {
+    String p = path;
+    if (!p.endsWith("/")) {
+        p+= '/';
+    }
+    if (!p.startsWith("/")) {
+        p = '/'+p;
+    }
+    if (!exists(p.c_str())) {
         return false;
     }
     bool res = true;
     std::stack <String > pathlist;
-    String p = path;
     pathlist.push(p);
-    while (pathlist.size() > 0) {
+    while (pathlist.size() > 0 && res) {
         sdfat::File dir = SD.open(pathlist.top().c_str());
         dir.rewindDirectory();
         sdfat::File f = dir.openNextFile();
         bool candelete = true;
-        while (f) {
+        while (f && res) {
             if (f.isDir()) {
                 candelete = false;
                 String newdir;
                 char tmp[255];
                 f.getName(tmp,254);
-                newdir = tmp;
+                newdir = pathlist.top() +  tmp;
+                newdir+="/";
                 pathlist.push(newdir);
                 f.close();
                 f = sdfat::File();
@@ -373,8 +380,11 @@ bool ESP_SD::rmdir(const char *path)
                 char tmp[255];
                 f.getName(tmp,254);
                 _sizechanged = true;
-                SD.remove(tmp);
+                String filepath = pathlist.top() + tmp;
                 f.close();
+                if (!SD.remove(filepath.c_str())) {
+                    res= false;
+                }
                 f = dir.openNextFile();
             }
         }
