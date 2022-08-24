@@ -109,9 +109,9 @@ const char * help[]= {"[ESP] (id) - display this help",
                       "[ESP402](State) - display/set check update at boot from SD which can be ON, OFF",
 #endif //SD_UPDATE_FEATURE
 #if defined (WIFI_FEATURE)
-                      "[ESP410](plain) - display available AP list (limited to 30) in plain/JSON",
+                      "[ESP410]display available AP list (limited to 30) in plain/JSON",
 #endif //WIFI_FEATURE
-                      "[ESP420](plain) - display ESP3D current status in plain/JSON",
+                      "[ESP420]display ESP3D current status in plain/JSON",
                       "[ESP444](Cmd) - set ESP3D state (RESET/RESTART)",
 #ifdef MDNS_FEATURE
                       "[ESP450]display ESP3D list on network",
@@ -147,7 +147,7 @@ const char * help[]= {"[ESP] (id) - display this help",
                       "[ESP780](path)  - List Global Filesystem",
                       "[ESP790](Action)=(path) - rmdir / remove / mkdir / exists / create on Global Filesystem (path)",
 #endif //GLOBAL_FILESYSTEM_FEATURE
-                      "[ESP800](plain)(time=YYYY-MM-DD-HH-MM-SS) - display FW Informations in plain/JSON",
+                      "[ESP800](time=YYYY-MM-DD-HH-MM-SS) - display FW Informations in plain/JSON",
 #if COMMUNICATION_PROTOCOL != SOCKET_SERIAL
                       "[ESP900](ENABLE/DISABLE) - display/set serial state",
                       "[ESP901]<BAUD RATE> - display/set serial baud rate",

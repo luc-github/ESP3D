@@ -114,7 +114,7 @@ void mDNS_Service::addESP3DServices(uint16_t port)
         return;
     }
     MDNS.addService(MDNS_SERVICE_NAME, MDNS_SERVICE_TYPE, _port);
-    MDNS.addServiceTxt(MDNS_SERVICE_NAME, MDNS_SERVICE_TYPE, "firmware", "esp3d");
+    MDNS.addServiceTxt(MDNS_SERVICE_NAME, MDNS_SERVICE_TYPE, "firmware", ESP3D_CODE_BASE);
     MDNS.addServiceTxt(MDNS_SERVICE_NAME, MDNS_SERVICE_TYPE, "version", FW_VERSION);
 #if defined(ARDUINO_ARCH_ESP8266)
     _hMDNSServiceQuery = MDNS.installServiceQuery(MDNS_SERVICE_NAME, MDNS_SERVICE_TYPE,MDNSServiceQueryCallback);

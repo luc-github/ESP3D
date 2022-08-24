@@ -25,12 +25,13 @@
 #if defined __has_include
 #  if __has_include ("../../configuration.h")
 #include "../../configuration.h"
+#define ESP3D_CODE_BASE "ESP3D"
 #else
 #undef DISABLED
 #undef _BV
 #  if __has_include ("../esp3dlib_config.h")
 #include "../esp3dlib_config.h"
-#include "./Marlin/FlushableHardwareSerial.h"
+#define ESP3D_CODE_BASE "ESP3DLib"
 #else
 #error "No configuration file found"
 #endif
