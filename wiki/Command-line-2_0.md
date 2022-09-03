@@ -2,19 +2,15 @@
 
 ## Format
 
-Please note all commands ar in format `[ESPxx]`  
+Please note all commands are in format `[ESPxx]`. These first brackets `[]` are not optional.  
 Most of the time givin no argument will return current configuration
-If authentication is on, somme commands will need admin password. Thay are recognised by the optinal argument `[pwd=<admin password>]` in command line.
+If authentication is on, somme commands will need admin password. They are recognised by the optional argument `[pwd=<admin password>]` in command line.
 
-## Deviations from standard commadn line
+## Deviations from standard command line
 
-Based on standard format from <http://docopt.org/>.
+Based on command line format from <http://docopt.org/>.
 
-```
-Under construction: this is not 100% GNU standard even if very near
-```
-
-* `[ESPxxx]` the brackets are part of the command here
+* `[ESPxxx]` the brackets are part of the command here and do not mean "optional argument"
 * ALL commands with `=` should be using long arg format `--arg=<val>` for example `[pwd=<admin password>]` should be `[--pwd=<admin password>]`
 
 ## Commands
@@ -52,20 +48,14 @@ Under construction: this is not 100% GNU standard even if very near
 ### Get/Change hostname
 `[ESP112] [<hostname>]`
 
-```
-Under construction. I need to test to understand
 ### Get/Set pin value
-`[ESP201]P<pin> [V<value> PULLUP=YES RAW=YES ANALOG=NO ANALOG_RANGE=255 CLEARCHANNELS=NO pwd=<admin password>]`
-if no V<value> get P<pin> value
+`[ESP201] P<pin> [V<value> PULLUP=YES RAW=YES ANALOG=NO ANALOG_RANGE=255 CLEARCHANNELS=NO pwd=<admin password>]`  
+if no V<value> get P<pin> value  
 if V<value> 0/1 set INPUT_PULLUP value, but for GPIO16 INPUT_PULLDOWN_16
-GPIO1 and GPIO3 cannot be used as they are used for serial
-if PULLUP=YES set input pull up, if not set input
+GPIO1 and GPIO3 cannot be used as they are used for serial  
+if PULLUP=YES set input pull up, if not set input  
 if RAW=YES do not set pinmode just read value
-```
 
-```
-Under construction: many commands do not mention password ?
-```
 ### Output to oled column C and line L
 `[ESP210] C=<col> L=<line> T=<Text>`
 
@@ -81,13 +71,10 @@ Under construction: many commands do not mention password ?
 ### Output to oled line 4
 `[ESP214] <Text>`
 
-```
-Under construction, need to understand usage
 ### Get full EEPROM settings content
 but do not give any passwords
 can filter if only need wifi or printer
-`[ESP400]<network/printer>`
-```
+`[ESP400] <network/printer>`
 
 ### Set EEPROM setting
 `[ESP401] P=<position> T={B | I | S | A} V=<value> [pwd=<user/admin password>]`  
@@ -127,9 +114,6 @@ can filter if only need wifi or printer
 * `EP_DHT_TYPE              460  //1  bytes = flag`
 * `EP_TARGET_FW             461  //1  bytes = flag`
 
-```
-Under construction, need to test what is accepted
-```
 ### Get available AP list (limited to 30)
 `[ESP410] [plain]`  
 Output is JSON or plain text according parameter
@@ -139,14 +123,11 @@ Output is JSON or plain text according parameter
 Output is JSON or plain text according parameter
 
 ### Get/Set ESP mode
-`[ESP444] [RESET | SAFEMODE | CONFIG | RESTART] [pwd=<admin password>]`
+`[ESP444] [RESET | SAFEMODE | CONFIG | RESTART] [pwd=<admin password>]`  
 if authentication is on, need admin password for RESET, RESTART and SAFEMODE
-```
-under construction: confirm CONFIG never needs password ? 
-```
 
 ### Change / Reset user password
-`[ESP555] [<password>] [pwd=<admin password>]`
+`[ESP555] [<password>] [pwd=<admin password>]`  
 If no password set it use default one
 
 ### Send GCode with check sum caching right line numbering
