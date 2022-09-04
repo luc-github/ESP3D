@@ -70,7 +70,7 @@ if Authentication is enabled :
 
 
 ## Direct commands:    
-Check wiki : https://github.com/luc-github/ESP3D/wiki/Direct-ESP3D-commands
+Check wiki : https://github.com/luc-github/ESP3D/wiki/Command-line-commands
 
 ## Installation instructions
 See [Wiki](https://github.com/luc-github/ESP3D/wiki/Install-Instructions)

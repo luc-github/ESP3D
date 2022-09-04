@@ -383,8 +383,14 @@ So `[ESP201]P12 V0` should be off and `[ESP201]P12 V1` should be on
 
 ### Wemos D1 mini
 
-<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/D1_mini/FB_IMG_1510306696875.jpg' width='200'><br>
+Connection with logic level conveter:  
+<img src='https://github.com/jayjojayson/ESP3D/blob/2.1/images/D1_mini/wemos-d1-mini_logic-level-converter.jpg?raw=true' width='200'><br>
 click to enlarge
 
-<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/D1_mini/20171111_215253.jpg' width='200'><br>
+example:  
+<img src='https://github.com/jayjojayson/ESP3D/blob/2.1/images/D1_mini/wemos-d1-mini_logic-level-converter-2.jpg?raw=true' width='200'><br>
 click to enlarge
+
+printed cases:
+* <https://www.thingiverse.com/thing:4128593>
+* <https://www.thingiverse.com/thing:2671591>
