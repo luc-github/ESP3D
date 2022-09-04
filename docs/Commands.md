@@ -300,9 +300,9 @@ label can be: light/framesize/quality/contrast/brightness/saturation/gainceiling
 
 * Get state / Set Enable / Disable Serial Bridge Communication   
     `[ESP930]<ENABLE/DISABLE> json=<no> pwd=<admin/user password>`    
+
 * Get / Set Serial Bridge Baud Rate
     `[ESP931]<BAUD RATE> json=<no> pwd=<admin/user password>`
-
 
 * Set quiet boot if strapping pin is High   
     `[ESP999]QUIETBOOT pwd=<admin/user password>`

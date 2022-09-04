@@ -50,8 +50,8 @@ void HTTP_Server::handleFSFileList ()
     }
     if (_webserver->hasArg ("quiet")) {
         if(_webserver->arg ("quiet") == "yes") {
-            Serial.println("quiet");
-            _webserver->send (200, "text/plain", "{\"status\":\"ok\"}");
+            status = "{\"status\":\"" + status + "\"}";
+            _webserver->send (200, "text/plain", status.c_str());
             return;
         }
     }
@@ -165,7 +165,9 @@ void HTTP_Server::handleFSFileList ()
                 }
 #ifdef FILESYSTEM_TIMESTAMP_FEATURE
                 buffer2send+="\",\"time\":\"";
-                buffer2send+=timeserver.current_time(sub.getLastWrite());
+                if (!sub.isDirectory()) {
+                    buffer2send+=timeserver.current_time(sub.getLastWrite());
+                }
 #endif //FILESYSTEM_TIMESTAMP_FEATURE
                 buffer2send+="\"}";
                 if (buffer2send.length() > 1100) {

@@ -139,7 +139,6 @@ uint8_t ESP3DSensor::getIDFromString(const char * s)
     if (_device) {
         return _device->getIDFromString(s);
     }
-    Serial.println("no device");
     return 0;
 }
 

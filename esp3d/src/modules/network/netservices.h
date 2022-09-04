@@ -34,11 +34,6 @@ public:
     {
         return _started;
     }
-    static void start()
-    {
-        _restart=true;
-        Serial.println("Restarting netservices");
-    }
 private:
     static bool _started;
     static bool _restart;

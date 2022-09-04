@@ -261,6 +261,10 @@ bool NetServices::begin()
         SSDP.setSerialNumber (stmp.c_str());
         //Any customization could be here
         SSDP.setModelName (ESP_MODEL_NAME);
+#if defined(ESP_MODEL_DESCRIPTION)
+        //this one is optional because windows doesn't care about this field
+        SSDP.setModelDescription(ESP_MODEL_DESCRIPTION);
+#endif //ESP_MODEL_DESCRIPTION
         SSDP.setModelURL (ESP_MODEL_URL);
         SSDP.setModelNumber (ESP_MODEL_NUMBER);
         SSDP.setManufacturer (ESP_MANUFACTURER_NAME);
