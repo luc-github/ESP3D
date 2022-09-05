@@ -125,18 +125,20 @@ bool  ESP_SD::accessFS(uint8_t FS)
 void  ESP_SD::releaseFS(uint8_t FS)
 {
     (void)FS;
+    log_esp3d("Release SD");
+    setState(ESP_SDCARD_IDLE);
 #if SD_DEVICE_CONNECTION == ESP_SHARED_SD
+    _enabled = false;
 #if defined (ESP_FLAG_SHARED_SD_PIN)  && ESP_FLAG_SHARED_SD_PIN != -1
     log_esp3d("SD shared disabled PIN %d with %d", ESP_FLAG_SHARED_SD_PIN, ESP_FLAG_SHARED_SD_VALUE);
     digitalWrite(ESP_FLAG_SHARED_SD_PIN, !ESP_FLAG_SHARED_SD_VALUE);
 #endif // ESP_FLAG_SHARED_SD_PIN
 #if defined (ESP3DLIB_ENV)
-    log_esp3d("Release SD");
+    log_esp3d("Mount SD in Marlin");
     card.mount();
 #endif // ESP3DLIB_ENV
-    _enabled = false;
 #endif //SD_DEVICE_CONNECTION == ESP_SHARED_SD 
-    setState(ESP_SDCARD_IDLE);
+
 }
 
 
