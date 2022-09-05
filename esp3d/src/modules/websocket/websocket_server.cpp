@@ -32,7 +32,7 @@
 #include "../authentication/authentication_service.h"
 WebSocket_Server websocket_terminal_server("webui-v3");
 #if defined(WS_DATA_FEATURE)
-WebSocket_Server websocket_data_server();
+WebSocket_Server websocket_data_server("arduino");
 #endif //WS_DATA_FEATURE
 void WebSocket_Server::pushMSG (const char * data)
 {
