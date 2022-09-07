@@ -101,6 +101,9 @@ uint8_t ESP_SD::getState(bool refresh)
 
 bool ESP_SD::begin()
 {
+#if (ESP_SDIO_CLK_PIN != -1) || (ESP_SDIO_CMD_PIN != -1) || (ESP_SDIO_D0_PIN != -1) || (ESP_SDIO_D1_PIN != -1) || (ESP_SDIO_D2_PIN != -1) || (ESP_SDIO_D3_PIN != -1)
+    SD_MMC.setPins(ESP_SDIO_CLK_PIN, ESP_SDIO_CMD_PIN, ESP_SDIO_D0_PIN, ESP_SDIO_D1_PIN, ESP_SDIO_D2_PIN, ESP_SDIO_D3_PIN)
+#endif //(ESP_SDIO_CLK_PIN != -1)
     log_esp3d("Begin SDIO");
     _started = true;
 #ifdef SDMMC_FORCE_BEGIN
