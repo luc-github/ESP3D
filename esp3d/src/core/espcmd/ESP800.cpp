@@ -247,20 +247,6 @@ bool Commands::ESP800(const char* cmd_params, level_authenticate_type auth_type,
             output->printMSGLine(line.c_str());
         }
         line="";
-        //WebSocket subprotocol
-        if (json) {
-            line+=",\"WebSocketSubProtocol\":\"";
-        } else {
-            line+= "Web Socket SubProtocol:";
-        }
-        line+= websocket_terminal_server.getProtocol();
-        if (json) {
-            line +="\"";
-            output->print (line.c_str());
-        } else {
-            output->printMSGLine(line.c_str());
-        }
-        line="";
         //WebSocket Port
         if (json) {
             line+=",\"WebSocketPort\":\"";
