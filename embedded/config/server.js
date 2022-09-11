@@ -100,7 +100,6 @@ app.get("/command", function (req, res) {
               WebCommunication: "Synchronous",
               WebSocketIP: "localhost",
               WebSocketPort: "81",
-              WebSocketSubProtocol: "webui-v3",
               Hostname: "esp3d",
               WiFiMode: "STA",
               WebUpdate: "Enabled",

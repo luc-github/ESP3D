@@ -30,7 +30,7 @@ let wsMsg = "";
 let logOff = false;
 let pageId = "";
 let currentPath = "/";
-const version = "3.0.0.a5";
+const version = "3.0.0.a6";
 let xmlhttpupload;
 let prgfiletext;
 let prgfile;
@@ -239,11 +239,11 @@ function getPCTime() {
     padNumber(d.getMonth() + 1, 2) +
     "-" +
     padNumber(d.getDate(), 2) +
-    "-" +
+    "T" +
     padNumber(d.getHours(), 2) +
-    "-" +
+    ":" +
     padNumber(d.getMinutes(), 2) +
-    "-" +
+    ":" +
     padNumber(d.getSeconds(), 2)
   );
 }
@@ -357,18 +357,18 @@ function processFWJson(text) {
     }
   }
   if (json.Hostname) document.title = json.Hostname;
-  startSocket(json.WebSocketIP, json.WebSocketPort, json.WebCommunication, json.WebSocketSubProtocol);
+  startSocket(json.WebSocketIP, json.WebSocketPort, json.WebCommunication);
   SendFileCommand("list", "all");
 }
 
-function startSocket(ip, port, sync, protocol) {
+function startSocket(ip, port, sync) {
   if (websocketStarted) {
     wsSource.close();
   }
 
   wsSource = new WebSocket(
     "ws://" + ip + ":" + port + (sync == "Asynchronous" ? "/ws" : ""),
-    [protocol]
+    ["webui-v3"]
   );
   wsSource.binaryType = "arraybuffer";
   wsSource.onopen = function (e) {
@@ -380,7 +380,7 @@ function startSocket(ip, port, sync, protocol) {
     //if it is not a log off
     if (!logOff)
       setTimeout(() => {
-        startSocket(ip, port, sync, protocol);
+        startSocket(ip, port, sync);
       }, 3000);
   };
   wsSource.onerror = function (e) {
