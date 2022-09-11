@@ -35,6 +35,7 @@
 #if defined(ESP3DLIB_ENV) && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
 #include "../../serial2socket/serial2socket.h"
 #endif // ESP3DLIB_ENV && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
+#include "../../websocket/websocket_server.h"
 
 //SD files uploader handle
 void HTTP_Server::SDFileupload ()
@@ -43,6 +44,7 @@ void HTTP_Server::SDFileupload ()
     static uint64_t bench_start;
     static size_t bench_transfered;
 #endif//ESP_BENCHMARK_FEATURE
+    static uint64_t last_WS_update;
     //get authentication status
     level_authenticate_type auth_level= AuthenticationService::authenticated_level();
     static String filename;
@@ -60,6 +62,7 @@ void HTTP_Server::SDFileupload ()
 #endif // ESP3DLIB_ENV && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
             //Upload start
             if (upload.status == UPLOAD_FILE_START) {
+                last_WS_update = millis();
 #ifdef ESP_BENCHMARK_FEATURE
                 bench_start = millis();
                 bench_transfered = 0;
@@ -167,6 +170,11 @@ void HTTP_Server::SDFileupload ()
 #ifdef ESP_BENCHMARK_FEATURE
                     bench_transfered += upload.currentSize;
 #endif//ESP_BENCHMARK_FEATURE
+                    //update websocket every 2000 ms
+                    if (millis()-last_WS_update > 2000) {
+                        websocket_terminal_server.handle();
+                        last_WS_update = millis();
+                    }
                     //no error so write post date
                     int writeddatanb=fsUploadFile.write(upload.buf, upload.currentSize);
                     if(upload.currentSize != (size_t)writeddatanb) {
