@@ -59,7 +59,7 @@ const char * help[]= {"[ESP] (id) - display this help",
                       "[ESP131](Port) - display/set Telnet port",
 #endif //TELNET_FEATURE
 #if defined(TIMESTAMP_FEATURE)
-                      "[ESP140](SYNC) (srv1=xxxx) (srv2=xxxx) (srv3=xxxx) (zone=xxx) (dst=YES/NO) (time=YYYY-MM-DD#H24:MM:SS) (SYNC) (NOW)- sync/display/set current time/time servers",
+                      "[ESP140](SYNC) (srv1=xxxx) (srv2=xxxx) (srv3=xxxx) (zone=xxx) (dst=YES/NO) (time=YYYY-MM-DDTHH:mm:ss) (SYNC) (NOW)- sync/display/set current time/time servers",
 #endif //TIMESTAMP_FEATURE
                       "[ESP150](delay=time) (verbose=ON/OFF)- display/set boot delay in ms / Verbose boot",
 #if defined(WS_DATA_FEATURE)
@@ -147,7 +147,7 @@ const char * help[]= {"[ESP] (id) - display this help",
                       "[ESP780](path)  - List Global Filesystem",
                       "[ESP790](Action)=(path) - rmdir / remove / mkdir / exists / create on Global Filesystem (path)",
 #endif //GLOBAL_FILESYSTEM_FEATURE
-                      "[ESP800](time=YYYY-MM-DD-HH-MM-SS) - display FW Informations in plain/JSON",
+                      "[ESP800](time=YYYY-MM-DDTHH:mm:ss)(version=3.0.0-a11)(setup=0/1) - display FW Informations /set time",
 #if COMMUNICATION_PROTOCOL != SOCKET_SERIAL
                       "[ESP900](ENABLE/DISABLE) - display/set serial state",
                       "[ESP901]<BAUD RATE> - display/set serial baud rate",

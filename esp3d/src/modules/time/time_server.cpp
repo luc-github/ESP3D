@@ -151,81 +151,23 @@ const char * TimeServer::current_time(time_t t)
     return stmp.c_str();
 }
 
+//the string date time  need to be iso-8601
+//the time zone part will be ignored
 bool TimeServer::setTime(const char* stime)
 {
     String stmp = stime;
-    String substmp;
     struct tm  tmstruct;
     struct timeval time_val = {0, 0};
-    int pos2;
-    //make uniform separators
-    stmp.replace("#","-");
-    stmp.replace(":","-");
-    //Search Year
-    int pos = stmp.indexOf("-");
-    if (pos == -1) {
-        return false;
-    }
-    substmp = stmp.substring(0,pos);
-    if (substmp.length()!=4) {
-        return false;
-    }
-    pos2=pos;
-    tmstruct.tm_year = substmp.toInt() - 1900;
-    //Search Month
-    pos = stmp.indexOf("-",pos2+1);
-    if (pos == -1) {
-        return false;
-    }
-    substmp = stmp.substring(pos2+1,pos);
-    if ((substmp.toInt() > 11) || (substmp.toInt() <0 )) {
-        return false;
-    }
-    pos2=pos;
-    tmstruct.tm_mon = substmp.toInt() - 1;
-    //Search day
-    pos = stmp.indexOf("-",pos2+1);
-    if (pos == -1) {
-        return false;
-    }
-    substmp = stmp.substring(pos2+1,pos);
-    if ((substmp.toInt() > 31) || (substmp.toInt() <1 )) {
-        return false;
-    }
-    pos2=pos;
-    tmstruct.tm_mday = substmp.toInt();
-
-    //Search hour
-    pos = stmp.indexOf("-", pos2+1);
-    if (pos == -1) {
-        return false;
-    }
-    substmp = stmp.substring(pos2+1,pos);
-    if ((substmp.toInt() > 23) || (substmp.toInt() <0 )) {
-
-        return false;
-    }
-    pos2=pos;
-    tmstruct.tm_hour = substmp.toInt();
-
-    //Search min
-    pos = stmp.indexOf("-", pos2+1);
-    if (pos == -1) {
-        return false;
-    }
-    substmp = stmp.substring(pos2+1,pos);
-    if ((substmp.toInt() > 59) || (substmp.toInt() < 0 )) {
-        return false;
-    }
-    tmstruct.tm_min = substmp.toInt();
-    //Search sec
-    substmp = stmp.substring(pos+1);
-    if ((substmp.toInt() > 59) || (substmp.toInt() < 0 )) {
-        return false;
+    memset(&tmstruct, 0, sizeof(struct tm));
+    if (strptime(stime,"%Y-%m-%dT%H:%M:%S", &tmstruct)==nullptr) {
+        //allow not to set seconds for lazy guys typing command line
+        if (strptime(stime,"%Y-%m-%dT%H:%M", &tmstruct)==nullptr) {
+            return false;
+        }
     }
     tmstruct.tm_isdst = 0; //ignore dst
-    tmstruct.tm_sec = substmp.toInt();
     time_val.tv_sec = mktime (&tmstruct);
+    //try to setTime
     if(settimeofday(&time_val,0) == -1) {
         return false;
     }
