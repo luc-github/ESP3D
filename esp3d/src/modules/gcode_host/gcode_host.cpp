@@ -264,7 +264,11 @@ void GcodeHost::readNextCommand()
             }
         }
         if (_currentCommand.length() == 0) {
-            _step = HOST_STOP_STREAM;
+            if (FSfileHandle.available()) {
+                _step = HOST_READ_LINE;
+            } else {
+                _step = HOST_STOP_STREAM;
+            }
         }
     }
 #endif //FILESYSTEM_FEATURE
@@ -287,7 +291,11 @@ void GcodeHost::readNextCommand()
             }
         }
         if (_currentCommand.length() == 0) {
-            _step = HOST_STOP_STREAM;
+            if  (SDfileHandle.available()) {
+                _step = HOST_READ_LINE;
+            } else {
+                _step = HOST_STOP_STREAM;
+            }
         }
     }
 #endif //SD_DEVICE
