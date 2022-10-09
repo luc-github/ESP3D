@@ -34,6 +34,7 @@
 #define REPETIER        50
 #define REPRAP          70
 #define GRBLHAL         80
+#define HP_GL           90
 
 //Default flags
 #define DEFAULT_SERIAL_OUTPUT_FLAG 1
