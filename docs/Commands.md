@@ -127,8 +127,8 @@ label can be: light/framesize/quality/contrast/brightness/saturation/gainceiling
 * Touch Calibration 
     `[ESP215]<CALIBRATE> json=<no> pwd=<user password>`
 
-* Show defined pins  
-    `[ESP220]<SNAP> json=<no> pwd=<user password>`
+* Get ESP pins definition  
+    `[ESP220]json=<no> pwd=<user password>`
 
 * Play sound   
     `[ESP250]F=<frequency> D=<duration> json=<no> pwd=<user password>`   
