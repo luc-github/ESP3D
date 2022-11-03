@@ -318,7 +318,7 @@ bool Commands::has_tag (const char * cmd_params, const char *tag)
     log_esp3d("Tag detected");
     //to support plain , plain=yes , plain=no
     String param =  String(tag) + "=";
-    log_esp3d("Checking  %s , in %s", param.c_str());
+    log_esp3d("Checking  %s , in %s", param.c_str(), cmd_params);
     String parameter = get_param (cmd_params, param.c_str());
     if (parameter.length() != 0) {
         log_esp3d("Parameter is %s", parameter.c_str());
