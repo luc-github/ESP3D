@@ -242,6 +242,10 @@ void Esp3D::restart_esp(bool need_restart)
 
 void Esp3D::restart_now()
 {
+    //patch for https://github.com/espressif/arduino-esp32/issues/1912#issuecomment-426247971
+#if defined(ETH_FEATURE) && defined(ESP3D_ETH_PHY_POWER_PIN)
+    digitalWrite(ESP3D_ETH_PHY_POWER_PIN, LOW);
+#endif //ESP3D_ETH_PHY_POWER_PIN
     log_esp3d("Restarting");
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
     if (!serial_service.started()) {

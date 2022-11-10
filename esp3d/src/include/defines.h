@@ -276,6 +276,21 @@
 #define FS_UNKNOWN     254
 #define MAX_FS 3
 
+//ethernet clock modes (check ETH.h for eth_clock_mode_t)
+#define MODE_ETH_CLOCK_GPIO0_IN   0
+#define MODE_ETH_CLOCK_GPIO0_OUT  1
+#define MODE_ETH_CLOCK_GPIO16_OUT 2
+#define MODE_ETH_CLOCK_GPIO17_OUT 3
+
+//Ethernet type (Check ETH.h eth_phy_type_t)
+#define TYPE_ETH_PHY_LAN8720 0
+#define TYPE_ETH_PHY_TLK110  1
+#define TYPE_ETH_PHY_RTL8201 2
+#define TYPE_ETH_PHY_DP83848 3
+#define TYPE_ETH_PHY_DM9051  4
+#define TYPE_ETH_PHY_KSZ8041 5
+#define TYPE_ETH_PHY_KSZ8081 6
+
 //Host path
 #define ESP3D_HOST_PATH "/"
 

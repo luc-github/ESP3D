@@ -107,6 +107,32 @@
 */
 //#define ETH_FEATURE
 
+//Ethernet type (Check ETH.h eth_phy_type_t)
+//TYPE_ETH_PHY_LAN8720
+//TYPE_ETH_PHY_TLK110
+//TYPE_ETH_PHY_RTL8201
+//TYPE_ETH_PHY_DP83848
+//TYPE_ETH_PHY_DM9051
+//TYPE_ETH_PHY_KSZ8041
+//TYPE_ETH_PHY_KSZ8081
+#define ESP3D_ETH_PHY_TYPE TYPE_ETH_PHY_LAN8720
+
+//Ethernet board Clock mode
+// MODE_ETH_CLOCK_GPIO0_IN
+// MODE_ETH_CLOCK_GPIO0_OUT
+// MODE_ETH_CLOCK_GPIO16_OUT
+// MODE_ETH_CLOCK_GPIO17_OUT
+#define ESP3D_ETH_CLK_MODE MODE_ETH_CLOCK_GPIO17_OUT
+
+//Pins of ethernet board
+#define ESP3D_ETH_PHY_POWER_PIN 12
+//#define ESP3D_ETH_PHY_MDC_PIN 23
+//#define ESP3D_ETH_PHY_MDIO_PIN 18
+
+//Address of ethernet board
+//#define ESP3D_ETH_PHY_ADDR 0
+
+
 /* Use Bluetooth
 * Enable serial bluetooth communications
 */

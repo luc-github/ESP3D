@@ -707,8 +707,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
                 } else {
                     line +=": ";
                 }
-                line +=(ETH.linkUp())?"connected":"disconnected";
-                if(ETH.linkUp()) {
+                line +=(EthConfig::linkUp())?"connected":"disconnected";
+
+                if(EthConfig::linkUp()) {
                     line +=" (";
                     line +=ETH.linkSpeed();
                     line+="Mbps)";
