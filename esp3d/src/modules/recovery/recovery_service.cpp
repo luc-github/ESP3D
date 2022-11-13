@@ -52,6 +52,7 @@ bool RecoveryService::begin()
         end();
     }
     _started = res;
+    _servicetimeout = millis();
     return _started;
 }
 
@@ -73,6 +74,12 @@ bool RecoveryService::started()
 void RecoveryService::handle()
 {
     if (_started) {
+        //Stop service 1000 ms after started to be sure pin can be used for something else
+        //and avoid unwished reset
+        if (millis()-_servicetimeout> 5000) {
+            _started = false;
+            return;
+        }
 #if defined(PIN_RESET_FEATURE) && defined(ESP3D_RESET_PIN) &&  ESP3D_RESET_PIN !=-1
         //attach interrupt to pin is conflicting with camera device because it already attach interrupt to pin
         //so use digitalread to check pin state

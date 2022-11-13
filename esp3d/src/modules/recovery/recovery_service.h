@@ -34,6 +34,7 @@ public:
     bool started();
 private:
     bool _started;
+    uint32_t _servicetimeout;
 };
 
 extern RecoveryService recovery_service;
