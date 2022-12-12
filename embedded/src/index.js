@@ -396,7 +396,9 @@ function startSocket(ip, port, sync) {
         msg += String.fromCharCode(bytes[i]);
         if (bytes[i] == 10 || bytes[i] == 13) {
           wsMsg += msg;
+          if (!wsMsg.startsWith("ESP3D says: command forwarded")){
           consoleContentUpdate(wsMsg);
+          }
           wsMsg = "";
           msg = "";
         }
