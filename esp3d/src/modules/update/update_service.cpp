@@ -179,8 +179,7 @@ const uint16_t NetbyteKeysPos[] = {
 } ;
 const char * ServbyteKeysVal[] = {"Time_zone",
                                   "Sesion_timeout",
-                                  "SD_SPEED",
-                                  "Time_DST"
+                                  "SD_SPEED"
                                  } ;
 
 const uint16_t ServbyteKeysPos[] = {ESP_TIMEZONE,
