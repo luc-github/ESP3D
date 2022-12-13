@@ -125,6 +125,7 @@ const uint16_t SysintKeysPos[] = {ESP_BAUD_RATE,
                                  } ;
 
 const char * ServboolKeysVal[] = {"Serial_Bridge_active",
+                                  "AUTONOTIFICATION",
                                   "HTTP_active",
                                   "TELNET_active",
                                   "WebSocket_active",
@@ -137,6 +138,7 @@ const char * ServboolKeysVal[] = {"Serial_Bridge_active",
                                  } ;
 
 const uint16_t ServboolKeysPos[] = {ESP_SERIAL_BRIDGE_ON,
+                                    ESP_AUTO_NOTIFICATION,
                                     ESP_HTTP_ON,
                                     ESP_TELNET_ON,
                                     ESP_WEBSOCKET_ON,
