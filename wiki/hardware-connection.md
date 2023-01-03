@@ -49,6 +49,7 @@ click to enlarge
   - [RAMPS 1.4/Re-ARM board](#ramps-14re-arm-board)
   - [Smoothieboard board](#Smoothieboard-board)
   - [Weedo Tina2 board](#Weedo-Tina2-board)
+  - [SKR Mini E3 board](#SKR-Mini-E3-board)
   - [For printer boards not listed here](#For-printer-boards-not-listed-here)
 - [ESP boards](#ESP-boards)
   - [ESP-01](#ESP-01)
@@ -278,6 +279,19 @@ click to enlarge
 In marlin this connection is **serial port 3**.
 
 Note the Mega2560 is 5V powered and ESP is 3V3 powered.  
+
+---
+
+### SKR Mini E3 board
+
+This board is from Bigtreetech and went through various hardware revisions; all of them still feature a TFT pin header which is where you can tap the TX and RX needed. The wiring below is made with a 1.2 board, but the same applies for the other revisions as well; if you need the exact schematic for your mainboard version, you can check [Bigtreetech's github repository](https://github.com/bigtreetech/BIGTREETECH-SKR-mini-E3/tree/master/hardware).
+
+<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/SKR-Mini-E3/mini_12_board.jpg' width='200'>
+<img src='https://raw.githubusercontent.com/wiki/luc-github/ESP3D/images/SKR-Mini-E3/skr_mini_12_schematic.png' width='200'><br>
+
+
+You literally cannot miss it because the TFT connector is labeled on the board; you can use dupont connectors for the wiring job, no soldering skills needed as long as your ESP comes with pre soldered headers. 
+Just a heads up: the TFT connector provides 5V DC, so be sure to provide them on the correct ESP pin and, most importantly, if your ESP can work with 5 volts as input. You should also pay attention on the board orientation in the schematic, although I oriented it the same way as the actual picture on the left so it's easier for you. 
 
 ---
 
