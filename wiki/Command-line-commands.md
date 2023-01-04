@@ -2,4 +2,4 @@
 
 * [v2.0.x](https://github.com/luc-github/ESP3D/wiki/Command-line-2_0)
 * [v2.1.x](https://github.com/luc-github/ESP3D/wiki/Command-line-2_1)
-* v3.0.x : work in progress
+* [v3.0.x : work in progress](https://github.com/luc-github/ESP3D/blob/3.0/docs/Commands.md)
