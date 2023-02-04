@@ -1427,7 +1427,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
             }
             line +=notificationsservice.started()?"ON":"OFF";
             if (notificationsservice.started()) {
-                line +="(";
+                line +=" (";
                 line +=notificationsservice.getTypeString();
                 line +=")";
             }
@@ -1492,9 +1492,11 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
                 line +=": ";
             }
             line +=esp3d_sensor.started()?"ON":"OFF";
-            line +="(";
-            line +=esp3d_sensor.GetCurrentModelString();
-            line +=")";
+            if (esp3d_sensor.started()) {
+                line +=" (";
+                line +=esp3d_sensor.GetCurrentModelString();
+                line +=")";
+            }
             if (json) {
                 line +="\"}";
                 output->print (line.c_str());
