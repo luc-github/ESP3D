@@ -47,7 +47,7 @@ bool DHTSensorDevice::begin()
 {
     end();
     uint8_t dhttype= Settings_ESP3D::read_byte(ESP_SENSOR_TYPE);
-    log_esp3d("Read %d", dhttype, dhttype==1?"DHT11":dhttype==2?"DHT22":dhttype==0?"NONE":"Unknow type");
+    log_esp3d("Read %d, %s", dhttype, dhttype==1?"DHT11":dhttype==2?"DHT22":dhttype==0?"NONE":"Unknow type");
     if (dhttype == 0) {
         log_esp3d("No Sensor active");
         return true;

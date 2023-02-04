@@ -55,7 +55,7 @@ bool Commands::ESP210(const char* cmd_params, level_authenticate_type auth_type,
                 s="type=";
             }
             if(esp3d_sensor.started()) {
-                s+=esp3d_sensor.GetModelString();
+                s+=esp3d_sensor.GetCurrentModelString();
             } else {
                 s+="NONE";
             }
