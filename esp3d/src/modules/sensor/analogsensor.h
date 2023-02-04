@@ -37,6 +37,7 @@ public:
     uint8_t nbType();
     uint8_t GetModel(uint8_t i=0);
     const char *GetModelString(uint8_t i=0);
+    const char *GetCurrentModelString();
     const char * GetData();
 };
 

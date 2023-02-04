@@ -115,6 +115,17 @@ uint8_t DHTSensorDevice::GetModel(uint8_t i)
     return 0;
 }
 
+const char *DHTSensorDevice::GetCurrentModelString()
+{
+    uint8_t dhttype= Settings_ESP3D::read_byte(ESP_SENSOR_TYPE);
+    for (uint8_t i = 0; i  < NB_TYPE_SENSOR; i++) {
+        if ((DHTesp::DHT_MODEL_t)dhttype == SENSOR_TYPE[i]) {
+            return SENSOR_NAME[i];
+        }
+    }
+    return "NONE";
+}
+
 const char * DHTSensorDevice::GetModelString(uint8_t i)
 {
     if (i <NB_TYPE_SENSOR) {

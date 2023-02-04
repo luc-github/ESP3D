@@ -126,6 +126,17 @@ uint8_t BMX280SensorDevice::GetModel(uint8_t i)
     return 0;
 }
 
+const char *BMX280SensorDevice::GetCurrentModelString()
+{
+    uint8_t sensortype= Settings_ESP3D::read_byte(ESP_SENSOR_TYPE);
+    for (uint8_t i = 0; i  < NB_TYPE_SENSOR; i++) {
+        if ((sensortype == SENSOR_TYPE[i]) {
+        return SENSOR_NAME[i];
+        }
+    }
+    return "NONE";
+}
+
 const char * BMX280SensorDevice::GetModelString(uint8_t i)
 {
     if (i <NB_TYPE_SENSOR) {

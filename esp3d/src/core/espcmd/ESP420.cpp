@@ -1493,7 +1493,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
             }
             line +=esp3d_sensor.started()?"ON":"OFF";
             line +="(";
-            line +=esp3d_sensor.GetModelString();
+            line +=esp3d_sensor.GetCurrentModelString();
             line +=")";
             if (json) {
                 line +="\"}";
@@ -1529,12 +1529,10 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
             }
             line +="debug";
             if (json) {
-                line +="\"}";
-                output->print (line.c_str());
+                line +="\",\"value\":\"";
             } else {
-                output->printMSGLine(line.c_str());
+                line +=": ";
             }
-            line="";
 #if ESP_DEBUG_FEATURE == DEBUG_OUTPUT_SERIAL0
             line +="Serial";
 #endif //DEBUG_OUTPUT_SERIAL0

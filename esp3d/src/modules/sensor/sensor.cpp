@@ -125,6 +125,15 @@ bool ESP3DSensor::isModelValid(uint8_t model)
     return false;
 }
 
+const char * ESP3DSensor::GetCurrentModelString()
+{
+    if (_device) {
+
+        return _device->GetCurrentModelString();
+    }
+    return "NONE";
+}
+
 const char * ESP3DSensor::GetModelString(uint8_t i)
 {
     if (_device) {
