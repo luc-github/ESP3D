@@ -47,6 +47,7 @@ bool DHTSensorDevice::begin()
 {
     end();
     uint8_t dhttype= Settings_ESP3D::read_byte(ESP_SENSOR_TYPE);
+    log_esp3d("Read %d", dhttype, dhttype==1?"DHT11":dhttype==2?"DHT22":dhttype==0?"NONE":"Unknow type");
     if (dhttype == 0) {
         log_esp3d("No Sensor active");
         return true;
@@ -61,7 +62,7 @@ bool DHTSensorDevice::begin()
         return false;
     }
     log_esp3d("DHT PIN %d",ESP3D_SENSOR_PIN);
-    dht_device->setup(ESP3D_SENSOR_PIN, SENSOR_TYPE[dhttype]);
+    dht_device->setup(ESP3D_SENSOR_PIN, (DHTesp::DHT_MODEL_t)dhttype );
     if (strcmp(dht_device->getStatusString(), "OK")!=0) {
         log_esp3d("No valid dht status: %d,  %s",dht_device->getStatus(), dht_device->getStatusString());
         return false;
