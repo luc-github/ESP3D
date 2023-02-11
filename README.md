@@ -19,7 +19,14 @@ Because ESP3D 3.0 is actually a set of several projects: [ESP3D](https://github.
 
 I did a project board to put all majors tasks/issues in one places : [![Project board](https://img.shields.io/badge/ESP3D-Project-blue?style=for-the-badge&logo=preact)](https://github.com/users/luc-github/projects/1/views/1)
 
-
+# SSDP Discovery tools
+   * Windows : 
+       - Just go to Network page
+   * OSX : TBD
+   * Linux : TBD
+   * Android :
+       - SSDP/UPnP Scanner : https://play.google.com/store/apps/details?id=com.vgc.ssdpscan
+       
 # TODO List to move to beta
 
 - [Finish web UI Major features (3D printing and GRBL)](https://github.com/luc-github/ESP3D-WEBUI/issues/94#issuecomment-660600551)
