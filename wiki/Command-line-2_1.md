@@ -6,13 +6,6 @@ Please note all commands are in format `[ESPxx]`. These first brackets `[]` are 
 Most of the time givin no argument will return current configuration
 If authentication is on, somme commands will need admin password. They are recognised by the optional argument `[pwd=<admin password>]` in command line.
 
-## Deviations from standard command line
-
-Based on command line format from <http://docopt.org/>.
-
-* `[ESPxxx]` the brackets are part of the command here and do not mean "optional argument"
-* ALL commands with `=` should be using long arg format `--arg=<val>` for example `[pwd=<admin password>]` should be `[--pwd=<admin password>]`
-
 ## Commands
 
 ### Get/change STA SSID
