@@ -106,11 +106,19 @@
         "code"
       ]
     },
-    {
+     {
       "login": "patrickelectric",
       "name": "Patrick José Pereira",
       "avatar_url": "https://avatars.githubusercontent.com/u/1215497?v=4",
       "profile": "http://patrickelectric.work",
+        "code"
+      ]
+    },
+    {
+      "login": "j0hnlittle",
+      "name": "John Little",
+      "avatar_url": "https://avatars.githubusercontent.com/u/16280939?v=4",
+      "profile": "https://github.com/j0hnlittle",
       "contributions": [
         "code"
       ]

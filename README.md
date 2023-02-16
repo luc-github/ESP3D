@@ -175,6 +175,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/treepleks"><img src="https://avatars.githubusercontent.com/u/16371923?v=4?s=100" width="100px;" alt="T. Reepleks"/><br /><sub><b>T. Reepleks</b></sub></a><br /><a href="https://github.com/luc-github/ESP3D/commits?author=treepleks" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="http://twitter.com/AustinStAubin"><img src="https://avatars.githubusercontent.com/u/969780?v=4?s=100" width="100px;" alt="Austin St. Aubin"/><br /><sub><b>Austin St. Aubin</b></sub></a><br /><a href="https://github.com/luc-github/ESP3D/commits?author=AustinSaintAubin" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="http://patrickelectric.work"><img src="https://avatars.githubusercontent.com/u/1215497?v=4?s=100" width="100px;" alt="Patrick José Pereira"/><br /><sub><b>Patrick José Pereira</b></sub></a><br /><a href="https://github.com/luc-github/ESP3D/commits?author=patrickelectric" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/j0hnlittle"><img src="https://avatars.githubusercontent.com/u/16280939?v=4?s=100" width="100px;" alt="John Little"/><br /><sub><b>John Little</b></sub></a><br /><a href="https://github.com/luc-github/ESP3D/commits?author=j0hnlittle" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
