@@ -59,6 +59,16 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "pmjdebruijn",
+      "name": "Pascal de Bruijn",
+      "avatar_url": "https://avatars.githubusercontent.com/u/929583?v=4",
+      "profile": "https://encrypted.pcode.nl/",
+      "contributions": [
+        "ideas",
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
