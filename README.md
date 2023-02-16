@@ -1,6 +1,6 @@
 <span align="left"><img src="https://github.com/luc-github/ESP3D/blob/2.1/images/ESP3D.png" width="200px"/></span><span align="left">Firmware for ESP8266/ESP8285  and ESP32 used with 3D printer</span>    
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-7-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-8-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<img src="https://img.shields.io/liberapay/patrons/ESP3D.svg?logo=liberapay">](https://liberapay.com/ESP3D)
 
@@ -168,6 +168,9 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/Xstasy"><img src="https://avatars.githubusercontent.com/u/283593?v=4?s=100" width="100px;" alt="Xstasy"/><br /><sub><b>Xstasy</b></sub></a><br /><a href="https://github.com/luc-github/ESP3D/commits?author=Xstasy" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://www.upwork.com/freelancers/~016e4c7416f7d925c8"><img src="https://avatars.githubusercontent.com/u/171243?v=4?s=100" width="100px;" alt="Семён Марьясин"/><br /><sub><b>Семён Марьясин</b></sub></a><br /><a href="https://github.com/luc-github/ESP3D/commits?author=MarSoft" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://encrypted.pcode.nl/"><img src="https://avatars.githubusercontent.com/u/929583?v=4?s=100" width="100px;" alt="Pascal de Bruijn"/><br /><sub><b>Pascal de Bruijn</b></sub></a><br /><a href="#ideas-pmjdebruijn" title="Ideas, Planning, & Feedback">🤔</a> <a href="https://github.com/luc-github/ESP3D/commits?author=pmjdebruijn" title="Code">💻</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/MichaelDu9226"><img src="https://avatars.githubusercontent.com/u/25977780?v=4?s=100" width="100px;" alt="MichaelDu"/><br /><sub><b>MichaelDu</b></sub></a><br /><a href="https://github.com/luc-github/ESP3D/commits?author=MichaelDu9226" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
