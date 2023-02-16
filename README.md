@@ -1,6 +1,6 @@
 <span align="left"><img src="https://github.com/luc-github/ESP3D/blob/2.1/images/ESP3D.png" width="200px"/></span><span align="left">Firmware for ESP8266/ESP8285  and ESP32 used with 3D printer</span>  
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-21-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-22-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 [<img src="https://img.shields.io/liberapay/patrons/ESP3D.svg?logo=liberapay">](https://liberapay.com/ESP3D)
 
@@ -186,6 +186,9 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/liqijian101"><img src="https://avatars.githubusercontent.com/u/16173343?v=4?s=100" width="100px;" alt="liqijian101"/><br /><sub><b>liqijian101</b></sub></a><br /><a href="#ideas-liqijian101" title="Ideas, Planning, & Feedback">🤔</a> <a href="https://github.com/luc-github/ESP3D/issues?q=author%3Aliqijian101" title="Bug reports">🐛</a> <a href="#platform-liqijian101" title="Packaging/porting to new platform">📦</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/disneysw"><img src="https://avatars.githubusercontent.com/u/10690321?v=4?s=100" width="100px;" alt="disneysw"/><br /><sub><b>disneysw</b></sub></a><br /><a href="#ideas-disneysw" title="Ideas, Planning, & Feedback">🤔</a></td>
       <td align="center" valign="top" width="14.28%"><a href="http://www.fysetc.com"><img src="https://avatars.githubusercontent.com/u/36067086?v=4?s=100" width="100px;" alt="FYSETC.COM"/><br /><sub><b>FYSETC.COM</b></sub></a><br /><a href="#financial-FYSETC" title="Financial">💵</a> <a href="https://github.com/luc-github/ESP3D/issues?q=author%3AFYSETC" title="Bug reports">🐛</a> <a href="#platform-FYSETC" title="Packaging/porting to new platform">📦</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="http://www.bigtree-tech.com"><img src="https://avatars.githubusercontent.com/u/38851044?v=4?s=100" width="100px;" alt="BIGTREETECH"/><br /><sub><b>BIGTREETECH</b></sub></a><br /><a href="#platform-bigtreetech" title="Packaging/porting to new platform">📦</a></td>
     </tr>
   </tbody>
 </table>
