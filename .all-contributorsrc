@@ -173,6 +173,17 @@
         "financial",
         "bug"
       ]
+    },
+    {
+      "login": "liqijian101",
+      "name": "liqijian101",
+      "avatar_url": "https://avatars.githubusercontent.com/u/16173343?v=4",
+      "profile": "https://github.com/liqijian101",
+      "contributions": [
+        "ideas",
+        "bug",
+        "platform"
+      ]
     }
   ],
   "contributorsPerLine": 7,
