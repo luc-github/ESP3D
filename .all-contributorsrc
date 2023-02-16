@@ -96,6 +96,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "AustinSaintAubin",
+      "name": "Austin St. Aubin",
+      "avatar_url": "https://avatars.githubusercontent.com/u/969780?v=4",
+      "profile": "http://twitter.com/AustinStAubin",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
