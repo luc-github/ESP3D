@@ -34,10 +34,19 @@
       ]
     },
     {
-      "login": "KingBain",
+       "login": "KingBain",
       "name": "John Bain",
       "avatar_url": "https://avatars.githubusercontent.com/u/367922?v=4",
       "profile": "http://kingbain.com",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "Xstasy",
+      "name": "Xstasy",
+      "avatar_url": "https://avatars.githubusercontent.com/u/283593?v=4",
+      "profile": "https://github.com/Xstasy",
       "contributions": [
         "code"
       ]
