@@ -184,6 +184,15 @@
         "bug",
         "platform"
       ]
+    },
+    {
+      "login": "disneysw",
+      "name": "disneysw",
+      "avatar_url": "https://avatars.githubusercontent.com/u/10690321?v=4",
+      "profile": "https://github.com/disneysw",
+      "contributions": [
+        "ideas"
+      ]
     }
   ],
   "contributorsPerLine": 7,
