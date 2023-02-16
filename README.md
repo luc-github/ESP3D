@@ -1,6 +1,6 @@
 <span align="left"><img src="https://github.com/luc-github/ESP3D/blob/2.1/images/ESP3D.png" width="200px"/></span><span align="left">Firmware for ESP8266/ESP8285  and ESP32 used with 3D printer</span>    
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-3-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-4-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<img src="https://img.shields.io/liberapay/patrons/ESP3D.svg?logo=liberapay">](https://liberapay.com/ESP3D)
 
@@ -164,6 +164,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://ponc.tech"><img src="https://avatars.githubusercontent.com/u/1230627?v=4?s=100" width="100px;" alt="Harald Wagener"/><br /><sub><b>Harald Wagener</b></sub></a><br /><a href="https://github.com/luc-github/ESP3D/commits?author=oliof" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/A7F"><img src="https://avatars.githubusercontent.com/u/17254471?v=4?s=100" width="100px;" alt="Luke"/><br /><sub><b>Luke</b></sub></a><br /><a href="https://github.com/luc-github/ESP3D/commits?author=A7F" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/atsju"><img src="https://avatars.githubusercontent.com/u/4628382?v=4?s=100" width="100px;" alt="Julien Staub"/><br /><sub><b>Julien Staub</b></sub></a><br /><a href="https://github.com/luc-github/ESP3D/commits?author=atsju" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="http://kingbain.com"><img src="https://avatars.githubusercontent.com/u/367922?v=4?s=100" width="100px;" alt="John Bain"/><br /><sub><b>John Bain</b></sub></a><br /><a href="https://github.com/luc-github/ESP3D/commits?author=KingBain" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
