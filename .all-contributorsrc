@@ -34,7 +34,7 @@
       ]
     },
     {
-       "login": "KingBain",
+      "login": "KingBain",
       "name": "John Bain",
       "avatar_url": "https://avatars.githubusercontent.com/u/367922?v=4",
       "profile": "http://kingbain.com",
@@ -47,6 +47,15 @@
       "name": "Xstasy",
       "avatar_url": "https://avatars.githubusercontent.com/u/283593?v=4",
       "profile": "https://github.com/Xstasy",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "MarSoft",
+      "name": "Семён Марьясин",
+      "avatar_url": "https://avatars.githubusercontent.com/u/171243?v=4",
+      "profile": "https://www.upwork.com/freelancers/~016e4c7416f7d925c8",
       "contributions": [
         "code"
       ]
