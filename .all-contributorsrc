@@ -106,12 +106,12 @@
         "code"
       ]
     },
-     {
+    {
       "login": "patrickelectric",
       "name": "Patrick José Pereira",
       "avatar_url": "https://avatars.githubusercontent.com/u/1215497?v=4",
       "profile": "http://patrickelectric.work",
-       "contributions": [
+      "contributions": [
         "code"
       ]
     },
@@ -122,6 +122,16 @@
       "profile": "https://github.com/j0hnlittle",
       "contributions": [
         "code"
+      ]
+    },
+    {
+      "login": "d-a-v",
+      "name": "david gauchard",
+      "avatar_url": "https://avatars.githubusercontent.com/u/4800356?v=4",
+      "profile": "https://github.com/d-a-v",
+      "contributions": [
+        "code",
+        "ideas"
       ]
     }
   ],
