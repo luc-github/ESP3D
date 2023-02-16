@@ -1,6 +1,6 @@
 <span align="left"><img src="https://github.com/luc-github/ESP3D/blob/2.1/images/ESP3D.png" width="200px"/></span><span align="left">Firmware for ESP8266/ESP8285  and ESP32 used with 3D printer</span>    
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-12-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-14-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<img src="https://img.shields.io/liberapay/patrons/ESP3D.svg?logo=liberapay">](https://liberapay.com/ESP3D)
 
@@ -176,6 +176,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="http://twitter.com/AustinStAubin"><img src="https://avatars.githubusercontent.com/u/969780?v=4?s=100" width="100px;" alt="Austin St. Aubin"/><br /><sub><b>Austin St. Aubin</b></sub></a><br /><a href="https://github.com/luc-github/ESP3D/commits?author=AustinSaintAubin" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="http://patrickelectric.work"><img src="https://avatars.githubusercontent.com/u/1215497?v=4?s=100" width="100px;" alt="Patrick José Pereira"/><br /><sub><b>Patrick José Pereira</b></sub></a><br /><a href="https://github.com/luc-github/ESP3D/commits?author=patrickelectric" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/j0hnlittle"><img src="https://avatars.githubusercontent.com/u/16280939?v=4?s=100" width="100px;" alt="John Little"/><br /><sub><b>John Little</b></sub></a><br /><a href="https://github.com/luc-github/ESP3D/commits?author=j0hnlittle" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/d-a-v"><img src="https://avatars.githubusercontent.com/u/4800356?v=4?s=100" width="100px;" alt="david gauchard"/><br /><sub><b>david gauchard</b></sub></a><br /><a href="https://github.com/luc-github/ESP3D/commits?author=d-a-v" title="Code">💻</a> <a href="#ideas-d-a-v" title="Ideas, Planning, & Feedback">🤔</a></td>
     </tr>
   </tbody>
 </table>
