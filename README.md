@@ -1,8 +1,8 @@
-<span align="left"><img src="https://github.com/luc-github/ESP3D/blob/2.1/images/ESP3D.png" width="200px"/></span><span align="left">Firmware for ESP8266/ESP8285  and ESP32 used with 3D printer</span>    
+<span align="left"><img src="https://github.com/luc-github/ESP3D/blob/2.1/images/ESP3D.png" width="200px"/></span><span align="left">Firmware for ESP8266/ESP8285  and ESP32 used with 3D printer</span>  
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-16-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<img src="https://img.shields.io/liberapay/patrons/ESP3D.svg?logo=liberapay">](https://liberapay.com/ESP3D)
+[<img src="https://img.shields.io/liberapay/patrons/ESP3D.svg?logo=liberapay">](https://liberapay.com/ESP3D)
 
 [Latest stable release ![Release Version](https://img.shields.io/github/release/luc-github/ESP3D.svg?style=plastic) ![Release Date](https://img.shields.io/github/release-date/luc-github/ESP3D.svg?style=plastic)](https://github.com/luc-github/ESP3D/releases/latest/) [![github-ci](https://github.com/luc-github/ESP3D/workflows/build-ci-2.0/badge.svg)](https://github.com/luc-github/ESP3D/actions/workflows/build-ci-2.0.yml) [![Release Version](https://img.shields.io/github/v/release/luc-github/ESP3D-WEBUI?color=green&label=WebUI&style=plastic)](https://github.com/luc-github/ESP3D-WEBUI/tree/2.1)      
 please use Arduino ide 1.8.9+ with [![Release Version](https://img.shields.io/badge/ESP32-1.0.4-green?style=plastic)](https://github.com/espressif/arduino-esp32/releases/tag/1.0.4) or [![Release Version](https://img.shields.io/badge/ESP8266-2.5.2-green?style=plastic)](https://github.com/esp8266/Arduino/releases/tag/2.5.2)
