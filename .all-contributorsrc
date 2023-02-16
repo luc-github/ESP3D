@@ -151,6 +151,17 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "royco",
+      "name": "Panucatt",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1669825?v=4",
+      "profile": "http://www.panucatt.com",
+      "contributions": [
+        "ideas",
+        "promotion",
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
