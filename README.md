@@ -1,6 +1,6 @@
 <span align="left"><img src="https://github.com/luc-github/ESP3D/blob/2.1/images/ESP3D.png" width="200px"/></span><span align="left">Firmware for ESP8266/ESP8285  and ESP32 used with 3D printer</span>    
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-8-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-9-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<img src="https://img.shields.io/liberapay/patrons/ESP3D.svg?logo=liberapay">](https://liberapay.com/ESP3D)
 
@@ -171,6 +171,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     </tr>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/jschwalbe"><img src="https://avatars.githubusercontent.com/u/8005921?v=4?s=100" width="100px;" alt="jschwalbe"/><br /><sub><b>jschwalbe</b></sub></a><br /><a href="https://github.com/luc-github/ESP3D/commits?author=jschwalbe" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="http://padcom13.blogspot.com"><img src="https://avatars.githubusercontent.com/u/553994?v=4?s=100" width="100px;" alt="Matthias Hryniszak"/><br /><sub><b>Matthias Hryniszak</b></sub></a><br /><a href="https://github.com/luc-github/ESP3D/commits?author=padcom" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
