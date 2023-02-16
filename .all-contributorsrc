@@ -193,6 +193,17 @@
       "contributions": [
         "ideas"
       ]
+    },
+    {
+      "login": "FYSETC",
+      "name": "FYSETC.COM",
+      "avatar_url": "https://avatars.githubusercontent.com/u/36067086?v=4",
+      "profile": "http://www.fysetc.com",
+      "contributions": [
+        "financial",
+        "bug",
+        "platform"
+      ]
     }
   ],
   "contributorsPerLine": 7,
