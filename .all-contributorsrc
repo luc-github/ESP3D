@@ -23,6 +23,15 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "atsju",
+      "name": "Julien Staub",
+      "avatar_url": "https://avatars.githubusercontent.com/u/4628382?v=4",
+      "profile": "https://github.com/atsju",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "contributorsPerLine": 7,
