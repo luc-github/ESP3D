@@ -181,7 +181,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://www.mydiy.dev"><img src="https://avatars.githubusercontent.com/u/23615562?v=4?s=100" width="100px;" alt="coliss86"/><br /><sub><b>coliss86</b></sub></a><br /><a href="https://github.com/luc-github/ESP3D/commits?author=coliss86" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/fape"><img src="https://avatars.githubusercontent.com/u/1052464?v=4?s=100" width="100px;" alt="Farkas Péter"/><br /><sub><b>Farkas Péter</b></sub></a><br /><a href="https://github.com/luc-github/ESP3D/commits?author=fape" title="Code">💻</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="http://www.panucatt.com"><img src="https://avatars.githubusercontent.com/u/1669825?v=4?s=100" width="100px;" alt="Panucatt"/><br /><sub><b>Panucatt</b></sub></a><br /><a href="#ideas-royco" title="Ideas, Planning, & Feedback">🤔</a> <a href="#promotion-royco" title="Promotion">📣</a> <a href="https://github.com/luc-github/ESP3D/issues?q=author%3Aroyco" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="http://www.panucatt.com"><img src="https://avatars.githubusercontent.com/u/1669825?v=4?s=100" width="100px;" alt="Panucatt"/><br /><sub><b>Panucatt</b></sub></a><br /><a href="#ideas-royco" title="Ideas, Planning, & Feedback">🤔</a> <a href="#promotion-royco" title="Promotion">📣</a> <a href="https://github.com/luc-github/ESP3D/issues?q=author%3Aroyco" title="Bug reports">🐛</a> <a href="#financial-royco" title="Financial">💵</a></td>
     </tr>
   </tbody>
 </table>
