@@ -32,6 +32,15 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "Xstasy",
+      "name": "Xstasy",
+      "avatar_url": "https://avatars.githubusercontent.com/u/283593?v=4",
+      "profile": "https://github.com/Xstasy",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
