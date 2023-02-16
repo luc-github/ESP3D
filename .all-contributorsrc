@@ -69,6 +69,15 @@
         "ideas",
         "code"
       ]
+    },
+    {
+      "login": "jschwalbe",
+      "name": "jschwalbe",
+      "avatar_url": "https://avatars.githubusercontent.com/u/8005921?v=4",
+      "profile": "https://github.com/jschwalbe",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "contributorsPerLine": 7,
