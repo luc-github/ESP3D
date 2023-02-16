@@ -162,6 +162,17 @@
         "promotion",
         "bug"
       ]
+    },
+    {
+      "login": "makerbase-mks",
+      "name": "makerbase",
+      "avatar_url": "https://avatars.githubusercontent.com/u/12979070?v=4",
+      "profile": "https://discord.gg/yNwksQvZmQ",
+      "contributions": [
+        "platform",
+        "financial",
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
