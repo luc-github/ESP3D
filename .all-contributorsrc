@@ -204,6 +204,15 @@
         "bug",
         "platform"
       ]
+    },
+    {
+      "login": "bigtreetech",
+      "name": "BIGTREETECH",
+      "avatar_url": "https://avatars.githubusercontent.com/u/38851044?v=4",
+      "profile": "http://www.bigtree-tech.com",
+      "contributions": [
+        "platform"
+      ]
     }
   ],
   "contributorsPerLine": 7,
