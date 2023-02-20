@@ -358,7 +358,7 @@
 /* Enable pin reset feature
 * Use a pin to reset ESP3D settings
 */
-#define PIN_RESET_FEATURE
+//#define PIN_RESET_FEATURE
 
 /* Reset pin
 * The pin used to reset ESP3D setting if set to low for more than 1 second at start
