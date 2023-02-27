@@ -266,14 +266,14 @@
 * ESP_SHARED_SD //Printer SD Card is also connected to ESP3D
 * Does your system has SD card and how it is connected to your ESP3D
 */
-//#define SD_DEVICE_CONNECTION ESP_DIRECT_SD
+#define SD_DEVICE_CONNECTION ESP_DIRECT_SD
 
 /* SD card library
 * ESP_SD_NATIVE //esp32 / esp8266
 * ESP_SDIO      //esp32 only
 * ESP_SDFAT2    //esp8266  / esp32
 */
-//#define SD_DEVICE ESP_SDFAT2
+#define SD_DEVICE ESP_SDFAT2
 
 /* Sdio bit mode
 * Mode used by SDIO library 1 bit / 4bits

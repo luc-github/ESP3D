@@ -22,10 +22,10 @@ if isfile(configuration_file):
                     "env:" + env["PIOENV"], "lib_ignore", lib_ignore)
                 print("Add ESP8266SDFat2 library to path")
                 env["LIBSOURCE_DIRS"].append(
-                        "extra-libraries/ESP8266SDFat2")
+                        "extra-libraries/ESP8266")
             else:
                 print("Add SDFat2 library to path")
-                env["LIBSOURCE_DIRS"].append("extra-libraries/SDFat2")
+                env["LIBSOURCE_DIRS"].append("extra-libraries/ESP32")
     fh.close()
 else:
     print("No configuration.h file found")
