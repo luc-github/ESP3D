@@ -28,11 +28,11 @@ I did a project board to put all majors tasks/issues in one places : [![Project 
    * Android :
        - SSDP/UPnP Scanner : https://play.google.com/store/apps/details?id=com.vgc.ssdpscan
        
-# TODO List to move to beta
+# TODO List to move to beta 
 
-- [Finish web UI Major features (3D printing and GRBL)](https://github.com/luc-github/ESP3D-WEBUI/issues/94#issuecomment-660600551)
-- Do user documentation: Readme / features list description / wiki/ Features videos etc...
-- Complete all planned features  
+- [Finish web UI Major features (3D printing and GRBL)](https://github.com/luc-github/ESP3D-WEBUI/issues/94#issuecomment-660600551)(done :+1:)
+- Do user documentation: Readme / features list description / wiki/ Features videos etc... (on going on http://esp3d.io)
+- Complete all planned features  (https://github.com/users/luc-github/projects/1/views/1)
 - Test current features heavily   
 - Collect some feedback  
 
