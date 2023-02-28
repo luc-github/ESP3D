@@ -12,12 +12,7 @@ ESP3D V3 use ESP3D-WebUI 3.0, but it is built according your system and your sys
 
 [Latest development version ![Development Version](https://img.shields.io/badge/Devt-v3.0-yellow?style=plastic) ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/luc-github/ESP3D/3.0?style=plastic)](https://github.com/luc-github/ESP3D/tree/3.0) [![github-ci](https://github.com/luc-github/ESP3D/workflows/build-ci/badge.svg)](https://github.com/luc-github/ESP3D/actions/workflows/build-ci.yml) [![Development  Version](https://img.shields.io/badge/Devt-v3.0-yellow?style=plastic&label=WebUI)](https://github.com/luc-github/ESP3D-WEBUI/tree/3.0)
 
-please use Arduino ide 1.8.9+ with [![Release Version](https://img.shields.io/badge/ESP32-git-yellow?style=plastic&logo=github)](https://github.com/espressif/arduino-esp32) or [![Release Version](https://img.shields.io/badge/ESP8266-git-yellow?style=plastic&logo=github)](https://github.com/esp8266/Arduino/)  
-or PlatformIO
-
-Because ESP3D 3.0 is actually a set of several projects: [ESP3D](https://github.com/luc-github/ESP3D), [ESP3D-Configurator](https://github.com/luc-github/ESP3D-Configurator), [ESP3D-WEBUI](https://github.com/luc-github/ESP3D-WEBUI), [ESP3DLib](https://github.com/luc-github/ESP3DLib), [ESP32SSDP](https://github.com/luc-github/ESP32SSDP), [svg-icons](https://github.com/luc-github/svg-icons)
-
-I did a project board to put all majors tasks/issues in one places : [![Project board](https://img.shields.io/badge/ESP3D-Project-blue?style=for-the-badge&logo=preact)](https://github.com/users/luc-github/projects/1/views/1)
+Please go to [esp3d.io](http://esp3d.io/esp3d/v3.x/index.html) for documentation and installation
 
 # SSDP Discovery tools
    * Windows : 
