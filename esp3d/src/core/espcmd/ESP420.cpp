@@ -1449,7 +1449,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
             } else {
                 line +=": ";
             }
-            line +=(Settings_ESP3D::GetSDDevice() == ESP_DIRECT_SD)?"direct":(Settings_ESP3D::GetSDDevice() == ESP_SHARED_SD)?"shared":"none";
+            line +=(Settings_ESP3D::GetSDDevice() == ESP_DIRECT_SD)?"direct ":(Settings_ESP3D::GetSDDevice() == ESP_SHARED_SD)?"shared ":"none ";
             line +="(";
             line +=ESP_SD::FilesystemName();
             line +=")";
