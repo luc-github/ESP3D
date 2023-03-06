@@ -71,7 +71,7 @@ bool Commands::ESP401(const char* cmd_params, level_authenticate_type auth_type,
         } else if (styp.length() == 0) {
             response = "Invalid parameter T";
             noError = false;
-        } else if (sval.length() == 0) {
+        } else if (sval.length() == 0 && !strstr(cmd_params,"V=")) {
             response = "Invalid parameter V";
             noError = false;
         } else {
