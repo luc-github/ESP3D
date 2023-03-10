@@ -37,6 +37,8 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
     bool json = has_tag (cmd_params, "json");
     String response;
     String parameter;
+    uint8_t count = 0;
+    const long *bl = NULL;
     int errorCode = 200; //unless it is a server error use 200 as default and set error in json instead
 #ifdef AUTHENTICATION_FEATURE
     if (auth_type != LEVEL_ADMIN) {
@@ -368,6 +370,30 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
             output->print ("\"}");
 #endif //FTP_FEATURE
 
+#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
+            //Serial bridge On service
+            output->print (",{\"F\":\"service/serial_bridge\",\"P\":\"");
+            output->print (ESP_SERIAL_BRIDGE_ON);
+            output->print ("\",\"T\":\"B\",\"V\":\"");
+            output->print (Settings_ESP3D::read_byte(ESP_SERIAL_BRIDGE_ON));
+            output->print ("\",\"H\":\"enable\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
+            //Baud Rate
+            output->print (",{\"F\":\"service/serial_bridge\",\"P\":\"");
+            output->print (ESP_SERIAL_BRIDGE_BAUD);
+            output->print ("\",\"T\":\"I\",\"V\":\"");
+            output->print (Settings_ESP3D::read_uint32(ESP_SERIAL_BRIDGE_BAUD));
+            output->print ("\",\"H\":\"baud\",\"O\":[");
+
+            bl =  serial_service.get_baudratelist(&count);
+            for (uint8_t i = 0 ; i < count ; i++) {
+                if (i > 0) {
+                    output->print (",");
+                }
+                output->printf("{\"%ld\":\"%ld\"}", bl[i], bl[i]);
+            }
+            output->print ("]}");
+#endif //defined(ESP_SERIAL_BRIDGE_OUTPUT)
+
 #ifdef TIMESTAMP_FEATURE
 
             //Internet Time
@@ -565,8 +591,8 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
             output->print ("\",\"T\":\"I\",\"V\":\"");
             output->print (Settings_ESP3D::read_uint32(ESP_BAUD_RATE));
             output->print ("\",\"H\":\"baud\",\"O\":[");
-            uint8_t count = 0;
-            const long *bl =  serial_service.get_baudratelist(&count);
+
+            bl =  serial_service.get_baudratelist(&count);
             for (uint8_t i = 0 ; i < count ; i++) {
                 if (i > 0) {
                     output->print (",");
@@ -600,6 +626,13 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
             output->print (Settings_ESP3D::read_byte(ESP_SERIAL_FLAG));
             output->print ("\",\"H\":\"serial\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
 #endif //COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
+#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
+            output->print (",{\"F\":\"system/outputmsg\",\"P\":\"");
+            output->print (ESP_SERIAL_BRIDGE_FLAG);
+            output->print ("\",\"T\":\"B\",\"V\":\"");
+            output->print (Settings_ESP3D::read_byte(ESP_SERIAL_BRIDGE_FLAG));
+            output->print ("\",\"H\":\"serial_bridge\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
+#endif //ESP_SERIAL_BRIDGE_OUTPUT
 #if (defined(ESP3DLIB_ENV) && defined(HAS_DISPLAY)) || defined(HAS_SERIAL_DISPLAY)
             //Printer SCREEN
             output->print (",{\"F\":\"system/outputmsg\",\"P\":\"");
@@ -640,7 +673,6 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
             output->print (Settings_ESP3D::read_byte(ESP_TELNET_FLAG));
             output->print ("\",\"H\":\"telnet\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
 #endif //TELNET_FEATURE
-
             output->print ("]}");
             if (!json) {
                 output->printLN("");

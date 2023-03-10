@@ -34,6 +34,7 @@
 #endif //WIFI_FEATURE || ETH_FEATURE || BLUETOOTH_FEATURE
 #ifdef HTTP_FEATURE
 #include "../../modules/http/http_server.h"
+#include "../../modules/websocket/websocket_server.h"
 #endif //HTTP_FEATURE
 #ifdef TIMESTAMP_FEATURE
 #include "../../modules/time/time_server.h"
@@ -45,7 +46,7 @@
 //get fw version firmare target and fw version
 //eventually set time with pc time
 //output is JSON or plain text according parameter
-//[ESP800]json=<no><time=YYYY-MM-DD-HH-MM-SS>
+//[ESP800]json=<no><time=YYYY-MM-DDTHH:mm:ss> <version=3.0.0-a11> <setup=0/1>
 bool Commands::ESP800(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
     bool noError = true;
@@ -255,7 +256,7 @@ bool Commands::ESP800(const char* cmd_params, level_authenticate_type auth_type,
 #if defined (ASYNCWEBSERVER_FEATURE)
         line+=HTTP_Server::port();
 #else
-        line+=(HTTP_Server::port() +1);
+        line+=websocket_terminal_server.getPort();
 #endif
         if (json) {
             line +="\"";
@@ -324,18 +325,32 @@ bool Commands::ESP800(const char* cmd_params, level_authenticate_type auth_type,
         }
         line="";
 #endif //WIFI_FEATURE|| ETH_FEATURE
-
         //FS
         if (json) {
-            line+=",\"FileSystem\":\"";
+            line+=",\"FlashFileSystem\":\"";
         } else {
-            line+= "File system:";
+            line+= "Flash File System:";
         }
 #if defined(FILESYSTEM_FEATURE)
         line+=ESP_FileSystem::FilesystemName();
 #else
         line+="none";
 #endif //FILESYSTEM_FEATURE
+        if (json) {
+            line +="\"";
+            output->print (line.c_str());
+        } else {
+            output->printMSGLine(line.c_str());
+        }
+        line="";
+//      Host path
+        if (json) {
+            line+=",\"HostPath\":\"";
+        } else {
+            line+= "Host Path:";
+        }
+
+        line+= ESP3D_HOST_PATH;
         if (json) {
             line +="\"";
             output->print (line.c_str());

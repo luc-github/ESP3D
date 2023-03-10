@@ -21,10 +21,10 @@
 #include "../../include/esp3d_config.h"
 #if defined (WIFI_FEATURE) || defined (ETH_FEATURE) || defined (BLUETOOTH_FEATURE)
 #ifdef ARDUINO_ARCH_ESP32
-#define WIFI_EVENT_STAMODE_CONNECTED SYSTEM_EVENT_STA_CONNECTED
-#define WIFI_EVENT_STAMODE_DISCONNECTED SYSTEM_EVENT_STA_DISCONNECTED
-#define WIFI_EVENT_STAMODE_GOT_IP SYSTEM_EVENT_STA_GOT_IP
-#define WIFI_EVENT_SOFTAPMODE_STACONNECTED SYSTEM_EVENT_AP_STACONNECTED
+#define WIFI_EVENT_STAMODE_CONNECTED ARDUINO_EVENT_WIFI_STA_CONNECTED
+#define WIFI_EVENT_STAMODE_DISCONNECTED ARDUINO_EVENT_WIFI_STA_DISCONNECTED
+#define WIFI_EVENT_STAMODE_GOT_IP ARDUINO_EVENT_WIFI_STA_GOT_IP
+#define WIFI_EVENT_SOFTAPMODE_STACONNECTED ARDUINO_EVENT_WIFI_AP_STACONNECTED
 #define RADIO_OFF_MSG "Radio Off"
 #endif //ARDUINO_ARCH_ESP32
 #ifdef ARDUINO_ARCH_ESP8266
@@ -191,22 +191,35 @@ void NetConfig::onWiFiEvent(WiFiEvent_t event)
     }
     break;
 #ifdef ARDUINO_ARCH_ESP32
-    case SYSTEM_EVENT_STA_LOST_IP:
+    case ARDUINO_EVENT_WIFI_STA_LOST_IP:
         if(_started) {
             _needReconnect2AP = true;
         }
         break;
 #ifdef ETH_FEATURE
-    case SYSTEM_EVENT_ETH_CONNECTED: {
+    case ARDUINO_EVENT_ETH_START: {
+        EthConfig::setConnected(false);
+        if (Settings_ESP3D::isVerboseBoot()) {
+            output.printMSG ("Checking connection");
+        }
+    }
+    break;
+    case ARDUINO_EVENT_ETH_CONNECTED: {
         output.printMSG ("Cable connected");
+        EthConfig::setConnected(true);
     }
     break;
-    case SYSTEM_EVENT_ETH_DISCONNECTED: {
+    case ARDUINO_EVENT_ETH_DISCONNECTED: {
         output.printMSG ("Cable disconnected");
+        EthConfig::setConnected(false);
     }
     break;
-    case SYSTEM_EVENT_ETH_GOT_IP:
+    case ARDUINO_EVENT_ETH_GOT_IP:
         output.printMSG (ETH.localIP().toString().c_str());
+        EthConfig::setConnected(true);
+        break;
+    case ARDUINO_EVENT_ETH_STOP:
+        EthConfig::setConnected(false);
         break;
 #endif //ETH_FEATURE
 #endif //ARDUINO_ARCH_ESP32
@@ -280,6 +293,11 @@ bool NetConfig::begin()
     if ((espMode == ESP_ETH_STA)) {
         WiFi.mode(WIFI_OFF);
         res = EthConfig::begin(espMode);
+    }
+#else
+    //if Eth and no Eth enabled let's go to no network
+    if (espMode == ESP_ETH_STA) {
+        espMode = ESP_NO_NETWORK;
     }
 #endif //ETH_FEATURE
 

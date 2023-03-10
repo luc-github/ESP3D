@@ -21,7 +21,7 @@ fat_esp32_filesystem.cpp - ESP3D fat filesystem configuration class
 #include "../../../include/esp3d_config.h"
 #if (FILESYSTEM_FEATURE == ESP_FAT_FILESYSTEM)
 #include "../esp_filesystem.h"
-#include "../../../core/genLinkedList.h"
+#include <stack>
 #include <FS.h>
 #include "FFat.h"
 
@@ -143,48 +143,52 @@ bool ESP_FileSystem::mkdir(const char *path)
 bool ESP_FileSystem::rmdir(const char *path)
 {
     String p = path;
-    if(p[0]!='/') {
-        p="/"+p;
+    if (!p.startsWith("/")) {
+        p = '/'+p;
     }
-    if (p[p.length()-1] == '/') {
-        if (p!="/") {
+    if (p!= "/") {
+        if (p.endsWith("/")) {
             p.remove(p.length()-1);
         }
     }
-
     if (!exists(p.c_str())) {
         return false;
     }
     bool res = true;
-    GenLinkedList<String > pathlist;
+    std::stack <String > pathlist;
     pathlist.push(p);
-    while (pathlist.count() > 0) {
-        File dir = FFat.open(pathlist.getLast().c_str());
+    while (pathlist.size() > 0 && res) {
+        File dir = FFat.open(pathlist.top().c_str());
         File f = dir.openNextFile();
         bool candelete = true;
-        while (f) {
+        while (f && res) {
             if (f.isDirectory()) {
                 candelete = false;
-                String newdir = f.name();
+                String newdir = pathlist.top()+ '/';
+                newdir+= f.name();
                 pathlist.push(newdir);
                 f.close();
                 f = File();
             } else {
-                FFat.remove(f.name());
+                String filepath = pathlist.top()+ '/';
+                filepath+= f.name();
                 f.close();
+                if (!FFat.remove(filepath.c_str())) {
+                    res = false;
+                }
                 f = dir.openNextFile();
             }
         }
         if (candelete) {
-            if (pathlist.getLast() !="/") {
-                res = FFat.rmdir(pathlist.getLast().c_str());
+            if (pathlist.top() !="/") {
+                res = FFat.rmdir(pathlist.top().c_str());
             }
             pathlist.pop();
         }
         dir.close();
     }
     p = String();
-    log_esp3d("count %d", pathlist.count());
+    log_esp3d("count %d", pathlist.size());
     return res;
 }
 

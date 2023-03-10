@@ -46,15 +46,18 @@ bool Commands::ESP900(const char* cmd_params, level_authenticate_type auth_type,
     if (noError) {
         parameter = clean_param(get_param (cmd_params, ""));
         //get
+        String r;
         if (parameter.length() == 0) {
             if (serial_service.started()) {
-                response = format_response(COMMANDID, json, true, "ENABLED");
+                r="ENABLED";
             } else {
-                response = format_response(COMMANDID, json, true, "DISABLED");
+                r="DISABLED";
             }
+            r+=" - Serial" + String(serial_service.serialIndex());
+            response = format_response(COMMANDID, json, true, r.c_str());
         } else { //set
             if (parameter == "ENABLE" ) {
-                if (serial_service.begin()) {
+                if (serial_service.begin(ESP_SERIAL_OUTPUT)) {
                     response = format_response(COMMANDID, json, true, "ok");
                 } else {
                     response = format_response(COMMANDID, json, false, "Cannot enable serial communication");

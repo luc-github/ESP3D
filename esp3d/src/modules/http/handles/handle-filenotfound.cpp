@@ -31,6 +31,7 @@
 #if defined(SD_DEVICE)
 #include "../../filesystem/esp_sd.h"
 #endif //SD_DEVICE
+#include "../favicon.h"
 
 #if defined(ESP3DLIB_ENV) && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
 #include "../../serial2socket/serial2socket.h"
@@ -58,6 +59,11 @@ void HTTP_Server:: handle_not_found()
         if(!StreamFSFile(path.c_str(),contentType.c_str())) {
             log_esp3d("Stream `%s` failed", path.c_str());
         }
+        return;
+    }
+    if (path=="favicon.ico" || path=="/favicon.ico") {
+        _webserver->sendHeader("Content-Encoding", "gzip");
+        _webserver->send_P(200,"image/x-icon",(const char *)favicon,favicon_size);
         return;
     }
 #endif //#if defined (FILESYSTEM_FEATURE)

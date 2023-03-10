@@ -48,6 +48,7 @@ String BTService::_btclient = "";
 BTService::BTService()
 {
     _buffer_size = 0;
+    _started=false;
 }
 
 BTService::~BTService()
@@ -150,6 +151,7 @@ void BTService::end()
     flush();
     SerialBT.end();
     _buffer_size = 0;
+    _started=false;
 }
 
 /**
@@ -166,7 +168,8 @@ bool BTService::reset()
  */
 bool BTService::started()
 {
-    return btStarted();
+    _started =btStarted();
+    return _started;
 }
 
 /**

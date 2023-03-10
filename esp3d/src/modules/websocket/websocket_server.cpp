@@ -30,10 +30,9 @@
 #include "../../core/esp3doutput.h"
 #include "../../core/commands.h"
 #include "../authentication/authentication_service.h"
-
-WebSocket_Server websocket_terminal_server;
+WebSocket_Server websocket_terminal_server("webui-v3");
 #if defined(WS_DATA_FEATURE)
-WebSocket_Server websocket_data_server;
+WebSocket_Server websocket_data_server("arduino");
 #endif //WS_DATA_FEATURE
 void WebSocket_Server::pushMSG (const char * data)
 {
@@ -79,7 +78,7 @@ void handle_Websocket_Server_Event(uint8_t num, uint8_t type, uint8_t * payload,
         log_esp3d("[%u] Disconnected! port %d", num,websocket_data_server.port());
         break;
     case WStype_CONNECTED: {
-        log_esp3d("[%u] Connected! port %d", num,websocket_data_server.port());
+        log_esp3d("[%u] Connected! port %d, %s", num,websocket_data_server.port(), payload);
     }
     break;
     case WStype_TEXT:
@@ -108,6 +107,7 @@ void handle_Websocket_Terminal_Event(uint8_t num, uint8_t type, uint8_t * payloa
         log_esp3d("[%u] Socket Disconnected port %d!", num,websocket_terminal_server.port());
         break;
     case WStype_CONNECTED: {
+        log_esp3d("[%u] Connected! port %d, %s", num,websocket_terminal_server.port(), (const char *)payload);
         msg = "currentID:" + String(num);
         // send message to client
         websocket_terminal_server.set_currentID(num);
@@ -152,22 +152,22 @@ int WebSocket_Server::availableForWrite()
 {
     return TXBUFFERSIZE -_TXbufferSize;
 }
-WebSocket_Server::WebSocket_Server()
+WebSocket_Server::WebSocket_Server(const char * protocol )
 {
     _websocket_server = nullptr;
     _started = false;
     _port = 0;
     _current_id = 0;
-    _isdebug = false;
     _RXbuffer = nullptr;
     _RXbufferSize = 0;
+    _protocol = protocol;
 
 }
 WebSocket_Server::~WebSocket_Server()
 {
     end();
 }
-bool WebSocket_Server::begin(uint16_t port, bool debug)
+bool WebSocket_Server::begin(uint16_t port)
 {
     end();
     if(port == 0) {
@@ -178,8 +178,7 @@ bool WebSocket_Server::begin(uint16_t port, bool debug)
             return true;
         }
     }
-    _isdebug = debug;
-    _websocket_server = new WebSocketsServer(_port);
+    _websocket_server = new WebSocketsServer(_port,"",_protocol.c_str());
     if (_websocket_server) {
         _websocket_server->begin();
 #if defined (HTTP_FEATURE) //terminal websocket for HTTP
@@ -188,7 +187,7 @@ bool WebSocket_Server::begin(uint16_t port, bool debug)
         }
 #endif //HTTP_FEATURE
 #if defined (WS_DATA_FEATURE) //terminal websocket for HTTP
-        if((port != 0) && !_isdebug) {
+        if((port != 0) && _protocol!="debug") {
             _websocket_server->onEvent(handle_Websocket_Server_Event);
             _RXbuffer= (uint8_t *)malloc(RXBUFFERSIZE +1);
             if (!_RXbuffer) {
@@ -207,7 +206,6 @@ void WebSocket_Server::end()
 {
     _current_id = 0;
     _TXbufferSize = 0;
-    _isdebug = false;
     if(_RXbuffer) {
         free(_RXbuffer);
         _RXbuffer = nullptr;
@@ -263,9 +261,6 @@ size_t WebSocket_Server::write(const uint8_t *buffer, size_t size)
             _TXbuffer[_TXbufferSize] = buffer[i];
             _TXbufferSize++;
         }
-        //if(!_isdebug) {
-        //  log_esp3d("[SOCKET]buffer size %d",_TXbufferSize);
-        //}
         return size;
     }
     return 0;
@@ -352,9 +347,7 @@ void WebSocket_Server::flushTXbuffer(void)
 {
     if (_started) {
         if ((_TXbufferSize > 0) && (_websocket_server->connectedClients() > 0 )) {
-            //if(!_isdebug) {
-            //  log_esp3d("[SOCKET]flush data, buffer size %d",_TXbufferSize);
-            //}
+
             if (_websocket_server) {
                 _websocket_server->broadcastBIN(_TXbuffer,_TXbufferSize);
                 log_esp3d("WS Broadcast bin port %d: %d bytes", port(), _TXbufferSize);

@@ -50,13 +50,23 @@
 */
 #define COMMUNICATION_PROTOCOL RAW_SERIAL
 
-/* Serial port
+/* Main Serial port
 * which serial ESP use to communicate to printer (ESP32 has 3 serials available, ESP8266 only 2)
 * USE_SERIAL_0 //for ESP8266/32, also used by bootloader output, so consider to make it quiet
 * USE_SERIAL_1 //for ESP8266/32
 * USE_SERIAL_2 //for ESP32 Only
 */
+//Main serial port
 #define ESP_SERIAL_OUTPUT USE_SERIAL_0
+
+/* Bridge Serial port (deprecated on esp8266 as second serial is)
+* which serial ESP use to bridge to another device (ESP32 has 3 serials available, ESP8266 only 2)
+* USE_SERIAL_0 //for ESP8266/32, also used by bootloader output, so consider to make it quiet
+* USE_SERIAL_1 //for ESP8266/32
+* USE_SERIAL_2 //for ESP32 Only\
+* Comment if not used
+*/
+//#define ESP_SERIAL_BRIDGE_OUTPUT USE_SERIAL_1
 
 /* Serial buffer size
 *  Maximum size of the serial buffer
@@ -96,6 +106,32 @@
 * Enable ethernet communications
 */
 //#define ETH_FEATURE
+
+//Ethernet type (Check ETH.h eth_phy_type_t)
+//TYPE_ETH_PHY_LAN8720
+//TYPE_ETH_PHY_TLK110
+//TYPE_ETH_PHY_RTL8201
+//TYPE_ETH_PHY_DP83848
+//TYPE_ETH_PHY_DM9051
+//TYPE_ETH_PHY_KSZ8041
+//TYPE_ETH_PHY_KSZ8081
+#define ESP3D_ETH_PHY_TYPE TYPE_ETH_PHY_LAN8720
+
+//Ethernet board Clock mode
+// MODE_ETH_CLOCK_GPIO0_IN
+// MODE_ETH_CLOCK_GPIO0_OUT
+// MODE_ETH_CLOCK_GPIO16_OUT
+// MODE_ETH_CLOCK_GPIO17_OUT
+#define ESP3D_ETH_CLK_MODE MODE_ETH_CLOCK_GPIO17_OUT
+
+//Pins of ethernet board
+#define ESP3D_ETH_PHY_POWER_PIN 12
+//#define ESP3D_ETH_PHY_MDC_PIN 23
+//#define ESP3D_ETH_PHY_MDIO_PIN 18
+
+//Address of ethernet board
+//#define ESP3D_ETH_PHY_ADDR 0
+
 
 /* Use Bluetooth
 * Enable serial bluetooth communications
@@ -235,7 +271,6 @@
 /* SD card library
 * ESP_SD_NATIVE //esp32 / esp8266
 * ESP_SDIO      //esp32 only
-* ESP_SDFAT     //esp8266  / esp32
 * ESP_SDFAT2    //esp8266  / esp32
 */
 //#define SD_DEVICE ESP_SDFAT2
@@ -323,7 +358,7 @@
 /* Enable pin reset feature
 * Use a pin to reset ESP3D settings
 */
-#define PIN_RESET_FEATURE
+//#define PIN_RESET_FEATURE
 
 /* Reset pin
 * The pin used to reset ESP3D setting if set to low for more than 1 second at start

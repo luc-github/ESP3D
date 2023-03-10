@@ -26,12 +26,12 @@
 #include "../../modules/time/time_server.h"
 #define COMMANDID   140
 //Sync / Set / Get current time
-//[ESP140]<SYNC> <srv1=XXXXX> <srv2=XXXXX> <srv3=XXXXX> <zone=xxx> <dst=YES/NO> <time=YYYY-MM-DD#H24:MM:SS> NOW json=<no> pwd=<admin password>
+//[ESP140]<SYNC> <srv1=XXXXX> <srv2=XXXXX> <srv3=XXXXX> <zone=xxx> <dst=YES/NO> <time=YYYY-MM-DDTHH:mm:ss> NOW json=<no> pwd=<admin password>
 bool Commands::ESP140(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
 {
     bool noError = true;
     bool json = has_tag (cmd_params, "json");
-    String response;
+    String response="ok";
     String parameter;
     bool hasParam = false;
     int errorCode = 200; //unless it is a server error use 200 as default and set error in json instead

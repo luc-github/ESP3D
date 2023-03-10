@@ -59,7 +59,7 @@ const char * help[]= {"[ESP] (id) - display this help",
                       "[ESP131](Port) - display/set Telnet port",
 #endif //TELNET_FEATURE
 #if defined(TIMESTAMP_FEATURE)
-                      "[ESP140](SYNC) (srv1=xxxx) (srv2=xxxx) (srv3=xxxx) (zone=xxx) (dst=YES/NO) (time=YYYY-MM-DD#H24:MM:SS) (SYNC) (NOW)- sync/display/set current time/time servers",
+                      "[ESP140](SYNC) (srv1=xxxx) (srv2=xxxx) (srv3=xxxx) (zone=xxx) (dst=YES/NO) (time=YYYY-MM-DDTHH:mm:ss) (SYNC) (NOW)- sync/display/set current time/time servers",
 #endif //TIMESTAMP_FEATURE
                       "[ESP150](delay=time) (verbose=ON/OFF)- display/set boot delay in ms / Verbose boot",
 #if defined(WS_DATA_FEATURE)
@@ -109,10 +109,13 @@ const char * help[]= {"[ESP] (id) - display this help",
                       "[ESP402](State) - display/set check update at boot from SD which can be ON, OFF",
 #endif //SD_UPDATE_FEATURE
 #if defined (WIFI_FEATURE)
-                      "[ESP410](plain) - display available AP list (limited to 30) in plain/JSON",
+                      "[ESP410]display available AP list (limited to 30) in plain/JSON",
 #endif //WIFI_FEATURE
-                      "[ESP420](plain) - display ESP3D current status in plain/JSON",
+                      "[ESP420]display ESP3D current status in plain/JSON",
                       "[ESP444](Cmd) - set ESP3D state (RESET/RESTART)",
+#ifdef MDNS_FEATURE
+                      "[ESP450]display ESP3D list on network",
+#endif //MDNS_FEATURE
 #if defined (AUTHENTICATION_FEATURE)
                       "[ESP550](password) - change admin password",
                       "[ESP555](password) - change user password",
@@ -144,14 +147,19 @@ const char * help[]= {"[ESP] (id) - display this help",
                       "[ESP780](path)  - List Global Filesystem",
                       "[ESP790](Action)=(path) - rmdir / remove / mkdir / exists / create on Global Filesystem (path)",
 #endif //GLOBAL_FILESYSTEM_FEATURE
-                      "[ESP800](plain)(time=YYYY-MM-DD-HH-MM-SS) - display FW Informations in plain/JSON",
+                      "[ESP800](time=YYYY-MM-DDTHH:mm:ss)(version=3.0.0-a11)(setup=0/1) - display FW Informations /set time",
 #if COMMUNICATION_PROTOCOL != SOCKET_SERIAL
                       "[ESP900](ENABLE/DISABLE) - display/set serial state",
+                      "[ESP901]<BAUD RATE> - display/set serial baud rate",
 #endif //COMMUNICATION_PROTOCOL != SOCKET_SERIAL
 #ifdef BUZZER_DEVICE
                       "[ESP910](ENABLE/DISABLE) - display/set buzzer state",
 #endif //BUZZER_DEVICE
                       "[ESP920](client)=(ON/OFF) - display/set SERIAL / SCREEN / REMOTE_SCREEN / WEBSOCKET / TELNET /BT / ALL client state if available",
+#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
+                      "[ESP930](ON/OFF/CLOSE) - display/set serial bridge state",
+                      "[ESP931]<BAUD RATE> - display/set serial bridge baud rate",
+#endif //defined(ESP_SERIAL_BRIDGE_OUTPUT)
 #if defined(ARDUINO_ARCH_ESP32) && (CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3)
                       "[ESP999](QUIETBOOT) [pwd=<admin/user password>] - set quiet boot mode",
 #endif //ARDUINO_ARCH_ESP32
@@ -244,6 +252,9 @@ const uint cmdlist[]= {0,
 #endif //WIFI_FEATURE
                        420,
                        444,
+#ifdef MDNS_FEATURE
+                       450,
+#endif //MDNS_FEATURE
 #if defined (AUTHENTICATION_FEATURE)
                        550,
                        555,
@@ -278,12 +289,17 @@ const uint cmdlist[]= {0,
                        800,
 #if COMMUNICATION_PROTOCOL != SOCKET_SERIAL
                        900,
+                       901,
 #endif //COMMUNICATION_PROTOCOL != SOCKET_SERIAL
 #ifdef BUZZER_DEVICE
                        910,
 
 #endif //BUZZER_DEVICE
                        920,
+#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
+                       930,
+                       935,
+#endif //defined(ESP_SERIAL_BRIDGE_OUTPUT)
 #if defined(ARDUINO_ARCH_ESP32) && (CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3)
                        999,
 #endif //ARDUINO_ARCH_ESP32 && CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3

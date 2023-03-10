@@ -32,8 +32,9 @@
 #define MARLIN_EMBEDDED 30
 #define SMOOTHIEWARE    40
 #define REPETIER        50
-#define FLUIDNC         60
 #define REPRAP          70
+#define GRBLHAL         80
+#define HP_GL           90
 
 //Default flags
 #define DEFAULT_SERIAL_OUTPUT_FLAG 1
@@ -42,6 +43,7 @@
 #define DEFAULT_TELNET_FLAG 1
 #define DEFAULT_BT_FLAG 1
 #define DEFAULT_SCREEN_FLAG 1
+#define DEFAULT_SERIAL_BRIDGE_FLAG 1
 
 //position in EEPROM / preferences will use `P_` + <position> to make a string : P_0 for 0
 #define ESP_RADIO_MODE          0       //1 byte = flag
@@ -110,6 +112,9 @@
 #define ESP_SECURE_SERIAL       1033    //1 byte = flag
 #define ESP_BOOT_RADIO_STATE    1034    //1 byte = flag
 #define ESP_STA_FALLBACK_MODE   1035    //1 byte = flag
+#define ESP_SERIAL_BRIDGE_ON    1036    //1 byte = flag
+#define ESP_SERIAL_BRIDGE_FLAG  1037    //1 byte = flag
+#define ESP_SERIAL_BRIDGE_BAUD  1038    //4  bytes= int
 
 //Hidden password
 #define HIDDEN_PASSWORD "********"
@@ -126,6 +131,11 @@
 #define USE_SERIAL_0 1
 #define USE_SERIAL_1 2
 #define USE_SERIAL_2 3
+
+//Serial service ID
+#define MAIN_SERIAL   1
+#define BRIDGE_SERIAL 2
+
 
 //Communication protocols
 #define RAW_SERIAL    0
@@ -191,8 +201,7 @@
 //SD READER FS type supported
 #define ESP_SD_NATIVE               1
 #define ESP_SDIO                    2
-#define ESP_SDFAT                   3
-#define ESP_SDFAT2                  4
+#define ESP_SDFAT2                  3
 
 //SDIO Mode
 #define SD_ONE_BIT_MODE             1
@@ -266,5 +275,23 @@
 #define FS_USBDISK     3
 #define FS_UNKNOWN     254
 #define MAX_FS 3
+
+//ethernet clock modes (check ETH.h for eth_clock_mode_t)
+#define MODE_ETH_CLOCK_GPIO0_IN   0
+#define MODE_ETH_CLOCK_GPIO0_OUT  1
+#define MODE_ETH_CLOCK_GPIO16_OUT 2
+#define MODE_ETH_CLOCK_GPIO17_OUT 3
+
+//Ethernet type (Check ETH.h eth_phy_type_t)
+#define TYPE_ETH_PHY_LAN8720 0
+#define TYPE_ETH_PHY_TLK110  1
+#define TYPE_ETH_PHY_RTL8201 2
+#define TYPE_ETH_PHY_DP83848 3
+#define TYPE_ETH_PHY_DM9051  4
+#define TYPE_ETH_PHY_KSZ8041 5
+#define TYPE_ETH_PHY_KSZ8081 6
+
+//Host path
+#define ESP3D_HOST_PATH "/"
 
 #endif //_DEFINES_ESP3D_H

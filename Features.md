@@ -7,6 +7,7 @@
 * Raw TCP / serial bridge support (light telnet)
 * Boot delay configuration
 * Websocket / serial bridge support
+* Serial / Serial bridge support
 * Bluetooth Serial bridge support (when BT supported)
 * MKS Serial protocol support
 * Serial commands configurations
@@ -14,7 +15,7 @@
 * FTP support (limited to 1 connection at once)
 * WebDav support
 * Local FS support:
-    * Little FS (prefered)
+    * Little FS (recommended)
     * Fat (ESP32 only)
     * SPIFFS (deprecated)
 * SD support
@@ -29,13 +30,15 @@
       * Sharing connection using hardware switch
         * e.g.: Panucatt Wifi Backpack / Azteeg X5 WiFi
       * MKS fast upload by serial
-      * NOT SUPPORTED
+    * NOT SUPPORTED ANYMORE 
         * M28/M29 File transfer protocol
+    * Serial file transfer using custom protocol (planned)
 * USB support
     * planned
 * Global FS under FTP / Webdav : SD + Local FS in same directory
 * Buzzer support
 * Recovery pin support
+* Pins control by commands
 * ESP32 Camera support (only with PSRAM)
 * Basic oled screen support
     * I2C SSD1306 128x64
@@ -44,7 +47,7 @@
     * SPI ST7789 135x240
     * SPI ST7789 240x240
 * Time synchronization support (manual / internet server)
-* Lua interpreter support
+* Lua interpreter support (Work in progress)
 * Notifications support
     * WebUI
     * TFT/OLED
@@ -58,11 +61,13 @@
     * Analog
     * BMX280
 * Auto script support at start
-* Basic Host GCODE stream for macros hosted on local FS
+* Basic Host GCODE stream for macros hosted on local FS (Work in Progress to improve it)
 * Update
     * ESP3D configuration using ini file on SD
     * ESP3D update using binary file on SD
+    * OTA support
+    * Update by WebUI
 
-    *
+
 
 

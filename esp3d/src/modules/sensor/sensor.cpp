@@ -125,6 +125,15 @@ bool ESP3DSensor::isModelValid(uint8_t model)
     return false;
 }
 
+const char * ESP3DSensor::GetCurrentModelString()
+{
+    if (_device) {
+
+        return _device->GetCurrentModelString();
+    }
+    return "NONE";
+}
+
 const char * ESP3DSensor::GetModelString(uint8_t i)
 {
     if (_device) {
@@ -139,7 +148,6 @@ uint8_t ESP3DSensor::getIDFromString(const char * s)
     if (_device) {
         return _device->getIDFromString(s);
     }
-    Serial.println("no device");
     return 0;
 }
 

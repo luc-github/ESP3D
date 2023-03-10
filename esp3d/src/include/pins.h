@@ -24,17 +24,26 @@
 //   * UART 1 allows only TX on 2 if UART 0 is not (2, 3)
 #ifndef ESP_RX_PIN
 #define ESP_RX_PIN -1
-#endif //~ESP_RX_PIN
+#endif //ESP_RX_PIN
 #ifndef ESP_TX_PIN
 #define ESP_TX_PIN -1
-#endif //~ESP_TX_PIN
+#endif //ESP_TX_PIN
+
+#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
+#ifndef ESP_BRIDGE_RX_PIN
+#define ESP_BRIDGE_RX_PIN -1
+#endif //ESP_BRIDGE_RX_PIN
+#ifndef ESP_BRIDGE_TX_PIN
+#define ESP_BRIDGE_TX_PIN -1
+#endif //ESP_BRIDGE_TX_PIN
+#endif //ESP_SERIAL_BRIDGE_OUTPUT
 
 #ifndef ESP_DEBUG_RX_PIN
 #define ESP_DEBUG_RX_PIN -1
-#endif //~ESP_DEBUG_RX_PIN
+#endif //ESP_DEBUG_RX_PIN
 #ifndef ESP_DEBUG_TX_PIN
 #define ESP_DEBUG_TX_PIN -1
-#endif //~ESP_DEBUG_TX_PIN
+#endif //ESP_DEBUG_TX_PIN
 
 //I2C Pins
 #ifndef ESP_SDA_PIN
@@ -377,6 +386,31 @@
 //Pins for the support of SD Card Reader
 //-1 means use default pins of your board defined core
 //this are overwrited if defined in configuration.h or myconfig.h
+
+#ifndef ESP_SDIO_CLK_PIN
+#define ESP_SDIO_CLK_PIN -1
+#endif  // ESP_SDIO_CLK_PIN
+
+#ifndef ESP_SDIO_CMD_PIN
+#define  ESP_SDIO_CMD_PIN -1
+#endif // ESP_SDIO_CMD_PIN
+
+#ifndef ESP_SDIO_D0_PIN
+#define ESP_SDIO_D0_PIN -1
+#endif //ESP_SDIO_D0_PIN
+
+#ifndef ESP_SDIO_D1_PIN
+#define ESP_SDIO_D1_PIN -1
+#endif //ESP_SDIO_D1_PIN
+
+#ifndef ESP_SDIO_D2_PIN
+#define ESP_SDIO_D2_PIN -1
+#endif //ESP_SDIO_D2_PIN
+
+#ifndef ESP_SDIO_D3_PIN
+#define ESP_SDIO_D3_PIN -1
+#endif //ESP_SDIO_D3_PIN
+
 #ifndef ESP_SD_CS_PIN
 #define ESP_SD_CS_PIN           -1
 #endif //ESP_SD_CS_PIN
@@ -397,7 +431,7 @@
 #endif //ESP_SD_DETECT_PIN 
 
 #if defined (PIN_RESET_FEATURE) && !defined(ESP3D_RESET_PIN)
-#define ESP3D_RESET_PIN 0
+#define ESP3D_RESET_PIN -1
 #endif //PIN_RESET_FEATURE
 
 #ifdef SD_DEVICE_CONNECTION

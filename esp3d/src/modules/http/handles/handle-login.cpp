@@ -37,7 +37,7 @@ void HTTP_Server::handle_login()
     int code = 401;
     String status = "Wrong authentication!";
     //Disconnect can be done anytime no need to check credential
-    if (_webserver->hasArg("DISCONNECT")) {
+    if (_webserver->hasArg("DISCONNECT") && _webserver->arg("DISCONNECT")=="YES") {
         AuthenticationService::ClearCurrentSession();
         _webserver->sendHeader("Set-Cookie","ESPSESSIONID=0");
         _webserver->sendHeader("Cache-Control","no-cache");
@@ -96,7 +96,12 @@ void HTTP_Server::handle_login()
                 }
             }
         }
-    }//SUBMIT
+    } else {
+        if (auth_level == LEVEL_USER || auth_level == LEVEL_ADMIN) {
+            status = "Identified";
+            code = 200;
+        }
+    }
     _webserver->sendHeader("Cache-Control","no-cache");
     String smsg = "{\"status\":\"";
     smsg+=status;
@@ -110,6 +115,7 @@ void HTTP_Server::handle_login()
     }
     smsg += "\"}";
     _webserver->send(code, "application/json", smsg);
+    return;
 #else // No AUTHENTICATION_FEATURE
     _webserver->sendHeader("Cache-Control","no-cache");
     _webserver->send(200, "application/json", "{\"status\":\"ok\",\"authentication_lvl\":\"admin\"}");

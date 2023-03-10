@@ -30,7 +30,7 @@ let wsMsg = "";
 let logOff = false;
 let pageId = "";
 let currentPath = "/";
-const version = "3.0.0.a4";
+const version = "3.0.0.a6";
 let xmlhttpupload;
 let prgfiletext;
 let prgfile;
@@ -40,6 +40,8 @@ let loginLink;
 let loginModal;
 let loginUser = "";
 let loginMsg;
+let fspath="/files";
+let hostpath="/";
 
 window.onload = function () {
   consolePanel = document.getElementById("consolePanel");
@@ -237,11 +239,11 @@ function getPCTime() {
     padNumber(d.getMonth() + 1, 2) +
     "-" +
     padNumber(d.getDate(), 2) +
-    "-" +
+    "T" +
     padNumber(d.getHours(), 2) +
-    "-" +
+    ":" +
     padNumber(d.getMinutes(), 2) +
-    "-" +
+    ":" +
     padNumber(d.getSeconds(), 2)
   );
 }
@@ -332,9 +334,15 @@ function processFWJson(text) {
     window.open(url);
   });
   consolePanel.classList.remove("hide");
-  if (json.FileSystem && json.FileSystem != "none")
-    fileSystem.classList.remove("hide");
+  if ((json.FlashFileSystem && json.FlashFileSystem != "none")||(json.SDConnection && json.SDConnection != "none")){
+     fileSystem.classList.remove("hide");
+     if (json.FlashFileSystem && json.FlashFileSystem == "none"){
+      fspath="/sdfiles";
+     }
+  }
+   
   if (json.WebUpdate == "Enabled") firmware.classList.remove("hide");
+  hostpath = json.HostPath;
   if (json.WiFiMode && json.WebSocketIP) {
     if (isLimitedEnvironment(json.WiFiMode)) {
       let address =
@@ -360,7 +368,7 @@ function startSocket(ip, port, sync) {
 
   wsSource = new WebSocket(
     "ws://" + ip + ":" + port + (sync == "Asynchronous" ? "/ws" : ""),
-    ["arduino"]
+    ["webui-v3"]
   );
   wsSource.binaryType = "arraybuffer";
   wsSource.onopen = function (e) {
@@ -375,7 +383,10 @@ function startSocket(ip, port, sync) {
         startSocket(ip, port, sync);
       }, 3000);
   };
-  wsSource.onerror = function (e) {};
+  wsSource.onerror = function (e) {
+    ErrorMSG("Error: websocket error!<br/>" );
+    console.log("Error: websocket error!");
+  };
   wsSource.onmessage = function (e) {
     let msg = "";
     //bin
@@ -385,7 +396,9 @@ function startSocket(ip, port, sync) {
         msg += String.fromCharCode(bytes[i]);
         if (bytes[i] == 10 || bytes[i] == 13) {
           wsMsg += msg;
+          if (!wsMsg.startsWith("ESP3D says: command forwarded")){
           consoleContentUpdate(wsMsg);
+          }
           wsMsg = "";
           msg = "";
         }
@@ -466,12 +479,12 @@ function InfoMSG(msg) {
 
 function getFWData() {
   let url = new URL("http://" + window.location.host + "/command");
-  url.searchParams.append("cmd", "[ESP800]json=YES time=" + getPCTime());
+  url.searchParams.append("cmd", "[ESP800]json=YES version="+version+" time=" + getPCTime());
   httpGet(url, processFWJson);
 }
 
 function SendFileCommand(action, filename) {
-  let url = new URL("http://" + window.location.host + "/files");
+  let url = new URL("http://" + window.location.host + fspath);
   url.searchParams.append("action", action);
   url.searchParams.append("filename", filename);
   url.searchParams.append("path", currentPath);
@@ -578,7 +591,7 @@ function dispatchFileStatus(jsonresponse) {
     for (let i1 = 0; i1 < json.files.length; i1++) {
       if (String(json.files[i1].size) != "-1") {
         if (
-          currentPath == "/" &&
+          currentPath == hostpath &&
           (json.files[i1].name == "index.html.gz" ||
             json.files[i1].name == "index.html")
         ) {
@@ -737,7 +750,7 @@ function uploadFiles() {
     formData.append("myfiles", file, currentpath + file.name);
   }
   xmlhttpupload = new XMLHttpRequest();
-  xmlhttpupload.open("POST", "/files", true);
+  xmlhttpupload.open("POST", fspath, true);
   //progress upload event
   xmlhttpupload.upload.addEventListener("progress", updateProgress, false);
   //progress function

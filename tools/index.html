@@ -1,0 +1,131 @@
+<HTML>
+	<HEAD>
+		<TITLE>WSocket monitor</TITLE>
+		<style>
+			pre {
+				display: inline;
+				margin: 0;
+				}
+		</style>
+	</HEAD>
+	<BODY>
+		<table>
+			<tr>
+				<td><span id="isconnected"></span></td>
+				<td><input type="TEXT" ID="ADDRESS" placeholder="Address"/></td>
+				<td><input type="TEXT" ID="PORT" placeholder="port"/></td>
+				<td><button ID="CONNECT" onclick="connect();">Connect</button></td>
+				<td><button ID="DISCONNECT" style="display:none;" onclick="disconnect();">Disconnect</button></td>
+				<td><button ID="CLEAR" onclick="clearmonitor();">Clear</button></td>
+			</tr>
+			<tr>
+				<td colspan=6>
+					<div id="MONITOR" style="min-height: 350px; max-height: 350px;min-width: 450px; width:100%; border-width:1px;border-style: solid;overflow-y:auto" ></div>
+				</td>
+			</tr>
+			<tr>
+				<td><input type="TEXT" style="display:none;" onkeyup="checkcode(event)" ID="CMD" placeholder="command"/></td>
+				<td><button ID="SEND" style="display:none;" onclick="Send();">send</button></td>
+			</tr>
+		</table>
+		<SCRIPT>
+			var msg ="";
+			var logoff=false;
+			function checkcode(event){
+				if (event.keyCode == 13) {
+							Send();
+						}
+				return true;
+			}
+			function connect(){
+				logoff=false;
+				var address = document.getElementById('ADDRESS').value;
+				var port = document.getElementById('PORT').value;
+				if (address.length == 0){
+					address = document.location.hostname;
+					document.getElementById('ADDRESS').value = document.location.hostname;
+					port = "80";
+					document.getElementById('PORT').value = "80";
+				}
+				if (typeof ws_source !='undefined'){
+					ws_source.close();
+				}
+				try {
+					ws_source = new WebSocket('ws://'+address+':' + port+'/ws',['webui-v3']);
+					ws_source.binaryType = "arraybuffer";
+					  ws_source.onopen = function(e){
+						document.getElementById('isconnected').innerHTML = "Connected";
+						document.getElementById('CONNECT').style.display="none";
+						document.getElementById('DISCONNECT').style.display="block";
+						document.getElementById('CMD').style.display="block";
+						document.getElementById('SEND').style.display="block";
+						console.log("Connected");
+					  };
+					ws_source.onclose = function(e){
+						console.log("Disconnected");
+						document.getElementById('isconnected').innerHTML = "";
+						document.getElementById('CONNECT').style.display="block";
+						document.getElementById('DISCONNECT').style.display="none";
+						document.getElementById('CMD').style.display="none";
+						document.getElementById('SEND').style.display="none";
+						//auto reconnect
+						if (!logoff)setTimeout(connect, 3000);
+						};
+					ws_source.onerror = function(e){
+						console.log("ws error", e);
+						disconnect();
+						alert(e);
+					  };
+					ws_source.onmessage = function(e){
+						var tmpmsg="";
+						if(e.data instanceof ArrayBuffer){
+							tmpmsg +="<span style='color:blue'>[Received BIN data]</span><br><pre>";
+							var bytes = new Uint8Array(e.data);
+							for (var i = 0; i < bytes.length; i++) {
+							if (bytes[i] == 13){
+								tmpmsg += "</pre><br><pre>";
+							} else {
+								if (bytes[i] != 10) {
+									tmpmsg += String.fromCharCode(bytes[i]);
+								}
+							}
+						  }
+						  tmpmsg+="</pre><br>";
+						  msg+= tmpmsg.replace("<br><pre></pre>","");
+						  document.getElementById('MONITOR').innerHTML = msg
+						} else {
+						  tmpmsg += "<span style='color:blue'>[Received TXT data]</span><br><pre>" + e.data.replace("\n", "</pre><br><pre>") ;
+						  tmpmsg+="</pre>";
+						  msg+=tmpmsg;
+						  document.getElementById('MONITOR').innerHTML = msg ; 
+					  }
+					  document.getElementById('MONITOR').scrollTop = document.getElementById('MONITOR').scrollHeight;
+					};
+				}
+				catch(error){
+					alert(error);
+				}
+			}
+			function clearmonitor(){
+				msg = "";
+			    document.getElementById('MONITOR').innerHTML = "";
+			}
+			function Send(){
+				var cmd= document.getElementById('CMD').value;
+				var tmpmsg ="";
+				if(cmd.length > 0) {
+					cmd+="\n";
+					tmpmsg+="<span style='color:green'>[Send]</span><br><pre>"+cmd + "</pre>";
+					msg+=tmpmsg;
+					document.getElementById('MONITOR').innerHTML = msg ; 
+					ws_source.send(cmd);
+				}
+				document.getElementById('CMD').value = "";
+			}
+			function disconnect(){
+				logoff=true;
+				ws_source.close();
+			}
+		</SCRIPT>
+	</BODY>
+</HTML>

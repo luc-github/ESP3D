@@ -40,8 +40,10 @@ Commands::~Commands()
 //dispatch the command
 void Commands::process(uint8_t * sbuf, size_t len, ESP3DOutput * output, level_authenticate_type auth, ESP3DOutput * outputonly, uint8_t outputignore )
 {
+    static bool lastIsESP3D = false;
     log_esp3d("Client is %d, has only %d, has ignore %d", output?output->client():0, outputonly?outputonly->client():0, outputignore);
     if(is_esp_command(sbuf,len)) {
+        lastIsESP3D = true;
         size_t slen = len;
         String tmpbuf = (const char*)sbuf;
         if (tmpbuf.startsWith("echo:")) {
@@ -59,6 +61,12 @@ void Commands::process(uint8_t * sbuf, size_t len, ESP3DOutput * output, level_a
         log_esp3d("Respond to client  %d",(outputonly == nullptr)?output->client():outputonly->client());
         execute_internal_command (String((const char*)cmd).toInt(), (slen > (strlen((const char *)cmd)+5))?(const char*)&tmpbuf[strlen((const char *)cmd)+5]:"", auth, (outputonly == nullptr)?output:outputonly);
     } else {
+        //Work around to avoid to dispatch single \n to everyone as it is part of previous ESP3D command
+        if (lastIsESP3D && len==1 && sbuf[0]=='\n') {
+            lastIsESP3D = false;
+            return;
+        }
+        lastIsESP3D = false;
         //Dispatch to all clients but current or to define output
 #if defined(HTTP_FEATURE)
         //the web command will never get answer as answer go to websocket
@@ -310,7 +318,7 @@ bool Commands::has_tag (const char * cmd_params, const char *tag)
     log_esp3d("Tag detected");
     //to support plain , plain=yes , plain=no
     String param =  String(tag) + "=";
-    log_esp3d("Checking  %s , in %s", param.c_str());
+    log_esp3d("Checking  %s , in %s", param.c_str(), cmd_params);
     String parameter = get_param (cmd_params, param.c_str());
     if (parameter.length() != 0) {
         log_esp3d("Parameter is %s", parameter.c_str());
@@ -623,6 +631,13 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
     case 444:
         response = ESP444(cmd_params, auth_type, output);
         break;
+#ifdef MDNS_FEATURE
+    //Get ESP3D list
+    //[ESP450] pwd=<admin/user password>
+    case 450:
+        response = ESP450(cmd_params, auth_type, output);
+        break;
+#endif //MDNS_FEATURE
 #ifdef AUTHENTICATION_FEATURE
     //Change admin password
     //[ESP550]<password>pwd=<admin password>
@@ -730,6 +745,11 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
     case 900:
         response = ESP900(cmd_params, auth_type, output);
         break;
+    //Get / Set Serial Baud Rate
+    //[ESP901]<BAUD RATE> json=<no> pwd=<admin/user password>
+    case 901:
+        response = ESP901(cmd_params, auth_type, output);
+        break;
 #endif //COMMUNICATION_PROTOCOL != SOCKET_SERIAL
 #ifdef BUZZER_DEVICE
     //Get state / Set Enable / Disable buzzer
@@ -743,6 +763,18 @@ bool Commands::execute_internal_command (int cmd, const char* cmd_params, level_
         //[ESP910]<SERIAL / SCREEN / REMOTE_SCREEN/ WEBSOCKET / TELNET /BT / ALL>=<ON/OFF>[pwd=<admin password>]
         response = ESP920(cmd_params, auth_type, output);
         break;
+#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
+    //Get state / Set Enable / Disable Serial Bridge Communication
+    //[ESP930]<ENABLE/DISABLE>
+    case 930:
+        response = ESP930(cmd_params, auth_type, output);
+        break;
+    //Get / Set Serial Bridge Baud Rate
+    //[ESP931]<BAUD RATE> json=<no> pwd=<admin/user password>
+    case 931:
+        response = ESP931(cmd_params, auth_type, output);
+        break;
+#endif //defined(ESP_SERIAL_BRIDGE_OUTPUT)
 #if defined(ARDUINO_ARCH_ESP32) && (CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3)
     case 999:
         //Set quiet boot if strapping pin is High

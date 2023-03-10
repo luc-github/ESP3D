@@ -22,7 +22,7 @@
 #include "../esp3doutput.h"
 #include "../settings_esp3d.h"
 #include "../../modules/authentication/authentication_service.h"
-#if COMMUNICATION_PROTOCOL != SOCKET_SERIAL
+#if COMMUNICATION_PROTOCOL != SOCKET_SERIAL || defined(ESP_SERIAL_BRIDGE_OUTPUT)
 #include "../../modules/serial/serial_service.h"
 #endif // COMMUNICATION_PROTOCOL != SOCKET_SERIAL
 #ifdef FILESYSTEM_FEATURE
@@ -707,8 +707,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
                 } else {
                     line +=": ";
                 }
-                line +=(ETH.linkUp())?"connected":"disconnected";
-                if(ETH.linkUp()) {
+                line +=(EthConfig::linkUp())?"connected":"disconnected";
+
+                if(EthConfig::linkUp()) {
                     line +=" (";
                     line +=ETH.linkSpeed();
                     line+="Mbps)";
@@ -1354,6 +1355,47 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
             }
             line="";
 #endif //AUTHENTICATION_FEATURE
+#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
+            if (json) {
+                line +=",{\"id\":\"";
+            }
+            line +="serial_bridge";
+            if (json) {
+                line +="\",\"value\":\"";
+            } else {
+                line +=": ";
+            }
+            if(serial_bridge_service.started()) {
+                line+="ON";
+            } else {
+                line+="OFF";
+            }
+            if (json) {
+                line +="\"}";
+                output->print (line.c_str());
+            } else {
+                output->printMSGLine(line.c_str());
+            }
+            line="";
+            if (json) {
+                line +=",{\"id\":\"";
+            }
+            line +="baud";
+            if (json) {
+                line +="\",\"value\":\"";
+            } else {
+                line +=": ";
+            }
+            line+=serial_bridge_service.baudRate();
+            if (json) {
+                line +="\"}";
+                output->print (line.c_str());
+            } else {
+                output->printMSGLine(line.c_str());
+            }
+            line="";
+
+#endif //ESP_SERIAL_BRIDGE_OUTPUT
 #if defined (HAS_SERIAL_DISPLAY)
             if (json) {
                 line +=",{\"id\":\"";
@@ -1385,7 +1427,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
             }
             line +=notificationsservice.started()?"ON":"OFF";
             if (notificationsservice.started()) {
-                line +="(";
+                line +=" (";
                 line +=notificationsservice.getTypeString();
                 line +=")";
             }
@@ -1407,7 +1449,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
             } else {
                 line +=": ";
             }
-            line +=(Settings_ESP3D::GetSDDevice() == ESP_DIRECT_SD)?"direct":(Settings_ESP3D::GetSDDevice() == ESP_SHARED_SD)?"shared":"none";
+            line +=(Settings_ESP3D::GetSDDevice() == ESP_DIRECT_SD)?"direct ":(Settings_ESP3D::GetSDDevice() == ESP_SHARED_SD)?"shared ":"none ";
             line +="(";
             line +=ESP_SD::FilesystemName();
             line +=")";
@@ -1450,9 +1492,11 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
                 line +=": ";
             }
             line +=esp3d_sensor.started()?"ON":"OFF";
-            line +="(";
-            line +=esp3d_sensor.GetModelString();
-            line +=")";
+            if (esp3d_sensor.started()) {
+                line +=" (";
+                line +=esp3d_sensor.GetCurrentModelString();
+                line +=")";
+            }
             if (json) {
                 line +="\"}";
                 output->print (line.c_str());
@@ -1487,12 +1531,10 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
             }
             line +="debug";
             if (json) {
-                line +="\"}";
-                output->print (line.c_str());
+                line +="\",\"value\":\"";
             } else {
-                output->printMSGLine(line.c_str());
+                line +=": ";
             }
-            line="";
 #if ESP_DEBUG_FEATURE == DEBUG_OUTPUT_SERIAL0
             line +="Serial";
 #endif //DEBUG_OUTPUT_SERIAL0

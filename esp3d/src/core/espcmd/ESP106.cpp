@@ -31,6 +31,7 @@ bool Commands::ESP106(const char* cmd_params, level_authenticate_type auth_type,
 {
     bool noError = true;
     bool json = has_tag (cmd_params, "json");
+    bool clearSetting = has_tag (cmd_params,"NOPASSWORD");
     String response;
     String parameter;
     int errorCode = 200; //unless it is a server error use 200 as default and set error in json instead
@@ -50,6 +51,9 @@ bool Commands::ESP106(const char* cmd_params, level_authenticate_type auth_type,
             response = format_response(COMMANDID, json, false, "Password not displayable");
             noError = false;
         } else {
+            if (clearSetting) {
+                parameter="";
+            }
             if (!WiFiConfig::isPasswordValid (parameter.c_str() ) ) {
                 response = format_response(COMMANDID, json, false, "Set failed");
                 noError = false;

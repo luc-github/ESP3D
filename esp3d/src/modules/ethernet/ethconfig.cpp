@@ -31,6 +31,7 @@
 #include "../network/netconfig.h"
 #include "ethconfig.h"
 bool EthConfig::_started = false;
+bool EthConfig::_connected = false;
 const uint8_t DEFAULT_AP_MASK_VALUE[]  =      {255, 255, 255, 0};
 
 bool EthConfig::StartSTA()
@@ -77,6 +78,16 @@ bool EthConfig::StartSTA()
     return res;
 }*/
 
+bool EthConfig::linkUp()
+{
+#if defined( ESP_IDF_VERSION_MAJOR )
+    //patch for https://github.com/espressif/arduino-esp32/issues/6105
+    return _connected;
+#else
+    return ETH.linkUp();
+#endif
+}
+
 /**
  * begin WiFi setup
  */
@@ -120,24 +131,13 @@ bool EthConfig::begin(int8_t & espMode)
         //}
     }
 
+
     //if ((Settings_ESP3D::read_byte(ESP_STA_IP_MODE) != DHCP_MODE) || (espMode == ESP_ETH_SRV)){
     if ((Settings_ESP3D::read_byte(ESP_STA_IP_MODE) != DHCP_MODE)) {
         //as no event to display static IP
         output.printMSG (ETH.localIP().toString().c_str());
     }
 
-    //Let wait cable is connected
-    uint32_t start = millis();
-    String stmp ="Checking connection";
-    output.printMSG (stmp.c_str());
-    while (!ETH.linkUp() && ((millis()-start) < 10000)) {
-        Hal::wait(1000);
-        stmp +=".";
-        output.printMSG (stmp.c_str());
-    }
-    if (!ETH.linkUp()) {
-        output.printMSG ("Cable disconnected");
-    }
     return res;
 }
 

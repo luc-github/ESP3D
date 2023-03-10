@@ -125,6 +125,9 @@ public:
 #endif //WIFI_FEATURE
     bool ESP420(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     bool ESP444(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+#ifdef MDNS_FEATURE
+    bool ESP450(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+#endif //MDNS_FEATURE
 #if defined (AUTHENTICATION_FEATURE)
     bool ESP550(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     bool ESP555(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
@@ -155,8 +158,13 @@ public:
     bool ESP800(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #if COMMUNICATION_PROTOCOL != SOCKET_SERIAL
     bool ESP900(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+    bool ESP901(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
 #endif //COMMUNICATION_PROTOCOL != SOCKET_SERIAL
     bool ESP920(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+#if defined (ESP_SERIAL_BRIDGE_OUTPUT)
+    bool ESP930(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+    bool ESP931(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
+#endif //defined (ESP_SERIAL_BRIDGE_OUTPUT)
 #ifdef BUZZER_DEVICE
     bool ESP910(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);
     bool ESP250(const char* cmd_params, level_authenticate_type auth_level, ESP3DOutput * output);

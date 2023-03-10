@@ -38,7 +38,20 @@ void HTTP_Server::handleUpdate ()
         return;
     }
     String jsonfile = "{\"status\":\"" ;
-    jsonfile += String(_upload_status);
+    switch(_upload_status) {
+    case  UPLOAD_STATUS_NONE :
+        jsonfile += "no file";
+        break;
+    case  UPLOAD_STATUS_CANCELLED :
+        jsonfile += "canceled";
+        break;
+    case  UPLOAD_STATUS_SUCCESSFUL :
+        jsonfile += "ok";
+        break;
+    default :
+        jsonfile += "error";
+        break;
+    }
     jsonfile += "\"}";
     _webserver->sendHeader("Cache-Control", "no-cache");
     _webserver->send(200, "application/json", jsonfile);

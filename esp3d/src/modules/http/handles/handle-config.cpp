@@ -35,6 +35,9 @@ void HTTP_Server::handle_config ()
 {
     level_authenticate_type auth_level = AuthenticationService::authenticated_level();
     String cmd = "[ESP420]";
+    if (_webserver->hasArg("json")) {
+        cmd = "[ESP420]json="+_webserver->arg("json");
+    }
     ESP3DOutput  output(_webserver);
     output.printMSGLine("<pre>");
     esp3d_commands.process((uint8_t*)cmd.c_str(), cmd.length(), &output, auth_level);

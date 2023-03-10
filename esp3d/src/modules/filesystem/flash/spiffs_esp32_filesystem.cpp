@@ -21,7 +21,7 @@
 #include "../../../include/esp3d_config.h"
 #if (FILESYSTEM_FEATURE == ESP_SPIFFS_FILESYSTEM) && defined(ARDUINO_ARCH_ESP32)
 #include "../esp_filesystem.h"
-#include "../../../core/genLinkedList.h"
+#include <stack>
 #include <FS.h>
 #include <SPIFFS.h>
 extern File tFile_handle[ESP_MAX_OPENHANDLE];
@@ -168,11 +168,11 @@ bool ESP_FileSystem::rmdir(const char *path)
 {
     String spath = path;
     spath.trim();
-    if(spath[0]!='/') {
-        spath="/"+spath;
+    if (!spath.startsWith("/")) {
+        spath = '/'+spath;
     }
-    if (spath[spath.length()-1] == '/') {
-        if (spath!="/") {
+    if (spath!= "/") {
+        if (spath.endsWith("/")) {
             spath.remove(spath.length()-1);
         }
     }

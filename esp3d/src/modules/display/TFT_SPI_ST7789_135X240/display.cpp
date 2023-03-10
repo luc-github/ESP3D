@@ -582,7 +582,7 @@ bool Display::displaySignal(bool force)
             refresh_signal = true;
         }
         //display connection speed
-        if(ETH.linkUp()) {
+        if(EthConfig::linkUp()) {
             String tmp = ETH.linkSpeed();
             tmp+= "Mbps";
             if (label != tmp) {

@@ -48,8 +48,8 @@ void HTTP_Server::handleSDFileList ()
 
     if (_webserver->hasArg ("quiet")) {
         if(_webserver->arg ("quiet") == "yes") {
-            Serial.println("quiet");
-            _webserver->send (200, "text/plain", "{\"status\":\"ok\"}");
+            status = "{\"status\":\"" + status + "\"}";
+            _webserver->send (200, "text/plain", status.c_str());
             return;
         }
     }
@@ -184,11 +184,13 @@ void HTTP_Server::handleSDFileList ()
                 }
 #ifdef FILESYSTEM_TIMESTAMP_FEATURE
                 buffer2send+="\",\"time\":\"";
-                time_t t = sub.getLastWrite();
-                struct tm * tmstruct = localtime(&t);
-                char str[20]; //buffer should be 20
-                sprintf(str,"%d-%02d-%02d %02d:%02d:%02d",(tmstruct->tm_year)+1900,( tmstruct->tm_mon)+1, tmstruct->tm_mday,tmstruct->tm_hour, tmstruct->tm_min, tmstruct->tm_sec);
-                buffer2send+=str;
+                if (!sub.isDirectory()) {
+                    time_t t = sub.getLastWrite();
+                    struct tm * tmstruct = localtime(&t);
+                    char str[20]; //buffer should be 20
+                    sprintf(str,"%d-%02d-%02d %02d:%02d:%02d",(tmstruct->tm_year)+1900,( tmstruct->tm_mon)+1, tmstruct->tm_mday,tmstruct->tm_hour, tmstruct->tm_min, tmstruct->tm_sec);
+                    buffer2send+=str;
+                }
 #endif //FILESYSTEM_TIMESTAMP_FEATURE
                 buffer2send+="\"}";
                 if (buffer2send.length() > 1100) {

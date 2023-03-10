@@ -15,9 +15,12 @@ let currentID = 0;
 const app = express();
 const fileUpload = require("express-fileupload");
 let serverpath = path.normalize(__dirname + "/../server/public/");
+let sdpath = path.normalize(__dirname + "/../server/sd/");
 
 let WebSocketServer = require("ws").Server,
-  wss = new WebSocketServer({ port: 81 });
+  wss = new WebSocketServer({ port: 81,handleProtocols:function(protocol) {console.log( "protocol received from client " + protocol  );
+  return "webui-v3";
+  return null;}});
 app.use(fileUpload({ preserveExtension: true, debug: false }));
 app.listen(port, () =>
   console.log(expresscolor(`[express] Listening on port ${port}!`))
@@ -85,22 +88,29 @@ app.get("/command", function (req, res) {
   console.log(commandcolor(`[server]/command params: ${req.query.cmd}`));
   let url = req.query.cmd;
   if (url.startsWith("[ESP800]json")) {
-    res.json({
-      FWVersion: "3.0.0.a28",
-      FWTarget: 40,
-      SDConnection: "none",
-      Authentication: "Disabled",
-      WebCommunication: "Synchronous",
-      WebSocketIP: "localhost",
-      WebSocketPort: "81",
-      Hostname: "esp3d",
-      WiFiMode: "STA",
-      WebUpdate: "Enabled",
-      Filesystem: "SPIFFS",
-      Time: "none",
-      Cam_ID: "4",
-      Cam_name: "ESP32 Cam",
-    });
+    res.json(
+      {
+        cmd: "800",
+        status: "ok",
+        data:{
+              FWVersion: "3.0.0.a28",
+              FWTarget: 40,
+              SDConnection: "none",
+              Authentication: "Disabled",
+              WebCommunication: "Synchronous",
+              WebSocketIP: "localhost",
+              WebSocketPort: "81",
+              Hostname: "esp3d",
+              WiFiMode: "STA",
+              WebUpdate: "Enabled",
+              FlashFileSystem: "LittleFs",
+              HostPath: "/",
+              Time: "none",
+              Cam_ID: "4",
+              Cam_name: "ESP32 Cam",
+            }
+      }
+    );
     return;
   }
   if (url.indexOf("ESP111") != -1) {
@@ -465,12 +475,12 @@ function fileSizeString(size) {
   return "X B";
 }
 
-function filesList(mypath) {
+function filesList(mypath,mainpath) {
   let res = '{"files":[';
   let nb = 0;
-  let total = 1.31 * 1024 * 1024;
-  let totalused = getTotalSize(serverpath);
-  let currentpath = path.normalize(serverpath + mypath);
+  let total = sdpath==mainpath? (4096 * 1024 * 1024):(1.2 * 1024 * 1024);
+  let totalused = getTotalSize(mainpath);
+  let currentpath = path.normalize(mainpath + mypath);
   console.log("[path]" + currentpath);
   fs.readdirSync(currentpath).forEach((fileelement) => {
     let fullpath = path.normalize(currentpath + "/" + fileelement);
@@ -548,6 +558,55 @@ app.all("/updatefw", function (req, res) {
   res.send("ok");
 });
 
+app.all("/sdfiles", function (req, res) {
+  let mypath = req.query.path;
+  let url = req.originalUrl;
+  let filepath = path.normalize(sdpath + mypath + "/" + req.query.filename);
+  if (url.indexOf("action=deletedir") != -1) {
+    console.log("[server]delete directory " + filepath);
+    deleteFolderRecursive(filepath);
+    fs.readdirSync(mypath);
+  } else if (url.indexOf("action=delete") != -1) {
+    fs.unlinkSync(filepath);
+    console.log("[server]delete file " + filepath);
+  }
+  if (url.indexOf("action=createdir") != -1) {
+    fs.mkdirSync(filepath);
+    console.log("[server]new directory " + filepath);
+  }
+  if (typeof mypath == "undefined") {
+    if (typeof req.body.path == "undefined") {
+      console.log("[server]path is not defined");
+      mypath = "/";
+    } else {
+      mypath = (req.body.path == "/" ? "" : req.body.path) + "/";
+    }
+  }
+  console.log("[server]path is " + mypath);
+  if (!req.files || Object.keys(req.files).length === 0) {
+    return res.send(filesList(mypath,sdpath));
+  }
+  let myFile = req.files.myfiles;
+  if (typeof myFile.length == "undefined") {
+    let fullpath = path.normalize(sdpath + mypath + myFile.name);
+    console.log("[server]one file:" + fullpath);
+    myFile.mv(fullpath, function (err) {
+      if (err) return res.status(500).send(err);
+      res.send(filesList(mypath,sdpath));
+    });
+    return;
+  } else {
+    console.log(myFile.length + " files");
+    for (let i = 0; i < myFile.length; i++) {
+      let fullpath = path.normalize(sdpath + mypath + myFile[i].name);
+      console.log(fullpath);
+      myFile[i].mv(fullpath).then(() => {
+        if (i == myFile.length - 1) res.send(filesList(mypath,sdpath));
+      });
+    }
+  }
+});
+
 app.all("/files", function (req, res) {
   let mypath = req.query.path;
   let url = req.originalUrl;
@@ -574,7 +633,7 @@ app.all("/files", function (req, res) {
   }
   console.log("[server]path is " + mypath);
   if (!req.files || Object.keys(req.files).length === 0) {
-    return res.send(filesList(mypath));
+    return res.send(filesList(mypath,serverpath));
   }
   let myFile = req.files.myfiles;
   if (typeof myFile.length == "undefined") {
@@ -582,7 +641,7 @@ app.all("/files", function (req, res) {
     console.log("[server]one file:" + fullpath);
     myFile.mv(fullpath, function (err) {
       if (err) return res.status(500).send(err);
-      res.send(filesList(mypath));
+      res.send(filesList(mypath,  serverpath));
     });
     return;
   } else {
@@ -591,7 +650,7 @@ app.all("/files", function (req, res) {
       let fullpath = path.normalize(serverpath + mypath + myFile[i].name);
       console.log(fullpath);
       myFile[i].mv(fullpath).then(() => {
-        if (i == myFile.length - 1) res.send(filesList(mypath));
+        if (i == myFile.length - 1) res.send(filesList(mypath, serverpath));
       });
     }
   }

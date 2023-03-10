@@ -21,7 +21,7 @@ sdio_esp32.cpp - ESP3D sd support class
 #if defined (ARDUINO_ARCH_ESP32) && defined(SD_DEVICE)
 #if (SD_DEVICE == ESP_SDIO)
 #include "../esp_sd.h"
-#include "../../../core/genLinkedList.h"
+#include <stack>
 #include "../../../core/settings_esp3d.h"
 #include "FS.h"
 #include "SD_MMC.h"
@@ -101,6 +101,9 @@ uint8_t ESP_SD::getState(bool refresh)
 
 bool ESP_SD::begin()
 {
+#if (ESP_SDIO_CLK_PIN != -1) || (ESP_SDIO_CMD_PIN != -1) || (ESP_SDIO_D0_PIN != -1) || (ESP_SDIO_D1_PIN != -1) || (ESP_SDIO_D2_PIN != -1) || (ESP_SDIO_D3_PIN != -1)
+    SD_MMC.setPins(ESP_SDIO_CLK_PIN, ESP_SDIO_CMD_PIN, ESP_SDIO_D0_PIN, ESP_SDIO_D1_PIN, ESP_SDIO_D2_PIN, ESP_SDIO_D3_PIN)
+#endif //(ESP_SDIO_CLK_PIN != -1)
     log_esp3d("Begin SDIO");
     _started = true;
 #ifdef SDMMC_FORCE_BEGIN
@@ -237,39 +240,44 @@ bool ESP_SD::rmdir(const char *path)
         return false;
     }
     bool res = true;
-    GenLinkedList<String > pathlist;
+    std::stack <String > pathlist;
     String p = path;
     if (p.endsWith("/")) {
         p.remove( p.length() - 1,1);
     }
     pathlist.push(p);
-    while (pathlist.count() > 0) {
-        File dir = SD_MMC.open(pathlist.getLast().c_str());
+    while (pathlist.size() > 0 && res) {
+        File dir = SD_MMC.open(pathlist.top().c_str());
         File f = dir.openNextFile();
         bool candelete = true;
-        while (f) {
+        while (f && res) {
             if (f.isDirectory()) {
                 candelete = false;
-                String newdir = f.name();
+                String newdir = pathlist.top()+ '/';
+                newdir+= f.name();
                 pathlist.push(newdir);
                 f.close();
                 f = File();
             } else {
-                SD_MMC.remove(f.name());
+                String filepath = pathlist.top()+ '/';
+                filepath+= f.name();
                 f.close();
+                if (!SD_MMC.remove(filepath.c_str())) {
+                    res = false;
+                }
                 f = dir.openNextFile();
             }
         }
         if (candelete) {
-            if (pathlist.getLast() !="/") {
-                res = SD_MMC.rmdir(pathlist.getLast().c_str());
+            if (pathlist.top() !="/") {
+                res = SD_MMC.rmdir(pathlist.top().c_str());
             }
             pathlist.pop();
         }
         dir.close();
     }
     p = String();
-    log_esp3d("count %d", pathlist.count());
+    log_esp3d("count %d", pathlist.size());
     return res;
 }
 

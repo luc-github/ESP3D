@@ -30,7 +30,7 @@ class WebSocketsServer;
 class WebSocket_Server: public Print
 {
 public:
-    WebSocket_Server();
+    WebSocket_Server(const char* protocol="arduino");
     ~WebSocket_Server();
     size_t write(uint8_t c);
     size_t write(const uint8_t *buffer, size_t size);
@@ -55,7 +55,7 @@ public:
     {
         return write((uint8_t) n);
     }
-    bool begin(uint16_t port=0, bool debug=false);
+    bool begin(uint16_t port=0);
     uint16_t port()
     {
         return _port;
@@ -77,14 +77,21 @@ public:
         return _started;
     }
     void push2RXbuffer(uint8_t * sbuf, size_t len);
+    const char * getProtocol()
+    {
+        return _protocol.c_str();
+    }
+    uint16_t getPort()
+    {
+        return _port;
+    }
 private:
     bool _started;
     uint16_t _port;
-    bool _isdebug;
-    bool _isdata;
     uint32_t _lastTXflush;
     uint32_t _lastRXflush;
     WebSocketsServer * _websocket_server;
+    String _protocol;
     uint8_t _TXbuffer[TXBUFFERSIZE];
     uint16_t _TXbufferSize;
     uint8_t _current_id;

@@ -22,6 +22,9 @@
 #include "boot_delay.h"
 #include "../../core/settings_esp3d.h"
 #include "../../core/esp3doutput.h"
+#if defined(RECOVERY_FEATURE)
+#include "../recovery/recovery_service.h"
+#endif //RECOVERY_FEATURE
 
 BootDelay::BootDelay()
 {
@@ -66,6 +69,9 @@ void BootDelay::handle()
     uint8_t lastpercent = 0;
     uint32_t lastSent = millis();
     while ((millis() - _startdelay) < _totalduration) {
+#if defined(RECOVERY_FEATURE)
+        recovery_service.handle();
+#endif //RECOVERY_FEATURE
         //to avoid overfload 2x/sec is enough for progression
         if ((millis() - lastSent) > 500) {
             lastSent = millis();

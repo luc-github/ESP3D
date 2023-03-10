@@ -21,7 +21,7 @@ sd_sdfat2_esp32.cpp - ESP3D sd support class
 #if defined (ARDUINO_ARCH_ESP32) && defined(SD_DEVICE)
 #if (SD_DEVICE == ESP_SDFAT2)
 #include "../esp_sd.h"
-#include "../../../core/genLinkedList.h"
+#include <stack>
 #include "../../../core/settings_esp3d.h"
 #include <SdFat.h>
 #include <sdios.h>
@@ -120,12 +120,26 @@ uint8_t ESP_SD::getState(bool refresh)
     _state = ESP_SDCARD_NOT_PRESENT;
     log_esp3d("Spi : CS: %d,  Miso: %d, Mosi: %d, SCK: %d",ESP_SD_CS_PIN!=-1?ESP_SD_CS_PIN:SS, ESP_SD_MISO_PIN!=-1?ESP_SD_MISO_PIN:MISO, ESP_SD_MOSI_PIN!=-1?ESP_SD_MOSI_PIN:MOSI, ESP_SD_SCK_PIN!=-1?ESP_SD_SCK_PIN:SCK);
     //refresh content if card was removed
+#if !(defined(ESP_SD_DETECT_PIN) && ESP_SD_DETECT_PIN != -1)
+    if (xPortGetCoreID()==0) {
+        disableCore0WDT();
+    } else {
+        disableCore1WDT();
+    }
+#endif // !(defined(ESP_SD_DETECT_PIN)
     if (SD.begin((ESP_SD_CS_PIN == -1)?SS:ESP_SD_CS_PIN, SD_SCK_MHZ(FREQMZ/_spi_speed_divider))) {
         csd_t m_csd;
         if (SD.card()->readCSD(&m_csd) && sdCardCapacity(&m_csd) > 0 ) {
             _state = ESP_SDCARD_IDLE;
         }
     }
+#if !(defined(ESP_SD_DETECT_PIN) && ESP_SD_DETECT_PIN != -1)
+    if (xPortGetCoreID()==0) {
+        enableCore0WDT();
+    } else {
+        enableCore1WDT();
+    }
+#endif // !(defined(ESP_SD_DETECT_PIN)
     return _state;
 }
 
@@ -362,25 +376,33 @@ bool ESP_SD::mkdir(const char *path)
 
 bool ESP_SD::rmdir(const char *path)
 {
-    if (!exists(path)) {
+
+    String p = path;
+    if (!p.endsWith("/")) {
+        p+= '/';
+    }
+    if (!p.startsWith("/")) {
+        p = '/'+p;
+    }
+    if (!exists(p.c_str())) {
         return false;
     }
     bool res = true;
-    GenLinkedList<String > pathlist;
-    String p = path;
+    std::stack <String > pathlist;
     pathlist.push(p);
-    while (pathlist.count() > 0) {
-        File dir = SD.open(pathlist.getLast().c_str());
+    while (pathlist.size() > 0 && res) {
+        File dir = SD.open(pathlist.top().c_str());
         dir.rewindDirectory();
         File f = dir.openNextFile();
         bool candelete = true;
-        while (f) {
+        while (f && res) {
             if (f.isDir()) {
                 candelete = false;
                 String newdir;
                 char tmp[255];
                 f.getName(tmp,254);
-                newdir = tmp;
+                newdir = pathlist.top() +  tmp;
+                newdir+="/";
                 pathlist.push(newdir);
                 f.close();
                 f = File();
@@ -388,21 +410,24 @@ bool ESP_SD::rmdir(const char *path)
                 char tmp[255];
                 f.getName(tmp,254);
                 _sizechanged = true;
-                SD.remove(tmp);
+                String filepath = pathlist.top() + tmp;
                 f.close();
+                if (!SD.remove(filepath.c_str())) {
+                    res= false;
+                }
                 f = dir.openNextFile();
             }
         }
         if (candelete) {
-            if (pathlist.getLast() !="/") {
-                res = SD.rmdir(pathlist.getLast().c_str());
+            if (pathlist.top() !="/") {
+                res = SD.rmdir(pathlist.top().c_str());
             }
             pathlist.pop();
         }
         dir.close();
     }
     p = String();
-    log_esp3d("count %d", pathlist.count());
+    log_esp3d("count %d has error %d\n",pathlist.size(), res);
     return res;
 }
 

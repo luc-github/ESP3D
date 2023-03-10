@@ -7,10 +7,11 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "front": "webpack serve --config config/webpack.dev.js ",
     "pack": "webpack --config config/webpack.prod.js",
-    "convert": "node ./config/buildheader.js",
+    "convert-assets": "node ./config/buildassets.js",
+    "convert-page": "node ./config/buildheader.js",
     "server": "nodemon config/server.js",
     "dev": "concurrently \"npm run server\" \"npm run front\"",
-    "build": "npm run pack && npm run convert"
+    "build": "npm run pack && npm run convert-page && npm run convert-assets"
   },
   "author": "",
   "license": "ISC",

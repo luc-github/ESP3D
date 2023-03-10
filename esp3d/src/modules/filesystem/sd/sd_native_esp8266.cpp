@@ -22,7 +22,7 @@ sd_native_esp8266.cpp - ESP3D sd support class
 #if (SD_DEVICE == ESP_SD_NATIVE)
 #define FS_NO_GLOBALS
 #include "../esp_sd.h"
-#include "../../../core/genLinkedList.h"
+#include <stack>
 #include "../../../core/settings_esp3d.h"
 #include <SD.h>
 #include <SDFS.h>
@@ -252,42 +252,52 @@ bool ESP_SD::mkdir(const char *path)
 
 bool ESP_SD::rmdir(const char *path)
 {
-    if (!exists(path)) {
+    String p = path;
+    if (!p.endsWith("/")) {
+        p+= '/';
+    }
+    if (!p.startsWith("/")) {
+        p = '/'+p;
+    }
+    if (!exists(p.c_str())) {
         return false;
     }
     bool res = true;
-    GenLinkedList<String > pathlist;
-    String p = path;
+    std::stack <String > pathlist;
     pathlist.push(p);
-    while (pathlist.count() > 0) {
-        File dir = SD.open(pathlist.getLast().c_str());
+    while (pathlist.size() > 0 && res) {
+        File dir = SD.open(pathlist.top().c_str());
         dir.rewindDirectory();
         File f = dir.openNextFile();
         bool candelete = true;
-        while (f) {
+        while (f && res) {
             if (f.isDirectory()) {
                 candelete = false;
-                String newdir = f.name();
+                String newdir = pathlist.top() +  f.name();
+                newdir+="/";
                 pathlist.push(newdir);
                 f.close();
                 f = File();
             } else {
                 _sizechanged = true;
-                SD.remove(f.fullName());
+                String filepath = pathlist.top() + f.name();
                 f.close();
+                if (!SD.remove(filepath.c_str())) {
+                    res= false;
+                }
                 f = dir.openNextFile();
             }
         }
         if (candelete) {
-            if (pathlist.getLast() !="/") {
-                res = SD.rmdir(pathlist.getLast().c_str());
+            if (pathlist.top() !="/") {
+                res = SD.rmdir(pathlist.top().c_str());
             }
             pathlist.pop();
         }
         dir.close();
     }
     p = String();
-    log_esp3d("count %d", pathlist.count());
+    log_esp3d("count %d", pathlist.size());
     return res;
 }
 

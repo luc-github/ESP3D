@@ -24,9 +24,11 @@
 #if defined (HTTP_FEATURE)
 #if defined (ARDUINO_ARCH_ESP32)
 #include <WebServer.h>
+#define DOWNLOAD_PACKET_SIZE 2048
 #endif //ARDUINO_ARCH_ESP32
 #if defined (ARDUINO_ARCH_ESP8266)
 #include <ESP8266WebServer.h>
+#define DOWNLOAD_PACKET_SIZE 1024
 #endif //ARDUINO_ARCH_ESP8266
 #include "http_server.h"
 #include "../authentication/authentication_service.h"
@@ -38,6 +40,10 @@
 #include "../filesystem/esp_sd.h"
 
 #endif //SD_DEVICE
+#ifdef ESP_BENCHMARK_FEATURE
+#include "../../core/benchmark.h"
+#endif //ESP_BENCHMARK_FEATURE
+
 bool HTTP_Server::_started = false;
 uint16_t HTTP_Server::_port = 0;
 WEBSERVER * HTTP_Server::_webserver = nullptr;
@@ -91,6 +97,7 @@ void HTTP_Server::init_handlers()
 bool HTTP_Server::StreamFSFile(const char* filename, const char * contentType)
 {
     ESP_File datafile = ESP_FileSystem::open(filename);
+    uint64_t last_WS_update = millis();
     if (!datafile) {
         return false;
     }
@@ -99,10 +106,10 @@ bool HTTP_Server::StreamFSFile(const char* filename, const char * contentType)
     bool done = false;
     _webserver->setContentLength(totalFileSize);
     _webserver->send(200, contentType, "");
-    uint8_t buf[1024];
+    uint8_t buf[DOWNLOAD_PACKET_SIZE];
     while (!done && _webserver->client().connected()) {
         Hal::wait(0);
-        int v = datafile.read(buf,1024);
+        int v = datafile.read(buf,DOWNLOAD_PACKET_SIZE);
         if ((v == -1) ||  (v == 0)) {
             done = true;
         } else {
@@ -111,6 +118,11 @@ bool HTTP_Server::StreamFSFile(const char* filename, const char * contentType)
         }
         if (i >= totalFileSize) {
             done = true;
+        }
+        //update websocket every 2000 ms
+        if (millis()-last_WS_update > 2000) {
+            websocket_terminal_server.handle();
+            last_WS_update = millis();
         }
     }
     datafile.close();
@@ -124,6 +136,11 @@ bool HTTP_Server::StreamFSFile(const char* filename, const char * contentType)
 bool HTTP_Server::StreamSDFile(const char* filename, const char * contentType)
 {
     ESP_SDFile datafile = ESP_SD::open(filename);
+    uint64_t last_WS_update = millis();
+#ifdef ESP_BENCHMARK_FEATURE
+    uint64_t bench_start = millis();
+    size_t bench_transfered = 0;
+#endif//ESP_BENCHMARK_FEATURE
     if (!datafile) {
         return false;
     }
@@ -132,24 +149,36 @@ bool HTTP_Server::StreamSDFile(const char* filename, const char * contentType)
     bool done = false;
     _webserver->setContentLength(totalFileSize);
     _webserver->send(200, contentType, "");
-    uint8_t buf[1024];
+    uint8_t buf[DOWNLOAD_PACKET_SIZE];
     while (!done && _webserver->client().connected()) {
         Hal::wait(0);
-        int v = datafile.read(buf,1024);
+        int v = datafile.read(buf,DOWNLOAD_PACKET_SIZE);
         if ((v == -1) ||  (v == 0)) {
             done = true;
         } else {
             _webserver->client().write(buf,v);
             i+=v;
+#ifdef ESP_BENCHMARK_FEATURE
+            bench_transfered += v;
+#endif//ESP_BENCHMARK_FEATURE
         }
         if (i >= totalFileSize) {
             done = true;
+        }
+
+        //update websocket every 2000 ms
+        if (millis()-last_WS_update > 2000) {
+            websocket_terminal_server.handle();
+            last_WS_update = millis();
         }
     }
     datafile.close();
     if ( i != totalFileSize) {
         return false;
     }
+#ifdef ESP_BENCHMARK_FEATURE
+    benchMark("SD download", bench_start, millis(), bench_transfered);
+#endif//ESP_BENCHMARK_FEATURE
     return true;
 }
 #endif //SD_DEVICE

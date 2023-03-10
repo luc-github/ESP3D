@@ -49,6 +49,10 @@ public:
     {
         return 0;
     }
+    virtual const char *GetCurrentModelString()
+    {
+        return "None";
+    }
     virtual const char *GetModelString(uint8_t i=0)
     {
         return "None";
@@ -69,6 +73,7 @@ public:
     void handle();
     bool setInterval(uint interval);
     bool isModelValid(uint8_t model);
+    const char * GetCurrentModelString();
     uint8_t getIDFromString(const char *s);
     uint8_t nbType();
     uint interval()

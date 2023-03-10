@@ -55,20 +55,20 @@ bool Commands::ESP210(const char* cmd_params, level_authenticate_type auth_type,
                 s="type=";
             }
             if(esp3d_sensor.started()) {
-                s+=esp3d_sensor.GetModelString()
+                s+=esp3d_sensor.GetCurrentModelString();
             } else {
                 s+="NONE";
             }
             if (json) {
-                s=":\",\"interval\":";
+                s+=":\",\"interval\":";
             } else {
-                s=", interval=";
+                s+=", interval=";
             }
             s += esp3d_sensor.interval();
             if (json) {
-                s=":\",\"value\":";
+                s+=":\",\"value\":";
             } else {
-                s="ms, value=";
+                s+="ms, value=";
             }
             s += esp3d_sensor.GetData();
             if (json) {

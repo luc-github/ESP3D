@@ -1,5 +1,5 @@
 /*
-  esp3Doutput.h -  output functions class
+  esp3doutput.h -  output functions class
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -30,6 +30,7 @@
 #define ESP_WEBSOCKET_CLIENT            128
 #define ESP_SOCKET_SERIAL_CLIENT        129
 #define ESP_ECHO_SERIAL_CLIENT          130
+#define ESP_SERIAL_BRIDGE_CLIENT        150
 #define ESP_ALL_CLIENTS                 255
 
 #define ESP_STREAM_HOST_OUTPUT        ESP_SERIAL_CLIENT
@@ -132,6 +133,9 @@ private:
 #if defined (BLUETOOTH_FEATURE)
     static uint8_t _BToutputflags;
 #endif //BLUETOOTH_FEATURE  
+#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
+    static uint8_t _serialBridgeoutputflags;
+#endif //ESP_SERIAL_BRIDGE_OUTPUT
 };
 
 #endif //_ESP3DOUTPUT_H

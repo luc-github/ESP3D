@@ -75,6 +75,7 @@ private :
     size_t _buffer_size;
     void push2buffer(uint8_t * sbuf, size_t len);
     void flushbuffer();
+    bool _started;
 };
 
 extern BTService  bt_service;
