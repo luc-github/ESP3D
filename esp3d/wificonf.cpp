@@ -345,20 +345,10 @@ bool WIFI_CONFIG::Setup (bool force_ap)
         WiFi.mode (WIFI_AP);
 #ifdef ARDUINO_ARCH_ESP32
         esp_wifi_set_protocol (WIFI_IF_AP, bflag);
-#endif
-        wifi_config.WiFi_on = true;
-        delay (50);
-        WiFi.softAP (sbuf, pwd);
-#ifdef ESP_OLED_FEATURE
-        OLED_DISPLAY::display_signal(100);
-        OLED_DISPLAY::setCursor(0, 0);
-        ESPCOM::print(sbuf, OLED_PIPE);
-#endif
-        delay (100);
-#ifdef ARDUINO_ARCH_ESP8266
+#else
         WiFi.setPhyMode ( (WiFiPhyMode_t) bflag);
 #endif
-        delay (100);
+        wifi_config.WiFi_on = true;
         LOG ("Get current config\r\n")
         //get current config
 #ifdef ARDUINO_ARCH_ESP32
@@ -395,7 +385,6 @@ bool WIFI_CONFIG::Setup (bool force_ap)
 #else
         apconfig.ssid_hidden = !bflag;
 #endif
-
         //no need to add these settings to configuration just use default ones
 #ifdef ARDUINO_ARCH_ESP32
         conf.ap.max_connection = DEFAULT_MAX_CONNECTIONS;
@@ -413,6 +402,13 @@ bool WIFI_CONFIG::Setup (bool force_ap)
             delay (1000);
         }
 #endif
+        WiFi.softAP (sbuf, pwd);
+#ifdef ESP_OLED_FEATURE
+        OLED_DISPLAY::display_signal(100);
+        OLED_DISPLAY::setCursor(0, 0);
+        ESPCOM::print(sbuf, OLED_PIPE);
+#endif
+        delay (100);
     } else {
         LOG ("Set STA mode\r\n")
         if (!CONFIG::read_string (EP_STA_SSID, sbuf, MAX_SSID_LENGTH) ) {
