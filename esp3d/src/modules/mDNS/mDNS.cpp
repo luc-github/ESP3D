@@ -42,10 +42,10 @@
 #include "../telnet/telnet_server.h"
 #endif  // TELNET_FEATURE
 #if defined(WEBDAV_FEATURE)
-#include "../websocket/websocket_server.h"
+#include "../webdav/webdav_server.h"
 #endif  // WEBDAV_FEATURE
 #if defined(WS_DATA_FEATURE)
-#include "../webdav/webdav_server.h"
+#include "../websocket/websocket_server.h"
 #endif  // WS_DATA_FEATURE
 mDNS_Service esp3d_mDNS;
 
@@ -185,6 +185,8 @@ void mDNS_Service::addESP3DServices(uint16_t port) {
 #endif  // WEBDAV_FEATURE
 #if defined(WS_DATA_FEATURE)
   MDNS.addService("websocket", "tcp", websocket_data_server.port());
+  MDNS.addServiceTxt("websocket", "tcp", "uri", "/");
+  MDNS.addServiceTxt("websocket", "tcp", "subprotocol", "arduino");
 #endif  // WS_DATA_FEATURE
 #if defined(ARDUINO_ARCH_ESP8266)
   _hMDNSServiceQuery = MDNS.installServiceQuery(
