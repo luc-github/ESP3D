@@ -25,77 +25,55 @@
 
 #define ESP3D_SERIAL_BUFFER_SIZE 1024
 
-class SerialService : public Print
-{
-public:
-    SerialService(uint8_t id);
-    ~SerialService();
-    void setParameters();
-    bool begin(uint8_t serialIndex);
-    bool end();
-    void updateBaudRate(long br);
-    void handle();
-    void process();
-    bool reset();
-    long baudRate();
-    uint8_t serialIndex()
-    {
-        return _serialIndex;
-    }
-    const long * get_baudratelist(uint8_t * count);
-    void flush();
-    void swap();
-    int availableForWrite();
-    int available();
-    bool is_valid_baudrate(long br);
-    size_t write(uint8_t c);
-    size_t write(const uint8_t *buffer, size_t size);
-    inline size_t write(const char * s)
-    {
-        return write((uint8_t*) s, strlen(s));
-    }
-    inline size_t write(unsigned long n)
-    {
-        return write((uint8_t) n);
-    }
-    inline size_t write(long n)
-    {
-        return write((uint8_t) n);
-    }
-    inline size_t write(unsigned int n)
-    {
-        return write((uint8_t) n);
-    }
-    inline size_t write(int n)
-    {
-        return write((uint8_t) n);
-    }
-    int read();
-    size_t readBytes (uint8_t * sbuf, size_t len);
-    inline bool started()
-    {
-        return _started;
-    }
-private:
-    uint8_t _serialIndex;
-    uint8_t _client;
-    uint8_t _id;
-    uint8_t _rxPin;
-    uint8_t _txPin;
-    bool _started;
-    bool _needauthentication;
-    uint32_t _lastflush;
-    uint8_t _buffer[ESP3D_SERIAL_BUFFER_SIZE + 1]; //keep space of 0x0 terminal
-    size_t _buffer_size;
-    void push2buffer(uint8_t * sbuf, size_t len);
-    void flushbuffer();
+class SerialService : public Print {
+ public:
+  SerialService(uint8_t id);
+  ~SerialService();
+  void setParameters();
+  bool begin(uint8_t serialIndex);
+  bool end();
+  void updateBaudRate(long br);
+  void handle();
+  void process();
+  bool reset();
+  long baudRate();
+  uint8_t serialIndex() { return _serialIndex; }
+  const long *get_baudratelist(uint8_t *count);
+  void flush();
+  void swap();
+  int availableForWrite();
+  int available();
+  bool is_valid_baudrate(long br);
+  size_t write(uint8_t c);
+  size_t write(const uint8_t *buffer, size_t size);
+  inline size_t write(const char *s) { return write((uint8_t *)s, strlen(s)); }
+  inline size_t write(unsigned long n) { return write((uint8_t)n); }
+  inline size_t write(long n) { return write((uint8_t)n); }
+  inline size_t write(unsigned int n) { return write((uint8_t)n); }
+  inline size_t write(int n) { return write((uint8_t)n); }
+  int read();
+  size_t readBytes(uint8_t *sbuf, size_t len);
+  inline bool started() { return _started; }
+
+ private:
+  uint8_t _serialIndex;
+  uint8_t _client;
+  uint8_t _id;
+  int8_t _rxPin;
+  int8_t _txPin;
+  bool _started;
+  bool _needauthentication;
+  uint32_t _lastflush;
+  uint8_t _buffer[ESP3D_SERIAL_BUFFER_SIZE + 1];  // keep space of 0x0 terminal
+  size_t _buffer_size;
+  void push2buffer(uint8_t *sbuf, size_t len);
+  void flushbuffer();
 };
 
 extern SerialService serial_service;
 
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
 extern SerialService serial_bridge_service;
-#endif //ESP_SERIAL_BRIDGE_OUTPUT
+#endif  // ESP_SERIAL_BRIDGE_OUTPUT
 
-#endif //_SERIAL_SERVICES_H
-
+#endif  //_SERIAL_SERVICES_H
