@@ -68,7 +68,7 @@
 #endif
 #undef crc32
 #define crc32(a, len) mz_crc32(0xffffffff, (const unsigned char*)a, len)
-#define BUFFER_SIZE 1024
+#define BUFFER_SIZE 3072
 #endif  // ARDUINO_ARCH_ESP32
 
 // define cal constants
