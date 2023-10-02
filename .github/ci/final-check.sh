@@ -8,7 +8,7 @@ cd $GITHUB_WORKSPACE
 echo $STEPS_CONTEXT
 step=$1
 status=$2
-export BODYMESSAGE="$(git log -1 $GITHUB_SHA --pretty="%B")"
+export BODYMESSAGE="$(git log -1 $GITHUB_SHA --pretty=oneline --abbrev-commit)"
 export BACKTICK='`';
 export TIMESTAMP=$(date --utc +%FT%TZ);
 export GITHUB_ACTOR_NAME="$(git log -1 $GITHUB_SHA --pretty="%aN")";
@@ -29,9 +29,9 @@ else
     then
         echo "no need bot"
     else
-       curl -v -H User-Agent:bot -H Content-Type:application/json -d '{"avatar_url":"https://pngimg.com/uploads/github/github_PNG90.png","username":"github-action","embeds":[{"author":{"name":"Build #'"$step"' Failed - '"$GITHUB_ACTOR_NAME"'","url":"https://github.com/'"$GITHUB_REPOSITORY"'/actions/runs/'"$GITHUB_RUN_ID"'"},"url":"https://github.com/'"$GITHUB_REPOSITORY"'/actions/runs/'"$GITHUB_RUN_ID"'","title":"['"$GITHUB_REPOSITORY"':job#'"$GITHUB_RUN_NUMBER"'] ","color":16711680,"fields":[{"name":"_ _", "value": "'"$COMMIT_FORMATTED"' - '"$BODYMESSAGE"'"}],"timestamp":"'"$TIMESTAMP"'","footer":{"text":"ESP3D CI"}}]}' $DISCORD_WEBHOOK_URL;
+        curl -v -H User-Agent:bot -H Content-Type:application/json -d '{"avatar_url":"https://pngimg.com/uploads/github/github_PNG90.png","username":"github-action","embeds":[{"author":{"name":"Build #'"$step"' Failed - '"$GITHUB_ACTOR_NAME"'","url":"https://github.com/'"$GITHUB_REPOSITORY"'/actions/runs/'"$GITHUB_RUN_ID"'"},"url":"https://github.com/'"$GITHUB_REPOSITORY"'/actions/runs/'"$GITHUB_RUN_ID"'","title":"['"$GITHUB_REPOSITORY"':job#'"$GITHUB_RUN_NUMBER"'] ","color":16711680,"fields":[{"name":"_ _", "value": "'"$COMMIT_FORMATTED"' - '"$BODYMESSAGE"'"}],"timestamp":"'"$TIMESTAMP"'","footer":{"text":"ESP3D CI"}}]}' $DISCORD_WEBHOOK_URL;
     fi
-exit 1
+    exit 1
 fi
 
 

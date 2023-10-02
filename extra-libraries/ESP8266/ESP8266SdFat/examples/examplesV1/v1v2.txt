@@ -1,0 +1,66 @@
+diff -rb "C:\\Users\\bill\\Documents\\Arduino\\libraries\\SdFat\\examples/STM32Test/STM32Test.ino" "C:\\Users\\bill\\Documents\\ArduinoSdFat\\libraries\\SdFat\\examples\\examplesV1/STM32Test/STM32Test.ino"
+8c8
+< 
+---
+> #error See new Version 2 STM32 example
+diff -rb "C:\\Users\\bill\\Documents\\Arduino\\libraries\\SdFat\\examples/SdFormatter/SdFormatter.ino" "C:\\Users\\bill\\Documents\\ArduinoSdFat\\libraries\\SdFat\\examples\\examplesV1/SdFormatter/SdFormatter.ino"
+14c14
+< 
+---
+> #error  use new Version 2 SdFormatter
+diff -rb "C:\\Users\\bill\\Documents\\Arduino\\libraries\\SdFat\\examples/SdInfo/SdInfo.ino" "C:\\Users\\bill\\Documents\\ArduinoSdFat\\libraries\\SdFat\\examples\\examplesV1/SdInfo/SdInfo.ino"
+7c7
+< 
+---
+> #error Use new Version 2 SdInfo
+diff -rb "C:\\Users\\bill\\Documents\\Arduino\\libraries\\SdFat\\examples/SoftwareSpi/SoftwareSpi.ino" "C:\\Users\\bill\\Documents\\ArduinoSdFat\\libraries\\SdFat\\examples\\examplesV1/SoftwareSpi/SoftwareSpi.ino"
+7a8
+> #error See Version 2 software SPI example
+diff -rb "C:\\Users\\bill\\Documents\\Arduino\\libraries\\SdFat\\examples/StdioBench/StdioBench.ino" "C:\\Users\\bill\\Documents\\ArduinoSdFat\\libraries\\SdFat\\examples\\examplesV1/StdioBench/StdioBench.ino"
+3a4
+> #include "sdios.h"
+27c28
+<   uint32_t printSize;
+---
+>   uint32_t printSize = 0;
+29c30
+<   uint32_t printTime;
+---
+>   uint32_t printTime = 0;
+diff -rb "C:\\Users\\bill\\Documents\\Arduino\\libraries\\SdFat\\examples/TeensySdioDemo/TeensySdioDemo.ino" "C:\\Users\\bill\\Documents\\ArduinoSdFat\\libraries\\SdFat\\examples\\examplesV1/TeensySdioDemo/TeensySdioDemo.ino"
+9c9
+< 
+---
+> #error See Version 2 SDIO example
+diff -rb "C:\\Users\\bill\\Documents\\Arduino\\libraries\\SdFat\\examples/Timestamp/Timestamp.ino" "C:\\Users\\bill\\Documents\\ArduinoSdFat\\libraries\\SdFat\\examples\\examplesV1/Timestamp/Timestamp.ino"
+8d7
+< 
+55,59d53
+<   dir_t d;
+<   if (!f.dirEntry(&d)) {
+<     error("f.dirEntry failed");
+<   }
+< 
+61,73c55,59
+<   f.printFatDate(d.creationDate);
+<   cout << ' ';
+<   f.printFatTime(d.creationTime);
+<   cout << endl;
+< 
+<   cout << F("Modify: ");
+<   f.printFatDate(d.lastWriteDate);
+<   cout <<' ';
+<   f.printFatTime(d.lastWriteTime);
+<   cout << endl;
+< 
+<   cout << F("Access: ");
+<   f.printFatDate(d.lastAccessDate);
+---
+>   f.printCreateDateTime(&Serial);
+>   cout << endl << F("Modify: ");  
+>   f.printModifyDateTime(&Serial);
+>   cout << endl << F("Access: ");
+>   f.printAccessDateTime(&Serial);
+diff -rb "C:\\Users\\bill\\Documents\\Arduino\\libraries\\SdFat\\examples/wipe/wipe.ino" "C:\\Users\\bill\\Documents\\ArduinoSdFat\\libraries\\SdFat\\examples\\examplesV1/wipe/wipe.ino"
+1a2
+> #error wipe is not supported in SdFat V2. Use bool format(print_t* pr = nullptr).

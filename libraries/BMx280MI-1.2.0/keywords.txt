@@ -1,0 +1,116 @@
+#######################################
+# Syntax Coloring Map For ExampleLibrary
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+BMx280MI	KEYWORD1
+BMx280I2C	KEYWORD1
+BMx280SPI	KEYWORD1
+BMx280CompParams	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+begin	KEYWORD2
+measure	KEYWORD2
+hasValue	KEYWORD2
+getHumidity	KEYWORD2
+getPressure	KEYWORD2
+getPressure64	KEYWORD2
+getTemperature	KEYWORD2
+readHumidity	KEYWORD2
+readTemperature	KEYWORD2
+readPressure	KEYWORD2
+readID	KEYWORD2
+readCompensationParameters	KEYWORD2
+isBME280	KEYWORD2
+resetToDefaults	KEYWORD2
+readOversamplingHumidity	KEYWORD2
+writeOversamplingHumidity	KEYWORD2
+readOversamplingPressure	KEYWORD2
+writeOversamplingPressure	KEYWORD2
+readOversamplingTemperature	KEYWORD2
+writeOversamplingTemperature	KEYWORD2
+readFilterSetting	KEYWORD2
+writeFilterSetting	KEYWORD2
+readPowerMode	KEYWORD2
+writePowerMode	KEYWORD2
+readStandbyTime	KEYWORD2
+writeStandbyTime	KEYWORD2
+
+#######################################
+# Instances (KEYWORD2)
+#######################################
+
+#######################################
+# Constants (LITERAL1)
+
+FILTER_OFF LITERAL1
+FILTER_x02 LITERAL1
+FILTER_x04 LITERAL1
+FILTER_x08 LITERAL1
+FILTER_x16 LITERAL1
+
+OSRS_H_x00 LITERAL1
+OSRS_H_x01 LITERAL1
+OSRS_H_x02 LITERAL1
+OSRS_H_x04 LITERAL1
+OSRS_H_x08 LITERAL1
+OSRS_H_x16 LITERAL1
+
+OSRS_P_x00 LITERAL1
+OSRS_P_x01 LITERAL1
+OSRS_P_x02 LITERAL1
+OSRS_P_x04 LITERAL1
+OSRS_P_x08 LITERAL1
+OSRS_P_x16 LITERAL1
+
+OSRS_T_x00 LITERAL1
+OSRS_T_x01 LITERAL1
+OSRS_T_x02 LITERAL1
+OSRS_T_x04 LITERAL1
+OSRS_T_x08 LITERAL1
+OSRS_T_x16 LITERAL1
+
+BMx280_MODE_SLEEP LITERAL1
+BMx280_MODE_FORCED LITERAL1
+BMx280_MODE_NORMAL LITERAL1
+
+T_SB_0 LITERAL1
+T_SB_1 LITERAL1
+T_SB_2 LITERAL1
+T_SB_3 LITERAL1
+T_SB_4 LITERAL1
+T_SB_5 LITERAL1
+T_SB_6 LITERAL1
+T_SB_7 LITERAL1
+
+BME280_ID LITERAL1
+BMP280_ID LITERAL1
+
+dig_T1_ LITERAL1
+dig_T2_ LITERAL1
+dig_T3_ LITERAL1
+
+dig_P1_ LITERAL1
+dig_P2_ LITERAL1
+dig_P3_ LITERAL1
+dig_P4_ LITERAL1
+dig_P5_ LITERAL1
+dig_P6_ LITERAL1
+dig_P7_ LITERAL1
+dig_P8_ LITERAL1
+dig_P9_ LITERAL1
+
+dig_H1_ LITERAL1
+dig_H2_ LITERAL1
+dig_H3_ LITERAL1
+dig_H4_ LITERAL1
+dig_H5_ LITERAL1
+dig_H6_ LITERAL1
+
+#######################################

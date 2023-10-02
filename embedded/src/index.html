@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Chrome, Firefox OS and Opera -->
+    <meta name="theme-color" content="#5755d9">
+    <!-- Windows Phone -->
+    <meta name="msapplication-navbutton-color" content="#5755d9">
+    <!-- iOS Safari -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="#5755d9">
+    <title>Document</title>
+  </head>
+  <body>
+    <div>
+      <ul>
+        <li id="FWLink">Firmware</li>
+        <li id="UiLink">Interface</li>
+        <li id="hlpLink">Help</li>
+        <li id="espLink" class="hide">ESP3D</li>
+        <li class="menuspacer"></li>
+        <li id="loginLink" class="hide">Login</li>
+        <li id="verLink" disabled></li>
+      </ul>
+    </div>
+    <hr />
+    <center>
+    <div id="MSGLimited"></div>
+    <div id="MSG"></div>
+    </center>
+    <div id="consolePanel" class="panel hide">
+      <div id="consoleHeader" class="panel-header">Terminal</div>
+      <div id="consoleBody" class="panel-body no-footer">
+        <div class="controlBar">
+          <input
+            class="formControl"
+            spellcheck="false" 
+            autocorrect="off" 
+            autocomplete="off"
+            type="text"
+            value=""
+            id="customCmdTxt"
+          />
+          <button class="btn" id="cmdBtn">Send</button>
+          <div class="controlBar">
+            <input type="checkbox" id="monitor_enable_autoscroll" checked />
+            <label for="monitor_enable_autoscroll">Autoscroll</label>
+          </div>
+        </div>
+        <pre id="consoleContent"></pre>
+      </div>
+    </div>
+    <div id="fileSystem" class="panel hide">
+      <div id="fileSystemHeader" class="panel-header">FileSystem</div>
+      <div id="fileSystemBody" class="panel-body no-footer">
+        <div class="controlBar">
+          <input class="hide" type="file" value="" id="files" multiple />
+          <button class="btn" id="refresh">Refresh</button>
+          <button class="btn" id="createdir" title="Create directory">+</button>
+          <button class="btn" id="uploadFiles" title="upload files">+</button>
+          <div class="label hide" id="prgfiletext">0%</div>
+          <progress
+            class="progbar hide"
+            id="prgfile"
+            max="100"
+            value="50"
+          ></progress>
+        </div>
+        <div id="filecontent" class="panel">
+          <div id="filecontentbody" class="panel-body no-header">
+            <div class="label" id="path">/</div>
+           
+         
+              <div id="fileList"></div>
+            
+          </div>
+          <div id="filecontentFooter" class="panel-footer"></div>
+        </div>
+      </div>
+    </div>
+    <div id="firmware" class="panel hide">
+      <div id="firmwareHeader" class="panel-header">Firmware update</div>
+      <div id="firmwareBody" class="panel-body no-footer">
+        <div class="controlBar">
+          <input class="hide" type="file" value="" accept=".bin" id="filefw" />
+          <button class="btn" id="uploapFW">Select File</button>
+          <div class="label hide" id="prgupdatetext">0%</div>
+          <progress
+            class="progbar hide"
+            id="prgupdate"
+            max="100"
+            value="50"
+          ></progress>
+        </div>
+      </div>
+    </div>
+    <br />
+    <div id="loginpage" class="modal hide">
+      <div class="modal-content">
+        <div class="modal-header">Identification</div>
+        <div class="modal-body">
+          <div class="controlBar">
+            <div class="label">User:</div>
+            <input type="text" id="loginInput" spellcheck="false" autocorrect="off" autocomplete="off" />
+          </div>
+          <hr />
+          <div class="controlBar">
+            <div class="label">Password:</div>
+            <input type="password" id="passwordInput" spellcheck="false" autocorrect="off" autocomplete="off"/>
+          </div>
+        </div>
+        <div id="loginMsg" class="hide text-error-login">Invalid user or password</div>
+        <div class="modal-footer">
+          <button type="button" class="btn m-1" id="disconnectbutton">Disconnect</button>
+          <button type="button" class="btn m-1" id="loginbutton">Login</button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
