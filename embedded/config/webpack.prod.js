@@ -55,10 +55,13 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: path.join(__dirname, "../src/index.html"),
       inlineSource: ".(js|css)$",
-      inject: true,
+      inject: "body",
     }),
 
-    new HtmlInlineScriptPlugin([/\.(js)$/]),
+    new HtmlInlineScriptPlugin({
+            scriptMatchPattern: [/.+[.]js$/],
+            htmlMatchPattern: [/index.html$/],
+        }),
     new HTMLInlineCSSWebpackPlugin(),
     new Compression({
       test: /\.(html)$/,
