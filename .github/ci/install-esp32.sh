@@ -12,7 +12,7 @@ echo "Clone esp32 core"
 cd $HOME/arduino_ide/hardware
 mkdir esp32
 cd esp32
-git clone https://github.com/espressif/arduino-esp32.git esp32
+git clone -b 2.0.8 https://github.com/espressif/arduino-esp32.git esp32
 cd esp32
 git submodule update --init
 cd tools
