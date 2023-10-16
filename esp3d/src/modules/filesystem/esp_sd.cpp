@@ -24,7 +24,6 @@
 
 #include "esp_sd.h"
 
-
 #define ESP_MAX_SD_OPENHANDLE 4
 #if (SD_DEVICE == ESP_SD_NATIVE) && defined(ARDUINO_ARCH_ESP8266)
 #define FS_NO_GLOBALS
@@ -64,10 +63,22 @@ File tSDFile_handle[ESP_MAX_SD_OPENHANDLE];
 bool ESP_SD::_enabled = false;
 
 bool ESP_SD::enableSharedSD() {
+  log_esp3d("Enable Shared SD if possible");
   if (_enabled) {
+    log_esp3d("Already enabled, skip");
     return false;
   }
   _enabled = true;
+#if defined(ESP3D_CS_SD_SENSE)
+  log_esp3d("Setup SD sense pin %d", ESP3D_CS_SD_SENSE);
+  pinMode(ESP3D_CS_SD_SENSE, INPUT_PULLUP);
+#endif  // defined(ESP3D_CS_SD_SENSE)
+#if defined(ESP3D_POWER_SD_PIN) && ESP3D_POWER_SD_PIN != -1
+  log_esp3d("Setup SD power pin %d", ESP3D_POWER_SD_PIN);
+  pinMode(ESP3D_POWER_SD_PIN, OUTPUT);
+  // digitalWrite(ESP3D_POWER_SD_PIN, ESP3D_POWER_SD_VALUE);
+#endif  // defined(ESP3D_POWER_SD_PIN)
+
 #if defined(ESP_FLAG_SHARED_SD_PIN) && ESP_FLAG_SHARED_SD_PIN != -1
   // need to check if SD is in use ?
   // Method : TBD
@@ -76,6 +87,7 @@ bool ESP_SD::enableSharedSD() {
   log_esp3d("SD shared enabled PIN %d with %d", ESP_FLAG_SHARED_SD_PIN,
             ESP_FLAG_SHARED_SD_VALUE);
   digitalWrite(ESP_FLAG_SHARED_SD_PIN, ESP_FLAG_SHARED_SD_VALUE);
+  Hal::wait(100);
 #endif  // ESP_FLAG_SHARED_SD_PIN
 #if defined(ESP3DLIB_ENV)
   // check if card is not currently in use
@@ -86,6 +98,7 @@ bool ESP_SD::enableSharedSD() {
     card.release();
   }
 #endif  // ESP3DLIB_ENV
+
   return _enabled;
 }
 #endif  // SD_DEVICE_CONNECTION == ESP_SHARED_SD
@@ -113,7 +126,7 @@ bool ESP_SD::accessFS(uint8_t FS) {
   }
 #if SD_DEVICE_CONNECTION == ESP_SHARED_SD
   if (ESP_SD::enableSharedSD()) {
-    log_esp3d("Access SD");
+    log_esp3d("Access SD ok");
     return true;
   } else {
     log_esp3d("Enable shared SD failed");
@@ -132,7 +145,7 @@ void ESP_SD::releaseFS(uint8_t FS) {
   _enabled = false;
 #if defined(ESP_FLAG_SHARED_SD_PIN) && ESP_FLAG_SHARED_SD_PIN != -1
   log_esp3d("SD shared disabled PIN %d with %d", ESP_FLAG_SHARED_SD_PIN,
-            ESP_FLAG_SHARED_SD_VALUE);
+            !ESP_FLAG_SHARED_SD_VALUE);
   digitalWrite(ESP_FLAG_SHARED_SD_PIN, !ESP_FLAG_SHARED_SD_VALUE);
 #endif  // ESP_FLAG_SHARED_SD_PIN
 #if defined(ESP3DLIB_ENV)
