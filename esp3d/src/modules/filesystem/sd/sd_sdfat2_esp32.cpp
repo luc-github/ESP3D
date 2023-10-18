@@ -20,6 +20,7 @@ sd_sdfat2_esp32.cpp - ESP3D sd support class
 #include "../../../include/esp3d_config.h"
 #if defined(ARDUINO_ARCH_ESP32) && defined(SD_DEVICE)
 #if (SD_DEVICE == ESP_SDFAT2)
+
 #include <SdFat.h>
 #include <sdios.h>
 
@@ -151,10 +152,7 @@ uint8_t ESP_SD::getState(bool refresh) {
 }
 
 bool ESP_SD::begin() {
-#if (ESP_SD_CS_PIN != -1) || (ESP_SD_MISO_PIN != -1) || \
-    (ESP_SD_MOSI_PIN != -1) || (ESP_SD_SCK_PIN != -1)
-  SPI.begin(ESP_SD_SCK_PIN, ESP_SD_MISO_PIN, ESP_SD_MOSI_PIN, ESP_SD_CS_PIN);
-#endif
+  pinMode(ESP_SD_CS_PIN, OUTPUT);
   _started = true;
   _state = ESP_SDCARD_NOT_PRESENT;
   _spi_speed_divider = Settings_ESP3D::read_byte(ESP_SD_SPEED_DIV);
@@ -176,6 +174,11 @@ bool ESP_SD::begin() {
   digitalWrite(ESP_FLAG_SHARED_SD_PIN, !ESP_FLAG_SHARED_SD_VALUE);
 #endif  // ESP_FLAG_SHARED_SD_PIN
 #endif  // SD_DEVICE_CONNECTION  == ESP_SHARED_SD
+#if (ESP_SD_CS_PIN != -1) || (ESP_SD_MISO_PIN != -1) || \
+    (ESP_SD_MOSI_PIN != -1) || (ESP_SD_SCK_PIN != -1)
+  SPI.begin(ESP_SD_SCK_PIN, ESP_SD_MISO_PIN, ESP_SD_MOSI_PIN, ESP_SD_CS_PIN);
+#endif  // SPI
+
   return _started;
 }
 

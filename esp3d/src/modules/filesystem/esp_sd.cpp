@@ -61,24 +61,24 @@ File tSDFile_handle[ESP_MAX_SD_OPENHANDLE];
 
 #if SD_DEVICE_CONNECTION == ESP_SHARED_SD
 bool ESP_SD::_enabled = false;
-
+#if SD_CARD_TYPE == ESP_FYSETC_WIFI_PRO_SDCARD
+#include <SPI.h>
+#endif  // SD_CARD_TYPE == ESP_FYSETC_WIFI_PRO_SDCARD
 bool ESP_SD::enableSharedSD() {
   log_esp3d("Enable Shared SD if possible");
   if (_enabled) {
     log_esp3d("Already enabled, skip");
     return false;
   }
-  _enabled = true;
-#if defined(ESP3D_CS_SD_SENSE)
-  log_esp3d("Setup SD sense pin %d", ESP3D_CS_SD_SENSE);
-  pinMode(ESP3D_CS_SD_SENSE, INPUT_PULLUP);
-#endif  // defined(ESP3D_CS_SD_SENSE)
-#if defined(ESP3D_POWER_SD_PIN) && ESP3D_POWER_SD_PIN != -1
-  log_esp3d("Setup SD power pin %d", ESP3D_POWER_SD_PIN);
-  pinMode(ESP3D_POWER_SD_PIN, OUTPUT);
-  // digitalWrite(ESP3D_POWER_SD_PIN, ESP3D_POWER_SD_VALUE);
-#endif  // defined(ESP3D_POWER_SD_PIN)
+#if defined(ESP_SD_CS_SENSE) && ESP_SD_CS_SENSE != -1
+  bool active_cs = !digitalRead(ESP_SD_CS_SENSE);
+  if (active_cs) {
+    log_esp3d("SD CS is active, skip");
+    return false;
+  }
+#endif  // ESP_SD_CS_SENSE
 
+  _enabled = true;
 #if defined(ESP_FLAG_SHARED_SD_PIN) && ESP_FLAG_SHARED_SD_PIN != -1
   // need to check if SD is in use ?
   // Method : TBD
@@ -89,6 +89,13 @@ bool ESP_SD::enableSharedSD() {
   digitalWrite(ESP_FLAG_SHARED_SD_PIN, ESP_FLAG_SHARED_SD_VALUE);
   Hal::wait(100);
 #endif  // ESP_FLAG_SHARED_SD_PIN
+
+#if SD_CARD_TYPE == ESP_FYSETC_WIFI_PRO_SDCARD
+  log_esp3d("Custom spi : CS: %d,  Miso: %d, Mosi: %d, SCK: %d", ESP_SD_CS_PIN,
+            ESP_SD_MISO_PIN, ESP_SD_MOSI_PIN, ESP_SD_SCK_PIN);
+  SPI.begin(ESP_SD_SCK_PIN, ESP_SD_MISO_PIN, ESP_SD_MOSI_PIN, ESP_SD_CS_PIN);
+#endif  // SD_CARD_TYPE == ESP_FYSETC_WIFI_PRO_SDCARD
+
 #if defined(ESP3DLIB_ENV)
   // check if card is not currently in use
   if (card.isMounted() && (IS_SD_PRINTING() || IS_SD_FETCHING() ||
@@ -100,6 +107,22 @@ bool ESP_SD::enableSharedSD() {
 #endif  // ESP3DLIB_ENV
 
   return _enabled;
+}
+
+bool ESP_SD::disableSharedSD() {
+#if SD_CARD_TYPE == ESP_FYSETC_WIFI_PRO_SDCARD
+  pinMode(ESP_SD_CS_PIN, INPUT_PULLUP);
+  pinMode(ESP_SD_MISO_PIN, INPUT_PULLUP);
+  pinMode(ESP_SD_MOSI_PIN, INPUT_PULLUP);
+  pinMode(ESP_SD_SCK_PIN, INPUT_PULLUP);
+  pinMode(ESP_SD_D1_PIN, INPUT_PULLUP);
+  pinMode(ESP_SD_D2_PIN, INPUT_PULLUP);
+  SPI.end();
+#endif  // SD_CARD_TYPE == ESP_FYSETC_WIFI_PRO_SDCARD
+  // do the switch
+  digitalWrite(ESP_FLAG_SHARED_SD_PIN, !ESP_FLAG_SHARED_SD_VALUE);
+  Hal::wait(100);
+  return true;
 }
 #endif  // SD_DEVICE_CONNECTION == ESP_SHARED_SD
 
@@ -144,9 +167,9 @@ void ESP_SD::releaseFS(uint8_t FS) {
 #if SD_DEVICE_CONNECTION == ESP_SHARED_SD
   _enabled = false;
 #if defined(ESP_FLAG_SHARED_SD_PIN) && ESP_FLAG_SHARED_SD_PIN != -1
-  log_esp3d("SD shared disabled PIN %d with %d", ESP_FLAG_SHARED_SD_PIN,
-            !ESP_FLAG_SHARED_SD_VALUE);
-  digitalWrite(ESP_FLAG_SHARED_SD_PIN, !ESP_FLAG_SHARED_SD_VALUE);
+  if (ESP_SD::disableSharedSD()) {
+    log_esp3d("Shared SD disabled");
+  }
 #endif  // ESP_FLAG_SHARED_SD_PIN
 #if defined(ESP3DLIB_ENV)
   log_esp3d("Mount SD in Marlin");
