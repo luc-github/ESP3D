@@ -177,7 +177,7 @@ ESP_SDFile ESP_SD::open(const char *path, uint8_t mode) {
     String p = path;
     p.remove(p.lastIndexOf('/') + 1);
     if (!exists(p.c_str())) {
-      log_esp3d("Error opening: %s", path);
+      log_esp3d_e("Error opening: %s", path);
       return ESP_SDFile();
     }
   }

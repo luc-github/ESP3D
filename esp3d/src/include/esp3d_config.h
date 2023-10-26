@@ -21,15 +21,17 @@
 #ifndef _ESP3D_CONFIG_H
 #define _ESP3D_CONFIG_H
 #include <Arduino.h>
+
 #include "../include/defines.h"
+
 #if defined __has_include
-#  if __has_include ("../../configuration.h")
+#if __has_include("../../configuration.h")
 #include "../../configuration.h"
 #define ESP3D_CODE_BASE "ESP3D"
 #else
 #undef DISABLED
 #undef _BV
-#  if __has_include ("../esp3dlib_config.h")
+#if __has_include("../esp3dlib_config.h")
 #include "../esp3dlib_config.h"
 #define ESP3D_CODE_BASE "ESP3DLib"
 #else
@@ -38,11 +40,12 @@
 #endif
 #endif
 
+#include "../core/hal.h"
+#include "../core/log_esp3d.h"
 #include "../include/pins.h"
 #include "../include/sanity_esp3d.h"
-#include "../core/hal.h"
-#include "../core/debug_esp3d.h"
 #include "../include/version.h"
+
 
 #if defined(ARDUINO_ARCH_ESP8266)
 /************************************
@@ -50,10 +53,10 @@
  * SSL Client
  *
  * **********************************/
-//Using BearSSL need to decrease size of packet to not be OOM on ESP8266
-#define BEARSSL_MFLN_SIZE   512
-#define BEARSSL_MFLN_SIZE_FALLBACK  4096
-#endif // ARDUINO_ARCH_ESP8266
+// Using BearSSL need to decrease size of packet to not be OOM on ESP8266
+#define BEARSSL_MFLN_SIZE 512
+#define BEARSSL_MFLN_SIZE_FALLBACK 4096
+#endif  // ARDUINO_ARCH_ESP8266
 
 /************************************
  *
@@ -61,13 +64,17 @@
  *
  * **********************************/
 
-//Make Flag more generic
-#if (defined(PIN_RESET_FEATURE) && defined(ESP3D_RESET_PIN) && ESP3D_RESET_PIN!=-1) || defined(SD_RECOVERY_FEATURE)
+// Make Flag more generic
+#if (defined(PIN_RESET_FEATURE) && defined(ESP3D_RESET_PIN) && \
+     ESP3D_RESET_PIN != -1) ||                                 \
+    defined(SD_RECOVERY_FEATURE)
 #define RECOVERY_FEATURE
-#endif //PIN_RESET_FEATURE || SD_RECOVERY_FEATURE
+#endif  // PIN_RESET_FEATURE || SD_RECOVERY_FEATURE
 
-#if defined(DISPLAY_DEVICE) || defined(SENSOR_DEVICE) || defined(RECOVERY_FEATURE) || defined(BUZZER_DEVICE) || defined(CAMERA_DEVICE)  || defined(SD_DEVICE)
+#if defined(DISPLAY_DEVICE) || defined(SENSOR_DEVICE) ||   \
+    defined(RECOVERY_FEATURE) || defined(BUZZER_DEVICE) || \
+    defined(CAMERA_DEVICE) || defined(SD_DEVICE)
 #define CONNECTED_DEVICES_FEATURE
-#endif //DISPLAY_DEVICE || SENSOR_DEVICE , etc...
+#endif  // DISPLAY_DEVICE || SENSOR_DEVICE , etc...
 
-#endif //_ESP3D_CONFIG_H
+#endif  //_ESP3D_CONFIG_H

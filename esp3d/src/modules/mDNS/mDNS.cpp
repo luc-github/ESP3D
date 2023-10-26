@@ -17,7 +17,7 @@
   License along with This code; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-// #define ESP_DEBUG_FEATURE DEBUG_OUTPUT_SERIAL0
+// #define ESP_LOG_FEATURE LOG_OUTPUT_SERIAL0
 #include "../../include/esp3d_config.h"
 
 #ifdef MDNS_FEATURE
@@ -97,38 +97,38 @@ void mDNS_Service::end() {
   if (_hMDNSServiceQuery) {
     log_esp3d("Remove mdns service for %s", _hostname.c_str());
     if (!MDNS.removeServiceQuery(_hMDNSServiceQuery)) {
-      log_esp3d("failed");
+      log_esp3d_e("failed");
     }
   }
   _hMDNSServiceQuery = 0;
   log_esp3d("Remove mdns for %s", _hostname.c_str());
   if (!MDNS.removeService(_hostname.c_str(), MDNS_SERVICE_NAME,
                           MDNS_SERVICE_TYPE)) {
-    log_esp3d("failed");
+    log_esp3d_e("failed");
   }
 #if defined(HTTP_FEATURE)
   if (!MDNS.removeService(_hostname.c_str(), "http", "tcp")) {
-    log_esp3d("failed");
+    log_esp3d_e("failed");
   }
 #endif  // HTTP_FEATURE
 #if defined(FTP_FEATURE)
   if (!MDNS.removeService(_hostname.c_str(), "ftp", "tcp")) {
-    log_esp3d("failed");
+    log_esp3d_e("failed");
   }
 #endif  // FTP_FEATURE
 #if defined(TELNET_FEATURE)
   if (!MDNS.removeService(_hostname.c_str(), "telnet", "tcp")) {
-    log_esp3d("failed");
+    log_esp3d_e("failed");
   }
 #endif  // TELNET_FEATURE
 #if defined(WEBDAV_FEATURE)
   if (!MDNS.removeService(_hostname.c_str(), "webdav", "tcp")) {
-    log_esp3d("failed");
+    log_esp3d_e("failed");
   }
 #endif  // WEBDAV_FEATURE
 #if defined(WS_DATA_FEATURE)
   if (!MDNS.removeService(_hostname.c_str(), "websocket", "tcp")) {
-    log_esp3d("failed");
+    log_esp3d_e("failed");
   }
 #endif  // WS_DATA_FEATURE
 #endif  // ARDUINO_ARCH_ESP8266
@@ -194,7 +194,7 @@ void mDNS_Service::addESP3DServices(uint16_t port) {
   if (_hMDNSServiceQuery) {
     log_esp3d("MDNS Service query services installed.");
   } else {
-    log_esp3d("MDNS Service query services installation failed.");
+    log_esp3d_e("MDNS Service query services installation failed.");
   }
 #endif  // ARDUINO_ARCH_ESP8266
 }

@@ -20,187 +20,169 @@
 
 #include "../../include/esp3d_config.h"
 #ifdef SENSOR_DEVICE
-#if SENSOR_DEVICE==BMP280_DEVICE || SENSOR_DEVICE==BME280_DEVICE
-#include "bmx280.h"
-#include "../../core/settings_esp3d.h"
-#include "../../core/esp3doutput.h"
+#if SENSOR_DEVICE == BMP280_DEVICE || SENSOR_DEVICE == BME280_DEVICE
 #include <BMx280I2C.h>
 #include <Wire.h>
 
+#include "../../core/esp3doutput.h"
+#include "../../core/settings_esp3d.h"
+#include "bmx280.h"
+
+
 #define NB_TYPE_SENSOR 2
-const char * SENSOR_NAME[NB_TYPE_SENSOR] = {"BMP280", "BME280"};
+const char *SENSOR_NAME[NB_TYPE_SENSOR] = {"BMP280", "BME280"};
 const uint8_t SENSOR_ID[NB_TYPE_SENSOR] = {BMP280_DEVICE, BME280_DEVICE};
-BMx280I2C  * bmx280_device;
+BMx280I2C *bmx280_device;
 
-BMX280SensorDevice::BMX280SensorDevice()
-{
-    bmx280_device = nullptr;
-}
+BMX280SensorDevice::BMX280SensorDevice() { bmx280_device = nullptr; }
 
-BMX280SensorDevice::~BMX280SensorDevice()
-{
-    end();
-}
+BMX280SensorDevice::~BMX280SensorDevice() { end(); }
 
-bool BMX280SensorDevice::begin()
-{
-    end();
-    uint8_t sensortype= Settings_ESP3D::read_byte(ESP_SENSOR_TYPE);
-    if (sensortype == 0) {
-        log_esp3d("No Sensor active");
-        return true;
-    }
-    if (!isModelValid(sensortype)) {
-        log_esp3d("No valid id ");
-        return false;
-    }
-    //Setup Wire pins first as lib does setup wire
-    Wire.begin(ESP_SDA_PIN,ESP_SCL_PIN);
-    log_esp3d("Starting wire SDA:%d SCL:%d", ESP_SDA_PIN,ESP_SCL_PIN);
-    bmx280_device = new BMx280I2C(SENSOR_ADDR);
-    if (!bmx280_device) {
-        log_esp3d("Cannot instanciate sensor");
-        return false;
-    }
-    if (!bmx280_device->begin()) {
-        log_esp3d("No valid sensor status");
-        return false;
-    }
-    //reset sensor to default parameters.
-    bmx280_device->resetToDefaults();
-
-    //by default sensing is disabled and must be enabled by setting a non-zero
-    //oversampling setting.
-    //set an oversampling setting for pressure and temperature measurements.
-    bmx280_device->writeOversamplingPressure(BMx280MI::OSRS_P_x16);
-    bmx280_device->writeOversamplingTemperature(BMx280MI::OSRS_T_x16);
-
-    //if sensor is a BME280, set an oversampling setting for humidity measurements.
-    if (bmx280_device->isBME280()) {
-        bmx280_device->writeOversamplingHumidity(BMx280MI::OSRS_H_x16);
-    }
+bool BMX280SensorDevice::begin() {
+  end();
+  uint8_t sensortype = Settings_ESP3D::read_byte(ESP_SENSOR_TYPE);
+  if (sensortype == 0) {
+    log_esp3d("No Sensor active");
     return true;
-}
-
-void BMX280SensorDevice::end()
-{
-    if (bmx280_device) {
-        delete bmx280_device;
-    }
-    bmx280_device = nullptr;
-}
-
-bool BMX280SensorDevice::isModelValid(uint8_t model)
-{
-    for (uint8_t i = 0; i  < NB_TYPE_SENSOR; i++) {
-        if (model == SENSOR_ID[i]) {
-            return true;
-        }
-    }
+  }
+  if (!isModelValid(sensortype)) {
+    log_esp3d_e("No valid id ");
     return false;
+  }
+  // Setup Wire pins first as lib does setup wire
+  Wire.begin(ESP_SDA_PIN, ESP_SCL_PIN);
+  log_esp3d("Starting wire SDA:%d SCL:%d", ESP_SDA_PIN, ESP_SCL_PIN);
+  bmx280_device = new BMx280I2C(SENSOR_ADDR);
+  if (!bmx280_device) {
+    log_esp3d_e("Cannot instanciate sensor");
+    return false;
+  }
+  if (!bmx280_device->begin()) {
+    log_esp3d("No valid sensor status");
+    return false;
+  }
+  // reset sensor to default parameters.
+  bmx280_device->resetToDefaults();
+
+  // by default sensing is disabled and must be enabled by setting a non-zero
+  // oversampling setting.
+  // set an oversampling setting for pressure and temperature measurements.
+  bmx280_device->writeOversamplingPressure(BMx280MI::OSRS_P_x16);
+  bmx280_device->writeOversamplingTemperature(BMx280MI::OSRS_T_x16);
+
+  // if sensor is a BME280, set an oversampling setting for humidity
+  // measurements.
+  if (bmx280_device->isBME280()) {
+    bmx280_device->writeOversamplingHumidity(BMx280MI::OSRS_H_x16);
+  }
+  return true;
 }
 
-uint8_t BMX280SensorDevice::getIDFromString(const char *s)
-{
-    for (uint8_t i = 0; i  < NB_TYPE_SENSOR; i++) {
-        log_esp3d("checking %s with %s",s, SENSOR_NAME[i]);
-        if (strcmp(s, SENSOR_NAME[i])==0) {
-            log_esp3d("found %d",SENSOR_ID[i]);
-            return SENSOR_ID[i];
-        }
+void BMX280SensorDevice::end() {
+  if (bmx280_device) {
+    delete bmx280_device;
+  }
+  bmx280_device = nullptr;
+}
+
+bool BMX280SensorDevice::isModelValid(uint8_t model) {
+  for (uint8_t i = 0; i < NB_TYPE_SENSOR; i++) {
+    if (model == SENSOR_ID[i]) {
+      return true;
     }
-
-    return 0;
+  }
+  return false;
 }
 
-uint8_t  BMX280SensorDevice::nbType()
-{
-    return NB_TYPE_SENSOR;
-}
-
-uint8_t BMX280SensorDevice::GetModel(uint8_t i)
-{
-    if (i <NB_TYPE_SENSOR) {
-        return SENSOR_ID[i];
+uint8_t BMX280SensorDevice::getIDFromString(const char *s) {
+  for (uint8_t i = 0; i < NB_TYPE_SENSOR; i++) {
+    log_esp3d("checking %s with %s", s, SENSOR_NAME[i]);
+    if (strcmp(s, SENSOR_NAME[i]) == 0) {
+      log_esp3d("found %d", SENSOR_ID[i]);
+      return SENSOR_ID[i];
     }
-    return 0;
+  }
+
+  return 0;
 }
 
-const char *BMX280SensorDevice::GetCurrentModelString()
-{
-    uint8_t sensortype= Settings_ESP3D::read_byte(ESP_SENSOR_TYPE);
-    for (uint8_t i = 0; i  < NB_TYPE_SENSOR; i++) {
+uint8_t BMX280SensorDevice::nbType() { return NB_TYPE_SENSOR; }
+
+uint8_t BMX280SensorDevice::GetModel(uint8_t i) {
+  if (i < NB_TYPE_SENSOR) {
+    return SENSOR_ID[i];
+  }
+  return 0;
+}
+
+const char *BMX280SensorDevice::GetCurrentModelString() {
+  uint8_t sensortype = Settings_ESP3D::read_byte(ESP_SENSOR_TYPE);
+  for (uint8_t i = 0; i < NB_TYPE_SENSOR; i++) {
         if ((sensortype == SENSOR_TYPE[i]) {
-        return SENSOR_NAME[i];
+      return SENSOR_NAME[i];
         }
-    }
-    return "NONE";
+  }
+  return "NONE";
 }
 
-const char * BMX280SensorDevice::GetModelString(uint8_t i)
-{
-    if (i <NB_TYPE_SENSOR) {
+const char *BMX280SensorDevice::GetModelString(uint8_t i) {
+  if (i < NB_TYPE_SENSOR) {
         return SENSOR_NAME[i];
-    }
-    return "NONE";
+  }
+  return "NONE";
 }
 
-//helper function
-float toFahrenheit(float fromCelcius)
-{
-    return 1.8 * fromCelcius + 32.0;
-};
+// helper function
+float toFahrenheit(float fromCelcius) { return 1.8 * fromCelcius + 32.0; };
 
-const char * BMX280SensorDevice::GetData()
-{
-    static String s;
-    if (bmx280_device) {
+const char *BMX280SensorDevice::GetData() {
+  static String s;
+  if (bmx280_device) {
         if (!bmx280_device->measure()) {
-            s="BUSY";
-            log_esp3d("sensor is busy");
+          s = "BUSY";
+          log_esp3d("sensor is busy");
         } else {
-            uint8_t nbtry = 0;
-            do {
-                log_esp3d("try sensor %d",nbtry);
-                Hal::wait(100);
-                nbtry ++;
-            } while (!bmx280_device->hasValue() && nbtry < 3);
-            if (bmx280_device->hasValue()) {
-                float temperature = bmx280_device->getTemperature();
-                float pressure = bmx280_device->getPressure();
-                float humidity=0;
-                if (bmx280_device->isBME280()) {
-                    humidity = bmx280_device->getHumidity();
-                }
-                log_esp3d("T %f P %f H %f",temperature,  pressure, humidity);
-                if ( String(temperature,1)!="nan") {
-                    if (strcmp(SENSOR__UNIT,"F")==0) {
-                        temperature =  toFahrenheit(temperature);
-                    }
-                    s= String(temperature,1);
-                    s+= "[";
-                    s+= SENSOR__UNIT;
-                    s+= "] " +String(pressure,1);
-                    s+= "[Pa]";
-                    if (bmx280_device->isBME280()) {
-                        s+=" " + String(humidity,1) + "[%]";
-                    }
-                } else {
-                    s="DISCONNECTED";
-                    log_esp3d("No valid data");
-                }
-            } else {
-                s="DISCONNECTED";
-                log_esp3d("No valid data");
+          uint8_t nbtry = 0;
+          do {
+            log_esp3d("try sensor %d", nbtry);
+            Hal::wait(100);
+            nbtry++;
+          } while (!bmx280_device->hasValue() && nbtry < 3);
+          if (bmx280_device->hasValue()) {
+            float temperature = bmx280_device->getTemperature();
+            float pressure = bmx280_device->getPressure();
+            float humidity = 0;
+            if (bmx280_device->isBME280()) {
+              humidity = bmx280_device->getHumidity();
             }
+            log_esp3d("T %f P %f H %f", temperature, pressure, humidity);
+            if (String(temperature, 1) != "nan") {
+              if (strcmp(SENSOR__UNIT, "F") == 0) {
+                temperature = toFahrenheit(temperature);
+              }
+              s = String(temperature, 1);
+              s += "[";
+              s += SENSOR__UNIT;
+              s += "] " + String(pressure, 1);
+              s += "[Pa]";
+              if (bmx280_device->isBME280()) {
+                s += " " + String(humidity, 1) + "[%]";
+              }
+            } else {
+              s = "DISCONNECTED";
+              log_esp3d_e("No valid data");
+            }
+          } else {
+            s = "DISCONNECTED";
+            log_esp3_ed("No valid data");
+          }
         }
-    } else {
-        s="DISCONNECTED";
-        log_esp3d("No device");
-    }
-    return s.c_str();
+  } else {
+        s = "DISCONNECTED";
+        log_esp3d_e("No device");
+  }
+  return s.c_str();
 }
 
-
-#endif //BMP280_DEVICE || BME280_DEVICE
-#endif //SENSOR_DEVICE
+#endif  // BMP280_DEVICE || BME280_DEVICE
+#endif  // SENSOR_DEVICE

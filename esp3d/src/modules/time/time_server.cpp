@@ -164,7 +164,7 @@ bool TimeServer::setTime(const char* stime) {
     log_esp3d("Invalid time format, try without seconds");
     // allow not to set seconds for lazy guys typing command line
     if (strptime(stime, "%Y-%m-%dT%H:%M", &tmstruct) == nullptr) {
-      log_esp3d("Invalid time format");
+      log_esp3d_e("Invalid time format");
       return false;
     }
   }
