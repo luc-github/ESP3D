@@ -259,7 +259,7 @@ bool ESP_GBFS::remove(const char *path) {
 }
 
 bool ESP_GBFS::rename(const char *oldpath, const char *newpath) {
-  log_esp3d_d("rename global %s to %s", oldpath, newpath);
+  log_esp3d("rename global %s to %s", oldpath, newpath);
 #if defined(FILESYSTEM_FEATURE) || defined(SD_DEVICE)
   uint8_t t = getFSType(oldpath);
   if (t == FS_ROOT) {
@@ -270,13 +270,13 @@ bool ESP_GBFS::rename(const char *oldpath, const char *newpath) {
   String n = getRealPath(newpath);
 #if defined(FILESYSTEM_FEATURE)
   if (t == FS_FLASH) {
-    log_esp3d_d("rename FS %s to %s", n.c_str(), o.c_str());
+    log_esp3d("rename FS %s to %s", n.c_str(), o.c_str());
     return ESP_FileSystem::rename(o.c_str(), n.c_str());
   }
 #endif  // FILESYSTEM_FEATURE
 #if defined(SD_DEVICE)
   if (t == FS_SD) {
-    log_esp3d_d("rename FS %s to %s", o.c_str(), n.c_str());
+    log_esp3d("rename FS %s to %s", o.c_str(), n.c_str());
     return ESP_SD::rename(o.c_str(), n.c_str());
   }
 #endif  // SD_DEVICE
@@ -339,24 +339,24 @@ void ESP_GBFS::closeAll() {
 
 ESP_GBFile ESP_GBFS::open(const char *path, uint8_t mode) {
   ESP_GBFile f;
-  log_esp3d_d("open %s", path);
+  log_esp3d("open %s", path);
 #if defined(FILESYSTEM_FEATURE) || defined(SD_DEVICE)
   uint8_t t = getFSType(path);
-  log_esp3d_d("type %d", t);
+  log_esp3d("type %d", t);
   if ((t == FS_ROOT) && (mode == ESP_FILE_READ)) {
     f = ESP_GBFile(FS_ROOT, "/");
-    log_esp3d_d("root");
+    log_esp3d("root");
     getNextFS(true);
   }
 #if defined(FILESYSTEM_FEATURE)
   if (t == FS_FLASH) {
-    log_esp3d_d("open flash : %s", getRealPath(path));
+    log_esp3d("open flash : %s", getRealPath(path));
     f = ESP_FileSystem::open(getRealPath(path), mode);
   }
 #endif  // FILESYSTEM_FEATURE
 #if defined(SD_DEVICE)
   if (t == FS_SD) {
-    log_esp3d_d("open SD : %s", getRealPath(path));
+    log_esp3d("open SD : %s", getRealPath(path));
     f = ESP_SD::open(getRealPath(path), mode);
   }
 #endif  // SD_DEVICE

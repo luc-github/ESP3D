@@ -469,7 +469,7 @@ const char* WiFiConfig::AP_Gateway_String() {
 #ifdef ARDUINO_ARCH_ESP8266
   struct ip_info ip_AP;
   if (!wifi_get_ip_info(SOFTAP_IF, &ip_AP)) {
-    log_esp3d_d("Error getting gateway ip");
+    log_esp3d_e("Error getting gateway ip");
   }
   tmp = IPAddress(ip_AP.gw).toString();
 #endif  // ARDUINO_ARCH_ESP8266
