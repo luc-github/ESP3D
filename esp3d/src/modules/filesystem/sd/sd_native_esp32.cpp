@@ -57,7 +57,7 @@ uint8_t ESP_SD::getState(bool refresh) {
   _state = ESP_SDCARD_NOT_PRESENT;
   // using default value for speed ? should be parameter
   // refresh content if card was removed
-  log_esp3d("Spi : CS: %d,  Miso: %d, Mosi: %d, SCK: %d",
+  log_esp3d_d("Spi : CS: %d,  Miso: %d, Mosi: %d, SCK: %d",
             ESP_SD_CS_PIN != -1 ? ESP_SD_CS_PIN : SS,
             ESP_SD_MISO_PIN != -1 ? ESP_SD_MISO_PIN : MISO,
             ESP_SD_MOSI_PIN != -1 ? ESP_SD_MOSI_PIN : MOSI,
@@ -90,11 +90,11 @@ bool ESP_SD::begin() {
 #endif  // ESP_FLAG_SHARED_SD_PIN
 #if SD_CARD_TYPE == ESP_FYSETC_WIFI_PRO_SDCARD
 #if defined(ESP_SD_CS_SENSE)
-  log_esp3d("Setup SD sense pin %d", ESP_SD_CS_SENSE);
+  log_esp3d_d("Setup SD sense pin %d", ESP_SD_CS_SENSE);
   pinMode(ESP_SD_CS_SENSE, INPUT_PULLUP);
 #endif  // defined(ESP_SD_CS_SENSE)
 #if defined(ESP_SD_POWER_PIN) && ESP_SD_POWER_PIN != -1
-  log_esp3d("Setup SD power pin %d", ESP_SD_POWER_PIN);
+  log_esp3d_d("Setup SD power pin %d", ESP_SD_POWER_PIN);
   pinMode(ESP_SD_POWER_PIN, OUTPUT);
   digitalWrite(ESP_SD_POWER_PIN, ESP_POWER_SD_VALUE);
 #endif  // defined(ESP3D_POWER_SD_PIN)
@@ -102,7 +102,7 @@ bool ESP_SD::begin() {
 #endif  // SD_DEVICE_CONNECTION  == ESP_SHARED_SD
 #if (ESP_SD_CS_PIN != -1) || (ESP_SD_MISO_PIN != -1) || \
     (ESP_SD_MOSI_PIN != -1) || (ESP_SD_SCK_PIN != -1)
-  log_esp3d("Custom spi : CS: %d,  Miso: %d, Mosi: %d, SCK: %d", ESP_SD_CS_PIN,
+  log_esp3d_d("Custom spi : CS: %d,  Miso: %d, Mosi: %d, SCK: %d", ESP_SD_CS_PIN,
             ESP_SD_MISO_PIN, ESP_SD_MOSI_PIN, ESP_SD_SCK_PIN);
   SPI.begin(ESP_SD_SCK_PIN, ESP_SD_MISO_PIN, ESP_SD_MOSI_PIN, ESP_SD_CS_PIN);
 #endif
@@ -150,6 +150,7 @@ uint64_t ESP_SD::freeBytes(bool refresh) {
 uint ESP_SD::maxPathLength() { return 255; }
 
 bool ESP_SD::rename(const char *oldpath, const char *newpath) {
+  log_esp3d_d("rename %s to %s", oldpath, newpath);
   return SD.rename(oldpath, newpath);
 }
 
@@ -266,7 +267,7 @@ bool ESP_SD::rmdir(const char *path) {
     dir.close();
   }
   p = String();
-  log_esp3d("count %d", pathlist.size());
+  log_esp3d_d("count %d", pathlist.size());
   return res;
 }
 
@@ -316,7 +317,7 @@ ESP_SDFile::ESP_SDFile(void *handle, bool isdir, bool iswritemode,
       // time
       _lastwrite = tSDFile_handle[i].getLastWrite();
       _index = i;
-      // log_esp3d("Opening File at index %d",_index);
+      // log_esp3d_d("Opening File at index %d",_index);
       set = true;
     }
   }
@@ -328,7 +329,7 @@ bool ESP_SDFile::seek(uint32_t pos, uint8_t mode) {
 
 void ESP_SDFile::close() {
   if (_index != -1) {
-    // log_esp3d("Closing File at index %d", _index);
+    // log_esp3d_d("Closing File at index %d", _index);
     tSDFile_handle[_index].close();
     // reopen if mode = write
     // udate size + date
@@ -341,19 +342,19 @@ void ESP_SDFile::close() {
       }
     }
     tSDFile_handle[_index] = File();
-    // log_esp3d("Closing File at index %d",_index);
+    // log_esp3d_d("Closing File at index %d",_index);
     _index = -1;
   }
 }
 
 ESP_SDFile ESP_SDFile::openNextFile() {
   if ((_index == -1) || !_isdir) {
-    log_esp3d("openNextFile failed");
+    log_esp3d_d("openNextFile failed");
     return ESP_SDFile();
   }
   File tmp = tSDFile_handle[_index].openNextFile();
   if (tmp) {
-    log_esp3d("tmp name :%s %s %s", tmp.name(),
+    log_esp3d_d("tmp name :%s %s %s", tmp.name(),
               (tmp.isDirectory()) ? "isDir" : "isFile", _filename.c_str());
     String s = tmp.name();
     // if (s!="/")s+="/";
