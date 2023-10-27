@@ -20,25 +20,25 @@
 
 #ifndef _ESP3D_H
 #define _ESP3D_H
-//be sure correct IDE and settings are used for ESP8266 or ESP32
-#if !(defined( ARDUINO_ARCH_ESP8266) || defined(ARDUINO_ARCH_ESP32))
+// be sure correct IDE and settings are used for ESP8266 or ESP32
+#if !(defined(ARDUINO_ARCH_ESP8266) || defined(ARDUINO_ARCH_ESP32))
 #error Oops!  Make sure you have 'ESP8266 or ESP32' compatible board selected from the 'Tools -> Boards' menu.
-#endif // ARDUINO_ARCH_ESP8266 + ARDUINO_ARCH_ESP32
+#endif  // ARDUINO_ARCH_ESP8266 + ARDUINO_ARCH_ESP32
 #include <Arduino.h>
-class Esp3D
-{
-public:
-    Esp3D();
-    ~Esp3D();
-    bool begin();
-    void handle();
-    bool end();
-    bool started();
-    static bool reset();
-    static void restart_esp(bool need_restart = true);
-private:
-    static bool restart;
-    bool _started;
-    void restart_now();
+class Esp3D {
+ public:
+  Esp3D();
+  ~Esp3D();
+  bool begin();
+  void handle();
+  bool end();
+  bool started();
+  static bool reset();
+  static void restart_esp(bool need_restart = true);
+
+ private:
+  static bool restart;
+  bool _started;
+  void restart_now();
 };
-#endif //_ESP3D_H
+#endif  //_ESP3D_H

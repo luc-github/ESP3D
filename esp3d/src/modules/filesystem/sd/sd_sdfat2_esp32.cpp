@@ -89,13 +89,13 @@ time_t getDateTimeFile(File& filehandle) {
       timefile.tm_isdst = -1;
       dt = mktime(&timefile);
       if (dt == -1) {
-        log_esp3d("mktime failed");
+        log_esp3d_e("mktime failed");
       }
     } else {
-      log_esp3d("stat file failed");
+      log_esp3d_e("stat file failed");
     }
   } else {
-    log_esp3d("check file for stat failed");
+    log_esp3d_e("check file for stat failed");
   }
 #endif  // SD_TIMESTAMP_FEATURE
   return dt;
@@ -319,12 +319,12 @@ ESP_SDFile ESP_SD::open(const char* path, uint8_t mode) {
        ((mode == ESP_FILE_WRITE) || (mode == ESP_FILE_APPEND))) ||
       (strlen(path) == 0)) {
     _sizechanged = true;
-    log_esp3d("reject  %s", path);
+    log_esp3d_e("reject  %s", path);
     return ESP_SDFile();
   }
   // path must start by '/'
   if (path[0] != '/') {
-    log_esp3d("%s is invalid path", path);
+    log_esp3d_e("%s is invalid path", path);
     return ESP_SDFile();
   }
   if (mode != ESP_FILE_READ) {
@@ -332,7 +332,7 @@ ESP_SDFile ESP_SD::open(const char* path, uint8_t mode) {
     String p = path;
     p.remove(p.lastIndexOf('/') + 1);
     if (!exists(p.c_str())) {
-      log_esp3d("Error opening: %s", path);
+      log_esp3d_e("Error opening: %s", path);
       return ESP_SDFile();
     }
   }
@@ -345,7 +345,7 @@ ESP_SDFile ESP_SD::open(const char* path, uint8_t mode) {
     log_esp3d("%s is a %s", path, tmp.isDir() ? "Dir" : "File");
     return esptmp;
   } else {
-    log_esp3d("open %s failed", path);
+    log_esp3d_e("open %s failed", path);
     return ESP_SDFile();
   }
 }

@@ -27,14 +27,13 @@
    Lebosse (ESP3D Integration)
 
 */
-// #define ESP_DEBUG_FEATURE DEBUG_OUTPUT_SERIAL0
+// #define ESP_LOG_FEATURE LOG_OUTPUT_SERIAL0
 #include "../../include/esp3d_config.h"
 
 #if defined(WEBDAV_FEATURE)
 #include <time.h>
 
 #include "ESPWebDAV.h"
-
 
 #if defined(ARDUINO_ARCH_ESP8266)
 #include <ESP8266WiFi.h>
@@ -821,7 +820,7 @@ void ESPWebDAVCore::handleGet(ResourceType resource, WebDavFile& file,
 
   // no lock on GET
 
-#if defined(ESP_DEBUG_FEATURE)
+#if defined(ESP_LOG_FEATURE)
   long tStart = millis();
 #endif
 
@@ -899,7 +898,7 @@ void ESPWebDAVCore::handleGet(ResourceType resource, WebDavFile& file,
           break;
         }
 
-#if defined(ESP_DEBUG_FEATURE)
+#if defined(ESP_LOG_FEATURE)
         for (size_t i = 0; i < 80 && i < numRead; i++) {
           log_esp3ds("%c", buf[i] < 32 || buf[i] > 127 ? '.' : buf[i]);
         }
@@ -953,7 +952,7 @@ void ESPWebDAVCore::handlePut(ResourceType resource) {
 
   if (contentLengthHeader != 0) {
     uint8_t buf[BUFFER_SIZE];
-#if defined(ESP_DEBUG_FEATURE)
+#if defined(ESP_LOG_FEATURE)
     long tStart = millis();
 #endif
     size_t numRemaining = contentLengthHeader;
@@ -1542,7 +1541,7 @@ void ESPWebDAVCore::send(const String& code, const char* content_type,
 
   if (content.length()) {
     sendContent(content);
-#if defined(ESP_DEBUG_FEATURE)
+#if defined(ESP_LOG_FEATURE)
     log_esp3d("send content (%d bytes):", (int)content.length());
     for (size_t i = 0; i < DEBUG_LEN && i < content.length(); i++) {
       log_esp3ds("%c", content[i] < 32 || content[i] > 127 ? '.' : content[i]);
@@ -1571,7 +1570,7 @@ bool ESPWebDAVCore::sendContent(const char* data, size_t size) {
     log_esp3d("---- chunk %s", chunkSize);
   }
 
-#if defined(ESP_DEBUG_FEATURE)
+#if defined(ESP_LOG_FEATURE)
   log_esp3d("---- %scontent (%d bytes):", _chunked ? "chunked " : "",
             (int)size);
   for (size_t i = 0; i < DEBUG_LEN && i < size; i++) {

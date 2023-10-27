@@ -17,7 +17,7 @@
   License along with This code; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-// #define ESP_DEBUG_FEATURE DEBUG_OUTPUT_SERIAL0
+// #define ESP_LOG_FEATURE LOG_OUTPUT_SERIAL0
 #include "../../include/esp3d_config.h"
 #ifdef SD_DEVICE
 #include <time.h>
@@ -152,7 +152,7 @@ bool ESP_SD::accessFS(uint8_t FS) {
     log_esp3d("Access SD ok");
     return true;
   } else {
-    log_esp3d("Enable shared SD failed");
+    log_esp3d_e("Enable shared SD failed");
     return false;
   }
 #else

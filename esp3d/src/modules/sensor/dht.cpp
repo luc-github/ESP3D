@@ -20,146 +20,134 @@
 
 #include "../../include/esp3d_config.h"
 #ifdef SENSOR_DEVICE
-#if SENSOR_DEVICE==DHT11_DEVICE || SENSOR_DEVICE==DHT22_DEVICE
-#include "dht.h"
-#include "../../core/settings_esp3d.h"
-#include "../../core/esp3doutput.h"
+#if SENSOR_DEVICE == DHT11_DEVICE || SENSOR_DEVICE == DHT22_DEVICE
 #include <DHTesp.h>
 
+#include "../../core/esp3doutput.h"
+#include "../../core/settings_esp3d.h"
+#include "dht.h"
 
 #define NB_TYPE_SENSOR 2
-const char * SENSOR_NAME[NB_TYPE_SENSOR] = {"DHT11", "DHT22"};
+const char *SENSOR_NAME[NB_TYPE_SENSOR] = {"DHT11", "DHT22"};
 const uint8_t SENSOR_ID[NB_TYPE_SENSOR] = {DHT11_DEVICE, DHT22_DEVICE};
-const DHTesp::DHT_MODEL_t SENSOR_TYPE[NB_TYPE_SENSOR] = {DHTesp::DHT11, DHTesp::DHT22};
-DHTesp  * dht_device;
+const DHTesp::DHT_MODEL_t SENSOR_TYPE[NB_TYPE_SENSOR] = {DHTesp::DHT11,
+                                                         DHTesp::DHT22};
+DHTesp *dht_device;
 
-DHTSensorDevice::DHTSensorDevice()
-{
-    dht_device = nullptr;
-}
+DHTSensorDevice::DHTSensorDevice() { dht_device = nullptr; }
 
-DHTSensorDevice::~DHTSensorDevice()
-{
-    end();
-}
+DHTSensorDevice::~DHTSensorDevice() { end(); }
 
-bool DHTSensorDevice::begin()
-{
-    end();
-    uint8_t dhttype= Settings_ESP3D::read_byte(ESP_SENSOR_TYPE);
-    log_esp3d("Read %d, %s", dhttype, dhttype==1?"DHT11":dhttype==2?"DHT22":dhttype==0?"NONE":"Unknow type");
-    if (dhttype == 0) {
-        log_esp3d("No Sensor active");
-        return true;
-    }
-    if (!isModelValid(dhttype)) {
-        log_esp3d("No valid id ");
-        return false;
-    }
-    dht_device = new DHTesp;
-    if (!dht_device) {
-        log_esp3d("Cannot instanciate dht");
-        return false;
-    }
-    log_esp3d("DHT PIN %d",ESP3D_SENSOR_PIN);
-    dht_device->setup(ESP3D_SENSOR_PIN, (DHTesp::DHT_MODEL_t)dhttype );
-    if (strcmp(dht_device->getStatusString(), "OK")!=0) {
-        log_esp3d("No valid dht status: %d,  %s",dht_device->getStatus(), dht_device->getStatusString());
-        return false;
-    }
-    log_esp3d("DHT ok");
+bool DHTSensorDevice::begin() {
+  end();
+  uint8_t dhttype = Settings_ESP3D::read_byte(ESP_SENSOR_TYPE);
+  log_esp3d("Read %d, %s", dhttype,
+            dhttype == 1   ? "DHT11"
+            : dhttype == 2 ? "DHT22"
+            : dhttype == 0 ? "NONE"
+                           : "Unknow type");
+  if (dhttype == 0) {
+    log_esp3d("No Sensor active");
     return true;
-}
-
-void DHTSensorDevice::end()
-{
-    if (dht_device) {
-        delete dht_device;
-    }
-    dht_device = nullptr;
-}
-
-bool DHTSensorDevice::isModelValid(uint8_t model)
-{
-    for (uint8_t i = 0; i  < NB_TYPE_SENSOR; i++) {
-        if (model == SENSOR_ID[i]) {
-            return true;
-        }
-    }
+  }
+  if (!isModelValid(dhttype)) {
+    log_esp3d_e("No valid id ");
     return false;
+  }
+  dht_device = new DHTesp;
+  if (!dht_device) {
+    log_esp3d_e("Cannot instanciate dht");
+    return false;
+  }
+  log_esp3d("DHT PIN %d", ESP3D_SENSOR_PIN);
+  dht_device->setup(ESP3D_SENSOR_PIN, (DHTesp::DHT_MODEL_t)dhttype);
+  if (strcmp(dht_device->getStatusString(), "OK") != 0) {
+    log_esp3d_e("No valid dht status: %d,  %s", dht_device->getStatus(),
+                dht_device->getStatusString());
+    return false;
+  }
+  log_esp3d("DHT ok");
+  return true;
 }
 
-uint8_t DHTSensorDevice::getIDFromString(const char *s)
-{
-    for (uint8_t i = 0; i  < NB_TYPE_SENSOR; i++) {
-        log_esp3d("checking %s with %s",s, SENSOR_NAME[i]);
-        if (strcmp(s, SENSOR_NAME[i])==0) {
-            log_esp3d("found %d",SENSOR_ID[i]);
-            return SENSOR_ID[i];
-        }
+void DHTSensorDevice::end() {
+  if (dht_device) {
+    delete dht_device;
+  }
+  dht_device = nullptr;
+}
+
+bool DHTSensorDevice::isModelValid(uint8_t model) {
+  for (uint8_t i = 0; i < NB_TYPE_SENSOR; i++) {
+    if (model == SENSOR_ID[i]) {
+      return true;
     }
-
-    return 0;
+  }
+  return false;
 }
 
-uint8_t  DHTSensorDevice::nbType()
-{
-    return NB_TYPE_SENSOR;
-}
-
-uint8_t DHTSensorDevice::GetModel(uint8_t i)
-{
-    if (i <NB_TYPE_SENSOR) {
-        return SENSOR_ID[i];
+uint8_t DHTSensorDevice::getIDFromString(const char *s) {
+  for (uint8_t i = 0; i < NB_TYPE_SENSOR; i++) {
+    log_esp3d("checking %s with %s", s, SENSOR_NAME[i]);
+    if (strcmp(s, SENSOR_NAME[i]) == 0) {
+      log_esp3d("found %d", SENSOR_ID[i]);
+      return SENSOR_ID[i];
     }
-    return 0;
+  }
+
+  return 0;
 }
 
-const char *DHTSensorDevice::GetCurrentModelString()
-{
-    uint8_t dhttype= Settings_ESP3D::read_byte(ESP_SENSOR_TYPE);
-    for (uint8_t i = 0; i  < NB_TYPE_SENSOR; i++) {
-        if ((DHTesp::DHT_MODEL_t)dhttype == SENSOR_TYPE[i]) {
-            return SENSOR_NAME[i];
-        }
+uint8_t DHTSensorDevice::nbType() { return NB_TYPE_SENSOR; }
+
+uint8_t DHTSensorDevice::GetModel(uint8_t i) {
+  if (i < NB_TYPE_SENSOR) {
+    return SENSOR_ID[i];
+  }
+  return 0;
+}
+
+const char *DHTSensorDevice::GetCurrentModelString() {
+  uint8_t dhttype = Settings_ESP3D::read_byte(ESP_SENSOR_TYPE);
+  for (uint8_t i = 0; i < NB_TYPE_SENSOR; i++) {
+    if ((DHTesp::DHT_MODEL_t)dhttype == SENSOR_TYPE[i]) {
+      return SENSOR_NAME[i];
     }
-    return "NONE";
+  }
+  return "NONE";
 }
 
-const char * DHTSensorDevice::GetModelString(uint8_t i)
-{
-    if (i <NB_TYPE_SENSOR) {
-        return SENSOR_NAME[i];
+const char *DHTSensorDevice::GetModelString(uint8_t i) {
+  if (i < NB_TYPE_SENSOR) {
+    return SENSOR_NAME[i];
+  }
+  return "NONE";
+}
+
+const char *DHTSensorDevice::GetData() {
+  static String s;
+  if (dht_device) {
+    float temperature = dht_device->getTemperature();
+    float humidity = dht_device->getHumidity();
+    log_esp3d("T %f H %f", temperature, humidity);
+    if (strcmp(SENSOR__UNIT, "F") == 0) {
+      temperature = dht_device->toFahrenheit(temperature);
     }
-    return "NONE";
-}
-
-const char * DHTSensorDevice::GetData()
-{
-    static String s;
-    if (dht_device) {
-        float temperature = dht_device->getTemperature();
-        float humidity= dht_device->getHumidity();
-        log_esp3d("T %f H %f",temperature,  humidity);
-        if (strcmp(SENSOR__UNIT,"F")==0) {
-            temperature =  dht_device->toFahrenheit(temperature);
-        }
-        if ( String(humidity,1)!="nan") {
-            s= String(temperature,1);
-            s+= "[";
-            s+= SENSOR__UNIT;
-            s+="] " + String(humidity,1) + "[%]";
-        } else {
-            s="DISCONNECTED";
-            log_esp3d("No valid data");
-        }
+    if (String(humidity, 1) != "nan") {
+      s = String(temperature, 1);
+      s += "[";
+      s += SENSOR__UNIT;
+      s += "] " + String(humidity, 1) + "[%]";
     } else {
-        s="DISCONNECTED";
-        log_esp3d("No device");
+      s = "DISCONNECTED";
+      log_esp3d_e("No valid data");
     }
-    return s.c_str();
+  } else {
+    s = "DISCONNECTED";
+    log_esp3d_e("No device");
+  }
+  return s.c_str();
 }
 
-
-#endif //DHT11_DEVICE || DHT22_DEVICE
-#endif //SENSOR_DEVICE
+#endif  // DHT11_DEVICE || DHT22_DEVICE
+#endif  // SENSOR_DEVICE

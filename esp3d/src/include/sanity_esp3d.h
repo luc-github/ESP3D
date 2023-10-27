@@ -37,14 +37,14 @@
  * Debug
  * ***********************/
 
-#if defined(ESP_DEBUG_FEATURE)
-#if ESP_DEBUG_FEATURE == ESP_SERIAL_OUTPUT
-#warning You use same serial for output and debug
-#endif  // ESP_DEBUG_FEATURE == ESP_SERIAL_OUTPUT
-#if (ESP_DEBUG_FEATURE == DEBUG_OUTPUT_SERIAL2) && defined(ARDUINO_ARCH_ESP8266)
-#error Serial 2 is not available in ESP8266 for debug
-#endif  // ESP_DEBUG_FEATURE == DEBUG_OUTPUT_SERIAL2 ) && ARDUINO_ARCH_ESP8266
-#endif  // ESP_DEBUG_FEATURE
+#if defined(ESP_LOG_FEATURE)
+#if ESP_LOG_FEATURE == ESP_SERIAL_OUTPUT
+#warning You use same serial for output and log
+#endif  // ESP_LOG_FEATURE == ESP_SERIAL_OUTPUT
+#if (ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL2) && defined(ARDUINO_ARCH_ESP8266)
+#error Serial 2 is not available in ESP8266 for log
+#endif  // ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL2 ) && ARDUINO_ARCH_ESP8266
+#endif  // ESP_LOG_FEATURE
 
 /**************************
  * Serial

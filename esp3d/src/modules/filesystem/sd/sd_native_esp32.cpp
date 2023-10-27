@@ -150,6 +150,7 @@ uint64_t ESP_SD::freeBytes(bool refresh) {
 uint ESP_SD::maxPathLength() { return 255; }
 
 bool ESP_SD::rename(const char *oldpath, const char *newpath) {
+  log_esp3d("rename %s to %s", oldpath, newpath);
   return SD.rename(oldpath, newpath);
 }
 
@@ -177,7 +178,7 @@ ESP_SDFile ESP_SD::open(const char *path, uint8_t mode) {
     String p = path;
     p.remove(p.lastIndexOf('/') + 1);
     if (!exists(p.c_str())) {
-      log_esp3d("Error opening: %s", path);
+      log_esp3d_e("Error opening: %s", path);
       return ESP_SDFile();
     }
   }

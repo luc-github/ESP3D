@@ -38,12 +38,12 @@
 #endif  // ESP_BRIDGE_TX_PIN
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
 
-#ifndef ESP_DEBUG_RX_PIN
-#define ESP_DEBUG_RX_PIN -1
-#endif  // ESP_DEBUG_RX_PIN
-#ifndef ESP_DEBUG_TX_PIN
-#define ESP_DEBUG_TX_PIN -1
-#endif  // ESP_DEBUG_TX_PIN
+#ifndef ESP_LOG_RX_PIN
+#define ESP_LOG_RX_PIN -1
+#endif  // ESP_LOG_RX_PIN
+#ifndef ESP_LOG_TX_PIN
+#define ESP_LOG_TX_PIN -1
+#endif  // ESP_LOG_TX_PIN
 
 // I2C Pins
 #ifndef ESP_SDA_PIN
