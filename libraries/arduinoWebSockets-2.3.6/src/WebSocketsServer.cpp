@@ -412,9 +412,9 @@ IPAddress WebSocketsServerCore::remoteIP(uint8_t num) {
 }
 #endif
 
-//#################################################################################
-//#################################################################################
-//#################################################################################
+// #################################################################################
+// #################################################################################
+// #################################################################################
 
 /**
  * handle new client connection
@@ -636,7 +636,7 @@ void WebSocketsServer::handleNewClients(void) {
 #endif
 
         // store new connection
-        WEBSOCKETS_NETWORK_CLASS * tcpClient = new WEBSOCKETS_NETWORK_CLASS(_server->available());
+        WEBSOCKETS_NETWORK_CLASS * tcpClient = new WEBSOCKETS_NETWORK_CLASS(_server->accept());
         if(!tcpClient) {
             DEBUG_WEBSOCKETS("[WS-Client] creating Network class failed!");
             return;
@@ -659,7 +659,7 @@ void WebSocketsServerCore::handleClientData(void) {
         if(clientIsConnected(client)) {
             int len = client->tcp->available();
             if(len > 0) {
-                //DEBUG_WEBSOCKETS("[WS-Server][%d][handleClientData] len: %d\n", client->num, len);
+                // DEBUG_WEBSOCKETS("[WS-Server][%d][handleClientData] len: %d\n", client->num, len);
                 switch(client->status) {
                     case WSC_HEADER: {
                         String headerLine = client->tcp->readStringUntil('\n');
@@ -713,7 +713,7 @@ void WebSocketsServerCore::handleHeader(WSclient_t * client, String * headerLine
             // cut URL out
             client->cUrl = headerLine->substring(4, headerLine->indexOf(' ', 4));
 
-            //reset non-websocket http header validation state for this client
+            // reset non-websocket http header validation state for this client
             client->cHttpHeadersValid      = true;
             client->cMandatoryHeadersCount = 0;
 

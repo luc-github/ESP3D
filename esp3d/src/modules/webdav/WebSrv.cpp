@@ -115,7 +115,7 @@ void ESPWebDAV::handleClient() {
     if (!locClient || !locClient.available()) {
       // no or sleeping current client
       // take it over
-      locClient = server->available();
+      locClient = server->accept();
       m_persistent_timer_ms = millis();
       log_esp3d(
           "NEW CLIENT-------------------------------------------------------");
