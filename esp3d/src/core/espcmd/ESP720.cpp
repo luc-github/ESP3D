@@ -26,7 +26,7 @@
 #include "../settings_esp3d.h"
 
 #ifdef FILESYSTEM_TIMESTAMP_FEATURE
-#include "../../modules/time/time_server.h"
+#include "../../modules/time/time_service.h"
 #endif  // FILESYSTEM_TIMESTAMP_FEATURE
 #define COMMANDID 720
 // List ESP Filesystem

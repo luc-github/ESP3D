@@ -23,7 +23,7 @@
 
 #include "../../core/esp3doutput.h"
 #include "../../core/settings_esp3d.h"
-#include "time_server.h"
+#include "time_service.h"
 
 #if defined(WIFI_FEATURE)
 #include "../wifi/wificonfig.h"

@@ -57,7 +57,7 @@
 #include "../../modules/webdav/webdav_server.h"
 #endif  // WEBDAV_FEATURE
 #if defined(TIMESTAMP_FEATURE)
-#include "../../modules/time/time_server.h"
+#include "../../modules/time/time_service.h"
 #endif  // TIMESTAMP_FEATURE
 #if defined(SENSOR_DEVICE)
 #include "../../modules/sensor/sensor.h"

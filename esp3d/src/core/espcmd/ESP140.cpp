@@ -20,7 +20,7 @@
 #include "../../include/esp3d_config.h"
 #if defined(TIMESTAMP_FEATURE)
 #include "../../modules/authentication/authentication_service.h"
-#include "../../modules/time/time_server.h"
+#include "../../modules/time/time_service.h"
 #include "../commands.h"
 #include "../esp3doutput.h"
 #include "../settings_esp3d.h"

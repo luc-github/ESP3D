@@ -30,7 +30,7 @@
 #include "../../filesystem/esp_filesystem.h"
 
 #ifdef FILESYSTEM_TIMESTAMP_FEATURE
-#include "../../time/time_server.h"
+#include "../../time/time_service.h"
 #endif  // FILESYSTEM_TIMESTAMP_FEATURE
 
 // Filesystem

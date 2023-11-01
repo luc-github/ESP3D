@@ -26,7 +26,7 @@
 #include "../settings_esp3d.h"
 
 #if defined(SD_TIMESTAMP_FEATURE) || defined(FILESYSTEM_TIMESTAMP_FEATURE)
-#include "../../modules/time/time_server.h"
+#include "../../modules/time/time_service.h"
 #endif  // SD_TIMESTAMP_FEATURE || FILESYSTEM_TIMESTAMP_FEATURE
 #define COMMANDID 780
 // List Global Filesystem

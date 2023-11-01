@@ -65,7 +65,7 @@ const byte DNS_PORT = 53;
 DNSServer dnsServer;
 #endif  // CAPTIVE_PORTAL_FEATURE
 #ifdef TIMESTAMP_FEATURE
-#include "../time/time_server.h"
+#include "../time/time_service.h"
 #endif  // TIMESTAMP_FEATURE
 #ifdef NOTIFICATION_FEATURE
 #include "../notifications/notifications_service.h"

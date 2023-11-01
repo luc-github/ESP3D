@@ -38,7 +38,7 @@
 #include "../../modules/websocket/websocket_server.h"
 #endif  // HTTP_FEATURE
 #ifdef TIMESTAMP_FEATURE
-#include "../../modules/time/time_server.h"
+#include "../../modules/time/time_service.h"
 #endif  // TIMESTAMP_FEATURE
 #ifdef CAMERA_DEVICE
 #include "../../modules/camera/camera.h"

@@ -34,7 +34,7 @@
 #include "../../modules/buzzer/buzzer.h"
 #endif  // BUZZER_DEVICE
 #ifdef TIMESTAMP_FEATURE
-#include "../../modules/time/time_server.h"
+#include "../../modules/time/time_service.h"
 #endif  // TIMESTAMP_FEATURE
 #ifdef NOTIFICATION_FEATURE
 #include "../../modules/notifications/notifications_service.h"

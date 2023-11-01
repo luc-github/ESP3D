@@ -1,5 +1,5 @@
 /*
-  time_server.h -  time server functions class
+  time_service.h -  time server functions class
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
