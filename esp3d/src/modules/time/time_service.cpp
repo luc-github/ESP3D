@@ -116,7 +116,7 @@ bool TimeService::begin() {
   configTzTime(t1.c_str(), s1.c_str(), s2.c_str(), s3.c_str());
 #endif  // ARDUINO_ARCH_ESP32
 #if defined(ARDUINO_ARCH_ESP8266)
-  configTime(t1, s1.c_str(), s2.c_str(), s3.c_str());
+  configTime(t1.c_str(), s1.c_str(), s2.c_str(), s3.c_str());
 #endif  // ARDUINO_ARCH_ESP8266
 
   time_t now = time(nullptr);
