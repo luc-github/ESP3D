@@ -430,10 +430,9 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
 
       // Time zone
       output->print(",{\"F\":\"service/time\",\"P\":\"");
-      output->print(ESP_TIMEZONE);
-      output->print("\",\"T\":\"B\",\"R\":\"1\",\"V\":\"");
-      output->print(
-          String((int8_t)Settings_ESP3D::read_byte(ESP_TIMEZONE)).c_str());
+      output->print(ESP_TIME_ZONE);
+      output->print("\",\"T\":\"S\",\"R\":\"1\",\"V\":\"");
+      output->print(Settings_ESP3D::read_string(ESP_TIME_ZONE));
       output->print("\",\"H\":\"tzone\",\"O\":[");
       for (int8_t i = 0; i <= SupportedTimeZonesSize; i++) {
         if (i > 0) {

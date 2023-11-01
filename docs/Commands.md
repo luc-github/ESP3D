@@ -288,7 +288,7 @@ label can be: light/framesize/quality/contrast/brightness/saturation/gainceiling
     `[ESP790]<Action>=<path> json=<no> pwd=<admin password>`
 
 * FW Informations  
-    `[ESP800]json=<no> pwd=<admin password> <time=YYYY-MM-DDTHH:mm:ss> <version=3.0.0-a11> <setup=0/1>`
+    `[ESP800]json=<no> pwd=<admin password> <time=YYYY-MM-DDTHH:mm:ss> <tz=+HH:SS> <version=3.0.0-a11> <setup=0/1>`
 
 * Get state / Set Enable / Disable Serial Communication   
     `[ESP900]<ENABLE/DISABLE> json=<no> pwd=<admin/user password>`

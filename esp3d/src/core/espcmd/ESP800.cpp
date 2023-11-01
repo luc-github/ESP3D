@@ -79,16 +79,34 @@ bool Commands::ESP800(const char* cmd_params, level_authenticate_type auth_type,
   if (noError) {
 #ifdef TIMESTAMP_FEATURE
     String newtime = get_param(cmd_params, "time=");
+    String timezone = get_param(cmd_params, "tz=");
     String tparm = (timeService.is_internet_time()) ? "Auto" : "Manual";
-    if (!timeService.is_internet_time() && (newtime.length() > 0)) {
-      if (!timeService.setTime(newtime.c_str())) {
-        tparm = "Failed to set";
+    if (!timeService.is_internet_time()) {
+      if (newtime.length() > 0) {
+        if (!timeService.setTime(newtime.c_str())) {
+          tparm = "Failed to set time";
+          log_esp3d_e("Failed to set time");
+        } else {
+          tparm = "Manual";
+        }
+      } else {
+        tparm = "Not set";
+      }
+      if (timezone.length() > 0) {
+        if (!timeService.setTimeZone(timezone.c_str())) {
+          tparm = "Failed to set timezone";
+          log_esp3d_e("Failed to set timezone");
+        }
       }
     } else {
-      if (!timeService.is_internet_time() && (newtime.length() == 0)) {
+      if (timeService.started()) {
+        tparm = "Auto";
+      } else {
         tparm = "Not set";
       }
     }
+#else
+    String tparm = "none";
 #endif  // TIMESTAMP_FEATURE
 
     String line = "";
