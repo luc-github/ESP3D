@@ -49,10 +49,12 @@ const uint16_t NetstringKeysPos[] = {
     ESP_HOSTNAME, ESP_STA_SSID, ESP_STA_PASSWORD, ESP_AP_SSID, ESP_AP_PASSWORD};
 
 const char* ServstringKeysVal[] = {
-    "Time_server1",  "Time_server2", "Time_server3", "ADMIN_PASSWORD",
-    "USER_PASSWORD", "NOTIF_TOKEN1", "NOTIF_TOKEN2", "NOTIF_TOKEN_Settings"};
+    "Time_zone",    "Time_server1",   "Time_server2",
+    "Time_server3", "ADMIN_PASSWORD", "USER_PASSWORD",
+    "NOTIF_TOKEN1", "NOTIF_TOKEN2",   "NOTIF_TOKEN_Settings"};
 
-const uint16_t ServstringKeysPos[] = {ESP_TIME_SERVER1,
+const uint16_t ServstringKeysPos[] = {ESP_TIME_ZONE,
+                                      ESP_TIME_SERVER1,
                                       ESP_TIME_SERVER2,
                                       ESP_TIME_SERVER3,
                                       ESP_ADMIN_PWD,
@@ -132,10 +134,9 @@ const uint16_t SysboolKeysPos[] = {ESP_SERIAL_BRIDGE_FLAG,
 const char* NetbyteKeysVal[] = {"AP_channel"};
 
 const uint16_t NetbyteKeysPos[] = {ESP_AP_CHANNEL};
-const char* ServbyteKeysVal[] = {"Time_zone", "Sesion_timeout", "SD_SPEED"};
+const char* ServbyteKeysVal[] = {"Session_timeout", "SD_SPEED"};
 
-const uint16_t ServbyteKeysPos[] = {ESP_TIMEZONE, ESP_SESSION_TIMEOUT,
-                                    ESP_SD_SPEED_DIV};
+const uint16_t ServbyteKeysPos[] = {ESP_SESSION_TIMEOUT, ESP_SD_SPEED_DIV};
 
 bool processString(const char** keysval, const uint16_t* keypos,
                    const size_t size, const char* key, const char* value,

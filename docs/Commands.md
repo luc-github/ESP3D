@@ -74,7 +74,7 @@ The json format is
     `[ESP131]<port> json=<no> pwd=<admin password>`
 
 * Sync / Set / Get current time   
-    `[ESP140]<SYNC> <srv1=XXXXX> <srv2=XXXXX> <srv3=XXXXX> <zone=xxx> <dst=YES/NO> <time=YYYY-MM-DDTHH:mm:ss> <NOW> json=<no> pwd=<admin password>`
+    `[ESP140]<SYNC> <srv1=XXXXX> <srv2=XXXXX> <srv3=XXXXX> <tzone=+HH:SS> <time=YYYY-MM-DDTHH:mm:ss> <ntp=yes/no> <NOW> json=<no> pwd=<admin password>`
 
 * Get/Set display/set boot delay in ms / Verbose boot   
     `[ESP150]<delay=time in milliseconds><verbose=ON/OFF>pwd=<admin password>`

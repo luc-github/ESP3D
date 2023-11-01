@@ -55,6 +55,14 @@ TimeService::TimeService() {
 }
 TimeService::~TimeService() { end(); }
 
+// FIXME: this is a WIP
+const char* TimeService::getDateTime(time_t t) {
+  static char buff[20];
+  strftime(buff, sizeof(buff), "%Y-%m-%d %H:%M:%S", localtime(&t));
+
+  return buff;
+}
+
 bool TimeService::is_internet_time(bool readfromsettings) {
   if (readfromsettings) {
     _is_internet_time =
@@ -142,7 +150,7 @@ bool TimeService::setTimeZone(const char* stime) {
 
 bool TimeService::updateTimeZone(bool fromsettings) {
   char out_str[7] = {0};
-  _time_zone = Settings_ESP3D.readString(ESP_TIME_ZONE);
+  _time_zone = Settings_ESP3D::read_string(ESP_TIME_ZONE);
 
   bool valid = false;
   for (uint8_t i = 0; i < SupportedTimeZonesSize; i++) {
@@ -235,8 +243,8 @@ void TimeService::handle() {
 
 int TimeService::_get_time_zone_offset_min() {
   int offset = 0;
-  int hour = atoi(_time_zone.substr(1, 2).c_str());
-  int min = atoi(_time_zone.substr(4, 2).c_str());
+  int hour = atoi(_time_zone.substring(1, 1 + 2).c_str());
+  int min = atoi(_time_zone.substring(4, 4 + 2).c_str());
   offset = hour * 60 + min;
   // result is in minutes west of GMT
   if (_time_zone[0] == '+' && offset > 0) {

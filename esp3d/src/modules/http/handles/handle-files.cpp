@@ -171,7 +171,7 @@ void HTTP_Server::handleFSFileList() {
 #ifdef FILESYSTEM_TIMESTAMP_FEATURE
         buffer2send += "\",\"time\":\"";
         if (!sub.isDirectory()) {
-          buffer2send += timeService.current_time(sub.getLastWrite());
+          buffer2send += timeService.getDateTime((time_t)sub.getLastWrite());
         }
 #endif  // FILESYSTEM_TIMESTAMP_FEATURE
         buffer2send += "\"}";

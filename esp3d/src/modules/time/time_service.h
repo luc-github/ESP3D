@@ -30,6 +30,7 @@ class TimeService {
   bool begin();
   void end();
   void handle();
+  const char* getDateTime(time_t t = 0);
   const char* getCurrentTime();
   const char* getTimeZone();
   bool updateTimeZone(bool fromsettings = false);

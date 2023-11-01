@@ -108,7 +108,7 @@ bool Commands::ESP720(const char* cmd_params, level_authenticate_type auth_type,
             String time = "";
             line = "";
 #ifdef FILESYSTEM_TIMESTAMP_FEATURE
-            time = timeService.current_time(sub.getLastWrite());
+            time = timeService.getDateTime((time_t)sub.getLastWrite());
 #endif  // FILESYSTEM_TIMESTAMP_FEATURE
             if (json) {
               line = "";

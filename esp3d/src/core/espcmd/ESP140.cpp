@@ -27,8 +27,8 @@
 
 #define COMMANDID 140
 // Sync / Set / Get current time
-//[ESP140]<SYNC> <srv1=XXXXX> <srv2=XXXXX> <srv3=XXXXX> <zone=xxx> <dst=YES/NO>
-//<time=YYYY-MM-DDTHH:mm:ss> NOW json=<no> pwd=<admin password>
+//[ESP140]<SYNC> <srv1=XXXXX> <srv2=XXXXX> <srv3=XXXXX> <tzone=+HH:SS>
+//<ntp=YES/NO> <time=YYYY-MM-DDTHH:mm:ss> NOW json=<no> pwd=<admin password>
 bool Commands::ESP140(const char* cmd_params, level_authenticate_type auth_type,
                       ESP3DOutput* output) {
   bool noError = true;
@@ -106,22 +106,47 @@ bool Commands::ESP140(const char* cmd_params, level_authenticate_type auth_type,
         }
       }
       if (noError) {
-        parameter = get_param(cmd_params, "zone=");
+        parameter = get_param(cmd_params, "tzone=");
         if (parameter.length() > 0) {
           hasParam = true;
-          if ((parameter.toInt() <=
-               (int8_t)Settings_ESP3D::get_max_byte(ESP_TIMEZONE)) &&
-              (parameter.toInt() >=
-               (int8_t)Settings_ESP3D::get_min_byte(ESP_TIMEZONE))) {
-            if (!Settings_ESP3D::write_byte(ESP_TIMEZONE, parameter.toInt())) {
+          bool isvalid = false;
+          for (uint8_t i = 0; i < SupportedTimeZonesSize; i++) {
+            if (parameter == SupportedTimeZones[i]) {
+              isvalid = true;
+              break;
+            }
+          }
+          if (isvalid) {
+            if (!Settings_ESP3D::write_string(ESP_TIME_ZONE,
+                                              parameter.c_str())) {
               response = format_response(COMMANDID, json, false,
                                          "Set time zone failed");
+              noError = false;
+            }
+          } else {
+            response =
+                format_response(COMMANDID, json, false, "Invalid time zone");
+            noError = false;
+          }
+        }
+      }
+
+      if (noError) {
+        parameter = get_param(cmd_params, "ntp=");
+        if (parameter.length() > 0) {
+          hasParam = true;
+          parameter.toUpperCase();
+          if (parameter.length() > 0) {
+            if (!Settings_ESP3D::write_byte(ESP_INTERNET_TIME,
+                                            (parameter == "NO") ? 0 : 1)) {
+              response = format_response(COMMANDID, json, false,
+                                         "Set internet time failed");
               noError = false;
             }
           }
         }
       }
-      if (noError) {
+      /*if (noError) {
         parameter = get_param(cmd_params, "dst=");
         if (parameter.length() > 0) {
           hasParam = true;
@@ -135,7 +160,7 @@ bool Commands::ESP140(const char* cmd_params, level_authenticate_type auth_type,
             }
           }
         }
-      }
+      }*/
       if (noError) {
         parameter = get_param(cmd_params, "time=");
         parameter.toUpperCase();
@@ -203,19 +228,19 @@ bool Commands::ESP140(const char* cmd_params, level_authenticate_type auth_type,
       } else {
         tmp += ", srv3=";
       }
-      tmp += Settings_ESP3D::read_string(ESP_TIME_SERVER3);
+      tmp += Settings_ESP3D::read_string(ESP_TIME_ZONE);
       if (json) {
-        tmp += "\",\"zone\":\"";
+        tmp += "\",\"tzone\":\"";
       } else {
-        tmp += ", zone=";
+        tmp += ", tzone=";
       }
-      tmp += Settings_ESP3D::read_byte(ESP_TIMEZONE);
+      tmp += Settings_ESP3D::read_byte(ESP_INTERNET_TIME);
       if (json) {
-        tmp += "\",\"dst\":\"";
+        tmp += "\",\"ntp\":\"";
       } else {
-        tmp += ", dst=";
+        tmp += ", ntp=";
       }
-      tmp += Settings_ESP3D::read_byte(ESP_TIME_IS_DST) ? "YES" : "NO";
+      tmp += Settings_ESP3D::read_byte(ESP_INTERNET_TIME) ? "YES" : "NO";
       if (json) {
         tmp += "\"}";
       }
