@@ -99,7 +99,7 @@
        // chinese
 #define ESP_SENSOR_TYPE 460  // 1  bytes = flag
 #define ESP_TARGET_FW 461    // 1  bytes = flag
-#define ESP_TIMEZONE 462     // 1  bytes = flag
+#define ESP_FREE 462         // 1  bytes = flag
 #define ESP_TIME_IS_DST 463  // 1  bytes = flag
 #define ESP_TIME_SERVER1 \
   464  // 129 bytes 128+1 = string  ; warning does not support multibyte char
@@ -142,6 +142,7 @@
 #define ESP_SERIAL_BRIDGE_ON 1036       // 1 byte = flag
 #define ESP_SERIAL_BRIDGE_FLAG 1037     // 1 byte = flag
 #define ESP_SERIAL_BRIDGE_BAUD 1038     // 4  bytes= int
+#define ESP_TIME_ZONE 1042              // 7 bytes 6+1 = string
 
 // Hidden password
 #define HIDDEN_PASSWORD "********"

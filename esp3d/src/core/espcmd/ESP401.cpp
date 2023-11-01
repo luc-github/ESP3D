@@ -133,7 +133,7 @@ bool Commands::ESP401(const char* cmd_params, level_authenticate_type auth_type,
 #endif  // SD_DEVICE
 #ifdef TIMESTAMP_FEATURE
               case ESP_INTERNET_TIME:
-                timeserver.begin();
+                timeService.begin();
                 break;
 #endif  // TIMESTAMP_FEATURE
 #ifdef NOTIFICATION_FEATURE

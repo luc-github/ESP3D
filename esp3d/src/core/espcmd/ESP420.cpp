@@ -1317,7 +1317,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
       } else {
         line += ": ";
       }
-      line += timeserver.started() ? "ON" : "OFF";
+      line += timeService.started() ? "ON" : "OFF";
       if (json) {
         line += "\"}";
         output->print(line.c_str());

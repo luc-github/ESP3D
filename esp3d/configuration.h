@@ -250,7 +250,7 @@
 /* Enable date/time on files
  * Set date/time on files using SNTP or last webui connection
  */
-// #define FILESYSTEM_TIMESTAMP_FEATURE
+#define FILESYSTEM_TIMESTAMP_FEATURE
 
 /************************************
  *

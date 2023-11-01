@@ -35,15 +35,27 @@
 #include "../ethernet/ethconfig.h"
 #endif  // ETH_FEATURE
 
-TimeServer timeserver;
+TimeService timeService;
 
-TimeServer::TimeServer() {
+const char* SupportedTimeZones[] = {
+    "-12:00", "-11:00", "-10:00", "-09:00", "-08:00", "-07:00", "-06:00",
+    "-05:00", "-04:00", "-03:30", "-03:00", "-02:00", "-01:00", "+00:00",
+    "+01:00", "+02:00", "+03:00", "+03:30", "+04:00", "+04:30", "+05:00",
+    "+05:30", "+05:45", "+06:00", "+06:30", "+07:00", "+08:00", "+08:45",
+    "+09:00", "+09:30", "+10:00", "+10:30", "+11:00", "+12:00", "+12:45",
+    "+13:00", "+14:00"};
+
+const uint8_t SupportedTimeZonesSize =
+    sizeof(SupportedTimeZones) / sizeof(const char*);
+
+TimeService::TimeService() {
   _started = false;
   _is_internet_time = false;
+  _time_zone = "+00:00";
 }
-TimeServer::~TimeServer() { end(); }
+TimeService::~TimeService() { end(); }
 
-bool TimeServer::is_internet_time(bool readfromsettings) {
+bool TimeService::is_internet_time(bool readfromsettings) {
   if (readfromsettings) {
     _is_internet_time =
         Settings_ESP3D::read_byte(ESP_INTERNET_TIME) ? true : false;
@@ -53,11 +65,9 @@ bool TimeServer::is_internet_time(bool readfromsettings) {
   return _is_internet_time;
 }
 
-bool TimeServer::begin() {
-  bool res = true;
+bool TimeService::begin() {
   end();
-  String s1, s2, s3;
-  int8_t t1;
+  String s1, s2, s3, t1;
   byte d1;
 #if defined(WIFI_FEATURE)
   // no time server in AP mode
@@ -92,9 +102,15 @@ bool TimeServer::begin() {
   s1 = Settings_ESP3D::read_string(ESP_TIME_SERVER1);
   s2 = Settings_ESP3D::read_string(ESP_TIME_SERVER2);
   s3 = Settings_ESP3D::read_string(ESP_TIME_SERVER3);
-  t1 = (int8_t)Settings_ESP3D::read_byte(ESP_TIMEZONE);
+  t1 = Settings_ESP3D::read_string(ESP_TIME_ZONE);
   d1 = Settings_ESP3D::read_byte(ESP_TIME_IS_DST);
-  configTime(3600 * (t1), d1 * 3600, s1.c_str(), s2.c_str(), s3.c_str());
+#if defined(ARDUINO_ARCH_ESP32)
+  configTzTime(t1.c_str(), s1.c_str(), s2.c_str(), s3.c_str());
+#endif  // ARDUINO_ARCH_ESP32
+#if defined(ARDUINO_ARCH_ESP8266)
+  configTime(t1, s1.c_str(), s2.c_str(), s3.c_str());
+#endif  // ARDUINO_ARCH_ESP8266
+
   time_t now = time(nullptr);
   int nb = 0;
   while ((now < (8 * 3600 * 2)) && (nb < 20)) {
@@ -103,58 +119,78 @@ bool TimeServer::begin() {
     nb++;
     now = time(nullptr);
   }
-  if (now < (8 * 3600 * 2)) {
-    res = false;
-  }
-  if (!res) {
-    end();
-  }
-  _started = res;
+  _started = true;  // always true, time is set asynchrously
   return _started;
 }
 
-const char* TimeServer::current_time(time_t t) {
-  static String stmp;
+const char* TimeService::getTimeZone() { return _time_zone.c_str(); }
+
+bool TimeService::setTimeZone(const char* stime) {
+  bool valid = false;
+  for (uint8_t i = 0; i < SupportedTimeZonesSize; i++) {
+    if (strcmp(stime, SupportedTimeZones[i]) == 0) {
+      valid = true;
+      break;
+    }
+  }
+  if (valid) {
+    _time_zone = stime;
+    return Settings_ESP3D::write_string(ESP_TIME_ZONE, _time_zone.c_str());
+  }
+  return false;
+}
+
+bool TimeService::updateTimeZone(bool fromsettings) {
+  char out_str[7] = {0};
+  _time_zone = Settings_ESP3D.readString(ESP_TIME_ZONE);
+
+  bool valid = false;
+  for (uint8_t i = 0; i < SupportedTimeZonesSize; i++) {
+    if (strcmp(_time_zone.c_str(), SupportedTimeZones[i]) == 0) {
+      valid = true;
+      break;
+    }
+  }
+
+  if (!valid) {
+    log_esp3d_e("Invalid time zone %s", _time_zone.c_str());
+    _time_zone = "+00:00";
+  }
+  String stmp = _time_zone;
+  if (stmp[0] == '+') {
+    stmp[0] = '-';
+  } else if (stmp[0] == '-') {
+    stmp[0] = '+';
+  } else {
+    return false;
+  }
+  stmp = "GMT" + stmp;
+#if defined(ARDUINO_ARCH_ESP32)
+  setenv("TZ", stmp.c_str(), 1);
+  tzset();
+#endif  // ARDUINO_ARCH_ESP32
+#if defined(ARDUINO_ARCH_ESP8266)
+  setTZ(stmp.c_str());
+#endif  // ARDUINO_ARCH_ESP8266
+
+  return true;
+}
+
+const char* TimeService::getCurrentTime() {
   struct tm tmstruct;
   time_t now;
-  stmp = "";
   // get current time
-  if (t == 0) {
-    log_esp3d("No time provided");
-    time(&now);
-    localtime_r(&now, &tmstruct);
-  } else {
-    log_esp3d("Got time initialization");
-    localtime_r(&t, &tmstruct);
-  }
-  stmp = String((tmstruct.tm_year) + 1900) + "-";
-  if (((tmstruct.tm_mon) + 1) < 10) {
-    stmp += "0";
-  }
-  stmp += String((tmstruct.tm_mon) + 1) + "-";
-  if (tmstruct.tm_mday < 10) {
-    stmp += "0";
-  }
-  stmp += String(tmstruct.tm_mday) + " ";
-  if (tmstruct.tm_hour < 10) {
-    stmp += "0";
-  }
-  stmp += String(tmstruct.tm_hour) + ":";
-  if (tmstruct.tm_min < 10) {
-    stmp += "0";
-  }
-  stmp += String(tmstruct.tm_min) + ":";
-  if (tmstruct.tm_sec < 10) {
-    stmp += "0";
-  }
-  stmp += String(tmstruct.tm_sec);
-  log_esp3d("Current time is %s", stmp.c_str());
-  return stmp.c_str();
+  time(&now);
+  localtime_r(&now, &tmstruct);
+  static char buf[20];
+  strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", &tmstruct);
+  log_esp3d("Time string is %s", buf);
+  return buf;
 }
 
 // the string date time  need to be iso-8601
 // the time zone part will be ignored
-bool TimeServer::setTime(const char* stime) {
+bool TimeService::setTime(const char* stime) {
   log_esp3d("Set time to %s", stime);
   String stmp = stime;
   struct tm tmstruct;
@@ -164,34 +200,49 @@ bool TimeServer::setTime(const char* stime) {
     log_esp3d("Invalid time format, try without seconds");
     // allow not to set seconds for lazy guys typing command line
     if (strptime(stime, "%Y-%m-%dT%H:%M", &tmstruct) == nullptr) {
-      log_esp3d_e("Invalid time format");
+      log_esp3d("Invalid time format");
       return false;
     }
   }
-  char buf[80];
-  strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", &tmstruct);
-  log_esp3d("Time string is %s", buf);
+
   time_val.tv_usec = 0;
   time_val.tv_sec = mktime(&tmstruct);
-  // try to setTime
-  if (settimeofday(&time_val, 0) == -1) {
+
+  // need to set timezone also
+  int offset = _get_time_zone_offset_min();
+  struct timezone tz = {offset, 0};
+  // now set time to system
+  if (settimeofday(&time_val, &tz) == -1) {
     return false;
   }
   return true;
 }
 
-bool TimeServer::started() { return _started; }
+bool TimeService::started() { return _started; }
 
 // currently not used
-void TimeServer::end() {
+void TimeService::end() {
   _started = false;
   _is_internet_time = false;
+  _time_zone = "+00:00";
 }
 
 // currently not used
-void TimeServer::handle() {
+void TimeService::handle() {
   if (_started) {
   }
 }
 
-#endif  // TimeServer_DEVICE
+int TimeService::_get_time_zone_offset_min() {
+  int offset = 0;
+  int hour = atoi(_time_zone.substr(1, 2).c_str());
+  int min = atoi(_time_zone.substr(4, 2).c_str());
+  offset = hour * 60 + min;
+  // result is in minutes west of GMT
+  if (_time_zone[0] == '+' && offset > 0) {
+    offset = -offset;
+  }
+  return offset;
+}
+
+#endif  // TimeService_DEVICE

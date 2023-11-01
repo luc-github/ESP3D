@@ -141,7 +141,7 @@ bool Commands::ESP140(const char* cmd_params, level_authenticate_type auth_type,
         parameter.toUpperCase();
         if (parameter.length() > 0) {
           hasParam = true;
-          if (!timeserver.setTime(parameter.c_str())) {
+          if (!timeService.setTime(parameter.c_str())) {
             response =
                 format_response(COMMANDID, json, false, "Set time failed");
             noError = false;
@@ -153,8 +153,8 @@ bool Commands::ESP140(const char* cmd_params, level_authenticate_type auth_type,
         if (has_tag(parameter.c_str(), "SYNC")) {
           log_esp3d("Sync time");
           hasParam = true;
-          if (timeserver.is_internet_time()) {
-            if (!timeserver.begin()) {
+          if (timeService.is_internet_time()) {
+            if (!timeService.begin()) {
               response =
                   format_response(COMMANDID, json, false, "Init time failed");
               noError = false;
@@ -167,7 +167,7 @@ bool Commands::ESP140(const char* cmd_params, level_authenticate_type auth_type,
           if (noError) {
             log_esp3d("Get time");
             response = format_response(COMMANDID, json, true,
-                                       timeserver.current_time());
+                                       timeService.getCurrentTime());
           }
         }
       }
@@ -175,8 +175,8 @@ bool Commands::ESP140(const char* cmd_params, level_authenticate_type auth_type,
         if (has_tag(parameter.c_str(), "NOW")) {
           hasParam = true;
           log_esp3d("Get time");
-          response =
-              format_response(COMMANDID, json, true, timeserver.current_time());
+          response = format_response(COMMANDID, json, true,
+                                     timeService.getCurrentTime());
         }
       }
       if (noError && !hasParam) {

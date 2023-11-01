@@ -183,7 +183,7 @@ label can be: light/framesize/quality/contrast/brightness/saturation/gainceiling
         ESP_NOTIFICATION_TOKEN2 396     //64 bytes 63+1 = string  ; warning does not support multibyte char like chinese    
         ESP_SENSOR_TYPE         460     //1  bytes = flag   
         ESP_TARGET_FW           461     //1  bytes = flag   
-        ESP_TIMEZONE            462     //1  bytes = flag   
+        ESP_FREE            462     //1  bytes = flag   
         ESP_TIME_IS_DST         463     //1  bytes = flag   
         ESP_TIME_SERVER1        464     //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese   
         ESP_TIME_SERVER2        593     //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese   
@@ -216,6 +216,7 @@ label can be: light/framesize/quality/contrast/brightness/saturation/gainceiling
         ESP_SERIAL_BRIDGE_ON    1036    //1 byte = flag
         ESP_SERIAL_BRIDGE_FLAG  1037    //1 byte = flag
         ESP_SERIAL_BRIDGE_BAUD  1038    //4  bytes= int
+        ESP_TIME_ZONE           1042    //7  bytes= string    
 ```
 
 * Get/Set Check update at boot state which can be ON, OFF   
