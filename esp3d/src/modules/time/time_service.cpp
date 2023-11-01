@@ -77,6 +77,7 @@ bool TimeService::begin() {
   end();
   String s1, s2, s3, t1;
   byte d1;
+  updateTimeZone(true);
 #if defined(WIFI_FEATURE)
   // no time server in AP mode
   if (WiFi.getMode() == WIFI_AP) {
@@ -110,10 +111,9 @@ bool TimeService::begin() {
   s1 = Settings_ESP3D::read_string(ESP_TIME_SERVER1);
   s2 = Settings_ESP3D::read_string(ESP_TIME_SERVER2);
   s3 = Settings_ESP3D::read_string(ESP_TIME_SERVER3);
-  t1 = Settings_ESP3D::read_string(ESP_TIME_ZONE);
-  d1 = Settings_ESP3D::read_byte(ESP_TIME_IS_DST);
+  // d1 = Settings_ESP3D::read_byte(ESP_TIME_IS_DST);
 #if defined(ARDUINO_ARCH_ESP32)
-  configTzTime(t1.c_str(), s1.c_str(), s2.c_str(), s3.c_str());
+  configTzTime(_time_zone.c_str(), s1.c_str(), s2.c_str(), s3.c_str());
 #endif  // ARDUINO_ARCH_ESP32
 #if defined(ARDUINO_ARCH_ESP8266)
   configTime(t1.c_str(), s1.c_str(), s2.c_str(), s3.c_str());

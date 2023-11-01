@@ -200,10 +200,13 @@ bool Commands::ESP140(const char* cmd_params, level_authenticate_type auth_type,
       }
       if (noError) {
         if (has_tag(parameter.c_str(), "NOW")) {
+          String tmp = timeService.getCurrentTime();
+          tmp += " (";
+          tmp += timeService.getTimeZone();
+          tmp += ")";
           hasParam = true;
           log_esp3d("Get time");
-          response = format_response(COMMANDID, json, true,
-                                     timeService.getCurrentTime());
+          response = format_response(COMMANDID, json, true, tmp.c_str());
         }
       }
       if (noError && !hasParam) {
