@@ -133,6 +133,7 @@ bool Commands::ESP140(const char* cmd_params, level_authenticate_type auth_type,
 
       if (noError) {
         parameter = get_param(cmd_params, "ntp=");
+        parameter.toUpperCase();
         if (parameter.length() > 0) {
           hasParam = true;
           parameter.toUpperCase();
@@ -174,6 +175,7 @@ bool Commands::ESP140(const char* cmd_params, level_authenticate_type auth_type,
         }
       }
       parameter = clean_param(get_param(cmd_params, ""));
+      parameter.toUpperCase();
       if (noError) {
         if (has_tag(parameter.c_str(), "SYNC")) {
           log_esp3d("Sync time");
