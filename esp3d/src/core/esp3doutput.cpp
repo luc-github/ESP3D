@@ -70,6 +70,7 @@ uint8_t ESP3DOutput::_BToutputflags = DEFAULT_BT_FLAG;
 uint8_t ESP3DOutput::_serialBridgeoutputflags = DEFAULT_SERIAL_BRIDGE_FLAG;
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
 #if defined(HTTP_FEATURE)
+#include "../modules/http/http_server.h"
 #if defined(ARDUINO_ARCH_ESP32)
 #include <WebServer.h>
 #endif  // ARDUINO_ARCH_ESP32
@@ -453,6 +454,7 @@ size_t ESP3DOutput::printMSGLine(const char *s) {
         _webserver->setContentLength(CONTENT_LENGTH_UNKNOWN);
         _webserver->sendHeader("Content-Type", "text/html");
         _webserver->sendHeader("Cache-Control", "no-cache");
+        HTTP_Server::set_http_headers();
         _webserver->send(_code);
         _headerSent = true;
       }
@@ -529,6 +531,7 @@ size_t ESP3DOutput::printMSG(const char *s, bool withNL) {
     if (_webserver) {
       if (!_headerSent && !_footerSent) {
         _webserver->sendHeader("Cache-Control", "no-cache");
+        HTTP_Server::set_http_headers();
 #ifdef ESP_ACCESS_CONTROL_ALLOW_ORIGIN
         _webserver->sendHeader("Access-Control-Allow-Origin", "*");
 #endif  // ESP_ACCESS_CONTROL_ALLOw_ORIGIN
@@ -606,6 +609,7 @@ size_t ESP3DOutput::printERROR(const char *s, int code_error) {
     if (_webserver) {
       if (!_headerSent && !_footerSent) {
         _webserver->sendHeader("Cache-Control", "no-cache");
+        HTTP_Server::set_http_headers();
         if (s[0] != '{') {
           display = "error: ";
         } else {
@@ -750,6 +754,7 @@ size_t ESP3DOutput::write(const uint8_t *buffer, size_t size) {
           _webserver->setContentLength(CONTENT_LENGTH_UNKNOWN);
           _webserver->sendHeader("Content-Type", "text/html");
           _webserver->sendHeader("Cache-Control", "no-cache");
+          HTTP_Server::set_http_headers();
           _webserver->send(_code);
           _headerSent = true;
         }
