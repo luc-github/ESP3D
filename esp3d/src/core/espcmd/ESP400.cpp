@@ -434,7 +434,7 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
       output->print("\",\"T\":\"S\",\"R\":\"1\",\"V\":\"");
       output->print(Settings_ESP3D::read_string(ESP_TIME_ZONE));
       output->print("\",\"H\":\"tzone\",\"O\":[");
-      for (int8_t i = 0; i <= SupportedTimeZonesSize; i++) {
+      for (int8_t i = 0; i < SupportedTimeZonesSize; i++) {
         if (i > 0) {
           output->print(",");
         }

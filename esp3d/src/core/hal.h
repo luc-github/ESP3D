@@ -20,41 +20,52 @@
 
 #ifndef _ESP3D_HAL_H
 #define _ESP3D_HAL_H
-//be sure correct IDE and settings are used for ESP8266 or ESP32
-#if !(defined( ARDUINO_ARCH_ESP8266) || defined(ARDUINO_ARCH_ESP32))
+// be sure correct IDE and settings are used for ESP8266 or ESP32
+#if !(defined(ARDUINO_ARCH_ESP8266) || defined(ARDUINO_ARCH_ESP32))
 #error Oops!  Make sure you have 'ESP8266 or ESP32' compatible board selected from the 'Tools -> Boards' menu.
-#endif // ARDUINO_ARCH_ESP8266) || defined(ARDUINO_ARCH_ESP32
+#endif  // ARDUINO_ARCH_ESP8266) || defined(ARDUINO_ARCH_ESP32
 #if defined(ARDUINO_ARCH_ESP8266)
 #include <ESP8266WiFi.h>
-#endif //ARDUINO_ARCH_ESP8266
+#endif  // ARDUINO_ARCH_ESP8266
 #if defined(ARDUINO_ARCH_ESP32)
 #include <WiFi.h>
 #include <esp_task_wdt.h>
-#endif //ARDUINO_ARCH_ESP32
+#endif  // ARDUINO_ARCH_ESP32
 #include <Arduino.h>
 
-class Hal
-{
-public:
-    static bool begin();
-    static void end();
-    static void wait (uint32_t milliseconds);
-    static uint16_t getChipID();
-    static bool has_temperature_sensor();
-    static float temperature();
-    static bool is_pin_usable(uint pin);
-    static void clearAnalogChannels();
-    static void pinMode(uint8_t pin, uint8_t mode);
-    static int analogRead(uint8_t pin);
-    static bool analogWrite(uint8_t pin, uint value);
-    static void analogWriteFreq(uint32_t freq);
-    static void analogRange(uint32_t range);
+class Hal {
+ public:
+  static bool begin();
+  static void end();
+  static void wait(uint32_t milliseconds);
+  static uint16_t getChipID();
+  static bool has_temperature_sensor();
+  static float temperature();
+  static bool is_pin_usable(uint pin);
+  static void clearAnalogChannels();
+  static void pinMode(uint8_t pin, uint8_t mode);
+  static int analogRead(uint8_t pin);
+  static bool analogWrite(uint8_t pin, uint value);
+  static void analogWriteFreq(uint32_t freq);
+  static void analogRange(uint32_t range);
 #if defined(ARDUINO_ARCH_ESP32)
-    static TaskHandle_t xHandle;
-#endif //ARDUINO_ARCH_ESP32
-private:
-    static void wdtFeed();
-    static uint32_t _analogRange;
-    static uint32_t _analogWriteFreq;
+  static TaskHandle_t xHandle;
+#endif  // ARDUINO_ARCH_ESP32
+ private:
+  static void wdtFeed();
+  static uint32_t _analogRange;
+  static uint32_t _analogWriteFreq;
 };
-#endif //_ESP3D_HAL_H
+
+class Esp3dTimout {
+ public:
+  Esp3dTimout(uint64_t timeout) { _start = millis(); };
+  void reset() { _start = millis(); };
+  bool isTimeout() { return (millis() - _start > _timeout); };
+  uint64_t getTimeout() { return _timeout; };
+
+ private:
+  uint64_t _start;
+  uint64_t _timeout;
+};
+#endif  //_ESP3D_HAL_H

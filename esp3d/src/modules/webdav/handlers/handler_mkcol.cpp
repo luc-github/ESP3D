@@ -1,5 +1,5 @@
 /*
- webdav_server.h - webdav service functions class
+  webdav_server.cpp -  webdav server functions class
 
   Copyright (c) 2023 Luc Lebosse. All rights reserved.
 
@@ -18,32 +18,16 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _WEBDAV_SERVER_H
-#define _WEBDAV_SERVER_H
-#include "stdint.h"
-class WiFiServer;
-class WiFiClient;
+#include "../../../include/esp3d_config.h"
 
-class WebdavServer {
- public:
-  WebdavServer();
-  ~WebdavServer();
-  bool begin();
-  void end();
-  void handle();
-  bool started();
-  bool isConnected();
-  const char* clientIPAddress();
-  uint16_t port() { return _port; }
-  void closeClient();
+#if defined(WEBDAV_FEATURE)
+#include "../webdav_server.h"
 
- private:
-  bool _started;
-  WiFiServer* _tcpServer;
-  WiFiClient _client;
-  uint16_t _port;
-};
+void WebdavServer::handler_mkcol() {
+  log_esp3d("Processing MKCOL");
+  clearPayload();
+  send_response_code(200);
+  send_webdav_headers();
+}
 
-extern WebdavServer esp3d_webdav_server;
-
-#endif
+#endif  // WEBDAV_FEATURE
