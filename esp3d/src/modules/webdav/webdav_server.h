@@ -25,7 +25,25 @@
 #include <list>
 #include <utility>
 
-#include "stdint.h"
+#include "../../include/esp3d_config.h"
+
+#if WEBDAV_FEATURE == FS_ROOT
+#include "../filesystem/esp_globalFS.h"
+typedef ESP_GBFile WebDavFile;
+typedef ESP_GBFS WebDavFS;
+#endif  // WEBDAV_FEATURE == FS_ROOT
+
+#if WEBDAV_FEATURE == FS_FLASH
+#include "../filesystem/esp_filesystem.h"
+typedef ESP_File WebDavFile;
+typedef ESP_FileSystem WebDavFS;
+#endif  // WEBDAV_FEATURE == FS_FLASH
+
+#if WEBDAV_FEATURE == FS_SD
+#include "../filesystem/esp_sd.h"
+typedef ESP_SDFile WebDavFile;
+typedef ESP_SD WebDavFS;
+#endif  // WEBDAV_FEATURE == FS_SD
 
 class WiFiServer;
 class WiFiClient;
