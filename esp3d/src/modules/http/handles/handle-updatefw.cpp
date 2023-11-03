@@ -18,50 +18,52 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "../../../include/esp3d_config.h"
-#if defined (HTTP_FEATURE) && defined(WEB_UPDATE_FEATURE)
+#if defined(HTTP_FEATURE) && defined(WEB_UPDATE_FEATURE)
 #include "../http_server.h"
-#if defined (ARDUINO_ARCH_ESP32)
+#if defined(ARDUINO_ARCH_ESP32)
 #include <WebServer.h>
-#endif //ARDUINO_ARCH_ESP32
-#if defined (ARDUINO_ARCH_ESP8266)
+#endif  // ARDUINO_ARCH_ESP32
+#if defined(ARDUINO_ARCH_ESP8266)
 #include <ESP8266WebServer.h>
-#endif //ARDUINO_ARCH_ESP8266
+#endif  // ARDUINO_ARCH_ESP8266
 #include "../../../core/esp3d.h"
 #include "../../authentication/authentication_service.h"
-//Web Update handler
-void HTTP_Server::handleUpdate ()
-{
-    level_authenticate_type auth_level = AuthenticationService::authenticated_level();
-    if (auth_level != LEVEL_ADMIN) {
-        _upload_status = UPLOAD_STATUS_NONE;
-        _webserver->send (401, "text/plain", "Wrong authentication!");
-        return;
-    }
-    String jsonfile = "{\"status\":\"" ;
-    switch(_upload_status) {
-    case  UPLOAD_STATUS_NONE :
-        jsonfile += "no file";
-        break;
-    case  UPLOAD_STATUS_CANCELLED :
-        jsonfile += "canceled";
-        break;
-    case  UPLOAD_STATUS_SUCCESSFUL :
-        jsonfile += "ok";
-        break;
-    default :
-        jsonfile += "error";
-        break;
-    }
-    jsonfile += "\"}";
-    _webserver->sendHeader("Cache-Control", "no-cache");
-    _webserver->send(200, "application/json", jsonfile);
-    //if success restart
-    if (_upload_status == UPLOAD_STATUS_SUCCESSFUL) {
-        Hal::wait(1000);
-        Esp3D::restart_esp();
-    } else {
-        _upload_status = UPLOAD_STATUS_NONE;
-    }
+// Web Update handler
+void HTTP_Server::handleUpdate() {
+  level_authenticate_type auth_level =
+      AuthenticationService::authenticated_level();
+  HTTP_Server::set_http_headers();
+
+  if (auth_level != LEVEL_ADMIN) {
+    _upload_status = UPLOAD_STATUS_NONE;
+    _webserver->send(401, "text/plain", "Wrong authentication!");
+    return;
+  }
+  String jsonfile = "{\"status\":\"";
+  switch (_upload_status) {
+    case UPLOAD_STATUS_NONE:
+      jsonfile += "no file";
+      break;
+    case UPLOAD_STATUS_CANCELLED:
+      jsonfile += "canceled";
+      break;
+    case UPLOAD_STATUS_SUCCESSFUL:
+      jsonfile += "ok";
+      break;
+    default:
+      jsonfile += "error";
+      break;
+  }
+  jsonfile += "\"}";
+  _webserver->sendHeader("Cache-Control", "no-cache");
+  _webserver->send(200, "application/json", jsonfile);
+  // if success restart
+  if (_upload_status == UPLOAD_STATUS_SUCCESSFUL) {
+    Hal::wait(1000);
+    Esp3D::restart_esp();
+  } else {
+    _upload_status = UPLOAD_STATUS_NONE;
+  }
 }
 
-#endif //HTTP_FEATURE && WEB_UPDATE_FEATURE
+#endif  // HTTP_FEATURE && WEB_UPDATE_FEATURE

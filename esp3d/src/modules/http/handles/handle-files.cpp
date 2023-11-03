@@ -36,6 +36,8 @@
 // Filesystem
 // Filesystem files list and file commands
 void HTTP_Server::handleFSFileList() {
+  HTTP_Server::set_http_headers();
+
   level_authenticate_type auth_level =
       AuthenticationService::authenticated_level();
   if (auth_level == LEVEL_GUEST) {

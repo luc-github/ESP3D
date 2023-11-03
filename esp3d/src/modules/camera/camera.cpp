@@ -78,6 +78,7 @@ bool Camera::handle_snap(WebServer *webserver, const char *path,
     webserver->sendHeader(String(F("Content-Disposition")),
                           String(F("inline; filename=capture.jpg")), true);
     webserver->setContentLength(CONTENT_LENGTH_UNKNOWN);
+    HTTP_Server::set_http_headers();
     webserver->send(200);
   }
   log_esp3d("Camera capture ongoing");

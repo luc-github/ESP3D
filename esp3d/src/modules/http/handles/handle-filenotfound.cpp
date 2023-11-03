@@ -40,6 +40,8 @@
 
 // Handle not registred path on FS neither SD ///////////////////////
 void HTTP_Server::handle_not_found() {
+  HTTP_Server::set_http_headers();
+
   if (AuthenticationService::authenticated_level() == LEVEL_GUEST) {
     _webserver->send(401, "text/plain", "Wrong authentication!");
     return;

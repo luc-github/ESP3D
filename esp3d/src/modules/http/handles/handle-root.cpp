@@ -31,6 +31,8 @@
 #include "../../filesystem/esp_filesystem.h"
 // Root of Webserver/////////////////////////////////////////////////////
 void HTTP_Server::handle_root() {
+  HTTP_Server::set_http_headers();
+
   String path = ESP3D_HOST_PATH;
   // Some sanity check
   if (path[0] != '/') {
