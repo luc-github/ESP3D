@@ -18,46 +18,49 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "../../include/esp3d_config.h"
-#if defined (DISPLAY_DEVICE)
+#if defined(DISPLAY_DEVICE)
+#include "../../modules/authentication/authentication_service.h"
+#include "../../modules/display/display.h"
 #include "../commands.h"
 #include "../esp3doutput.h"
 #include "../settings_esp3d.h"
-#include "../../modules/display/display.h"
-#include "../../modules/authentication/authentication_service.h"
-#define COMMANDID   214
-//Output to esp screen status
+
+#define COMMANDID 214
+// Output to esp screen status
 //[ESP214]<Text>json=<no> pwd=<user/admin password>
-bool Commands::ESP214(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
-{
-    bool noError = true;
-    bool json = has_tag (cmd_params, "json");
-    String response;
-    String parameter;
-    int errorCode = 200; //unless it is a server error use 200 as default and set error in json instead
+bool Commands::ESP214(const char* cmd_params, level_authenticate_type auth_type,
+                      ESP3DOutput* output) {
+  bool noError = true;
+  bool json = has_tag(cmd_params, "json");
+  String response;
+  String parameter;
+  int errorCode = 200;  // unless it is a server error use 200 as default and
+                        // set error in json instead
 #ifdef AUTHENTICATION_FEATURE
-    if (auth_type == LEVEL_GUEST) {
-        response = format_response(COMMANDID, json, false, "Guest user can't use this command");
-        noError = false;
-        errorCode = 401;
-    }
+  if (auth_type == LEVEL_GUEST) {
+    response = format_response(COMMANDID, json, false,
+                               "Guest user can't use this command");
+    noError = false;
+    errorCode = 401;
+  }
 #else
-    (void)auth_type;
-#endif //AUTHENTICATION_FEATURE
+  (void)auth_type;
+#endif  // AUTHENTICATION_FEATURE
+  if (noError) {
+    parameter = clean_param(get_param(cmd_params, ""));
+    esp3d_display.setStatus(parameter.c_str());
+    response = format_response(COMMANDID, json, true, "ok");
+  }
+  if (json) {
+    output->printLN(response.c_str());
+  } else {
     if (noError) {
-        parameter = clean_param(get_param (cmd_params, ""));
-        esp3d_display.setStatus(parameter.c_str());
-        response = format_response(COMMANDID, json, true, "ok");
-    }
-    if (noError) {
-        if (json) {
-            output->printLN (response.c_str() );
-        } else {
-            output->printMSG (response.c_str() );
-        }
+      output->printMSG(response.c_str());
     } else {
-        output->printERROR(response.c_str(), errorCode);
+      output->printERROR(response.c_str(), errorCode);
     }
-    return noError;
+  }
+  return noError;
 }
 
-#endif //DISPLAY_DEVICE
+#endif  // DISPLAY_DEVICE

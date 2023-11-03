@@ -26,7 +26,7 @@
 #include "../settings_esp3d.h"
 
 #define COMMANDID 104
-// Set STA fallback mode state at boot which can be BT, WIFI-AP,  OFF
+// Set STA fallback mode state at boot which can be BT, WIFI-SETUP,  OFF
 //[ESP104]<state> json=<no> pwd=<admin password>
 bool Commands::ESP104(const char* cmd_params, level_authenticate_type auth_type,
                       ESP3DOutput* output) {

@@ -1660,14 +1660,14 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
       noError = false;
     }
   }
-  if (noError) {
-    if (json) {
-      output->printLN(response.c_str());
-    } else {
-      output->printMSG(response.c_str());
-    }
+  if (json) {
+    output->printLN(response.c_str());
   } else {
-    output->printERROR(response.c_str(), errorCode);
+    if (noError) {
+      output->printMSG(response.c_str());
+    } else {
+      output->printERROR(response.c_str(), errorCode);
+    }
   }
   return noError;
 }

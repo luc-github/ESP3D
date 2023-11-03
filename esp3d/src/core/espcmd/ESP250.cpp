@@ -18,74 +18,77 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "../../include/esp3d_config.h"
-#if defined (BUZZER_DEVICE)
+#if defined(BUZZER_DEVICE)
+#include "../../modules/authentication/authentication_service.h"
+#include "../../modules/buzzer/buzzer.h"
 #include "../commands.h"
 #include "../esp3doutput.h"
 #include "../settings_esp3d.h"
-#include "../../modules/authentication/authentication_service.h"
-#include "../../modules/buzzer/buzzer.h"
-#define COMMANDID   250
-//Play sound
+
+#define COMMANDID 250
+// Play sound
 //[ESP250]F=<frequency> D=<duration> json=<no> [pwd=<user password>]
-bool Commands::ESP250(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
-{
-    bool noError = true;
-    bool json = has_tag (cmd_params, "json");
-    String response;
-    String parameter;
-    int errorCode = 200; //unless it is a server error use 200 as default and set error in json instead
+bool Commands::ESP250(const char* cmd_params, level_authenticate_type auth_type,
+                      ESP3DOutput* output) {
+  bool noError = true;
+  bool json = has_tag(cmd_params, "json");
+  String response;
+  String parameter;
+  int errorCode = 200;  // unless it is a server error use 200 as default and
+                        // set error in json instead
 #ifdef AUTHENTICATION_FEATURE
-    if (auth_type == LEVEL_GUEST) {
-        response = format_response(COMMANDID, json, false, "Guest user can't use this command");
-        noError = false;
-        errorCode = 401;
-    }
+  if (auth_type == LEVEL_GUEST) {
+    response = format_response(COMMANDID, json, false,
+                               "Guest user can't use this command");
+    noError = false;
+    errorCode = 401;
+  }
 #else
-    (void)auth_type;
-#endif //AUTHENTICATION_FEATURE
-    if (noError) {
-        if (!esp3d_buzzer.started()) {
-            response = format_response(COMMANDID, json, false, "Buzzer disabled");
-            noError = false;
-        } else {
-            parameter = get_param (cmd_params, "");
-            //get
-            if (parameter.length() == 0) {
-                esp3d_buzzer.beep();
-            } else {
-                int f,d;
-                //frequency
-                parameter = get_param (cmd_params, "F=");
-                if (parameter.length() == 0) {
-                    response = format_response(COMMANDID, json, false, "No frequency");
-                    noError = false;
-                } else {
-                    f = parameter.toInt();
-                    parameter = get_param (cmd_params, "D=");
-                    if (parameter.length() == 0) {
-                        response = format_response(COMMANDID, json, false, "No duration");
-                        noError = false;
-                    } else {
-                        d = parameter.toInt();
-                        esp3d_buzzer.beep(f,d);
-                    }
-                }
-            }
-            if(noError) {
-                response = format_response(COMMANDID, json, true, "ok");
-            }
-        }
-    }
-    if (noError) {
-        if (json) {
-            output->printLN (response.c_str() );
-        } else {
-            output->printMSG (response.c_str() );
-        }
+  (void)auth_type;
+#endif  // AUTHENTICATION_FEATURE
+  if (noError) {
+    if (!esp3d_buzzer.started()) {
+      response = format_response(COMMANDID, json, false, "Buzzer disabled");
+      noError = false;
     } else {
-        output->printERROR(response.c_str(), errorCode);
+      parameter = get_param(cmd_params, "");
+      // get
+      if (parameter.length() == 0) {
+        esp3d_buzzer.beep();
+      } else {
+        int f, d;
+        // frequency
+        parameter = get_param(cmd_params, "F=");
+        if (parameter.length() == 0) {
+          response = format_response(COMMANDID, json, false, "No frequency");
+          noError = false;
+        } else {
+          f = parameter.toInt();
+          parameter = get_param(cmd_params, "D=");
+          if (parameter.length() == 0) {
+            response = format_response(COMMANDID, json, false, "No duration");
+            noError = false;
+          } else {
+            d = parameter.toInt();
+            esp3d_buzzer.beep(f, d);
+          }
+        }
+      }
+      if (noError) {
+        response = format_response(COMMANDID, json, true, "ok");
+      }
     }
-    return noError;
+  }
+  if (json) {
+    output->printLN(response.c_str());
+  } else {
+    if (noError) {
+      output->printMSG(response.c_str());
+    } else {
+      output->printERROR(response.c_str(), errorCode);
+    }
+  }
+  return noError;
 }
 
-#endif //BUZZER_DEVICE
+#endif  // BUZZER_DEVICE

@@ -44,7 +44,7 @@
 #include "../../modules/camera/camera.h"
 #endif  // CAMERA_DEVICE
 #define COMMANDID 800
-// get fw version firmare target and fw version
+// get fw capabilities
 // eventually set time with pc time
 // output is JSON or plain text according parameter
 //[ESP800]json=<no><time=YYYY-MM-DDTHH:mm:ss> <version=3.0.0-a11> <setup=0/1>
@@ -435,14 +435,14 @@ bool Commands::ESP800(const char* cmd_params, level_authenticate_type auth_type,
     }
     return true;
   }
-  if (noError) {
-    if (json) {
-      output->printLN(response.c_str());
-    } else {
-      output->printMSG(response.c_str());
-    }
+  if (json) {
+    output->printLN(response.c_str());
   } else {
-    output->printERROR(response.c_str(), errorCode);
+    if (noError) {
+      output->printMSG(response.c_str());
+    } else {
+      output->printERROR(response.c_str(), errorCode);
+    }
   }
   return noError;
 }

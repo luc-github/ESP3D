@@ -59,7 +59,11 @@ bool Commands::ESP111(const char* cmd_params, level_authenticate_type auth_type,
       }
     }
   } else {
-    output->printERROR(response.c_str(), 200);
+    if (json) {
+      output->printLN(response.c_str());
+    } else {
+      output->printERROR(response.c_str(), 200);
+    }
   }
   return noError;
 }
