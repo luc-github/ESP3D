@@ -180,6 +180,23 @@ void WebdavServer::parseRequest() {
     }
     static String method = line.substring(0, pos1);
     static String url = line.substring(pos1 + 1, pos2);
+    // Do some sanity check
+    url.trim();
+    method.trim();
+    // if empty
+    if (url.length() == 0) {
+      url = "/";
+    }
+    // if encoded
+    url = urlDecode(url.c_str());
+    if (url != "/" && url.endsWith("/")) {
+      url = url.substring(0, url.length() - 1);
+    }
+    // if not starting with /
+    if (url[0] != '/') {
+      url = "/" + url;
+    }
+
     // Now list all headers
     bool headers_read = false;
     while (!headers_read) {
@@ -225,7 +242,6 @@ void WebdavServer::parseRequest() {
         static String header_value = line.substring(pos1 + 1);
         header_name.trim();
         header_value.trim();
-        header_value = urlDecode(header_value.c_str());
         log_esp3d_d("Header: %s = %s", header_name.c_str(),
                     header_value.c_str());
         _headers.push_back(std::make_pair(header_name, header_value));
