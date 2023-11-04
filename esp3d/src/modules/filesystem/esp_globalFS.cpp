@@ -574,6 +574,15 @@ time_t ESP_GBFile::getLastWrite() {
     return _sdFile.getLastWrite();
   }
 #endif  // SD_DEVICE
+
+#if defined(TIMESTAMP_FEATURE)
+  static time_t t = 0;
+  if (t == 0) {
+    time(&t);
+    t = t - (millis() / 1000);
+  }
+  return t;
+#endif  // TIMESTAMP_FEATURE
   return 0;
 }
 

@@ -24,7 +24,7 @@
 #include "../webdav_server.h"
 
 void WebdavServer::handler_options(const char* url) {
-  log_esp3d_d("Processing OPTIONS");
+  log_esp3d("Processing OPTIONS");
   clearPayload();
   send_response_code(200);
   send_webdav_headers();

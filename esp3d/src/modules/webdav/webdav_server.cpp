@@ -163,7 +163,7 @@ void WebdavServer::parseRequest() {
     if (hasError) {
       send_response_code(400);
       send_webdav_headers();
-      _client.write("\r\n");  // empty line
+      _client.print("\r\n");  // empty line
       log_esp3d_e("Bad request line: %s", line.c_str());
       return;
     }
@@ -175,11 +175,11 @@ void WebdavServer::parseRequest() {
       send_response_code(400);
       log_esp3d_e("Bad request line: %s", line.c_str());
       send_webdav_headers();
-      _client.write("\r\n");  // empty line
+      _client.print("\r\n");  // empty line
       return;
     }
-    static String method = line.substring(0, pos1);
-    static String url = line.substring(pos1 + 1, pos2);
+    String method = line.substring(0, pos1);
+    String url = line.substring(pos1 + 1, pos2);
     // Do some sanity check
     url.trim();
     method.trim();
@@ -189,13 +189,15 @@ void WebdavServer::parseRequest() {
     }
     // if encoded
     url = urlDecode(url.c_str());
-    if (url != "/" && url.endsWith("/")) {
+    log_esp3d_d("url ini: %s", url.c_str());
+    if (url != "/" && url[url.length() - 1] == '/') {
       url = url.substring(0, url.length() - 1);
     }
     // if not starting with /
     if (url[0] != '/') {
       url = "/" + url;
     }
+    log_esp3d_d("url clean: %s", url.c_str());
 
     // Now list all headers
     bool headers_read = false;
@@ -230,7 +232,7 @@ void WebdavServer::parseRequest() {
       if (hasError) {
         send_response_code(400);
         send_webdav_headers();
-        _client.write("\r\n");  // empty line
+        _client.print("\r\n");  // empty line
         log_esp3d_e("Bad request line: %s", line.c_str());
         return;
       }
@@ -262,67 +264,67 @@ bool WebdavServer::send_response_code(int code) {
     return false;
   }
 
-  _client.write("HTTP/1.1 ");
-  _client.write(String(code).c_str());
-  _client.write(" ");
+  _client.print("HTTP/1.1 ");
+  _client.print(String(code).c_str());
+  _client.print(" ");
   _response_code_sent = true;
   switch (code) {
     case 200:
-      _client.write("OK");
+      _client.print("OK");
       break;
     case 201:
-      _client.write("Created");
+      _client.print("Created");
       break;
     case 204:
-      _client.write("No Content");
+      _client.print("No Content");
       break;
     case 207:
-      _client.write("Multi-Status");
+      _client.print("Multi-Status");
       break;
     case 400:
-      _client.write("Bad Request");
+      _client.print("Bad Request");
       break;
     case 401:
-      _client.write("Unauthorized");
+      _client.print("Unauthorized");
       break;
     case 403:
-      _client.write("Forbidden");
+      _client.print("Forbidden");
       break;
     case 404:
-      _client.write("Not Found");
+      _client.print("Not Found");
       break;
     case 405:
-      _client.write("Method Not Allowed");
+      _client.print("Method Not Allowed");
       break;
     case 409:
-      _client.write("Conflict");
+      _client.print("Conflict");
       break;
     case 412:
-      _client.write("Precondition Failed");
+      _client.print("Precondition Failed");
       break;
     case 423:
-      _client.write("Locked");
+      _client.print("Locked");
       break;
     case 424:
-      _client.write("Failed Dependency");
+      _client.print("Failed Dependency");
       break;
     case 500:
-      _client.write("Internal Server Error");
+      _client.print("Internal Server Error");
       break;
     case 501:
-      _client.write("Not Implemented");
+      _client.print("Not Implemented");
       break;
     case 507:
-      _client.write("Insufficient Storage");
+      _client.print("Insufficient Storage");
       break;
     default:
-      _client.write("Unknown");
-      _client.write("\r\n\r\n");
+      _client.print("Unknown");
+      _client.print("\r\n\r\n");
       log_esp3d_e("Unknown code %d", code);
       return false;
       break;
   }
-  _client.write("\r\n");
+  _client.print("\r\n");
   return true;
 }
 
@@ -369,10 +371,10 @@ bool WebdavServer::send_header(const char* name, const char* value) {
   if (!_response_code_sent) {
     send_response_code(200);
   }
-  _client.write(name);
-  _client.write(": ");
-  _client.write(value);
-  _client.write("\r\n");
+  _client.print(name);
+  _client.print(": ");
+  _client.print(value);
+  _client.print("\r\n");
   return true;
 }
 
@@ -422,22 +424,27 @@ bool WebdavServer::send_chunk_content(const char* response) {
       return false;
     }
     _headers_sent = true;
-    _client.write("\r\n");
+    _client.print("\r\n");
   }
-  _client.write(strlen(response));
-  _client.write("\r\n");
-  _client.write(response, strlen(response));
-  _client.write("\r\n");
+  _client.printf("%X", strlen(response));
+  _client.print("\r\n");
+  _client.print(response);
+  _client.print("\r\n");
+  // end of chunk
+  if (strlen(response) == 0) {
+    // set it end of chunk
+    _client.print("\r\n");
+  }
   return true;
 }
 
 bool WebdavServer::send_response(const char* response) {
   if (send_header("Content-Length", String(strlen(response)).c_str())) {
     send_header("Content-Type", "text/html; charset=utf-8");
-    _client.write("\r\n");
+    _client.print("\r\n");
     _headers_sent = true;
-    _client.write(response);
-    _client.write("\r\n");
+    _client.print(response);
+    _client.print("\r\n");
     return true;
   }
   return false;
@@ -497,7 +504,7 @@ bool WebdavServer::selectHandler(const char* method, const char* url) {
   log_esp3d_e("Unknown method %s for %s", method, url);
   send_response_code(405);
   send_webdav_headers();
-  _client.write("\r\n");  // empty line
+  _client.print("\r\n");  // empty line
   return false;
 }
 size_t WebdavServer::clearPayload() {
@@ -514,27 +521,29 @@ bool WebdavServer::hasHeader(const char* name) {
   for (auto it = _headers.begin(); it != _headers.end(); ++it) {
     // look for header with name
     std::pair<String, String> header = *it;
-    log_esp3d_d("Header: %s = %s", header.first.c_str(), header.second.c_str());
+    log_esp3d("Header: %s = %s", header.first.c_str(), header.second.c_str());
     // if present return true
     if (strcasecmp(header.first.c_str(), name) == 0) {
-      log_esp3d_d("Header %s found", name);
       return true;
     }
   }
   return false;
 }
 const char* WebdavServer::getHeader(const char* name) {
+  static String res;
+  res = "";
   for (auto it = _headers.begin(); it != _headers.end(); ++it) {
     // look for header with name
     std::pair<String, String> header = *it;
     // if present return true
     if (strcasecmp(header.first.c_str(), name) == 0) {
-      log_esp3d_d("Header %s found valuse %s", name, header.second.c_str());
-      return header.second.c_str();
+      log_esp3d("Header %s found value %s", name, header.second.c_str());
+      res = header.second;
+      return res.c_str();
     }
   }
 
-  return "";
+  return res.c_str();
 }
 
 #endif  // WEBDAV_FEATURE

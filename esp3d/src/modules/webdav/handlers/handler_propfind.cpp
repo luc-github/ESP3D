@@ -24,35 +24,35 @@
 #include "../../../core/esp3d_string.h"
 #include "../webdav_server.h"
 
-#define PROPFIND_RESPONSE_BODY_HEADER_1            \
-  "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" \
+#define PROPFIND_RESPONSE_BODY_HEADER_1        \
+  "<?xml version=\"1.0\" encoding=\"utf-8\"?>" \
   "<D:multistatus xmlns:D=\"DAV:\""
-#define PROPFIND_RESPONSE_BODY_HEADER_2 ">\r\n"
+#define PROPFIND_RESPONSE_BODY_HEADER_2 ">"
 
-#define PROPFIND_RESPONSE_BODY_FOOTER "</D:multistatus>\r\n"
+#define PROPFIND_RESPONSE_BODY_FOOTER "</D:multistatus>"
 
 void WebdavServer::handler_propfind(const char* url) {
-  log_esp3d_d("Processing PROPFIND");
+  log_esp3d("Processing PROPFIND");
   int code = 207;
   String depth = "0";
   String requestedDepth = "0";
   if (hasHeader("Depth")) {
     depth = getHeader("Depth");
-    log_esp3d_d("Depth: %s", depth.c_str());
+    log_esp3d("Depth: %s", depth.c_str());
     requestedDepth = depth;
     if (depth == "infinity") {
       depth = "1";
-      log_esp3d_d("Depth set to 1");
+      log_esp3d("Depth set to 1");
     }
   } else {
-    log_esp3d_d("Depth not set");
+    log_esp3d("Depth not set");
   }
 
   size_t sp = clearPayload();
-  log_esp3d_d("Payload size: %d", sp);
+  log_esp3d("Payload size: %d", sp);
 
   uint8_t fsType = WebDavFS::getFSType(url);
-  log_esp3d_d("FS type of %s : %d", url, fsType);
+  log_esp3d("FS type of %s : %d", url, fsType);
   if (WebDavFS::accessFS(fsType)) {
     if (WebDavFS::exists(url) || url == "/") {
       WebDavFile root = WebDavFS::open(url);
@@ -67,82 +67,84 @@ void WebdavServer::handler_propfind(const char* url) {
           body += "\"";
         }
         body += PROPFIND_RESPONSE_BODY_HEADER_2;
-        body += "<D:response xmlns:esp3d=\"DAV:\">\r\n";
+        body += "<D:response xmlns:esp3d=\"DAV:\">";
         body += "<D:href>";
         body += url;
-        body += "</D:href>\r\n";
-        body += "<D:propstat>\r\n";
-        body += "<D:prop>\r\n";
+        body += "</D:href>";
+        body += "<D:propstat>";
+        body += "<D:prop>";
         body += "<esp3d:getlastmodified>";
         body += esp3d_string::getTimeString((time_t)root.getLastWrite(), true);
-        body += "</esp3d:getlastmodified>\r\n";
+        body += "</esp3d:getlastmodified>";
         if (root.isDirectory()) {
           body += "<D:resourcetype>";
           body += "<D:collection/>";
-          body += "</D:resourcetype>\r\n";
+          body += "</D:resourcetype>";
         } else {
           body += "<D:resourcetype/>";
           body += "<esp3d:getcontentlength>";
           body += root.size();
-          body += "</esp3d:getcontentlength>\r\n";
+          body += "</esp3d:getcontentlength>";
         }
         body += "<esp3d:displayname>";
         body += url;
-        body += "</esp3d:displayname>\r\n";
-        body += "</D:prop>\r\n";
-        body += "<D:status>HTTP/1.1 200 OK</D:status>\r\n";
-        body += "</D:propstat>\r\n";
-        body += "</D:response>\r\n";
+        body += "</esp3d:displayname>";
+        body += "</D:prop>";
+        body += "<D:status>HTTP/1.1 200 OK</D:status>";
+        body += "</D:propstat>";
+        body += "</D:response>";
 
         if (depth == "0") {
           body += PROPFIND_RESPONSE_BODY_FOOTER;
           send_response(body.c_str());
-          log_esp3d_d("%s", body.c_str());
+          log_esp3d("%s", body.c_str());
         } else {
           send_chunk_content(body.c_str());
-          log_esp3d_d("%s", body.c_str());
+          log_esp3d("%s", body.c_str());
           if (depth == "1" && root.isDirectory()) {
-            log_esp3d_d("Depth 1, parsing directory");
+            log_esp3d("Depth 1, parsing directory");
             WebDavFile entry = root.openNextFile();
             while (entry) {
               yield();
-              body = "<D:response xmlns:esp3d=\"DAV:\">\r\n";
+              log_esp3d("Processing %s from %s", entry.name(), url);
+              body = "<D:response xmlns:esp3d=\"DAV:\">";
               body += "<D:href>";
               body += url;
-              if (url != "/") {
+              if (strcmp(url, "/") != 0) {
                 body += "/";
+                log_esp3d("Adding / to *%s*", url);
               }
-              body += entry.name();
-              body += "</D:href>\r\n";
-              body += "<D:propstat>\r\n";
-              body += "<D:prop>\r\n";
+              body += entry.name()[0] == '/' ? entry.name() + 1 : entry.name();
+              body += "</D:href>";
+              body += "<D:propstat>";
+              body += "<D:prop>";
               body += "<esp3d:getlastmodified>";
               body += esp3d_string::getTimeString((time_t)entry.getLastWrite(),
                                                   true);
-              body += "</esp3d:getlastmodified>\r\n";
+              body += "</esp3d:getlastmodified>";
               if (entry.isDirectory()) {
                 body += "<D:resourcetype>";
                 body += "<D:collection/>";
-                body += "</D:resourcetype>\r\n";
+                body += "</D:resourcetype>";
               } else {
                 body += "<D:resourcetype/>";
                 body += "<esp3d:getcontentlength>";
                 body += entry.size();
-                body += "</esp3d:getcontentlength>\r\n";
+                body += "</esp3d:getcontentlength>";
               }
               body += "<esp3d:displayname>";
               body += entry.name()[0] == '/' ? entry.name() + 1 : entry.name();
-              body += "</esp3d:displayname>\r\n";
-              body += "</D:prop>\r\n";
-              body += "<D:status>HTTP/1.1 200 OK</D:status>\r\n";
-              body += "</D:propstat>\r\n";
-              body += "</D:response>\r\n";
-              log_esp3d_d("%s", body.c_str());
+              body += "</esp3d:displayname>";
+              body += "</D:prop>";
+              body += "<D:status>HTTP/1.1 200 OK</D:status>";
+              body += "</D:propstat>";
+              body += "</D:response>";
+              log_esp3d("%s", body.c_str());
               send_chunk_content(body.c_str());
               entry.close();
               entry = root.openNextFile();
             }
-            log_esp3d_d("%s", PROPFIND_RESPONSE_BODY_FOOTER);
+            log_esp3d("%s", PROPFIND_RESPONSE_BODY_FOOTER);
             send_chunk_content(PROPFIND_RESPONSE_BODY_FOOTER);
             // End of chunk
             send_chunk_content("");
