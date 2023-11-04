@@ -25,6 +25,17 @@
 
 void WebdavServer::handler_propfind() {
   log_esp3d("Processing PROPFIND");
+  int code = 207;
+  String depth = "0";
+  String requestedDepth = "0";
+  if (hasHeader("Depth")) {
+    depth = getHeader("Depth");
+    requestedDepth = depth;
+    if (depth == "infinity") {
+      depth = "1";
+    }
+  }
+
   clearPayload();
   send_response_code(200);
   send_webdav_headers();

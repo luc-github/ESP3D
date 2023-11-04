@@ -25,9 +25,8 @@
 
 void WebdavServer::handler_proppatch() {
   log_esp3d("Processing PROPPATCH");
-  clearPayload();
-  send_response_code(200);
-  send_webdav_headers();
+  // No support for the moment, so redirect to propfind
+  handler_propfind();
 }
 
 #endif  // WEBDAV_FEATURE

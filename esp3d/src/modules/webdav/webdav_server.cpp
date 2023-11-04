@@ -225,6 +225,7 @@ void WebdavServer::parseRequest() {
         static String header_value = line.substring(pos1 + 1);
         header_name.trim();
         header_value.trim();
+        header_value = urlDecode(header_value.c_str());
         log_esp3d_d("Header: %s = %s", header_name.c_str(),
                     header_value.c_str());
         _headers.push_back(std::make_pair(header_name, header_value));
@@ -307,6 +308,41 @@ bool WebdavServer::send_response_code(int code) {
   }
   _client.write("\r\n");
   return true;
+}
+
+const char* WebdavServer::urlDecode(const char* url) {
+  static char* decoded = nullptr;
+  if (decoded) {
+    free(decoded);
+  }
+  char temp[] = "0x00";
+  unsigned int len = strlen(url);
+  unsigned int i = 0;
+  unsigned int p = 0;
+  decoded = (char*)malloc(len + 1);
+  if (decoded) {
+    while (i < len) {
+      char decodedChar;
+      char encodedChar = url[i++];
+      if ((encodedChar == '%') && (i + 1 < len)) {
+        temp[2] = url[i++];
+        temp[3] = url[i++];
+        decodedChar = strtol(temp, NULL, 16);
+      } else {
+        if (encodedChar == '+') {
+          decodedChar = ' ';
+        } else {
+          decodedChar = encodedChar;  // normal ascii char
+        }
+      }
+      decoded[p++] = decodedChar;
+    }
+    decoded[p] = 0x0;
+    return decoded;
+  } else {
+    log_esp3d_e("Can't allocate memory for decoded url");
+    return nullptr;
+  }
 }
 
 bool WebdavServer::send_header(const char* name, const char* value) {
