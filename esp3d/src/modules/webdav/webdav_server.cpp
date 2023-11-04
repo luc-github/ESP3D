@@ -529,7 +529,7 @@ const char* WebdavServer::getHeader(const char* name) {
     std::pair<String, String> header = *it;
     // if present return true
     if (strcasecmp(header.first.c_str(), name) == 0) {
-      log_esp3d_d("Header %s found valuse %d", name, header.second.c_str();
+      log_esp3d_d("Header %s found valuse %s", name, header.second.c_str());
       return header.second.c_str();
     }
   }
