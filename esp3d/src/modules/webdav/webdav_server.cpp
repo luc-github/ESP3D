@@ -132,7 +132,7 @@ void WebdavServer::parseRequest() {
   _headers.clear();
   // read the first line of the request to get the request method, URL and
   // HTTP
-  log_esp3d_d("Parsing request\n\n");
+  log_esp3d_d("Parsing new request:\n");
   if (_client.connected() && _client.available()) {
     bool hasError = false;
     bool lineIsRead = false;
@@ -228,7 +228,7 @@ void WebdavServer::parseRequest() {
           }
         }
       }
-      log_esp3d_d("Line: %s", line.c_str());
+      log_esp3d("Line: %s", line.c_str());
       if (hasError) {
         send_response_code(400);
         send_webdav_headers();
