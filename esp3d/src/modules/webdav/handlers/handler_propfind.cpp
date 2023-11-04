@@ -45,7 +45,73 @@ void WebdavServer::handler_propfind(const char* url) {
   clearPayload();
   uint8_t fsType = WebDavFS::getFSType(url);
   if (WebDavFS::accessFS(fsType)) {
-    // TODO:
+    if (WebDavFS::exists(url) || url == "/") {
+      WebDavFile root = WebDavFS::open(url);
+      if (root) {
+        send_response_code(code);
+        send_webdav_headers();
+
+        String body = PROPFIND_RESPONSE_BODY_HEADER_1;
+        if (depth != requestedDepth) {
+          body += " depth=\"";
+          body += depth;
+          body += "\"";
+        }
+        body += PROPFIND_RESPONSE_BODY_HEADER_2;
+        body += "<D:response xmlns:esp3d=\"DAV:\">\r\n";
+        body += "<D:href>";
+        body += url;
+        body += "</D:href>\r\n";
+        body += "<D:propstat>\r\n";
+        body += "<D:prop>\r\n";
+        body += "<esp3d:getlastmodified>";
+        body += root.getLastWrite();
+        body += "</esp3d:getlastmodified>\r\n";
+        if (root.isDirectory()) {
+          body += "<D:resourcetype>";
+          body += "<D:collection/>";
+          body += "</D:resourcetype>\r\n";
+        } else {
+          body += "<D:resourcetype/>";
+          body += "<esp3d:getcontentlength>";
+          body += root.size();
+          body += "</esp3d:getcontentlength>\r\n";
+        }
+
+        body += "<esp3d:displayname>";
+        body += url;
+        body += "</esp3d:displayname>\r\n";
+        body += "</D:prop>\r\n";
+        body += "<D:status>HTTP/1.1 200 OK</D:status>\r\n";
+        body += "</D:propstat>\r\n";
+        body += "</D:response>\r\n";
+
+        // TODO: send as chunck id depth = 1
+        // else send as response
+        if (depth == "1" && root.isDirectory()) {
+          WebDavFile entry = root.openNextFile();
+          while (entry) {
+            yield();
+            // TODO: send as chunck the data
+            entry.close();
+            entry = root.openNextFile();
+          }
+          body = PROPFIND_RESPONSE_BODY_FOOTER;
+          // TODO: send as chunck
+        } else {
+          body += PROPFIND_RESPONSE_BODY_FOOTER;
+          send_response(body.c_str());
+        }
+        root.close();
+      } else {
+        code = 503;
+        log_esp3d("File not opened");
+      }
+
+    } else {
+      code = 404;
+      log_esp3d("File not found");
+    }
     WebDavFS::releaseFS(fsType);
   } else {
     code = 503;
