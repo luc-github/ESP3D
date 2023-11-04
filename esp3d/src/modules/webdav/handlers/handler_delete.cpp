@@ -23,7 +23,7 @@
 #if defined(WEBDAV_FEATURE)
 #include "../webdav_server.h"
 
-void WebdavServer::handler_delete() {
+void WebdavServer::handler_delete(const char* url) {
   log_esp3d("Processing DELETE");
   clearPayload();
   send_response_code(200);

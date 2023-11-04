@@ -23,7 +23,14 @@
 #if defined(WEBDAV_FEATURE)
 #include "../webdav_server.h"
 
-void WebdavServer::handler_propfind() {
+#define PROPFIND_RESPONSE_BODY_HEADER_1            \
+  "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" \
+  "<D:multistatus xmlns:D=\"DAV:\""
+#define PROPFIND_RESPONSE_BODY_HEADER_2 ">\r\n"
+
+#define PROPFIND_RESPONSE_BODY_FOOTER "</D:multistatus>\r\n"
+
+void WebdavServer::handler_propfind(const char* url) {
   log_esp3d("Processing PROPFIND");
   int code = 207;
   String depth = "0";
@@ -35,10 +42,19 @@ void WebdavServer::handler_propfind() {
       depth = "1";
     }
   }
-
   clearPayload();
-  send_response_code(200);
-  send_webdav_headers();
+  uint8_t fsType = WebDavFS::getFSType(url);
+  if (WebDavFS::accessFS(fsType)) {
+    // TODO:
+    WebDavFS::releaseFS(fsType);
+  } else {
+    code = 503;
+    log_esp3d("FS not available");
+  }
+  if (code != 207) {
+    send_response_code(code);
+    send_webdav_headers();
+  }
 }
 
 #endif  // WEBDAV_FEATURE

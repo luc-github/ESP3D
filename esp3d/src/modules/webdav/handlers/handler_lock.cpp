@@ -23,7 +23,7 @@
 #if defined(WEBDAV_FEATURE)
 #include "../webdav_server.h"
 
-void WebdavServer::handler_lock() {
+void WebdavServer::handler_lock(const char* url) {
   log_esp3d("Processing LOCK");
   clearPayload();
   send_response_code(200);

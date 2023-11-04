@@ -442,53 +442,54 @@ bool WebdavServer::selectHandler(const char* method, const char* url) {
   log_esp3d_d("Method: %s", method);
   log_esp3d_d("URL: %s", url);
   if (strcmp(method, "OPTIONS") == 0) {
-    handler_options();
+    handler_options(url);
     return true;
   }
   if (strcmp(method, "GET") == 0) {
-    handler_get();
+    handler_get(url);
     return true;
   }
   if (strcmp(method, "PUT") == 0) {
-    handler_put();
+    handler_put(url);
     return true;
   }
   if (strcmp(method, "HEAD") == 0) {
-    handler_head();
+    handler_head(url);
     return true;
   }
   if (strcmp(method, "COPY") == 0) {
-    handler_copy();
+    handler_copy(url);
     return true;
   }
   if (strcmp(method, "MOVE") == 0) {
-    handler_move();
+    handler_move(url);
     return true;
   }
   if (strcmp(method, "MKCOL") == 0) {
-    handler_mkcol();
+    handler_mkcol(url);
     return true;
   }
   if (strcmp(method, "DELETE") == 0) {
-    handler_delete();
+    handler_delete(url);
     return true;
   }
   if (strcmp(method, "LOCK") == 0) {
-    handler_lock();
+    handler_lock(url);
     return true;
   }
   if (strcmp(method, "UNLOCK") == 0) {
-    handler_unlock();
+    handler_unlock(url);
     return true;
   }
   if (strcmp(method, "PROPFIND") == 0) {
-    handler_propfind();
+    handler_propfind(url);
     return true;
   }
   if (strcmp(method, "PROPPATCH") == 0) {
-    handler_proppatch();
+    handler_proppatch(url);
     return true;
   }
+  log_esp3d_e("Unknown method %s for %s", method, url);
   send_response_code(405);
   send_webdav_headers();
   _client.write("\r\n");  // empty line

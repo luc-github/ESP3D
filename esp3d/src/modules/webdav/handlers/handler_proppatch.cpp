@@ -23,10 +23,10 @@
 #if defined(WEBDAV_FEATURE)
 #include "../webdav_server.h"
 
-void WebdavServer::handler_proppatch() {
+void WebdavServer::handler_proppatch(const char* url) {
   log_esp3d("Processing PROPPATCH");
   // No support for the moment, so redirect to propfind
-  handler_propfind();
+  handler_propfind(url);
 }
 
 #endif  // WEBDAV_FEATURE

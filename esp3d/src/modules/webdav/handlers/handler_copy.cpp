@@ -23,7 +23,7 @@
 #if defined(WEBDAV_FEATURE)
 #include "../webdav_server.h"
 
-void WebdavServer::handler_copy() {
+void WebdavServer::handler_copy(const char* url) {
   log_esp3d("Processing COPY");
   clearPayload();
   send_response_code(200);

@@ -23,7 +23,7 @@
 #if defined(WEBDAV_FEATURE)
 #include "../webdav_server.h"
 
-void WebdavServer::handler_mkcol() {
+void WebdavServer::handler_mkcol(const char* url) {
   log_esp3d("Processing MKCOL");
   clearPayload();
   send_response_code(200);

@@ -23,7 +23,7 @@
 #if defined(WEBDAV_FEATURE)
 #include "../webdav_server.h"
 
-void WebdavServer::handler_move() {
+void WebdavServer::handler_move(const char* url) {
   log_esp3d("Processing MOVE");
   clearPayload();
   send_response_code(200);

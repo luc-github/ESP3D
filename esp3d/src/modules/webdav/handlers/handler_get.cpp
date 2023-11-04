@@ -23,7 +23,7 @@
 #if defined(WEBDAV_FEATURE)
 #include "../webdav_server.h"
 
-void WebdavServer::handler_get() {
+void WebdavServer::handler_get(const char* url) {
   log_esp3d("Processing GET");
   clearPayload();
   send_response_code(200);
