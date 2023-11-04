@@ -81,7 +81,7 @@ class WebdavServer {
   bool send_header(const char* name, const char* value);
   bool send_webdav_headers();
   bool send_response(const char* response);
-  bool send_content(const char* content);
+  bool send_chunk_content(const char* content);
   const char* urlDecode(const char* url);
 
  private:

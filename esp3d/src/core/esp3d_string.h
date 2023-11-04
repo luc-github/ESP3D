@@ -1,5 +1,5 @@
 /*
-  webdav_server.cpp -  webdav server functions class
+  esp3d_string.h - esp3d strings helpers
 
   Copyright (c) 2023 Luc Lebosse. All rights reserved.
 
@@ -18,16 +18,12 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "../../../include/esp3d_config.h"
+#ifndef _ESP3D_STRING_H
+#define _ESP3D_STRING_H
+#include <time.h>
+namespace esp3d_string {
+const char* getTimeString(time_t time, bool isGMT);
+const char* generateUUID(const char* seed);
+}  // namespace esp3d_string
 
-#if defined(WEBDAV_FEATURE)
-#include "../webdav_server.h"
-
-void WebdavServer::handler_options(const char* url) {
-  log_esp3d_d("Processing OPTIONS");
-  clearPayload();
-  send_response_code(200);
-  send_webdav_headers();
-}
-
-#endif  // WEBDAV_FEATURE
+#endif  //_ESP3D_STRING_H

@@ -21,6 +21,7 @@
 #include "../../../include/esp3d_config.h"
 
 #if defined(WEBDAV_FEATURE)
+#include "../../../core/esp3d_string.h"
 #include "../webdav_server.h"
 
 #define PROPFIND_RESPONSE_BODY_HEADER_1            \
@@ -31,19 +32,27 @@
 #define PROPFIND_RESPONSE_BODY_FOOTER "</D:multistatus>\r\n"
 
 void WebdavServer::handler_propfind(const char* url) {
-  log_esp3d("Processing PROPFIND");
+  log_esp3d_d("Processing PROPFIND");
   int code = 207;
   String depth = "0";
   String requestedDepth = "0";
   if (hasHeader("Depth")) {
     depth = getHeader("Depth");
+    log_esp3d_d("Depth: %s", depth.c_str());
     requestedDepth = depth;
     if (depth == "infinity") {
       depth = "1";
+      log_esp3d_d("Depth set to 1");
     }
+  } else {
+    log_esp3d_d("Depth not set");
   }
-  clearPayload();
+
+  size_t sp = clearPayload();
+  log_esp3d_d("Payload size: %d", sp);
+
   uint8_t fsType = WebDavFS::getFSType(url);
+  log_esp3d_d("FS type of %s : %d", url, fsType);
   if (WebDavFS::accessFS(fsType)) {
     if (WebDavFS::exists(url) || url == "/") {
       WebDavFile root = WebDavFS::open(url);
@@ -65,7 +74,7 @@ void WebdavServer::handler_propfind(const char* url) {
         body += "<D:propstat>\r\n";
         body += "<D:prop>\r\n";
         body += "<esp3d:getlastmodified>";
-        body += root.getLastWrite();
+        body += esp3d_string::getTimeString((time_t)root.getLastWrite(), true);
         body += "</esp3d:getlastmodified>\r\n";
         if (root.isDirectory()) {
           body += "<D:resourcetype>";
@@ -77,7 +86,6 @@ void WebdavServer::handler_propfind(const char* url) {
           body += root.size();
           body += "</esp3d:getcontentlength>\r\n";
         }
-
         body += "<esp3d:displayname>";
         body += url;
         body += "</esp3d:displayname>\r\n";
@@ -86,38 +94,77 @@ void WebdavServer::handler_propfind(const char* url) {
         body += "</D:propstat>\r\n";
         body += "</D:response>\r\n";
 
-        // TODO: send as chunck id depth = 1
-        // else send as response
-        if (depth == "1" && root.isDirectory()) {
-          WebDavFile entry = root.openNextFile();
-          while (entry) {
-            yield();
-            // TODO: send as chunck the data
-            entry.close();
-            entry = root.openNextFile();
-          }
-          body = PROPFIND_RESPONSE_BODY_FOOTER;
-          // TODO: send as chunck
-        } else {
+        if (depth == "0") {
           body += PROPFIND_RESPONSE_BODY_FOOTER;
           send_response(body.c_str());
+          log_esp3d_d("%s", body.c_str());
+        } else {
+          send_chunk_content(body.c_str());
+          log_esp3d_d("%s", body.c_str());
+          if (depth == "1" && root.isDirectory()) {
+            log_esp3d_d("Depth 1, parsing directory");
+            WebDavFile entry = root.openNextFile();
+            while (entry) {
+              yield();
+              body = "<D:response xmlns:esp3d=\"DAV:\">\r\n";
+              body += "<D:href>";
+              body += url;
+              if (url != "/") {
+                body += "/";
+              }
+              body += entry.name();
+              body += "</D:href>\r\n";
+              body += "<D:propstat>\r\n";
+              body += "<D:prop>\r\n";
+              body += "<esp3d:getlastmodified>";
+              body += esp3d_string::getTimeString((time_t)entry.getLastWrite(),
+                                                  true);
+              body += "</esp3d:getlastmodified>\r\n";
+              if (entry.isDirectory()) {
+                body += "<D:resourcetype>";
+                body += "<D:collection/>";
+                body += "</D:resourcetype>\r\n";
+              } else {
+                body += "<D:resourcetype/>";
+                body += "<esp3d:getcontentlength>";
+                body += entry.size();
+                body += "</esp3d:getcontentlength>\r\n";
+              }
+              body += "<esp3d:displayname>";
+              body += entry.name()[0] == '/' ? entry.name() + 1 : entry.name();
+              body += "</esp3d:displayname>\r\n";
+              body += "</D:prop>\r\n";
+              body += "<D:status>HTTP/1.1 200 OK</D:status>\r\n";
+              body += "</D:propstat>\r\n";
+              body += "</D:response>\r\n";
+              log_esp3d_d("%s", body.c_str());
+              send_chunk_content(body.c_str());
+              entry.close();
+              entry = root.openNextFile();
+            }
+            log_esp3d_d("%s", PROPFIND_RESPONSE_BODY_FOOTER);
+            send_chunk_content(PROPFIND_RESPONSE_BODY_FOOTER);
+            // End of chunk
+            send_chunk_content("");
+          }
         }
         root.close();
       } else {
         code = 503;
-        log_esp3d("File not opened");
+        log_esp3d_e("File not opened");
       }
 
     } else {
       code = 404;
-      log_esp3d("File not found");
+      log_esp3d_e("File not found");
     }
     WebDavFS::releaseFS(fsType);
   } else {
     code = 503;
-    log_esp3d("FS not available");
+    log_esp3d_e("FS not available");
   }
   if (code != 207) {
+    log_esp3d_e("Sending response code %d", code);
     send_response_code(code);
     send_webdav_headers();
   }

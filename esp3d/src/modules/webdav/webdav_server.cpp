@@ -238,8 +238,8 @@ void WebdavServer::parseRequest() {
         headers_read = true;
       } else {
         pos1 = line.indexOf(':');
-        static String header_name = line.substring(0, pos1);
-        static String header_value = line.substring(pos1 + 1);
+        String header_name = line.substring(0, pos1);
+        String header_value = line.substring(pos1 + 1);
         header_name.trim();
         header_value.trim();
         log_esp3d_d("Header: %s = %s", header_name.c_str(),
@@ -263,7 +263,7 @@ bool WebdavServer::send_response_code(int code) {
   }
 
   _client.write("HTTP/1.1 ");
-  _client.write(code);
+  _client.write(String(code).c_str());
   _client.write(" ");
   _response_code_sent = true;
   switch (code) {
@@ -414,16 +414,21 @@ bool WebdavServer::send_webdav_headers() {
   return true;
 }
 
-bool WebdavServer::send_content(const char* response) {
-  if (send_header("Content-Length", String(strlen(response)).c_str())) {
-    send_header("Content-Type", "text/html; charset=utf-8");
-    _client.write("\r\n");
+bool WebdavServer::send_chunk_content(const char* response) {
+  if (!_is_chunked) {
+    _is_chunked = true;
+    if (!send_header("Transfer-Encoding", "chunked")) {
+      log_esp3d_e("Can't send chunked header");
+      return false;
+    }
     _headers_sent = true;
-    _client.write(response);
     _client.write("\r\n");
-    return true;
   }
-  return false;
+  _client.write(strlen(response));
+  _client.write("\r\n");
+  _client.write(response, strlen(response));
+  _client.write("\r\n");
+  return true;
 }
 
 bool WebdavServer::send_response(const char* response) {
@@ -441,51 +446,51 @@ bool WebdavServer::send_response(const char* response) {
 bool WebdavServer::selectHandler(const char* method, const char* url) {
   log_esp3d_d("Method: %s", method);
   log_esp3d_d("URL: %s", url);
-  if (strcmp(method, "OPTIONS") == 0) {
+  if (strcasecmp(method, "OPTIONS") == 0) {
     handler_options(url);
     return true;
   }
-  if (strcmp(method, "GET") == 0) {
+  if (strcasecmp(method, "GET") == 0) {
     handler_get(url);
     return true;
   }
-  if (strcmp(method, "PUT") == 0) {
+  if (strcasecmp(method, "PUT") == 0) {
     handler_put(url);
     return true;
   }
-  if (strcmp(method, "HEAD") == 0) {
+  if (strcasecmp(method, "HEAD") == 0) {
     handler_head(url);
     return true;
   }
-  if (strcmp(method, "COPY") == 0) {
+  if (strcasecmp(method, "COPY") == 0) {
     handler_copy(url);
     return true;
   }
-  if (strcmp(method, "MOVE") == 0) {
+  if (strcasecmp(method, "MOVE") == 0) {
     handler_move(url);
     return true;
   }
-  if (strcmp(method, "MKCOL") == 0) {
+  if (strcasecmp(method, "MKCOL") == 0) {
     handler_mkcol(url);
     return true;
   }
-  if (strcmp(method, "DELETE") == 0) {
+  if (strcasecmp(method, "DELETE") == 0) {
     handler_delete(url);
     return true;
   }
-  if (strcmp(method, "LOCK") == 0) {
+  if (strcasecmp(method, "LOCK") == 0) {
     handler_lock(url);
     return true;
   }
-  if (strcmp(method, "UNLOCK") == 0) {
+  if (strcasecmp(method, "UNLOCK") == 0) {
     handler_unlock(url);
     return true;
   }
-  if (strcmp(method, "PROPFIND") == 0) {
+  if (strcasecmp(method, "PROPFIND") == 0) {
     handler_propfind(url);
     return true;
   }
-  if (strcmp(method, "PROPPATCH") == 0) {
+  if (strcasecmp(method, "PROPPATCH") == 0) {
     handler_proppatch(url);
     return true;
   }
@@ -509,8 +514,10 @@ bool WebdavServer::hasHeader(const char* name) {
   for (auto it = _headers.begin(); it != _headers.end(); ++it) {
     // look for header with name
     std::pair<String, String> header = *it;
+    log_esp3d_d("Header: %s = %s", header.first.c_str(), header.second.c_str());
     // if present return true
-    if (header.first == name) {
+    if (strcasecmp(header.first.c_str(), name) == 0) {
+      log_esp3d_d("Header %s found", name);
       return true;
     }
   }
@@ -521,7 +528,8 @@ const char* WebdavServer::getHeader(const char* name) {
     // look for header with name
     std::pair<String, String> header = *it;
     // if present return true
-    if (header.first == name) {
+    if (strcasecmp(header.first.c_str(), name) == 0) {
+      log_esp3d_d("Header %s found valuse %d", name, header.second.c_str();
       return header.second.c_str();
     }
   }
