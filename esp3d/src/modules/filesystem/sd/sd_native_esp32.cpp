@@ -202,10 +202,9 @@ bool ESP_SD::exists(const char *path) {
   }
   res = SD.exists(p);
   if (!res) {
-    ESP_SDFile root = ESP_SD::open(p.c_str(), ESP_FILE_READ);
-    if (root) {
-      res = root.isDirectory();
-    }
+    // check if it is a directory
+    p += '/';
+    res = SD.exists(p);
   }
   return res;
 }
