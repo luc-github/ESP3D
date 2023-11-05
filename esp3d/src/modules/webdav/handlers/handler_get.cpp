@@ -22,10 +22,10 @@
 
 #if defined(WEBDAV_FEATURE)
 #include "../../../core/esp3d_string.h"
-#include "../../websocket/websocket_server.h"
 #if defined(HTTP_FEATURE)
-#include "../webdav_server.h"
+#include "../../websocket/websocket_server.h"
 #endif  // HTTP_FEATURE
+#include "../webdav_server.h"
 
 void WebdavServer::handler_get(const char* url) {
   log_esp3d_d("Processing GET");
