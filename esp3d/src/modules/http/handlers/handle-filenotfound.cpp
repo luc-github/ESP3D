@@ -26,6 +26,7 @@
 #if defined(ARDUINO_ARCH_ESP8266)
 #include <ESP8266WebServer.h>
 #endif  // ARDUINO_ARCH_ESP8266
+#include "../../../core/esp3d_string.h"
 #include "../../authentication/authentication_service.h"
 #include "../../filesystem/esp_filesystem.h"
 
@@ -47,7 +48,7 @@ void HTTP_Server::handle_not_found() {
     return;
   }
   String path = _webserver->urlDecode(_webserver->uri());
-  String contentType = getContentType(path.c_str());
+  String contentType = esp3d_string::getContentType(path.c_str());
   String pathWithGz = path + ".gz";
   log_esp3d("URI: %s", path.c_str());
 #if defined(FILESYSTEM_FEATURE)
@@ -106,7 +107,7 @@ void HTTP_Server::handle_not_found() {
 #ifdef FILESYSTEM_FEATURE
   // check local page
   path = "/404.htm";
-  contentType = getContentType(path.c_str());
+  contentType = esp3d_string::getContentType(path.c_str());
   pathWithGz = path + ".gz";
   if (ESP_FileSystem::exists(pathWithGz.c_str()) ||
       ESP_FileSystem::exists(path.c_str())) {

@@ -325,41 +325,4 @@ const char* HTTP_Server::get_Splited_Value(String data, char separator,
   return s.c_str();
 }
 
-// helper to extract content type from file extension
-// Check what is the content tye according extension file
-const char* HTTP_Server::getContentType(const char* filename) {
-  String file_name = filename;
-  file_name.toLowerCase();
-  if (file_name.endsWith(".htm")) {
-    return "text/html";
-  } else if (file_name.endsWith(".html")) {
-    return "text/html";
-  } else if (file_name.endsWith(".css")) {
-    return "text/css";
-  } else if (file_name.endsWith(".js")) {
-    return "application/javascript";
-  } else if (file_name.endsWith(".png")) {
-    return "image/png";
-  } else if (file_name.endsWith(".gif")) {
-    return "image/gif";
-  } else if (file_name.endsWith(".jpeg")) {
-    return "image/jpeg";
-  } else if (file_name.endsWith(".jpg")) {
-    return "image/jpeg";
-  } else if (file_name.endsWith(".ico")) {
-    return "image/x-icon";
-  } else if (file_name.endsWith(".xml")) {
-    return "text/xml";
-  } else if (file_name.endsWith(".pdf")) {
-    return "application/x-pdf";
-  } else if (file_name.endsWith(".zip")) {
-    return "application/x-zip";
-  } else if (file_name.endsWith(".gz")) {
-    return "application/x-gzip";
-  } else if (file_name.endsWith(".txt")) {
-    return "text/plain";
-  }
-  return "application/octet-stream";
-}
-
 #endif  // Enable HTTP

@@ -57,7 +57,6 @@ class HTTP_Server {
   static WEBSERVER* _webserver;
   static uint16_t _port;
   static uint8_t _upload_status;
-  static const char* getContentType(const char* filename);
   static const char* get_Splited_Value(String data, char separator, int index);
 #ifdef SSDP_FEATURE
   static void handle_SSDP();

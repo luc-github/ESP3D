@@ -112,3 +112,39 @@ const char* esp3d_string::generateUUID(const char* seed) {
 
   return token.c_str();
 }
+
+const char* esp3d_string::getContentType(const char* filename) {
+  String file_name = filename;
+  file_name.toLowerCase();
+  if (file_name.endsWith(".htm")) {
+    return "text/html";
+  } else if (file_name.endsWith(".html")) {
+    return "text/html";
+  } else if (file_name.endsWith(".css")) {
+    return "text/css";
+  } else if (file_name.endsWith(".js")) {
+    return "application/javascript";
+  } else if (file_name.endsWith(".png")) {
+    return "image/png";
+  } else if (file_name.endsWith(".gif")) {
+    return "image/gif";
+  } else if (file_name.endsWith(".jpeg")) {
+    return "image/jpeg";
+  } else if (file_name.endsWith(".jpg")) {
+    return "image/jpeg";
+  } else if (file_name.endsWith(".ico")) {
+    return "image/x-icon";
+  } else if (file_name.endsWith(".xml")) {
+    return "text/xml";
+  } else if (file_name.endsWith(".pdf")) {
+    return "application/x-pdf";
+  } else if (file_name.endsWith(".zip")) {
+    return "application/x-zip";
+  } else if (file_name.endsWith(".gz")) {
+    return "application/x-gzip";
+  } else if (file_name.endsWith(".txt") || file_name.endsWith(".gcode") ||
+             file_name.endsWith(".gco") || file_name.endsWith(".g")) {
+    return "text/plain";
+  }
+  return "application/octet-stream";
+}
