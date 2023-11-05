@@ -37,6 +37,7 @@ WebdavServer webdav_server;
 
 void WebdavServer::closeClient() {
   if (_client) {
+    _client.write((uint8_t*)"\r\n", 2);
     _client.stop();
   }
 }
@@ -167,7 +168,7 @@ void WebdavServer::parseRequest() {
       log_esp3d_e("Bad request line: %s", line.c_str());
       return;
     }
-    line.toUpperCase();
+
     log_esp3d_d("Request: %s", line.c_str());
     size_t pos1 = line.indexOf(' ');
     size_t pos2 = line.indexOf(' ', pos1 + 1);
@@ -179,6 +180,7 @@ void WebdavServer::parseRequest() {
       return;
     }
     String method = line.substring(0, pos1);
+    method.toUpperCase();
     String url = line.substring(pos1 + 1, pos2);
     // Do some sanity check
     url.trim();
@@ -228,7 +230,7 @@ void WebdavServer::parseRequest() {
           }
         }
       }
-      log_esp3d("Line: %s", line.c_str());
+      log_esp3d_d("Line: %s", line.c_str());
       if (hasError) {
         send_response_code(400);
         send_webdav_headers();
