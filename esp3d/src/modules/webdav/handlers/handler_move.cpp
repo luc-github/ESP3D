@@ -94,11 +94,9 @@ void WebdavServer::handler_move(const char* url) {
     code = 400;
     log_esp3d_e("Destination not set");
   }
-  if (code != 201 && code != 204) {
-    log_esp3d_e("Sending response code %d", code);
-    send_response_code(code);
-    send_webdav_headers();
-  }
+  log_esp3d_e("Sending response code %d", code);
+  send_response_code(code);
+  send_webdav_headers();
 }
 
 #endif  // WEBDAV_FEATURE
