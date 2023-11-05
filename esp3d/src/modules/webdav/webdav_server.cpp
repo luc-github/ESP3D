@@ -546,4 +546,17 @@ const char* WebdavServer::getHeader(const char* name) {
   return res.c_str();
 }
 
+bool WebdavServer::isRoot(const char* url) {
+  if (strcmp(url, "/") == 0) {
+    return true;
+  }
+#if WEBDAV_FEATURE == FS_ROOT
+  if (strcmp(url, ESP_FLASH_FS_HEADER) == 0 ||
+      strcmp(url, ESP_SD_FS_HEADER) == 0) {
+    return true;
+  }
+
+#endif  // WEBDAV_FEATURE == FS_ROOT
+  return false;
+}
 #endif  // WEBDAV_FEATURE

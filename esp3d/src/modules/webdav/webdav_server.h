@@ -83,6 +83,7 @@ class WebdavServer {
   bool send_response(const char* response);
   bool send_chunk_content(const char* content);
   const char* urlDecode(const char* url);
+  bool isRoot(const char* url);
 
  private:
   bool _started;

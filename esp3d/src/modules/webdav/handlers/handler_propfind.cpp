@@ -32,7 +32,7 @@
 #define PROPFIND_RESPONSE_BODY_FOOTER "</D:multistatus>"
 
 void WebdavServer::handler_propfind(const char* url) {
-  log_esp3d("Processing PROPFIND");
+  log_esp3d_d("Processing PROPFIND");
   int code = 207;
   String depth = "0";
   String requestedDepth = "0";
