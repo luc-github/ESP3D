@@ -35,6 +35,8 @@
 void HTTP_Server::handleSDFileList() {
   level_authenticate_type auth_level =
       AuthenticationService::authenticated_level();
+  HTTP_Server::set_http_headers();
+
   if (auth_level == LEVEL_GUEST) {
     _upload_status = UPLOAD_STATUS_NONE;
     _webserver->send(401, "text/plain", "Wrong authentication!");

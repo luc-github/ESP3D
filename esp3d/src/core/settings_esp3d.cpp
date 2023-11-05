@@ -57,6 +57,7 @@
 #define MAX_NOTIFICATION_TOKEN_LENGTH 63
 #define MAX_NOTIFICATION_SETTINGS_LENGTH 128
 #define MAX_SERVER_ADDRESS_LENGTH 128
+#define MAX_TIME_ZONE_LENGTH 7
 #define MIN_SERVER_ADDRESS_LENGTH 0
 
 // default byte values
@@ -104,7 +105,7 @@
 #ifndef DEFAULT_FW
 #define DEFAULT_FW UNKNOWN_FW
 #endif  // DEFAULT_FW
-#define DEFAULT_TIME_ZONE 0
+#define DEFAULT_TIME_ZONE "+00:00"
 #define DEFAULT_TIME_DST 0
 #define DEFAULT_SD_MOUNT ESP_SD_ROOT
 #define DEFAULT_SD_CHECK_UPDATE_AT_BOOT 1
@@ -363,9 +364,6 @@ uint8_t Settings_ESP3D::get_default_byte_value(int pos) {
       res = DEFAULT_FW;
       break;
 #ifdef TIMESTAMP_FEATURE
-    case ESP_TIMEZONE:
-      res = DEFAULT_TIME_ZONE;
-      break;
     case ESP_TIME_IS_DST:
       res = DEFAULT_TIME_DST;
       break;
@@ -566,11 +564,6 @@ uint8_t Settings_ESP3D::get_max_byte(int pos) {
       res = MAX_CHANNEL;
       break;
 #endif  // WIFI_FEATURE
-#ifdef TIMESTAMP_FEATURE
-    case ESP_TIMEZONE:
-      res = 12;
-      break;
-#endif  // TIMESTAMP_FEATURE
     default:
       res = 255;
   }
@@ -585,11 +578,6 @@ int8_t Settings_ESP3D::get_min_byte(int pos) {
       res = MIN_CHANNEL;
       break;
 #endif  // WIFI_FEATURE
-#ifdef TIMESTAMP_FEATURE
-    case ESP_TIMEZONE:
-      res = -12;
-      break;
-#endif  // TIMESTAMP_FEATURE
     default:
       res = 0;
   }
@@ -611,6 +599,9 @@ const String &Settings_ESP3D::get_default_string_value(int pos) {
       break;
 #endif  // WIFI_FEATURE || ETH_FEATURE || defined (ETH_FEATURE)
 #ifdef TIMESTAMP_FEATURE
+    case ESP_TIME_ZONE:
+      res = DEFAULT_TIME_ZONE;
+      break;
     case ESP_TIME_SERVER1:
       res = DEFAULT_TIME_SERVER1;
       break;
@@ -673,6 +664,9 @@ uint8_t Settings_ESP3D::get_max_string_size(int pos) {
       break;
 #endif  // WIFI_FEATURE || ETH_FEATURE || BLUETOOTH_FEATURE
 #ifdef TIMESTAMP_FEATURE
+    case ESP_TIME_ZONE:
+      res = MAX_TIME_ZONE_LENGTH;
+      break;
     case ESP_TIME_SERVER1:
     case ESP_TIME_SERVER2:
     case ESP_TIME_SERVER3:
@@ -1321,8 +1315,9 @@ bool Settings_ESP3D::reset(bool networkonly) {
       ESP_INTERNET_TIME,
       Settings_ESP3D::get_default_byte_value(ESP_INTERNET_TIME));
   // Time Zone
-  Settings_ESP3D::write_byte(
-      ESP_TIMEZONE, Settings_ESP3D::get_default_byte_value(ESP_TIMEZONE));
+  Settings_ESP3D::write_string(
+      ESP_TIME_ZONE,
+      Settings_ESP3D::get_default_string_value(ESP_TIME_ZONE).c_str());
   // Is DST Time Zone
   Settings_ESP3D::write_byte(
       ESP_TIME_IS_DST, Settings_ESP3D::get_default_byte_value(ESP_TIME_IS_DST));

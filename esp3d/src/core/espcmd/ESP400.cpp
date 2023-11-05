@@ -28,6 +28,9 @@
 #if defined(SENSOR_DEVICE)
 #include "../../modules/sensor/sensor.h"
 #endif  // SENSOR_DEVICE
+#ifdef TIMESTAMP_FEATURE
+#include "../../modules/time/time_service.h"
+#endif  // TIMESTAMP_FEATURE
 #define COMMANDID 400
 // Get full ESP3D settings
 //[ESP400]<pwd=admin>
@@ -427,26 +430,25 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
 
       // Time zone
       output->print(",{\"F\":\"service/time\",\"P\":\"");
-      output->print(ESP_TIMEZONE);
-      output->print("\",\"T\":\"B\",\"R\":\"1\",\"V\":\"");
-      output->print(
-          String((int8_t)Settings_ESP3D::read_byte(ESP_TIMEZONE)).c_str());
+      output->print(ESP_TIME_ZONE);
+      output->print("\",\"T\":\"S\",\"R\":\"1\",\"V\":\"");
+      output->print(Settings_ESP3D::read_string(ESP_TIME_ZONE));
       output->print("\",\"H\":\"tzone\",\"O\":[");
-      for (int8_t i = Settings_ESP3D::get_min_byte(ESP_TIMEZONE);
-           i <= Settings_ESP3D::get_max_byte(ESP_TIMEZONE); i++) {
-        if (i > Settings_ESP3D::get_min_byte(ESP_TIMEZONE)) {
+      for (int8_t i = 0; i < SupportedTimeZonesSize; i++) {
+        if (i > 0) {
           output->print(",");
         }
-        output->printf("{\"%d\":\"%d\"}", i, i);
+        output->printf("{\"%s\":\"%s\"}", SupportedTimeZones[i],
+                       SupportedTimeZones[i]);
       }
       output->print("]}");
 
-      // DST
-      output->print(",{\"F\":\"service/time\",\"P\":\"");
-      output->print(ESP_TIME_IS_DST);
-      output->print("\",\"T\":\"B\",\"R\":\"1\",\"V\":\"");
-      output->print(Settings_ESP3D::read_byte(ESP_TIME_IS_DST));
-      output->print("\",\"H\":\"dst\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
+      // DST which is currently not supported automaticatly
+      /*   output->print(",{\"F\":\"service/time\",\"P\":\"");
+         output->print(ESP_TIME_IS_DST);
+         output->print("\",\"T\":\"B\",\"R\":\"1\",\"V\":\"");
+         output->print(Settings_ESP3D::read_byte(ESP_TIME_IS_DST));
+         output->print("\",\"H\":\"dst\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");*/
 
       // Time Server1
       output->print(",{\"F\":\"service/time\",\"P\":\"");
@@ -735,14 +737,14 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
       noError = false;
     }
   }
-  if (noError) {
-    if (json) {
-      output->printLN(response.c_str());
-    } else {
-      output->printMSG(response.c_str());
-    }
+  if (json) {
+    output->printLN(response.c_str());
   } else {
-    output->printERROR(response.c_str(), errorCode);
+    if (noError) {
+      output->printMSG(response.c_str());
+    } else {
+      output->printERROR(response.c_str(), errorCode);
+    }
   }
   return noError;
 }

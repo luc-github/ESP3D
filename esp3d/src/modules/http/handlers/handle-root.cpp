@@ -28,9 +28,12 @@
 #if defined(ARDUINO_ARCH_ESP8266)
 #include <ESP8266WebServer.h>
 #endif  // ARDUINO_ARCH_ESP8266
+#include "../../../core/esp3d_string.h"
 #include "../../filesystem/esp_filesystem.h"
 // Root of Webserver/////////////////////////////////////////////////////
 void HTTP_Server::handle_root() {
+  HTTP_Server::set_http_headers();
+
   String path = ESP3D_HOST_PATH;
   // Some sanity check
   if (path[0] != '/') {
@@ -40,7 +43,7 @@ void HTTP_Server::handle_root() {
     path = path + "/";
   }
   path += "index.html";
-  String contentType = getContentType(path.c_str());
+  String contentType = esp3d_string::getContentType(path.c_str());
   String pathWithGz = path + ".gz";
   // if have a index.html or gzip version this is default root page
   if ((ESP_FileSystem::exists(pathWithGz.c_str()) ||

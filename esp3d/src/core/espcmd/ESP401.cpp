@@ -34,7 +34,7 @@
 #include "../../modules/buzzer/buzzer.h"
 #endif  // BUZZER_DEVICE
 #ifdef TIMESTAMP_FEATURE
-#include "../../modules/time/time_server.h"
+#include "../../modules/time/time_service.h"
 #endif  // TIMESTAMP_FEATURE
 #ifdef NOTIFICATION_FEATURE
 #include "../../modules/notifications/notifications_service.h"
@@ -133,7 +133,7 @@ bool Commands::ESP401(const char* cmd_params, level_authenticate_type auth_type,
 #endif  // SD_DEVICE
 #ifdef TIMESTAMP_FEATURE
               case ESP_INTERNET_TIME:
-                timeserver.begin();
+                timeService.begin();
                 break;
 #endif  // TIMESTAMP_FEATURE
 #ifdef NOTIFICATION_FEATURE
@@ -248,7 +248,11 @@ bool Commands::ESP401(const char* cmd_params, level_authenticate_type auth_type,
       response += spos.length() > 0 ? " for P=" + spos : "";
     }
     response = format_response(COMMANDID, json, false, response.c_str());
-    output->printERROR(response.c_str(), errorCode);
+    if (json) {
+      output->printLN(response.c_str());
+    } else {
+      output->printERROR(response.c_str(), errorCode);
+    }
   }
   return noError;
 }

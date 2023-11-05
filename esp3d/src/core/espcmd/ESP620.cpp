@@ -18,57 +18,61 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "../../include/esp3d_config.h"
-#if defined (NOTIFICATION_FEATURE)
+#if defined(NOTIFICATION_FEATURE)
+#include "../../modules/authentication/authentication_service.h"
+#include "../../modules/notifications/notifications_service.h"
 #include "../commands.h"
 #include "../esp3doutput.h"
 #include "../settings_esp3d.h"
-#include "../../modules/authentication/authentication_service.h"
-#include "../../modules/notifications/notifications_service.h"
-#define COMMANDID   620
-//Send Notification using URL
+
+#define COMMANDID 620
+// Send Notification using URL
 //[ESP620]URL=<encoded url> json=<no>[pwd=<admin/user password>]
-bool Commands::ESP620(const char* cmd_params, level_authenticate_type auth_type, ESP3DOutput * output)
-{
-    bool noError = true;
-    bool json = has_tag (cmd_params, "json");
-    String response;
-    String parameter;
-    int errorCode = 200; //unless it is a server error use 200 as default and set error in json instead
+bool Commands::ESP620(const char* cmd_params, level_authenticate_type auth_type,
+                      ESP3DOutput* output) {
+  bool noError = true;
+  bool json = has_tag(cmd_params, "json");
+  String response;
+  String parameter;
+  int errorCode = 200;  // unless it is a server error use 200 as default and
+                        // set error in json instead
 #ifdef AUTHENTICATION_FEATURE
-    if (auth_type == LEVEL_GUEST) {
-        response = format_response(COMMANDID, json, false, "Guest user can't use this command");
-        noError = false;
-        errorCode = 401;
-    }
+  if (auth_type == LEVEL_GUEST) {
+    response = format_response(COMMANDID, json, false,
+                               "Guest user can't use this command");
+    noError = false;
+    errorCode = 401;
+  }
 #else
-    (void)auth_type;
-#endif //AUTHENTICATION_FEATURE
-    if (noError) {
-        parameter = get_param (cmd_params, "");
-        //get
-        if (parameter.length() == 0) {
-            response = format_response(COMMANDID, json, false, "Message is missing");
-            noError = false;
-        } else {
-            parameter = get_param (cmd_params, "URL=");
-            if (notificationsservice.GET(parameter.c_str())) {
-                response = format_response(COMMANDID, json, true, "ok");
-            } else {
-                response = format_response(COMMANDID, json, false, "Send notification failed");
-                noError = false;
-            }
-        }
-    }
-    if (noError) {
-        if (json) {
-            output->printLN (response.c_str() );
-        } else {
-            output->printMSG (response.c_str() );
-        }
+  (void)auth_type;
+#endif  // AUTHENTICATION_FEATURE
+  if (noError) {
+    parameter = get_param(cmd_params, "");
+    // get
+    if (parameter.length() == 0) {
+      response = format_response(COMMANDID, json, false, "Message is missing");
+      noError = false;
     } else {
-        output->printERROR(response.c_str(), errorCode);
+      parameter = get_param(cmd_params, "URL=");
+      if (notificationsservice.GET(parameter.c_str())) {
+        response = format_response(COMMANDID, json, true, "ok");
+      } else {
+        response =
+            format_response(COMMANDID, json, false, "Send notification failed");
+        noError = false;
+      }
     }
-    return noError;
+  }
+  if (json) {
+    output->printLN(response.c_str());
+  } else {
+    if (noError) {
+      output->printMSG(response.c_str());
+    } else {
+      output->printERROR(response.c_str(), errorCode);
+    }
+  }
+  return noError;
 }
 
-#endif //NOTIFICATION_FEATURE
+#endif  // NOTIFICATION_FEATURE

@@ -1,5 +1,5 @@
 /*
-  time_server.h -  time server functions class
+  time_service.h -  time server functions class
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -18,31 +18,38 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-
-
-#ifndef _TIME_SERVER_H
-#define _TIME_SERVER_H
+#ifndef _TIME_SERVICE_H
+#define _TIME_SERVICE_H
 
 #include <time.h>
 
-class TimeServer
-{
-public:
-    TimeServer();
-    ~TimeServer();
-    bool begin();
-    void end();
-    void handle();
-    const char * current_time(time_t t = 0);
-    bool setTime(const char* stime);
-    bool started();
-    bool is_internet_time(bool readfromsettings = false);
-private:
-    bool _started;
-    bool _is_internet_time;
+class TimeService {
+ public:
+  TimeService();
+  ~TimeService();
+  bool begin();
+  void end();
+  void handle();
+  const char* getDateTime(time_t t = 0);
+  const char* getCurrentTime();
+  const char* getTimeZone();
+  bool updateTimeZone(bool fromsettings = false);
+  bool setTimeZone(const char* stime);
+  bool setTime(const char* stime);
+  bool started();
+  bool is_internet_time(bool readfromsettings = false);
+
+ private:
+  int _get_time_zone_offset_min();
+  bool _started;
+  bool _is_internet_time;
+  String _time_zone;
 };
 
-extern TimeServer timeserver;
+extern TimeService timeService;
 
-#endif //_TIME_SERVER_H
+extern const char* SupportedTimeZones[];
 
+extern const uint8_t SupportedTimeZonesSize;
+
+#endif  //_TIME_SERVICE_H

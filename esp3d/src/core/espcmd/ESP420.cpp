@@ -57,7 +57,7 @@
 #include "../../modules/webdav/webdav_server.h"
 #endif  // WEBDAV_FEATURE
 #if defined(TIMESTAMP_FEATURE)
-#include "../../modules/time/time_server.h"
+#include "../../modules/time/time_service.h"
 #endif  // TIMESTAMP_FEATURE
 #if defined(SENSOR_DEVICE)
 #include "../../modules/sensor/sensor.h"
@@ -1317,7 +1317,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
       } else {
         line += ": ";
       }
-      line += timeserver.started() ? "ON" : "OFF";
+      line += timeService.started() ? "ON" : "OFF";
       if (json) {
         line += "\"}";
         output->print(line.c_str());
@@ -1660,14 +1660,14 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
       noError = false;
     }
   }
-  if (noError) {
-    if (json) {
-      output->printLN(response.c_str());
-    } else {
-      output->printMSG(response.c_str());
-    }
+  if (json) {
+    output->printLN(response.c_str());
   } else {
-    output->printERROR(response.c_str(), errorCode);
+    if (noError) {
+      output->printMSG(response.c_str());
+    } else {
+      output->printERROR(response.c_str(), errorCode);
+    }
   }
   return noError;
 }
