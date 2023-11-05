@@ -24,7 +24,7 @@
 #include "../webdav_server.h"
 
 void WebdavServer::handler_unlock(const char* url) {
-  log_esp3d_d("Processing UNLOCK");
+  log_esp3d("Processing UNLOCK");
   int code = 204;
   size_t sp = clearPayload();
   log_esp3d("Payload size: %d", sp);

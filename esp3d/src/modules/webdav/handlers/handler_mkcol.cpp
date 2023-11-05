@@ -24,7 +24,7 @@
 #include "../webdav_server.h"
 
 void WebdavServer::handler_mkcol(const char* url) {
-  log_esp3d_d("Processing MKCOL");
+  log_esp3d("Processing MKCOL");
   int code = 201;
   size_t sp = clearPayload();
   log_esp3d("Payload size: %d", sp);

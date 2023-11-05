@@ -28,7 +28,7 @@
 #include "../webdav_server.h"
 
 void WebdavServer::handler_get(const char* url) {
-  log_esp3d_d("Processing GET");
+  log_esp3d("Processing GET");
   int code = 200;
   size_t sp = clearPayload();
   log_esp3d("Payload size: %d", sp);

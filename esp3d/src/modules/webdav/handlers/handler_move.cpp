@@ -25,7 +25,7 @@
 #include "../webdav_server.h"
 
 void WebdavServer::handler_move(const char* url) {
-  log_esp3d_d("Processing MOVE");
+  log_esp3d("Processing MOVE");
   int code = 201;
   size_t sp = clearPayload();
   log_esp3d("Payload size: %d", sp);
@@ -34,6 +34,18 @@ void WebdavServer::handler_move(const char* url) {
   String destination = "";
   if (hasHeader("Destination")) {
     destination = getHeader("Destination");
+    destination = urlDecode(destination.c_str());
+    if (destination.startsWith("http://") ||
+        destination.startsWith("https://")) {
+      destination = destination.substring(destination.indexOf("/", 8));
+      destination = destination.substring(destination.indexOf("/"));
+      log_esp3d("Destination trimmed: %s", destination.c_str());
+      if (destination != "/") {
+        if (destination.endsWith("/")) {
+          destination = destination.substring(0, destination.length() - 1);
+        }
+      }
+    }
     log_esp3d("Destination: %s", destination.c_str());
     uint8_t fsTypeDestination = WebDavFS::getFSType(destination.c_str());
     log_esp3d("FS type of %s : %d", destination.c_str(), fsTypeDestination);
@@ -48,9 +60,13 @@ void WebdavServer::handler_move(const char* url) {
       }
       // url cannot be root
       if (!isRoot(url) && !isRoot(destination.c_str())) {
+        String url_dir = url_dir + "/";
         if (WebDavFS::accessFS(fsTypeOrigin)) {
           // check if file exists
-          if (WebDavFS::exists(url)) {
+          log_esp3d("Checking if %s exists", url);
+          if (WebDavFS::exists(url) || WebDavFS::exists(url_dir.c_str())) {
+            // check if destination exists
+            log_esp3d("Checking if %s exists", destination.c_str());
             if (WebDavFS::exists(destination.c_str())) {
               log_esp3d("Destination already exists");
               if (!overwrite) {

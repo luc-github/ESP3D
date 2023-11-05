@@ -31,7 +31,7 @@
   "</D:href></D:locktoken></D:activelock></D:lockdiscovery></D:prop>"
 
 void WebdavServer::handler_lock(const char* url) {
-  log_esp3d_d("Processing LOCK");
+  log_esp3d("Processing LOCK");
   int code = 200;
 
   size_t sp = clearPayload();

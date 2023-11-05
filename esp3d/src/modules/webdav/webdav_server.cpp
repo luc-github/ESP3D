@@ -37,7 +37,10 @@ WebdavServer webdav_server;
 
 void WebdavServer::closeClient() {
   if (_client) {
-    _client.write((uint8_t*)"\r\n", 2);
+    if (!_headers_sent) {
+      _client.print("\r\n");
+      _headers_sent = true;
+    }
     _client.stop();
   }
 }
@@ -133,7 +136,7 @@ void WebdavServer::parseRequest() {
   _headers.clear();
   // read the first line of the request to get the request method, URL and
   // HTTP
-  log_esp3d_d("Parsing new request:\n");
+  log_esp3d("Parsing new request:\n");
   if (_client.connected() && _client.available()) {
     bool hasError = false;
     bool lineIsRead = false;
@@ -169,7 +172,7 @@ void WebdavServer::parseRequest() {
       return;
     }
 
-    log_esp3d_d("Request: %s", line.c_str());
+    log_esp3d("Request: %s", line.c_str());
     size_t pos1 = line.indexOf(' ');
     size_t pos2 = line.indexOf(' ', pos1 + 1);
     if (pos1 == -1 || pos2 == -1) {
@@ -191,7 +194,7 @@ void WebdavServer::parseRequest() {
     }
     // if encoded
     url = urlDecode(url.c_str());
-    log_esp3d_d("url ini: %s", url.c_str());
+    log_esp3d("url ini: %s", url.c_str());
     if (url != "/" && url[url.length() - 1] == '/') {
       url = url.substring(0, url.length() - 1);
     }
@@ -199,7 +202,7 @@ void WebdavServer::parseRequest() {
     if (url[0] != '/') {
       url = "/" + url;
     }
-    log_esp3d_d("url clean: %s", url.c_str());
+    log_esp3d("url clean: %s", url.c_str());
 
     // Now list all headers
     bool headers_read = false;
@@ -230,7 +233,7 @@ void WebdavServer::parseRequest() {
           }
         }
       }
-      log_esp3d_d("Line: %s", line.c_str());
+      log_esp3d("Line: %s", line.c_str());
       if (hasError) {
         send_response_code(400);
         send_webdav_headers();
@@ -246,8 +249,7 @@ void WebdavServer::parseRequest() {
         String header_value = line.substring(pos1 + 1);
         header_name.trim();
         header_value.trim();
-        log_esp3d_d("Header: %s = %s", header_name.c_str(),
-                    header_value.c_str());
+        log_esp3d("Header: %s = %s", header_name.c_str(), header_value.c_str());
         _headers.push_back(std::make_pair(header_name, header_value));
       }
     }
@@ -453,8 +455,8 @@ bool WebdavServer::send_response(const char* response) {
 }
 
 bool WebdavServer::selectHandler(const char* method, const char* url) {
-  log_esp3d_d("Method: %s", method);
-  log_esp3d_d("URL: %s", url);
+  log_esp3d("Method: %s", method);
+  log_esp3d("URL: %s", url);
   if (strcasecmp(method, "OPTIONS") == 0) {
     handler_options(url);
     return true;

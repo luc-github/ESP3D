@@ -28,7 +28,7 @@
 #endif  // HTTP_FEATURE
 
 void WebdavServer::handler_put(const char* url) {
-  log_esp3d_d("Processing PUT");
+  log_esp3d("Processing PUT");
   int code = 201;
   size_t content_length = 0;
   uint8_t fsType = WebDavFS::getFSType(url);

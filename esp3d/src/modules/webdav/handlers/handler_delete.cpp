@@ -24,7 +24,7 @@
 #include "../webdav_server.h"
 
 void WebdavServer::handler_delete(const char* url) {
-  log_esp3d_d("Processing DELETE");
+  log_esp3d("Processing DELETE");
   int code = 204;
   size_t sp = clearPayload();
   log_esp3d("Payload size: %d", sp);
@@ -37,11 +37,11 @@ void WebdavServer::handler_delete(const char* url) {
       if (WebDavFS::exists(url)) {
         // try remove as file
         if (!WebDavFS::remove(url)) {
-          log_esp3d_d("Failed to remove file %s", url);
-          log_esp3d_d("Trying to remove as directory");
+          log_esp3d("Failed to remove file %s", url);
+          log_esp3d("Trying to remove as directory");
           // if failed try remove as directory
           if (!WebDavFS::rmdir(url)) {
-            log_esp3d_d("Failed to remove directory %s", url);
+            log_esp3d("Failed to remove directory %s", url);
             code = 500;
             log_esp3d_e("Failed to remove %s", url);
           }
