@@ -21,13 +21,60 @@
 #include "../../../include/esp3d_config.h"
 
 #if defined(WEBDAV_FEATURE)
+#include "../../../core/esp3d_string.h"
 #include "../webdav_server.h"
 
+#define LOCK_RESPONSE_BODY_PART_1                      \
+  "<?xml version=\"1.0\" encoding=\"utf-8\"?><D:prop " \
+  "xmlns:D=\"DAV:\"><D:lockdiscovery><D:activelock><D:locktoken><D:href>"
+#define LOCK_RESPONSE_BODY_PART_2 \
+  "</D:href></D:locktoken></D:activelock></D:lockdiscovery></D:prop>"
+
 void WebdavServer::handler_lock(const char* url) {
-  log_esp3d("Processing LOCK");
-  clearPayload();
-  send_response_code(200);
-  send_webdav_headers();
+  log_esp3d_d("Processing LOCK");
+  int code = 200;
+
+  size_t sp = clearPayload();
+  log_esp3d("Payload size: %d", sp);
+
+  uint8_t fsType = WebDavFS::getFSType(url);
+  log_esp3d("FS type of %s : %d", url, fsType);
+  if (!isRoot(url)) {
+    if (WebDavFS::accessFS(fsType)) {
+      if (WebDavFS::exists(url)) {
+        // make token
+        String token = "opaquelocktoken:";
+        token += esp3d_string::generateUUID(url);
+        send_response_code(code);
+        send_webdav_headers();
+        // add token to header
+        send_header("Lock-Token", token.c_str());
+
+        // build response body
+        String body = LOCK_RESPONSE_BODY_PART_1;
+        body += token;
+        body += LOCK_RESPONSE_BODY_PART_2;
+        // send body
+        send_response(body.c_str());
+        log_esp3d("%s", body.c_str());
+      } else {
+        code = 404;
+        log_esp3d_e("File not found");
+      }
+      WebDavFS::releaseFS(fsType);
+    } else {
+      code = 503;
+      log_esp3d_e("FS not available");
+    }
+  } else {
+    code = 400;
+    log_esp3d_e("Root cannot be locked");
+  }
+  if (code != 200) {
+    log_esp3d_e("Sending response code %d", code);
+    send_response_code(code);
+    send_webdav_headers();
+  }
 }
 
 #endif  // WEBDAV_FEATURE
