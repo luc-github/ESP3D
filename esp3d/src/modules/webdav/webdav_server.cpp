@@ -551,10 +551,12 @@ bool WebdavServer::isRoot(const char* url) {
     return true;
   }
 #if WEBDAV_FEATURE == FS_ROOT
-  if (strcmp(url, ESP_FLASH_FS_HEADER) == 0 ||
-      strcmp(url, ESP_SD_FS_HEADER) == 0) {
-    return true;
-  }
+#ifdef FILESYSTEM_FEATURE
+  if (strcmp(url, ESP_FLASH_FS_HEADER) == 0) return true;
+#endif  // FILESYSTEM_FEATURE
+#if defined(SD_FEATURE)
+  if (strcmp(url, ESP_SD_FS_HEADER) == 0) return true;
+#endif  // SD_FEATURE
 
 #endif  // WEBDAV_FEATURE == FS_ROOT
   return false;
