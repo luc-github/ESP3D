@@ -37,7 +37,7 @@ void WebdavServer::handler_put(const char* url) {
     content_length = atoi(getHeader("Content-Length"));
     log_esp3d("Content-Length: %d", content_length);
   } else {
-    log_esp3d("Depth not set");
+    log_esp3d("Content-Length not set");
   }
 
   // url cannot be root
@@ -121,7 +121,7 @@ void WebdavServer::handler_put(const char* url) {
             log_esp3d_e("Failed to write %s", url);
           } else {
             log_esp3d("File %s written", url);
-            send_response_code(code);//201 or 204
+            send_response_code(code);  // 201 or 204
             send_webdav_headers();
             time_t now = time(nullptr);
             send_header("Last-Modified",
