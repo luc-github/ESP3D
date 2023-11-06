@@ -65,8 +65,7 @@ bool Commands::ESP108(const char* cmd_params, level_authenticate_type auth_type,
 #endif  // AUTHENTICATION_FEATURE
       if (noError) {
         int bbuf = parameter.toInt();
-        if ((bbuf > Settings_ESP3D::get_max_byte(ESP_AP_CHANNEL)) ||
-            (bbuf < Settings_ESP3D::get_min_byte(ESP_AP_CHANNEL))) {
+        if (!Settings_ESP3D::isValidByteSetting(bbuf, ESP_AP_CHANNEL)) {
           response =
               format_response(COMMANDID, json, false, "Incorrect channel");
           noError = false;

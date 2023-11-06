@@ -809,3 +809,152 @@ bool Commands::execute_internal_command(int cmd, const char *cmd_params,
   }
   return response;
 }
+
+bool Commands::_dispatchSetting(
+    bool json, const char *filter, ESP3DSettingIndex index, const char *help,
+    const char **optionValues, const char **optionLabels, uint32_t maxsize,
+    uint32_t minsize, uint32_t minsize2, uint8_t precision, const char *unit,
+    bool needRestart, ESP3DOutput *output, bool isFirst) {
+  /*
+    std::string tmpstr;
+std::string value;
+char out_str[255];
+tmpstr.reserve(
+  350);  // to save time and avoid several memories allocation delay
+const ESP3DSettingDescription* elementSetting =
+  esp3dTftsettings.getSettingPtr(index);
+if (!elementSetting) {
+return false;
+}
+switch (elementSetting->type) {
+case ESP3DSettingType::byte_t:
+  value = std::to_string(esp3dTftsettings.readByte(index));
+  break;
+case ESP3DSettingType::integer_t:
+  value = std::to_string(esp3dTftsettings.readUint32(index));
+  break;
+case ESP3DSettingType::ip:
+  value = esp3dTftsettings.readIPString(index);
+  break;
+case ESP3DSettingType::float_t:
+  // TODO Add float support ?
+  value = "Not supported";
+  break;
+case ESP3DSettingType::mask:
+  // TODO Add Mask support ?
+  value = "Not supported";
+  break;
+case ESP3DSettingType::bitsfield:
+  // TODO Add bitfield support ?
+  value = "Not supported";
+  break;
+default:  // String
+  if (index == ESP3DSettingIndex::esp3d_sta_password ||
+      index == ESP3DSettingIndex::esp3d_ap_password ||
+#if ESP3D_NOTIFICATIONS_FEATURE
+      index == ESP3DSettingIndex::esp3d_notification_token_1 ||
+      index == ESP3DSettingIndex::esp3d_notification_token_2 ||
+#endif  // ESP3D_NOTIFICATIONS_FEATURE
+
+      index == ESP3DSettingIndex::esp3d_admin_password ||
+      index == ESP3DSettingIndex::esp3d_user_password) {  // hide passwords
+                                                          // using  ********
+    value = HIDDEN_SETTING_VALUE;
+  } else {
+    value =
+        esp3dTftsettings.readString(index, out_str, elementSetting->size);
+  }
+}
+if (json) {
+if (!isFirst) {
+  tmpstr += ",";
+}
+tmpstr += "{\"F\":\"";
+tmpstr += filter;
+tmpstr += "\",\"P\":\"";
+tmpstr += std::to_string(static_cast<uint16_t>(index));
+tmpstr += "\",\"T\":\"";
+switch (elementSetting->type) {
+  case ESP3DSettingType::byte_t:
+    tmpstr += "B";
+    break;
+  case ESP3DSettingType::integer_t:
+    tmpstr += "I";
+    break;
+  case ESP3DSettingType::ip:
+    tmpstr += "A";
+    break;
+  case ESP3DSettingType::float_t:
+    tmpstr += "F";
+    break;
+  case ESP3DSettingType::mask:
+    tmpstr += "M";
+    break;
+  case ESP3DSettingType::bitsfield:
+    tmpstr += "X";
+    break;
+  default:
+    tmpstr += "S";
+}
+tmpstr += "\",\"V\":\"";
+tmpstr += value;
+tmpstr += "\",\"H\":\"";
+tmpstr += help;
+tmpstr += "\"";
+if (needRestart) {
+  tmpstr += ",\"R\":\"1\"";
+}
+if (optionValues && optionLabels) {
+  tmpstr += ",\"O\":[";
+  for (uint8_t i = 0; i < maxsize; i++) {
+    if (i > 0) {
+      tmpstr += ",";
+    }
+    tmpstr += "{\"";
+    // be sure we have same size for both array to avoid overflow
+    tmpstr += optionLabels[i];
+    tmpstr += "\":\"";
+    tmpstr += optionValues[i];
+    tmpstr += "\"}";
+  }
+  tmpstr += "]";
+}
+if (unit) {
+  tmpstr += ",\"R\":\"";
+  tmpstr += unit;
+  tmpstr += "\"";
+}
+if (precision != ((uint8_t)-1)) {
+  tmpstr += ",\"E\":\"";
+  tmpstr += std::to_string(precision);
+  tmpstr += "\"";
+}
+if (maxsize != (uint32_t)-1 && !optionValues) {
+  tmpstr += ",\"S\":\"";
+  tmpstr += std::to_string(maxsize);
+  tmpstr += "\"";
+}
+if (minsize != (uint32_t)-1) {
+  tmpstr += ",\"M\":\"";
+  tmpstr += std::to_string(minsize);
+  tmpstr += "\"";
+}
+if (minsize2 != (uint32_t)-1) {
+  tmpstr += ",\"MS\":\"";
+  tmpstr += std::to_string(minsize2);
+  tmpstr += "\"";
+}
+tmpstr += "}";
+} else {
+tmpstr = filter;
+tmpstr += "/";
+tmpstr += help;
+tmpstr += ": ";
+tmpstr += value;
+tmpstr += "\n";
+}
+
+
+  */
+  return true;
+}

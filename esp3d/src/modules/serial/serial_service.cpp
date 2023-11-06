@@ -140,13 +140,13 @@ bool SerialService::begin(uint8_t serialIndex) {
   switch (_id) {
     case MAIN_SERIAL:
       br = Settings_ESP3D::read_uint32(ESP_BAUD_RATE);
-      defaultBr = Settings_ESP3D::get_default_int32_value(ESP_BAUD_RATE);
+      defaultBr = Settings_ESP3D::getDefaultIntegerSetting(ESP_BAUD_RATE);
       break;
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
     case BRIDGE_SERIAL:
       br = Settings_ESP3D::read_uint32(ESP_SERIAL_BRIDGE_BAUD);
       defaultBr =
-          Settings_ESP3D::get_default_int32_value(ESP_SERIAL_BRIDGE_BAUD);
+          Settings_ESP3D::getDefaultIntegerSetting(ESP_SERIAL_BRIDGE_BAUD);
       break;
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
     default:
@@ -421,15 +421,15 @@ bool SerialService::reset() {
     case MAIN_SERIAL:
       return Settings_ESP3D::write_uint32(
           ESP_BAUD_RATE,
-          Settings_ESP3D::get_default_int32_value(ESP_BAUD_RATE));
+          Settings_ESP3D::getDefaultIntegerSetting(ESP_BAUD_RATE));
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
     case BRIDGE_SERIAL:
       res = Settings_ESP3D::write_byte(
           ESP_SERIAL_BRIDGE_ON,
-          Settings_ESP3D::get_default_byte_value(ESP_SERIAL_BRIDGE_ON));
+          Settings_ESP3D::getDefaultByteSetting(ESP_SERIAL_BRIDGE_ON));
       return res && Settings_ESP3D::write_uint32(
                         ESP_SERIAL_BRIDGE_BAUD,
-                        Settings_ESP3D::get_default_int32_value(
+                        Settings_ESP3D::getDefaultIntegerSetting(
                             ESP_SERIAL_BRIDGE_BAUD));
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
     default:

@@ -18,27 +18,26 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-
-
 #ifndef _BOOT_DELAY_H
 #define _BOOT_DELAY_H
 
-typedef void (progress_t)(uint8_t percent);
+#include <cstdint>
 
-class BootDelay
-{
-public:
-    BootDelay();
-    ~BootDelay();
-    bool begin();
-    void end();
-    void handle();
-    bool started();
-private:
-    bool _started;
-    uint32_t _startdelay;
-    uint32_t _totalduration;
+typedef void(progress_t)(uint8_t percent);
+
+class BootDelay {
+ public:
+  BootDelay();
+  ~BootDelay();
+  bool begin();
+  void end();
+  void handle();
+  bool started();
+
+ private:
+  bool _started;
+  uint32_t _startdelay;
+  uint32_t _totalduration;
 };
 
-#endif //_BOOT_DELAY_H
-
+#endif  //_BOOT_DELAY_H
