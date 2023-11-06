@@ -180,8 +180,19 @@
 uint8_t Settings_ESP3D::_FirmwareTarget = 0;
 bool Settings_ESP3D::_isverboseboot = false;
 
-uint16_t ESP3DSettingsData[] = {ESP_SETTINGS_VERSION,
-                                ESP_RADIO_MODE,
+uint16_t ESP3DSettingsData[] = {ESP_RADIO_MODE,
+                                ESP_STA_PASSWORD,
+                                ESP_STA_SSID,
+                                ESP_BOOT_RADIO_STATE,
+                                ESP_STA_FALLBACK_MODE,
+                                ESP_AP_SSID,
+                                ESP_AP_PASSWORD,
+                                ESP_STA_IP_VALUE,
+                                ESP_STA_GATEWAY_VALUE,
+                                ESP_STA_MASK_VALUE,
+                                ESP_STA_DNS_VALUE,
+                                ESP_AP_IP_VALUE,
+                                ESP_SETTINGS_VERSION,
                                 ESP_NOTIFICATION_TYPE,
                                 ESP_CALIBRATION,
                                 ESP_AP_CHANNEL,
@@ -209,17 +220,11 @@ uint16_t ESP3DSettingsData[] = {ESP_SETTINGS_VERSION,
                                 ESP_VERBOSE_BOOT,
                                 ESP_WEBDAV_ON,
                                 ESP_SECURE_SERIAL,
-                                ESP_BOOT_RADIO_STATE,
-                                ESP_STA_FALLBACK_MODE,
                                 ESP_SERIAL_BRIDGE_FLAG,
                                 ESP_SERIAL_BRIDGE_ON,
                                 ESP_HOSTNAME,
-                                ESP_STA_PASSWORD,
-                                ESP_STA_SSID,
                                 ESP_ADMIN_PWD,
                                 ESP_USER_PWD,
-                                ESP_AP_SSID,
-                                ESP_AP_PASSWORD,
                                 ESP_NOTIFICATION_TOKEN1,
                                 ESP_NOTIFICATION_TOKEN2,
                                 ESP_NOTIFICATION_SETTINGS,
@@ -227,11 +232,6 @@ uint16_t ESP3DSettingsData[] = {ESP_SETTINGS_VERSION,
                                 ESP_TIME_SERVER2,
                                 ESP_TIME_SERVER3,
                                 ESP_TIME_ZONE,
-                                ESP_STA_IP_VALUE,
-                                ESP_STA_GATEWAY_VALUE,
-                                ESP_STA_MASK_VALUE,
-                                ESP_STA_DNS_VALUE,
-                                ESP_AP_IP_VALUE,
                                 ESP_BAUD_RATE,
                                 ESP_HTTP_PORT,
                                 ESP_TELNET_PORT,
@@ -844,297 +844,44 @@ bool Settings_ESP3D::write_IP(int pos, const uint32_t value) {
 
 // clear all entries
 bool Settings_ESP3D::reset(bool networkonly) {
-  // radio mode
-  Settings_ESP3D::write_byte(
-      ESP_RADIO_MODE, Settings_ESP3D::getDefaultByteSetting(ESP_RADIO_MODE));
-  Settings_ESP3D::write_byte(
-      ESP_BOOT_RADIO_STATE,
-      Settings_ESP3D::getDefaultByteSetting(ESP_BOOT_RADIO_STATE));
-  Settings_ESP3D::write_byte(
-      ESP_STA_FALLBACK_MODE,
-      Settings_ESP3D::getDefaultByteSetting(ESP_STA_FALLBACK_MODE));
-#if defined(WIFI_FEATURE)
-  // STA SSID
-  Settings_ESP3D::write_string(
-      ESP_STA_SSID, Settings_ESP3D::getDefaultStringSetting(ESP_STA_SSID));
-  // STA pwd
-  Settings_ESP3D::write_string(
-      ESP_STA_PASSWORD,
-      Settings_ESP3D::getDefaultStringSetting(ESP_STA_PASSWORD));
-  // AP SSID
-  Settings_ESP3D::write_string(
-      ESP_AP_SSID, Settings_ESP3D::getDefaultStringSetting(ESP_AP_SSID));
-  // AP password
-  Settings_ESP3D::write_string(
-      ESP_AP_PASSWORD,
-      Settings_ESP3D::getDefaultStringSetting(ESP_AP_PASSWORD));
-  // AP static IP
-  Settings_ESP3D::write_IP(
-      ESP_AP_IP_VALUE,
-      Settings_ESP3D::getDefaultIntegerSetting(ESP_AP_IP_VALUE));
-  // AP Channel
-  Settings_ESP3D::write_byte(
-      ESP_AP_CHANNEL, Settings_ESP3D::getDefaultByteSetting(ESP_AP_CHANNEL));
+  uint nb_settings = sizeof(ESP3DSettingsData) / sizeof(uint16_t);
+  for (uint i = 0; i < nb_settings; i++) {
+    if (networkonly && i == ESP_SETTINGS_VERSION) {
+      return true;
+    }
 
-#endif  // WIFI_FEATURE
-
-#if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
-  // STA IP mode
-  Settings_ESP3D::write_byte(
-      ESP_STA_IP_MODE, Settings_ESP3D::getDefaultByteSetting(ESP_STA_IP_MODE));
-  // STA static IP
-  Settings_ESP3D::write_IP(
-      ESP_STA_IP_VALUE,
-      Settings_ESP3D::getDefaultIntegerSetting(ESP_STA_IP_VALUE));
-  // STA static Gateway
-  Settings_ESP3D::write_IP(
-      ESP_STA_GATEWAY_VALUE,
-      Settings_ESP3D::getDefaultIntegerSetting(ESP_STA_GATEWAY_VALUE));
-  // STA static Mask
-  Settings_ESP3D::write_IP(
-      ESP_STA_MASK_VALUE,
-      Settings_ESP3D::getDefaultIntegerSetting(ESP_STA_MASK_VALUE));
-  // STA static DNS
-  Settings_ESP3D::write_IP(
-      ESP_STA_DNS_VALUE,
-      Settings_ESP3D::getDefaultIntegerSetting(ESP_STA_DNS_VALUE));
-#endif  // WIFI_FEATURE || ETH_FEATURE
-  if (networkonly) {
-    return true;
+    const ESP3DSettingDescription *query = getSettingPtr(i);
+    if (query) {
+      switch (query->type) {
+        case ESP3DSettingType::string_t:
+          if (!Settings_ESP3D::write_string(i, query->default_val)) {
+            log_esp3d_e("Error reset string %d to %s", i, query->default_val);
+            return false;
+          }
+          break;
+        case ESP3DSettingType::byte_t:
+          if (!Settings_ESP3D::write_byte(
+                  i, (uint8_t)strtoul(query->default_val, NULL, 0))) {
+            log_esp3d_e("Error reset byte %d to %s", i, query->default_val);
+            return false;
+          }
+          break;
+        case ESP3DSettingType::integer_t:
+        case ESP3DSettingType::ip_t:
+          if (!Settings_ESP3D::write_uint32(i, getDefaultIntegerSetting(i))) {
+            log_esp3d_e("Error reset uint32 %d to %s", i, query->default_val);
+            return false;
+          }
+          break;
+        default:
+          log_esp3d_e("Error unknow entry %d", i);
+          break;
+      }
+    } else {
+      log_esp3d_e("Error unknow entry %d", settingElement);
+    }
   }
-
-  bool res = true;
-  log_esp3d("Reset Settings");
-#if ESP_SAVE_SETTINGS == SETTINGS_IN_PREFERENCES
-  log_esp3d("clear preferences");
-  Preferences prefs;
-  if (!prefs.begin(NAMESPACE, false)) {
-    return false;
-  }
-  res = prefs.clear();
-  prefs.end();
-#endif  // SETTINGS_IN_PREFERENCES
-
-// for EEPROM need to overwrite all settings
-#if ESP_SAVE_SETTINGS == SETTINGS_IN_EEPROM
-  log_esp3d("clear EEPROM");
-
-  // Setup done (internal only)
-  Settings_ESP3D::write_byte(ESP_SETUP,
-                             Settings_ESP3D::getDefaultByteSetting(ESP_SETUP));
-  // Verbose boot
-  Settings_ESP3D::write_byte(
-      ESP_VERBOSE_BOOT,
-      Settings_ESP3D::getDefaultByteSetting(ESP_VERBOSE_BOOT));
-  // Secure Serial
-#if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
-  Settings_ESP3D::write_byte(
-      ESP_SECURE_SERIAL,
-      Settings_ESP3D::getDefaultByteSetting(ESP_SECURE_SERIAL));
-#endif  // COMMUNICATION PROTOCOL
-#if defined(DISPLAY_DEVICE) && defined(DISPLAY_TOUCH_DRIVER)
-  // Calibration done (internal only)
-  Settings_ESP3D::write_byte(
-      ESP_CALIBRATION, Settings_ESP3D::getDefaultByteSetting(ESP_CALIBRATION));
-  // Calibration data (internal only)
-  Settings_ESP3D::write_uint32(
-      ESP_CALIBRATION_1,
-      Settings_ESP3D::getDefaultIntegerSetting(ESP_CALIBRATION_1));
-  Settings_ESP3D::write_uint32(
-      ESP_CALIBRATION_2,
-      Settings_ESP3D::getDefaultIntegerSetting(ESP_CALIBRATION_2));
-  Settings_ESP3D::write_uint32(
-      ESP_CALIBRATION_3,
-      Settings_ESP3D::getDefaultIntegerSetting(ESP_CALIBRATION_3));
-  Settings_ESP3D::write_uint32(
-      ESP_CALIBRATION_4,
-      Settings_ESP3D::getDefaultIntegerSetting(ESP_CALIBRATION_4));
-  Settings_ESP3D::write_uint32(
-      ESP_CALIBRATION_5,
-      Settings_ESP3D::getDefaultIntegerSetting(ESP_CALIBRATION_5));
-#endif  // DISPLAY_DEVICE && DISPLAY_TOUCH_DRIVER
-#ifdef BUZZER_DEVICE
-  // Buzzer state
-  Settings_ESP3D::write_byte(ESP_BUZZER,
-                             Settings_ESP3D::getDefaultByteSetting(ESP_BUZZER));
-#endif  // BUZZER_DEVICE
-#if defined(WIFI_FEATURE) || defined(BLUETOOTH_FEATURE) || defined(ETH_FEATURE)
-  // Hostname
-  Settings_ESP3D::write_string(
-      ESP_HOSTNAME, Settings_ESP3D::getDefaultStringSetting(ESP_HOSTNAME));
-#endif  // WIFI_FEATURE ||  BLUETOOTH_FEATURE || ETH_FEATURE
-#ifdef NOTIFICATION_FEATURE
-  // Auto Notification
-  Settings_ESP3D::write_byte(
-      ESP_AUTO_NOTIFICATION,
-      Settings_ESP3D::getDefaultByteSetting(ESP_AUTO_NOTIFICATION));
-  // Notification Type
-  Settings_ESP3D::write_byte(
-      ESP_NOTIFICATION_TYPE,
-      Settings_ESP3D::getDefaultByteSetting(ESP_NOTIFICATION_TYPE));
-  // Notification Token1
-  Settings_ESP3D::write_string(
-      ESP_NOTIFICATION_TOKEN1,
-      Settings_ESP3D::getDefaultStringSetting(ESP_NOTIFICATION_TOKEN1));
-  // Notification Token2
-  Settings_ESP3D::write_string(
-      ESP_NOTIFICATION_TOKEN2,
-      Settings_ESP3D::getDefaultStringSetting(ESP_NOTIFICATION_TOKEN2));
-  // Notification Settings
-  Settings_ESP3D::write_string(
-      ESP_NOTIFICATION_SETTINGS,
-      Settings_ESP3D::getDefaultStringSetting(ESP_NOTIFICATION_SETTINGS));
-#endif  // NOTIFICATION_FEATURE
-  // radio mode
-  Settings_ESP3D::write_byte(
-      ESP_RADIO_MODE, Settings_ESP3D::getDefaultByteSetting(ESP_RADIO_MODE));
-
-#ifdef FTP_FEATURE
-  // FTP On
-  Settings_ESP3D::write_byte(ESP_FTP_ON,
-                             Settings_ESP3D::getDefaultByteSetting(ESP_FTP_ON));
-  // FTP Ctrl Port
-  Settings_ESP3D::write_uint32(
-      ESP_FTP_CTRL_PORT,
-      Settings_ESP3D::getDefaultIntegerSetting(ESP_FTP_CTRL_PORT));
-  // FTP Active data Port
-  Settings_ESP3D::write_uint32(
-      ESP_FTP_DATA_ACTIVE_PORT,
-      Settings_ESP3D::getDefaultIntegerSetting(ESP_FTP_DATA_ACTIVE_PORT));
-  // FTP Pasive data Port
-  Settings_ESP3D::write_uint32(
-      ESP_FTP_DATA_PASSIVE_PORT,
-      Settings_ESP3D::getDefaultIntegerSetting(ESP_FTP_DATA_PASSIVE_PORT));
-#endif  // FTP_FEATURE
-
-#ifdef HTTP_FEATURE
-  // HTTP On
-  Settings_ESP3D::write_byte(
-      ESP_HTTP_ON, Settings_ESP3D::getDefaultByteSetting(ESP_HTTP_ON));
-  // HTTP Port
-  Settings_ESP3D::write_uint32(
-      ESP_HTTP_PORT, Settings_ESP3D::getDefaultIntegerSetting(ESP_HTTP_PORT));
-#endif  // HTTP_FEATURE
-
-#ifdef TELNET_FEATURE
-  // TELNET On
-  Settings_ESP3D::write_byte(
-      ESP_TELNET_ON, Settings_ESP3D::getDefaultByteSetting(ESP_TELNET_ON));
-  // TELNET Port
-  Settings_ESP3D::write_uint32(
-      ESP_TELNET_PORT,
-      Settings_ESP3D::getDefaultIntegerSetting(ESP_TELNET_PORT));
-#endif  // TELNET
-#ifdef WS_DATA_FEATURE
-  // Websocket On
-  Settings_ESP3D::write_byte(
-      ESP_WEBSOCKET_ON,
-      Settings_ESP3D::getDefaultByteSetting(ESP_WEBSOCKET_ON));
-  // Websocket Port
-  Settings_ESP3D::write_uint32(
-      ESP_WEBSOCKET_PORT,
-      Settings_ESP3D::getDefaultIntegerSetting(ESP_WEBSOCKET_PORT));
-#endif  // WS_DATA_FEATURE
-#ifdef WEBDAV_FEATURE
-  // WebDav On
-  Settings_ESP3D::write_byte(
-      ESP_WEBDAV_ON, Settings_ESP3D::getDefaultByteSetting(ESP_WEBDAV_ON));
-  // WebDav Port
-  Settings_ESP3D::write_uint32(
-      ESP_WEBDAV_PORT,
-      Settings_ESP3D::getDefaultIntegerSetting(ESP_WEBDAV_PORT));
-#endif  // WEBDAV_FEATURE
-#ifdef AUTHENTICATION_FEATURE
-  // Admin password
-  Settings_ESP3D::write_string(
-      ESP_ADMIN_PWD, Settings_ESP3D::getDefaultStringSetting(ESP_ADMIN_PWD));
-  // User password
-  Settings_ESP3D::write_string(
-      ESP_USER_PWD, Settings_ESP3D::getDefaultStringSetting(ESP_USER_PWD));
-  // Session timeout
-  Settings_ESP3D::write_byte(
-      ESP_SESSION_TIMEOUT,
-      Settings_ESP3D::getDefaultByteSetting(ESP_SESSION_TIMEOUT));
-#endif  // AUTHENTICATION_FEATURE
-  // Target FW
-  Settings_ESP3D::write_byte(
-      ESP_TARGET_FW, Settings_ESP3D::getDefaultByteSetting(ESP_TARGET_FW));
-  // Output flags
-  Settings_ESP3D::write_byte(
-      ESP_SERIAL_FLAG, Settings_ESP3D::getDefaultByteSetting(ESP_SERIAL_FLAG));
-  Settings_ESP3D::write_byte(
-      ESP_SERIAL_BRIDGE_FLAG,
-      Settings_ESP3D::getDefaultByteSetting(ESP_SERIAL_BRIDGE_FLAG));
-  Settings_ESP3D::write_byte(
-      ESP_REMOTE_SCREEN_FLAG,
-      Settings_ESP3D::getDefaultByteSetting(ESP_REMOTE_SCREEN_FLAG));
-  Settings_ESP3D::write_byte(
-      ESP_WEBSOCKET_FLAG,
-      Settings_ESP3D::getDefaultByteSetting(ESP_WEBSOCKET_FLAG));
-  Settings_ESP3D::write_byte(
-      ESP_TELNET_FLAG, Settings_ESP3D::getDefaultByteSetting(ESP_TELNET_FLAG));
-  Settings_ESP3D::write_byte(
-      ESP_BT_FLAG, Settings_ESP3D::getDefaultByteSetting(ESP_BT_FLAG));
-  Settings_ESP3D::write_byte(
-      ESP_SCREEN_FLAG, Settings_ESP3D::getDefaultByteSetting(ESP_SCREEN_FLAG));
-#ifdef SD_DEVICE
-  // SPI SD Divider
-  Settings_ESP3D::write_byte(
-      ESP_SD_SPEED_DIV,
-      Settings_ESP3D::getDefaultByteSetting(ESP_SD_SPEED_DIV));
-#ifdef SD_UPDATE_FEATURE
-  // SD Update feature
-  Settings_ESP3D::write_byte(
-      ESP_SD_CHECK_UPDATE_AT_BOOT,
-      Settings_ESP3D::getDefaultByteSetting(ESP_SD_CHECK_UPDATE_AT_BOOT));
-#endif  // SD_UPDATE_FEATURE
-#endif  // SD_DEVICE
-
-#ifdef TIMESTAMP_FEATURE
-  // Internet time
-  Settings_ESP3D::write_byte(
-      ESP_INTERNET_TIME,
-      Settings_ESP3D::getDefaultByteSetting(ESP_INTERNET_TIME));
-  // Time Zone
-  Settings_ESP3D::write_string(
-      ESP_TIME_ZONE, Settings_ESP3D::getDefaultStringSetting(ESP_TIME_ZONE));
-  // Is DST Time Zone
-  Settings_ESP3D::write_byte(
-      ESP_TIME_IS_DST, Settings_ESP3D::getDefaultByteSetting(ESP_TIME_IS_DST));
-  // Time Server 1 address
-  Settings_ESP3D::write_string(
-      ESP_TIME_SERVER1,
-      Settings_ESP3D::getDefaultStringSetting(ESP_TIME_SERVER1));
-  // Time Server 2 address
-  Settings_ESP3D::write_string(
-      ESP_TIME_SERVER2,
-      Settings_ESP3D::getDefaultStringSetting(ESP_TIME_SERVER2));
-  // Time Server 3 address
-  Settings_ESP3D::write_string(
-      ESP_TIME_SERVER3,
-      Settings_ESP3D::getDefaultStringSetting(ESP_TIME_SERVER3));
-#endif  // TIMESTAMP_FEATURE
-#ifdef SENSOR_DEVICE
-  // Sensor device
-  Settings_ESP3D::write_byte(
-      ESP_SENSOR_TYPE, Settings_ESP3D::getDefaultByteSetting(ESP_SENSOR_TYPE));
-  // Sensor query interval
-  Settings_ESP3D::write_uint32(
-      ESP_SENSOR_INTERVAL,
-      Settings_ESP3D::getDefaultIntegerSetting(ESP_SENSOR_INTERVAL));
-#endif  // SENSOR_DEVICE
-  // Start Delay
-  Settings_ESP3D::write_uint32(
-      ESP_BOOT_DELAY, Settings_ESP3D::getDefaultIntegerSetting(ESP_BOOT_DELAY));
-#endif  // SETTINGS_IN_EEPROM
-  // set version in settings
-  if (res) {
-    log_esp3d("Reset Setting Version");
-    // Settings version (internal only)
-    res = Settings_ESP3D::write_string(ESP_SETTINGS_VERSION,
-                                       CURRENT_SETTINGS_VERSION);
-  }
-  return res;
+  return true;
 }
 
 // Get Settings Version
