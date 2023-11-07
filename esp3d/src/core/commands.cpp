@@ -815,146 +815,155 @@ bool Commands::_dispatchSetting(
     const char **optionValues, const char **optionLabels, uint32_t maxsize,
     uint32_t minsize, uint32_t minsize2, uint8_t precision, const char *unit,
     bool needRestart, ESP3DOutput *output, bool isFirst) {
-  /*
-    std::string tmpstr;
-std::string value;
-char out_str[255];
-tmpstr.reserve(
-  350);  // to save time and avoid several memories allocation delay
-const ESP3DSettingDescription* elementSetting =
-  esp3dTftsettings.getSettingPtr(index);
-if (!elementSetting) {
-return false;
-}
-switch (elementSetting->type) {
-case ESP3DSettingType::byte_t:
-  value = std::to_string(esp3dTftsettings.readByte(index));
-  break;
-case ESP3DSettingType::integer_t:
-  value = std::to_string(esp3dTftsettings.readUint32(index));
-  break;
-case ESP3DSettingType::ip:
-  value = esp3dTftsettings.readIPString(index);
-  break;
-case ESP3DSettingType::float_t:
-  // TODO Add float support ?
-  value = "Not supported";
-  break;
-case ESP3DSettingType::mask:
-  // TODO Add Mask support ?
-  value = "Not supported";
-  break;
-case ESP3DSettingType::bitsfield:
-  // TODO Add bitfield support ?
-  value = "Not supported";
-  break;
-default:  // String
-  if (index == ESP3DSettingIndex::esp3d_sta_password ||
-      index == ESP3DSettingIndex::esp3d_ap_password ||
+  String tmpstr;
+  String value;
+  char out_str[255];
+  tmpstr.reserve(
+      350);  // to save time and avoid several memories allocation delay
+  const ESP3DSettingDescription *elementSetting =
+      Settings_ESP3D::getSettingPtr(index);
+  if (!elementSetting) {
+    return false;
+  }
+  switch (elementSetting->type) {
+    case ESP3DSettingType::byte_t:
+      value = String(Settings_ESP3D::read_byte(index));
+      break;
+    case ESP3DSettingType::integer_t:
+      value = String(Settings_ESP3D::read_uint32(index));
+      break;
+    case ESP3DSettingType::ip_t:
+      value = Settings_ESP3D::read_IP_String(index);
+      break;
+    case ESP3DSettingType::float_t:
+      // TODO Add float support ?
+      value = "Not supported";
+      log_esp3d_e("Float not supported");
+      return false;
+      break;
+    case ESP3DSettingType::mask:
+      // TODO Add Mask support ?
+      value = "Not supported";
+      log_esp3d_e("Mask not supported");
+      return false;
+      break;
+    case ESP3DSettingType::bitsfield:
+      // TODO Add bitfield support ?
+      value = "Not supported";
+      log_esp3d_e("Bitsfield not supported");
+      return false;
+      break;
+    case ESP3DSettingType::string_t:
+      // String
+      if (index == ESP_AP_PASSWORD || index == ESP_STA_PASSWORD ||
 #if ESP3D_NOTIFICATIONS_FEATURE
-      index == ESP3DSettingIndex::esp3d_notification_token_1 ||
-      index == ESP3DSettingIndex::esp3d_notification_token_2 ||
+          index == ESP_NOTIFICATION_TOKEN1 ||
+          index == ESP_NOTIFICATION_TOKEN2 ||
 #endif  // ESP3D_NOTIFICATIONS_FEATURE
 
-      index == ESP3DSettingIndex::esp3d_admin_password ||
-      index == ESP3DSettingIndex::esp3d_user_password) {  // hide passwords
-                                                          // using  ********
-    value = HIDDEN_SETTING_VALUE;
-  } else {
-    value =
-        esp3dTftsettings.readString(index, out_str, elementSetting->size);
+          index == ESP_USER_PWD || index == ESP_ADMIN_PWD) {  // hide passwords
+                                                              // using  ********
+        value = HIDDEN_PASSWORD;
+      } else {
+        value = Settings_ESP3D::read_string(index);
+      }
+      break;
+    default:
+      value = "Not supported";
+      log_esp3d_e("Type not supported");
+      return false;
+      break;
   }
-}
-if (json) {
-if (!isFirst) {
-  tmpstr += ",";
-}
-tmpstr += "{\"F\":\"";
-tmpstr += filter;
-tmpstr += "\",\"P\":\"";
-tmpstr += std::to_string(static_cast<uint16_t>(index));
-tmpstr += "\",\"T\":\"";
-switch (elementSetting->type) {
-  case ESP3DSettingType::byte_t:
-    tmpstr += "B";
-    break;
-  case ESP3DSettingType::integer_t:
-    tmpstr += "I";
-    break;
-  case ESP3DSettingType::ip:
-    tmpstr += "A";
-    break;
-  case ESP3DSettingType::float_t:
-    tmpstr += "F";
-    break;
-  case ESP3DSettingType::mask:
-    tmpstr += "M";
-    break;
-  case ESP3DSettingType::bitsfield:
-    tmpstr += "X";
-    break;
-  default:
-    tmpstr += "S";
-}
-tmpstr += "\",\"V\":\"";
-tmpstr += value;
-tmpstr += "\",\"H\":\"";
-tmpstr += help;
-tmpstr += "\"";
-if (needRestart) {
-  tmpstr += ",\"R\":\"1\"";
-}
-if (optionValues && optionLabels) {
-  tmpstr += ",\"O\":[";
-  for (uint8_t i = 0; i < maxsize; i++) {
-    if (i > 0) {
+  if (json) {
+    if (!isFirst) {
       tmpstr += ",";
     }
-    tmpstr += "{\"";
-    // be sure we have same size for both array to avoid overflow
-    tmpstr += optionLabels[i];
-    tmpstr += "\":\"";
-    tmpstr += optionValues[i];
-    tmpstr += "\"}";
+    tmpstr += "{\"F\":\"";
+    tmpstr += filter;
+    tmpstr += "\",\"P\":\"";
+    tmpstr += String(static_cast<uint16_t>(index));
+    tmpstr += "\",\"T\":\"";
+    // Limited support already done for above so even not supported we can
+    // define it once will be enabled
+    switch (elementSetting->type) {
+      case ESP3DSettingType::byte_t:
+        tmpstr += "B";
+        break;
+      case ESP3DSettingType::integer_t:
+        tmpstr += "I";
+        break;
+      case ESP3DSettingType::ip_t:
+        tmpstr += "A";
+        break;
+      case ESP3DSettingType::float_t:
+        tmpstr += "F";
+        break;
+      case ESP3DSettingType::mask:
+        tmpstr += "M";
+        break;
+      case ESP3DSettingType::bitsfield:
+        tmpstr += "X";
+        break;
+      default:
+        tmpstr += "S";
+    }
+    tmpstr += "\",\"V\":\"";
+    tmpstr += value;
+    tmpstr += "\",\"H\":\"";
+    tmpstr += help;
+    tmpstr += "\"";
+    if (needRestart) {
+      tmpstr += ",\"R\":\"1\"";
+    }
+    if (optionValues && optionLabels) {
+      tmpstr += ",\"O\":[";
+      for (uint8_t i = 0; i < maxsize; i++) {
+        if (i > 0) {
+          tmpstr += ",";
+        }
+        tmpstr += "{\"";
+        // be sure we have same size for both array to avoid overflow
+        tmpstr += optionLabels[i];
+        tmpstr += "\":\"";
+        tmpstr += optionValues[i];
+        tmpstr += "\"}";
+      }
+      tmpstr += "]";
+    }
+    if (unit) {
+      tmpstr += ",\"R\":\"";
+      tmpstr += unit;
+      tmpstr += "\"";
+    }
+    if (precision != ((uint8_t)-1)) {
+      tmpstr += ",\"E\":\"";
+      tmpstr += String(precision);
+      tmpstr += "\"";
+    }
+    if (maxsize != (uint32_t)-1 && !optionValues) {
+      tmpstr += ",\"S\":\"";
+      tmpstr += String(maxsize);
+      tmpstr += "\"";
+    }
+    if (minsize != (uint32_t)-1) {
+      tmpstr += ",\"M\":\"";
+      tmpstr += String(minsize);
+      tmpstr += "\"";
+    }
+    if (minsize2 != (uint32_t)-1) {
+      tmpstr += ",\"MS\":\"";
+      tmpstr += String(minsize2);
+      tmpstr += "\"";
+    }
+    tmpstr += "}";
+  } else {
+    tmpstr = filter;
+    tmpstr += "/";
+    tmpstr += help;
+    tmpstr += ": ";
+    tmpstr += value;
+    tmpstr += "\n";
   }
-  tmpstr += "]";
-}
-if (unit) {
-  tmpstr += ",\"R\":\"";
-  tmpstr += unit;
-  tmpstr += "\"";
-}
-if (precision != ((uint8_t)-1)) {
-  tmpstr += ",\"E\":\"";
-  tmpstr += std::to_string(precision);
-  tmpstr += "\"";
-}
-if (maxsize != (uint32_t)-1 && !optionValues) {
-  tmpstr += ",\"S\":\"";
-  tmpstr += std::to_string(maxsize);
-  tmpstr += "\"";
-}
-if (minsize != (uint32_t)-1) {
-  tmpstr += ",\"M\":\"";
-  tmpstr += std::to_string(minsize);
-  tmpstr += "\"";
-}
-if (minsize2 != (uint32_t)-1) {
-  tmpstr += ",\"MS\":\"";
-  tmpstr += std::to_string(minsize2);
-  tmpstr += "\"";
-}
-tmpstr += "}";
-} else {
-tmpstr = filter;
-tmpstr += "/";
-tmpstr += help;
-tmpstr += ": ";
-tmpstr += value;
-tmpstr += "\n";
-}
-
-
-  */
+  output->print(tmpstr.c_str());
   return true;
 }

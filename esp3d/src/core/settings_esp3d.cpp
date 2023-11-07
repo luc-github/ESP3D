@@ -102,7 +102,7 @@
 #define DEFAULT_OUTPUT_FLAG "255"
 #define DEFAULT_SD_SPI_DIV "4"
 #ifndef DEFAULT_FW
-#define DEFAULT_FW UNKNOWN_FW
+#define DEFAULT_FW "0"
 #endif  // DEFAULT_FW
 #define DEFAULT_TIME_ZONE "+00:00"
 #define DEFAULT_TIME_DST "0"
@@ -334,7 +334,9 @@ uint8_t Settings_ESP3D::read_byte(int pos, bool *haserror) {
   if (haserror) {
     *haserror = true;
   }
+  log_esp3d("read_byte %d", pos);
   uint8_t value = getDefaultByteSetting(pos);
+  log_esp3d("default value %d", value);
 #if ESP_SAVE_SETTINGS == SETTINGS_IN_EEPROM
   // check if parameters are acceptable
   if ((pos + 1 > EEPROM_SIZE)) {
@@ -675,7 +677,7 @@ bool Settings_ESP3D::reset(bool networkonly) {
           break;
       }
     } else {
-      log_esp3d_e("Error unknow entry %d", settingElement);
+      log_esp3d_e("Error unknow entry %d", i);
     }
   }
   return true;
@@ -1054,7 +1056,7 @@ bool Settings_ESP3D::isValidByteSetting(uint8_t value,
 uint32_t Settings_ESP3D::getDefaultIntegerSetting(
     ESP3DSettingIndex settingElement) {
   const ESP3DSettingDescription *query = getSettingPtr(settingElement);
-  if (getSettingPtr) {
+  if (query) {
     if (query->type == ESP3DSettingType::ip_t) {
       return _stringToIP(query->default_val);
     }
@@ -1070,7 +1072,7 @@ uint32_t Settings_ESP3D::getDefaultIntegerSetting(
 const char *Settings_ESP3D::getDefaultStringSetting(
     ESP3DSettingIndex settingElement) {
   const ESP3DSettingDescription *query = getSettingPtr(settingElement);
-  if (getSettingPtr) {
+  if (query) {
     if (query->type == ESP3DSettingType::string_t ||
         query->type == ESP3DSettingType::ip_t)
       return query->default_val;
@@ -1083,13 +1085,19 @@ const char *Settings_ESP3D::getDefaultStringSetting(
 
 uint8_t Settings_ESP3D::getDefaultByteSetting(
     ESP3DSettingIndex settingElement) {
+  log_esp3d("getDefaultByteSetting %d", settingElement);
   const ESP3DSettingDescription *query = getSettingPtr(settingElement);
-  if (getSettingPtr) {
-    if (query->type == ESP3DSettingType::byte_t)
+
+  if (query) {
+    log_esp3d("getDefaultByteSetting found");
+    if (query->type == ESP3DSettingType::byte_t) {
+      log_esp3d("getDefaultByteSetting is %s", query->default_val);
       return (uint8_t)strtoul(query->default_val, NULL, 0);
-    else {
+    } else {
       log_esp3d_e("Error invalid type %d for %d", query->type, settingElement);
     }
+  } else {
+    log_esp3d_e("Error unknow entry %d", settingElement);
   }
   return 0;
 }
@@ -1346,7 +1354,7 @@ const ESP3DSettingDescription *Settings_ESP3D::getSettingPtr(
       setting.default_val = DEFAULT_SENSOR_TYPE;
       break;
     case ESP_TARGET_FW:
-      setting.default_val = DEFAULT_FW;
+      setting.default_val = STRING(DEFAULT_FW);
       break;
     case ESP_TIME_IS_DST:
       setting.default_val = DEFAULT_TIME_DST;
@@ -1507,6 +1515,9 @@ const ESP3DSettingDescription *Settings_ESP3D::getSettingPtr(
       return NULL;
       break;
   }
-
+  log_esp3d("Got index %d:", setting.index);
+  log_esp3d("type %d:", setting.type);
+  log_esp3d("size %d:", setting.size);
+  log_esp3d("default_val %s:", setting.default_val);
   return &setting;
 }
