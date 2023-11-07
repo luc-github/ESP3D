@@ -24,6 +24,9 @@
 
 #include <Arduino.h>
 
+#include "esp3d_configh.h"
+
+
 enum class ESP3DState : uint8_t {
   off = 0,
   on = 1,
@@ -46,17 +49,18 @@ struct ESP3DSettingDescription {
   uint16_t size;
   const char *default_val;
 };
+#ifdef SD_DEVICE
+extern const uint8_t SupportedSPIDivider[];
+extern const uint8_t SupportedSPIDividerSize;
+#endif  // SD_DEVICE
+#if defined(WIFI_FEATURE)
+extern const uint8_t SupportedApChannels[];
+extern const uint8_t SupportedApChannelsSize;
+#endif  // WIFI_FEATURE
 
 class Settings_ESP3D {
  public:
   static bool begin();
-
-  /*static uint8_t get_max_string_size(int ps);   // TODO:change to new API
-  static uint8_t get_min_string_size(int pos);   // TODO:change to new API
-  static uint32_t get_max_int32_value(int pos);  // TODO:change to new API
-  static uint32_t get_min_int32_value(int pos);  // TODO:change to new API
-  static uint8_t get_max_byte(int pos);          // TODO:change to new API
-  static int8_t get_min_byte(int pos);           // TODO:change to new API*/
   static uint8_t read_byte(int pos, bool *haserror = NULL);
   static uint32_t read_uint32(int pos, bool *haserror = NULL);
   static uint32_t read_IP(int pos, bool *haserror = NULL);
@@ -73,8 +77,6 @@ class Settings_ESP3D {
   static bool isVerboseBoot(bool fromsettings = false);
   static uint8_t GetSDDevice();
   static const char *GetFirmwareTargetShortName();
-  static String IPtoString(uint32_t ip_int);  // TODO:move to private
-  static uint32_t StringtoIP(const char *s);  // TODO:move to private
   static const char *TargetBoard();
   static bool isLocalPasswordValid(
       const char *password);  // TODO:change to new API
@@ -95,6 +97,8 @@ class Settings_ESP3D {
       const ESP3DSettingIndex index);
 
  private:
+  static String _IpToString(uint32_t ip_int);
+  static uint32_t _stringToIP(const char *s);
   static bool is_string(const char *s, uint len);
   static uint8_t _FirmwareTarget;
   static bool _isverboseboot;

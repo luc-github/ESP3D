@@ -38,11 +38,20 @@
 #include "../modules/wifi/wificonfig.h"
 #endif  // WIFI_FEATURE
 #endif  // WIFI_FEATURE || ETH_FEATURE
+#ifdef SENSOR_DEVICE
+#include "../modules/sensor/sensor.h"
+#endif  // SENSOR_DEVICE
 
 #if ESP_SAVE_SETTINGS == SETTINGS_IN_PREFERENCES
 #include <Preferences.h>
 #define NAMESPACE "ESP3D"
 #endif  // SETTINGS_IN_PREFERENCES
+
+#if defined(TIMESTAMP_FEATURE)
+#include "../modules/time/time_service.h"
+#endif  // TIMESTAMP_FEATURE
+
+#include "../modules/serial/serial_service.h"
 
 // Current Settings Version
 #define CURRENT_SETTINGS_VERSION "ESP3D04"
@@ -60,7 +69,7 @@
 #define MAX_NOTIFICATION_TOKEN_LENGTH 63
 #define MAX_NOTIFICATION_SETTINGS_LENGTH 128
 #define MAX_SERVER_ADDRESS_LENGTH 128
-#define MAX_TIME_ZONE_LENGTH 7
+#define MAX_TIME_ZONE_LENGTH 6
 #define MIN_SERVER_ADDRESS_LENGTH 0
 
 // default byte values
@@ -250,6 +259,17 @@ uint16_t ESP3DSettingsData[] = {ESP_RADIO_MODE,
                                 ESP_SERIAL_BRIDGE_BAUD
 
 };
+#if defined(#ifdef SD_DEVICE)
+const uint8_t SupportedSPIDivider[] = {1, 2, 4, 6, 8, 16, 32};
+const uint8_t SupportedSPIDividerSize =
+    sizeof(SupportedSPIDivider) / sizeof(uint8_t);
+#endif  // #ifdef SD_DEVICE
+#if defined(WIFI_FEATURE)
+const uint8_t SupportedApChannels[] = {1, 2, 3,  4,  5,  6,  7,
+                                       8, 9, 10, 11, 12, 13, 14};
+const uint8_t SupportedApChannelsSize =
+    sizeof(SupportedApChannels) / sizeof(uint8_t);
+#endif  // WIFI_FEATURE
 
 bool Settings_ESP3D::begin() {
   if (GetSettingsVersion() == -1) {
@@ -310,228 +330,6 @@ const char *Settings_ESP3D::GetFirmwareTargetShortName() {
   }
   return response.c_str();
 }
-/*
-// Max value for a int32 setting
-uint32_t Settings_ESP3D::get_max_int32_value(int pos) {
-  uint32_t res;
-  switch (pos) {
-    case ESP_BOOT_DELAY:
-      res = MAX_BOOT_DELAY;
-      break;
-#ifdef FTP_FEATURE
-    case ESP_FTP_CTRL_PORT:
-    case ESP_FTP_DATA_ACTIVE_PORT:
-    case ESP_FTP_DATA_PASSIVE_PORT:
-      res = MAX_FTP_PORT;
-      break;
-#endif  // FTP_FEATURE
-#ifdef HTTP_FEATURE
-    case ESP_HTTP_PORT:
-      res = MAX_HTTP_PORT;
-      break;
-#endif  // HTTP_FEATURE
-#ifdef TELNET_FEATURE
-    case ESP_TELNET_PORT:
-      res = MAX_TELNET_PORT;
-      break;
-#endif  // TELNET_FEATURE
-#ifdef WEBDAV_FEATURE
-    case ESP_WEBDAV_PORT:
-      res = MAX_WEBDAV_PORT;
-      break;
-#endif  // WEBDAV_FEATURE
-#ifdef WS_DATA_FEATURE
-    case ESP_WEBSOCKET_PORT:
-      res = MAX_WEBSOCKET_PORT;
-      break;
-#endif  // WS_DATA_FEATURE
-#if defined(SENSOR_DEVICE)
-    case ESP_SENSOR_INTERVAL:
-      res = MAX_SENSOR_INTERVAL;
-      break;
-#endif  // SENSOR_DEVICE
-    default:
-      res = DEFAULT_ESP_INT;
-  }
-  return res;
-}
-
-// Min value for a int32 setting
-uint32_t Settings_ESP3D::get_min_int32_value(int pos) {
-  uint32_t res;
-  switch (pos) {
-    case ESP_BOOT_DELAY:
-      res = MIN_BOOT_DELAY;
-      break;
-#ifdef FTP_FEATURE
-    case ESP_FTP_CTRL_PORT:
-    case ESP_FTP_DATA_ACTIVE_PORT:
-    case ESP_FTP_DATA_PASSIVE_PORT:
-      res = MIN_FTP_PORT;
-      break;
-#endif  // FTP_FEATURE
-#ifdef HTTP_FEATURE
-    case ESP_HTTP_PORT:
-      res = MIN_HTTP_PORT;
-      break;
-#endif  // HTTP_FEATURE
-#ifdef TELNET_FEATURE
-    case ESP_TELNET_PORT:
-      res = MIN_TELNET_PORT;
-      break;
-#endif  // TELNET_FEATURE
-#ifdef WS_DATA_FEATURE
-    case ESP_WEBSOCKET_PORT:
-      res = MIN_WEBSOCKET_PORT;
-      break;
-#endif  // WS_DATA_FEATURE
-#ifdef WEBDAV_FEATURE
-    case ESP_WEBDAV_PORT:
-      res = MIN_WEBDAV_PORT;
-      break;
-#endif  // WEBDAV_FEATURE
-#if defined(SENSOR_DEVICE)
-    case ESP_SENSOR_INTERVAL:
-      res = MIN_SENSOR_INTERVAL;
-      break;
-#endif  // SENSOR_DEVICE
-    default:
-      res = DEFAULT_ESP_INT;
-  }
-  return res;
-}
-
-uint8_t Settings_ESP3D::get_max_byte(int pos) {
-  uint8_t res;
-  switch (pos) {
-#if defined(WIFI_FEATURE)
-    case ESP_AP_CHANNEL:
-      res = MAX_CHANNEL;
-      break;
-#endif  // WIFI_FEATURE
-    default:
-      res = 255;
-  }
-  return res;
-}
-
-int8_t Settings_ESP3D::get_min_byte(int pos) {
-  uint8_t res;
-  switch (pos) {
-#if defined(WIFI_FEATURE)
-    case ESP_AP_CHANNEL:
-      res = MIN_CHANNEL;
-      break;
-#endif  // WIFI_FEATURE
-    default:
-      res = 0;
-  }
-  return res;
-}
-
-*/
-
-/*
-// Max size of for a string setting
-uint8_t Settings_ESP3D::get_max_string_size(int pos) {
-  uint8_t res;
-  switch (pos) {
-#if defined(WIFI_FEATURE) || defined(ETH_FEATURE) || defined(BLUETOOTH_FEATURE)
-    case ESP_HOSTNAME:
-      res = MAX_HOSTNAME_LENGTH;
-      break;
-#endif  // WIFI_FEATURE || ETH_FEATURE || BLUETOOTH_FEATURE
-#ifdef TIMESTAMP_FEATURE
-    case ESP_TIME_ZONE:
-      res = MAX_TIME_ZONE_LENGTH;
-      break;
-    case ESP_TIME_SERVER1:
-    case ESP_TIME_SERVER2:
-    case ESP_TIME_SERVER3:
-      res = MAX_SERVER_ADDRESS_LENGTH;
-      break;
-#endif  // TIMESTAMP_FEATURE
-#ifdef NOTIFICATION_FEATURE
-    case ESP_NOTIFICATION_TOKEN1:
-    case ESP_NOTIFICATION_TOKEN2:
-      res = MAX_NOTIFICATION_TOKEN_LENGTH;
-      break;
-    case ESP_NOTIFICATION_SETTINGS:
-      res = MAX_NOTIFICATION_SETTINGS_LENGTH;
-      break;
-#endif  // NOTIFICATION_FEATURE
-#if defined(WIFI_FEATURE)
-    case ESP_STA_SSID:
-    case ESP_AP_SSID:
-      res = MAX_SSID_LENGTH;
-      break;
-    case ESP_STA_PASSWORD:
-    case ESP_AP_PASSWORD:
-      res = MAX_PASSWORD_LENGTH;
-      break;
-#endif  // WIFI_FEATURE
-#ifdef AUTHENTICATION_FEATURE
-    case ESP_ADMIN_PWD:
-    case ESP_USER_PWD:
-      res = MAX_LOCAL_PASSWORD_LENGTH;
-      break;
-#endif  // AUTHENTICATION_FEATURE
-    case ESP_SETTINGS_VERSION:
-      res = MAX_VERSION_LENGTH;
-      break;
-    default:
-      res = DEFAULT_ESP_STRING_SIZE;
-  }
-  return res;
-}
-
-// Min size of for a string setting
-uint8_t Settings_ESP3D::get_min_string_size(int pos) {
-  uint8_t res;
-  switch (pos) {
-#if defined(WIFI_FEATURE) || defined(ETH_FEATURE) || defined(BLUETOOTH_FEATURE)
-    case ESP_HOSTNAME:
-      res = MIN_HOSTNAME_LENGTH;
-      break;
-#endif  // WIFI_FEATURE || ETH_FEATURE || BLUETOOTH_FEATURE
-#ifdef NOTIFICATION_FEATURE
-    case ESP_NOTIFICATION_TOKEN1:
-    case ESP_NOTIFICATION_TOKEN2:
-      res = MIN_NOTIFICATION_TOKEN_LENGTH;
-      break;
-    case ESP_NOTIFICATION_SETTINGS:
-      res = MIN_NOTIFICATION_SETTINGS_LENGTH;
-      break;
-#endif  // NOTIFICATION_FEATURE
-#ifdef TIMESTAMP_FEATURE
-    case ESP_TIME_SERVER1:
-    case ESP_TIME_SERVER2:
-    case ESP_TIME_SERVER3:
-      res = MIN_SERVER_ADDRESS_LENGTH;
-      break;
-#endif  // TIMESTAMP_FEATURE
-#if defined(WIFI_FEATURE)
-    case ESP_STA_SSID:
-    case ESP_AP_SSID:
-      res = MIN_SSID_LENGTH;
-      break;
-    case ESP_STA_PASSWORD:
-    case ESP_AP_PASSWORD:
-      res = MIN_PASSWORD_LENGTH;
-      break;
-#endif  // WIFI_FEATURE
-#ifdef AUTHENTICATION_FEATURE
-    case ESP_ADMIN_PWD:
-    case ESP_USER_PWD:
-      res = MIN_LOCAL_PASSWORD_LENGTH;
-      break;
-#endif  // AUTHENTICATION_FEATURE
-    default:
-      res = DEFAULT_ESP_STRING_SIZE;
-  }
-  return res;
-}
-*/
 
 uint8_t Settings_ESP3D::read_byte(int pos, bool *haserror) {
   if (haserror) {
@@ -797,7 +595,7 @@ uint32_t Settings_ESP3D::read_IP(int pos, bool *haserror) {
 
 // read an IP
 String Settings_ESP3D::read_IP_String(int pos, bool *haserror) {
-  return IPtoString(read_uint32(pos, haserror));
+  return _IpToString(read_uint32(pos, haserror));
 }
 
 // write a uint32
@@ -903,11 +701,11 @@ int8_t Settings_ESP3D::GetSettingsVersion() {
 
 // write a IP from string
 bool Settings_ESP3D::write_IP_String(int pos, const char *value) {
-  return write_uint32(pos, StringtoIP(value));
+  return write_uint32(pos, _stringToIP(value));
 }
 
 // Helper to convert  IP string to int
-uint32_t Settings_ESP3D::StringtoIP(const char *s) {
+uint32_t Settings_ESP3D::_stringToIP(const char *s) {
   uint32_t ip_int = 0;
   IPAddress ipaddr;
   if (ipaddr.fromString(s)) {
@@ -917,7 +715,7 @@ uint32_t Settings_ESP3D::StringtoIP(const char *s) {
 }
 
 // Helper to convert int to IP string
-String Settings_ESP3D::IPtoString(uint32_t ip_int) {
+String Settings_ESP3D::_IpToString(uint32_t ip_int) {
   static IPAddress ipaddr;
   ipaddr = ip_int;
   return ipaddr.toString();
@@ -966,88 +764,170 @@ bool Settings_ESP3D::isLocalPasswordValid(const char *password) {
 
 bool Settings_ESP3D::isValidIPStringSetting(const char *value,
                                             ESP3DSettingIndex settingElement) {
-  switch (settingElement) {
-    case ESP_STA_IP_VALUE:
-    case ESP_STA_GATEWAY_VALUE:
-    case ESP_STA_MASK_VALUE:
-    case ESP_STA_DNS_VALUE:
-    case ESP_AP_IP_VALUE:
-      break;
-    default:
-      return false;
+  const ESP3DSettingDescription *settingPtr = getSettingPtr(settingElement);
+  if (!settingPtr) {
+    return false;
   }
-
+  if (settingPtr->type != ESP3DSettingType::ip_t) {
+    return false;
+  }
+  String ippart[4];
+  uint index = 0;
+  for (uint8_t i = 0; i < strlen(value); i++) {
+    // only digit and . are allowed
+    if (!isDigit(value[i]) && value[i] != '.') {
+      return false;
+    }
+    if (value[i] == '.') {  // new ip part
+      index++;
+      if (index > 3) {  // only 4 parts allowed (IPv4 only for the moment)
+        return false;
+      }
+    } else {  // fill the part
+      ippart[index] += value[i];
+    }
+  }
+  if (index != 3) {  // only exactly 4 parts allowed, no less
+    return false;
+  }
+  for (uint8_t i = 0; i < 4; i++) {  // check each part
+    // max value is 255, no empty part, no part longer than 3 digits
+    if (ippart[i].toInt() > 255 || ippart[i].length() > 3 ||
+        ippart[i].length() == 0) {
+      return false;
+    }
+  }
   return true;
 }
 bool Settings_ESP3D::isValidStringSetting(const char *value,
                                           ESP3DSettingIndex settingElement) {
+  const ESP3DSettingDescription *settingPtr = getSettingPtr(settingElement);
+  if (!(settingPtr->type == ESP3DSettingType::string_t)) {
+    return false;
+  }
+  size_t len = strlen(value);
+  // cannot be over max size
+  if (len > settingPtr->size) {
+    return false;
+  }
   switch (settingElement) {
     case ESP_SETTINGS_VERSION:
+      return (!strcmp(value, DEFAULT_SETTINGS_VERSION) == 0);
+      break;
     case ESP_HOSTNAME:
-    case ESP_STA_PASSWORD:
+      return (len >= 1);  // at least 1 char for hostname
+      break;
     case ESP_STA_SSID:
+    case ESP_AP_SSID:
+      return (len >= 1);  // at least 1 char for ssid
+      break;
     case ESP_ADMIN_PWD:
     case ESP_USER_PWD:
-    case ESP_AP_SSID:
+      return (len >= 1);  // at least 1 char for password
+      break;
+    case ESP_STA_PASSWORD:
     case ESP_AP_PASSWORD:
+      return (len == 0 ||
+              (len >= 8));  // no password or at least 8 char for password
+#if defined(NOTIFICATION_FEATURE)
     case ESP_NOTIFICATION_TOKEN1:
     case ESP_NOTIFICATION_TOKEN2:
     case ESP_NOTIFICATION_SETTINGS:
+      return true;  // no more check for notification
+      break;
+#endif  // NOTIFICATION_FEATURE
+#if defined(TIMESTAMP_FEATURE)
     case ESP_TIME_SERVER1:
     case ESP_TIME_SERVER2:
     case ESP_TIME_SERVER3:
-    case ESP_TIME_ZONE:
+      return true;  // no more check for time server
       break;
+    case ESP_TIME_ZONE:
+      if (len != settingPtr->size - 1) {
+        return false;
+      }
+      for (uint8_t i = 0; i < SupportedTimeZonesSize; i++) {
+        if (strcmp(value, SupportedTimeZones[i]) == 0) {
+          return true;
+        }
+      }
+      break;
+#endif  // TIMESTAMP_FEATURE
     default:
       return false;
   }
-  return true;
+  return false;
 }
 bool Settings_ESP3D::isValidIntegerSetting(uint32_t value,
                                            ESP3DSettingIndex settingElement) {
+  const ESP3DSettingDescription *settingPtr = getSettingPtr(settingElement);
+  if (!settingPtr) {
+    return false;
+  }
+  if (settingPtr->type != ESP3DSettingType::integer_t) {
+    return false;
+  }
   switch (settingElement) {
+    case ESP_SERIAL_BRIDGE_BAUD:
     case ESP_BAUD_RATE:
+      for (uint8_t i = 0; i < SupportedBaudListSize; i++) {
+        if (value == SupportedBaudList[i]) {
+          return true;
+        }
+      }
+      break;
+    case ESP_WEBDAV_PORT:
     case ESP_HTTP_PORT:
     case ESP_TELNET_PORT:
-    case ESP_SENSOR_INTERVAL:
-    case ESP_BOOT_DELAY:
+    case ESP_FTP_CTRL_PORT:
+    case ESP_FTP_DATA_ACTIVE_PORT:
+    case ESP_FTP_DATA_PASSIVE_PORT:
     case ESP_WEBSOCKET_PORT:
+      if (value >= 1 && value <= 65535) {
+        return true;
+      }
+      break;
+    case ESP_SENSOR_INTERVAL:
+      if (value >= MIN_SENSOR_INTERVAL && value <= MAX_SENSOR_INTERVAL) {
+        return true;
+      }
+      break;
+    case ESP_BOOT_DELAY:
+      if (value >= MIN_BOOT_DELAY && value <= MAX_BOOT_DELAY) {
+        return true;
+      }
+      break;
     case ESP_CALIBRATION_1:
     case ESP_CALIBRATION_2:
     case ESP_CALIBRATION_3:
     case ESP_CALIBRATION_4:
     case ESP_CALIBRATION_5:
-    case ESP_FTP_CTRL_PORT:
-    case ESP_FTP_DATA_ACTIVE_PORT:
-    case ESP_FTP_DATA_PASSIVE_PORT:
-    case ESP_WEBDAV_PORT:
-    case ESP_SERIAL_BRIDGE_BAUD:
+      // no check for calibration currently
+      return true;
       break;
     default:
       return false;
   }
-  return true;
+  return false;
 }
 bool Settings_ESP3D::isValidByteSetting(uint8_t value,
                                         ESP3DSettingIndex settingElement) {
+  const ESP3DSettingDescription *settingPtr = getSettingPtr(settingElement);
+  if (!settingPtr) {
+    return false;
+  }
+  if (settingPtr->type != ESP3DSettingType::byte_t) {
+    return false;
+  }
+
   switch (settingElement) {
-    case ESP_RADIO_MODE:
-    case ESP_NOTIFICATION_TYPE:
-    case ESP_CALIBRATION:
-    case ESP_AP_CHANNEL:
     case ESP_BUZZER:
     case ESP_INTERNET_TIME:
     case ESP_SERIAL_FLAG:
+    case ESP_REMOTE_SCREEN_FLAG:
     case ESP_HTTP_ON:
     case ESP_TELNET_ON:
     case ESP_WEBSOCKET_ON:
-    case ESP_SD_SPEED_DIV:
-    case ESP_SENSOR_TYPE:
-    case ESP_TARGET_FW:
-    case ESP_TIME_IS_DST:
-    case ESP_REMOTE_SCREEN_FLAG:
-    case ESP_SD_MOUNT:
-    case ESP_SESSION_TIMEOUT:
     case ESP_WEBSOCKET_FLAG:
     case ESP_SD_CHECK_UPDATE_AT_BOOT:
     case ESP_SETUP:
@@ -1056,470 +936,564 @@ bool Settings_ESP3D::isValidByteSetting(uint8_t value,
     case ESP_SCREEN_FLAG:
     case ESP_FTP_ON:
     case ESP_AUTO_NOTIFICATION:
+    case ESP_SERIAL_BRIDGE_FLAG:
+    case ESP_SERIAL_BRIDGE_ON:
     case ESP_VERBOSE_BOOT:
     case ESP_WEBDAV_ON:
     case ESP_SECURE_SERIAL:
-    case ESP_BOOT_RADIO_STATE:
-    case ESP_STA_FALLBACK_MODE:
-    case ESP_SERIAL_BRIDGE_FLAG:
-    case ESP_SERIAL_BRIDGE_ON:
-      break;
-    default:
-      return false;
-  }
-
-  return true;
-}
-
-uint32_t Settings_ESP3D::getDefaultIntegerSetting(
-    ESP3DSettingIndex settingElement) {
-  const ESP3DSettingDescription *query = getSettingPtr(settingElement);
-  if (getSettingPtr) {
-    if (query->type == ESP3DSettingType::ip_t) {
-      return StringtoIP(query->default_val);
-    }
-    if (query->type == ESP3DSettingType::integer_t)
-      return (uint32_t)strtoul(query->default_val, NULL, 0);
-    else {
-      log_esp3d_e("Error invalid type %d for %d", query->type, settingElement);
-    }
-  }
-  return 0;
-}
-const char *Settings_ESP3D::getDefaultStringSetting(
-    ESP3DSettingIndex settingElement) {
-  const ESP3DSettingDescription *query = getSettingPtr(settingElement);
-  if (getSettingPtr) {
-    if (query->type == ESP3DSettingType::string_t ||
-        query->type == ESP3DSettingType::ip_t)
-      return query->default_val;
-    else {
-      log_esp3d_e("Error invalid type %d for %d", query->type, settingElement);
-    }
-  }
-  return NULL;
-}
-uint8_t Settings_ESP3D::getDefaultByteSetting(
-    ESP3DSettingIndex settingElement) {
-  const ESP3DSettingDescription *query = getSettingPtr(settingElement);
-  if (getSettingPtr) {
-    if (query->type == ESP3DSettingType::byte_t)
-      return (uint8_t)strtoul(query->default_val, NULL, 0);
-    else {
-      log_esp3d_e("Error invalid type %d for %d", query->type, settingElement);
-    }
-  }
-  return 0;
-}
-
-// get the description of a setting
-// Unlike esp32 esp8266 does not have lot of memory so we hard code the
-// settings and just generate one setting on demand
-const ESP3DSettingDescription *Settings_ESP3D::getSettingPtr(
-    const ESP3DSettingIndex index) {
-  static ESP3DSettingDescription setting;
-  memset(&setting, 0, sizeof(setting));
-  // index of setting
-  setting.index = index;
-  // type of setting
-  switch (index) {
-    case ESP_RADIO_MODE:
-    case ESP_NOTIFICATION_TYPE:
     case ESP_CALIBRATION:
-    case ESP_AP_CHANNEL:
-    case ESP_BUZZER:
-    case ESP_INTERNET_TIME:
-    case ESP_SERIAL_FLAG:
-    case ESP_HTTP_ON:
-    case ESP_TELNET_ON:
-    case ESP_WEBSOCKET_ON:
-    case ESP_SD_SPEED_DIV:
-    case ESP_SENSOR_TYPE:
-    case ESP_TARGET_FW:
-    case ESP_TIME_IS_DST:
-    case ESP_REMOTE_SCREEN_FLAG:
-    case ESP_SD_MOUNT:
-    case ESP_SESSION_TIMEOUT:
-    case ESP_WEBSOCKET_FLAG:
-    case ESP_SD_CHECK_UPDATE_AT_BOOT:
-    case ESP_SETUP:
-    case ESP_TELNET_FLAG:
-    case ESP_BT_FLAG:
-    case ESP_SCREEN_FLAG:
-    case ESP_FTP_ON:
-    case ESP_AUTO_NOTIFICATION:
-    case ESP_VERBOSE_BOOT:
-    case ESP_WEBDAV_ON:
-    case ESP_SECURE_SERIAL:
     case ESP_BOOT_RADIO_STATE:
-    case ESP_STA_FALLBACK_MODE:
-    case ESP_SERIAL_BRIDGE_FLAG:
-    case ESP_SERIAL_BRIDGE_ON:
-      setting.type = ESP3DSettingType::byte_t;  // byte
+      if (value == (uint8_t)ESP3DState::off ||
+          value == (uint8_t)ESP3DState::on) {
+        return true;
+      }
       break;
-
-    case ESP_SETTINGS_VERSION:
-    case ESP_HOSTNAME:
-    case ESP_STA_PASSWORD:
-    case ESP_STA_SSID:
-    case ESP_ADMIN_PWD:
-    case ESP_USER_PWD:
-    case ESP_AP_SSID:
-    case ESP_AP_PASSWORD:
-    case ESP_NOTIFICATION_TOKEN1:
-    case ESP_NOTIFICATION_TOKEN2:
-    case ESP_NOTIFICATION_SETTINGS:
-    case ESP_TIME_SERVER1:
-    case ESP_TIME_SERVER2:
-    case ESP_TIME_SERVER3:
-    case ESP_TIME_ZONE:
-      setting.type = ESP3DSettingType::string_t;  // string
-      break;
-
-    case ESP_STA_IP_VALUE:
-    case ESP_STA_GATEWAY_VALUE:
-    case ESP_STA_MASK_VALUE:
-    case ESP_STA_DNS_VALUE:
-    case ESP_AP_IP_VALUE:
-
-      setting.type = ESP3DSettingType::ip_t;  // ip = 4 bytes
-      break;
-
-    case ESP_BAUD_RATE:
-    case ESP_HTTP_PORT:
-    case ESP_TELNET_PORT:
-    case ESP_SENSOR_INTERVAL:
-    case ESP_BOOT_DELAY:
-    case ESP_WEBSOCKET_PORT:
-    case ESP_CALIBRATION_1:
-    case ESP_CALIBRATION_2:
-    case ESP_CALIBRATION_3:
-    case ESP_CALIBRATION_4:
-    case ESP_CALIBRATION_5:
-    case ESP_FTP_CTRL_PORT:
-    case ESP_FTP_DATA_ACTIVE_PORT:
-    case ESP_FTP_DATA_PASSIVE_PORT:
-    case ESP_WEBDAV_PORT:
-    case ESP_SERIAL_BRIDGE_BAUD:
-
-      setting.type = ESP3DSettingType::integer_t;  // integer = 4 bytes
-      break;
-    default:
-      setting.type = ESP3DSettingType::unknown_t;
-      break;
-  }
-
-  // size of setting
-  switch (index) {
-    case ESP_RADIO_MODE:
+#if defined(NOTIFICATION_FEATURE)
     case ESP_NOTIFICATION_TYPE:
-    case ESP_CALIBRATION:
-    case ESP_AP_CHANNEL:
-    case ESP_BUZZER:
-    case ESP_INTERNET_TIME:
-    case ESP_SERIAL_FLAG:
-    case ESP_HTTP_ON:
-    case ESP_TELNET_ON:
-    case ESP_WEBSOCKET_ON:
-    case ESP_SD_SPEED_DIV:
-    case ESP_SENSOR_TYPE:
-    case ESP_TARGET_FW:
-    case ESP_TIME_IS_DST:
-    case ESP_REMOTE_SCREEN_FLAG:
-    case ESP_SD_MOUNT:
-    case ESP_SESSION_TIMEOUT:
-    case ESP_WEBSOCKET_FLAG:
-    case ESP_SD_CHECK_UPDATE_AT_BOOT:
-    case ESP_SETUP:
-    case ESP_TELNET_FLAG:
-    case ESP_BT_FLAG:
-    case ESP_SCREEN_FLAG:
-    case ESP_FTP_ON:
-    case ESP_AUTO_NOTIFICATION:
-    case ESP_VERBOSE_BOOT:
-    case ESP_WEBDAV_ON:
-    case ESP_SECURE_SERIAL:
-    case ESP_BOOT_RADIO_STATE:
-    case ESP_STA_FALLBACK_MODE:
-    case ESP_SERIAL_BRIDGE_FLAG:
-    case ESP_SERIAL_BRIDGE_ON:
-      setting.size = 1;  // 1 byte
-      break;
-    case ESP_STA_IP_VALUE:
-    case ESP_STA_GATEWAY_VALUE:
-    case ESP_STA_MASK_VALUE:
-    case ESP_STA_DNS_VALUE:
-    case ESP_AP_IP_VALUE:
-    case ESP_BAUD_RATE:
-    case ESP_HTTP_PORT:
-    case ESP_TELNET_PORT:
-    case ESP_SENSOR_INTERVAL:
-    case ESP_BOOT_DELAY:
-    case ESP_WEBSOCKET_PORT:
-    case ESP_CALIBRATION_1:
-    case ESP_CALIBRATION_2:
-    case ESP_CALIBRATION_3:
-    case ESP_CALIBRATION_4:
-    case ESP_CALIBRATION_5:
-    case ESP_FTP_CTRL_PORT:
-    case ESP_FTP_DATA_ACTIVE_PORT:
-    case ESP_FTP_DATA_PASSIVE_PORT:
-    case ESP_WEBDAV_PORT:
-    case ESP_SERIAL_BRIDGE_BAUD:
-      setting.size = 4;  // 4 bytes
-      break;
-    // Note for string size is the max size of the string, in EEPROM it use
-    // the size + 1 for the ending 0x00
-    case ESP_STA_SSID:
-      setting.size = 32;  // 32 bytes, warning does not support multibyte char
-                          // like chinese chars
-      break;
-    case ESP_SETTINGS_VERSION:
-      setting.size = 7;  // 7 bytes
-      break;
-    case ESP_HOSTNAME:
-      setting.size = 32;  // 32 bytes, warning does not support multibyte char
-                          // like chinese chars
-      break;
-    case ESP_STA_PASSWORD:
-      setting.size = 64;  // 64 bytes, warning does not support multibyte char
-                          // like chinese chars
-      break;
-    case ESP_ADMIN_PWD:
-    case ESP_USER_PWD:
-      setting.size = 20;  // 20 bytes
-      break;
-    case ESP_AP_SSID:
-      setting.size = 32;  // 32 bytes, warning does not support multibyte char
-                          // like chinese chars
-      break;
-    case ESP_AP_PASSWORD:
-      setting.size = 64;  // 64 bytes, warning does not support multibyte char
-                          // like chinese chars
-      break;
-    case ESP_NOTIFICATION_TOKEN1:
-    case ESP_NOTIFICATION_TOKEN2:
-      setting.size = 63;  // 63 bytes
-      break;
-    case ESP_NOTIFICATION_SETTINGS:
-      setting.size = 128;  // 128 bytes
-      break;
-    case ESP_TIME_SERVER1:
-    case ESP_TIME_SERVER2:
-    case ESP_TIME_SERVER3:
-      setting.size = 128;  // 128 bytes
-      break;
-    case ESP_TIME_ZONE:
-      setting.size = 6;  // 6 bytes
-      break;
+      if (value == ESP_NO_NOTIFICATION || value == ESP_PUSHOVER_NOTIFICATION ||
+          value == ESP_EMAIL_NOTIFICATION || value == ESP_LINE_NOTIFICATION ||
+          value == ESP_TELEGRAM_NOTIFICATION ||
+          value == ESP_IFTTT_NOTIFICATION) {
+        return true;
+      }
 
-    default:
       break;
-  }
-
-  // default value of setting in string
-  switch (index) {
+#endif  // NOTIFICATION_FEATURE
     case ESP_RADIO_MODE:
-      setting.default_val = DEFAULT_ESP_RADIO_MODE;
+      if (value == ESP_NO_NETWORK
+#if defined(WIFI_FEATURE)
+          || value == ESP_WIFI_STA || value == ESP_WIFI_AP ||
+          value == ESP_AP_SETUP
+#endif  // WIFI_FEATURE
+#if defined(ETH_FEATURE)
+          || value == ESP_ETH
+#endif  // ETH_FEATURE
+#if defined(BLUETOOTH_FEATURE)
+          || value == ESP_BT
+#endif  // BLUETOOTH_FEATURE
+      ) {
+        return true;
+      }
       break;
-    case ESP_STA_SSID:
-      setting.default_val = DEFAULT_STA_SSID;
-      break;
-    case ESP_NOTIFICATION_TYPE:
-      setting.default_val = DEFAULT_NOTIFICATION_TYPE;
-      break;
-    case ESP_CALIBRATION:
-      setting.default_val = DEFAULT_CALIBRATION_DONE;
-      break;
+#if defined(WIFI_FEATURE)
     case ESP_AP_CHANNEL:
-      setting.default_val = DEFAULT_AP_CHANNEL;
-      break;
-    case ESP_BUZZER:
-      setting.default_val = DEFAULT_BUZZER_STATE;
-      break;
-    case ESP_INTERNET_TIME:
-      setting.default_val = DEFAULT_INTERNET_TIME;
-      break;
-    case ESP_SERIAL_FLAG:
-      setting.default_val = DEFAULT_SERIAL_OUTPUT_FLAG;
-      break;
-    case ESP_HTTP_ON:
-      setting.default_val = DEFAULT_HTTP_ON;
-      break;
-    case ESP_TELNET_ON:
-      setting.default_val = DEFAULT_TELNET_ON;
-      break;
-    case ESP_WEBSOCKET_ON:
-      setting.default_val = DEFAULT_WEBSOCKET_ON;
-      break;
-    case ESP_SD_SPEED_DIV:
-      setting.default_val = DEFAULT_SD_SPI_DIV;
-      break;
-    case ESP_SENSOR_TYPE:
-      setting.default_val = DEFAULT_SENSOR_TYPE;
-      break;
-    case ESP_TARGET_FW:
-      setting.default_val = DEFAULT_FW;
-      break;
-    case ESP_TIME_IS_DST:
-      setting.default_val = DEFAULT_TIME_DST;
-      break;
-    case ESP_REMOTE_SCREEN_FLAG:
-      setting.default_val = DEFAULT_REMOTE_SCREEN_FLAG;
-      break;
-    case ESP_SD_MOUNT:
-      setting.default_val = DEFAULT_SD_MOUNT;
-      break;
-    case ESP_SESSION_TIMEOUT:
-      setting.default_val = DEFAULT_SESSION_TIMEOUT;
-      break;
-    case ESP_WEBSOCKET_FLAG:
-      setting.default_val = DEFAULT_WEBSOCKET_FLAG;
-      break;
-    case ESP_SD_CHECK_UPDATE_AT_BOOT:
-      setting.default_val = DEFAULT_SD_CHECK_UPDATE_AT_BOOT;
-      break;
-    case ESP_SETUP:
-      setting.default_val = DEFAULT_SETUP;
-      break;
-    case ESP_TELNET_FLAG:
-      setting.default_val = DEFAULT_TELNET_FLAG;
-      break;
-    case ESP_BT_FLAG:
-      setting.default_val = DEFAULT_BT_FLAG;
-      break;
-    case ESP_SCREEN_FLAG:
-      setting.default_val = DEFAULT_SCREEN_FLAG;
-      break;
-    case ESP_FTP_ON:
-      setting.default_val = DEFAULT_FTP_ON;
-      break;
-    case ESP_AUTO_NOTIFICATION:
-      setting.default_val = DEFAULT_AUTO_NOTIFICATION_STATE;
-      break;
-    case ESP_VERBOSE_BOOT:
-      setting.default_val = DEFAULT_VERBOSE_BOOT;
-      break;
-    case ESP_WEBDAV_ON:
-      setting.default_val = DEFAULT_WEBDAV_ON;
-      break;
-    case ESP_SECURE_SERIAL:
-      setting.default_val = DEFAULT_SECURE_SERIAL;
-      break;
-    case ESP_BOOT_RADIO_STATE:
-      setting.default_val = DEFAULT_BOOT_RADIO_STATE;
-      break;
-    case ESP_STA_FALLBACK_MODE:
-      setting.default_val = DEFAULT_STA_FALLBACK_MODE;
-      break;
-    case ESP_SERIAL_BRIDGE_FLAG:
-      setting.default_val = DEFAULT_SERIAL_BRIDGE_FLAG;
-      break;
-    case ESP_SERIAL_BRIDGE_ON:
-      setting.default_val = DEFAULT_SERIAL_BRIDGE_ON;
-      break;
-    case ESP_SERIAL_BRIDGE_BAUD:
-      setting.default_val = DEFAULT_SERIAL_BRIDGE_BAUD_RATE;
-      break;
-    case ESP_SETTINGS_VERSION:
-      setting.default_val = DEFAULT_SETTINGS_VERSION;
-      break;
-    case ESP_HOSTNAME:
-      setting.default_val = DEFAULT_HOSTNAME;
-      break;
-    case ESP_STA_PASSWORD:
-      setting.default_val = DEFAULT_STA_PASSWORD;
-      break;
-    case ESP_ADMIN_PWD:
-      setting.default_val = DEFAULT_ADMIN_PWD;
-      break;
-    case ESP_USER_PWD:
-      setting.default_val = DEFAULT_USER_PWD;
-      break;
-    case ESP_AP_SSID:
-      setting.default_val = DEFAULT_AP_SSID;
-      break;
-    case ESP_AP_PASSWORD:
-      setting.default_val = DEFAULT_AP_PASSWORD;
-      break;
-    case ESP_NOTIFICATION_TOKEN1:
-      setting.default_val = DEFAULT_NOTIFICATION_TOKEN1;
-      break;
-    case ESP_NOTIFICATION_TOKEN2:
-      setting.default_val = DEFAULT_NOTIFICATION_TOKEN2;
-      break;
-    case ESP_NOTIFICATION_SETTINGS:
-      setting.default_val = DEFAULT_NOTIFICATION_SETTINGS;
-      break;
-    case ESP_TIME_SERVER1:
-      setting.default_val = DEFAULT_TIME_SERVER1;
-      break;
-    case ESP_TIME_SERVER2:
-      setting.default_val = DEFAULT_TIME_SERVER2;
-      break;
-    case ESP_TIME_SERVER3:
-      setting.default_val = DEFAULT_TIME_SERVER3;
-      break;
-    case ESP_TIME_ZONE:
-      setting.default_val = DEFAULT_TIME_ZONE;
-      break;
-    case ESP_STA_IP_VALUE:
-      setting.default_val = DEFAULT_STA_IP_VALUE;
-      break;
-    case ESP_STA_GATEWAY_VALUE:
-      setting.default_val = DEFAULT_STA_GATEWAY_VALUE;
-      break;
-    case ESP_STA_MASK_VALUE:
-      setting.default_val = DEFAULT_STA_MASK_VALUE;
-      break;
-    case ESP_STA_DNS_VALUE:
-      setting.default_val = DEFAULT_STA_DNS_VALUE;
-      break;
-    case ESP_AP_IP_VALUE:
-      setting.default_val = DEFAULT_AP_IP_VALUE;
-      break;
-    case ESP_BAUD_RATE:
-      setting.default_val = DEFAULT_BAUD_RATE;
-      break;
-    case ESP_HTTP_PORT:
-      setting.default_val = DEFAULT_HTTP_PORT;
-      break;
-    case ESP_TELNET_PORT:
-      setting.default_val = DEFAULT_TELNET_PORT;
-      break;
-    case ESP_SENSOR_INTERVAL:
-      setting.default_val = DEFAULT_SENSOR_INTERVAL;
-      break;
-    case ESP_BOOT_DELAY:
-      setting.default_val = DEFAULT_BOOT_DELAY;
-      break;
-    case ESP_WEBSOCKET_PORT:
-      setting.default_val = DEFAULT_WEBSOCKET_PORT;
-      break;
-    case ESP_CALIBRATION_1:
-    case ESP_CALIBRATION_2:
-    case ESP_CALIBRATION_3:
-    case ESP_CALIBRATION_4:
-    case ESP_CALIBRATION_5:
-      setting.default_val = DEFAULT_CALIBRATION_VALUE;
-      break;
-    case ESP_FTP_CTRL_PORT:
-      setting.default_val = DEFAULT_FTP_CTRL_PORT;
-      break;
-    case ESP_FTP_DATA_ACTIVE_PORT:
-      setting.default_val = DEFAULT_FTP_ACTIVE_PORT;
-      break;
-    case ESP_FTP_DATA_PASSIVE_PORT:
-      setting.default_val = DEFAULT_FTP_PASSIVE_PORT;
-      break;
-    case ESP_WEBDAV_PORT:
-      setting.default_val = DEFAULT_WEBDAV_PORT;
-      break;
-    default:
-      log_esp3d_e("Invalid setting %d", index);
-      return NULL;
-      break;
+      for (uint8_t i = 0; i < SupportedApChannelsSize; i++) {
+        if (value == SupportedApChannels[i]) {
+          return true;
+        }
+        break;
+#endif  // WIFI_FEATURE
+#if #ifdef SD_DEVICE
+        case ESP_SD_SPEED_DIV:
+          for (uint8_t i = 0; i < SupportedSPIDividerSize; i++) {
+            if (value == SupportedSPIDivider[i]) {
+              return true;
+            }
+          }
+          break;
+        case ESP_SD_MOUNT:
+          if (value == ESP_SD_ROOT || value == ESP_SD_SUB_SD ||
+              value == ESP_SD_SUB_EXT) {
+            return true;
+          }
+          break;
+#endif  // #ifdef SD_DEVICE
+#ifdef SENSOR_DEVICE
+        case ESP_SENSOR_TYPE:
+          if (value == 0) {
+            return true;
+          }
+          for (uint8_t p = 0; p < esp3d_sensor.nbType(); p++) {
+            if (value == esp3d_sensor.GetModel(p)) {
+              return true;
+            }
+          }
+          break;
+#endif  // SENSOR_DEVICE
+        case ESP_TARGET_FW:
+          if (value == REPETIER || value == MARLIN || value == UNKNOWN_FW ||
+              value == SMOOTHIEWARE || value == GRBL) {
+            return true;
+          }
+          break;
+
+        case ESP_SESSION_TIMEOUT:
+          // TODO: what should be the upper limit for session timeout?
+          // 0 means no timeout so it is ok to have 0
+          return true;
+          break;
+        case ESP_STA_FALLBACK_MODE:
+          if (value == ESP_NO_NETWORK
+#if defined(WIFI_FEATURE)
+              || value == ESP_AP_SETUP
+#endif  // WIFI_FEATURE
+#if defined(BT_FEATURE)
+              || value == ESP_BT
+#endif  // BT_FEATURE
+          ) {
+            return true;
+          }
+          break;
+
+        default:
+          return false;
+      }
+
+      return true;
   }
 
-  return &setting;
-}
+  uint32_t Settings_ESP3D::getDefaultIntegerSetting(
+      ESP3DSettingIndex settingElement) {
+    const ESP3DSettingDescription *query = getSettingPtr(settingElement);
+    if (getSettingPtr) {
+      if (query->type == ESP3DSettingType::ip_t) {
+        return _stringToIP(query->default_val);
+      }
+      if (query->type == ESP3DSettingType::integer_t)
+        return (uint32_t)strtoul(query->default_val, NULL, 0);
+      else {
+        log_esp3d_e("Error invalid type %d for %d", query->type,
+                    settingElement);
+      }
+    }
+    return 0;
+  }
+  const char *Settings_ESP3D::getDefaultStringSetting(
+      ESP3DSettingIndex settingElement) {
+    const ESP3DSettingDescription *query = getSettingPtr(settingElement);
+    if (getSettingPtr) {
+      if (query->type == ESP3DSettingType::string_t ||
+          query->type == ESP3DSettingType::ip_t)
+        return query->default_val;
+      else {
+        log_esp3d_e("Error invalid type %d for %d", query->type,
+                    settingElement);
+      }
+    }
+    return NULL;
+  }
+  uint8_t Settings_ESP3D::getDefaultByteSetting(
+      ESP3DSettingIndex settingElement) {
+    const ESP3DSettingDescription *query = getSettingPtr(settingElement);
+    if (getSettingPtr) {
+      if (query->type == ESP3DSettingType::byte_t)
+        return (uint8_t)strtoul(query->default_val, NULL, 0);
+      else {
+        log_esp3d_e("Error invalid type %d for %d", query->type,
+                    settingElement);
+      }
+    }
+    return 0;
+  }
+
+  // get the description of a setting
+  // Unlike esp32 esp8266 does not have lot of memory so we hard code the
+  // settings and just generate one setting on demand
+  const ESP3DSettingDescription *Settings_ESP3D::getSettingPtr(
+      const ESP3DSettingIndex index) {
+    static ESP3DSettingDescription setting;
+    memset(&setting, 0, sizeof(setting));
+    // index of setting
+    setting.index = index;
+    // type of setting
+    switch (index) {
+      case ESP_RADIO_MODE:
+      case ESP_NOTIFICATION_TYPE:
+      case ESP_CALIBRATION:
+      case ESP_AP_CHANNEL:
+      case ESP_BUZZER:
+      case ESP_INTERNET_TIME:
+      case ESP_SERIAL_FLAG:
+      case ESP_HTTP_ON:
+      case ESP_TELNET_ON:
+      case ESP_WEBSOCKET_ON:
+      case ESP_SD_SPEED_DIV:
+      case ESP_SENSOR_TYPE:
+      case ESP_TARGET_FW:
+      case ESP_TIME_IS_DST:
+      case ESP_REMOTE_SCREEN_FLAG:
+      case ESP_SD_MOUNT:
+      case ESP_SESSION_TIMEOUT:
+      case ESP_WEBSOCKET_FLAG:
+      case ESP_SD_CHECK_UPDATE_AT_BOOT:
+      case ESP_SETUP:
+      case ESP_TELNET_FLAG:
+      case ESP_BT_FLAG:
+      case ESP_SCREEN_FLAG:
+      case ESP_FTP_ON:
+      case ESP_AUTO_NOTIFICATION:
+      case ESP_VERBOSE_BOOT:
+      case ESP_WEBDAV_ON:
+      case ESP_SECURE_SERIAL:
+      case ESP_BOOT_RADIO_STATE:
+      case ESP_STA_FALLBACK_MODE:
+      case ESP_SERIAL_BRIDGE_FLAG:
+      case ESP_SERIAL_BRIDGE_ON:
+        setting.type = ESP3DSettingType::byte_t;  // byte
+        break;
+
+      case ESP_SETTINGS_VERSION:
+      case ESP_HOSTNAME:
+      case ESP_STA_PASSWORD:
+      case ESP_STA_SSID:
+      case ESP_ADMIN_PWD:
+      case ESP_USER_PWD:
+      case ESP_AP_SSID:
+      case ESP_AP_PASSWORD:
+      case ESP_NOTIFICATION_TOKEN1:
+      case ESP_NOTIFICATION_TOKEN2:
+      case ESP_NOTIFICATION_SETTINGS:
+      case ESP_TIME_SERVER1:
+      case ESP_TIME_SERVER2:
+      case ESP_TIME_SERVER3:
+      case ESP_TIME_ZONE:
+        setting.type = ESP3DSettingType::string_t;  // string
+        break;
+
+      case ESP_STA_IP_VALUE:
+      case ESP_STA_GATEWAY_VALUE:
+      case ESP_STA_MASK_VALUE:
+      case ESP_STA_DNS_VALUE:
+      case ESP_AP_IP_VALUE:
+
+        setting.type = ESP3DSettingType::ip_t;  // ip = 4 bytes
+        break;
+
+      case ESP_BAUD_RATE:
+      case ESP_HTTP_PORT:
+      case ESP_TELNET_PORT:
+      case ESP_SENSOR_INTERVAL:
+      case ESP_BOOT_DELAY:
+      case ESP_WEBSOCKET_PORT:
+      case ESP_CALIBRATION_1:
+      case ESP_CALIBRATION_2:
+      case ESP_CALIBRATION_3:
+      case ESP_CALIBRATION_4:
+      case ESP_CALIBRATION_5:
+      case ESP_FTP_CTRL_PORT:
+      case ESP_FTP_DATA_ACTIVE_PORT:
+      case ESP_FTP_DATA_PASSIVE_PORT:
+      case ESP_WEBDAV_PORT:
+      case ESP_SERIAL_BRIDGE_BAUD:
+
+        setting.type = ESP3DSettingType::integer_t;  // integer = 4 bytes
+        break;
+      default:
+        setting.type = ESP3DSettingType::unknown_t;
+        break;
+    }
+
+    // size of setting
+    switch (index) {
+      case ESP_RADIO_MODE:
+      case ESP_NOTIFICATION_TYPE:
+      case ESP_CALIBRATION:
+      case ESP_AP_CHANNEL:
+      case ESP_BUZZER:
+      case ESP_INTERNET_TIME:
+      case ESP_SERIAL_FLAG:
+      case ESP_HTTP_ON:
+      case ESP_TELNET_ON:
+      case ESP_WEBSOCKET_ON:
+      case ESP_SD_SPEED_DIV:
+      case ESP_SENSOR_TYPE:
+      case ESP_TARGET_FW:
+      case ESP_TIME_IS_DST:
+      case ESP_REMOTE_SCREEN_FLAG:
+      case ESP_SD_MOUNT:
+      case ESP_SESSION_TIMEOUT:
+      case ESP_WEBSOCKET_FLAG:
+      case ESP_SD_CHECK_UPDATE_AT_BOOT:
+      case ESP_SETUP:
+      case ESP_TELNET_FLAG:
+      case ESP_BT_FLAG:
+      case ESP_SCREEN_FLAG:
+      case ESP_FTP_ON:
+      case ESP_AUTO_NOTIFICATION:
+      case ESP_VERBOSE_BOOT:
+      case ESP_WEBDAV_ON:
+      case ESP_SECURE_SERIAL:
+      case ESP_BOOT_RADIO_STATE:
+      case ESP_STA_FALLBACK_MODE:
+      case ESP_SERIAL_BRIDGE_FLAG:
+      case ESP_SERIAL_BRIDGE_ON:
+        setting.size = 1;  // 1 byte
+        break;
+      case ESP_STA_IP_VALUE:
+      case ESP_STA_GATEWAY_VALUE:
+      case ESP_STA_MASK_VALUE:
+      case ESP_STA_DNS_VALUE:
+      case ESP_AP_IP_VALUE:
+      case ESP_BAUD_RATE:
+      case ESP_HTTP_PORT:
+      case ESP_TELNET_PORT:
+      case ESP_SENSOR_INTERVAL:
+      case ESP_BOOT_DELAY:
+      case ESP_WEBSOCKET_PORT:
+      case ESP_CALIBRATION_1:
+      case ESP_CALIBRATION_2:
+      case ESP_CALIBRATION_3:
+      case ESP_CALIBRATION_4:
+      case ESP_CALIBRATION_5:
+      case ESP_FTP_CTRL_PORT:
+      case ESP_FTP_DATA_ACTIVE_PORT:
+      case ESP_FTP_DATA_PASSIVE_PORT:
+      case ESP_WEBDAV_PORT:
+      case ESP_SERIAL_BRIDGE_BAUD:
+        setting.size = 4;  // 4 bytes
+        break;
+      // Note for string size is the max size of the string, in EEPROM it use
+      // the size + 1 for the ending 0x00
+      case ESP_STA_SSID:
+        setting.size = 32;  // 32 bytes, warning does not support multibyte char
+                            // like chinese chars
+        break;
+      case ESP_SETTINGS_VERSION:
+        setting.size = 7;  // 7 bytes
+        break;
+      case ESP_HOSTNAME:
+        setting.size = 32;  // 32 bytes, warning does not support multibyte char
+                            // like chinese chars
+        break;
+      case ESP_STA_PASSWORD:
+        setting.size = 64;  // 64 bytes, warning does not support multibyte char
+                            // like chinese chars
+        break;
+      case ESP_ADMIN_PWD:
+      case ESP_USER_PWD:
+        setting.size = 20;  // 20 bytes
+        break;
+      case ESP_AP_SSID:
+        setting.size = 32;  // 32 bytes, warning does not support multibyte char
+                            // like chinese chars
+        break;
+      case ESP_AP_PASSWORD:
+        setting.size = 64;  // 64 bytes, warning does not support multibyte char
+                            // like chinese chars
+        break;
+      case ESP_NOTIFICATION_TOKEN1:
+      case ESP_NOTIFICATION_TOKEN2:
+        setting.size = 63;  // 63 bytes
+        break;
+      case ESP_NOTIFICATION_SETTINGS:
+        setting.size = 128;  // 128 bytes
+        break;
+      case ESP_TIME_SERVER1:
+      case ESP_TIME_SERVER2:
+      case ESP_TIME_SERVER3:
+        setting.size = 128;  // 128 bytes
+        break;
+      case ESP_TIME_ZONE:
+        setting.size = 6;  // 6 bytes
+        break;
+
+      default:
+        break;
+    }
+
+    // default value of setting in string
+    switch (index) {
+      case ESP_RADIO_MODE:
+        setting.default_val = DEFAULT_ESP_RADIO_MODE;
+        break;
+      case ESP_STA_SSID:
+        setting.default_val = DEFAULT_STA_SSID;
+        break;
+      case ESP_NOTIFICATION_TYPE:
+        setting.default_val = DEFAULT_NOTIFICATION_TYPE;
+        break;
+      case ESP_CALIBRATION:
+        setting.default_val = DEFAULT_CALIBRATION_DONE;
+        break;
+      case ESP_AP_CHANNEL:
+        setting.default_val = DEFAULT_AP_CHANNEL;
+        break;
+      case ESP_BUZZER:
+        setting.default_val = DEFAULT_BUZZER_STATE;
+        break;
+      case ESP_INTERNET_TIME:
+        setting.default_val = DEFAULT_INTERNET_TIME;
+        break;
+      case ESP_SERIAL_FLAG:
+        setting.default_val = DEFAULT_SERIAL_OUTPUT_FLAG;
+        break;
+      case ESP_HTTP_ON:
+        setting.default_val = DEFAULT_HTTP_ON;
+        break;
+      case ESP_TELNET_ON:
+        setting.default_val = DEFAULT_TELNET_ON;
+        break;
+      case ESP_WEBSOCKET_ON:
+        setting.default_val = DEFAULT_WEBSOCKET_ON;
+        break;
+      case ESP_SD_SPEED_DIV:
+        setting.default_val = DEFAULT_SD_SPI_DIV;
+        break;
+      case ESP_SENSOR_TYPE:
+        setting.default_val = DEFAULT_SENSOR_TYPE;
+        break;
+      case ESP_TARGET_FW:
+        setting.default_val = DEFAULT_FW;
+        break;
+      case ESP_TIME_IS_DST:
+        setting.default_val = DEFAULT_TIME_DST;
+        break;
+      case ESP_REMOTE_SCREEN_FLAG:
+        setting.default_val = DEFAULT_REMOTE_SCREEN_FLAG;
+        break;
+      case ESP_SD_MOUNT:
+        setting.default_val = DEFAULT_SD_MOUNT;
+        break;
+      case ESP_SESSION_TIMEOUT:
+        setting.default_val = DEFAULT_SESSION_TIMEOUT;
+        break;
+      case ESP_WEBSOCKET_FLAG:
+        setting.default_val = DEFAULT_WEBSOCKET_FLAG;
+        break;
+      case ESP_SD_CHECK_UPDATE_AT_BOOT:
+        setting.default_val = DEFAULT_SD_CHECK_UPDATE_AT_BOOT;
+        break;
+      case ESP_SETUP:
+        setting.default_val = DEFAULT_SETUP;
+        break;
+      case ESP_TELNET_FLAG:
+        setting.default_val = DEFAULT_TELNET_FLAG;
+        break;
+      case ESP_BT_FLAG:
+        setting.default_val = DEFAULT_BT_FLAG;
+        break;
+      case ESP_SCREEN_FLAG:
+        setting.default_val = DEFAULT_SCREEN_FLAG;
+        break;
+      case ESP_FTP_ON:
+        setting.default_val = DEFAULT_FTP_ON;
+        break;
+      case ESP_AUTO_NOTIFICATION:
+        setting.default_val = DEFAULT_AUTO_NOTIFICATION_STATE;
+        break;
+      case ESP_VERBOSE_BOOT:
+        setting.default_val = DEFAULT_VERBOSE_BOOT;
+        break;
+      case ESP_WEBDAV_ON:
+        setting.default_val = DEFAULT_WEBDAV_ON;
+        break;
+      case ESP_SECURE_SERIAL:
+        setting.default_val = DEFAULT_SECURE_SERIAL;
+        break;
+      case ESP_BOOT_RADIO_STATE:
+        setting.default_val = DEFAULT_BOOT_RADIO_STATE;
+        break;
+      case ESP_STA_FALLBACK_MODE:
+        setting.default_val = DEFAULT_STA_FALLBACK_MODE;
+        break;
+      case ESP_SERIAL_BRIDGE_FLAG:
+        setting.default_val = DEFAULT_SERIAL_BRIDGE_FLAG;
+        break;
+      case ESP_SERIAL_BRIDGE_ON:
+        setting.default_val = DEFAULT_SERIAL_BRIDGE_ON;
+        break;
+      case ESP_SERIAL_BRIDGE_BAUD:
+        setting.default_val = DEFAULT_SERIAL_BRIDGE_BAUD_RATE;
+        break;
+      case ESP_SETTINGS_VERSION:
+        setting.default_val = DEFAULT_SETTINGS_VERSION;
+        break;
+      case ESP_HOSTNAME:
+        setting.default_val = DEFAULT_HOSTNAME;
+        break;
+      case ESP_STA_PASSWORD:
+        setting.default_val = DEFAULT_STA_PASSWORD;
+        break;
+      case ESP_ADMIN_PWD:
+        setting.default_val = DEFAULT_ADMIN_PWD;
+        break;
+      case ESP_USER_PWD:
+        setting.default_val = DEFAULT_USER_PWD;
+        break;
+      case ESP_AP_SSID:
+        setting.default_val = DEFAULT_AP_SSID;
+        break;
+      case ESP_AP_PASSWORD:
+        setting.default_val = DEFAULT_AP_PASSWORD;
+        break;
+      case ESP_NOTIFICATION_TOKEN1:
+        setting.default_val = DEFAULT_NOTIFICATION_TOKEN1;
+        break;
+      case ESP_NOTIFICATION_TOKEN2:
+        setting.default_val = DEFAULT_NOTIFICATION_TOKEN2;
+        break;
+      case ESP_NOTIFICATION_SETTINGS:
+        setting.default_val = DEFAULT_NOTIFICATION_SETTINGS;
+        break;
+      case ESP_TIME_SERVER1:
+        setting.default_val = DEFAULT_TIME_SERVER1;
+        break;
+      case ESP_TIME_SERVER2:
+        setting.default_val = DEFAULT_TIME_SERVER2;
+        break;
+      case ESP_TIME_SERVER3:
+        setting.default_val = DEFAULT_TIME_SERVER3;
+        break;
+      case ESP_TIME_ZONE:
+        setting.default_val = DEFAULT_TIME_ZONE;
+        break;
+      case ESP_STA_IP_VALUE:
+        setting.default_val = DEFAULT_STA_IP_VALUE;
+        break;
+      case ESP_STA_GATEWAY_VALUE:
+        setting.default_val = DEFAULT_STA_GATEWAY_VALUE;
+        break;
+      case ESP_STA_MASK_VALUE:
+        setting.default_val = DEFAULT_STA_MASK_VALUE;
+        break;
+      case ESP_STA_DNS_VALUE:
+        setting.default_val = DEFAULT_STA_DNS_VALUE;
+        break;
+      case ESP_AP_IP_VALUE:
+        setting.default_val = DEFAULT_AP_IP_VALUE;
+        break;
+      case ESP_BAUD_RATE:
+        setting.default_val = DEFAULT_BAUD_RATE;
+        break;
+      case ESP_HTTP_PORT:
+        setting.default_val = DEFAULT_HTTP_PORT;
+        break;
+      case ESP_TELNET_PORT:
+        setting.default_val = DEFAULT_TELNET_PORT;
+        break;
+      case ESP_SENSOR_INTERVAL:
+        setting.default_val = DEFAULT_SENSOR_INTERVAL;
+        break;
+      case ESP_BOOT_DELAY:
+        setting.default_val = DEFAULT_BOOT_DELAY;
+        break;
+      case ESP_WEBSOCKET_PORT:
+        setting.default_val = DEFAULT_WEBSOCKET_PORT;
+        break;
+      case ESP_CALIBRATION_1:
+      case ESP_CALIBRATION_2:
+      case ESP_CALIBRATION_3:
+      case ESP_CALIBRATION_4:
+      case ESP_CALIBRATION_5:
+        setting.default_val = DEFAULT_CALIBRATION_VALUE;
+        break;
+      case ESP_FTP_CTRL_PORT:
+        setting.default_val = DEFAULT_FTP_CTRL_PORT;
+        break;
+      case ESP_FTP_DATA_ACTIVE_PORT:
+        setting.default_val = DEFAULT_FTP_ACTIVE_PORT;
+        break;
+      case ESP_FTP_DATA_PASSIVE_PORT:
+        setting.default_val = DEFAULT_FTP_PASSIVE_PORT;
+        break;
+      case ESP_WEBDAV_PORT:
+        setting.default_val = DEFAULT_WEBDAV_PORT;
+        break;
+      default:
+        log_esp3d_e("Invalid setting %d", index);
+        return NULL;
+        break;
+    }
+
+    return &setting;
+  }

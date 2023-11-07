@@ -1552,132 +1552,180 @@ the admin password if authentication is enabled
 
 +++
 archetype = "section"
-title = "[ESP800]"
+title = "[ESP400]"
 weight = 800
 +++
-Get FW capabilities   
+Get full ESP3D settings
 
 ## Input
-
-`[ESP800]<time=YYYY-MM-DDTHH:mm:ss> <tzone=+HH:ss> <version=3.0.0-a11> <setup=0/1> json=<no> pwd=<admin/user password>`
+`[ESP400] json=<no> pwd=<admin password>`
 
 * json=no
-the output format  
-can be in JSON or plain text  
-
-* time=
-to set ESP3D time using ISO 8601 format : `YYYY`-`MM`-`DD`T`HH`:`minutes`:`seconds`
-
-* tzone=
-to set ESP3D time zone using ISO 8601 format : `+`/`-` `HH`:`minutes`
+the output format
+can be in JSON or plain text
 
 * pwd=<admin password>
 the admin password if authentication is enabled
 
-* version
-version of webUI
-* setup flag
-Enable / Disable the setup flag
 
 ## Output
 
-- In json format
+Passwords are not displayed and replaced by `********`
 
-```json
-{
-   "cmd":"800",
-   "status":"ok",
-   "data":{
-           "FWVersion":"bugfix-2.0.x-3.0.0.a200",
-           "FWTarget":"marlin",
-           "FWTargetID":"30",
-           "Setup":"Enabled",
-           "SDConnection":"shared",
-           "SerialProtocol":"Socket",
-           "Authentication":"Disabled",
-           "WebCommunication":"Synchronous",
-           "WebSocketIP":"192.168.2.117",
-           "WebSocketPort":"81",
-           "Hostname":"esp3d",
-           "WiFiMode":"STA",
-           "WebUpdate":"Enabled",
-           "FlashFileSystem":"LittleFS",
-           "HostPath":"www",
-           "Time":"none"
-           }
-}
+ * if json
+ ```json
+ {"cmd":"400","status":"ok","data":[
+{"F":"network/network","P":"130","T":"S","R":"1","V":"esp3d","H":"hostname" ,"S":"32", "M":"1"},
+{"F":"network/network","P":"0","T":"B","R":"1","V":"1","H":"radio mode","O":[{"none":"0"},
+{"sta":"1"},
+{"ap":"2"},
+{"setup":"5"}]},
+{"F":"network/network","P":"1034","T":"B","R":"1","V":"1","H":"radio_boot","O":[{"no":"0"},
+{"yes":"1"}]},
+{"F":"network/sta","P":"1","T":"S","V":"Luc-Lab","S":"32","H":"SSID","M":"1"},
+{"F":"network/sta","P":"34","T":"S","N":"1","MS":"0","R":"1","V":"********","S":"64","H":"pwd","M":"8"},
+{"F":"network/sta","P":"99","T":"B","R":"1","V":"1","H":"ip mode","O":[{"dhcp":"1"},
+{"static":"0"}]},
+{"F":"network/sta","P":"100","T":"A","R":"1","V":"192.168.0.1","H":"ip"},
+{"F":"network/sta","P":"108","T":"A","R":"1","V":"192.168.0.1","H":"gw"},
+{"F":"network/sta","P":"104","T":"A","R":"1","V":"255.255.255.0","H":"msk"},
+{"F":"network/sta","P":"1029","T":"A","R":"1","V":"192.168.0.1","H":"DNS"},
+{"F":"network/sta","P":"1035","T":"B","R":"0","V":"5","H":"sta fallback mode","O":[{"none":"0"},
+{"setup":"5"}]},
+{"F":"network/ap","P":"218","T":"S","R":"1","V":"ESP3D","S":"32","H":"SSID","M":"1"},
+{"F":"network/ap","P":"251","T":"S","N":"1","MS":"0","R":"1","V":"********","S":"64","H":"pwd","M":"8"},
+{"F":"network/ap","P":"316","T":"A","R":"1","V":"192.168.0.1","H":"ip"},
+{"F":"network/ap","P":"118","T":"B","R":"1","V":"11","H":"channel","O":[{"1":"1"},
+{"2":"2"},
+{"3":"3"},
+{"4":"4"},
+{"5":"5"},
+{"6":"6"},
+{"7":"7"},
+{"8":"8"},
+{"9":"9"},
+{"10":"10"},
+{"11":"11"},
+{"12":"12"},
+{"13":"13"},
+{"14":"14"}]},
+{"F":"service/http","P":"328","T":"B","R":"1","V":"1","H":"enable","O":[{"no":"0"},{"yes":"1"}]},
+{"F":"service/http","P":"121","T":"I","R":"1","V":"8181","H":"port","S":"65001","M":"1"},
+{"F":"service/telnetp","P":"329","T":"B","R":"1","V":"1","H":"enable","O":[{"no":"0"},{"yes":"1"}]},
+{"F":"service/telnetp","P":"125","T":"I","R":"1","V":"23","H":"port","S":"65001","M":"1"},
+{"F":"service/webdavp","P":"1024","T":"B","R":"1","V":"1","H":"enable","O":[{"no":"0"},{"yes":"1"}]},
+{"F":"service/webdavp","P":"1025","T":"I","R":"1","V":"80","H":"port","S":"65001","M":"1"},
+{"F":"service/time","P":"120","T":"B","V":"1","H":"i-time","O":[{"no":"0"},{"yes":"1"}]},
+{"F":"service/time","P":"1042","T":"S","R":"1","V":"+08:00","H":"tzone","O":[{"-12:00":"-12:00"},
+{"-11:00":"-11:00"},
+{"-10:00":"-10:00"},
+{"-09:00":"-09:00"},
+{"-08:00":"-08:00"},
+{"-07:00":"-07:00"},
+{"-06:00":"-06:00"},
+{"-05:00":"-05:00"},
+{"-04:00":"-04:00"},
+{"-03:30":"-03:30"},
+{"-03:00":"-03:00"},
+{"-02:00":"-02:00"},
+{"-01:00":"-01:00"},
+{"+00:00":"+00:00"},
+{"+01:00":"+01:00"},
+{"+02:00":"+02:00"},
+{"+03:00":"+03:00"},
+{"+03:30":"+03:30"},
+{"+04:00":"+04:00"},
+{"+04:30":"+04:30"},
+{"+05:00":"+05:00"},
+{"+05:30":"+05:30"},
+{"+05:45":"+05:45"},
+{"+06:00":"+06:00"},
+{"+06:30":"+06:30"},
+{"+07:00":"+07:00"},
+{"+08:00":"+08:00"},
+{"+08:45":"+08:45"},
+{"+09:00":"+09:00"},
+{"+09:30":"+09:30"},
+{"+10:00":"+10:00"},
+{"+10:30":"+10:30"},
+{"+11:00":"+11:00"},
+{"+12:00":"+12:00"},
+{"+12:45":"+12:45"},
+{"+13:00":"+13:00"},
+{"+14:00":"+14:00"}]},
+{"F":"service/time","P":"464","T":"S","R":"1","V":"time.windows.com","S":"128","H":"t-server","M":"0"},
+{"F":"service/time","P":"593","T":"S","R":"1","V":"time.google.com","S":"128","H":"t-server","M":"0"},
+{"F":"service/time","P":"722","T":"S","R":"1","V":"0.pool.ntp.org","S":"128","H":"t-server","M":"0"},
+{"F":"service/notification","P":"1022","T":"B","R":"1","V":"1","H":"auto notif","O":[{"no":"0"},{"yes":"1"}]},
+{"F":"service/notification","P":"116","T":"B","R":"1","V":"0","H":"notification","O":[{"none":"0"},
+{"pushover":"1"},
+{"email":"2"},
+{"line":"3"},
+{"telegram":"4"},
+{"IFTTT":"5"}]},
+{"F":"service/notification","P":"332","T":"S","R":"1","V":"********","S":"63","H":"t1","M":"0"},
+{"F":"service/notification","P":"396","T":"S","R":"1","V":"********","S":"63","H":"t2","M":"0"},
+{"F":"service/notification","P":"856","T":"S","R":"1","V":" ","S":"128","H":"ts","M":"0"},
+{"F":"system/system","P":"461","T":"B","V":"0","H":"targetfw","O":[{"repetier":"50"},
+{"marlin":"20"},
+{"smoothieware":"40"},
+{"grbl":"10"},
+{"unknown":"0"}]},
+{"F":"system/system","P":"112","T":"I","V":"115200","H":"baud","O":[{"9600":"9600"},
+{"19200":"19200"},
+{"38400":"38400"},
+{"57600":"57600"},
+{"74880":"74880"},
+{"115200":"115200"},
+{"230400":"230400"},
+{"250000":"250000"},
+{"500000":"500000"},
+{"921600":"921600"},
+{"1958400":"1958400"}]},
+{"F":"system/boot","P":"320","T":"I","V":"100","H":"bootdelay","S":"40000","M":"0"},
+{"F":"system/boot","P":"1023","T":"B","V":"0","H":"verbose","O":[{"no":"0"},{"yes":"1"}]},
+{"F":"system/outputmsg","P":"129","T":"B","V":"1","H":"serial","O":[{"no":"0"},{"yes":"1"}]},
+{"F":"system/outputmsg","P":"851","T":"B","V":"1","H":"M117","O":[{"no":"0"},{"yes":"1"}]},
+{"F":"system/outputmsg","P":"1006","T":"B","V":"1","H":"telnet","O":[{"no":"0"},{"yes":"1"}]
+}]}
+ ```
+
+1 - key : `Settings`  
+2 - value: array of data formated like this  
+{"F":"network/network","P":"130","T":"S","V":"esp3d","H":"hostname","S":"32","M":"1"}  
+or  
+{"F":"service/notification","P":"1004","T":"B","V":"1","H":"auto notif","O":[{"no":"0"},{"yes":"1"}]}
+
+    -   F: is filter formated as section/sub-section, if section is same as sub-section, it means no sub-section
+    -   P: is id (also position reference so it is unique)
+    -   T: is type of data which can be:
+        -   S: for string
+        -   I: for integer
+        -   B: for Byte
+        -   A: for IP address / Mask
+        -   F: for float (only grblHAL)
+        -   M: for bits mask (only grblHAL)
+        -   X: for exclusive bitsfield (only grblHAL)
+    -   V: is current value, if type is string and value is `********`, (8 stars) then it is a password
+    -   E: is integer for exactess / precision of float/double value (only grblHAL)
+    -   U: is text unit of value (only grblHAL)
+    -   H: is text label of value
+    -   S: is max size if type is string, and max possible value if value is number (byte, integer)
+    -   M: is min size if type is string, and min possible value if value is number (byte, integer)
+    -   MS: is additionnal min size if type is string (e.g for password can be 0 or 8, so need additional min size), M should be the more minimal value
+        so MS value must be between M and S
+    -   O: is an array of {label:value} used for possible values in selection or bits labels list
+    -   R: need restart to be applied
+
+Note: if Type `M` and `X` use `O` entry to define the label / position, if `O` is `[]` then axis label are used according need `X`, `Y`, `Z`, `A`, `B`, `C`  
+Note2 : the 2.1 Flag type is no more used, several entries are used instead grouped by sub-section    
+
+If no json the list is limited to a list of `<help>: <value>`  
+
+```text
+
+Settings:
+network/network/hostname: esp3d
+network/network/mdns: 1
 ```
 
-* `cmd`
-Id of requested command, should be `800`
-
-* `status`
-status of command, should be `ok`
-
-* `data`
-content of response:
-* `FWVersion`
-Version  of ESP3D firmware or targeted FW (Marlin with ESP3DLib / grblHal)
-* `FWTarget`
-name of targeted  Firmware
-* `FWTargetID`
-numerical ID of targeted FW as same name can have several Ids
-* `Setup`
-Should be `Enabled` or `Disabled` according flag in EEPROM/Preferences, this allows to WedUI to start wizard automaticaly (or not)
-
-* `SDConnection`
-This is SD capability, SD can be
-    * `shared`
-    ESP does share access to SD card reader with main board or Firmware (Marlin with ESP3Dlib, ESP3D with hardware SD share solution)
-    * `direct`
-    ESP does have direct access to SD card reader (e.g: ESP3D, grblHal)
-    * `none`
-    ESP does not have direct access to SD card reader, (e.g: ESP3D with only serial connection)
-* `SerialProtocol`
-It define how ESP3D FW communicate with main FW
-  * `Socket`
-    ESP and main FW use same FW (e.g: Marlin with ESP3DLib, grblHal)
-  * `Raw`
-    Classic serial connection
-  * `MKS`
-    Serial connection using MKS protocol
-* `Authentication`
-Can be `Enabled` or `Disabled`
-* `WebCommunication`
-  currently only `Synchronous`, because `Asychronous` has been put in hold
-* `WebSocketIP`
-Ip address for the websocket terminal `192.168.2.117`
-* `WebSocketPort`
-Port for the web socket terminal `81`
-* `Hostname`
-  Hostname of ESP3D or main Baord `esp3d`
-* `WiFiMode`
-Current wiFi mode in use can be `AP` or `STA`
-* `WebUpdate`
-Inform webUI the feature is available or not, can be `Enabled` or `Disabled`
-* `FlashFileSystem` (currently `FileSystem`, to be updated soon )
-The file system used by ESP board can be `LittleFS`, `SPIFFS`, `Fat`, `none`
-* `HostPath`
-Path where the preferences.json and index.html.gz are stored and can be updated (e.g: `www`)
-* `Time`
-Type of time support
-    * `none`
-    Time is not supported
-    * `Auto`
-    Board use internet to sync time and it is successful
-    * `Failed to set`
-    Board use internet to sync time and it is failed
-    * `Manual`
-    Board use time of ESP800 to set the time and it is successful
-    * `Not set`
-    Board use time of ESP800 to set the time and command did not sent it (time may have been set by previous command)
-* `CameraID`
-if ESP has camera it contain the camera ID
-* `CameraName`
-if  ESP has camera it contain the camera name
-* `Axisletters`
-Currently only used for grbHAL
-can be :
-  - XYZABC
-  - XYZUVZ (supported soon)
-  - XYZABCUVZ (supported soon)

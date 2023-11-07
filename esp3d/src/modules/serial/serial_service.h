@@ -25,6 +25,9 @@
 
 #define ESP3D_SERIAL_BUFFER_SIZE 1024
 
+extern const long SupportedBaudList[];
+extern const size_t SupportedBaudListSize;
+
 class SerialService : public Print {
  public:
   SerialService(uint8_t id);
