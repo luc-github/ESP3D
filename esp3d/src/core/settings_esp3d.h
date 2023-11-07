@@ -24,8 +24,7 @@
 
 #include <Arduino.h>
 
-#include "esp3d_configh.h"
-
+#include "../include/esp3d_config.h"
 
 enum class ESP3DState : uint8_t {
   off = 0,
@@ -78,8 +77,6 @@ class Settings_ESP3D {
   static uint8_t GetSDDevice();
   static const char *GetFirmwareTargetShortName();
   static const char *TargetBoard();
-  static bool isLocalPasswordValid(
-      const char *password);  // TODO:change to new API
 
   static bool isValidIPStringSetting(const char *value,
                                      ESP3DSettingIndex settingElement);

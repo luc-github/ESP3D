@@ -86,138 +86,164 @@ bool Commands::ESP401(const char* cmd_params, level_authenticate_type auth_type,
       if (response) {
         // Byte value
         if (styp == "B") {
-          if (!Settings_ESP3D::write_byte(spos.toInt(),
-                                          (uint8_t)sval.toInt())) {
-            response = false;
-          } else {
-            // dynamique refresh is better than restart the boards
-            switch (spos.toInt()) {
+          if (Settings_ESP3D::isValidByteSetting((uint8_t)sval.toInt(),
+                                                 spos.toInt())) {
+            if (!Settings_ESP3D::write_byte(spos.toInt(),
+                                            (uint8_t)sval.toInt())) {
+              response = false;
+              log_esp3d_e("Set failed");
+            } else {
+              // dynamique refresh is better than restart the boards
+              switch (spos.toInt()) {
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
-              case ESP_SERIAL_BRIDGE_ON:
-                if (!serial_bridge_service.started()) {
-                  serial_bridge_service.begin(ESP_SERIAL_BRIDGE_OUTPUT);
-                }
-                break;
+                case ESP_SERIAL_BRIDGE_ON:
+                  if (!serial_bridge_service.started()) {
+                    serial_bridge_service.begin(ESP_SERIAL_BRIDGE_OUTPUT);
+                  }
+                  break;
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
-              case ESP_SERIAL_BRIDGE_FLAG:
-              case ESP_SERIAL_FLAG:
-              case ESP_REMOTE_SCREEN_FLAG:
-              case ESP_WEBSOCKET_FLAG:
-              case ESP_TELNET_FLAG:
-              case ESP_SCREEN_FLAG:
-              case ESP_BT_FLAG:
-                ESP3DOutput::isOutput(ESP_ALL_CLIENTS, true);
-                break;
-              case ESP_VERBOSE_BOOT:
-                Settings_ESP3D::isVerboseBoot(true);
-                break;
-              case ESP_TARGET_FW:
-                Settings_ESP3D::GetFirmwareTarget(true);
-                break;
+                case ESP_SERIAL_BRIDGE_FLAG:
+                case ESP_SERIAL_FLAG:
+                case ESP_REMOTE_SCREEN_FLAG:
+                case ESP_WEBSOCKET_FLAG:
+                case ESP_TELNET_FLAG:
+                case ESP_SCREEN_FLAG:
+                case ESP_BT_FLAG:
+                  ESP3DOutput::isOutput(ESP_ALL_CLIENTS, true);
+                  break;
+                case ESP_VERBOSE_BOOT:
+                  Settings_ESP3D::isVerboseBoot(true);
+                  break;
+                case ESP_TARGET_FW:
+                  Settings_ESP3D::GetFirmwareTarget(true);
+                  break;
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
-              case ESP_SECURE_SERIAL:
-                serial_service.setParameters();
-                break;
+                case ESP_SECURE_SERIAL:
+                  serial_service.setParameters();
+                  break;
 #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
         // MKS_SERIAL
 #ifdef AUTHENTICATION_FEATURE
-              case ESP_SESSION_TIMEOUT:
-                AuthenticationService::setSessionTimeout(1000 * 60 *
-                                                         sval.toInt());
-                break;
+                case ESP_SESSION_TIMEOUT:
+                  AuthenticationService::setSessionTimeout(1000 * 60 *
+                                                           sval.toInt());
+                  break;
 #endif  // AUTHENTICATION_FEATURE
 #ifdef SD_DEVICE
-              case ESP_SD_SPEED_DIV:
-                ESP_SD::setSPISpeedDivider(sval.toInt());
-                break;
+                case ESP_SD_SPEED_DIV:
+                  ESP_SD::setSPISpeedDivider(sval.toInt());
+                  break;
 #endif  // SD_DEVICE
 #ifdef TIMESTAMP_FEATURE
-              case ESP_INTERNET_TIME:
-                timeService.begin();
-                break;
+                case ESP_INTERNET_TIME:
+                  timeService.begin();
+                  break;
 #endif  // TIMESTAMP_FEATURE
 #ifdef NOTIFICATION_FEATURE
-              case ESP_AUTO_NOTIFICATION:
-                notificationsservice.setAutonotification(
-                    (sval.toInt() == 0) ? false : true);
-                break;
+                case ESP_AUTO_NOTIFICATION:
+                  notificationsservice.setAutonotification(
+                      (sval.toInt() == 0) ? false : true);
+                  break;
 #endif  // NOTIFICATION_FEATURE
 #ifdef SENSOR_DEVICE
-              case ESP_SENSOR_TYPE:
-                esp3d_sensor.begin();
-                break;
+                case ESP_SENSOR_TYPE:
+                  esp3d_sensor.begin();
+                  break;
 #endif  // SENSOR_DEVICE
 #ifdef BUZZER_DEVICE
-              case ESP_BUZZER:
-                if (sval.toInt() == 1) {
-                  esp3d_buzzer.begin();
-                } else if (sval.toInt() == 0) {
-                  esp3d_buzzer.end();
-                }
-                break;
+                case ESP_BUZZER:
+                  if (sval.toInt() == 1) {
+                    esp3d_buzzer.begin();
+                  } else if (sval.toInt() == 0) {
+                    esp3d_buzzer.end();
+                  }
+                  break;
 #endif  // BUZZER_DEVICE
-              default:
-                break;
+                default:
+                  break;
+              }
             }
+          } else {
+            response = "Invalid value for V";
+            noError = false;
           }
         }
         // Integer value
         if (styp == "I") {
-          if (!Settings_ESP3D::write_uint32(spos.toInt(), sval.toInt())) {
-            response = "Set failed";
-            noError = false;
-          } else {
-            // dynamique refresh is better than restart the board
-            switch (spos.toInt()) {
+          if (Settings_ESP3D::isValidByteSetting(sval.toInt(), spos.toInt())) {
+            if (!Settings_ESP3D::write_uint32(spos.toInt(), sval.toInt())) {
+              response = "Set failed";
+              noError = false;
+              log_esp3d_e("Set failed");
+            } else {
+              // dynamique refresh is better than restart the board
+              switch (spos.toInt()) {
 #ifdef SENSOR_DEVICE
-              case ESP_SENSOR_INTERVAL:
-                esp3d_sensor.setInterval(sval.toInt());
-                break;
+                case ESP_SENSOR_INTERVAL:
+                  esp3d_sensor.setInterval(sval.toInt());
+                  break;
 #endif  // SENSOR_DEVICE
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
-              case ESP_BAUD_RATE:
-                serial_service.updateBaudRate(sval.toInt());
-                break;
+                case ESP_BAUD_RATE:
+                  serial_service.updateBaudRate(sval.toInt());
+                  break;
 #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
         // MKS_SERIAL
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
-              case ESP_SERIAL_BRIDGE_BAUD:
-                serial_bridge_service.updateBaudRate(sval.toInt());
-                break;
+                case ESP_SERIAL_BRIDGE_BAUD:
+                  serial_bridge_service.updateBaudRate(sval.toInt());
+                  break;
 #endif  // defined(ESP_SERIAL_BRIDGE_OUTPUT)
-              default:
-                break;
+                default:
+                  break;
+              }
             }
+          } else {
+            response = "Invalid value for V";
+            noError = false;
           }
         }
         // String value
         if (styp == "S") {
-          if (!Settings_ESP3D::write_string(spos.toInt(), sval.c_str())) {
-            response = "Set failed";
-            noError = false;
-          } else {
-            // dynamique refresh is better than restart the board
-            switch (spos.toInt()) {
+          if (Settings_ESP3D::isValidStringSetting(sval.c_str(),
+                                                   spos.toInt())) {
+            if (!Settings_ESP3D::write_string(spos.toInt(), sval.c_str())) {
+              response = "Set failed";
+              noError = false;
+              log_esp3d_e("Set failed");
+            } else {
+              // dynamique refresh is better than restart the board
+              switch (spos.toInt()) {
 #ifdef AUTHENTICATION_FEATURE
-              case ESP_ADMIN_PWD:
-              case ESP_USER_PWD:
-                AuthenticationService::update();
-                break;
+                case ESP_ADMIN_PWD:
+                case ESP_USER_PWD:
+                  AuthenticationService::update();
+                  break;
 #endif  // AUTHENTICATION_FEATURE
-              default:
-                break;
+                default:
+                  break;
+              }
             }
+          } else {
+            response = "Invalid value for V";
+            noError = false;
           }
         }
 #if defined(WIFI_FEATURE)
         // IP address
         if (styp == "A") {
-          if (!Settings_ESP3D::write_IP_String(spos.toInt(), sval.c_str())) {
-            response = "Set failed";
-            noError = false;
+          if (Settings_ESP3D::isValidIPStringSetting(sval.c_str(),
+                                                     spos.toInt())) {
+            if (!Settings_ESP3D::write_IP_String(spos.toInt(), sval.c_str())) {
+              response = "Set failed";
+              noError = false;
+            } else {
+              // dynamique refresh is better than restart the board
+              // TBD
+            }
           } else {
-            // dynamique refresh is better than restart the board
-            // TBD
+            response = "Invalid value for V";
+            noError = false;
           }
         }
 #endif  // WIFI_FEATURE

@@ -63,7 +63,8 @@ bool Commands::ESP100(const char* cmd_params, level_authenticate_type auth_type,
       }
 #endif  // AUTHENTICATION_FEATURE
       if (noError) {
-        if (!WiFiConfig::isSSIDValid(parameter.c_str())) {
+        if (!Settings_ESP3D::isValidStringSetting(parameter.c_str(),
+                                                  ESP_STA_SSID)) {
           response = format_response(COMMANDID, json, false, "Incorrect SSID");
           noError = false;
         } else {

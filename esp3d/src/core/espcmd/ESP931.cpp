@@ -64,10 +64,11 @@ bool Commands::ESP931(const char* cmd_params, level_authenticate_type auth_type,
 #endif  // AUTHENTICATION_FEATURE
       if (noError) {
         uint ibuf = parameter.toInt();
-        if (serial_bridge_service.is_valid_baudrate(ibuf)) {
+        if (Settings_ESP3D.isValidIntegerSetting(ibuf, ESP_SERIAL_BRIDGE_BAUD)) {
           response = format_response(COMMANDID, json, false, "Incorrect port");
           noError = false;
-        } else {
+          }
+        else {
           if (!Settings_ESP3D::write_uint32(ESP_SERIAL_BRIDGE_BAUD, ibuf)) {
             response = format_response(COMMANDID, json, false, "Set failed");
             noError = false;

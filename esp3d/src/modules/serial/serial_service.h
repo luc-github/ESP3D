@@ -46,7 +46,6 @@ class SerialService : public Print {
   void swap();
   int availableForWrite();
   int available();
-  bool is_valid_baudrate(long br);
   size_t write(uint8_t c);
   size_t write(const uint8_t *buffer, size_t size);
   inline size_t write(const char *s) { return write((uint8_t *)s, strlen(s)); }

@@ -64,7 +64,7 @@ bool Commands::ESP901(const char* cmd_params, level_authenticate_type auth_type,
 #endif  // AUTHENTICATION_FEATURE
       if (noError) {
         uint ibuf = parameter.toInt();
-        if (serial_service.is_valid_baudrate(ibuf)) {
+        if (Settings_ESP3D::isValidIntegerSetting(ibuf, ESP_BAUD_RATE)) {
           response = format_response(COMMANDID, json, false, "Incorrect port");
           noError = false;
         } else {

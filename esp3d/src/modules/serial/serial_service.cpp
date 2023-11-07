@@ -160,7 +160,7 @@ bool SerialService::begin(uint8_t serialIndex) {
   _buffer_size = 0;
   // change only if different from current
   if (br != baudRate() || (_rxPin != -1) || (_txPin != -1)) {
-    if (!is_valid_baudrate(br)) {
+    if (!Settings_ESP3D::isValidIntegerSetting(br, ESP_BAUD_RATE)) {
       br = defaultBr;
     }
     Serials[_serialIndex]->setRxBufferSize(SERIAL_RX_BUFFER_SIZE);
@@ -216,17 +216,6 @@ const long *SerialService::get_baudratelist(uint8_t *count) {
     *count = sizeof(SupportedBaudList) / sizeof(long);
   }
   return SupportedBaudList;
-}
-
-// check if value is in baudrate list
-bool SerialService::is_valid_baudrate(long br) {
-  uint8_t listesize = sizeof(SupportedBaudList) / sizeof(long);
-  for (uint8_t i = 0; i < listesize; i++) {
-    if (SupportedBaudList[i] == br) {
-      return true;
-    }
-  }
-  return false;
 }
 
 // Function which could be called in other loop

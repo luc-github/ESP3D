@@ -55,9 +55,8 @@ bool Commands::ESP202(const char* cmd_params, level_authenticate_type auth_type,
           String(Settings_ESP3D::read_byte(ESP_SD_SPEED_DIV)).c_str());
     } else {  // set
       parameter = get_param(cmd_params, "SPEED=");
-      if ((parameter == "1") || (parameter == "2") || (parameter == "4") ||
-          (parameter == "6") || (parameter == "8") || (parameter == "16") ||
-          (parameter == "32")) {
+      if (esp3dTftsettings.isValidByteSetting(parameter.toInt(),
+                                              ESP_SD_SPEED_DIV)) {
         if (!Settings_ESP3D::write_byte(ESP_SD_SPEED_DIV, parameter.toInt())) {
           response = format_response(COMMANDID, json, false, "Set failed");
           noError = false;
