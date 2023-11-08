@@ -107,7 +107,7 @@ bool Commands::ESP181(const char* cmd_params, level_authenticate_type auth_type,
             ibuf = parameter.toInt();
             hasParam = true;
             if (!Settings_ESP3D::isValidIntegerSetting(ibuf,
-                                                       ESP_DATA_ACTIVE_PORT)) {
+                                                       ESP_FTP_DATA_ACTIVE_PORT)) {
               response = format_response(COMMANDID, json, false,
                                          "Incorrect active port");
               noError = false;

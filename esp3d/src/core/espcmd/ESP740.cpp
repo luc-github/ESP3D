@@ -114,9 +114,9 @@ bool Commands::ESP740(const char* cmd_params, level_authenticate_type auth_type,
                 String time = "";
                 line = "";
                 countf++;
-#ifdef FILESYSTEM_TIMESTAMP_FEATURE
+#ifdef SD_TIMESTAMP_FEATURE
                 time = timeService.getDateTime((time_t)sub.getLastWrite());
-#endif  // FILESYSTEM_TIMESTAMP_FEATURE
+#endif  // SD_TIMESTAMP_FEATURE
                 if (json) {
                   if (countd > 0 || countf > 1) {
                     line += ",";
