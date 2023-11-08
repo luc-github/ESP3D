@@ -856,10 +856,10 @@ bool Commands::_dispatchSetting(
     case ESP3DSettingType::string_t:
       // String
       if (index == ESP_AP_PASSWORD || index == ESP_STA_PASSWORD ||
-#if ESP3D_NOTIFICATIONS_FEATURE
+#ifdef NOTIFICATION_FEATURE
           index == ESP_NOTIFICATION_TOKEN1 ||
           index == ESP_NOTIFICATION_TOKEN2 ||
-#endif  // ESP3D_NOTIFICATIONS_FEATURE
+#endif  // NOTIFICATION_FEATURE
 
           index == ESP_USER_PWD || index == ESP_ADMIN_PWD) {  // hide passwords
                                                               // using  ********

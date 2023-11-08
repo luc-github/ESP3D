@@ -32,6 +32,59 @@
 #include "../../modules/time/time_service.h"
 #endif  // TIMESTAMP_FEATURE
 #define COMMANDID 400
+
+const char* YesNoLabels[] = {"yes", "no"};
+const char* YesNoValues[] = {"1", "0"};
+const char* RadioModeLabels[] = {"none"
+#ifdef WIFI_FEATURE
+                                 ,
+                                 "sta",
+                                 "ap",
+                                 "setup"
+#endif  // WIFI_FEATURE
+#ifdef BLUETOOTH_FEATURE
+                                 ,
+                                 "bt"
+#endif  // BLUETOOTH_FEATURE
+#ifdef ETH_FEATURE
+                                 ,
+                                 "eth-sta"
+#endif  // ETH_FEATURE
+};
+const char* RadioModeValues[] = {"0"
+#ifdef WIFI_FEATURE
+                                 ,
+                                 "1",
+                                 "2",
+                                 "5"
+#endif  // WIFI_FEATURE
+
+#ifdef BLUETOOTH_FEATURE
+                                 ,
+                                 "3"
+
+#endif  // BLUETOOTH_FEATURE
+
+#ifdef ETH_FEATURE
+                                 ,
+                                 "4"
+#endif  // ETH_FEATURE
+};
+
+const char* FirmwareLabels[] = {"Unknown", "Grbl", "Marlin", "Smoothieware",
+                                "Repetier"};
+
+const char* FirmwareValues[] = {"0", "10", "20", "40", "50"};
+#ifdef NOTIFICATION_FEATURE
+const char* NotificationsLabels[] = {"none", "pushover", "email",
+                                     "line", "telegram", "ifttt"};
+
+const char* NotificationsValues[] = {"0", "1", "2", "3", "4", "5"};
+#endif  // NOTIFICATION_FEATURE
+
+const char* IpModeLabels[] = {"dhcp", "static"};
+const char* IpModeValues[] = {"0", "1"};
+
 // Get full ESP3D settings
 //[ESP400]<pwd=admin>
 bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
@@ -72,100 +125,47 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
   _dispatchSetting(json, "network/network", ESP_HOSTNAME, "hostname", NULL,
                    NULL, 32, 1, 1, -1, NULL, true, output, true);
 #endif  // WIFI_FEATURE || ETH_FEATURE || BT_FEATURE
+
+  // radio mode network/network
+  _dispatchSetting(json, "network/network", ESP_RADIO_MODE, "radio mode",
+                   RadioModeValues, RadioModeLabels,
+                   sizeof(RadioModeValues) / sizeof(char*), -1, -1, -1, NULL,
+                   true, output);
+
+  // Radio State at Boot
+  _dispatchSetting(json, "network/network", ESP_BOOT_RADIO_STATE, "radio_boot",
+                   YesNoValues, YesNoLabels,
+                   sizeof(YesNoValues) / sizeof(char*), -1, -1, -1, NULL, true,
+                   output);
+#ifdef WIFI_FEATURE
+  // STA SSID network/sta
+  _dispatchSetting(json, "network/sta", ESP_STA_SSID, "SSID", nullptr, nullptr,
+                   64, 8, 0, -1, nullptr, true, output);
+  // STA password
+
+#endif  // WIFI_FEATURE
+#if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
+  // STA IP mode
+  _dispatchSetting(json, "network/sta", ESP_STA_IP_MODE, "ip mode",
+                   IpModeValues, IpModeLabels,
+                   sizeof(IpModeLabels) / sizeof(char*), -1, -1, -1, nullptr,
+                   true, output);
+  // STA static IP
+  _dispatchSetting(json, "network/sta", ESP_STA_IP_VALUE, "ip", nullptr,
+                   nullptr, -1, -1, -1, -1, nullptr, true, output);
+
+  // STA static Gateway
+  _dispatchSetting(json, "network/sta", ESP_STA_GATEWAY_VALUE, "gw", nullptr,
+                   nullptr, -1, -1, -1, -1, nullptr, true, output);
+  // STA static Mask
+  _dispatchSetting(json, "network/sta", ESP_STA_MASK_VALUE, "msk", nullptr,
+                   nullptr, -1, -1, -1, -1, nullptr, true, output);
+  // STA static DNS
+  _dispatchSetting(json, "network/sta", ESP_STA_DNS_VALUE, "DNS", nullptr,
+                   nullptr, -1, -1, -1, -1, nullptr, true, output);
+
+#endif  // WIFI_FEATURE || ETH_FEATURE
   /*
-
-
-
-             // radio mode network/network
-           output->print(",{\"F\":\"network/network\",\"P\":\"");
-           output->print(ESP_RADIO_MODE);
-           output->print("\",\"T\":\"B\",\"R\":\"1\",\"V\":\"");
-           output->print(Settings_ESP3D::read_byte(ESP_RADIO_MODE));
-           output->print("\",\"H\":\"radio mode\",\"O\":[{\"none\":\"0\"}");
-     #ifdef WIFI_FEATURE
-           output->print(",{\"sta\":\"1\"},{\"ap\":\"2\"},{\"setup\":\"5\"}");
-     #endif  // WIFI_FEATURE
-     #ifdef BLUETOOTH_FEATURE
-           output->print(",{\"bt\":\"3\"}");
-     #endif  // BLUETOOTH_FEATURE
-     #ifdef ETH_FEATURE
-           output->print(",{\"eth-sta\":\"4\"}");
-     #endif  // ETH_FEATURE
-           output->print("]}");
-     #if defined(WIFI_FEATURE) || defined(ETH_FEATURE) ||
-     defined(BT_FEATURE)
-           // Radio State at Boot
-           output->print(",{\"F\":\"network/network\",\"P\":\"");
-           output->print(ESP_BOOT_RADIO_STATE);
-           output->print("\",\"T\":\"B\",\"R\":\"1\",\"V\":\"");
-           output->print(Settings_ESP3D::read_byte(ESP_BOOT_RADIO_STATE));
-           output->print(
-               "\",\"H\":\"radio_boot\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
-     #endif  //
-     #ifdef WIFI_FEATURE
-           // STA SSID network/sta
-           output->print(",{\"F\":\"network/sta\",\"P\":\"");
-           output->print(ESP_STA_SSID);
-           output->print("\",\"T\":\"S\",\"V\":\"");
-           output->print(
-               ESP3DOutput::encodeString(Settings_ESP3D::read_string(ESP_STA_SSID)));
-           output->print("\",\"S\":\"");
-           output->print(Settings_ESP3D::get_max_string_size(ESP_STA_SSID));
-           output->print("\",\"H\":\"SSID\",\"M\":\"");
-           output->print(Settings_ESP3D::get_min_string_size(ESP_STA_SSID));
-           output->print("\"}");
-
-           // STA password
-           output->print(",{\"F\":\"network/sta\",\"P\":\"");
-           output->print(ESP_STA_PASSWORD);
-           output->print(
-               "\",\"T\":\"S\",\"N\":\"1\",\"MS\":\"0\",\"R\":\"1\",\"V\":\"");
-           output->print(HIDDEN_PASSWORD);
-           output->print("\",\"S\":\"");
-           output->print(Settings_ESP3D::get_max_string_size(ESP_STA_PASSWORD));
-           output->print("\",\"H\":\"pwd\",\"M\":\"");
-           output->print(Settings_ESP3D::get_min_string_size(ESP_STA_PASSWORD));
-           output->print("\"}");
-
-     #endif  // WIFI_FEATURE
-     #if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
-           // STA IP mode
-           output->print(",{\"F\":\"network/sta\",\"P\":\"");
-           output->print(ESP_STA_IP_MODE);
-           output->print("\",\"T\":\"B\",\"R\":\"1\",\"V\":\"");
-           output->print(Settings_ESP3D::read_byte(ESP_STA_IP_MODE));
-           output->print(
-               "\",\"H\":\"ip
-     mode\",\"O\":[{\"dhcp\":\"1\"},{\"static\":\"0\"}]}");
-
-           // STA static IP
-           output->print(",{\"F\":\"network/sta\",\"P\":\"");
-           output->print(ESP_STA_IP_VALUE);
-           output->print("\",\"T\":\"A\",\"R\":\"1\",\"V\":\"");
-           output->print(Settings_ESP3D::read_IP_String(ESP_STA_IP_VALUE));
-           output->print("\",\"H\":\"ip\"}");
-
-           // STA static Gateway
-           output->print(",{\"F\":\"network/sta\",\"P\":\"");
-           output->print(ESP_STA_GATEWAY_VALUE);
-           output->print("\",\"T\":\"A\",\"R\":\"1\",\"V\":\"");
-           output->print(Settings_ESP3D::read_IP_String(ESP_STA_GATEWAY_VALUE));
-           output->print("\",\"H\":\"gw\"}");
-
-           // STA static Mask
-           output->print(",{\"F\":\"network/sta\",\"P\":\"");
-           output->print(ESP_STA_MASK_VALUE);
-           output->print("\",\"T\":\"A\",\"R\":\"1\",\"V\":\"");
-           output->print(Settings_ESP3D::read_IP_String(ESP_STA_MASK_VALUE));
-           output->print("\",\"H\":\"msk\"}");
-
-           // STA static DNS
-           output->print(",{\"F\":\"network/sta\",\"P\":\"");
-           output->print(ESP_STA_DNS_VALUE);
-           output->print("\",\"T\":\"A\",\"R\":\"1\",\"V\":\"");
-           output->print(Settings_ESP3D::read_IP_String(ESP_STA_DNS_VALUE));
-           output->print("\",\"H\":\"DNS\"}");
-     #endif  // WIFI_FEATURE || ETH_FEATURE
      #if defined(WIFI_FEATURE) || defined(ETH_FEATURE) ||
      defined(BT_FEATURE)
            // Sta fallback mode

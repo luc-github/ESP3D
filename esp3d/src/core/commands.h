@@ -256,7 +256,7 @@ class Commands {
                         const char** optionLabels, uint32_t maxsize,
                         uint32_t minsize, uint32_t minsize2, uint8_t precision,
                         const char* unit, bool needRestart, ESP3DOutput* output,
-                        bool isFirst);
+                        bool isFirst = false);
 };
 
 extern Commands esp3d_commands;
