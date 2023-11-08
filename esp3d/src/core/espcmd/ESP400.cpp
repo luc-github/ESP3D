@@ -82,7 +82,7 @@ const char* NotificationsLabels[] = {"none", "pushover", "email",
 const char* NotificationsValues[] = {"0", "1", "2", "3", "4", "5"};
 #endif  // NOTIFICATION_FEATURE
 
-const char* IpModeLabels[] = {"dhcp", "static"};
+const char* IpModeLabels[] = {"static", "dhcp"};
 const char* IpModeValues[] = {"0", "1"};
 
 // Get full ESP3D settings
@@ -140,8 +140,11 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
 #ifdef WIFI_FEATURE
   // STA SSID network/sta
   _dispatchSetting(json, "network/sta", ESP_STA_SSID, "SSID", nullptr, nullptr,
-                   64, 8, 0, -1, nullptr, true, output);
-  // STA password
+                   32, 1, 1, -1, nullptr, true, output);
+
+  // STA Password network/sta
+  _dispatchSetting(json, "network/sta", ESP_STA_PASSWORD, "pwd", nullptr,
+                   nullptr, 64, 8, 0, -1, nullptr, true, output);
 
 #endif  // WIFI_FEATURE
 #if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
