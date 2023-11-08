@@ -153,6 +153,14 @@ const char* SensorValues[] = {"0"
 
 #endif  // SENSOR_DEVICE
 
+#ifdef SD_DEVICE
+#if SD_DEVICE != ESP_SDIO
+const char* SupportedSPIDividerStr[] = {"1", "2", "4", "6", "8", "16", "32"};
+const uint8_t SupportedSPIDividerStrSize =
+    sizeof(SupportedSPIDividerStr) / sizeof(char*);
+#endif  // SD_DEVICE != ESP_SDIO
+#endif  // SD_DEVICE
+
 // Get full ESP3D settings
 //[ESP400]<pwd=admin>
 bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
@@ -437,165 +445,103 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
                    nullptr, nullptr, 60000, 0, -1, -1, nullptr, true, output);
 
 #endif  // SENSOR_DEVICE
+#if defined(SD_DEVICE)
+#if SD_DEVICE != ESP_SDIO
+  // SPI SD Divider
+  _dispatchSetting(json, "device/sd", ESP_SD_SPEED_DIV, "speedx",
+                   SupportedSPIDividerStr, SupportedSPIDividerStr,
+                   SupportedSPIDividerStrSize, -1, -1, -1, nullptr, true,
+                   output);
+#endif  // SD_DEVICE != ESP_SDIO
+#ifdef SD_UPDATE_FEATURE
+  // SD CHECK UPDATE AT BOOT feature
+  _dispatchSetting(json, "device/sd", ESP_SD_CHECK_UPDATE_AT_BOOT, "SD updater",
+                   YesNoValues, YesNoLabels,
+                   sizeof(YesNoValues) / sizeof(char*), -1, -1, -1, nullptr,
+                   true, output);
+#endif  // SD_UPDATE_FEATURE
+#endif  // SD_DEVICE
 
-  /*
+#if !defined(FIXED_FW_TARGET)
+  // Target FW
+  _dispatchSetting(json, "system/system", ESP_TARGET_FW, "targetfw",
+                   FirmwareValues, FirmwareLabels,
+                   sizeof(FirmwareValues) / sizeof(char*), -1, -1, -1, nullptr,
+                   true, output);
+#endif  // FIXED_FW_TARGET
+#if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
+  // Baud Rate
+  _dispatchSetting(json, "system/system", ESP_BAUD_RATE, "baud",
+                   SupportedBaudListSizeStr, SupportedBaudListSizeStr,
+                   sizeof(SupportedBaudListSizeStr) / sizeof(char*), -1, -1, -1,
+                   nullptr, true, output);
+#endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
+        // MKS_SERIAL
 
-     #if defined(SD_DEVICE)
-     #if SD_DEVICE != ESP_SDIO
-           // SPI SD Divider
-           output->print(",{\"F\":\"device/sd\",\"P\":\"");
-           output->print(ESP_SD_SPEED_DIV);
-           output->print("\",\"T\":\"B\",\"V\":\"");
-           output->print(Settings_ESP3D::read_byte(ESP_SD_SPEED_DIV));
-           output->print(
-               "\",\"H\":\"speedx\",\"O\":[{\"1\":\"1\"},{\"2\":\"2\"},{\"3\":\"3\"}"
-               ",{\"4\":\"4\"},{\"6\":\"6\"},{\"8\":\"8\"},{\"16\":\"16\"},{\"32\":"
-               "\"32\"}]}");
-     #endif  // SD_DEVICE != ESP_SDIO
-     #ifdef SD_UPDATE_FEATURE
-           // SD CHECK UPDATE AT BOOT feature
-           output->print(",{\"F\":\"device/sd\",\"P\":\"");
-           output->print(ESP_SD_CHECK_UPDATE_AT_BOOT);
-           output->print("\",\"T\":\"B\",\"V\":\"");
-           output->print(Settings_ESP3D::read_byte(ESP_SD_CHECK_UPDATE_AT_BOOT));
-           output->print(
-               "\",\"H\":\"SD
-     updater\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}"); #endif  //
-     SD_UPDATE_FEATURE #endif  // SD_DEVICE #if !defined(FIXED_FW_TARGET)
-           // Target FW
-           output->print(",{\"F\":\"system/system\",\"P\":\"");
-           output->print(ESP_TARGET_FW);
-           output->print("\",\"T\":\"B\",\"V\":\"");
-           output->print(Settings_ESP3D::read_byte(ESP_TARGET_FW));
-           output->print("\",\"H\":\"targetfw\",\"O\":[{\"repetier\":\"");
-           output->print(REPETIER);
-           output->print("\"},{\"marlin\":\"");
-           output->print(MARLIN);
-           output->print("\"},{\"smoothieware\":\"");
-           output->print(SMOOTHIEWARE);
-           output->print("\"},{\"grbl\":\"");
-           output->print(GRBL);
-           output->print("\"},{\"unknown\":\"");
-           output->print(UNKNOWN_FW);
-           output->print("\"}]}");
-     #endif  // FIXED_FW_TARGET
-     #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
-     MKS_SERIAL
-           // Baud Rate
-           output->print(",{\"F\":\"system/system\",\"P\":\"");
-           output->print(ESP_BAUD_RATE);
-           output->print("\",\"T\":\"I\",\"V\":\"");
-           output->print(Settings_ESP3D::read_uint32(ESP_BAUD_RATE));
-           output->print("\",\"H\":\"baud\",\"O\":[");
+  // Start delay
+  _dispatchSetting(json, "system/boot", ESP_BOOT_DELAY, "bootdelay", nullptr,
+                   nullptr, 40000, 0, -1, -1, nullptr, true, output);
 
-           bl = serial_service.get_baudratelist(&count);
-           for (uint8_t i = 0; i < count; i++) {
-             if (i > 0) {
-               output->print(",");
-             }
-             output->printf("{\"%ld\":\"%ld\"}", bl[i], bl[i]);
-           }
-           output->print("]}");
-     #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL ||
-     COMMUNICATION_PROTOCOL
-     ==
-             // MKS_SERIAL Start delay
-           output->print(",{\"F\":\"system/boot\",\"P\":\"");
-           output->print(ESP_BOOT_DELAY);
-           output->print("\",\"T\":\"I\",\"V\":\"");
-           output->print(Settings_ESP3D::read_uint32(ESP_BOOT_DELAY));
-           output->print("\",\"H\":\"bootdelay\",\"S\":\"");
-           output->print(Settings_ESP3D::get_max_int32_value(ESP_BOOT_DELAY));
-           output->print("\",\"M\":\"");
-           output->print(Settings_ESP3D::get_min_int32_value(ESP_BOOT_DELAY));
-           output->print("\"}");
-           // Verbose boot
-           output->print(",{\"F\":\"system/boot\",\"P\":\"");
-           output->print(ESP_VERBOSE_BOOT);
-           output->print("\",\"T\":\"B\",\"V\":\"");
-           output->print(Settings_ESP3D::read_byte(ESP_VERBOSE_BOOT));
-           output->print(
-               "\",\"H\":\"verbose\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
-           // Output flag
-           // Serial
-     #if COMMUNICATION_PROTOCOL == RAW_SERIAL || \
-         COMMUNICATION_PROTOCOL == MKS_SERIAL || \
-         COMMUNICATION_PROTOCOL == SOCKET_SERIAL
-           output->print(",{\"F\":\"system/outputmsg\",\"P\":\"");
-           output->print(ESP_SERIAL_FLAG);
-           output->print("\",\"T\":\"B\",\"V\":\"");
-           output->print(Settings_ESP3D::read_byte(ESP_SERIAL_FLAG));
-           output->print(
-               "\",\"H\":\"serial\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
-     #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL ||
-     COMMUNICATION_PROTOCOL
-     ==
-             // MKS_SERIAL
-     #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
-           output->print(",{\"F\":\"system/outputmsg\",\"P\":\"");
-           output->print(ESP_SERIAL_BRIDGE_FLAG);
-           output->print("\",\"T\":\"B\",\"V\":\"");
-           output->print(Settings_ESP3D::read_byte(ESP_SERIAL_BRIDGE_FLAG));
-           output->print(
-               "\",\"H\":\"serial_bridge\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
-     #endif  // ESP_SERIAL_BRIDGE_OUTPUT
-     #if (defined(ESP3DLIB_ENV) && defined(HAS_DISPLAY)) || \
-         defined(HAS_SERIAL_DISPLAY)
-           // Printer SCREEN
-           output->print(",{\"F\":\"system/outputmsg\",\"P\":\"");
-           output->print(ESP_REMOTE_SCREEN_FLAG);
-           output->print("\",\"T\":\"B\",\"V\":\"");
-           output->print(Settings_ESP3D::read_byte(ESP_REMOTE_SCREEN_FLAG));
-           output->print(
-               "\",\"H\":\"M117\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
-     #endif  // ESP3DLIB_ENV
-     #ifdef DISPLAY_DEVICE
-           // ESP SCREEN
-           output->print(",{\"F\":\"system/outputmsg\",\"P\":\"");
-           output->print(ESP_SCREEN_FLAG);
-           output->print("\",\"T\":\"B\",\"V\":\"");
-           output->print(Settings_ESP3D::read_byte(ESP_SCREEN_FLAG));
-           output->print(
-               "\",\"H\":\"M117\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
-     #endif  // DISPLAY_DEVICE
-     #ifdef WS_DATA_FEATURE
-           // Websocket
-           output->print(",{\"F\":\"system/outputmsg\",\"P\":\"");
-           output->print(ESP_WEBSOCKET_FLAG);
-           output->print("\",\"T\":\"B\",\"V\":\"");
-           output->print(Settings_ESP3D::read_byte(ESP_WEBSOCKET_FLAG));
-           output->print("\",\"H\":\"ws\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
-     #endif  // WS_DATA_FEATURE
-     #ifdef BLUETOOTH_FEATURE
-           // BT
-           output->print(",{\"F\":\"system/outputmsg\",\"P\":\"");
-           output->print(ESP_BT_FLAG);
-           output->print("\",\"T\":\"B\",\"V\":\"");
-           output->print(Settings_ESP3D::read_byte(ESP_BT_FLAG));
-           output->print("\",\"H\":\"BT\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
-     #endif  // BLUETOOTH_FEATURE
-     #ifdef TELNET_FEATURE
-           // Telnet
-           output->print(",{\"F\":\"system/outputmsg\",\"P\":\"");
-           output->print(ESP_TELNET_FLAG);
-           output->print("\",\"T\":\"B\",\"V\":\"");
-           output->print(Settings_ESP3D::read_byte(ESP_TELNET_FLAG));
-           output->print(
-               "\",\"H\":\"telnet\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
-     #endif  // TELNET_FEATURE
-           output->print("]}");
-           if (!json) {
-             output->printLN("");
-           }
-           return true;
-         } else {
-           response = format_response(COMMANDID, json, false,
-                                      "This command doesn't take
-     parameters"); noError = false;
-         }
-       }
+  // Verbose boot
+  _dispatchSetting(json, "system/boot", ESP_VERBOSE_BOOT, "verbose",
+                   YesNoValues, YesNoLabels,
+                   sizeof(YesNoValues) / sizeof(char*), -1, -1, -1, nullptr,
+                   true, output);
 
-      */
+// Output flag
+// Serial
+#if COMMUNICATION_PROTOCOL == RAW_SERIAL || \
+    COMMUNICATION_PROTOCOL == MKS_SERIAL || \
+    COMMUNICATION_PROTOCOL == SOCKET_SERIAL
+
+  _dispatchSetting(json, "system/outputmsg", ESP_SERIAL_FLAG, "serial",
+                   YesNoValues, YesNoLabels,
+                   sizeof(YesNoValues) / sizeof(char*), -1, -1, -1, nullptr,
+                   true, output);
+#endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL ||
+
+#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
+  _dispatchSetting(json, "system/outputmsg", ESP_SERIAL_BRIDGE_FLAG,
+                   "serial_bridge", YesNoValues, YesNoLabels,
+                   sizeof(YesNoValues) / sizeof(char*), -1, -1, -1, nullptr,
+                   true, output);
+#endif  // ESP_SERIAL_BRIDGE_OUTPUT
+
+#if (defined(ESP3DLIB_ENV) && defined(HAS_DISPLAY)) || \
+    defined(HAS_SERIAL_DISPLAY)
+  _dispatchSetting(json, "system/outputmsg", ESP_REMOTE_SCREEN_FLAG, "M117",
+                   YesNoValues, YesNoLabels,
+                   sizeof(YesNoValues) / sizeof(char*), -1, -1, -1, nullptr,
+                   true, output);
+#endif  // ESP3DLIB_ENV
+
+#ifdef DISPLAY_DEVICE
+  _dispatchSetting(json, "system/outputmsg", ESP_SCREEN_FLAG, "M117",
+                   YesNoValues, YesNoLabels,
+                   sizeof(YesNoValues) / sizeof(char*), -1, -1, -1, nullptr,
+                   true, output);
+#endif  // DISPLAY_DEVICE
+
+#ifdef WS_DATA_FEATURE
+  _dispatchSetting(json, "system/outputmsg", ESP_WEBSOCKET_FLAG, "ws",
+                   YesNoValues, YesNoLabels,
+                   sizeof(YesNoValues) / sizeof(char*), -1, -1, -1, nullptr,
+                   true, output);
+#endif  // WS_DATA_FEATURE
+
+#ifdef BLUETOOTH_FEATURE
+  _dispatchSetting(json, "system/outputmsg", ESP_BT_FLAG, "BT", YesNoValues,
+                   YesNoLabels, sizeof(YesNoValues) / sizeof(char*), -1, -1, -1,
+                   nullptr, true, output);
+#endif  // BLUETOOTH_FEATURE
+
+#ifdef TELNET_FEATURE
+  _dispatchSetting(json, "system/outputmsg", ESP_TELNET_FLAG, "telnet",
+                   YesNoValues, YesNoLabels,
+                   sizeof(YesNoValues) / sizeof(char*), -1, -1, -1, nullptr,
+                   true, output);
+#endif  // TELNET_FEATURE
+
   if (json) {
     output->print("]}");
   } else {
