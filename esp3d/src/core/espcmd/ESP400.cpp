@@ -71,6 +71,27 @@ const char* RadioModeValues[] = {"0"
 #endif  // ETH_FEATURE
 };
 
+const char* FallbackLabels[] = {"none"
+#ifdef WIFI_FEATURE
+                                ,
+                                "setup"
+#endif  // WIFI_FEATURE
+#ifdef BLUETOOTH_FEATURE
+                                ,
+                                "bt"
+#endif  // BLUETOOTH_FEATURE
+};
+const char* FallbackValues[] = {"0"
+#ifdef WIFI_FEATURE
+                                ,
+                                "5"
+#endif  // WIFI_FEATURE
+#ifdef BLUETOOTH_FEATURE
+                                ,
+                                "3"
+#endif  // BLUETOOTH_FEATURE
+};
+
 const char* FirmwareLabels[] = {"Unknown", "Grbl", "Marlin", "Smoothieware",
                                 "Repetier"};
 
@@ -84,6 +105,53 @@ const char* NotificationsValues[] = {"0", "1", "2", "3", "4", "5"};
 
 const char* IpModeLabels[] = {"static", "dhcp"};
 const char* IpModeValues[] = {"0", "1"};
+
+const char* SupportedApChannelsStr[] = {"1", "2", "3",  "4",  "5",  "6",  "7",
+                                        "8", "9", "10", "11", "12", "13", "14"};
+
+const char* SupportedBaudListSizeStr[] = {
+    "9600",   "19200",  "38400",  "57600",  "74880",  "115200",
+    "230400", "250000", "500000", "921600", "1958400"};
+
+#ifdef SENSOR_DEVICE
+
+const char* SensorLabels[] = {"none"
+#if SENSOR_DEVICE == DHT11_DEVICE || SENSOR_DEVICE == DHT22_DEVICE
+                              ,
+                              "DHT11",
+                              "DHT22"
+
+#endif  // SENSOR_DEVICE == DHT11_DEVICE || SENSOR_DEVICE == DHT22_DEVICE
+#if SENSOR_DEVICE == ANALOG_DEVICE
+                              ,
+                              "Analog"
+#endif  // SENSOR_DEVICE == ANALOG_DEVICE
+#if SENSOR_DEVICE == BMP280_DEVICE || SENSOR_DEVICE == BME280_DEVICE
+                              ,
+                              "BMP280",
+                              "BME280"
+#endif  // SENSOR_DEVICE == BMP280_DEVICE || SENSOR_DEVICE == BME280_DEVICE
+};
+const char* SensorValues[] = {"0"
+#if SENSOR_DEVICE == DHT11_DEVICE || SENSOR_DEVICE == DHT22_DEVICE
+                              ,
+                              "1",
+                              "2"
+#endif  // SENSOR_DEVICE == DHT11_DEVICE || SENSOR_DEVICE == DHT22_DEVICE
+
+#if SENSOR_DEVICE == ANALOG_DEVICE
+                              ,
+                              "3"
+#endif  // SENSOR_DEVICE == ANALOG_DEVICE
+#if SENSOR_DEVICE == BMP280_DEVICE || SENSOR_DEVICE == BME280_DEVICE
+                              ,
+                              "4",
+                              "5"
+#endif  // SENSOR_DEVICE == BMP280_DEVICE || SENSOR_DEVICE == BME280_DEVICE
+
+};
+
+#endif  // SENSOR_DEVICE
 
 // Get full ESP3D settings
 //[ESP400]<pwd=admin>
@@ -168,432 +236,210 @@ bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
                    nullptr, -1, -1, -1, -1, nullptr, true, output);
 
 #endif  // WIFI_FEATURE || ETH_FEATURE
+
+#if defined(WIFI_FEATURE) || defined(ETH_FEATURE) || defined(BT_FEATURE)
+  // Sta fallback mode
+  _dispatchSetting(json, "network/sta", ESP_STA_FALLBACK_MODE,
+                   "sta fallback mode", FallbackValues, FallbackLabels,
+                   sizeof(FallbackValues) / sizeof(char*), -1, -1, -1, nullptr,
+                   true, output);
+#endif  // WIFI_FEATURE || ETH_FEATURE || BT_FEATURE
+#if defined(WIFI_FEATURE)
+  // AP SSID network/ap
+  _dispatchSetting(json, "network/ap", ESP_AP_SSID, "SSID", nullptr, nullptr,
+                   32, 1, 1, -1, nullptr, true, output);
+
+  // AP password
+  _dispatchSetting(json, "network/ap", ESP_AP_PASSWORD, "pwd", nullptr, nullptr,
+                   64, 8, 0, -1, nullptr, true, output);
+  // AP static IP
+  _dispatchSetting(json, "network/ap", ESP_AP_IP_VALUE, "ip", nullptr, nullptr,
+                   -1, -1, -1, -1, nullptr, true, output);
+
+  // AP Channel
+  _dispatchSetting(json, "network/ap", ESP_AP_CHANNEL, "channel",
+                   SupportedApChannelsStr, SupportedApChannelsStr,
+                   sizeof(SupportedApChannelsStr) / sizeof(char*), -1, -1, -1,
+                   nullptr, true, output);
+#endif  // WIFI_FEATURE
+
+#ifdef AUTHENTICATION_FEATURE
+  // Admin password
+  _dispatchSetting(json, "security/security", ESP_ADMIN_PWD, "adm pwd", nullptr,
+                   nullptr, 20, 0, -1, -1, nullptr, true, output);
+  // User password
+  _dispatchSetting(json, "security/security", ESP_USER_PWD, "user pwd", nullptr,
+                   nullptr, 20, 0, -1, -1, nullptr, true, output);
+
+  // session timeout
+  _dispatchSetting(json, "security/security", ESP_SESSION_TIMEOUT,
+                   "session timeout", nullptr, nullptr, 255, 0, -1, -1, nullptr,
+                   true, output);
+
+#if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
+  // Secure Serial
+  _dispatchSetting(json, "security/security", ESP_SECURE_SERIAL, "serial",
+                   YesNoValues, YesNoLabels,
+                   sizeof(YesNoValues) / sizeof(char*), -1, -1, -1, nullptr,
+                   true, output);
+
+#endif  // COMMUNICATION_PROTOCOL
+#endif  // AUTHENTICATION_FEATURE
+#ifdef HTTP_FEATURE
+  // HTTP On service/http
+  _dispatchSetting(json, "service/http", ESP_HTTP_ON, "enable", YesNoValues,
+                   YesNoLabels, sizeof(YesNoValues) / sizeof(char*), -1, -1, -1,
+                   nullptr, true, output);
+  // HTTP port
+  _dispatchSetting(json, "service/http", ESP_HTTP_PORT, "port", nullptr,
+                   nullptr, 65535, 1, -1, -1, nullptr, true, output);
+#endif  // HTTP_FEATURE
+
+#ifdef TELNET_FEATURE
+  // TELNET On service/telnet
+  _dispatchSetting(json, "service/telnetp", ESP_TELNET_ON, "enable",
+                   YesNoValues, YesNoLabels,
+                   sizeof(YesNoValues) / sizeof(char*), -1, -1, -1, nullptr,
+                   true, output);
+
+  // TELNET Port
+  _dispatchSetting(json, "service/telnetp", ESP_TELNET_PORT, "port", nullptr,
+                   nullptr, 65535, 1, -1, -1, nullptr, true, output);
+#endif  // TELNET_FEATURE
+
+#ifdef WS_DATA_FEATURE
+  // Websocket On service
+  _dispatchSetting(json, "service/websocketp", ESP_WEBSOCKET_ON, "enable",
+                   YesNoValues, YesNoLabels,
+                   sizeof(YesNoValues) / sizeof(char*), -1, -1, -1, nullptr,
+                   true, output);
+
+  // Websocket Port
+  _dispatchSetting(json, "service/websocketp", ESP_WEBSOCKET_PORT, "port",
+                   nullptr, nullptr, 65535, 1, -1, -1, nullptr, true, output);
+#endif  // WS_DATA_FEATURE
+
+#ifdef WEBDAV_FEATURE
+  // WebDav On service
+  _dispatchSetting(json, "service/webdavp", ESP_WEBDAV_ON, "enable",
+                   YesNoValues, YesNoLabels,
+                   sizeof(YesNoValues) / sizeof(char*), -1, -1, -1, nullptr,
+                   true, output);
+
+  // WebDav Port
+  _dispatchSetting(json, "service/webdavp", ESP_WEBDAV_PORT, "port", nullptr,
+                   nullptr, 65535, 1, -1, -1, nullptr, true, output);
+#endif  // WEBDAV_FEATURE
+
+#ifdef FTP_FEATURE
+  // FTP On service/ftp
+  _dispatchSetting(json, "service/ftp", ESP_FTP_ON, "enable", YesNoValues,
+                   YesNoLabels, sizeof(YesNoValues) / sizeof(char*), -1, -1, -1,
+                   nullptr, true, output);
+
+  // FTP Ports
+  // CTRL Port
+  _dispatchSetting(json, "service/ftp", ESP_FTP_CTRL_PORT, "control port",
+                   nullptr, nullptr, 65535, 1, -1, -1, nullptr, true, output);
+
+  // Active Port
+  _dispatchSetting(json, "service/ftp", ESP_FTP_DATA_ACTIVE_PORT, "active port",
+                   nullptr, nullptr, 65535, 1, -1, -1, nullptr, true, output);
+
+  // Passive Port
+  _dispatchSetting(json, "service/ftp", ESP_FTP_DATA_PASSIVE_PORT,
+                   "passive port", nullptr, nullptr, 65535, 1, -1, -1, nullptr,
+                   true, output);
+#endif  // FTP_FEATURE
+
+#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
+  // Serial bridge On service
+  _dispatchSetting(json, "service/serial_bridge", ESP_SERIAL_BRIDGE_ON,
+                   "enable", YesNoValues, YesNoLabels,
+                   sizeof(YesNoValues) / sizeof(char*), -1, -1, -1, nullptr,
+                   true, output);
+
+  // Baud Rate
+  _dispatchSetting(json, "service/serial_bridge", ESP_SERIAL_BRIDGE_BAUD,
+                   "baud", SupportedBaudListSizeStr, SupportedBaudListSizeStr,
+                   sizeof(SupportedBaudListSizeStr) / sizeof(char*), -1, -1, -1,
+                   nullptr, true, output);
+#endif  // ESP_SERIAL_BRIDGE_OUTPUT
+
+#ifdef TIMESTAMP_FEATURE
+
+  // Internet Time
+  _dispatchSetting(json, "service/time", ESP_INTERNET_TIME, "i-time",
+                   YesNoValues, YesNoLabels,
+                   sizeof(YesNoValues) / sizeof(char*), -1, -1, -1, nullptr,
+                   true, output);
+
+  // Time zone
+  _dispatchSetting(json, "service/time", ESP_TIME_ZONE, "tzone",
+                   SupportedTimeZones, SupportedTimeZones,
+                   SupportedTimeZonesSize, -1, -1, -1, nullptr, true, output);
+
+  // Time Server1
+  _dispatchSetting(json, "service/time", ESP_TIME_SERVER1, "t-server", nullptr,
+                   nullptr, 127, 0, -1, -1, nullptr, true, output);
+
+  // Time Server2
+  _dispatchSetting(json, "service/time", ESP_TIME_SERVER2, "t-server", nullptr,
+                   nullptr, 127, 0, -1, -1, nullptr, true, output);
+
+  // Time Server3
+  _dispatchSetting(json, "service/time", ESP_TIME_SERVER3, "t-server", nullptr,
+                   nullptr, 127, 0, -1, -1, nullptr, true, output);
+#endif  // TIMESTAMP_FEATURE
+
+#ifdef NOTIFICATION_FEATURE
+  // Auto notification
+  _dispatchSetting(json, "service/notification", ESP_AUTO_NOTIFICATION,
+                   "auto notif", YesNoValues, YesNoLabels,
+                   sizeof(YesNoValues) / sizeof(char*), -1, -1, -1, nullptr,
+                   true, output);
+
+  // Notification type
+  _dispatchSetting(json, "service/notification", ESP_NOTIFICATION_TYPE,
+                   "notification", NotificationsValues, NotificationsLabels,
+                   sizeof(NotificationsValues) / sizeof(char*), -1, -1, -1,
+                   nullptr, true, output);
+
+  // Token 1
+  _dispatchSetting(json, "service/notification", ESP_NOTIFICATION_TOKEN1, "t1",
+                   nullptr, nullptr, 63, 1, 1, -1, nullptr, true, output);
+
+  // Token 2
+  _dispatchSetting(json, "service/notification", ESP_NOTIFICATION_TOKEN2, "t2",
+                   nullptr, nullptr, 63, 1, 1, -1, nullptr, true, output);
+
+  // Notifications Settings
+  _dispatchSetting(json, "service/notification", ESP_NOTIFICATION_SETTINGS,
+                   "ts", nullptr, nullptr, 128, 0, -1, -1, nullptr, true,
+                   output);
+#endif  // NOTIFICATION_FEATURE
+
+#ifdef BUZZER_DEVICE
+  // Buzzer state
+  _dispatchSetting(json, "device/device", ESP_BUZZER, "buzzer", YesNoValues,
+                   YesNoLabels, sizeof(YesNoValues) / sizeof(char*), -1, -1, -1,
+                   nullptr, true, output);
+#endif  // BUZZER_DEVICE
+
+#ifdef SENSOR_DEVICE
+  // Sensor type
+  _dispatchSetting(json, "device/sensor", ESP_SENSOR_TYPE, "type", SensorValues,
+                   SensorLabels, sizeof(SensorValues) / sizeof(char*), -1, -1,
+                   -1, nullptr, true, output);
+
+  // Sensor interval
+  _dispatchSetting(json, "device/sensor", ESP_SENSOR_INTERVAL, "intervalms",
+                   nullptr, nullptr, 60000, 0, -1, -1, nullptr, true, output);
+
+#endif  // SENSOR_DEVICE
+
   /*
-     #if defined(WIFI_FEATURE) || defined(ETH_FEATURE) ||
-     defined(BT_FEATURE)
-           // Sta fallback mode
-           output->print(",{\"F\":\"network/sta\",\"P\":\"");
-           output->print(ESP_STA_FALLBACK_MODE);
-           output->print("\",\"T\":\"B\",\"R\":\"0\",\"V\":\"");
-           output->print(Settings_ESP3D::read_byte(ESP_STA_FALLBACK_MODE));
-           output->print("\",\"H\":\"sta fallback
-     mode\",\"O\":[{\"none\":\"0\"}"); #ifdef WIFI_FEATURE
-           output->print(",{\"setup\":\"5\"}");
-     #endif  // WIFI_FEATURE
-     #ifdef BLUETOOTH_FEATURE
-           output->print(",{\"bt\":\"3\"}");
-     #endif  // BLUETOOTH_FEATURE
-           output->print("]}");
-     #endif  // WIFI_FEATURE || ETH_FEATURE || BT_FEATURE
-     #if defined(WIFI_FEATURE)
-           // AP SSID network/ap
-           output->print(",{\"F\":\"network/ap\",\"P\":\"");
-           output->print(ESP_AP_SSID);
-           output->print("\",\"T\":\"S\",\"R\":\"1\",\"V\":\"");
-           output->print(
-               ESP3DOutput::encodeString(Settings_ESP3D::read_string(ESP_AP_SSID)));
-           output->print("\",\"S\":\"");
-           output->print(Settings_ESP3D::get_max_string_size(ESP_AP_SSID));
-           output->print("\",\"H\":\"SSID\",\"M\":\"");
-           output->print(Settings_ESP3D::get_min_string_size(ESP_AP_SSID));
-           output->print("\"}");
 
-           // AP password
-           output->print(",{\"F\":\"network/ap\",\"P\":\"");
-           output->print(ESP_AP_PASSWORD);
-           output->print(
-               "\",\"T\":\"S\",\"N\":\"1\",\"MS\":\"0\",\"R\":\"1\",\"V\":\"");
-           output->print(HIDDEN_PASSWORD);
-           output->print("\",\"S\":\"");
-           output->print(Settings_ESP3D::get_max_string_size(ESP_AP_PASSWORD));
-           output->print("\",\"H\":\"pwd\",\"M\":\"");
-           output->print(Settings_ESP3D::get_min_string_size(ESP_AP_PASSWORD));
-           output->print("\"}");
-
-           // AP static IP
-           output->print(",{\"F\":\"network/ap\",\"P\":\"");
-           output->print(ESP_AP_IP_VALUE);
-           output->print("\",\"T\":\"A\",\"R\":\"1\",\"V\":\"");
-           output->print(Settings_ESP3D::read_IP_String(ESP_AP_IP_VALUE));
-           output->print("\",\"H\":\"ip\"}");
-
-           // AP Channel
-           output->print(",{\"F\":\"network/ap\",\"P\":\"");
-           output->print(ESP_AP_CHANNEL);
-           output->print("\",\"T\":\"B\",\"R\":\"1\",\"V\":\"");
-           output->print(Settings_ESP3D::read_byte(ESP_AP_CHANNEL));
-           output->print("\",\"H\":\"channel\",\"O\":[");
-           for (uint8_t i = Settings_ESP3D::get_min_byte(ESP_AP_CHANNEL);
-                i <= Settings_ESP3D::get_max_byte(ESP_AP_CHANNEL); i++) {
-             if (i > 1) {
-               output->print(",");
-             }
-             output->printf("{\"%d\":\"%d\"}", i, i);
-           }
-           output->print("]}");
-     #endif  // WIFI_FEATURE
-
-     #ifdef AUTHENTICATION_FEATURE
-           // Admin password
-           output->print(",{\"F\":\"security/security\",\"P\":\"");
-           output->print(ESP_ADMIN_PWD);
-           output->print("\",\"T\":\"S\",\"V\":\"");
-           output->print(HIDDEN_PASSWORD);
-           output->print("\",\"S\":\"");
-           output->print(Settings_ESP3D::get_max_string_size(ESP_ADMIN_PWD));
-           output->print("\",\"H\":\"adm pwd\",\"M\":\"");
-           output->print(Settings_ESP3D::get_min_string_size(ESP_ADMIN_PWD));
-           output->print("\"}");
-
-           // User password
-           output->print(",{\"F\":\"security/security\",\"P\":\"");
-           output->print(ESP_USER_PWD);
-           output->print("\",\"T\":\"S\",\"V\":\"");
-           output->print(HIDDEN_PASSWORD);
-           output->print("\",\"S\":\"");
-           output->print(Settings_ESP3D::get_max_string_size(ESP_USER_PWD));
-           output->print("\",\"H\":\"user pwd\",\"M\":\"");
-           output->print(Settings_ESP3D::get_min_string_size(ESP_USER_PWD));
-           output->print("\"}");
-
-           // session timeout
-           output->print(",{\"F\":\"security/security\",\"P\":\"");
-           output->print(ESP_SESSION_TIMEOUT);
-           output->print("\",\"T\":\"B\",\"R\":\"1\",\"V\":\"");
-           output->print(Settings_ESP3D::read_byte(ESP_SESSION_TIMEOUT));
-           output->print("\",\"S\":\"");
-           output->print(Settings_ESP3D::get_max_byte(ESP_SESSION_TIMEOUT));
-           output->print("\",\"H\":\"session timeout\",\"M\":\"");
-           output->print(Settings_ESP3D::get_min_byte(ESP_SESSION_TIMEOUT));
-           output->print("\"}");
-     #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
-     MKS_SERIAL
-           // Secure Serial
-           output->print(",{\"F\":\"security/security\",\"P\":\"");
-           output->print(ESP_SECURE_SERIAL);
-           output->print("\",\"T\":\"B\",\"V\":\"");
-           output->print(Settings_ESP3D::read_byte(ESP_SECURE_SERIAL));
-           output->print(
-               "\",\"H\":\"serial\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
-     #endif  // COMMUNICATION_PROTOCOL
-     #endif  // AUTHENTICATION_FEATURE
-
-     #ifdef HTTP_FEATURE
-           // HTTP On service/http
-           output->print(",{\"F\":\"service/http\",\"P\":\"");
-           output->print(ESP_HTTP_ON);
-           output->print("\",\"T\":\"B\",\"R\":\"1\",\"V\":\"");
-           output->print(Settings_ESP3D::read_byte(ESP_HTTP_ON));
-           output->print(
-               "\",\"H\":\"enable\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
-
-           // HTTP Port
-           output->print(",{\"F\":\"service/http\",\"P\":\"");
-           output->print(ESP_HTTP_PORT);
-           output->print("\",\"T\":\"I\",\"R\":\"1\",\"V\":\"");
-           output->print(Settings_ESP3D::read_uint32(ESP_HTTP_PORT));
-           output->print("\",\"H\":\"port\",\"S\":\"");
-           output->print(Settings_ESP3D::get_max_int32_value(ESP_HTTP_PORT));
-           output->print("\",\"M\":\"");
-           output->print(Settings_ESP3D::get_min_int32_value(ESP_HTTP_PORT));
-           output->print("\"}");
-     #endif  // HTTP_FEATURE
-
-     #ifdef TELNET_FEATURE
-           // TELNET On service/telnet
-           output->print(",{\"F\":\"service/telnetp\",\"P\":\"");
-           output->print(ESP_TELNET_ON);
-           output->print("\",\"T\":\"B\",\"R\":\"1\",\"V\":\"");
-           output->print(Settings_ESP3D::read_byte(ESP_TELNET_ON));
-           output->print(
-               "\",\"H\":\"enable\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
-
-           // TELNET Port
-           output->print(",{\"F\":\"service/telnetp\",\"P\":\"");
-           output->print(ESP_TELNET_PORT);
-           output->print("\",\"T\":\"I\",\"R\":\"1\",\"V\":\"");
-           output->print(Settings_ESP3D::read_uint32(ESP_TELNET_PORT));
-           output->print("\",\"H\":\"port\",\"S\":\"");
-           output->print(Settings_ESP3D::get_max_int32_value(ESP_TELNET_PORT));
-           output->print("\",\"M\":\"");
-           output->print(Settings_ESP3D::get_min_int32_value(ESP_TELNET_PORT));
-           output->print("\"}");
-     #endif  // TELNET
-     #ifdef WS_DATA_FEATURE
-           // Websocket On service
-           output->print(",{\"F\":\"service/websocketp\",\"P\":\"");
-           output->print(ESP_WEBSOCKET_ON);
-           output->print("\",\"T\":\"B\",\"R\":\"1\",\"V\":\"");
-           output->print(Settings_ESP3D::read_byte(ESP_WEBSOCKET_ON));
-           output->print(
-               "\",\"H\":\"enable\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
-
-           // Websocket Port
-           output->print(",{\"F\":\"service/websocketp\",\"P\":\"");
-           output->print(ESP_WEBSOCKET_PORT);
-           output->print("\",\"T\":\"I\",\"R\":\"1\",\"V\":\"");
-           output->print(Settings_ESP3D::read_uint32(ESP_WEBSOCKET_PORT));
-           output->print("\",\"H\":\"port\",\"S\":\"");
-           output->print(Settings_ESP3D::get_max_int32_value(ESP_WEBSOCKET_PORT));
-           output->print("\",\"M\":\"");
-           output->print(Settings_ESP3D::get_min_int32_value(ESP_WEBSOCKET_PORT));
-           output->print("\"}");
-     #endif  // WS_DATA_FEATURE
-     #ifdef WEBDAV_FEATURE
-           // WebDav On service
-           output->print(",{\"F\":\"service/webdavp\",\"P\":\"");
-           output->print(ESP_WEBDAV_ON);
-           output->print("\",\"T\":\"B\",\"R\":\"1\",\"V\":\"");
-           output->print(Settings_ESP3D::read_byte(ESP_WEBDAV_ON));
-           output->print(
-               "\",\"H\":\"enable\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
-
-           // WebDav Port
-           output->print(",{\"F\":\"service/webdavp\",\"P\":\"");
-           output->print(ESP_WEBDAV_PORT);
-           output->print("\",\"T\":\"I\",\"R\":\"1\",\"V\":\"");
-           output->print(Settings_ESP3D::read_uint32(ESP_WEBDAV_PORT));
-           output->print("\",\"H\":\"port\",\"S\":\"");
-           output->print(Settings_ESP3D::get_max_int32_value(ESP_WEBDAV_PORT));
-           output->print("\",\"M\":\"");
-           output->print(Settings_ESP3D::get_min_int32_value(ESP_WEBDAV_PORT));
-           output->print("\"}");
-     #endif  // WEBDAV_FEATURE
-     #ifdef FTP_FEATURE
-           // FTP On service/ftp
-           output->print(",{\"F\":\"service/ftp\",\"P\":\"");
-           output->print(ESP_FTP_ON);
-           output->print("\",\"T\":\"B\",\"R\":\"1\",\"V\":\"");
-           output->print(Settings_ESP3D::read_byte(ESP_FTP_ON));
-           output->print(
-               "\",\"H\":\"enable\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
-
-           // FTP Ports
-           output->print(",{\"F\":\"service/ftp\",\"P\":\"");
-           output->print(ESP_FTP_CTRL_PORT);
-           output->print("\",\"T\":\"I\",\"R\":\"1\",\"V\":\"");
-           output->print(Settings_ESP3D::read_uint32(ESP_FTP_CTRL_PORT));
-           output->print("\",\"H\":\"control port\",\"S\":\"");
-           output->print(Settings_ESP3D::get_max_int32_value(ESP_FTP_CTRL_PORT));
-           output->print("\",\"M\":\"");
-           output->print(Settings_ESP3D::get_min_int32_value(ESP_FTP_CTRL_PORT));
-           output->print("\"}");
-
-           output->print(",{\"F\":\"service/ftp\",\"P\":\"");
-           output->print(ESP_FTP_DATA_ACTIVE_PORT);
-           output->print("\",\"T\":\"I\",\"R\":\"1\",\"V\":\"");
-           output->print(Settings_ESP3D::read_uint32(ESP_FTP_DATA_ACTIVE_PORT));
-           output->print("\",\"H\":\"active port\",\"S\":\"");
-           output->print(
-               Settings_ESP3D::get_max_int32_value(ESP_FTP_DATA_ACTIVE_PORT));
-           output->print("\",\"M\":\"");
-           output->print(
-               Settings_ESP3D::get_min_int32_value(ESP_FTP_DATA_ACTIVE_PORT));
-           output->print("\"}");
-
-           output->print(",{\"F\":\"service/ftp\",\"P\":\"");
-           output->print(ESP_FTP_DATA_PASSIVE_PORT);
-           output->print("\",\"T\":\"I\",\"R\":\"1\",\"V\":\"");
-           output->print(Settings_ESP3D::read_uint32(ESP_FTP_DATA_PASSIVE_PORT));
-           output->print("\",\"H\":\"passive port\",\"S\":\"");
-           output->print(
-               Settings_ESP3D::get_max_int32_value(ESP_FTP_DATA_PASSIVE_PORT));
-           output->print("\",\"M\":\"");
-           output->print(
-               Settings_ESP3D::get_min_int32_value(ESP_FTP_DATA_PASSIVE_PORT));
-           output->print("\"}");
-     #endif  // FTP_FEATURE
-
-     #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
-           // Serial bridge On service
-           output->print(",{\"F\":\"service/serial_bridge\",\"P\":\"");
-           output->print(ESP_SERIAL_BRIDGE_ON);
-           output->print("\",\"T\":\"B\",\"V\":\"");
-           output->print(Settings_ESP3D::read_byte(ESP_SERIAL_BRIDGE_ON));
-           output->print(
-               "\",\"H\":\"enable\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
-           // Baud Rate
-           output->print(",{\"F\":\"service/serial_bridge\",\"P\":\"");
-           output->print(ESP_SERIAL_BRIDGE_BAUD);
-           output->print("\",\"T\":\"I\",\"V\":\"");
-           output->print(Settings_ESP3D::read_uint32(ESP_SERIAL_BRIDGE_BAUD));
-           output->print("\",\"H\":\"baud\",\"O\":[");
-
-           bl = serial_service.get_baudratelist(&count);
-           for (uint8_t i = 0; i < count; i++) {
-             if (i > 0) {
-               output->print(",");
-             }
-             output->printf("{\"%ld\":\"%ld\"}", bl[i], bl[i]);
-           }
-           output->print("]}");
-     #endif  // defined(ESP_SERIAL_BRIDGE_OUTPUT)
-
-     #ifdef TIMESTAMP_FEATURE
-
-           // Internet Time
-           output->print(",{\"F\":\"service/time\",\"P\":\"");
-           output->print(ESP_INTERNET_TIME);
-           output->print("\",\"T\":\"B\",\"V\":\"");
-           output->print((int8_t)Settings_ESP3D::read_byte(ESP_INTERNET_TIME));
-           output->print(
-               "\",\"H\":\"i-time\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
-
-           // Time zone
-           output->print(",{\"F\":\"service/time\",\"P\":\"");
-           output->print(ESP_TIME_ZONE);
-           output->print("\",\"T\":\"S\",\"R\":\"1\",\"V\":\"");
-           output->print(Settings_ESP3D::read_string(ESP_TIME_ZONE));
-           output->print("\",\"H\":\"tzone\",\"O\":[");
-           for (int8_t i = 0; i < SupportedTimeZonesSize; i++) {
-             if (i > 0) {
-               output->print(",");
-             }
-             output->printf("{\"%s\":\"%s\"}", SupportedTimeZones[i],
-                            SupportedTimeZones[i]);
-           }
-           output->print("]}");
-
-
-
-           // Time Server1
-           output->print(",{\"F\":\"service/time\",\"P\":\"");
-           output->print(ESP_TIME_SERVER1);
-           output->print("\",\"T\":\"S\",\"R\":\"1\",\"V\":\"");
-           output->print(ESP3DOutput::encodeString(
-               Settings_ESP3D::read_string(ESP_TIME_SERVER1)));
-           output->print("\",\"S\":\"");
-           output->print(Settings_ESP3D::get_max_string_size(ESP_TIME_SERVER1));
-           output->print("\",\"H\":\"t-server\",\"M\":\"");
-           output->print(Settings_ESP3D::get_min_string_size(ESP_TIME_SERVER1));
-           output->print("\"}");
-
-           // 27- Time Server2
-           output->print(",{\"F\":\"service/time\",\"P\":\"");
-           output->print(ESP_TIME_SERVER2);
-           output->print("\",\"T\":\"S\",\"R\":\"1\",\"V\":\"");
-           output->print(ESP3DOutput::encodeString(
-               Settings_ESP3D::read_string(ESP_TIME_SERVER2)));
-           output->print("\",\"S\":\"");
-           output->print(Settings_ESP3D::get_max_string_size(ESP_TIME_SERVER2));
-           output->print("\",\"H\":\"t-server\",\"M\":\"");
-           output->print(Settings_ESP3D::get_min_string_size(ESP_TIME_SERVER2));
-           output->print("\"}");
-
-           // 28- Time Server3
-           output->print(",{\"F\":\"service/time\",\"P\":\"");
-           output->print(ESP_TIME_SERVER3);
-           output->print("\",\"T\":\"S\",\"R\":\"1\",\"V\":\"");
-           output->print(ESP3DOutput::encodeString(
-               Settings_ESP3D::read_string(ESP_TIME_SERVER3)));
-           output->print("\",\"S\":\"");
-           output->print(Settings_ESP3D::get_max_string_size(ESP_TIME_SERVER3));
-           output->print("\",\"H\":\"t-server\",\"M\":\"");
-           output->print(Settings_ESP3D::get_min_string_size(ESP_TIME_SERVER3));
-           output->print("\"}");
-     #endif  // TIMESTAMP_FEATURE
-
-     #ifdef NOTIFICATION_FEATURE
-           // Auto notification
-           output->print(",{\"F\":\"service/notification\",\"P\":\"");
-           output->print(ESP_AUTO_NOTIFICATION);
-           output->print("\",\"T\":\"B\",\"R\":\"1\",\"V\":\"");
-           output->print(Settings_ESP3D::read_byte(ESP_AUTO_NOTIFICATION));
-           output->print(
-               "\",\"H\":\"auto
-     notif\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
-           // Notification type
-           output->print(",{\"F\":\"service/notification\",\"P\":\"");
-           output->print(ESP_NOTIFICATION_TYPE);
-           output->print("\",\"T\":\"B\",\"R\":\"1\",\"V\":\"");
-           output->print(Settings_ESP3D::read_byte(ESP_NOTIFICATION_TYPE));
-           output->print(
-               "\",\"H\":\"notification\",\"O\":[{\"none\":\"0\"},{\"pushover\":\"");
-           output->print(ESP_PUSHOVER_NOTIFICATION);
-           output->print("\"},{\"email\":\"");
-           output->print(ESP_EMAIL_NOTIFICATION);
-           output->print("\"},{\"line\":\"");
-           output->print(ESP_LINE_NOTIFICATION);
-           output->print("\"},{\"telegram\":\"");
-           output->print(ESP_TELEGRAM_NOTIFICATION);
-           output->print("\"},{\"IFTTT\":\"");
-           output->print(ESP_IFTTT_NOTIFICATION);
-           output->print("\"}]}");
-           // Token 1
-           output->print(",{\"F\":\"service/notification\",\"P\":\"");
-           output->print(ESP_NOTIFICATION_TOKEN1);
-           output->print("\",\"T\":\"S\",\"R\":\"1\",\"V\":\"");
-           output->print(HIDDEN_PASSWORD);
-           output->print("\",\"S\":\"");
-           output->print(
-               Settings_ESP3D::get_max_string_size(ESP_NOTIFICATION_TOKEN1));
-           output->print("\",\"H\":\"t1\",\"M\":\"");
-           output->print(
-               Settings_ESP3D::get_min_string_size(ESP_NOTIFICATION_TOKEN1));
-           output->print("\"}");
-           // Token 2
-           output->print(",{\"F\":\"service/notification\",\"P\":\"");
-           output->print(ESP_NOTIFICATION_TOKEN2);
-           output->print("\",\"T\":\"S\",\"R\":\"1\",\"V\":\"");
-           output->print(HIDDEN_PASSWORD);
-           output->print("\",\"S\":\"");
-           output->print(
-               Settings_ESP3D::get_max_string_size(ESP_NOTIFICATION_TOKEN2));
-           output->print("\",\"H\":\"t2\",\"M\":\"");
-           output->print(
-               Settings_ESP3D::get_min_string_size(ESP_NOTIFICATION_TOKEN2));
-           output->print("\"}");
-           // Notifications Settings
-           output->print(",{\"F\":\"service/notification\",\"P\":\"");
-           output->print(ESP_NOTIFICATION_SETTINGS);
-           output->print("\",\"T\":\"S\",\"R\":\"1\",\"V\":\"");
-           output->print(ESP3DOutput::encodeString(
-               Settings_ESP3D::read_string(ESP_NOTIFICATION_SETTINGS)));
-           output->print("\",\"S\":\"");
-           output->print(
-               Settings_ESP3D::get_max_string_size(ESP_NOTIFICATION_SETTINGS));
-           output->print("\",\"H\":\"ts\",\"M\":\"");
-           output->print(
-               Settings_ESP3D::get_min_string_size(ESP_NOTIFICATION_SETTINGS));
-           output->print("\"}");
-     #endif  // NOTIFICATION_FEATURE
-     #ifdef BUZZER_DEVICE
-           // Buzzer state
-           output->print(",{\"F\":\"device/device\",\"P\":\"");
-           output->print(ESP_BUZZER);
-           output->print("\",\"T\":\"B\",\"V\":\"");
-           output->print(Settings_ESP3D::read_byte(ESP_BUZZER));
-           output->print(
-               "\",\"H\":\"buzzer\",\"O\":[{\"no\":\"0\"},{\"yes\":\"1\"}]}");
-     #endif  // BUZZER_DEVICE
-
-     #ifdef SENSOR_DEVICE
-           // Sensor type
-           output->print(",{\"F\":\"device/sensor\",\"P\":\"");
-           output->print(ESP_SENSOR_TYPE);
-           output->print("\",\"T\":\"B\",\"V\":\"");
-           output->print(Settings_ESP3D::read_byte(ESP_SENSOR_TYPE));
-           output->print("\",\"H\":\"type\",\"O\":[{\"none\":\"0\"}");
-           for (uint8_t p = 0; p < esp3d_sensor.nbType(); p++) {
-             output->print(",{\"");
-             output->print(esp3d_sensor.GetModelString(p));
-             output->print("\":\"");
-             output->print(esp3d_sensor.GetModel(p));
-             output->print("\"}");
-           }
-           output->print("]}");
-
-           // Sensor interval
-           output->print(",{\"F\":\"device/sensor\",\"P\":\"");
-           output->print(ESP_SENSOR_INTERVAL);
-           output->print("\",\"T\":\"I\",\"V\":\"");
-           output->print(Settings_ESP3D::read_uint32(ESP_SENSOR_INTERVAL));
-           output->print("\",\"H\":\"intervalms\",\"S\":\"");
-           output->print(Settings_ESP3D::get_max_int32_value(ESP_SENSOR_INTERVAL));
-           output->print("\",\"M\":\"");
-           output->print(Settings_ESP3D::get_min_int32_value(ESP_SENSOR_INTERVAL));
-           output->print("\"}");
-     #endif  // SENSOR_DEVICE
      #if defined(SD_DEVICE)
      #if SD_DEVICE != ESP_SDIO
            // SPI SD Divider
