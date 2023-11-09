@@ -21,7 +21,7 @@
 #ifdef TIMESTAMP_FEATURE
 #include <time.h>
 
-#include "../../core/esp3doutput.h"
+#include "../../core/esp3d_message.h"
 #include "../../core/settings_esp3d.h"
 #include "time_service.h"
 

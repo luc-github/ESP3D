@@ -22,7 +22,7 @@
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/filesystem/esp_filesystem.h"
 #include "../commands.h"
-#include "../esp3doutput.h"
+#include "../esp3d_message.h"
 #include "../settings_esp3d.h"
 
 #define COMMANDID 730
@@ -30,7 +30,7 @@
 // rmdir / remove / mkdir / exists / create
 //[ESP730]<Action>=<path> json=<no> pwd=<admin password>
 bool Commands::ESP730(const char* cmd_params, level_authenticate_type auth_type,
-                      ESP3DOutput* output) {
+                      ESP3DMessage* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;

@@ -201,7 +201,7 @@ bool ESP_SD::rename(const char* oldpath, const char* newpath) {
   return SD.rename(oldpath, newpath);
 }
 
-bool ESP_SD::format(ESP3DOutput* output) {
+bool ESP_SD::format(ESP3DMessage* output) {
   if (ESP_SD::getState(true) == ESP_SDCARD_IDLE) {
     uint32_t const ERASE_SIZE = 262144L;
     uint32_t cardSectorCount = 0;

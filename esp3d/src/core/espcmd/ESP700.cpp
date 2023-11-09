@@ -22,7 +22,7 @@
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/gcode_host/gcode_host.h"
 #include "../commands.h"
-#include "../esp3doutput.h"
+#include "../esp3d_message.h"
 #include "../settings_esp3d.h"
 
 #define COMMANDID 700
@@ -35,7 +35,7 @@
 // read local file
 //[ESP700]<filename>
 bool Commands::ESP700(const char* cmd_params, level_authenticate_type auth_type,
-                      ESP3DOutput* output) {
+                      ESP3DMessage* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;

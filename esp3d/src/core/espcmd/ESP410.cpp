@@ -22,7 +22,7 @@
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/wifi/wificonfig.h"
 #include "../commands.h"
-#include "../esp3doutput.h"
+#include "../esp3d_message.h"
 #include "../settings_esp3d.h"
 
 // Get available AP list (limited to 30)
@@ -30,7 +30,7 @@
 //[ESP410]json=<no>
 #define COMMANDID 410
 bool Commands::ESP410(const char* cmd_params, level_authenticate_type auth_type,
-                      ESP3DOutput* output) {
+                      ESP3DMessage* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;
@@ -80,7 +80,7 @@ bool Commands::ESP410(const char* cmd_params, level_authenticate_type auth_type,
           total++;
           if (json) {
             line += "{\"SSID\":\"";
-            line += ESP3DOutput::encodeString(WiFi.SSID(i).c_str());
+            line += ESP3DMessage::encodeString(WiFi.SSID(i).c_str());
           } else {
             line += WiFi.SSID(i).c_str();
           }

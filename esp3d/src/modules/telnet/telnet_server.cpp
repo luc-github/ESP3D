@@ -25,7 +25,7 @@
 #include <WiFiServer.h>
 
 #include "../../core/commands.h"
-#include "../../core/esp3doutput.h"
+#include "../../core/esp3d_message.h"
 #include "../../core/settings_esp3d.h"
 #include "telnet_server.h"
 
@@ -174,7 +174,7 @@ void Telnet_Server::flushbuffer() {
     _buffer_size = 0;
     return;
   }
-  ESP3DOutput output(ESP_TELNET_CLIENT);
+  ESP3DMessage esp3dmsg(ESP_TELNET_CLIENT);
   _buffer[_buffer_size] = 0x0;
   // dispatch command
   esp3d_commands.process(_buffer, _buffer_size, &output);

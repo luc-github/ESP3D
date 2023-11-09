@@ -21,7 +21,7 @@
 #include "../../include/esp3d_config.h"
 #ifdef SD_UPDATE_FEATURE
 #include "../../core/commands.h"
-#include "../../core/esp3doutput.h"
+#include "../../core/esp3d_message.h"
 #include "../../core/settings_esp3d.h"
 #include "../filesystem/esp_filesystem.h"
 #include "../filesystem/esp_sd.h"

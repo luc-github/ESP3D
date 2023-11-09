@@ -25,7 +25,7 @@
 #include <Arduino.h>
 
 #include "../../core/commands.h"
-#include "../../core/esp3doutput.h"
+#include "../../core/esp3d_message.h"
 #include "serial2socket.h"
 
 Serial_2_Socket Serial2Socket;
@@ -162,7 +162,7 @@ void Serial_2_Socket::handle_flush() {
 }
 void Serial_2_Socket::flush(void) {
   if (_TXbufferSize > 0 && _started && !_paused) {
-    ESP3DOutput output(ESP_SOCKET_SERIAL_CLIENT);
+    ESP3DMessage esp3dmsg(ESP_SOCKET_SERIAL_CLIENT);
     // dispatch command
     esp3d_commands.process(_TXbuffer, _TXbufferSize, &output);
     // refresh timout

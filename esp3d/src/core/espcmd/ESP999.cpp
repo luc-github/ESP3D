@@ -20,7 +20,7 @@
 #include "../../include/esp3d_config.h"
 #include "../../modules/authentication/authentication_service.h"
 #include "../commands.h"
-#include "../esp3doutput.h"
+#include "../esp3d_message.h"
 #include "../settings_esp3d.h"
 
 #if defined(ARDUINO_ARCH_ESP32) &&                             \
@@ -31,7 +31,7 @@
 // Set quiet boot if strapping pin is High
 //[ESP999]QUIETBOOT [pwd=<admin/user password>]
 bool Commands::ESP999(const char* cmd_params, level_authenticate_type auth_type,
-                      ESP3DOutput* output) {
+                      ESP3DMessage* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;

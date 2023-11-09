@@ -19,7 +19,7 @@
 */
 #include "../../include/esp3d_config.h"
 #include "../commands.h"
-#include "../esp3doutput.h"
+#include "../esp3d_message.h"
 #include "../settings_esp3d.h"
 const char* help[] = {
     "[ESP] (id) - display this help",
@@ -305,7 +305,7 @@ const uint cmdlist[] = {0,
 // ESP3D Help
 //[ESP0] or [ESP]<command>
 bool Commands::ESP0(const char* cmd_params, level_authenticate_type auth_type,
-                    ESP3DOutput* output) {
+                    ESP3DMessage* esp3dmsg) {
   bool noError = true;
   String parameter;
   const uint cmdNb = sizeof(help) / sizeof(char*);

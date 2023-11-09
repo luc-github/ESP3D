@@ -57,7 +57,7 @@
 #include "../modules/update/update_service.h"
 #endif  // SD_UPDATE_FEATURE
 #include "../modules/boot_delay/boot_delay.h"
-#include "esp3doutput.h"
+#include "esp3d_message.h"
 
 bool Esp3D::restart = false;
 
@@ -76,7 +76,7 @@ bool Esp3D::begin() {
   Serial2Socket.enable();
 #endif  // COMMUNICATION_PROTOCOL == SOCKET_SERIAL
   // init output
-  ESP3DOutput::isOutput(ESP_ALL_CLIENTS, true);
+  ESP3DMessage::isOutput(ESP_ALL_CLIENTS, true);
   bool res = true;
 #if defined(CONNECTED_DEVICES_FEATURE)
   if (!DevicesServices::begin()) {

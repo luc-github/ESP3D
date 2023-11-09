@@ -153,7 +153,7 @@ uint64_t ESP_GBFS::freeBytes(uint8_t FS) {
 }
 
 // Format is not always available for all FS
-bool format(uint8_t FS, ESP3DOutput *output = nullptr) {
+bool format(uint8_t FS, ESP3DMessage *output = nullptr) {
 #ifdef FILESYSTEM_FEATURE
   if (FS == FS_FLASH) {
     return ESP_FileSystem::format();

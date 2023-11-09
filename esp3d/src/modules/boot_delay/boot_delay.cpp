@@ -20,7 +20,7 @@
 
 #include "boot_delay.h"
 
-#include "../../core/esp3doutput.h"
+#include "../../core/esp3d_message.h"
 #include "../../core/settings_esp3d.h"
 #include "../../include/esp3d_config.h"
 
@@ -45,12 +45,12 @@ bool BootDelay::begin() {
     log_esp3d("Boot delay modified %d", _totalduration);
   }
   _started = true;
-  ESP3DOutput::toScreen(ESP_OUTPUT_PROGRESS, "0");
+  ESP3DMessage::toScreen(ESP_OUTPUT_PROGRESS, "0");
   if (_totalduration > 0) {
     _startdelay = millis();
     handle();
   }
-  ESP3DOutput::toScreen(ESP_OUTPUT_PROGRESS, "100");
+  ESP3DMessage::toScreen(ESP_OUTPUT_PROGRESS, "100");
   log_esp3d("Boot delay done");
   return _started;
 }
@@ -69,7 +69,7 @@ void BootDelay::handle() {
       uint8_t p = (100 * (millis() - _startdelay)) / _totalduration;
       if (p != lastpercent) {
         lastpercent = p;
-        ESP3DOutput::toScreen(ESP_OUTPUT_PROGRESS, String(p).c_str());
+        ESP3DMessage::toScreen(ESP_OUTPUT_PROGRESS, String(p).c_str());
       }
     }
     Hal::wait(10);

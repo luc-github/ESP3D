@@ -20,7 +20,7 @@
 
 #include "../../include/esp3d_config.h"
 #if COMMUNICATION_PROTOCOL == MKS_SERIAL
-#include "../../core/esp3doutput.h"
+#include "../../core/esp3d_message.h"
 #include "../../core/settings_esp3d.h"
 #include "../http/http_server.h"
 #include "../network/netconfig.h"
@@ -179,7 +179,7 @@ bool MKSService::sendFirstFragment(const char *filename, size_t filesize) {
   }
   _uploadStatus = UNKNOW_STATE;
   if (canSendFrame()) {
-    ESP3DOutput output(ESP_SERIAL_CLIENT);
+    ESP3DMessage esp3dmsg(ESP_SERIAL_CLIENT);
     _uploadStatus = UNKNOW_STATE;
     if (output.write(_frame, dataLen + 5) == (dataLen + 5)) {
       log_esp3d("First fragment Ok");
@@ -221,7 +221,7 @@ bool MKSService::sendFragment(const uint8_t *dataFrame, const size_t dataSize,
            log_esp3d("%c %x",_frame[i],_frame[i]);
        }*/
   if (canSendFrame()) {
-    ESP3DOutput output(ESP_SERIAL_CLIENT);
+    ESP3DMessage esp3dmsg(ESP_SERIAL_CLIENT);
     _uploadStatus = UNKNOW_STATE;
     if (output.write(_frame, MKS_FRAME_SIZE) == MKS_FRAME_SIZE) {
       log_esp3d("Ok");
@@ -291,7 +291,7 @@ void MKSService::sendWifiHotspots() {
       log_esp3d("%c %x", _frame[i], _frame[i]);
     }
     if (canSendFrame()) {
-      ESP3DOutput output(ESP_SERIAL_CLIENT);
+      ESP3DMessage esp3dmsg(ESP_SERIAL_CLIENT);
       if (output.write(_frame, dataOffset + 5) == (dataOffset + 5)) {
         log_esp3d("Ok");
         sendFrameDone();
@@ -534,7 +534,7 @@ bool MKSService::sendGcodeFrame(const char *cmd) {
   // }
 
   if (canSendFrame()) {
-    ESP3DOutput output(ESP_SERIAL_CLIENT);
+    ESP3DMessage esp3dmsg(ESP_SERIAL_CLIENT);
     if (output.write(_frame, strlen(tmp.c_str()) + 7) ==
         (strlen(tmp.c_str()) + 7)) {
       log_esp3d("Ok");
@@ -709,7 +709,7 @@ bool MKSService::sendNetworkFrame() {
     _frame[MKS_FRAME_DATALEN_OFFSET + 1] = ((dataOffset - 4) >> 8) & 0xff;
     log_esp3d("Size of data in frame %d ", dataOffset - 4);
     if (canSendFrame()) {
-      ESP3DOutput output(ESP_SERIAL_CLIENT);
+      ESP3DMessage esp3dmsg(ESP_SERIAL_CLIENT);
       if (output.write(_frame, dataOffset + 1) == (dataOffset + 1)) {
         log_esp3d("Ok");
         sendFrameDone();

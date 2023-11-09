@@ -37,7 +37,7 @@
 TaskHandle_t Hal::xHandle = nullptr;
 #endif  // ARDUINO_ARCH_ESP32
 
-#include "esp3doutput.h"
+#include "esp3d_message.h"
 
 uint32_t Hal::_analogRange = 255;
 uint32_t Hal::_analogWriteFreq = 1000;

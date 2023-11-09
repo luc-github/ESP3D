@@ -157,7 +157,7 @@ bool ESP_SD::rename(const char *oldpath, const char *newpath) {
   return SD_MMC.rename(oldpath, newpath);
 }
 
-bool ESP_SD::format(ESP3DOutput *output) {
+bool ESP_SD::format(ESP3DMessage *output) {
   // not available yet
   if (output) {
     output->printERROR("Not implemented!");

@@ -26,7 +26,7 @@
 #include <soc/soc.h>  //not sure this one is needed
 
 #include "../../core/esp3d.h"
-#include "../../core/esp3doutput.h"
+#include "../../core/esp3d_message.h"
 #include "../http/http_server.h"
 #include "camera.h"
 

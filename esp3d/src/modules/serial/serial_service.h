@@ -59,7 +59,7 @@ class SerialService : public Print {
 
  private:
   uint8_t _serialIndex;
-  uint8_t _client;
+  uint8_t _target;
   uint8_t _id;
   int8_t _rxPin;
   int8_t _txPin;

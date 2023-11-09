@@ -149,7 +149,7 @@
 /* Use Web server
  * Enable http server
  */
-#define HTTP_FEATURE
+// #define HTTP_FEATURE
 
 /* Use telnet server
  * Enable telnet light (raw tcp) communications
@@ -163,12 +163,12 @@
 
 // Enable notifications
 // Allows to send notifications to the user
-#define NOTIFICATION_FEATURE
+// #define NOTIFICATION_FEATURE
 
 /* Notification message when online
  * The message that will be sent when the ESP is online
  */
-#define NOTIFICATION_ESP_ONLINE "Hi, %ESP_NAME% is now online at %ESP_IP%"
+// #define NOTIFICATION_ESP_ONLINE "Hi, %ESP_NAME% is now online at %ESP_IP%"
 
 /* Notification title message
  * The title of notification
@@ -186,7 +186,7 @@
 /* Use captive portal
  * Enable captive portal in AP mode
  */
-#define CAPTIVE_PORTAL_FEATURE
+// #define CAPTIVE_PORTAL_FEATURE
 
 /* Use mDNS discovery
  * This method need `bonjour` protocol on windows, or `avahi` on linux
@@ -331,7 +331,7 @@
 /* Enable global filesystem
  * Allows to access to all filesystems from same location
  */
-#define GLOBAL_FILESYSTEM_FEATURE
+// #define GLOBAL_FILESYSTEM_FEATURE
 
 /* WebDav access
  * Use WebDav to access to your filesystem
@@ -339,7 +339,7 @@
  * FS_FLASH       //mount Flash FS
  * FS_SD          mount SD FS
  */
-#define WEBDAV_FEATURE FS_ROOT
+// #define WEBDAV_FEATURE FS_ROOT
 
 /* FTP access
  * Use FTP to access to your filesystem (1 connection only)
@@ -366,7 +366,7 @@
  * The pin used to reset ESP3D setting if set to low for more than 1 second at
  * start
  */
-#define ESP3D_RESET_PIN 0
+// #define ESP3D_RESET_PIN 0
 
 /************************************
  *
@@ -384,7 +384,7 @@
 /* Enable Web Update
  * Update firmware using WebUI, need 4MB of flash
  */
-#define WEB_UPDATE_FEATURE
+// #define WEB_UPDATE_FEATURE
 
 /* Enable SD card Update
  * Update firmware and settings using file on SDCard
@@ -402,7 +402,7 @@
 /* Printer screen
  *  If your printer has a display
  */
-#define PRINTER_HAS_DISPLAY
+// #define PRINTER_HAS_DISPLAY
 
 /* ESP3D screen
  * Screen connected to ESP board
@@ -540,7 +540,7 @@
 /* Enable direct control pin
  * Controls pins using [ESP201]
  */
-#define DIRECT_PIN_FEATURE
+// #define DIRECT_PIN_FEATURE
 
 /************************************
  *

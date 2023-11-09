@@ -22,7 +22,7 @@
 #define STRINGIFY(x) #x
 #define STRING(x) STRINGIFY(x)
 #if defined(ESP_SAVE_SETTINGS)
-#include "esp3doutput.h"
+#include "esp3d_message.h"
 #include "settings_esp3d.h"
 
 #if ESP_SAVE_SETTINGS == SETTINGS_IN_EEPROM

@@ -22,7 +22,7 @@
 #if COMMUNICATION_PROTOCOL == MKS_SERIAL || \
     COMMUNICATION_PROTOCOL == RAW_SERIAL || defined(ESP_SERIAL_BRIDGE_OUTPUT)
 #include "../../core/commands.h"
-#include "../../core/esp3doutput.h"
+#include "../../core/esp3d_message.h"
 #include "../../core/settings_esp3d.h"
 #include "serial_service.h"
 
@@ -79,19 +79,19 @@ SerialService::SerialService(uint8_t id) {
     case MAIN_SERIAL:
       _rxPin = ESP_RX_PIN;
       _txPin = ESP_TX_PIN;
-      _client = ESP_SERIAL_CLIENT;
+      _target = ESP_SERIAL_CLIENT;
       break;
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
     case BRIDGE_SERIAL:
       _rxPin = ESP_BRIDGE_RX_PIN;
       _txPin = ESP_BRIDGE_TX_PIN;
-      _client = ESP_SERIAL_BRIDGE_CLIENT;
+      _target = ESP_SERIAL_BRIDGE_CLIENT;
       break;
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
     default:
       _rxPin = ESP_RX_PIN;
       _txPin = ESP_TX_PIN;
-      _client = ESP_SERIAL_CLIENT;
+      _target = ESP_SERIAL_CLIENT;
       break;
   }
 }
@@ -260,11 +260,11 @@ void SerialService::handle() {
 }
 
 void SerialService::flushbuffer() {
-  ESP3DOutput output(_client);
+  ESP3DMessage esp3dmsg(ESP_ALL_CLIENTS, _target);
   _buffer[_buffer_size] = 0x0;
   // dispatch command
   if (_started) {
-    esp3d_commands.process(_buffer, _buffer_size, &output,
+    esp3d_commands.process(_buffer, _buffer_size, &esp3dmsg,
                            _needauthentication ? LEVEL_GUEST : LEVEL_ADMIN);
   }
   _lastflush = millis();

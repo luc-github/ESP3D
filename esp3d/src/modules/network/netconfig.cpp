@@ -40,7 +40,7 @@
 #if defined(BLUETOOTH_FEATURE)
 #include "../bluetooth/BT_service.h"
 #endif  // BLUETOOTH_FEATURE
-#include "../../core/esp3doutput.h"
+#include "../../core/esp3d_message.h"
 #include "../../core/settings_esp3d.h"
 #include "netservices.h"
 
@@ -126,7 +126,7 @@ String NetConfig::localIP() {
 
 // wifi event
 void NetConfig::onWiFiEvent(WiFiEvent_t event) {
-  ESP3DOutput output(ESP_ALL_CLIENTS);
+  ESP3DMessage esp3dmsg(ESP_ALL_CLIENTS);
   switch (event) {
     case WIFI_EVENT_STAMODE_CONNECTED:
       _needReconnect2AP = false;
@@ -192,7 +192,7 @@ bool NetConfig::begin() {
   // clear everything
   end();
   int8_t espMode = Settings_ESP3D::read_byte(ESP_RADIO_MODE);
-  ESP3DOutput output(ESP_ALL_CLIENTS);
+  ESP3DMessage esp3dmsg(ESP_ALL_CLIENTS);
   log_esp3d("Starting Network");
   if (espMode != ESP_NO_NETWORK) {
     if (Settings_ESP3D::isVerboseBoot()) {
@@ -219,9 +219,9 @@ bool NetConfig::begin() {
   if (espMode == ESP_NO_NETWORK) {
     output.printMSG("Disable Network");
     WiFi.mode(WIFI_OFF);
-    ESP3DOutput::toScreen(ESP_OUTPUT_IP_ADDRESS, nullptr);
+    ESP3DMessage::toScreen(ESP_OUTPUT_IP_ADDRESS, nullptr);
     if (Settings_ESP3D::isVerboseBoot()) {
-      ESP3DOutput output(ESP_ALL_CLIENTS);
+      ESP3DMessage esp3dmsg(ESP_ALL_CLIENTS);
       output.printMSG(RADIO_OFF_MSG);
       output.flush();
     }
@@ -251,7 +251,7 @@ bool NetConfig::begin() {
   if (espMode == ESP_BT) {
     WiFi.mode(WIFI_OFF);
     String msg = "BT On";
-    ESP3DOutput::toScreen(ESP_OUTPUT_STATUS, msg.c_str());
+    ESP3DMessage::toScreen(ESP_OUTPUT_STATUS, msg.c_str());
     res = bt_service.begin();
   }
 #else
@@ -264,9 +264,9 @@ bool NetConfig::begin() {
   if (espMode == ESP_NO_NETWORK) {
     output.printMSG("Disable Network");
     WiFi.mode(WIFI_OFF);
-    ESP3DOutput::toScreen(ESP_OUTPUT_IP_ADDRESS, nullptr);
+    ESP3DMessage::toScreen(ESP_OUTPUT_IP_ADDRESS, nullptr);
     if (Settings_ESP3D::isVerboseBoot()) {
-      ESP3DOutput output(ESP_ALL_CLIENTS);
+      ESP3DMessage esp3dmsg(ESP_ALL_CLIENTS);
       output.printMSG(RADIO_OFF_MSG);
       output.flush();
     }
@@ -307,7 +307,7 @@ bool NetConfig::begin() {
     end();
     log_esp3d_e("Network config failed");
   }
-  ESP3DOutput::toScreen(ESP_OUTPUT_IP_ADDRESS, nullptr);
+  ESP3DMessage::toScreen(ESP_OUTPUT_IP_ADDRESS, nullptr);
   return res;
 }
 

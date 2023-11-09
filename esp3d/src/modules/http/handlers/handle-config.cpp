@@ -18,30 +18,32 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "../../../include/esp3d_config.h"
-#if defined (HTTP_FEATURE)
+#if defined(HTTP_FEATURE)
 #include "../http_server.h"
-#if defined (ARDUINO_ARCH_ESP32)
+#if defined(ARDUINO_ARCH_ESP32)
 #include <WebServer.h>
-#endif //ARDUINO_ARCH_ESP32
-#if defined (ARDUINO_ARCH_ESP8266)
+#endif  // ARDUINO_ARCH_ESP32
+#if defined(ARDUINO_ARCH_ESP8266)
 #include <ESP8266WebServer.h>
-#endif //ARDUINO_ARCH_ESP8266
-#include "../../authentication/authentication_service.h"
+#endif  // ARDUINO_ARCH_ESP8266
 #include "../../../core/commands.h"
-#include "../../../core/esp3doutput.h"
+#include "../../../core/esp3d_message.h"
+#include "../../authentication/authentication_service.h"
 
-//Handle web command query [ESP420]plain and send answer//////////////////////////////
-void HTTP_Server::handle_config ()
-{
-    level_authenticate_type auth_level = AuthenticationService::authenticated_level();
-    String cmd = "[ESP420]";
-    if (_webserver->hasArg("json")) {
-        cmd = "[ESP420]json="+_webserver->arg("json");
-    }
-    ESP3DOutput  output(_webserver);
-    output.printMSGLine("<pre>");
-    esp3d_commands.process((uint8_t*)cmd.c_str(), cmd.length(), &output, auth_level);
-    output.printMSGLine("</pre>");
-    return;
+// Handle web command query [ESP420]plain and send
+// answer//////////////////////////////
+void HTTP_Server::handle_config() {
+  level_authenticate_type auth_level =
+      AuthenticationService::authenticated_level();
+  String cmd = "[ESP420]";
+  if (_webserver->hasArg("json")) {
+    cmd = "[ESP420]json=" + _webserver->arg("json");
+  }
+  ESP3DMessage esp3dmsg(_webserver);
+  output.printMSGLine("<pre>");
+  esp3d_commands.process((uint8_t*)cmd.c_str(), cmd.length(), &output,
+                         auth_level);
+  output.printMSGLine("</pre>");
+  return;
 }
-#endif //HTTP_FEATURE
+#endif  // HTTP_FEATURE

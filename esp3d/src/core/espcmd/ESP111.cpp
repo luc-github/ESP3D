@@ -23,15 +23,15 @@
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/network/netconfig.h"
 #include "../commands.h"
-#include "../esp3doutput.h"
+#include "../esp3d_message.h"
 #include "../settings_esp3d.h"
 
 #define COMMANDID 111
 // Get current IP
 //[ESP111] [json=no]
 bool Commands::ESP111(const char* cmd_params, level_authenticate_type auth_type,
-                      ESP3DOutput* output) {
-  log_esp3d("Client is %d", output ? output->client() : 0);
+                      ESP3DMessage* esp3dmsg) {
+  log_esp3d("Client is %d", output ? output->getTarget() : 0);
   (void)auth_type;
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
@@ -54,7 +54,8 @@ bool Commands::ESP111(const char* cmd_params, level_authenticate_type auth_type,
     } else {
       output->printMSG(response.c_str());
       if (parameter == "PRINTER") {
-        ESP3DOutput printerOutput(ESP_REMOTE_SCREEN_CLIENT);
+        ESP3DMessage printerOutput(ESP_REMOTE_SCREEN_CLIENT,
+                                   output->getOrigin());
         printerOutput.printMSG(NetConfig::localIP().c_str());
       }
     }

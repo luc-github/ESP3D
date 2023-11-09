@@ -22,7 +22,7 @@
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/camera/camera.h"
 #include "../commands.h"
-#include "../esp3doutput.h"
+#include "../esp3d_message.h"
 #include "../settings_esp3d.h"
 #include "esp_camera.h"
 
@@ -34,7 +34,7 @@
 //              /awb/agc/aec/hmirror/vflip/awb_gain/agc_gain/aec_value/aec2/cw/bpc/wpc
 //              /raw_gma/lenc/special_effect/wb_mode/ae_level
 bool Commands::ESP170(const char* cmd_params, level_authenticate_type auth_type,
-                      ESP3DOutput* output) {
+                      ESP3DMessage* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;

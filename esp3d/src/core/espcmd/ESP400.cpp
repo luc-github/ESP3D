@@ -19,7 +19,7 @@
 */
 #include "../../include/esp3d_config.h"
 #include "../commands.h"
-#include "../esp3doutput.h"
+#include "../esp3d_message.h"
 #include "../settings_esp3d.h"
 #if COMMUNICATION_PROTOCOL != SOCKET_SERIAL
 #include "../../modules/serial/serial_service.h"
@@ -164,7 +164,7 @@ const uint8_t SupportedSPIDividerStrSize =
 // Get full ESP3D settings
 //[ESP400]<pwd=admin>
 bool Commands::ESP400(const char* cmd_params, level_authenticate_type auth_type,
-                      ESP3DOutput* output) {
+                      ESP3DMessage* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;

@@ -21,7 +21,7 @@
 #if defined(DIRECT_PIN_FEATURE)
 #include "../../modules/authentication/authentication_service.h"
 #include "../commands.h"
-#include "../esp3doutput.h"
+#include "../esp3d_message.h"
 #include "../hal.h"
 #include "../settings_esp3d.h"
 
@@ -31,7 +31,7 @@
 // ANALOG_RANGE=255]pwd=<admin password> Range can be 255 / 1024 / 2047 / 4095 /
 // 8191
 bool Commands::ESP201(const char* cmd_params, level_authenticate_type auth_type,
-                      ESP3DOutput* output) {
+                      ESP3DMessage* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;

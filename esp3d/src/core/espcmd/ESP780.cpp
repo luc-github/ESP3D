@@ -22,7 +22,7 @@
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/filesystem/esp_globalFS.h"
 #include "../commands.h"
-#include "../esp3doutput.h"
+#include "../esp3d_message.h"
 #include "../settings_esp3d.h"
 
 #if defined(SD_TIMESTAMP_FEATURE) || defined(FILESYSTEM_TIMESTAMP_FEATURE)
@@ -32,7 +32,7 @@
 // List Global Filesystem
 //[ESP780]<Root> json=<no> pwd=<admin password>
 bool Commands::ESP780(const char* cmd_params, level_authenticate_type auth_type,
-                      ESP3DOutput* output) {
+                      ESP3DMessage* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;

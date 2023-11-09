@@ -22,7 +22,7 @@
 
 #include "../include/esp3d_config.h"
 #include "esp3d.h"
-#include "esp3doutput.h"
+#include "esp3d_message.h"
 #include "settings_esp3d.h"
 
 #if COMMUNICATION_PROTOCOL == MKS_SERIAL
@@ -36,13 +36,13 @@ Commands::Commands() {}
 Commands::~Commands() {}
 
 // dispatch the command
-void Commands::process(uint8_t *sbuf, size_t len, ESP3DOutput *output,
-                       level_authenticate_type auth, ESP3DOutput *outputonly,
+void Commands::process(uint8_t *sbuf, size_t len, ESP3DMessage *output,
+                       level_authenticate_type auth, ESP3DMessage *outputonly,
                        uint8_t outputignore) {
   static bool lastIsESP3D = false;
   log_esp3d("Client is %d, has only %d, has ignore %d",
-            output ? output->client() : 0,
-            outputonly ? outputonly->client() : 0, outputignore);
+            output ? output->getTarget() : 0,
+            outputonly ? outputonly->getTarget() : 0, outputignore);
   if (is_esp_command(sbuf, len)) {
     lastIsESP3D = true;
     size_t slen = len;
@@ -60,8 +60,8 @@ void Commands::process(uint8_t *sbuf, size_t len, ESP3DOutput *output,
     cmd[3] = 0x0;
     log_esp3d("It is ESP command %s", cmd);
     log_esp3d("Respond to client  %d", (outputonly == nullptr)
-                                           ? output->client()
-                                           : outputonly->client());
+                                           ? output->getTarget()
+                                           : outputonly->getTarget());
     execute_internal_command(
         String((const char *)cmd).toInt(),
         (slen > (strlen((const char *)cmd) + 5))
@@ -80,7 +80,7 @@ void Commands::process(uint8_t *sbuf, size_t len, ESP3DOutput *output,
 #if defined(HTTP_FEATURE)
     // the web command will never get answer as answer go to websocket
     // This is sanity check as the http client should already answered
-    if (output->client() == ESP_HTTP_CLIENT && !output->footerSent()) {
+    if (output->getTarget() == ESP_HTTP_CLIENT && !output->footerSent()) {
       if (auth != LEVEL_GUEST) {
         output->printMSG("");
       } else {
@@ -90,13 +90,13 @@ void Commands::process(uint8_t *sbuf, size_t len, ESP3DOutput *output,
     }
 #endif  // HTTP_FEATURE
     if (outputonly == nullptr) {
-      log_esp3d("Dispatch from %d, but %d", output->client(), outputignore);
+      log_esp3d("Dispatch from %d, but %d", output->getTarget(), outputignore);
       output->dispatch(sbuf, len, outputignore);
     } else {
-      log_esp3d("Dispatch from %d to only  %d", output->client(),
-                outputonly->client());
+      log_esp3d("Dispatch from %d to only  %d", output->getTarget(),
+                outputonly->getTarget());
 #if COMMUNICATION_PROTOCOL == MKS_SERIAL
-      if (outputonly->client() == ESP_SERIAL_CLIENT) {
+      if (outputonly->getTarget() == ESP_SERIAL_CLIENT) {
         MKSService::sendGcodeFrame((const char *)sbuf);
       } else {
         outputonly->write(sbuf, len);
@@ -349,9 +349,9 @@ bool Commands::has_tag(const char *cmd_params, const char *tag) {
 // execute internal command
 bool Commands::execute_internal_command(int cmd, const char *cmd_params,
                                         level_authenticate_type auth_level,
-                                        ESP3DOutput *output) {
+                                        ESP3DMessage *output) {
 #ifndef SERIAL_COMMAND_FEATURE
-  if (output->client() == ESP_SERIAL_CLIENT) {
+  if (output->getTarget() == ESP_SERIAL_CLIENT) {
     output->printMSG("Feature disabled");
     return false;
   }
@@ -814,7 +814,7 @@ bool Commands::_dispatchSetting(
     bool json, const char *filter, ESP3DSettingIndex index, const char *help,
     const char **optionValues, const char **optionLabels, uint32_t maxsize,
     uint32_t minsize, uint32_t minsize2, uint8_t precision, const char *unit,
-    bool needRestart, ESP3DOutput *output, bool isFirst) {
+    bool needRestart, ESP3DMessage *output, bool isFirst) {
   String tmpstr;
   String value;
   char out_str[255];

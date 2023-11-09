@@ -22,14 +22,14 @@
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/serial/serial_service.h"
 #include "../commands.h"
-#include "../esp3doutput.h"
+#include "../esp3d_message.h"
 #include "../settings_esp3d.h"
 
 #define COMMANDID 931
 // Set Serial bridge baudrate
 //[ESP931]<baude rate> json=<no> pwd=<admin password>
 bool Commands::ESP931(const char* cmd_params, level_authenticate_type auth_type,
-                      ESP3DOutput* output) {
+                      ESP3DMessage* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;
@@ -64,11 +64,11 @@ bool Commands::ESP931(const char* cmd_params, level_authenticate_type auth_type,
 #endif  // AUTHENTICATION_FEATURE
       if (noError) {
         uint ibuf = parameter.toInt();
-        if (Settings_ESP3D.isValidIntegerSetting(ibuf, ESP_SERIAL_BRIDGE_BAUD)) {
+        if (Settings_ESP3D.isValidIntegerSetting(ibuf,
+                                                 ESP_SERIAL_BRIDGE_BAUD)) {
           response = format_response(COMMANDID, json, false, "Incorrect port");
           noError = false;
-          }
-        else {
+        } else {
           if (!Settings_ESP3D::write_uint32(ESP_SERIAL_BRIDGE_BAUD, ibuf)) {
             response = format_response(COMMANDID, json, false, "Set failed");
             noError = false;

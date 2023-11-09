@@ -22,7 +22,7 @@
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/mDNS/mDNS.h"
 #include "../commands.h"
-#include "../esp3doutput.h"
+#include "../esp3d_message.h"
 #include "../settings_esp3d.h"
 
 // Get available ESP3D list
@@ -30,7 +30,7 @@
 //[ESP4\50]json=<no>
 #define COMMANDID 450
 bool Commands::ESP450(const char* cmd_params, level_authenticate_type auth_type,
-                      ESP3DOutput* output) {
+                      ESP3DMessage* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;
@@ -74,7 +74,7 @@ bool Commands::ESP450(const char* cmd_params, level_authenticate_type auth_type,
         }
         if (json) {
           line += "{\"Hostname\":\"";
-          line += ESP3DOutput::encodeString(esp3d_mDNS.answerHostname(i));
+          line += ESP3DMessage::encodeString(esp3d_mDNS.answerHostname(i));
         } else {
           line += esp3d_mDNS.answerHostname(i);
         }

@@ -25,7 +25,7 @@
 #include <WebSocketsServer.h>
 
 #include "../../core/commands.h"
-#include "../../core/esp3doutput.h"
+#include "../../core/esp3d_message.h"
 #include "../../core/settings_esp3d.h"
 #include "../authentication/authentication_service.h"
 #include "websocket_server.h"
@@ -285,7 +285,7 @@ void WebSocket_Server::flushRXbuffer() {
     _RXbufferSize = 0;
     return;
   }
-  ESP3DOutput output(ESP_WEBSOCKET_CLIENT);
+  ESP3DMessage esp3dmsg(ESP_WEBSOCKET_CLIENT);
   _RXbuffer[_RXbufferSize] = 0x0;
   // dispatch command
   esp3d_commands.process(_RXbuffer, _RXbufferSize, &output);

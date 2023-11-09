@@ -22,14 +22,14 @@
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/filesystem/esp_sd.h"
 #include "../commands.h"
-#include "../esp3doutput.h"
+#include "../esp3d_message.h"
 #include "../settings_esp3d.h"
 
 #define COMMANDID 202
 // Get/Set SD card Speed factor 1 2 4 6 8 16 32
 //[ESP202]SPEED=<value> json=<no> pwd=<user/admin password>
 bool Commands::ESP202(const char* cmd_params, level_authenticate_type auth_type,
-                      ESP3DOutput* output) {
+                      ESP3DMessage* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;

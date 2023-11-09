@@ -20,7 +20,7 @@
 
 #include "../../include/esp3d_config.h"
 #ifdef SENSOR_DEVICE
-#include "../../core/esp3doutput.h"
+#include "../../core/esp3d_message.h"
 #include "../../core/settings_esp3d.h"
 #include "sensor.h"
 

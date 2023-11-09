@@ -27,10 +27,9 @@
 #include <ESP8266WebServer.h>
 #endif  // ARDUINO_ARCH_ESP8266
 #include "../../../core/commands.h"
-#include "../../../core/esp3doutput.h"
+#include "../../../core/esp3d_message.h"
 #include "../../../core/settings_esp3d.h"
 #include "../../authentication/authentication_service.h"
-
 
 const unsigned char realTimeCommands[] = {
     '!',  '~',  '?',  0x18, 0x84, 0x85, 0x90, 0x92, 0x93, 0x94, 0x95,
@@ -56,7 +55,7 @@ void HTTP_Server::handle_web_command() {
   String cmd = "";
   if (_webserver->hasArg("cmd")) {
     cmd = _webserver->arg("cmd");
-    ESP3DOutput output(_webserver);
+    ESP3DMessage esp3dmsg(_webserver);
     if (!cmd.endsWith("\n")) {
       if (Settings_ESP3D::GetFirmwareTarget() == GRBL) {
         uint len = cmd.length();
@@ -80,10 +79,10 @@ void HTTP_Server::handle_web_command() {
                              auth_level);
     } else {
 #if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
-      ESP3DOutput outputOnly(ESP_SOCKET_SERIAL_CLIENT);
+      ESP3DMessage esp3dmsgOnly(ESP_SOCKET_SERIAL_CLIENT);
 #endif  // COMMUNICATION_PROTOCOL
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
-      ESP3DOutput outputOnly(ESP_SERIAL_CLIENT);
+      ESP3DMessage esp3dmsgOnly(ESP_SERIAL_CLIENT);
 #endif  // COMMUNICATION_PROTOCOL == SOCKET_SERIAL
       _webserver->sendHeader("Cache-Control", "no-cache");
       HTTP_Server::set_http_headers();

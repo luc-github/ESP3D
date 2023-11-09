@@ -24,10 +24,9 @@
 #include <BMx280I2C.h>
 #include <Wire.h>
 
-#include "../../core/esp3doutput.h"
+#include "../../core/esp3d_message.h"
 #include "../../core/settings_esp3d.h"
 #include "bmx280.h"
-
 
 #define NB_TYPE_SENSOR 2
 const char *SENSOR_NAME[NB_TYPE_SENSOR] = {"BMP280", "BME280"};

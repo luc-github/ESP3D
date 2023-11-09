@@ -20,7 +20,7 @@
 
 #include "../../include/esp3d_config.h"
 #ifdef CONNECTED_DEVICES_FEATURE
-#include "../../core/esp3doutput.h"
+#include "../../core/esp3d_message.h"
 #include "../../core/settings_esp3d.h"
 #include "devices_services.h"
 

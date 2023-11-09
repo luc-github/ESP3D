@@ -22,14 +22,14 @@
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/ftp/FtpServer.h"
 #include "../commands.h"
-#include "../esp3doutput.h"
+#include "../esp3d_message.h"
 #include "../settings_esp3d.h"
 
 #define COMMANDID 180
 // Set ftp state which can be ON, OFF, CLOSE
 //[ESP180]<state> json=<no> pwd=<admin password>
 bool Commands::ESP180(const char* cmd_params, level_authenticate_type auth_type,
-                      ESP3DOutput* output) {
+                      ESP3DMessage* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;

@@ -21,7 +21,7 @@
 #if defined(FTP_FEATURE)
 #include "../../modules/authentication/authentication_service.h"
 #include "../commands.h"
-#include "../esp3doutput.h"
+#include "../esp3d_message.h"
 #include "../settings_esp3d.h"
 
 #define COMMANDID 181
@@ -29,7 +29,7 @@
 //[ESP181]ctrl=<port> active=<port> passive=<port> json=<no> pwd=<admin
 // password>
 bool Commands::ESP181(const char* cmd_params, level_authenticate_type auth_type,
-                      ESP3DOutput* output) {
+                      ESP3DMessage* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;
@@ -106,8 +106,8 @@ bool Commands::ESP181(const char* cmd_params, level_authenticate_type auth_type,
           if (parameter.length() > 0) {
             ibuf = parameter.toInt();
             hasParam = true;
-            if (!Settings_ESP3D::isValidIntegerSetting(ibuf,
-                                                       ESP_FTP_DATA_ACTIVE_PORT)) {
+            if (!Settings_ESP3D::isValidIntegerSetting(
+                    ibuf, ESP_FTP_DATA_ACTIVE_PORT)) {
               response = format_response(COMMANDID, json, false,
                                          "Incorrect active port");
               noError = false;

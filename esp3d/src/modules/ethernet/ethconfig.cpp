@@ -27,7 +27,7 @@
 #endif  // ARDUINO_ARCH_ESP32
 #ifdef ARDUINO_ARCH_ESP8266
 #endif  // ARDUINO_ARCH_ESP8266
-#include "../../core/esp3doutput.h"
+#include "../../core/esp3d_message.h"
 #include "../../core/settings_esp3d.h"
 #include "../network/netconfig.h"
 #include "ethconfig.h"
@@ -92,7 +92,7 @@ bool EthConfig::linkUp() {
  */
 bool EthConfig::begin(int8_t& espMode) {
   bool res = false;
-  ESP3DOutput output(ESP_ALL_CLIENTS);
+  ESP3DMessage esp3dmsg(ESP_ALL_CLIENTS);
   end();
   _started = ETH.begin();
   if (_started) {

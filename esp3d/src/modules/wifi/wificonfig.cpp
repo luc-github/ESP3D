@@ -25,7 +25,7 @@
 #endif  // ARDUINO_ARCH_ESP32
 #ifdef ARDUINO_ARCH_ESP8266
 #endif  // ARDUINO_ARCH_ESP8266
-#include "../../core/esp3doutput.h"
+#include "../../core/esp3d_message.h"
 #include "../../core/settings_esp3d.h"
 #include "../network/netconfig.h"
 #include "../wifi/wificonfig.h"
@@ -80,7 +80,7 @@ bool WiFiConfig::ConnectSTA2AP() {
   uint8_t count = 0;
   uint8_t dot = 0;
   wl_status_t status = WiFi.status();
-  ESP3DOutput output(ESP_ALL_CLIENTS);
+  ESP3DMessage esp3dmsg(ESP_ALL_CLIENTS);
   log_esp3d("Connecting");
 #if COMMUNICATION_PROTOCOL != MKS_SERIAL
   if (!Settings_ESP3D::isVerboseBoot()) {
@@ -149,7 +149,7 @@ bool WiFiConfig::StartSTA() {
     IPAddress ip(IP), mask(MK), gateway(GW), dns(DNS);
     WiFi.config(ip, gateway, mask, dns);
   }
-  ESP3DOutput output(ESP_ALL_CLIENTS);
+  ESP3DMessage esp3dmsg(ESP_ALL_CLIENTS);
   if (Settings_ESP3D::isVerboseBoot()) {
     String stmp;
     stmp = "Connecting to '" + SSID + "'";
@@ -178,7 +178,7 @@ bool WiFiConfig::StartSTA() {
  */
 
 bool WiFiConfig::StartAP(bool setupMode) {
-  ESP3DOutput output(ESP_ALL_CLIENTS);
+  ESP3DMessage esp3dmsg(ESP_ALL_CLIENTS);
   // Sanity check
   if ((WiFi.getMode() == WIFI_STA) || (WiFi.getMode() == WIFI_AP_STA)) {
     if (WiFi.isConnected()) {
@@ -263,7 +263,7 @@ bool WiFiConfig::begin(int8_t& espMode) {
   bool res = false;
   end();
   log_esp3d("Starting Wifi Config");
-  ESP3DOutput output(ESP_ALL_CLIENTS);
+  ESP3DMessage esp3dmsg(ESP_ALL_CLIENTS);
   if (Settings_ESP3D::isVerboseBoot()) {
     output.printMSG("Starting WiFi");
   }
