@@ -27,6 +27,7 @@
 
 #include "../../core/esp3d.h"
 #include "../../core/esp3doutput.h"
+#include "../http/http_server.h"
 #include "camera.h"
 
 #if defined(SD_DEVICE)
