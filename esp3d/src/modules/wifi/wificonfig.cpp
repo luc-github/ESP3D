@@ -30,26 +30,7 @@
 #include "../network/netconfig.h"
 #include "../wifi/wificonfig.h"
 
-
 const uint8_t DEFAULT_AP_MASK_VALUE[] = {255, 255, 255, 0};
-
-/**
- * Check if SSID string is valid
- */
-bool WiFiConfig::isSSIDValid(const char* ssid) {
-  // limited size
-  // char c;
-  if (strlen(ssid) > MAX_SSID_LENGTH || strlen(ssid) < MIN_SSID_LENGTH) {
-    return false;
-  }
-  // only printable
-  for (uint i = 0; i < strlen(ssid); i++) {
-    if (!isPrintable(ssid[i])) {
-      return false;
-    }
-  }
-  return true;
-}
 
 const char* WiFiConfig::hostname() {
   static String tmp;
@@ -71,22 +52,6 @@ const char* WiFiConfig::hostname() {
   }
 #endif  // ARDUINO_ARCH_ESP8266
   return tmp.c_str();
-}
-
-/**
- * Check if password string is valid
- */
-
-bool WiFiConfig::isPasswordValid(const char* password) {
-  if (strlen(password) == 0) {
-    return true;  // open network
-  }
-  // limited size
-  if ((strlen(password) > MAX_PASSWORD_LENGTH) ||
-      (strlen(password) < MIN_PASSWORD_LENGTH)) {
-    return false;
-  }
-  return true;
 }
 
 /*

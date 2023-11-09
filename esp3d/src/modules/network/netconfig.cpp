@@ -81,30 +81,6 @@ String NetConfig::IP_string_from_int(uint32_t ip_int) {
 }
 
 /**
- * Check if Hostname string is valid
- */
-
-bool NetConfig::isHostnameValid(const char* hostname) {
-  // limited size
-  char c;
-  if (strlen(hostname) > MAX_HOSTNAME_LENGTH ||
-      strlen(hostname) < MIN_HOSTNAME_LENGTH) {
-    return false;
-  }
-  // only letter and digit
-  for (uint i = 0; i < strlen(hostname); i++) {
-    c = hostname[i];
-    if (!(isdigit(c) || isalpha(c) || c == '-')) {
-      return false;
-    }
-    if (c == ' ') {
-      return false;
-    }
-  }
-  return true;
-}
-
-/**
  * Get IP Integer what ever is enabled
  */
 IPAddress NetConfig::localIPAddress() {
@@ -146,15 +122,6 @@ String NetConfig::localIP() {
     currentIP = "0.0.0.0";
   }
   return currentIP;
-}
-
-/**
- * Check if IP string is valid
- */
-
-bool NetConfig::isValidIP(const char* string) {
-  IPAddress ip;
-  return ip.fromString(string);
 }
 
 // wifi event

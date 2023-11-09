@@ -104,7 +104,7 @@ void WebdavServer::handler_get(const char* url) {
     }
   } else {
     code = 400;
-    log_esp3d_e("Root cannot be deleted");
+    log_esp3d_e("Root cannot be used as it is");
   }
   if (code != 200) {
     log_esp3d_e("Sending response code %d", code);

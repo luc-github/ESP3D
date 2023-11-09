@@ -22,6 +22,7 @@
 #define _TIME_SERVICE_H
 
 #include <time.h>
+#include <Arduino.h>
 
 class TimeService {
  public:

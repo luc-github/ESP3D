@@ -48,17 +48,17 @@
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || \
     COMMUNICATION_PROTOCOL == MKS_SERIAL || \
     COMMUNICATION_PROTOCOL == SOCKET_SERIAL
-uint8_t ESP3DOutput::_serialoutputflags = DEFAULT_SERIAL_OUTPUT_FLAG;
+uint8_t ESP3DOutput::_serialoutputflags = 0;
 #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
         // MKS_SERIAL || COMMUNICATION_PROTOCOL == SOCKET_SERIAL
 #if defined(HAS_DISPLAY) || defined(HAS_SERIAL_DISPLAY)
-uint8_t ESP3DOutput::_remotescreenoutputflags = DEFAULT_REMOTE_SCREEN_FLAG;
+uint8_t ESP3DOutput::_remotescreenoutputflags = 0;
 #endif  // HAS_DISPLAY || HAS_SERIAL_DISPLAY
 #if defined(WS_DATA_FEATURE)
 uint8_t ESP3DOutput::_websocketoutputflags = DEFAULT_WEBSOCKET_FLAG;
 #endif  // WS_DATA_FEATURE
 #if defined(TELNET_FEATURE)
-uint8_t ESP3DOutput::_telnetoutputflags = DEFAULT_TELNET_FLAG;
+uint8_t ESP3DOutput::_telnetoutputflags = 0;
 #endif  // TELNET_FEATURE
 #if defined(DISPLAY_DEVICE)
 uint8_t ESP3DOutput::_screenoutputflags = DEFAULT_SCREEN_FLAG;

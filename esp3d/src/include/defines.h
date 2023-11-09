@@ -36,14 +36,7 @@
 #define GRBLHAL 80
 #define HP_GL 90
 
-// Default flags
-#define DEFAULT_SERIAL_OUTPUT_FLAG 1
-#define DEFAULT_REMOTE_SCREEN_FLAG 1
-#define DEFAULT_WEBSOCKET_FLAG 1
-#define DEFAULT_TELNET_FLAG 1
-#define DEFAULT_BT_FLAG 1
-#define DEFAULT_SCREEN_FLAG 1
-#define DEFAULT_SERIAL_BRIDGE_FLAG 1
+typedef uint ESP3DSettingIndex;
 
 // position in EEPROM / preferences will use `P_` + <position> to make a string
 // : P_0 for 0

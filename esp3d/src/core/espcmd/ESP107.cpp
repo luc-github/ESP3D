@@ -65,7 +65,8 @@ bool Commands::ESP107(const char* cmd_params, level_authenticate_type auth_type,
       }
 #endif  // AUTHENTICATION_FEATURE
       if (noError) {
-        if (!NetConfig::isValidIP(parameter.c_str())) {
+        if (!Settings_ESP3D::isValidIPStringSetting(parameter.c_str(),
+                                                    ESP_AP_IP_VALUE)) {
           response = format_response(COMMANDID, json, false, "Incorrect IP");
           noError = false;
         }

@@ -30,7 +30,6 @@
 #include "../../../core/settings_esp3d.h"
 #include "../../authentication/authentication_service.h"
 
-
 // login status check
 void HTTP_Server::handle_login() {
   HTTP_Server::set_http_headers();
@@ -67,7 +66,8 @@ void HTTP_Server::handle_login() {
         if (_webserver->hasArg("NEWPASSWORD")) {
           String newpassword = _webserver->arg("NEWPASSWORD");
           // check new password
-          if (Settings_ESP3D::isLocalPasswordValid(newpassword.c_str())) {
+          if (Settings_ESP3D::isValidStringSetting(newpassword.c_str(),
+                                                   ESP_ADMIN_PWD)) {
             if (!Settings_ESP3D::write_string(ESP_ADMIN_PWD,
                                               newpassword.c_str())) {
               code = 500;

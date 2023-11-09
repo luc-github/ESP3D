@@ -63,7 +63,8 @@ bool Commands::ESP112(const char* cmd_params, level_authenticate_type auth_type,
       }
 #endif  // AUTHENTICATION_FEATURE
       if (noError) {
-        if (!NetConfig::isHostnameValid(parameter.c_str())) {
+        if (!Settings_ESP3D::isValidStringSetting(parameter.c_str(),
+                                                  ESP_HOSTNAME)) {
           response =
               format_response(COMMANDID, json, false, "Incorrect hostname");
           noError = false;

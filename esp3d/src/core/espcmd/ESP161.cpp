@@ -63,8 +63,7 @@ bool Commands::ESP161(const char* cmd_params, level_authenticate_type auth_type,
 #endif  // AUTHENTICATION_FEATURE
       if (noError) {
         uint ibuf = parameter.toInt();
-        if ((ibuf > Settings_ESP3D::get_max_int32_value(ESP_WEBSOCKET_PORT)) ||
-            (ibuf < Settings_ESP3D::get_min_int32_value(ESP_WEBSOCKET_PORT))) {
+        if !(Settings_ESP3D::isValidIntegerSetting(ibuf, ESP_WEBSOCKET_PORT)) {
           response = format_response(COMMANDID, json, false, "Incorrect port");
           noError = false;
         } else {

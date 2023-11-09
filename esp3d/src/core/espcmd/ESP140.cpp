@@ -64,8 +64,8 @@ bool Commands::ESP140(const char* cmd_params, level_authenticate_type auth_type,
         parameter = get_param(cmd_params, "srv1=");
         if (parameter.length() > 0) {
           hasParam = true;
-          if (parameter.length() <
-              Settings_ESP3D::get_max_string_size(ESP_TIME_SERVER1)) {
+          if (Settings_ESP3D::isValidIPStringSetting(parameter.c_str(),
+                                                     ESP_TIME_SERVER1)) {
             if (!Settings_ESP3D::write_string(ESP_TIME_SERVER1,
                                               parameter.c_str())) {
               response = format_response(COMMANDID, json, false,
@@ -79,8 +79,8 @@ bool Commands::ESP140(const char* cmd_params, level_authenticate_type auth_type,
         parameter = get_param(cmd_params, "srv2=");
         if (parameter.length() > 0) {
           hasParam = true;
-          if (parameter.length() <
-              Settings_ESP3D::get_max_string_size(ESP_TIME_SERVER2)) {
+          if (!Settings_ESP3D::isValidIPStringSetting(parameter.c_str(),
+                                                      ESP_TIME_SERVER2)) {
             if (!Settings_ESP3D::write_string(ESP_TIME_SERVER2,
                                               parameter.c_str())) {
               response = format_response(COMMANDID, json, false,
@@ -94,8 +94,8 @@ bool Commands::ESP140(const char* cmd_params, level_authenticate_type auth_type,
         parameter = get_param(cmd_params, "srv3=");
         if (parameter.length() > 0) {
           hasParam = true;
-          if (parameter.length() <
-              Settings_ESP3D::get_max_string_size(ESP_TIME_SERVER3)) {
+          if (!Settings_ESP3D::isValidIPStringSetting(parameter.c_str(),
+                                                      ESP_TIME_SERVER3)) {
             if (!Settings_ESP3D::write_string(ESP_TIME_SERVER3,
                                               parameter.c_str())) {
               response = format_response(COMMANDID, json, false,

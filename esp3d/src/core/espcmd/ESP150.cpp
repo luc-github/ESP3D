@@ -81,8 +81,7 @@ bool Commands::ESP150(const char* cmd_params, level_authenticate_type auth_type,
         if (parameter.length() != 0) {
           hasParameter = true;
           uint ibuf = parameter.toInt();
-          if ((ibuf > Settings_ESP3D::get_max_int32_value(ESP_BOOT_DELAY)) ||
-              (ibuf < Settings_ESP3D::get_min_int32_value(ESP_BOOT_DELAY))) {
+          if (!Settings_ESP3D::isValidIntegerSetting(ibuf, ESP_BOOT_DELAY)) {
             response =
                 format_response(COMMANDID, json, false, "Incorrect delay");
             noError = false;

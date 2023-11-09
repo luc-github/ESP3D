@@ -99,20 +99,25 @@ bool Commands::ESP103(const char* cmd_params, level_authenticate_type auth_type,
         String GW = get_param(cmd_params, "GW=");
         String MSK = get_param(cmd_params, "MSK=");
         String DNS = get_param(cmd_params, "DNS=");
-        if (!NetConfig::isValidIP(IP.c_str())) {
+
+        if (!Settings_ESP3D::isValidIPStringSetting(IP.c_str(),
+                                                    ESP_STA_IP_VALUE)) {
           response = format_response(COMMANDID, json, false, "Incorrect IP");
           noError = false;
         }
-        if (!NetConfig::isValidIP(GW.c_str())) {
+        if (!Settings_ESP3D::isValidIPStringSetting(GW.c_str(),
+                                                    ESP_STA_GATEWAY_VALUE)) {
           response =
               format_response(COMMANDID, json, false, "Incorrect gateway");
           noError = false;
         }
-        if (!NetConfig::isValidIP(MSK.c_str())) {
+        if (!Settings_ESP3D::isValidIPStringSetting(MSK.c_str(),
+                                                    ESP_STA_MASK_VALUE)) {
           response = format_response(COMMANDID, json, false, "Incorrect mask");
           noError = false;
         }
-        if (!NetConfig::isValidIP(DNS.c_str())) {
+        if (!Settings_ESP3D::isValidIPStringSetting(DNS.c_str(),
+                                                    ESP_STA_DNS_VALUE)) {
           response = format_response(COMMANDID, json, false, "Incorrect dns");
           noError = false;
         }

@@ -27,7 +27,7 @@
 #define COMMANDID 181
 // Set/Get Ftp ports
 //[ESP181]ctrl=<port> active=<port> passive=<port> json=<no> pwd=<admin
-//password>
+// password>
 bool Commands::ESP181(const char* cmd_params, level_authenticate_type auth_type,
                       ESP3DOutput* output) {
   bool noError = true;
@@ -90,8 +90,7 @@ bool Commands::ESP181(const char* cmd_params, level_authenticate_type auth_type,
         if (parameter.length() > 0) {
           hasParam = true;
           ibuf = parameter.toInt();
-          if ((ibuf > Settings_ESP3D::get_max_int32_value(ESP_FTP_CTRL_PORT)) ||
-              (ibuf < Settings_ESP3D::get_min_int32_value(ESP_FTP_CTRL_PORT))) {
+          if (!Settings_ESP3D::isValidIntegerSetting(ibuf, ESP_FTP_CTRL_PORT)) {
             response =
                 format_response(COMMANDID, json, false, "Incorrect ctrl port");
             noError = false;
@@ -107,10 +106,8 @@ bool Commands::ESP181(const char* cmd_params, level_authenticate_type auth_type,
           if (parameter.length() > 0) {
             ibuf = parameter.toInt();
             hasParam = true;
-            if ((ibuf > Settings_ESP3D::get_max_int32_value(
-                            ESP_FTP_DATA_ACTIVE_PORT)) ||
-                (ibuf < Settings_ESP3D::get_min_int32_value(
-                            ESP_FTP_DATA_ACTIVE_PORT))) {
+            if (!Settings_ESP3D::isValidIntegerSetting(ibuf,
+                                                       ESP_FTP_DATA_ACTIVE_PORT)) {
               response = format_response(COMMANDID, json, false,
                                          "Incorrect active port");
               noError = false;
@@ -129,10 +126,8 @@ bool Commands::ESP181(const char* cmd_params, level_authenticate_type auth_type,
           if (parameter.length() > 0) {
             hasParam = true;
             ibuf = parameter.toInt();
-            if ((ibuf > Settings_ESP3D::get_max_int32_value(
-                            ESP_FTP_DATA_PASSIVE_PORT)) ||
-                (ibuf < Settings_ESP3D::get_min_int32_value(
-                            ESP_FTP_DATA_PASSIVE_PORT))) {
+            if (!Settings_ESP3D::isValidIntegerSetting(
+                    ibuf, ESP_FTP_DATA_PASSIVE_PORT)) {
               response = format_response(COMMANDID, json, false,
                                          "Incorrect passive port");
               noError = false;

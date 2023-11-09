@@ -58,7 +58,8 @@ bool Commands::ESP106(const char* cmd_params, level_authenticate_type auth_type,
       if (clearSetting) {
         parameter = "";
       }
-      if (!WiFiConfig::isPasswordValid(parameter.c_str())) {
+      if (!Settings_ESP3D::isValidStringSetting(parameter.c_str(),
+                                                ESP_AP_PASSWORD)) {
         response = format_response(COMMANDID, json, false, "Set failed");
         noError = false;
       } else {
