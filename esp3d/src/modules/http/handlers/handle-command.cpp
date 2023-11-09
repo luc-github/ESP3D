@@ -55,7 +55,7 @@ void HTTP_Server::handle_web_command() {
   String cmd = "";
   if (_webserver->hasArg("cmd")) {
     cmd = _webserver->arg("cmd");
-    ESP3DMessage esp3dmsg(_webserver);
+    ESP3D_Message esp3dmsg(_webserver);
     if (!cmd.endsWith("\n")) {
       if (Settings_ESP3D::GetFirmwareTarget() == GRBL) {
         uint len = cmd.length();
@@ -79,10 +79,10 @@ void HTTP_Server::handle_web_command() {
                              auth_level);
     } else {
 #if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
-      ESP3DMessage esp3dmsgOnly(ESP_SOCKET_SERIAL_CLIENT);
+      ESP3D_Message esp3dmsgOnly(ESP_SOCKET_SERIAL_CLIENT);
 #endif  // COMMUNICATION_PROTOCOL
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
-      ESP3DMessage esp3dmsgOnly(ESP_SERIAL_CLIENT);
+      ESP3D_Message esp3dmsgOnly(ESP_SERIAL_CLIENT);
 #endif  // COMMUNICATION_PROTOCOL == SOCKET_SERIAL
       _webserver->sendHeader("Cache-Control", "no-cache");
       HTTP_Server::set_http_headers();

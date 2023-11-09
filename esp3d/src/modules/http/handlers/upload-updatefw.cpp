@@ -40,7 +40,7 @@
 void HTTP_Server::WebUpdateUpload() {
   static size_t last_upload_update;
   static uint32_t downloadsize = 0;
-  ESP3DMessage esp3dmsg(ESP_REMOTE_SCREEN_CLIENT);
+  ESP3D_Message esp3dmsg(ESP_REMOTE_SCREEN_CLIENT);
   // only admin can update FW
   if (AuthenticationService::authenticated_level() != LEVEL_ADMIN) {
     _upload_status = UPLOAD_STATUS_FAILED;
@@ -116,9 +116,8 @@ void HTTP_Server::WebUpdateUpload() {
           pushError(ESP_ERROR_FILE_WRITE, "File write failed");
         }
         if (_upload_status == UPLOAD_STATUS_ONGOING) {
-          if (Update.end(
-                  true)) {  // true to set the size to the current progress
-                            // Now Reboot
+          if (Update.end(true)) {  // true to set the size to the current
+                                   // progress Now Reboot
             esp3dmsg.printMSG("Update 100%");
             _upload_status = UPLOAD_STATUS_SUCCESSFUL;
           } else {

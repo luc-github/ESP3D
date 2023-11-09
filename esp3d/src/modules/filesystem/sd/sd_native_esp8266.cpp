@@ -180,7 +180,7 @@ bool ESP_SD::rename(const char* oldpath, const char* newpath) {
   return (bool)SDFS.rename(oldpath, newpath);
 }
 
-bool ESP_SD::format(ESP3DMessage* esp3dmsg) {
+bool ESP_SD::format(ESP3D_Message* esp3dmsg) {
   if (esp3dmsg) {
     esp3dmsg->printERROR("Not implemented!");
   }

@@ -28,7 +28,7 @@
 //[ESP920]<SERIAL / SCREEN / REMOTE_SCREEN/ WEBSOCKET / TELNET /BT /
 // ALL>=<ON/OFF> json=<no> [pwd=<admin password>]
 bool Commands::ESP920(const char* cmd_params, level_authenticate_type auth_type,
-                      ESP3DMessage* esp3dmsg) {
+                      ESP3D_Message* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;
@@ -68,7 +68,7 @@ bool Commands::ESP920(const char* cmd_params, level_authenticate_type auth_type,
       } else {
         s += ":";
       }
-      s += ESP3DMessage::isOutput(ESP_SERIAL_CLIENT) ? "ON" : "OFF";
+      s += ESP3D_Message::isOutput(ESP_SERIAL_CLIENT) ? "ON" : "OFF";
       if (json) {
         s += "\"";
       }
@@ -94,7 +94,7 @@ bool Commands::ESP920(const char* cmd_params, level_authenticate_type auth_type,
       } else {
         s += ":";
       }
-      s += ESP3DMessage::isOutput(ESP_REMOTE_SCREEN_CLIENT) ? "ON" : "OFF";
+      s += ESP3D_Message::isOutput(ESP_REMOTE_SCREEN_CLIENT) ? "ON" : "OFF";
       if (json) {
         s += "\"";
       }
@@ -118,7 +118,7 @@ bool Commands::ESP920(const char* cmd_params, level_authenticate_type auth_type,
       } else {
         s += ":";
       }
-      s += ESP3DMessage::isOutput(ESP_SCREEN_CLIENT) ? "ON" : "OFF";
+      s += ESP3D_Message::isOutput(ESP_SCREEN_CLIENT) ? "ON" : "OFF";
       if (json) {
         s += "\"";
       }
@@ -142,7 +142,7 @@ bool Commands::ESP920(const char* cmd_params, level_authenticate_type auth_type,
       } else {
         s += ":";
       }
-      s += ESP3DMessage::isOutput(ESP_WEBSOCKET_CLIENT) ? "ON" : "OFF";
+      s += ESP3D_Message::isOutput(ESP_WEBSOCKET_CLIENT) ? "ON" : "OFF";
       if (json) {
         s += "\"";
       }
@@ -166,7 +166,7 @@ bool Commands::ESP920(const char* cmd_params, level_authenticate_type auth_type,
       } else {
         s += ":";
       }
-      s += ESP3DMessage::isOutput(ESP_BT_CLIENT) ? "ON" : "OFF";
+      s += ESP3D_Message::isOutput(ESP_BT_CLIENT) ? "ON" : "OFF";
       if (json) {
         s += "\"";
       }
@@ -190,7 +190,7 @@ bool Commands::ESP920(const char* cmd_params, level_authenticate_type auth_type,
       } else {
         s += ":";
       }
-      s += ESP3DMessage::isOutput(ESP_TELNET_CLIENT) ? "ON" : "OFF";
+      s += ESP3D_Message::isOutput(ESP_TELNET_CLIENT) ? "ON" : "OFF";
       if (json) {
         s += "\"";
       }
@@ -359,7 +359,7 @@ bool Commands::ESP920(const char* cmd_params, level_authenticate_type auth_type,
         // all ok we do the hot change
       if (noError) {
         if (hasParam) {
-          ESP3DMessage::isOutput(ESP_ALL_CLIENTS, true);
+          ESP3D_Message::isOutput(ESP_ALL_CLIENTS, true);
           response = format_response(COMMANDID, json, true, "ok");
         } else {
           response =

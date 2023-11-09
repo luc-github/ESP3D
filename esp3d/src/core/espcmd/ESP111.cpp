@@ -30,7 +30,7 @@
 // Get current IP
 //[ESP111] [json=no]
 bool Commands::ESP111(const char* cmd_params, level_authenticate_type auth_type,
-                      ESP3DMessage* esp3dmsg) {
+                      ESP3D_Message* esp3dmsg) {
   log_esp3d("Client is %d", output ? esp3dmsg->getTarget() : 0);
   (void)auth_type;
   bool noError = true;
@@ -54,8 +54,8 @@ bool Commands::ESP111(const char* cmd_params, level_authenticate_type auth_type,
     } else {
       esp3dmsg->printMSG(response.c_str());
       if (parameter == "PRINTER") {
-        ESP3DMessage printerOutput(ESP_REMOTE_SCREEN_CLIENT,
-                                   esp3dmsg->getOrigin());
+        ESP3D_Message printerOutput(ESP_REMOTE_SCREEN_CLIENT,
+                                    esp3dmsg->getOrigin());
         printerOutput.printMSG(NetConfig::localIP().c_str());
       }
     }

@@ -25,7 +25,7 @@
 
 #include "../authentication/authentication_service.h"
 
-class ESP3DMessage;
+class ESP3D_Message;
 
 #define ERROR_NO_ERROR 0
 #define ERROR_TIME_OUT 1
@@ -98,10 +98,10 @@ class GcodeHost {
   }
   bool processScript(const char* line,
                      level_authenticate_type auth_type = LEVEL_ADMIN,
-                     ESP3DMessage* esp3dmsg = nullptr);
+                     ESP3D_Message* esp3dmsg = nullptr);
   bool processFile(const char* filename,
                    level_authenticate_type auth_type = LEVEL_ADMIN,
-                   ESP3DMessage* esp3dmsg = nullptr);
+                   ESP3D_Message* esp3dmsg = nullptr);
   bool abort();
   bool pause();
   bool resume();
@@ -129,7 +129,7 @@ class GcodeHost {
   uint8_t _fsType;
   String _currentCommand;
   String _response;
-  ESP3DMessage _outputStream(0);
+  ESP3D_Message _outputStream(0);
   level_authenticate_type _auth_type;
   uint64_t _startTimeOut;
   bool _needRelease;

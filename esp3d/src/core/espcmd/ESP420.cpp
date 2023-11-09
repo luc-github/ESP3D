@@ -83,7 +83,7 @@
 // output is JSON or plain text according parameter
 //[ESP420]json=<no>
 bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
-                      ESP3DMessage* esp3dmsg) {
+                      ESP3D_Message* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;
@@ -410,7 +410,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         line += ": ";
       }
       if (json) {
-        line += ESP3DMessage::encodeString(NetConfig::hostname());
+        line += ESP3D_Message::encodeString(NetConfig::hostname());
       } else {
         line += NetConfig::hostname();
       }
@@ -895,7 +895,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
           }
           if (WiFi.isConnected()) {
             if (json) {
-              line += ESP3DMessage::encodeString(WiFi.SSID().c_str());
+              line += ESP3D_Message::encodeString(WiFi.SSID().c_str());
             } else {
               line += WiFi.SSID();
             }
@@ -1103,7 +1103,7 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
             line += ": ";
           }
           if (json) {
-            line += ESP3DMessage::encodeString(WiFiConfig::AP_SSID());
+            line += ESP3D_Message::encodeString(WiFiConfig::AP_SSID());
           } else {
             line += WiFiConfig::AP_SSID();
           }

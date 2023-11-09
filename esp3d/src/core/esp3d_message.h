@@ -59,14 +59,36 @@ class WebServer;
 #endif  // ARDUINO_ARCH_ESP8266
 #endif  // HTTP_FEATURE
 
-class ESP3DMessage : public Print {
- public:
-  ESP3DMessage(uint8_t target, uint8_t origin = 0);
+#include "../modules/authentication/authentication_level_types.h"
+#include "esp3d_client_types.h"
+
+enum class ESP3DMessageType : uint8_t { head, core, tail, unique };
+
+union ESP3DRequest {
+  uint id;
 #ifdef HTTP_FEATURE
-  ESP3DMessage(WEBSERVER *webserver, uint8_t target = ESP_HTTP_CLIENT,
-               uint8_t origin = 0);
+  WEBSERVER *http_request;
 #endif  // HTTP_FEATURE
-  ~ESP3DMessage();
+};
+
+struct ESP3DMessage {
+  uint8_t *data;
+  size_t size;
+  ESP3DClientType origin;
+  ESP3DClientType target;
+  level_authenticate_type authentication_level;
+  ESP3DRequest request_id;
+  ESP3DMessageType type;
+};
+
+class ESP3D_Message : public Print {
+ public:
+  ESP3D_Message(uint8_t target, uint8_t origin = 0);
+#ifdef HTTP_FEATURE
+  ESP3D_Message(WEBSERVER *webserver, uint8_t target = ESP_HTTP_CLIENT,
+                uint8_t origin = 0);
+#endif  // HTTP_FEATURE
+  ~ESP3D_Message();
   size_t write(uint8_t c);
   size_t write(const uint8_t *buffer, size_t size);
 

@@ -36,9 +36,9 @@ Commands::Commands() {}
 Commands::~Commands() {}
 
 // dispatch the command
-void Commands::process(uint8_t *sbuf, size_t len, ESP3DMessage *esp3dmsg,
-                       level_authenticate_type auth, ESP3DMessage *esp3dmsgonly,
-                       uint8_t outputignore) {
+void Commands::process(uint8_t *sbuf, size_t len, ESP3D_Message *esp3dmsg,
+                       level_authenticate_type auth,
+                       ESP3D_Message *esp3dmsgonly, uint8_t outputignore) {
   static bool lastIsESP3D = false;
   log_esp3d("Client is %d, has only %d, has ignore %d",
             esp3dmsg ? esp3dmsg->getTarget() : 0,
@@ -351,7 +351,7 @@ bool Commands::has_tag(const char *cmd_params, const char *tag) {
 // execute internal command
 bool Commands::execute_internal_command(int cmd, const char *cmd_params,
                                         level_authenticate_type auth_level,
-                                        ESP3DMessage *esp3dmsg) {
+                                        ESP3D_Message *esp3dmsg) {
 #ifndef SERIAL_COMMAND_FEATURE
   if (esp3dmsg->getTarget() == ESP_SERIAL_CLIENT) {
     esp3dmsg->printMSG("Feature disabled");
@@ -817,7 +817,7 @@ bool Commands::_dispatchSetting(
     bool json, const char *filter, ESP3DSettingIndex index, const char *help,
     const char **optionValues, const char **optionLabels, uint32_t maxsize,
     uint32_t minsize, uint32_t minsize2, uint8_t precision, const char *unit,
-    bool needRestart, ESP3DMessage *esp3dmsg, bool isFirst) {
+    bool needRestart, ESP3D_Message *esp3dmsg, bool isFirst) {
   String tmpstr;
   String value;
   char out_str[255];

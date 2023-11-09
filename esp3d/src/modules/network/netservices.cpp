@@ -84,7 +84,7 @@ bool NetServices::begin() {
   bool res = true;
   _started = false;
   String hostname = Settings_ESP3D::read_string(ESP_HOSTNAME);
-  ESP3DMessage esp3dmsg(ESP_ALL_CLIENTS);
+  ESP3D_Message esp3dmsg(ESP_ALL_CLIENTS);
   end();
 #ifdef TIMESTAMP_FEATURE
   if (WiFi.getMode() != WIFI_AP) {
@@ -109,7 +109,7 @@ bool NetServices::begin() {
 #ifdef OTA_FEATURE
   if (WiFi.getMode() != WIFI_AP) {
     ArduinoOTA.onStart([]() {
-      ESP3DMessage esp3dmsg(ESP_ALL_CLIENTS);
+      ESP3D_Message esp3dmsg(ESP_ALL_CLIENTS);
       String type = "Start OTA updating ";
       if (ArduinoOTA.getCommand() == U_FLASH) {
         type += "sketch";
@@ -124,18 +124,18 @@ bool NetServices::begin() {
       esp3dmsg.printMSG(type.c_str());
     });
     ArduinoOTA.onEnd([]() {
-      ESP3DMessage esp3dmsg(ESP_ALL_CLIENTS);
+      ESP3D_Message esp3dmsg(ESP_ALL_CLIENTS);
       esp3dmsg.printMSG("End OTA");
     });
     ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
       String prg = "OTA Progress ";
-      ESP3DMessage esp3dmsg(ESP_ALL_CLIENTS);
+      ESP3D_Message esp3dmsg(ESP_ALL_CLIENTS);
       prg += String(progress / (total / 100)) + "%";
       esp3dmsg.printMSG(prg.c_str());
     });
     ArduinoOTA.onError([](ota_error_t error) {
       String stmp = "OTA Error: " + String(error);
-      ESP3DMessage esp3dmsg(ESP_ALL_CLIENTS);
+      ESP3D_Message esp3dmsg(ESP_ALL_CLIENTS);
       esp3dmsg.printERROR(stmp.c_str());
       if (error == OTA_AUTH_ERROR) {
         esp3dmsg.printERROR("Auth Failed");

@@ -126,7 +126,7 @@ String NetConfig::localIP() {
 
 // wifi event
 void NetConfig::onWiFiEvent(WiFiEvent_t event) {
-  ESP3DMessage esp3dmsg(ESP_ALL_CLIENTS);
+  ESP3D_Message esp3dmsg(ESP_ALL_CLIENTS);
   switch (event) {
     case WIFI_EVENT_STAMODE_CONNECTED:
       _needReconnect2AP = false;
@@ -192,7 +192,7 @@ bool NetConfig::begin() {
   // clear everything
   end();
   int8_t espMode = Settings_ESP3D::read_byte(ESP_RADIO_MODE);
-  ESP3DMessage esp3dmsg(ESP_ALL_CLIENTS);
+  ESP3D_Message esp3dmsg(ESP_ALL_CLIENTS);
   log_esp3d("Starting Network");
   if (espMode != ESP_NO_NETWORK) {
     if (Settings_ESP3D::isVerboseBoot()) {
@@ -219,9 +219,9 @@ bool NetConfig::begin() {
   if (espMode == ESP_NO_NETWORK) {
     esp3dmsg.printMSG("Disable Network");
     WiFi.mode(WIFI_OFF);
-    ESP3DMessage::toScreen(ESP_OUTPUT_IP_ADDRESS, nullptr);
+    ESP3D_Message::toScreen(ESP_OUTPUT_IP_ADDRESS, nullptr);
     if (Settings_ESP3D::isVerboseBoot()) {
-      ESP3DMessage esp3dmsg(ESP_ALL_CLIENTS);
+      ESP3D_Message esp3dmsg(ESP_ALL_CLIENTS);
       esp3dmsg.printMSG(RADIO_OFF_MSG);
       esp3dmsg.flush();
     }
@@ -251,7 +251,7 @@ bool NetConfig::begin() {
   if (espMode == ESP_BT) {
     WiFi.mode(WIFI_OFF);
     String msg = "BT On";
-    ESP3DMessage::toScreen(ESP_OUTPUT_STATUS, msg.c_str());
+    ESP3D_Message::toScreen(ESP_OUTPUT_STATUS, msg.c_str());
     res = bt_service.begin();
   }
 #else
@@ -264,9 +264,9 @@ bool NetConfig::begin() {
   if (espMode == ESP_NO_NETWORK) {
     esp3dmsg.printMSG("Disable Network");
     WiFi.mode(WIFI_OFF);
-    ESP3DMessage::toScreen(ESP_OUTPUT_IP_ADDRESS, nullptr);
+    ESP3D_Message::toScreen(ESP_OUTPUT_IP_ADDRESS, nullptr);
     if (Settings_ESP3D::isVerboseBoot()) {
-      ESP3DMessage esp3dmsg(ESP_ALL_CLIENTS);
+      ESP3D_Message esp3dmsg(ESP_ALL_CLIENTS);
       esp3dmsg.printMSG(RADIO_OFF_MSG);
       esp3dmsg.flush();
     }
@@ -307,7 +307,7 @@ bool NetConfig::begin() {
     end();
     log_esp3d_e("Network config failed");
   }
-  ESP3DMessage::toScreen(ESP_OUTPUT_IP_ADDRESS, nullptr);
+  ESP3D_Message::toScreen(ESP_OUTPUT_IP_ADDRESS, nullptr);
   return res;
 }
 

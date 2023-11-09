@@ -285,7 +285,7 @@ void WebSocket_Server::flushRXbuffer() {
     _RXbufferSize = 0;
     return;
   }
-  ESP3DMessage esp3dmsg(ESP_WEBSOCKET_CLIENT);
+  ESP3D_Message esp3dmsg(ESP_WEBSOCKET_CLIENT);
   _RXbuffer[_RXbufferSize] = 0x0;
   // dispatch command
   esp3d_commands.process(_RXbuffer, _RXbufferSize, &esp3dmsg);

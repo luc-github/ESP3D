@@ -26,7 +26,7 @@
 //[ESP290]<delay in ms> json=<no> [pwd=<user password>]
 #define COMMANDID 290
 bool Commands::ESP290(const char* cmd_params, level_authenticate_type auth_type,
-                      ESP3DMessage* esp3dmsg) {
+                      ESP3D_Message* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;

@@ -29,7 +29,7 @@
 // Get/Set SD card Speed factor 1 2 4 6 8 16 32
 //[ESP202]SPEED=<value> json=<no> pwd=<user/admin password>
 bool Commands::ESP202(const char* cmd_params, level_authenticate_type auth_type,
-                      ESP3DMessage* esp3dmsg) {
+                      ESP3D_Message* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;

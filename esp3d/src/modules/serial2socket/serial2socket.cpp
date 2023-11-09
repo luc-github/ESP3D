@@ -162,7 +162,7 @@ void Serial_2_Socket::handle_flush() {
 }
 void Serial_2_Socket::flush(void) {
   if (_TXbufferSize > 0 && _started && !_paused) {
-    ESP3DMessage esp3dmsg(ESP_SOCKET_SERIAL_CLIENT);
+    ESP3D_Message esp3dmsg(ESP_SOCKET_SERIAL_CLIENT);
     // dispatch command
     esp3d_commands.process(_TXbuffer, _TXbufferSize, &esp3dmsg);
     // refresh timout

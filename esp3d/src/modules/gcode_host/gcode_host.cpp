@@ -315,12 +315,12 @@ void GcodeHost::processCommand() {
         (uint8_t *)_currentCommand.c_str(), _currentCommand.length());
     // TODO need to change if ESP3D
 #if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
-    ESP3DMessage esp3dmsg(ESP_SOCKET_SERIAL_CLIENT);
+    ESP3D_Message esp3dmsg(ESP_SOCKET_SERIAL_CLIENT);
 #endif  // COMMUNICATION_PROTOCOL
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
-    ESP3DMessage esp3dmsg(ESP_SERIAL_CLIENT);
+    ESP3D_Message esp3dmsg(ESP_SERIAL_CLIENT);
 #endif  // COMMUNICATION_PROTOCOL == SOCKET_SERIAL
-    ESP3DMessage esp3dmsghost(ESP_STREAM_HOST_CLIENT);
+    ESP3D_Message esp3dmsghost(ESP_STREAM_HOST_CLIENT);
     if (isESPcmd) {
       esp3d_commands.process((uint8_t *)cmd.c_str(), cmd.length(),
                              &esp3dmsghost, _auth_type);
@@ -399,10 +399,10 @@ void GcodeHost::handle() {
       log_esp3d_e("Error %d", _error);
       Error = "error: stream failed: " + String(_error) + "\n";
 #if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
-      ESP3DMessage esp3dmsg(ESP_SOCKET_SERIAL_CLIENT);
+      ESP3D_Message esp3dmsg(ESP_SOCKET_SERIAL_CLIENT);
 #endif  // COMMUNICATION_PROTOCOL
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
-      ESP3DMessage esp3dmsg(ESP_SERIAL_CLIENT);
+      ESP3D_Message esp3dmsg(ESP_SERIAL_CLIENT);
 #endif  // COMMUNICATION_PROTOCOL
       esp3dmsg.dispatch((const uint8_t *)Error.c_str(), Error.length());
       _step = HOST_STOP_STREAM;
@@ -494,7 +494,7 @@ uint32_t GcodeHost::getCommandNumber(String &response) {
 
 bool GcodeHost::processScript(const char *line,
                               level_authenticate_type auth_type,
-                              ESP3DMessage *esp3dmsg) {
+                              ESP3D_Message *esp3dmsg) {
   _script = line;
   _script.trim();
   log_esp3d("Processing script: %s", _script.c_str());
@@ -514,7 +514,7 @@ bool GcodeHost::processScript(const char *line,
 
 bool GcodeHost::processFile(const char *filename,
                             level_authenticate_type auth_type,
-                            ESP3DMessage *esp3dmsg) {
+                            ESP3D_Message *esp3dmsg) {
   bool target_found = false;
 #if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
   log_esp3d("Processing file client is  %d",

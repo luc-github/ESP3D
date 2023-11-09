@@ -92,7 +92,7 @@ bool EthConfig::linkUp() {
  */
 bool EthConfig::begin(int8_t& espMode) {
   bool res = false;
-  ESP3DMessage esp3dmsg(ESP_ALL_CLIENTS);
+  ESP3D_Message esp3dmsg(ESP_ALL_CLIENTS);
   end();
   _started = ETH.begin();
   if (_started) {

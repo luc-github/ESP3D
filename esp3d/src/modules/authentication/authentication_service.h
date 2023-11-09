@@ -20,17 +20,13 @@
 
 #ifndef _AUTHENTICATION_SERVICE_H
 #define _AUTHENTICATION_SERVICE_H
-typedef enum {
-  LEVEL_GUEST = 0,
-  LEVEL_USER = 1,
-  LEVEL_ADMIN = 2
-} level_authenticate_type;
 
 const char DEFAULT_ADMIN_LOGIN[] = "admin";
 const char DEFAULT_USER_LOGIN[] = "user";
 
 #include "../../core/esp3d_message.h"
 #include "../../include/esp3d_config.h"
+#include "authentication_level_types.h"
 
 #if defined(AUTHENTICATION_FEATURE)
 #if defined(HTTP_FEATURE)
@@ -58,7 +54,7 @@ typedef void Authwebserver;
 class AuthenticationService {
  public:
   static level_authenticate_type authenticated_level(
-      const char *pwd = nullptr, ESP3DMessage *esp3dmsg = nullptr);
+      const char *pwd = nullptr, ESP3D_Message *esp3dmsg = nullptr);
 #ifdef AUTHENTICATION_FEATURE
   static bool begin(Authwebserver *webserver);
   static void end();

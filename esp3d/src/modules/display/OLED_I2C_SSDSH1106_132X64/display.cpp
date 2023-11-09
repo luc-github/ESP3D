@@ -131,7 +131,7 @@ bool Display::begin() {
 }
 
 void Display::handle() {
-  if (!ESP3DMessage::isOutput(ESP_SCREEN_CLIENT)) {
+  if (!ESP3D_Message::isOutput(ESP_SCREEN_CLIENT)) {
     return;
   }
   if (_started) {
@@ -173,7 +173,7 @@ void Display::clearScreen() {
 
 void Display::updateScreen(bool force) {
   log_esp3d("update screen");
-  if (!ESP3DMessage::isOutput(ESP_SCREEN_CLIENT)) {
+  if (!ESP3D_Message::isOutput(ESP_SCREEN_CLIENT)) {
     return;
   }
   static uint32_t last_update = millis();
@@ -247,7 +247,7 @@ void Display::setTextFont(uint8_t font) {
 void Display::drawString(const char *string, int32_t poX, int32_t poY,
                          int16_t color) {
   log_esp3d("drawString %s at %d,%d", string, poX, poY);
-  if (!ESP3DMessage::isOutput(ESP_SCREEN_CLIENT)) {
+  if (!ESP3D_Message::isOutput(ESP_SCREEN_CLIENT)) {
     return;
   }
   esp3d_screen.setTextAlignment(TEXT_ALIGN_LEFT);
@@ -268,7 +268,7 @@ void Display::drawString(const char *string, int32_t poX, int32_t poY,
  */
 void Display::drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
                        int16_t color) {
-  if (!ESP3DMessage::isOutput(ESP_SCREEN_CLIENT)) {
+  if (!ESP3D_Message::isOutput(ESP_SCREEN_CLIENT)) {
     return;
   }
   esp3d_screen.setColor((OLEDDISPLAY_COLOR)color);
@@ -288,7 +288,7 @@ void Display::drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
  */
 void Display::drawRect(int16_t x, int16_t y, int16_t width, int16_t height,
                        int16_t color) {
-  if (!ESP3DMessage::isOutput(ESP_SCREEN_CLIENT)) {
+  if (!ESP3D_Message::isOutput(ESP_SCREEN_CLIENT)) {
     return;
   }
   esp3d_screen.setColor((OLEDDISPLAY_COLOR)color);
@@ -308,7 +308,7 @@ void Display::drawRect(int16_t x, int16_t y, int16_t width, int16_t height,
  */
 void Display::fillRect(int16_t x, int16_t y, int16_t width, int16_t height,
                        int16_t color) {
-  if (!ESP3DMessage::isOutput(ESP_SCREEN_CLIENT)) {
+  if (!ESP3D_Message::isOutput(ESP_SCREEN_CLIENT)) {
     return;
   }
   esp3d_screen.setColor((OLEDDISPLAY_COLOR)color);
@@ -329,7 +329,7 @@ void Display::fillRect(int16_t x, int16_t y, int16_t width, int16_t height,
  */
 void Display::drawXbm(int16_t x, int16_t y, int16_t width, int16_t height,
                       int16_t color, const uint8_t *xbm) {
-  if (!ESP3DMessage::isOutput(ESP_SCREEN_CLIENT)) {
+  if (!ESP3D_Message::isOutput(ESP_SCREEN_CLIENT)) {
     return;
   }
   (void)color;
@@ -350,7 +350,7 @@ void Display::drawXbm(int16_t x, int16_t y, int16_t width, int16_t height,
  */
 void Display::drawXbm(int16_t x, int16_t y, int16_t width, int16_t height,
                       uint16_t fgcolor, uint16_t bgcolor, const uint8_t *xbm) {
-  if (!ESP3DMessage::isOutput(ESP_SCREEN_CLIENT)) {
+  if (!ESP3D_Message::isOutput(ESP_SCREEN_CLIENT)) {
     return;
   }
   (void)fgcolor;
@@ -367,7 +367,7 @@ void Display::drawXbm(int16_t x, int16_t y, int16_t width, int16_t height,
  * @return the value of the variable v.
  */
 void Display::progress(uint8_t v) {
-  if (!ESP3DMessage::isOutput(ESP_SCREEN_CLIENT)) {
+  if (!ESP3D_Message::isOutput(ESP_SCREEN_CLIENT)) {
     return;
   }
   static uint8_t previous = 0;
@@ -416,7 +416,7 @@ bool Display::mainScreenHandler(bool force) {
  */
 bool Display::splash() {
   log_esp3d("Splash");
-  if (!ESP3DMessage::isOutput(ESP_SCREEN_CLIENT)) {
+  if (!ESP3D_Message::isOutput(ESP_SCREEN_CLIENT)) {
     return false;
   }
   if (!_splashDone) {
@@ -431,7 +431,7 @@ bool Display::splash() {
 }
 
 void Display::updateIP() {
-  if (!ESP3DMessage::isOutput(ESP_SCREEN_CLIENT)) {
+  if (!ESP3D_Message::isOutput(ESP_SCREEN_CLIENT)) {
     return;
   }
   updateScreen(true);

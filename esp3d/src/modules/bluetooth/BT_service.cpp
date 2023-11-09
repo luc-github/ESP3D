@@ -60,7 +60,7 @@ bool BTService::isConnected() {
 void BTService::setClientAddress(const char *saddress) { _btclient = saddress; }
 
 static void my_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param) {
-  ESP3DMessage esp3dmsg(ESP3DMessage::getCurrentOuputClient(), ESP_BT_CLIENT);
+  ESP3D_Message esp3dmsg(ESP3D_Message::getCurrentOuputClient(), ESP_BT_CLIENT);
   switch (event) {
     case ESP_SPP_SRV_OPEN_EVT: {
       // Server connection open
@@ -74,7 +74,7 @@ static void my_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param) {
       stmp += str;
       esp3dmsg.printMSG(stmp.c_str());
 #if defined(DISPLAY_DEVICE)
-      ESP3DMessage esp3dmsgscr(ESP_SCREEN_CLIENT, ESP_BT_CLIENT);
+      ESP3D_Message esp3dmsgscr(ESP_SCREEN_CLIENT, ESP_BT_CLIENT);
       outputscr.printMSG(stmp.c_str());
 #endif  // DISPLAY_DEVICE
     } break;
@@ -83,7 +83,7 @@ static void my_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param) {
       // Client connection closed
       esp3dmsg.printMSG("BT Disconnected");
 #if defined(DISPLAY_DEVICE)
-      ESP3DMessage esp3dmsgscr(ESP_SCREEN_CLIENT, ESP_BT_CLIENT);
+      ESP3D_Message esp3dmsgscr(ESP_SCREEN_CLIENT, ESP_BT_CLIENT);
       outputscr.printMSG("BT Disconnected");
 #endif  // DISPLAY_DEVICE
       BTService::setClientAddress("");
@@ -108,7 +108,7 @@ const char *BTService::clientmacAddress() { return _btclient.c_str(); }
  * begin BT setup
  */
 bool BTService::begin() {
-  ESP3DMessage esp3dmsg(ESP3DMessage::getCurrentOuputClient(), ESP_BT_CLIENT);
+  ESP3D_Message esp3dmsg(ESP3D_Message::getCurrentOuputClient(), ESP_BT_CLIENT);
   bool res = true;
   _buffer_size = 0;
   _lastflush = millis();
@@ -183,7 +183,7 @@ void BTService::handle() {
 }
 
 void BTService::flushbuffer() {
-  ESP3DMessage esp3dmsg(ESP_BT_CLIENT, );
+  ESP3D_Message esp3dmsg(ESP_BT_CLIENT, );
   _buffer[_buffer_size] = 0x0;
   // dispatch command
   esp3d_commands.process(_buffer, _buffer_size, &esp3dmsg);

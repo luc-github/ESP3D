@@ -45,7 +45,7 @@
 // Set EEPROM setting
 //[ESP401]P=<position> T=<type> V=<value> json=<no> pwd=<user/admin password>
 bool Commands::ESP401(const char* cmd_params, level_authenticate_type auth_type,
-                      ESP3DMessage* esp3dmsg) {
+                      ESP3D_Message* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String spos = "";
@@ -109,7 +109,7 @@ bool Commands::ESP401(const char* cmd_params, level_authenticate_type auth_type,
                 case ESP_TELNET_FLAG:
                 case ESP_SCREEN_FLAG:
                 case ESP_BT_FLAG:
-                  ESP3DMessage::isOutput(ESP_ALL_CLIENTS, true);
+                  ESP3D_Message::isOutput(ESP_ALL_CLIENTS, true);
                   break;
                 case ESP_VERBOSE_BOOT:
                   Settings_ESP3D::isVerboseBoot(true);

@@ -260,7 +260,7 @@ void SerialService::handle() {
 }
 
 void SerialService::flushbuffer() {
-  ESP3DMessage esp3dmsg(ESP_ALL_CLIENTS, _target);
+  ESP3D_Message esp3dmsg(ESP_ALL_CLIENTS, _target);
   _buffer[_buffer_size] = 0x0;
   // dispatch command
   if (_started) {

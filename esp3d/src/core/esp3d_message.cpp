@@ -55,26 +55,26 @@ uint8_t _current_output_client = ESP_SOCKET_SERIAL_CLIENT;
     COMMUNICATION_PROTOCOL == MKS_SERIAL || \
     COMMUNICATION_PROTOCOL == SOCKET_SERIAL
 
-uint8_t ESP3DMessage::_serialoutputflags = 0;
+uint8_t ESP3D_Message::_serialoutputflags = 0;
 #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
         // MKS_SERIAL || COMMUNICATION_PROTOCOL == SOCKET_SERIAL
 #if defined(HAS_DISPLAY) || defined(HAS_SERIAL_DISPLAY)
-uint8_t ESP3DMessage::_remotescreenoutputflags = 0;
+uint8_t ESP3D_Message::_remotescreenoutputflags = 0;
 #endif  // HAS_DISPLAY || HAS_SERIAL_DISPLAY
 #if defined(WS_DATA_FEATURE)
-uint8_t ESP3DMessage::_websocketoutputflags = DEFAULT_WEBSOCKET_FLAG;
+uint8_t ESP3D_Message::_websocketoutputflags = DEFAULT_WEBSOCKET_FLAG;
 #endif  // WS_DATA_FEATURE
 #if defined(TELNET_FEATURE)
-uint8_t ESP3DMessage::_telnetoutputflags = 0;
+uint8_t ESP3D_Message::_telnetoutputflags = 0;
 #endif  // TELNET_FEATURE
 #if defined(DISPLAY_DEVICE)
-uint8_t ESP3DMessage::_screenoutputflags = DEFAULT_SCREEN_FLAG;
+uint8_t ESP3D_Message::_screenoutputflags = DEFAULT_SCREEN_FLAG;
 #endif  // DISPLAY_DEVICE
 #if defined(BLUETOOTH_FEATURE)
-uint8_t ESP3DMessage::_BToutputflags = DEFAULT_BT_FLAG;
+uint8_t ESP3D_Message::_BToutputflags = DEFAULT_BT_FLAG;
 #endif  // BLUETOOTH_FEATURE
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
-uint8_t ESP3DMessage::_serialBridgeoutputflags = DEFAULT_SERIAL_BRIDGE_FLAG;
+uint8_t ESP3D_Message::_serialBridgeoutputflags = DEFAULT_SERIAL_BRIDGE_FLAG;
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
 #if defined(HTTP_FEATURE)
 #include "../modules/http/http_server.h"
@@ -123,7 +123,7 @@ const uint8_t activeClients[] = {
     ESP_NO_CLIENT};
 
 // tool function to avoid string corrupt JSON files
-const char *ESP3DMessage::encodeString(const char *s) {
+const char *ESP3D_Message::encodeString(const char *s) {
   static String tmp;
   tmp = s;
   while (tmp.indexOf("'") != -1) {
@@ -138,7 +138,7 @@ const char *ESP3DMessage::encodeString(const char *s) {
   return tmp.c_str();
 }
 
-void ESP3DMessage::toScreen(uint8_t output_type, const char *s) {
+void ESP3D_Message::toScreen(uint8_t output_type, const char *s) {
   switch (output_type) {
     case ESP_OUTPUT_IP_ADDRESS:
 #ifdef DISPLAY_DEVICE
@@ -173,7 +173,7 @@ void ESP3DMessage::toScreen(uint8_t output_type, const char *s) {
 }
 
 // constructor
-ESP3DMessage::ESP3DMessage(uint8_t target, uint8_t origin) {
+ESP3D_Message::ESP3D_Message(uint8_t target, uint8_t origin) {
   _target = target;
   _origin = origin;
 
@@ -185,20 +185,20 @@ ESP3DMessage::ESP3DMessage(uint8_t target, uint8_t origin) {
 #endif  // HTTP_FEATURE
 }
 
-uint8_t ESP3DMessage::target(uint8_t targetId) {
+uint8_t ESP3D_Message::target(uint8_t targetId) {
   _target = targetId;
   return _target;
 }
 
-uint8_t ESP3DMessage::origin(uint8_t originId) {
+uint8_t ESP3D_Message::origin(uint8_t originId) {
   _origin = originId;
   return _origin;
 }
 
 #ifdef HTTP_FEATURE
 // constructor
-ESP3DMessage::ESP3DMessage(WEBSERVER *webserver, uint8_t target,
-                           uint8_t origin) {
+ESP3D_Message::ESP3D_Message(WEBSERVER *webserver, uint8_t target,
+                             uint8_t origin) {
   _target = ESP_HTTP_CLIENT;
   _code = 200;
   _headerSent = false;
@@ -208,9 +208,9 @@ ESP3DMessage::ESP3DMessage(WEBSERVER *webserver, uint8_t target,
 #endif  // HTTP_FEATURE
 
 // destructor
-ESP3DMessage::~ESP3DMessage() { flush(); }
+ESP3D_Message::~ESP3D_Message() { flush(); }
 
-bool ESP3DMessage::isOutput(uint8_t flag, bool fromsettings) {
+bool ESP3D_Message::isOutput(uint8_t flag, bool fromsettings) {
   if (fromsettings) {
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || \
     COMMUNICATION_PROTOCOL == MKS_SERIAL || \
@@ -284,8 +284,8 @@ bool ESP3DMessage::isOutput(uint8_t flag, bool fromsettings) {
   }
 }
 
-size_t ESP3DMessage::dispatch(const uint8_t *sbuf, size_t len,
-                              uint8_t ignoreClient) {
+size_t ESP3D_Message::dispatch(const uint8_t *sbuf, size_t len,
+                               uint8_t ignoreClient) {
   log_esp3d("Dispatch %d chars from client %d and ignore %d", len, _target,
             ignoreClient);
 #if defined(GCODE_HOST_FEATURE)
@@ -372,7 +372,7 @@ size_t ESP3DMessage::dispatch(const uint8_t *sbuf, size_t len,
 }
 
 // Flush
-void ESP3DMessage::flush() {
+void ESP3D_Message::flush() {
   if (!isOutput(_target)) {
     return;
   }
@@ -416,7 +416,7 @@ void ESP3DMessage::flush() {
   }
 }
 
-size_t ESP3DMessage::printLN(const char *s) {
+size_t ESP3D_Message::printLN(const char *s) {
   if (!isOutput(_target)) {
     return 0;
   }
@@ -440,7 +440,7 @@ size_t ESP3DMessage::printLN(const char *s) {
   return println(s);
 }
 
-size_t ESP3DMessage::printMSGLine(const char *s) {
+size_t ESP3D_Message::printMSGLine(const char *s) {
   if (_target == ESP_ALL_CLIENTS) {
     // process each client one by one
     log_esp3d("PrintMSG to all clients");
@@ -519,7 +519,7 @@ size_t ESP3DMessage::printMSGLine(const char *s) {
   return printLN(display.c_str());
 }
 
-size_t ESP3DMessage::printMSG(const char *s, bool withNL) {
+size_t ESP3D_Message::printMSG(const char *s, bool withNL) {
   if (_target == ESP_ALL_CLIENTS) {
     // process each client one by one
     log_esp3d("PrintMSG to all clients");
@@ -607,7 +607,7 @@ size_t ESP3DMessage::printMSG(const char *s, bool withNL) {
   }
 }
 
-size_t ESP3DMessage::printERROR(const char *s, int code_error) {
+size_t ESP3D_Message::printERROR(const char *s, int code_error) {
   String display = "";
   if (!isOutput(_target)) {
     return 0;
@@ -662,7 +662,7 @@ size_t ESP3DMessage::printERROR(const char *s, int code_error) {
   return printLN(display.c_str());
 }
 
-int ESP3DMessage::availableforwrite() {
+int ESP3D_Message::availableforwrite() {
   switch (_target) {
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
     case ESP_SERIAL_CLIENT:
@@ -698,7 +698,7 @@ int ESP3DMessage::availableforwrite() {
   }
   return 0;
 }
-size_t ESP3DMessage::write(uint8_t c) {
+size_t ESP3D_Message::write(uint8_t c) {
   if (!isOutput(_target)) {
     return 0;
   }
@@ -754,7 +754,7 @@ size_t ESP3DMessage::write(uint8_t c) {
   }
 }
 
-size_t ESP3DMessage::write(const uint8_t *buffer, size_t size) {
+size_t ESP3D_Message::write(const uint8_t *buffer, size_t size) {
   if (!isOutput(_target)) {
     return 0;
   }

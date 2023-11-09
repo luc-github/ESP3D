@@ -70,7 +70,7 @@ bool mDNS_Service::begin(const char* hostname) {
   if (WiFi.getMode() != WIFI_AP) {
     _hostname = hostname;
     _hostname.toLowerCase();
-    ESP3DMessage esp3dmsg(ESP_ALL_CLIENTS);
+    ESP3D_Message esp3dmsg(ESP_ALL_CLIENTS);
     log_esp3d("Start mdsn for %s", _hostname.c_str());
     if (!MDNS.begin(_hostname.c_str())) {
       esp3dmsg.printERROR("mDNS failed to start");
