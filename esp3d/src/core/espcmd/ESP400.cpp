@@ -33,8 +33,8 @@
 #endif  // TIMESTAMP_FEATURE
 #define COMMANDID 400
 
-const char* YesNoLabels[] = {"yes", "no"};
-const char* YesNoValues[] = {"1", "0"};
+const char* YesNoLabels[] = {"no", "yes"};
+const char* YesNoValues[] = {"0", "1"};
 const char* RadioModeLabels[] = {"none"
 #ifdef WIFI_FEATURE
                                  ,
