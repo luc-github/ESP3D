@@ -129,7 +129,7 @@ class GcodeHost {
   uint8_t _fsType;
   String _currentCommand;
   String _response;
-  ESP3DMessage _outputStream;
+  ESP3DMessage _outputStream(0);
   level_authenticate_type _auth_type;
   uint64_t _startTimeOut;
   bool _needRelease;

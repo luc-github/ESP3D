@@ -54,9 +54,9 @@ bool Commands::ESP715(const char* cmd_params, level_authenticate_type auth_type,
       } else {
         ESP_SD::setState(ESP_SDCARD_BUSY);
         if (!json) {
-          output->printMSGLine("Start Formating");
+          esp3dmsg->printMSGLine("Start Formating");
         }
-        if (ESP_SD::format(output)) {
+        if (ESP_SD::format(esp3dmsg)) {
           response = format_response(COMMANDID, json, true, "ok");
         } else {
           response = format_response(COMMANDID, json, false, "Format failed");
@@ -70,12 +70,12 @@ bool Commands::ESP715(const char* cmd_params, level_authenticate_type auth_type,
     }
   }
   if (json) {
-    output->printLN(response.c_str());
+    esp3dmsg->printLN(response.c_str());
   } else {
     if (noError) {
-      output->printMSG(response.c_str());
+      esp3dmsg->printMSG(response.c_str());
     } else {
-      output->printERROR(response.c_str(), errorCode);
+      esp3dmsg->printERROR(response.c_str(), errorCode);
     }
   }
   return noError;

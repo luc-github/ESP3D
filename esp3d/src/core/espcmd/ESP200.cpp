@@ -92,15 +92,15 @@ bool Commands::ESP200(const char* cmd_params, level_authenticate_type auth_type,
       response = format_response(COMMANDID, json, true, "No SD card");
     }
     if (json) {
-      output->printLN(response.c_str());
+      esp3dmsg->printLN(response.c_str());
     } else {
-      output->printMSG(response.c_str());
+      esp3dmsg->printMSG(response.c_str());
     }
   } else {
     if (json) {
-      output->printLN(response.c_str());
+      esp3dmsg->printLN(response.c_str());
     } else {
-      output->printERROR(response.c_str(), errorCode);
+      esp3dmsg->printERROR(response.c_str(), errorCode);
     }
   }
   return noError;

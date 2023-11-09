@@ -69,7 +69,7 @@ bool Commands::ESP170(const char* cmd_params, level_authenticate_type auth_type,
         } else {
           String line = "";
           if (json) {
-            output->print("{\"cmd\":\"170\",\"status\":\"ok\",\"data\":\"[");
+            esp3dmsg->print("{\"cmd\":\"170\",\"status\":\"ok\",\"data\":\"[");
           }
           // framesize
           if (json) {
@@ -80,9 +80,9 @@ bool Commands::ESP170(const char* cmd_params, level_authenticate_type auth_type,
           line += s->status.framesize;
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
           // quality
@@ -94,9 +94,9 @@ bool Commands::ESP170(const char* cmd_params, level_authenticate_type auth_type,
           line += s->status.quality;
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
           // brightness
@@ -108,9 +108,9 @@ bool Commands::ESP170(const char* cmd_params, level_authenticate_type auth_type,
           line += s->status.brightness;
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
           // contrast
@@ -122,9 +122,9 @@ bool Commands::ESP170(const char* cmd_params, level_authenticate_type auth_type,
           line += s->status.contrast;
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
           // saturation
@@ -136,9 +136,9 @@ bool Commands::ESP170(const char* cmd_params, level_authenticate_type auth_type,
           line += s->status.saturation;
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
           // sharpness
@@ -150,9 +150,9 @@ bool Commands::ESP170(const char* cmd_params, level_authenticate_type auth_type,
           line += s->status.sharpness;
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
           // special_effect
@@ -164,9 +164,9 @@ bool Commands::ESP170(const char* cmd_params, level_authenticate_type auth_type,
           line += s->status.special_effect;
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
           // wb_mode
@@ -178,9 +178,9 @@ bool Commands::ESP170(const char* cmd_params, level_authenticate_type auth_type,
           line += s->status.wb_mode;
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
           // awb
@@ -192,9 +192,9 @@ bool Commands::ESP170(const char* cmd_params, level_authenticate_type auth_type,
           line += s->status.awb;
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
           // awb_gain
@@ -206,9 +206,9 @@ bool Commands::ESP170(const char* cmd_params, level_authenticate_type auth_type,
           line += s->status.awb_gain;
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
           // aec
@@ -220,9 +220,9 @@ bool Commands::ESP170(const char* cmd_params, level_authenticate_type auth_type,
           line += s->status.aec;
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
           // aec2
@@ -234,9 +234,9 @@ bool Commands::ESP170(const char* cmd_params, level_authenticate_type auth_type,
           line += s->status.aec2;
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
           // ae_level
@@ -248,9 +248,9 @@ bool Commands::ESP170(const char* cmd_params, level_authenticate_type auth_type,
           line += s->status.ae_level;
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
           // aec_value
@@ -262,9 +262,9 @@ bool Commands::ESP170(const char* cmd_params, level_authenticate_type auth_type,
           line += s->status.aec_value;
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
           // agc
@@ -276,9 +276,9 @@ bool Commands::ESP170(const char* cmd_params, level_authenticate_type auth_type,
           line += s->status.agc;
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
           // agc_gain
@@ -290,9 +290,9 @@ bool Commands::ESP170(const char* cmd_params, level_authenticate_type auth_type,
           line += s->status.agc_gain;
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
           // gainceiling
@@ -304,9 +304,9 @@ bool Commands::ESP170(const char* cmd_params, level_authenticate_type auth_type,
           line += s->status.gainceiling;
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
           // bpc
@@ -318,9 +318,9 @@ bool Commands::ESP170(const char* cmd_params, level_authenticate_type auth_type,
           line += s->status.bpc;
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
           // wpc
@@ -332,9 +332,9 @@ bool Commands::ESP170(const char* cmd_params, level_authenticate_type auth_type,
           line += s->status.wpc;
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
           // raw_gma
@@ -346,9 +346,9 @@ bool Commands::ESP170(const char* cmd_params, level_authenticate_type auth_type,
           line += s->status.raw_gma;
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
           // lenc
@@ -360,9 +360,9 @@ bool Commands::ESP170(const char* cmd_params, level_authenticate_type auth_type,
           line += s->status.lenc;
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
           // vflip
@@ -374,9 +374,9 @@ bool Commands::ESP170(const char* cmd_params, level_authenticate_type auth_type,
           line += s->status.vflip;
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
           // hmirror
@@ -388,9 +388,9 @@ bool Commands::ESP170(const char* cmd_params, level_authenticate_type auth_type,
           line += s->status.hmirror;
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
           // dcw
@@ -402,9 +402,9 @@ bool Commands::ESP170(const char* cmd_params, level_authenticate_type auth_type,
           line += s->status.dcw;
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
           // colorbar
@@ -416,9 +416,9 @@ bool Commands::ESP170(const char* cmd_params, level_authenticate_type auth_type,
           line += s->status.colorbar;
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
 #if CAM_LED_PIN != -1
@@ -431,14 +431,14 @@ bool Commands::ESP170(const char* cmd_params, level_authenticate_type auth_type,
           line += digitalRead(CAM_LED_PIN) == HIGH ? 1 : 0;
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
 #endif  // CAM_LED_PIN
           if (json) {
-            output->printLN("]}");
+            esp3dmsg->printLN("]}");
           }
           return true;
         }
@@ -485,12 +485,12 @@ bool Commands::ESP170(const char* cmd_params, level_authenticate_type auth_type,
     }
   }
   if (json) {
-    output->printLN(response.c_str());
+    esp3dmsg->printLN(response.c_str());
   } else {
     if (noError) {
-      output->printMSG(response.c_str());
+      esp3dmsg->printMSG(response.c_str());
     } else {
-      output->printERROR(response.c_str(), errorCode);
+      esp3dmsg->printERROR(response.c_str(), errorCode);
     }
   }
   return noError;

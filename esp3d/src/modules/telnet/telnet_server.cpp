@@ -177,7 +177,7 @@ void Telnet_Server::flushbuffer() {
   ESP3DMessage esp3dmsg(ESP_TELNET_CLIENT);
   _buffer[_buffer_size] = 0x0;
   // dispatch command
-  esp3d_commands.process(_buffer, _buffer_size, &output);
+  esp3d_commands.process(_buffer, _buffer_size, &esp3dmsg);
   _lastflush = millis();
   _buffer_size = 0;
 }

@@ -49,7 +49,7 @@ bool Commands::ESP710(const char* cmd_params, level_authenticate_type auth_type,
   if (noError) {
     if (has_tag(cmd_params, "FORMATFS")) {
       if (!json) {
-        output->printMSGLine("Start Formating");
+        esp3dmsg->printMSGLine("Start Formating");
       }
       ESP_FileSystem::format();
       response = format_response(COMMANDID, json, true, "ok");
@@ -59,12 +59,12 @@ bool Commands::ESP710(const char* cmd_params, level_authenticate_type auth_type,
     }
   }
   if (json) {
-    output->printLN(response.c_str());
+    esp3dmsg->printLN(response.c_str());
   } else {
     if (noError) {
-      output->printMSG(response.c_str());
+      esp3dmsg->printMSG(response.c_str());
     } else {
-      output->printERROR(response.c_str(), errorCode);
+      esp3dmsg->printERROR(response.c_str(), errorCode);
     }
   }
   return noError;

@@ -45,7 +45,7 @@ void HTTP_Server::WebUpdateUpload() {
   if (AuthenticationService::authenticated_level() != LEVEL_ADMIN) {
     _upload_status = UPLOAD_STATUS_FAILED;
     pushError(ESP_ERROR_AUTHENTICATION, "Upload rejected", 401);
-    output.printERROR("Update rejected!", 401);
+    esp3dmsg.printERROR("Update rejected!", 401);
   } else {
     // get current file ID
     HTTPUpload& upload = _webserver->upload();
@@ -56,7 +56,7 @@ void HTTP_Server::WebUpdateUpload() {
 #endif  // ESP3DLIB_ENV && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
         // Upload start
       if (upload.status == UPLOAD_FILE_START) {
-        output.printMSG("Update Firmware");
+        esp3dmsg.printMSG("Update Firmware");
         _upload_status = UPLOAD_STATUS_ONGOING;
         String sizeargname = upload.filename + "S";
         if (_webserver->hasArg(sizeargname.c_str())) {
@@ -66,7 +66,7 @@ void HTTP_Server::WebUpdateUpload() {
         }
         if (downloadsize > ESP_FileSystem::max_update_size()) {
           _upload_status = UPLOAD_STATUS_FAILED;
-          output.printERROR("Update rejected!", 500);
+          esp3dmsg.printERROR("Update rejected!", 500);
           pushError(ESP_ERROR_NOT_ENOUGH_SPACE, "Upload rejected");
         }
         last_upload_update = 0;
@@ -74,10 +74,10 @@ void HTTP_Server::WebUpdateUpload() {
           if (!Update.begin(
                   UPDATE_SIZE)) {  // start with unknown = max available size
             _upload_status = UPLOAD_STATUS_FAILED;
-            output.printERROR("Update rejected!", 500);
+            esp3dmsg.printERROR("Update rejected!", 500);
             pushError(ESP_ERROR_NOT_ENOUGH_SPACE, "Upload rejected");
           } else {
-            output.printMSG("Update 0%");
+            esp3dmsg.printMSG("Update 0%");
           }
         }
         // Upload write
@@ -97,13 +97,13 @@ void HTTP_Server::WebUpdateUpload() {
               String s = "Update ";
               s += String(last_upload_update);
               s += "/100";
-              output.printMSG(s.c_str());
+              esp3dmsg.printMSG(s.c_str());
             }
           }
           if (Update.write(upload.buf, upload.currentSize) !=
               upload.currentSize) {
             _upload_status = UPLOAD_STATUS_FAILED;
-            output.printERROR("Update write failed!", 500);
+            esp3dmsg.printERROR("Update write failed!", 500);
             pushError(ESP_ERROR_FILE_WRITE, "File write failed");
           }
         }
@@ -112,30 +112,30 @@ void HTTP_Server::WebUpdateUpload() {
       } else if (upload.status == UPLOAD_FILE_END) {
         if ((downloadsize != 0) && (downloadsize < upload.totalSize)) {
           _upload_status = UPLOAD_STATUS_FAILED;
-          output.printERROR("Update write failed!", 500);
+          esp3dmsg.printERROR("Update write failed!", 500);
           pushError(ESP_ERROR_FILE_WRITE, "File write failed");
         }
         if (_upload_status == UPLOAD_STATUS_ONGOING) {
           if (Update.end(
                   true)) {  // true to set the size to the current progress
-            // Now Reboot
-            output.printMSG("Update 100%");
+                            // Now Reboot
+            esp3dmsg.printMSG("Update 100%");
             _upload_status = UPLOAD_STATUS_SUCCESSFUL;
           } else {
-            output.printERROR("Update failed!", 500);
+            esp3dmsg.printERROR("Update failed!", 500);
             _upload_status = UPLOAD_STATUS_FAILED;
             pushError(ESP_ERROR_UPDATE, "Update FW failed");
           }
         } else {
           _upload_status = UPLOAD_STATUS_FAILED;
-          output.printERROR("Update failed!", 500);
+          esp3dmsg.printERROR("Update failed!", 500);
           pushError(ESP_ERROR_UPDATE, "Update FW failed");
         }
 #if defined(ESP3DLIB_ENV) && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
         Serial2Socket.pause(false);
 #endif  // ESP3DLIB_ENV && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
       } else {
-        output.printERROR("Update failed!", 500);
+        esp3dmsg.printERROR("Update failed!", 500);
         _upload_status = UPLOAD_STATUS_FAILED;
       }
     }

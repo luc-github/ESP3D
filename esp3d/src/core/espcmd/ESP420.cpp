@@ -120,9 +120,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
       line += Hal::getChipID();
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
       // CPU freq
@@ -139,9 +139,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
       line += "Mhz";
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
       // CPU temp
@@ -159,9 +159,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         line += "C";
         if (json) {
           line += "\"}";
-          output->print(line.c_str());
+          esp3dmsg->print(line.c_str());
         } else {
-          output->printMSGLine(line.c_str());
+          esp3dmsg->printMSGLine(line.c_str());
         }
         line = "";
       }
@@ -190,9 +190,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
 #endif  // ARDUINO_ARCH_ESP32
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
       // SDK version
@@ -208,9 +208,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
       line += ESP.getSdkVersion();
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
       // Flash size
@@ -230,9 +230,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
 #endif  // FILESYSTEM_FEATURE
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
 
@@ -251,9 +251,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
       line += ESP_FileSystem::formatBytes(ESP_FileSystem::max_update_size());
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
 #endif  // WIFI_FEATURE || ETH_FEATURE
@@ -271,9 +271,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
       line += ESP_FileSystem::FilesystemName();
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
       // FileSystem capacity
@@ -291,9 +291,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
       line += ESP_FileSystem::formatBytes(ESP_FileSystem::totalBytes());
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
 #endif  // FILESYSTEM_FEATURE
@@ -311,9 +311,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
       line += serial_service.baudRate();
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
 #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
@@ -333,9 +333,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         line += WiFiConfig::getSleepModeString();
         if (json) {
           line += "\"}";
-          output->print(line.c_str());
+          esp3dmsg->print(line.c_str());
         } else {
-          output->printMSGLine(line.c_str());
+          esp3dmsg->printMSGLine(line.c_str());
         }
         line = "";
       }
@@ -354,9 +354,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
       line += (WiFi.getMode() == WIFI_OFF) ? "OFF" : "ON";
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
 #if defined(ETH_FEATURE)
@@ -373,9 +373,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
       line += (EthConfig::started()) ? "ON" : "OFF";
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
 #endif  // ETH_FEATURE
@@ -393,9 +393,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
       line += (bt_service.started()) ? "ON" : "OFF";
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
 #endif  // BLUETOOTH_FEATURE
@@ -416,9 +416,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
       }
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
 #if defined(HTTP_FEATURE)
@@ -436,9 +436,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         line += HTTP_Server::port();
         if (json) {
           line += "\"}";
-          output->print(line.c_str());
+          esp3dmsg->print(line.c_str());
         } else {
-          output->printMSGLine(line.c_str());
+          esp3dmsg->printMSGLine(line.c_str());
         }
         line = "";
       }
@@ -458,9 +458,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         line += telnet_server.port();
         if (json) {
           line += "\"}";
-          output->print(line.c_str());
+          esp3dmsg->print(line.c_str());
         } else {
-          output->printMSGLine(line.c_str());
+          esp3dmsg->printMSGLine(line.c_str());
         }
         line = "";
         if (telnet_server.isConnected()) {
@@ -476,9 +476,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
           line += telnet_server.clientIPAddress();
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
         }
@@ -499,9 +499,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         line += webdav_server.port();
         if (json) {
           line += "\"}";
-          output->print(line.c_str());
+          esp3dmsg->print(line.c_str());
         } else {
-          output->printMSGLine(line.c_str());
+          esp3dmsg->printMSGLine(line.c_str());
         }
         line = "";
         if (webdav_server.isConnected()) {
@@ -517,9 +517,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
           line += webdav_server.clientIPAddress();
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
         }
@@ -542,9 +542,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
                 String(ftp_server.datapassiveport());
         if (json) {
           line += "\"}";
-          output->print(line.c_str());
+          esp3dmsg->print(line.c_str());
         } else {
-          output->printMSGLine(line.c_str());
+          esp3dmsg->printMSGLine(line.c_str());
         }
         line = "";
 
@@ -561,9 +561,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
           line += ftp_server.clientIPAddress();
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
         }
@@ -584,9 +584,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         line += websocket_data_server.port();
         if (json) {
           line += "\"}";
-          output->print(line.c_str());
+          esp3dmsg->print(line.c_str());
         } else {
-          output->printMSGLine(line.c_str());
+          esp3dmsg->printMSGLine(line.c_str());
         }
         line = "";
       }
@@ -609,9 +609,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         line += ")";
         if (json) {
           line += "\"}";
-          output->print(line.c_str());
+          esp3dmsg->print(line.c_str());
         } else {
-          output->printMSGLine(line.c_str());
+          esp3dmsg->printMSGLine(line.c_str());
         }
         line = "";
       }
@@ -630,9 +630,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
       line += esp3d_display.getModelString();
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
 #endif  // DISPLAY_DEVICE
@@ -652,9 +652,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
 
         if (json) {
           line += "\"}";
-          output->print(line.c_str());
+          esp3dmsg->print(line.c_str());
         } else {
-          output->printMSGLine(line.c_str());
+          esp3dmsg->printMSGLine(line.c_str());
         }
         line = "";
         // BT status
@@ -675,9 +675,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         }
         if (json) {
           line += "\"}";
-          output->print(line.c_str());
+          esp3dmsg->print(line.c_str());
         } else {
-          output->printMSGLine(line.c_str());
+          esp3dmsg->printMSGLine(line.c_str());
         }
         line = "";
       }
@@ -697,9 +697,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         line += ETH.macAddress();
         if (json) {
           line += "\"}";
-          output->print(line.c_str());
+          esp3dmsg->print(line.c_str());
         } else {
-          output->printMSGLine(line.c_str());
+          esp3dmsg->printMSGLine(line.c_str());
         }
         line = "";
         // Ethernet cable
@@ -721,9 +721,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         }
         if (json) {
           line += "\"}";
-          output->print(line.c_str());
+          esp3dmsg->print(line.c_str());
         } else {
-          output->printMSGLine(line.c_str());
+          esp3dmsg->printMSGLine(line.c_str());
         }
         line = "";
         // IP mode
@@ -739,9 +739,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         line += (NetConfig::isIPModeDHCP(ESP_ETH_STA)) ? "dhcp" : "static";
         if (json) {
           line += "\"}";
-          output->print(line.c_str());
+          esp3dmsg->print(line.c_str());
         } else {
-          output->printMSGLine(line.c_str());
+          esp3dmsg->printMSGLine(line.c_str());
         }
         line = "";
         // IP value
@@ -757,9 +757,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         line += ETH.localIP().toString();
         if (json) {
           line += "\"}";
-          output->print(line.c_str());
+          esp3dmsg->print(line.c_str());
         } else {
-          output->printMSGLine(line.c_str());
+          esp3dmsg->printMSGLine(line.c_str());
         }
         line = "";
         // GW value
@@ -775,9 +775,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         line += ETH.gatewayIP().toString();
         if (json) {
           line += "\"}";
-          output->print(line.c_str());
+          esp3dmsg->print(line.c_str());
         } else {
-          output->printMSGLine(line.c_str());
+          esp3dmsg->printMSGLine(line.c_str());
         }
         line = "";
         // Mask value
@@ -793,9 +793,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         line += ETH.subnetMask().toString();
         if (json) {
           line += "\"}";
-          output->print(line.c_str());
+          esp3dmsg->print(line.c_str());
         } else {
-          output->printMSGLine(line.c_str());
+          esp3dmsg->printMSGLine(line.c_str());
         }
         line = "";
         // DNS value
@@ -811,9 +811,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         line += ETH.dnsIP().toString();
         if (json) {
           line += "\"}";
-          output->print(line.c_str());
+          esp3dmsg->print(line.c_str());
         } else {
-          output->printMSGLine(line.c_str());
+          esp3dmsg->printMSGLine(line.c_str());
         }
         line = "";
       }
@@ -844,9 +844,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         line += "ON";
         if (json) {
           line += "\"}";
-          output->print(line.c_str());
+          esp3dmsg->print(line.c_str());
         } else {
-          output->printMSGLine(line.c_str());
+          esp3dmsg->printMSGLine(line.c_str());
         }
         line = "";
 
@@ -875,9 +875,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
         }
         if (json) {
           line += "\"}";
-          output->print(line.c_str());
+          esp3dmsg->print(line.c_str());
         } else {
-          output->printMSGLine(line.c_str());
+          esp3dmsg->printMSGLine(line.c_str());
         }
         line = "";
 
@@ -902,9 +902,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
           }
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
           if (WiFi.isConnected()) {  // in case query come from serial
@@ -922,9 +922,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
             line += "%";
             if (json) {
               line += "\"}";
-              output->print(line.c_str());
+              esp3dmsg->print(line.c_str());
             } else {
-              output->printMSGLine(line.c_str());
+              esp3dmsg->printMSGLine(line.c_str());
             }
             line = "";
             // Phy Mode
@@ -940,9 +940,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
             line += WiFiConfig::getPHYModeString(WIFI_STA);
             if (json) {
               line += "\"}";
-              output->print(line.c_str());
+              esp3dmsg->print(line.c_str());
             } else {
-              output->printMSGLine(line.c_str());
+              esp3dmsg->printMSGLine(line.c_str());
             }
             line = "";
             // Channel
@@ -958,9 +958,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
             line += WiFi.channel();
             if (json) {
               line += "\"}";
-              output->print(line.c_str());
+              esp3dmsg->print(line.c_str());
             } else {
-              output->printMSGLine(line.c_str());
+              esp3dmsg->printMSGLine(line.c_str());
             }
             line = "";
             // IP Mode
@@ -976,9 +976,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
             line += (NetConfig::isIPModeDHCP(ESP_WIFI_STA)) ? "dhcp" : "static";
             if (json) {
               line += "\"}";
-              output->print(line.c_str());
+              esp3dmsg->print(line.c_str());
             } else {
-              output->printMSGLine(line.c_str());
+              esp3dmsg->printMSGLine(line.c_str());
             }
             line = "";
             // IP value
@@ -994,9 +994,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
             line += WiFi.localIP().toString();
             if (json) {
               line += "\"}";
-              output->print(line.c_str());
+              esp3dmsg->print(line.c_str());
             } else {
-              output->printMSGLine(line.c_str());
+              esp3dmsg->printMSGLine(line.c_str());
             }
             line = "";
             // Gateway value
@@ -1012,9 +1012,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
             line += WiFi.gatewayIP().toString();
             if (json) {
               line += "\"}";
-              output->print(line.c_str());
+              esp3dmsg->print(line.c_str());
             } else {
-              output->printMSGLine(line.c_str());
+              esp3dmsg->printMSGLine(line.c_str());
             }
             line = "";
             // Mask value
@@ -1030,9 +1030,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
             line += WiFi.subnetMask().toString();
             if (json) {
               line += "\"}";
-              output->print(line.c_str());
+              esp3dmsg->print(line.c_str());
             } else {
-              output->printMSGLine(line.c_str());
+              esp3dmsg->printMSGLine(line.c_str());
             }
             line = "";
             // DNS value
@@ -1048,9 +1048,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
             line += WiFi.dnsIP().toString();
             if (json) {
               line += "\"}";
-              output->print(line.c_str());
+              esp3dmsg->print(line.c_str());
             } else {
-              output->printMSGLine(line.c_str());
+              esp3dmsg->printMSGLine(line.c_str());
             }
             line = "";
           }
@@ -1068,9 +1068,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
           line += "OFF";
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
           // Disabled Mode
@@ -1086,9 +1086,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
           line += WiFi.softAPmacAddress();
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
         } else if (WiFi.getMode() == WIFI_AP) {
@@ -1109,9 +1109,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
           }
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
           // AP Visibility
@@ -1127,9 +1127,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
           line += (WiFiConfig::is_AP_visible()) ? "yes" : "no";
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
           // AP Authentication
@@ -1145,9 +1145,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
           line += WiFiConfig::AP_Auth_String();
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
           // DHCP Server
@@ -1163,9 +1163,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
           line += (NetConfig::isDHCPServer(ESP_WIFI_AP)) ? "ON" : "OFF";
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
           // IP Value
@@ -1181,9 +1181,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
           line += WiFi.softAPIP().toString();
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
           // Gateway Value
@@ -1199,9 +1199,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
           line += WiFiConfig::AP_Gateway_String();
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
           // Mask Value
@@ -1217,9 +1217,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
           line += WiFiConfig::AP_Mask_String();
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
           // Connected clients
@@ -1238,9 +1238,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
           line += nb;
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
           for (uint8_t i = 0; i < nb; i++) {
@@ -1258,9 +1258,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
             line += entry;
             if (json) {
               line += "\"}";
-              output->print(line.c_str());
+              esp3dmsg->print(line.c_str());
             } else {
-              output->printMSGLine(line.c_str());
+              esp3dmsg->printMSGLine(line.c_str());
             }
             line = "";
             // get next
@@ -1280,9 +1280,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
           line += "OFF";
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
           // Disabled Mode
@@ -1298,9 +1298,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
           line += WiFi.macAddress();
           if (json) {
             line += "\"}";
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
           line = "";
         }
@@ -1320,9 +1320,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
       line += timeService.started() ? "ON" : "OFF";
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
 #endif  // TIMESTAMP_FEATURE
@@ -1339,9 +1339,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
       line += serial_service.started() ? "ON" : "OFF";
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
 #endif  // COMMUNICATION_PROTOCOL
@@ -1358,9 +1358,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
       line += "ON";
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
 #endif  // AUTHENTICATION_FEATURE
@@ -1381,9 +1381,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
       }
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
       if (json) {
@@ -1398,9 +1398,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
       line += serial_bridge_service.baudRate();
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
 
@@ -1418,9 +1418,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
       line += "ON";
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
 #endif  // HAS_SERIAL_DISPLAY
@@ -1442,9 +1442,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
       }
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
 #endif  // NOTIFICATION_FEATURE
@@ -1466,9 +1466,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
       line += ")";
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
 #ifdef SD_UPDATE_FEATURE
@@ -1486,9 +1486,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
                   : "OFF";
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
 #endif  // SD_UPDATE_FEATURE
@@ -1512,9 +1512,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
       }
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
 #endif  // SENSOR_DEVICE
@@ -1531,9 +1531,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
       line += esp3d_buzzer.started() ? "ON" : "OFF";
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
 #endif  // BUZZER_DEVICE
@@ -1565,9 +1565,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
 #endif  // LOG_OUTPUT_WEBSOCKET
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
 #endif  // ESP_LOG_FEATURE
@@ -1586,9 +1586,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
       line += "MKS";
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
 #endif  // COMMUNICATION_PROTOCOL
@@ -1606,9 +1606,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
       line += Settings_ESP3D::GetFirmwareTargetShortName();
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
       // FW version
@@ -1627,9 +1627,9 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
       line += FW_VERSION;
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
       // FW architecture
@@ -1646,12 +1646,12 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
       line += Settings_ESP3D::TargetBoard();
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       if (json) {
-        output->printLN("]}");
+        esp3dmsg->printLN("]}");
       }
       return true;
     } else {
@@ -1661,12 +1661,12 @@ bool Commands::ESP420(const char* cmd_params, level_authenticate_type auth_type,
     }
   }
   if (json) {
-    output->printLN(response.c_str());
+    esp3dmsg->printLN(response.c_str());
   } else {
     if (noError) {
-      output->printMSG(response.c_str());
+      esp3dmsg->printMSG(response.c_str());
     } else {
-      output->printERROR(response.c_str(), errorCode);
+      esp3dmsg->printERROR(response.c_str(), errorCode);
     }
   }
   return noError;

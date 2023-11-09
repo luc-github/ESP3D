@@ -101,7 +101,7 @@
 /* Use WiFi
  * Enable wifi communications
  */
-#define WIFI_FEATURE
+// #define WIFI_FEATURE
 
 /* Use Ethernet
  * Enable ethernet communications
@@ -154,7 +154,7 @@
 /* Use telnet server
  * Enable telnet light (raw tcp) communications
  */
-#define TELNET_FEATURE
+// #define TELNET_FEATURE
 
 /* Use Websocket server
  * Enable websocket communications
@@ -564,7 +564,7 @@
 /* Gcode Host Feature
  * This feature allows to process Gcode files like macros.
  */
-#define GCODE_HOST_FEATURE
+// #define GCODE_HOST_FEATURE
 
 /* Settings location
  * SETTINGS_IN_EEPROM //ESP8266/ESP32

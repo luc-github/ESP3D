@@ -1,5 +1,5 @@
 /*
-  esp3d output.h -  output functions class
+  esp3desp3dmsg.h -  output functions class
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 

@@ -307,6 +307,7 @@ const uint cmdlist[] = {0,
 bool Commands::ESP0(const char* cmd_params, level_authenticate_type auth_type,
                     ESP3DMessage* esp3dmsg) {
   bool noError = true;
+
   String parameter;
   const uint cmdNb = sizeof(help) / sizeof(char*);
   (void)auth_type;
@@ -314,27 +315,27 @@ bool Commands::ESP0(const char* cmd_params, level_authenticate_type auth_type,
   parameter = clean_param(get_param(cmd_params, ""));
   if (parameter.length() == 0) {
     if (json) {
-      output->print("{\"cmd\":\"0\",\"status\":\"ok\",\"data\":[");
+      esp3dmsg->print("{\"cmd\":\"0\",\"status\":\"ok\",\"data\":[");
     } else {
-      output->printMSGLine("[List of ESP3D commands]");
+      esp3dmsg->printMSGLine("[List of ESP3D commands]");
     }
 
     for (uint i = 0; i < cmdNb - 1; i++) {
       if (json) {
-        output->print("{\"id\":\"");
-        output->print(String(cmdlist[i]).c_str());
-        output->print("\",\"help\":\"");
-        output->print(String(help[i]).c_str());
-        output->print("\"}");
+        esp3dmsg->print("{\"id\":\"");
+        esp3dmsg->print(String(cmdlist[i]).c_str());
+        esp3dmsg->print("\",\"help\":\"");
+        esp3dmsg->print(String(help[i]).c_str());
+        esp3dmsg->print("\"}");
         if (i < cmdNb - 2) {
-          output->print(",");
+          esp3dmsg->print(",");
         }
       } else {
-        output->printMSGLine(help[i]);
+        esp3dmsg->printMSGLine(help[i]);
       }
     }
     if (json) {
-      output->printLN("]}");
+      esp3dmsg->printLN("]}");
     }
   } else {
     bool found = false;
@@ -342,19 +343,20 @@ bool Commands::ESP0(const char* cmd_params, level_authenticate_type auth_type,
     if (sizeof(help) / sizeof(char*) != sizeof(cmdlist) / sizeof(uint)) {
       String s = "Error in code:" + String(sizeof(help) / sizeof(char*)) +
                  "entries vs " + String(sizeof(cmdlist) / sizeof(uint));
-      output->printLN(s.c_str());
+      esp3dmsg->printLN(s.c_str());
       return false;
     }
     for (uint i = 0; i < cmdNb - 1; i++) {
       if (cmdlist[i] == cmdval) {
         if (json) {
-          output->print("{\"cmd\":\"0\",\"status\":\"ok\",\"data\":{\"id\":\"");
-          output->print(String(cmdval).c_str());
-          output->print("\",\"help\":\"");
-          output->print(help[i]);
-          output->printLN("\"}}");
+          esp3dmsg->print(
+              "{\"cmd\":\"0\",\"status\":\"ok\",\"data\":{\"id\":\"");
+          esp3dmsg->print(String(cmdval).c_str());
+          esp3dmsg->print("\",\"help\":\"");
+          esp3dmsg->print(help[i]);
+          esp3dmsg->printLN("\"}}");
         } else {
-          output->printMSGLine(help[i]);
+          esp3dmsg->printMSGLine(help[i]);
         }
         found = true;
       }
@@ -365,9 +367,9 @@ bool Commands::ESP0(const char* cmd_params, level_authenticate_type auth_type,
       noError = false;
       String response = format_response(0, json, noError, msg.c_str());
       if (json) {
-        output->printLN(response.c_str());
+        esp3dmsg->printLN(response.c_str());
       } else {
-        output->printERROR(response.c_str());
+        esp3dmsg->printERROR(response.c_str());
       }
     }
   }

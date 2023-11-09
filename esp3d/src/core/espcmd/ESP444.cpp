@@ -56,12 +56,12 @@ bool Commands::ESP444(const char* cmd_params, level_authenticate_type auth_type,
     }
     if (noError && has_tag(cmd_params, "RESTART")) {
       if (!json) {
-        output->printMSG("Restart ongoing");
+        esp3dmsg->printMSG("Restart ongoing");
       } else {
         response = format_response(COMMANDID, json, true, "Restart ongoing");
-        output->printLN(response.c_str());
+        esp3dmsg->printLN(response.c_str());
       }
-      output->flush();
+      esp3dmsg->flush();
       Hal::wait(100);
       Esp3D::restart_esp();
     }
@@ -72,12 +72,12 @@ bool Commands::ESP444(const char* cmd_params, level_authenticate_type auth_type,
     }
   }
   if (json) {
-    output->printLN(response.c_str());
+    esp3dmsg->printLN(response.c_str());
   } else {
     if (noError) {
-      output->printMSG(response.c_str());
+      esp3dmsg->printMSG(response.c_str());
     } else {
-      output->printERROR(response.c_str(), errorCode);
+      esp3dmsg->printERROR(response.c_str(), errorCode);
     }
   }
   return noError;

@@ -72,7 +72,7 @@ static void my_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param) {
       BTService::setClientAddress(str);
       String stmp = "BT Connected with ";
       stmp += str;
-      output.printMSG(stmp.c_str());
+      esp3dmsg.printMSG(stmp.c_str());
 #if defined(DISPLAY_DEVICE)
       ESP3DMessage esp3dmsgscr(ESP_SCREEN_CLIENT, ESP_BT_CLIENT);
       outputscr.printMSG(stmp.c_str());
@@ -81,7 +81,7 @@ static void my_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param) {
 
     case ESP_SPP_CLOSE_EVT: {
       // Client connection closed
-      output.printMSG("BT Disconnected");
+      esp3dmsg.printMSG("BT Disconnected");
 #if defined(DISPLAY_DEVICE)
       ESP3DMessage esp3dmsgscr(ESP_SCREEN_CLIENT, ESP_BT_CLIENT);
       outputscr.printMSG("BT Disconnected");
@@ -119,12 +119,12 @@ bool BTService::begin() {
   _btname = Settings_ESP3D::read_string(ESP_HOSTNAME);
 
   if (!SerialBT.begin(_btname)) {
-    output.printERROR("BT failed start");
+    esp3dmsg.printERROR("BT failed start");
     res = false;
   } else {
     SerialBT.register_callback(&my_spp_cb);
     String stmp = "Bluetooth Started with: '" + _btname + "'";
-    output.printMSG(stmp.c_str());
+    esp3dmsg.printMSG(stmp.c_str());
   }
 
   return res;

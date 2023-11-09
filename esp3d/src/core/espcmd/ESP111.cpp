@@ -31,7 +31,7 @@
 //[ESP111] [json=no]
 bool Commands::ESP111(const char* cmd_params, level_authenticate_type auth_type,
                       ESP3DMessage* esp3dmsg) {
-  log_esp3d("Client is %d", output ? output->getTarget() : 0);
+  log_esp3d("Client is %d", output ? esp3dmsg->getTarget() : 0);
   (void)auth_type;
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
@@ -50,20 +50,20 @@ bool Commands::ESP111(const char* cmd_params, level_authenticate_type auth_type,
   if (noError) {
     parameter = get_param(cmd_params, "OUTPUT=");
     if (json) {
-      output->printLN(response.c_str());
+      esp3dmsg->printLN(response.c_str());
     } else {
-      output->printMSG(response.c_str());
+      esp3dmsg->printMSG(response.c_str());
       if (parameter == "PRINTER") {
         ESP3DMessage printerOutput(ESP_REMOTE_SCREEN_CLIENT,
-                                   output->getOrigin());
+                                   esp3dmsg->getOrigin());
         printerOutput.printMSG(NetConfig::localIP().c_str());
       }
     }
   } else {
     if (json) {
-      output->printLN(response.c_str());
+      esp3dmsg->printLN(response.c_str());
     } else {
-      output->printERROR(response.c_str(), 200);
+      esp3dmsg->printERROR(response.c_str(), 200);
     }
   }
   return noError;

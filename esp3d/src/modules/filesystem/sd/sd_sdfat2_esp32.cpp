@@ -230,7 +230,7 @@ bool ESP_SD::rename(const char* oldpath, const char* newpath) {
   return SD.rename(oldpath, newpath);
 }
 
-bool ESP_SD::format(ESP3DMessage* output) {
+bool ESP_SD::format(ESP3DMessage* esp3dmsg) {
   if (ESP_SD::getState(true) == ESP_SDCARD_IDLE) {
     uint32_t const ERASE_SIZE = 262144L;
     uint32_t cardSectorCount = 0;
@@ -242,24 +242,24 @@ bool ESP_SD::format(ESP3DMessage* output) {
     // prepare
     m_card = cardFactory.newCard(SD_CONFIG);
     if (!m_card || m_card->errorCode()) {
-      if (output) {
-        output->printMSG("card init failed.");
+      if (esp3dmsg) {
+        esp3dmsg->printMSG("card init failed.");
       }
       return false;
     }
 
     cardSectorCount = m_card->sectorCount();
     if (!cardSectorCount) {
-      if (output) {
-        output->printMSG("Get sector count failed.");
+      if (esp3dmsg) {
+        esp3dmsg->printMSG("Get sector count failed.");
       }
       return false;
     }
 
-    if (output) {
+    if (esp3dmsg) {
       String s =
           "Capacity detected :" + String(cardSectorCount * 5.12e-7) + "GB";
-      output->printMSG(s.c_str());
+      esp3dmsg->printMSG(s.c_str());
     }
 
     uint32_t firstBlock = 0;
@@ -271,8 +271,8 @@ bool ESP_SD::format(ESP3DMessage* output) {
         lastBlock = cardSectorCount - 1;
       }
       if (!m_card->erase(firstBlock, lastBlock)) {
-        if (output) {
-          output->printMSG("erase failed");
+        if (esp3dmsg) {
+          esp3dmsg->printMSG("erase failed");
         }
         return false;
       }
@@ -284,8 +284,8 @@ bool ESP_SD::format(ESP3DMessage* output) {
     } while (firstBlock < cardSectorCount);
 
     if (!m_card->readSector(0, sectorBuffer)) {
-      if (output) {
-        output->printMSG("readBlock");
+      if (esp3dmsg) {
+        esp3dmsg->printMSG("readBlock");
       }
     }
 
@@ -298,16 +298,16 @@ bool ESP_SD::format(ESP3DMessage* output) {
                    : fatFormatter.format(m_card, sectorBuffer, nullptr);
 
     if (!rtn) {
-      if (output) {
-        output->printMSG("erase failed");
+      if (esp3dmsg) {
+        esp3dmsg->printMSG("erase failed");
       }
       return false;
     }
 
     return true;
   }
-  if (output) {
-    output->printMSG("cannot erase");
+  if (esp3dmsg) {
+    esp3dmsg->printMSG("cannot erase");
   }
   return false;
 }

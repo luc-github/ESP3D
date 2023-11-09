@@ -73,12 +73,12 @@ bool mDNS_Service::begin(const char* hostname) {
     ESP3DMessage esp3dmsg(ESP_ALL_CLIENTS);
     log_esp3d("Start mdsn for %s", _hostname.c_str());
     if (!MDNS.begin(_hostname.c_str())) {
-      output.printERROR("mDNS failed to start");
+      esp3dmsg.printERROR("mDNS failed to start");
       _started = false;
     } else {
       String stmp = "mDNS started with '" + _hostname + ".local'";
       if (Settings_ESP3D::isVerboseBoot()) {
-        output.printMSG(stmp.c_str());
+        esp3dmsg.printMSG(stmp.c_str());
       }
       _started = true;
     }

@@ -97,11 +97,11 @@ bool EthConfig::begin(int8_t& espMode) {
   _started = ETH.begin();
   if (_started) {
     if (Settings_ESP3D::isVerboseBoot()) {
-      output.printMSG("Starting Ethernet");
+      esp3dmsg.printMSG("Starting Ethernet");
     }
     res = true;
   } else {
-    output.printERROR("Failed Starting Ethernet");
+    esp3dmsg.printERROR("Failed Starting Ethernet");
   }
   ETH.setHostname(NetConfig::hostname(true));
 
@@ -109,22 +109,22 @@ bool EthConfig::begin(int8_t& espMode) {
   if (espMode == ESP_ETH_STA) {
     if (!StartSTA()) {
       if (Settings_ESP3D::isVerboseBoot()) {
-        output.printMSG("Starting fallback mode");
+        esp3dmsg.printMSG("Starting fallback mode");
       }
       espMode = Settings_ESP3D::read_byte(ESP_STA_FALLBACK_MODE);
       res = true;
     } else {
       if (Settings_ESP3D::isVerboseBoot()) {
-        output.printMSG("Client started");
+        esp3dmsg.printMSG("Client started");
       }
     }
 
   } else {
     // if(!StartSRV()){
     //    res = false;
-    //    output.printMSG ("Failed Starting Server");
+    //   esp3dmsg.printMSG ("Failed Starting Server");
     // } else {
-    //     output.printMSG ("Server started");
+    //    esp3dmsg.printMSG ("Server started");
     // }
   }
 
@@ -132,7 +132,7 @@ bool EthConfig::begin(int8_t& espMode) {
   // == ESP_ETH_SRV)){
   if ((Settings_ESP3D::read_byte(ESP_STA_IP_MODE) != DHCP_MODE)) {
     // as no event to display static IP
-    output.printMSG(ETH.localIP().toString().c_str());
+    esp3dmsg.printMSG(ETH.localIP().toString().c_str());
   }
 
   return res;

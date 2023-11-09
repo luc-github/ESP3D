@@ -40,10 +40,10 @@ void HTTP_Server::handle_config() {
     cmd = "[ESP420]json=" + _webserver->arg("json");
   }
   ESP3DMessage esp3dmsg(_webserver);
-  output.printMSGLine("<pre>");
+  esp3dmsg.printMSGLine("<pre>");
   esp3d_commands.process((uint8_t*)cmd.c_str(), cmd.length(), &output,
                          auth_level);
-  output.printMSGLine("</pre>");
+  esp3dmsg.printMSGLine("</pre>");
   return;
 }
 #endif  // HTTP_FEATURE

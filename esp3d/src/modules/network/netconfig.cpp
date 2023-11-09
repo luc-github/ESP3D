@@ -133,17 +133,17 @@ void NetConfig::onWiFiEvent(WiFiEvent_t event) {
       break;
     case WIFI_EVENT_STAMODE_DISCONNECTED: {
       if (_started) {
-        output.printMSG("Disconnected");
+        esp3dmsg.printMSG("Disconnected");
         //_needReconnect2AP = true;
       }
     } break;
     case WIFI_EVENT_STAMODE_GOT_IP: {
 #if COMMUNICATION_PROTOCOL != MKS_SERIAL
-      output.printMSG(WiFi.localIP().toString().c_str());
+      esp3dmsg.printMSG(WiFi.localIP().toString().c_str());
 #endif  // #if COMMUNICATION_PROTOCOL == MKS_SERIAL
     } break;
     case WIFI_EVENT_SOFTAPMODE_STACONNECTED: {
-      output.printMSG("New client");
+      esp3dmsg.printMSG("New client");
     } break;
 #ifdef ARDUINO_ARCH_ESP32
     case ARDUINO_EVENT_WIFI_STA_LOST_IP:
@@ -155,19 +155,19 @@ void NetConfig::onWiFiEvent(WiFiEvent_t event) {
     case ARDUINO_EVENT_ETH_START: {
       EthConfig::setConnected(false);
       if (Settings_ESP3D::isVerboseBoot()) {
-        output.printMSG("Checking connection");
+        esp3dmsg.printMSG("Checking connection");
       }
     } break;
     case ARDUINO_EVENT_ETH_CONNECTED: {
-      output.printMSG("Cable connected");
+      esp3dmsg.printMSG("Cable connected");
       EthConfig::setConnected(true);
     } break;
     case ARDUINO_EVENT_ETH_DISCONNECTED: {
-      output.printMSG("Cable disconnected");
+      esp3dmsg.printMSG("Cable disconnected");
       EthConfig::setConnected(false);
     } break;
     case ARDUINO_EVENT_ETH_GOT_IP:
-      output.printMSG(ETH.localIP().toString().c_str());
+      esp3dmsg.printMSG(ETH.localIP().toString().c_str());
       EthConfig::setConnected(true);
       break;
     case ARDUINO_EVENT_ETH_STOP:
@@ -196,7 +196,7 @@ bool NetConfig::begin() {
   log_esp3d("Starting Network");
   if (espMode != ESP_NO_NETWORK) {
     if (Settings_ESP3D::isVerboseBoot()) {
-      output.printMSG("Starting Network");
+      esp3dmsg.printMSG("Starting Network");
     }
   }
   // setup events
@@ -217,20 +217,20 @@ bool NetConfig::begin() {
   _hostname = Settings_ESP3D::read_string(ESP_HOSTNAME);
   _mode = espMode;
   if (espMode == ESP_NO_NETWORK) {
-    output.printMSG("Disable Network");
+    esp3dmsg.printMSG("Disable Network");
     WiFi.mode(WIFI_OFF);
     ESP3DMessage::toScreen(ESP_OUTPUT_IP_ADDRESS, nullptr);
     if (Settings_ESP3D::isVerboseBoot()) {
       ESP3DMessage esp3dmsg(ESP_ALL_CLIENTS);
-      output.printMSG(RADIO_OFF_MSG);
-      output.flush();
+      esp3dmsg.printMSG(RADIO_OFF_MSG);
+      esp3dmsg.flush();
     }
     return true;
   }
 #if defined(WIFI_FEATURE)
   if ((espMode == ESP_AP_SETUP) || (espMode == ESP_WIFI_AP) ||
       (espMode == ESP_WIFI_STA)) {
-    output.printMSG("Setup wifi");
+    esp3dmsg.printMSG("Setup wifi");
     res = WiFiConfig::begin(espMode);
   }
 #endif  // WIFI_FEATURE
@@ -262,13 +262,13 @@ bool NetConfig::begin() {
 #endif  // BLUETOOTH_FEATURE
 
   if (espMode == ESP_NO_NETWORK) {
-    output.printMSG("Disable Network");
+    esp3dmsg.printMSG("Disable Network");
     WiFi.mode(WIFI_OFF);
     ESP3DMessage::toScreen(ESP_OUTPUT_IP_ADDRESS, nullptr);
     if (Settings_ESP3D::isVerboseBoot()) {
       ESP3DMessage esp3dmsg(ESP_ALL_CLIENTS);
-      output.printMSG(RADIO_OFF_MSG);
-      output.flush();
+      esp3dmsg.printMSG(RADIO_OFF_MSG);
+      esp3dmsg.flush();
     }
     return true;
   }

@@ -53,12 +53,12 @@ bool Commands::ESP450(const char* cmd_params, level_authenticate_type auth_type,
     if (parameter.length() == 0) {
       uint16_t n = 0;
       if (!json) {
-        output->printMSGLine("Start Scan");
+        esp3dmsg->printMSGLine("Start Scan");
       }
 
       n = esp3d_mDNS.servicesCount();
       if (json) {
-        output->print("{\"cmd\":\"450\",\"status\":\"ok\",\"data\":[");
+        esp3dmsg->print("{\"cmd\":\"450\",\"status\":\"ok\",\"data\":[");
       }
       String line;
 
@@ -119,17 +119,17 @@ bool Commands::ESP450(const char* cmd_params, level_authenticate_type auth_type,
           line += "]}";
         }
         if (json) {
-          output->print(line.c_str());
+          esp3dmsg->print(line.c_str());
         } else {
-          output->printMSGLine(line.c_str());
+          esp3dmsg->printMSGLine(line.c_str());
         }
       }
     }
 
     if (json) {
-      output->printLN("]}");
+      esp3dmsg->printLN("]}");
     } else {
-      output->printMSGLine("End Scan");
+      esp3dmsg->printMSGLine("End Scan");
     }
     return true;
   } else {
@@ -139,12 +139,12 @@ bool Commands::ESP450(const char* cmd_params, level_authenticate_type auth_type,
   }
 
   if (json) {
-    output->printLN(response.c_str());
+    esp3dmsg->printLN(response.c_str());
   } else {
     if (noError) {
-      output->printMSG(response.c_str());
+      esp3dmsg->printMSG(response.c_str());
     } else {
-      output->printERROR(response.c_str(), errorCode);
+      esp3dmsg->printERROR(response.c_str(), errorCode);
     }
   }
   return noError;

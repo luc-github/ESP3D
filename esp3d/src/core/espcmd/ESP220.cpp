@@ -68,9 +68,9 @@ bool Commands::ESP220(const char* cmd_params, level_authenticate_type auth_type,
       line += String(ESP_SD_CS_PIN == -1 ? SS : ESP_SD_CS_PIN);
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
       if (json) {
@@ -85,9 +85,9 @@ bool Commands::ESP220(const char* cmd_params, level_authenticate_type auth_type,
       line += String(ESP_SD_MOSI_PIN == -1 ? MOSI : ESP_SD_MOSI_PIN);
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
       if (json) {
@@ -102,9 +102,9 @@ bool Commands::ESP220(const char* cmd_params, level_authenticate_type auth_type,
       line += String(ESP_SD_MISO_PIN == -1 ? MISO : ESP_SD_MISO_PIN);
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
       if (json) {
@@ -119,9 +119,9 @@ bool Commands::ESP220(const char* cmd_params, level_authenticate_type auth_type,
       line += String(ESP_SD_SCK_PIN == -1 ? SCK : ESP_SD_SCK_PIN);
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
       if (json) {
@@ -136,9 +136,9 @@ bool Commands::ESP220(const char* cmd_params, level_authenticate_type auth_type,
       line += String(ESP_SD_DETECT_PIN);
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
 #if ESP_SD_DETECT_PIN != -1
@@ -154,9 +154,9 @@ bool Commands::ESP220(const char* cmd_params, level_authenticate_type auth_type,
       line += String(ESP_SD_DETECT_VALUE);
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
 #endif  // ESP_SD_DETECT_PIN !=-1
@@ -173,9 +173,9 @@ bool Commands::ESP220(const char* cmd_params, level_authenticate_type auth_type,
       line += String(ESP_FLAG_SHARED_SD_PIN);
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
 #endif  // SD_DEVICE_CONNECTION == ESP_SHARED_SD
@@ -194,9 +194,9 @@ bool Commands::ESP220(const char* cmd_params, level_authenticate_type auth_type,
       line += String(ESP3D_BUZZER_PIN);
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
 #endif  // BUZZER_DEVICE
@@ -215,9 +215,9 @@ bool Commands::ESP220(const char* cmd_params, level_authenticate_type auth_type,
       line += String(ESP3D_RESET_PIN);
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
 #endif  // PIN_RESET_FEATURE
@@ -235,9 +235,9 @@ bool Commands::ESP220(const char* cmd_params, level_authenticate_type auth_type,
       line += String(ESP3D_SENSOR_PIN);
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
 #endif  // SENSOR_DEVICE
@@ -257,9 +257,9 @@ bool Commands::ESP220(const char* cmd_params, level_authenticate_type auth_type,
       line += String(ESP_SDA_PIN);
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
       if (json) {
@@ -274,9 +274,9 @@ bool Commands::ESP220(const char* cmd_params, level_authenticate_type auth_type,
       line += String(ESP_SCL_PIN);
       if (json) {
         line += "\"}";
-        output->print(line.c_str());
+        esp3dmsg->print(line.c_str());
       } else {
-        output->printMSGLine(line.c_str());
+        esp3dmsg->printMSGLine(line.c_str());
       }
       line = "";
 #endif  //(DISPLAY_DEVICE == OLED_I2C_SSD1306) || (DISPLAY_DEVICE ==
@@ -295,14 +295,14 @@ bool Commands::ESP220(const char* cmd_params, level_authenticate_type auth_type,
         line += "-";
         if (json) {
           line += "\"}";
-          output->print(line.c_str());
+          esp3dmsg->print(line.c_str());
         } else {
-          output->printMSGLine(line.c_str());
+          esp3dmsg->printMSGLine(line.c_str());
         }
         line = "";
       }
       if (json) {
-        output->printLN("]}");
+        esp3dmsg->printLN("]}");
       }
       return true;
     } else {
@@ -312,12 +312,12 @@ bool Commands::ESP220(const char* cmd_params, level_authenticate_type auth_type,
     }
   }
   if (json) {
-    output->printLN(response.c_str());
+    esp3dmsg->printLN(response.c_str());
   } else {
     if (noError) {
-      output->printMSG(response.c_str());
+      esp3dmsg->printMSG(response.c_str());
     } else {
-      output->printERROR(response.c_str(), errorCode);
+      esp3dmsg->printERROR(response.c_str(), errorCode);
     }
   }
   return noError;

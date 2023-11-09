@@ -56,7 +56,7 @@ bool Commands::ESP410(const char* cmd_params, level_authenticate_type auth_type,
       int n = 0;
       uint8_t total = 0;
       if (!json) {
-        output->printMSGLine("Start Scan");
+        esp3dmsg->printMSGLine("Start Scan");
       }
       if (currentmode == WIFI_AP) {
         WiFi.mode(WIFI_AP_STA);
@@ -66,7 +66,7 @@ bool Commands::ESP410(const char* cmd_params, level_authenticate_type auth_type,
         WiFi.mode((WiFiMode_t)currentmode);
       }
       if (json) {
-        output->print("{\"cmd\":\"410\",\"status\":\"ok\",\"data\":[");
+        esp3dmsg->print("{\"cmd\":\"410\",\"status\":\"ok\",\"data\":[");
       }
       String line;
       for (int i = 0; i < n; ++i) {
@@ -113,17 +113,17 @@ bool Commands::ESP410(const char* cmd_params, level_authenticate_type auth_type,
             line += "\"}";
           }
           if (json) {
-            output->print(line.c_str());
+            esp3dmsg->print(line.c_str());
           } else {
-            output->printMSGLine(line.c_str());
+            esp3dmsg->printMSGLine(line.c_str());
           }
         }
       }
       WiFi.scanDelete();
       if (json) {
-        output->printLN("]}");
+        esp3dmsg->printLN("]}");
       } else {
-        output->printMSGLine("End Scan");
+        esp3dmsg->printMSGLine("End Scan");
       }
       return true;
     } else {
@@ -133,12 +133,12 @@ bool Commands::ESP410(const char* cmd_params, level_authenticate_type auth_type,
     }
   }
   if (json) {
-    output->printLN(response.c_str());
+    esp3dmsg->printLN(response.c_str());
   } else {
     if (noError) {
-      output->printMSG(response.c_str());
+      esp3dmsg->printMSG(response.c_str());
     } else {
-      output->printERROR(response.c_str(), errorCode);
+      esp3dmsg->printERROR(response.c_str(), errorCode);
     }
   }
   return noError;

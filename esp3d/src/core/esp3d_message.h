@@ -61,9 +61,10 @@ class WebServer;
 
 class ESP3DMessage : public Print {
  public:
-  ESP3DMessage(uint8_t target, uint8_t origin);
+  ESP3DMessage(uint8_t target, uint8_t origin = 0);
 #ifdef HTTP_FEATURE
-  ESP3DMessage(WEBSERVER *webserver, uint8_t target, uint8_t origin);
+  ESP3DMessage(WEBSERVER *webserver, uint8_t target = ESP_HTTP_CLIENT,
+               uint8_t origin = 0);
 #endif  // HTTP_FEATURE
   ~ESP3DMessage();
   size_t write(uint8_t c);

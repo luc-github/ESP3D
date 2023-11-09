@@ -50,7 +50,7 @@ uint8_t AuthenticationService::_current_nb_ip = 0;
 
 // check authentification
 level_authenticate_type AuthenticationService::authenticated_level(
-    const char *pwd, ESP3DMessage *output) {
+    const char *pwd, ESP3DMessage *esp3dmsg) {
 #ifdef AUTHENTICATION_FEATURE
   level_authenticate_type auth_type = LEVEL_GUEST;
   if (pwd != nullptr) {
@@ -62,8 +62,8 @@ level_authenticate_type AuthenticationService::authenticated_level(
     }
     return auth_type;
   } else {
-    if (output) {
-      if (output->getTarget() != ESP_HTTP_CLIENT) {
+    if (esp3dmsg) {
+      if (esp3dmsg->getTarget() != ESP_HTTP_CLIENT) {
         return auth_type;
       }
     }
@@ -99,7 +99,7 @@ level_authenticate_type AuthenticationService::authenticated_level(
   return auth_type;
 #else
   (void)pwd;
-  (void)output;
+  (void)esp3dmsg;
   return LEVEL_ADMIN;
 #endif  // AUTHENTICATION_FEATURE
 }

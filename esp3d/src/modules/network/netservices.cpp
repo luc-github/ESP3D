@@ -90,13 +90,13 @@ bool NetServices::begin() {
   if (WiFi.getMode() != WIFI_AP) {
     if (!timeService.begin()) {
       if (timeService.is_internet_time()) {
-        output.printERROR("Failed contact time servers!");
+        esp3dmsg.printERROR("Failed contact time servers!");
       }
     } else {
       String tmp = "Current time :";
       tmp += timeService.getCurrentTime();
       if (Settings_ESP3D::isVerboseBoot()) {
-        output.printMSG(tmp.c_str());
+        esp3dmsg.printMSG(tmp.c_str());
       }
     }
   }
@@ -121,36 +121,36 @@ bool NetServices::begin() {
         ESP_FileSystem::end();
 #endif  // FILESYSTEM_FEATURE
       }
-      output.printMSG(type.c_str());
+      esp3dmsg.printMSG(type.c_str());
     });
     ArduinoOTA.onEnd([]() {
       ESP3DMessage esp3dmsg(ESP_ALL_CLIENTS);
-      output.printMSG("End OTA");
+      esp3dmsg.printMSG("End OTA");
     });
     ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
       String prg = "OTA Progress ";
       ESP3DMessage esp3dmsg(ESP_ALL_CLIENTS);
       prg += String(progress / (total / 100)) + "%";
-      output.printMSG(prg.c_str());
+      esp3dmsg.printMSG(prg.c_str());
     });
     ArduinoOTA.onError([](ota_error_t error) {
       String stmp = "OTA Error: " + String(error);
       ESP3DMessage esp3dmsg(ESP_ALL_CLIENTS);
-      output.printERROR(stmp.c_str());
+      esp3dmsg.printERROR(stmp.c_str());
       if (error == OTA_AUTH_ERROR) {
-        output.printERROR("Auth Failed");
+        esp3dmsg.printERROR("Auth Failed");
       } else if (error == OTA_BEGIN_ERROR) {
-        output.printERROR("Begin Failed");
+        esp3dmsg.printERROR("Begin Failed");
       } else if (error == OTA_CONNECT_ERROR) {
-        output.printERROR("Connect Failed");
+        esp3dmsg.printERROR("Connect Failed");
       } else if (error == OTA_RECEIVE_ERROR) {
-        output.printERROR("Receive Failed");
+        esp3dmsg.printERROR("Receive Failed");
       } else if (error == OTA_END_ERROR) {
-        output.printERROR("End Failed");
+        esp3dmsg.printERROR("End Failed");
       }
     });
     if (Settings_ESP3D::isVerboseBoot()) {
-      output.printMSG("OTA service started");
+      esp3dmsg.printMSG("OTA service started");
     }
     String lhostname = hostname;
     lhostname.toLowerCase();
@@ -169,10 +169,10 @@ bool NetServices::begin() {
     // provided IP to all DNS request
     if (dnsServer.start(DNS_PORT, "*", WiFi.softAPIP())) {
       if (Settings_ESP3D::isVerboseBoot()) {
-        output.printMSG("Captive Portal started");
+        esp3dmsg.printMSG("Captive Portal started");
       }
     } else {
-      output.printERROR("Failed start Captive Portal");
+      esp3dmsg.printERROR("Failed start Captive Portal");
     }
   }
 #endif  // CAPTIVE_PORTAL_FEATURE
@@ -180,12 +180,12 @@ bool NetServices::begin() {
 #ifdef HTTP_FEATURE
   if (!HTTP_Server::begin()) {
     res = false;
-    output.printERROR("HTTP server failed");
+    esp3dmsg.printERROR("HTTP server failed");
   } else {
     if (HTTP_Server::started()) {
       String stmp = "HTTP server started port " + String(HTTP_Server::port());
       if (Settings_ESP3D::isVerboseBoot()) {
-        output.printMSG(stmp.c_str());
+        esp3dmsg.printMSG(stmp.c_str());
       }
     }
   }
@@ -193,13 +193,13 @@ bool NetServices::begin() {
 #ifdef TELNET_FEATURE
   if (!telnet_server.begin()) {
     res = false;
-    output.printERROR("Telnet server failed");
+    esp3dmsg.printERROR("Telnet server failed");
   } else {
     if (telnet_server.started()) {
       String stmp =
           "Telnet server started port " + String(telnet_server.port());
       if (Settings_ESP3D::isVerboseBoot()) {
-        output.printMSG(stmp.c_str());
+        esp3dmsg.printMSG(stmp.c_str());
       }
     }
   }
@@ -207,7 +207,7 @@ bool NetServices::begin() {
 #ifdef FTP_FEATURE
   if (!ftp_server.begin()) {
     res = false;
-    output.printERROR("Ftp server failed");
+    esp3dmsg.printERROR("Ftp server failed");
   } else {
     if (ftp_server.started()) {
       String stmp =
@@ -215,7 +215,7 @@ bool NetServices::begin() {
           String(ftp_server.dataactiveport()) + "," +
           String(ftp_server.datapassiveport());
       if (Settings_ESP3D::isVerboseBoot()) {
-        output.printMSG(stmp.c_str());
+        esp3dmsg.printMSG(stmp.c_str());
       }
     }
   }
@@ -223,33 +223,33 @@ bool NetServices::begin() {
 #ifdef WS_DATA_FEATURE
   if (!websocket_data_server.begin(
           Settings_ESP3D::read_uint32(ESP_WEBSOCKET_PORT))) {
-    output.printMSG("Failed start Terminal Web Socket");
+    esp3dmsg.printMSG("Failed start Terminal Web Socket");
   } else {
     if (websocket_data_server.started()) {
       String stmp = "Websocket server started port " +
                     String(websocket_data_server.port());
       if (Settings_ESP3D::isVerboseBoot()) {
-        output.printMSG(stmp.c_str());
+        esp3dmsg.printMSG(stmp.c_str());
       }
     }
   }
 #endif  // WS_DATA_FEATURE
 #ifdef WEBDAV_FEATURE
   if (!webdav_server.begin()) {
-    output.printMSG("Failed start Terminal Web Socket");
+    esp3dmsg.printMSG("Failed start Terminal Web Socket");
   } else {
     if (webdav_server.started()) {
       String stmp =
           "WebDav server started port " + String(webdav_server.port());
       if (Settings_ESP3D::isVerboseBoot()) {
-        output.printMSG(stmp.c_str());
+        esp3dmsg.printMSG(stmp.c_str());
       }
     }
   }
 #endif  // WEBDAV_FEATURE
 #if defined(HTTP_FEATURE)
   if (!websocket_terminal_server.begin()) {
-    output.printMSG("Failed start Terminal Web Socket");
+    esp3dmsg.printMSG("Failed start Terminal Web Socket");
   }
 #endif  // HTTP_FEATURE
 #ifdef MDNS_FEATURE
@@ -279,7 +279,7 @@ bool NetServices::begin() {
     SSDP.begin();
     stmp = "SSDP started with '" + hostname + "'";
     if (Settings_ESP3D::isVerboseBoot()) {
-      output.printMSG(stmp.c_str());
+      esp3dmsg.printMSG(stmp.c_str());
     }
   }
 #endif  // SSDP_FEATURE
@@ -289,7 +289,7 @@ bool NetServices::begin() {
 #endif  // NOTIFICATION_FEATURE
 #ifdef CAMERA_DEVICE
   if (!esp3d_camera.begin()) {
-    output.printMSG("Failed start camera streaming server");
+    esp3dmsg.printMSG("Failed start camera streaming server");
   }
 #endif  // CAMERA_DEVICE
 #if COMMUNICATION_PROTOCOL == MKS_SERIAL
@@ -300,7 +300,7 @@ bool NetServices::begin() {
   }
   Hal::wait(1000);
 #if COMMUNICATION_PROTOCOL != MKS_SERIAL
-  output.printMSG(NetConfig::localIP().c_str());
+  esp3dmsg.printMSG(NetConfig::localIP().c_str());
 #endif  // #if COMMUNICATION_PROTOCOL == MKS_SERIAL
   _started = res;
   return _started;

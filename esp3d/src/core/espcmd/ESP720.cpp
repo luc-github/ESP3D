@@ -65,10 +65,10 @@ bool Commands::ESP720(const char* cmd_params, level_authenticate_type auth_type,
         if (json) {
           line = "{\"cmd\":\"720\",\"status\":\"ok\",\"data\":{\"path\":\"" +
                  parameter + "\",\"files\":[";
-          output->print(line.c_str());
+          esp3dmsg->print(line.c_str());
         } else {
           line = "Directory on FS : " + parameter;
-          output->printMSGLine(line.c_str());
+          esp3dmsg->printMSGLine(line.c_str());
         }
         // Check directories
         ESP_File sub;
@@ -90,9 +90,9 @@ bool Commands::ESP720(const char* cmd_params, level_authenticate_type auth_type,
               line += sub.name();
             }
             if (json) {
-              output->print(line.c_str());
+              esp3dmsg->print(line.c_str());
             } else {
-              output->printMSGLine(line.c_str());
+              esp3dmsg->printMSGLine(line.c_str());
             }
           }
           sub.close();
@@ -133,9 +133,9 @@ bool Commands::ESP720(const char* cmd_params, level_authenticate_type auth_type,
               line += time;
             }
             if (json) {
-              output->print(line.c_str());
+              esp3dmsg->print(line.c_str());
             } else {
-              output->printMSGLine(line.c_str());
+              esp3dmsg->printMSGLine(line.c_str());
             }
           }
           sub.close();
@@ -159,7 +159,7 @@ bool Commands::ESP720(const char* cmd_params, level_authenticate_type auth_type,
           }
           line += String((int)round(occupation));
           line += "\"}}";
-          output->printLN(line.c_str());
+          esp3dmsg->printLN(line.c_str());
         } else {
           line = String(countf) + " file";
           if (countf > 1) {
@@ -169,14 +169,14 @@ bool Commands::ESP720(const char* cmd_params, level_authenticate_type auth_type,
           if (countd > 1) {
             line += "s";
           }
-          output->printMSGLine(line.c_str());
+          esp3dmsg->printMSGLine(line.c_str());
           line = "Total ";
           line += ESP_FileSystem::formatBytes(ESP_FileSystem::totalBytes());
           line += ", Used ";
           line += ESP_FileSystem::formatBytes(ESP_FileSystem::usedBytes());
           line += ", Available: ";
           line += ESP_FileSystem::formatBytes(ESP_FileSystem::freeBytes());
-          output->printMSGLine(line.c_str());
+          esp3dmsg->printMSGLine(line.c_str());
         }
 
         return true;
@@ -190,12 +190,12 @@ bool Commands::ESP720(const char* cmd_params, level_authenticate_type auth_type,
     }
   }
   if (json) {
-    output->printLN(response.c_str());
+    esp3dmsg->printLN(response.c_str());
   } else {
     if (noError) {
-      output->printMSG(response.c_str());
+      esp3dmsg->printMSG(response.c_str());
     } else {
-      output->printERROR(response.c_str(), errorCode);
+      esp3dmsg->printERROR(response.c_str(), errorCode);
     }
   }
   return noError;

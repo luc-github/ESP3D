@@ -88,7 +88,7 @@ class ESP_GBFS {
   static uint64_t usedBytes(uint8_t FS = FS_UNKNOWN);
   static uint64_t freeBytes(uint8_t FS = FS_UNKNOWN);
   static uint maxPathLength();
-  static bool format(uint8_t FS, ESP3DMessage *output = nullptr);
+  static bool format(uint8_t FS, ESP3DMessage *esp3dmsg = nullptr);
   static ESP_GBFile open(const char *path, uint8_t mode = ESP_FILE_READ);
   static bool exists(const char *path);
   static bool remove(const char *path);

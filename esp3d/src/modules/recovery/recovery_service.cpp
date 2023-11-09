@@ -81,9 +81,9 @@ void RecoveryService::handle() {
       if ((millis() - lastreset) > 1000) {
         lastreset = millis();
         ESP3DMessage esp3dmsg(ESP_ALL_CLIENTS);
-        output.printMSG("Reset requested");
+        esp3dmsg.printMSG("Reset requested");
         Esp3D::reset();
-        output.flush();
+        esp3dmsg.flush();
         Hal::wait(100);
         Esp3D::restart_esp();
       }
