@@ -52,7 +52,7 @@ bool ESP3DCommands::ESP110(const char* cmd_params,
     parameter = clean_param(get_param(cmd_params, ""));
     // get
     if (parameter.length() == 0) {
-      int8_t wifiMode = Settings_ESP3D::read_byte(ESP_RADIO_MODE);
+      int8_t wifiMode = ESP3DSettings::read_byte(ESP_RADIO_MODE);
       if (wifiMode == ESP_NO_NETWORK) {
         response = format_response(COMMANDID, json, true, "OFF");
       } else if (wifiMode == ESP_BT) {
@@ -135,7 +135,7 @@ bool ESP3DCommands::ESP110(const char* cmd_params,
             bbuf = ESP_BT;
           }
 #endif  // BLUETOOTH_FEATURE
-          if (!Settings_ESP3D::write_byte(ESP_RADIO_MODE, bbuf)) {
+          if (!ESP3DSettings::write_byte(ESP_RADIO_MODE, bbuf)) {
             response = format_response(COMMANDID, json, false, "Set failed");
             noError = false;
           } else {

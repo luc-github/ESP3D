@@ -57,7 +57,7 @@ bool ESP3DCommands::ESP102(const char* cmd_params,
     parameter = clean_param(get_param(cmd_params, ""));
     // get
     if (parameter.length() == 0) {
-      int8_t resp = Settings_ESP3D::read_byte(ESP_STA_IP_MODE);
+      int8_t resp = ESP3DSettings::read_byte(ESP_STA_IP_MODE);
       if (resp == DHCP_MODE) {
         response = format_response(COMMANDID, json, true, "DHCP");
       } else if (resp == STATIC_IP_MODE) {
@@ -83,7 +83,7 @@ bool ESP3DCommands::ESP102(const char* cmd_params,
           noError = false;
         } else {
           uint8_t bbuf = (parameter == "DHCP") ? DHCP_MODE : STATIC_IP_MODE;
-          if (!Settings_ESP3D::write_byte(ESP_STA_IP_MODE, bbuf)) {
+          if (!ESP3DSettings::write_byte(ESP_STA_IP_MODE, bbuf)) {
             response = format_response(COMMANDID, json, false, "Set failed");
             noError = false;
           } else {

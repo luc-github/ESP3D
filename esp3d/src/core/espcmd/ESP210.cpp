@@ -106,7 +106,7 @@ bool ESP3DCommands::ESP210(const char* cmd_params,
             noError = false;
           }
           if (v != -1) {
-            if (!Settings_ESP3D::write_byte(ESP_SENSOR_TYPE, v)) {
+            if (!ESP3DSettings::write_byte(ESP_SENSOR_TYPE, v)) {
               response = format_response(COMMANDID, json, false, "Set failed");
               noError = false;
             }
@@ -128,8 +128,8 @@ bool ESP3DCommands::ESP210(const char* cmd_params,
         parameter = get_param(cmd_params, "interval=");
         if (parameter.length() != 0) {
           hasParam = true;
-          if (!Settings_ESP3D::write_uint32(ESP_SENSOR_INTERVAL,
-                                            parameter.toInt())) {
+          if (!ESP3DSettings::write_uint32(ESP_SENSOR_INTERVAL,
+                                           parameter.toInt())) {
             response = format_response(COMMANDID, json, false, "Set failed");
             noError = false;
           }

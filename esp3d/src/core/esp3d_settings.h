@@ -57,7 +57,7 @@ extern const uint8_t SupportedApChannels[];
 extern const uint8_t SupportedApChannelsSize;
 #endif  // WIFI_FEATURE
 
-class Settings_ESP3D {
+class ESP3DSettings {
  public:
   static bool begin();
   static uint8_t read_byte(int pos, bool *haserror = NULL);

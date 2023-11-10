@@ -63,7 +63,7 @@ void WebdavServer::handler_get(const char* url) {
           Esp3dTimout updateWS(2000);
 #endif  // HTTP_FEATURE
           while (sent < toSend && _client.connected()) {
-            Hal::wait(0);
+            ESP3DHal::wait(0);
             size_t read = file.read(buff, sizeof(buff));
             if (read > 0) {
               // always check if data is sent as expected for each write

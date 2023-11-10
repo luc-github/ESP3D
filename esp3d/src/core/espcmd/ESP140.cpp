@@ -65,10 +65,10 @@ bool ESP3DCommands::ESP140(const char* cmd_params,
         parameter = get_param(cmd_params, "srv1=");
         if (parameter.length() > 0) {
           hasParam = true;
-          if (Settings_ESP3D::isValidIPStringSetting(parameter.c_str(),
-                                                     ESP_TIME_SERVER1)) {
-            if (!Settings_ESP3D::write_string(ESP_TIME_SERVER1,
-                                              parameter.c_str())) {
+          if (ESP3DSettings::isValidIPStringSetting(parameter.c_str(),
+                                                    ESP_TIME_SERVER1)) {
+            if (!ESP3DSettings::write_string(ESP_TIME_SERVER1,
+                                             parameter.c_str())) {
               response = format_response(COMMANDID, json, false,
                                          "Set server 1 failed");
               noError = false;
@@ -80,10 +80,10 @@ bool ESP3DCommands::ESP140(const char* cmd_params,
         parameter = get_param(cmd_params, "srv2=");
         if (parameter.length() > 0) {
           hasParam = true;
-          if (!Settings_ESP3D::isValidIPStringSetting(parameter.c_str(),
-                                                      ESP_TIME_SERVER2)) {
-            if (!Settings_ESP3D::write_string(ESP_TIME_SERVER2,
-                                              parameter.c_str())) {
+          if (!ESP3DSettings::isValidIPStringSetting(parameter.c_str(),
+                                                     ESP_TIME_SERVER2)) {
+            if (!ESP3DSettings::write_string(ESP_TIME_SERVER2,
+                                             parameter.c_str())) {
               response = format_response(COMMANDID, json, false,
                                          "Set server 2 failed");
               noError = false;
@@ -95,10 +95,10 @@ bool ESP3DCommands::ESP140(const char* cmd_params,
         parameter = get_param(cmd_params, "srv3=");
         if (parameter.length() > 0) {
           hasParam = true;
-          if (!Settings_ESP3D::isValidIPStringSetting(parameter.c_str(),
-                                                      ESP_TIME_SERVER3)) {
-            if (!Settings_ESP3D::write_string(ESP_TIME_SERVER3,
-                                              parameter.c_str())) {
+          if (!ESP3DSettings::isValidIPStringSetting(parameter.c_str(),
+                                                     ESP_TIME_SERVER3)) {
+            if (!ESP3DSettings::write_string(ESP_TIME_SERVER3,
+                                             parameter.c_str())) {
               response = format_response(COMMANDID, json, false,
                                          "Set server 3 failed");
               noError = false;
@@ -118,8 +118,8 @@ bool ESP3DCommands::ESP140(const char* cmd_params,
             }
           }
           if (isvalid) {
-            if (!Settings_ESP3D::write_string(ESP_TIME_ZONE,
-                                              parameter.c_str())) {
+            if (!ESP3DSettings::write_string(ESP_TIME_ZONE,
+                                             parameter.c_str())) {
               response = format_response(COMMANDID, json, false,
                                          "Set time zone failed");
               noError = false;
@@ -139,8 +139,8 @@ bool ESP3DCommands::ESP140(const char* cmd_params,
           hasParam = true;
           parameter.toUpperCase();
           if (parameter.length() > 0) {
-            if (!Settings_ESP3D::write_byte(ESP_INTERNET_TIME,
-                                            (parameter == "NO") ? 0 : 1)) {
+            if (!ESP3DSettings::write_byte(ESP_INTERNET_TIME,
+                                           (parameter == "NO") ? 0 : 1)) {
               response = format_response(COMMANDID, json, false,
                                          "Set internet time failed");
               noError = false;
@@ -207,31 +207,31 @@ bool ESP3DCommands::ESP140(const char* cmd_params,
       } else {
         tmp += "srv1=";
       }
-      tmp += Settings_ESP3D::read_string(ESP_TIME_SERVER1);
+      tmp += ESP3DSettings::read_string(ESP_TIME_SERVER1);
       if (json) {
         tmp += "\",\"srv2\":\"";
       } else {
         tmp += ", srv2=";
       }
-      tmp += Settings_ESP3D::read_string(ESP_TIME_SERVER2);
+      tmp += ESP3DSettings::read_string(ESP_TIME_SERVER2);
       if (json) {
         tmp += "\",\"srv3\":\"";
       } else {
         tmp += ", srv3=";
       }
-      tmp += Settings_ESP3D::read_string(ESP_TIME_ZONE);
+      tmp += ESP3DSettings::read_string(ESP_TIME_ZONE);
       if (json) {
         tmp += "\",\"tzone\":\"";
       } else {
         tmp += ", tzone=";
       }
-      tmp += Settings_ESP3D::read_byte(ESP_INTERNET_TIME);
+      tmp += ESP3DSettings::read_byte(ESP_INTERNET_TIME);
       if (json) {
         tmp += "\",\"ntp\":\"";
       } else {
         tmp += ", ntp=";
       }
-      tmp += Settings_ESP3D::read_byte(ESP_INTERNET_TIME) ? "YES" : "NO";
+      tmp += ESP3DSettings::read_byte(ESP_INTERNET_TIME) ? "YES" : "NO";
       if (json) {
         tmp += "\"}";
       }

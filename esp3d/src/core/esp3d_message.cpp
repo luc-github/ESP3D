@@ -24,7 +24,7 @@
 
 ESP3DRequest no_id{.id = 0};
 
-bool ESP3DMessageManager::deleteMessage(ESP3DMessage *message) {
+bool ESP3DMessageManager::deleteMessage(ESP3DMessage* message) {
   if (!message) return false;
   if (message->data) {
     free(message->data);
@@ -43,7 +43,7 @@ ESP3DMessage* ESP3DMessageManager::newMsg() {
     newMsgPtr->origin = ESP3DClientType::no_client;
     newMsgPtr->target = ESP3DClientType::all_clients;
     newMsgPtr->authentication_level = ESP3DAuthenticationLevel::guest;
-    newMsgPtr->request_id.id = esp_timer_get_time();
+    newMsgPtr->request_id.id = millis();
     newMsgPtr->type = ESP3DMessageType::head;
   }
   return newMsgPtr;
@@ -210,7 +210,7 @@ const uint8_t activeClients[] = {
     ESP_NO_CLIENT};
 
 // tool function to avoid string corrupt JSON files
-const char *ESP3D_Message::encodeString(const char *s) {
+const char* ESP3D_Message::encodeString(const char* s) {
   static String tmp;
   tmp = s;
   while (tmp.indexOf("'") != -1) {
@@ -225,7 +225,7 @@ const char *ESP3D_Message::encodeString(const char *s) {
   return tmp.c_str();
 }
 
-void ESP3D_Message::toScreen(uint8_t output_type, const char *s) {
+void ESP3D_Message::toScreen(uint8_t output_type, const char* s) {
   switch (output_type) {
     case ESP_OUTPUT_IP_ADDRESS:
 #ifdef DISPLAY_DEVICE
@@ -284,7 +284,7 @@ uint8_t ESP3D_Message::origin(uint8_t originId) {
 
 #ifdef HTTP_FEATURE
 // constructor
-ESP3D_Message::ESP3D_Message(WEBSERVER *webserver, uint8_t target,
+ESP3D_Message::ESP3D_Message(WEBSERVER* webserver, uint8_t target,
                              uint8_t origin) {
   _target = ESP_HTTP_CLIENT;
   _code = 200;
@@ -297,7 +297,7 @@ ESP3D_Message::ESP3D_Message(WEBSERVER *webserver, uint8_t target,
 // destructor
 ESP3D_Message::~ESP3D_Message() { flush(); }
 
-size_t ESP3D_Message::dispatch(const uint8_t *sbuf, size_t len,
+size_t ESP3D_Message::dispatch(const uint8_t* sbuf, size_t len,
                                uint8_t ignoreClient) {
   esp3d_log("Dispatch %d chars from client %d and ignore %d", len, _target,
             ignoreClient);
@@ -312,7 +312,7 @@ size_t ESP3D_Message::dispatch(const uint8_t *sbuf, size_t len,
   if (!(_target == ESP_SERIAL_CLIENT || ESP_SERIAL_CLIENT == ignoreClient)) {
 #if COMMUNICATION_PROTOCOL == MKS_SERIAL
     esp3d_log("Dispatch  to gcode frame");
-    MKSService::sendGcodeFrame((const char *)sbuf);
+    MKSService::sendGcodeFrame((const char*)sbuf);
 #else
     esp3d_log("Dispatch  to serial service");
     serial_service.write(sbuf, len);
@@ -424,7 +424,7 @@ void ESP3D_Message::flush() {
   }
 }
 
-size_t ESP3D_Message::printLN(const char *s) {
+size_t ESP3D_Message::printLN(const char* s) {
   switch (_target) {
     case ESP_HTTP_CLIENT:
       if (strlen(s) > 0) {
@@ -445,7 +445,7 @@ size_t ESP3D_Message::printLN(const char *s) {
   return println(s);
 }
 
-size_t ESP3D_Message::printMSGLine(const char *s) {
+size_t ESP3D_Message::printMSGLine(const char* s) {
   if (_target == ESP_ALL_CLIENTS) {
     // process each client one by one
     esp3d_log("PrintMSG to all clients");
@@ -474,8 +474,8 @@ size_t ESP3D_Message::printMSGLine(const char *s) {
         _headerSent = true;
       }
       if (_headerSent && !_footerSent) {
-        _webserver->sendContent_P((const char *)s, strlen(s));
-        _webserver->sendContent_P((const char *)"\n", 1);
+        _webserver->sendContent_P((const char*)s, strlen(s));
+        _webserver->sendContent_P((const char*)"\n", 1);
         return strlen(s + 1);
       }
     }
@@ -488,7 +488,7 @@ size_t ESP3D_Message::printMSGLine(const char *s) {
       _target == ESP_SCREEN_CLIENT) {
     return print(s);
   }
-  switch (Settings_ESP3D::GetFirmwareTarget()) {
+  switch (ESP3DSettings::GetFirmwareTarget()) {
     case GRBL:
       display = "[MSG:";
       display += s;
@@ -522,7 +522,7 @@ size_t ESP3D_Message::printMSGLine(const char *s) {
   return printLN(display.c_str());
 }
 
-size_t ESP3D_Message::printMSG(const char *s, bool withNL) {
+size_t ESP3D_Message::printMSG(const char* s, bool withNL) {
   if (_target == ESP_ALL_CLIENTS) {
     // process each client one by one
     esp3d_log("PrintMSG to all clients");
@@ -561,7 +561,7 @@ size_t ESP3D_Message::printMSG(const char *s, bool withNL) {
   if (_target == ESP_SCREEN_CLIENT) {
     return print(s);
   }
-  switch (Settings_ESP3D::GetFirmwareTarget()) {
+  switch (ESP3DSettings::GetFirmwareTarget()) {
     case GRBL:
       display = "[MSG:";
       display += s;
@@ -608,7 +608,7 @@ size_t ESP3D_Message::printMSG(const char *s, bool withNL) {
   }
 }
 
-size_t ESP3D_Message::printERROR(const char *s, int code_error) {
+size_t ESP3D_Message::printERROR(const char* s, int code_error) {
   String display = "";
 
   if (_target == ESP_SCREEN_CLIENT) {
@@ -636,7 +636,7 @@ size_t ESP3D_Message::printERROR(const char *s, int code_error) {
 #endif  // HTTP_FEATURE
     return 0;
   }
-  switch (Settings_ESP3D::GetFirmwareTarget()) {
+  switch (ESP3DSettings::GetFirmwareTarget()) {
     case GRBL:
       if (s[0] != '{') {
         display = "error: ";
@@ -750,7 +750,7 @@ size_t ESP3D_Message::write(uint8_t c) {
   }
 }
 
-size_t ESP3D_Message::write(const uint8_t *buffer, size_t size) {
+size_t ESP3D_Message::write(const uint8_t* buffer, size_t size) {
   switch (_target) {
 #ifdef HTTP_FEATURE
     case ESP_HTTP_CLIENT:
@@ -764,14 +764,14 @@ size_t ESP3D_Message::write(const uint8_t *buffer, size_t size) {
           _headerSent = true;
         }
         if (_headerSent && !_footerSent) {
-          _webserver->sendContent_P((const char *)buffer, size);
+          _webserver->sendContent_P((const char*)buffer, size);
         }
       }
       break;
 #endif  // HTTP_FEATURE
 #if defined(DISPLAY_DEVICE)
     case ESP_SCREEN_CLIENT:
-      esp3d_display.setStatus((const char *)buffer);
+      esp3d_display.setStatus((const char*)buffer);
       return size;
 #endif  // DISPLAY_DEVICE
 #if defined(BLUETOOTH_FEATURE)

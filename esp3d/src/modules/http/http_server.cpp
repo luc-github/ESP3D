@@ -105,7 +105,7 @@ bool HTTP_Server::StreamFSFile(const char* filename, const char* contentType) {
   _webserver->send(200, contentType, "");
   uint8_t buf[DOWNLOAD_PACKET_SIZE];
   while (!done && _webserver->client().connected()) {
-    Hal::wait(0);
+    ESP3DHal::wait(0);
     int v = datafile.read(buf, DOWNLOAD_PACKET_SIZE);
     if ((v == -1) || (v == 0)) {
       done = true;
@@ -147,7 +147,7 @@ bool HTTP_Server::StreamSDFile(const char* filename, const char* contentType) {
   _webserver->send(200, contentType, "");
   uint8_t buf[DOWNLOAD_PACKET_SIZE];
   while (!done && _webserver->client().connected()) {
-    Hal::wait(0);
+    ESP3DHal::wait(0);
     int v = datafile.read(buf, DOWNLOAD_PACKET_SIZE);
     if ((v == -1) || (v == 0)) {
       done = true;
@@ -197,7 +197,7 @@ void HTTP_Server::pushError(int code, const char* st, uint16_t web_error,
     uint32_t t = millis();
     while (millis() - t < timeout) {
       websocket_terminal_server.handle();
-      Hal::wait(10);
+      ESP3DHal::wait(10);
     }
   }
 }
@@ -211,16 +211,16 @@ void HTTP_Server::cancelUpload() {
   errno = ECONNABORTED;
   _webserver->client().stop();
 #endif
-  Hal::wait(100);
+  ESP3DHal::wait(100);
 }
 
 bool HTTP_Server::begin() {
   bool no_error = true;
   end();
-  if (Settings_ESP3D::read_byte(ESP_HTTP_ON) != 1) {
+  if (ESP3DSettings::read_byte(ESP_HTTP_ON) != 1) {
     return no_error;
   }
-  _port = Settings_ESP3D::read_uint32(ESP_HTTP_PORT);
+  _port = ESP3DSettings::read_uint32(ESP_HTTP_PORT);
   _webserver = new WEBSERVER(_port);
   if (!_webserver) {
     return false;
@@ -258,7 +258,7 @@ Embedded; http://www.esp3d.io) Host: http://192.168.0.1:8181
   static String host = "";
   if (ua.length() == 0) {
     ua = "ESP3D-WebServer/1.0 (";
-    ua += Settings_ESP3D::TargetBoard();
+    ua += ESP3DSettings::TargetBoard();
     ua += "; Firmware/";
     ua += FW_VERSION;
     ua += "; Platform/arduino; Embedded; http://www.esp3d.io)";

@@ -56,13 +56,13 @@ bool ESP3DCommands::ESP150(const char* cmd_params,
       } else {
         s += "delay=";
       }
-      s += String(Settings_ESP3D::read_uint32(ESP_BOOT_DELAY));
+      s += String(ESP3DSettings::read_uint32(ESP_BOOT_DELAY));
       if (json) {
         s += "\",\"verbose\":\"";
       } else {
         s += ", verbose=";
       }
-      s += Settings_ESP3D::isVerboseBoot(true) ? "ON" : "OFF";
+      s += ESP3DSettings::isVerboseBoot(true) ? "ON" : "OFF";
       if (json) {
         s += "\"}";
       }
@@ -82,13 +82,13 @@ bool ESP3DCommands::ESP150(const char* cmd_params,
         if (parameter.length() != 0) {
           hasParameter = true;
           uint ibuf = parameter.toInt();
-          if (!Settings_ESP3D::isValidIntegerSetting(ibuf, ESP_BOOT_DELAY)) {
+          if (!ESP3DSettings::isValidIntegerSetting(ibuf, ESP_BOOT_DELAY)) {
             response =
                 format_response(COMMANDID, json, false, "Incorrect delay");
             noError = false;
           }
           if (noError) {
-            if (!Settings_ESP3D::write_uint32(ESP_BOOT_DELAY, ibuf)) {
+            if (!ESP3DSettings::write_uint32(ESP_BOOT_DELAY, ibuf)) {
               response = format_response(COMMANDID, json, false, "Set failed");
               noError = false;
             }
@@ -99,13 +99,13 @@ bool ESP3DCommands::ESP150(const char* cmd_params,
           if (parameter.length() != 0) {
             hasParameter = true;
             if ((parameter == "ON") || (parameter == "OFF")) {
-              if (!Settings_ESP3D::write_byte(ESP_VERBOSE_BOOT,
-                                              (parameter == "ON") ? 1 : 0)) {
+              if (!ESP3DSettings::write_byte(ESP_VERBOSE_BOOT,
+                                             (parameter == "ON") ? 1 : 0)) {
                 response =
                     format_response(COMMANDID, json, false, "Set failed");
                 noError = false;
               } else {
-                Settings_ESP3D::isVerboseBoot(true);
+                ESP3DSettings::isVerboseBoot(true);
               }
             } else {
               response = format_response(COMMANDID, json, false,

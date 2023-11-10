@@ -88,11 +88,11 @@ WebdavServer::~WebdavServer() { end(); }
  */
 bool WebdavServer::begin() {
   end();
-  if (Settings_ESP3D::read_byte(ESP_WEBDAV_ON) != 1) {
+  if (ESP3DSettings::read_byte(ESP_WEBDAV_ON) != 1) {
     return true;
   }
   // Get webdav port
-  _port = Settings_ESP3D::read_uint32(ESP_WEBDAV_PORT);
+  _port = ESP3DSettings::read_uint32(ESP_WEBDAV_PORT);
 
   // create instance
   _tcpServer = new WiFiServer(_port);
@@ -121,7 +121,7 @@ void WebdavServer::end() {
 bool WebdavServer::started() { return _started; }
 
 void WebdavServer::handle() {
-  Hal::wait(0);
+  ESP3DHal::wait(0);
   if (isConnected()) {
     parseRequest();
     closeClient();
@@ -400,7 +400,7 @@ bool WebdavServer::send_webdav_headers() {
   static String host = "";
   if (ua.length() == 0) {
     ua = "ESP3D-WebdavServer/1.0 (";
-    ua += Settings_ESP3D::TargetBoard();
+    ua += ESP3DSettings::TargetBoard();
     ua += "; Firmware/";
     ua += FW_VERSION;
     ua += "; Platform/arduino; Embedded; http://www.esp3d.io)";

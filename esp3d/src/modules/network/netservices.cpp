@@ -83,7 +83,7 @@ bool NetServices::_restart = false;
 bool NetServices::begin() {
   bool res = true;
   _started = false;
-  String hostname = Settings_ESP3D::read_string(ESP_HOSTNAME);
+  String hostname = ESP3DSettings::read_string(ESP_HOSTNAME);
   end();
 #ifdef TIMESTAMP_FEATURE
   if (WiFi.getMode() != WIFI_AP) {
@@ -98,7 +98,7 @@ bool NetServices::begin() {
     } else {
       String tmp = "Current time :";
       tmp += timeService.getCurrentTime();
-      if (Settings_ESP3D::isVerboseBoot()) {
+      if (ESP3DSettings::isVerboseBoot()) {
         esp3d_commands.dispatch(tmp.c_str(), ESP3DClientType::all_clients,
                                 no_id, ESP3DMessageType::unique,
                                 ESP3DClientType::system,
@@ -179,7 +179,7 @@ bool NetServices::begin() {
                                 ESP3DAuthenticationLevel::admin);
       }
     });
-    if (Settings_ESP3D::isVerboseBoot()) {
+    if (ESP3DSettings::isVerboseBoot()) {
       esp3d_commands.dispatch("OTA service started",
                               ESP3DClientType::all_clients, no_id,
                               ESP3DMessageType::unique, ESP3DClientType::system,
@@ -201,7 +201,7 @@ bool NetServices::begin() {
     // if DNSServer is started with "*" for domain name, it will reply with
     // provided IP to all DNS request
     if (dnsServer.start(DNS_PORT, "*", WiFi.softAPIP())) {
-      if (Settings_ESP3D::isVerboseBoot()) {
+      if (ESP3DSettings::isVerboseBoot()) {
         esp3d_commands.dispatch(
             "Captive Portal started", ESP3DClientType::all_clients, no_id,
             ESP3DMessageType::unique, ESP3DClientType::system,
@@ -228,7 +228,7 @@ bool NetServices::begin() {
   } else {
     if (HTTP_Server::started()) {
       String stmp = "HTTP server started port " + String(HTTP_Server::port());
-      if (Settings_ESP3D::isVerboseBoot()) {
+      if (ESP3DSettings::isVerboseBoot()) {
         esp3d_commands.dispatch(stmp.c_str(), ESP3DClientType::all_clients,
                                 no_id, ESP3DMessageType::unique,
                                 ESP3DClientType::system,
@@ -249,7 +249,7 @@ bool NetServices::begin() {
     if (telnet_server.started()) {
       String stmp =
           "Telnet server started port " + String(telnet_server.port());
-      if (Settings_ESP3D::isVerboseBoot()) {
+      if (ESP3DSettings::isVerboseBoot()) {
         esp3d_commands.dispatch(stmp.c_str(), ESP3DClientType::all_clients,
                                 no_id, ESP3DMessageType::unique,
                                 ESP3DClientType::system,
@@ -272,7 +272,7 @@ bool NetServices::begin() {
           "Ftp server started ports: " + String(ftp_server.ctrlport()) + "," +
           String(ftp_server.dataactiveport()) + "," +
           String(ftp_server.datapassiveport());
-      if (Settings_ESP3D::isVerboseBoot()) {
+      if (ESP3DSettings::isVerboseBoot()) {
         esp3d_commands.dispatch(tmp.c_str(), ESP3DClientType::all_clients,
                                 no_id, ESP3DMessageType::unique,
                                 ESP3DClientType::system,
@@ -283,7 +283,7 @@ bool NetServices::begin() {
 #endif  // FTP_FEATURE
 #ifdef WS_DATA_FEATURE
   if (!websocket_data_server.begin(
-          Settings_ESP3D::read_uint32(ESP_WEBSOCKET_PORT))) {
+          ESP3DSettings::read_uint32(ESP_WEBSOCKET_PORT))) {
     esp3d_log_e("Failed start Terminal Web Socket");
     esp3d_commands.dispatch("Failed start Terminal Web Socket",
                             ESP3DClientType::all_clients, no_id,
@@ -293,7 +293,7 @@ bool NetServices::begin() {
     if (websocket_data_server.started()) {
       String stmp = "Websocket server started port " +
                     String(websocket_data_server.port());
-      if (Settings_ESP3D::isVerboseBoot()) {
+      if (ESP3DSettings::isVerboseBoot()) {
         esp3d_commands.dispatch(stmp.c_str(), ESP3DClientType::all_clients,
                                 no_id, ESP3DMessageType::unique,
                                 ESP3DClientType::system,
@@ -313,7 +313,7 @@ bool NetServices::begin() {
     if (webdav_server.started()) {
       String stmp =
           "WebDav server started port " + String(webdav_server.port());
-      if (Settings_ESP3D::isVerboseBoot()) {
+      if (ESP3DSettings::isVerboseBoot()) {
         esp3d_commands.dispatch(stmp.c_str(), ESP3DClientType::all_clients,
                                 no_id, ESP3DMessageType::unique,
                                 ESP3DClientType::system,
@@ -338,7 +338,7 @@ bool NetServices::begin() {
   // SSDP service presentation
   if (WiFi.getMode() != WIFI_AP && HTTP_Server::started()) {
     // Add specific for SSDP
-    String stmp = String(Hal::getChipID());
+    String stmp = String(ESP3DHal::getChipID());
     SSDP.setSchemaURL("description.xml");
     SSDP.setHTTPPort(HTTP_Server::port());
     SSDP.setName(hostname.c_str());
@@ -357,7 +357,7 @@ bool NetServices::begin() {
     SSDP.setManufacturerURL(ESP_MANUFACTURER_URL);
     SSDP.begin();
     stmp = "SSDP started with '" + hostname + "'";
-    if (Settings_ESP3D::isVerboseBoot()) {
+    if (ESP3DSettings::isVerboseBoot()) {
       esp3d_commands.dispatch(stmp.c_str(), ESP3DClientType::all_clients, no_id,
                               ESP3DMessageType::unique, ESP3DClientType::system,
                               ESP3DAuthenticationLevel::admin);
@@ -383,7 +383,7 @@ bool NetServices::begin() {
   if (!res) {
     end();
   }
-  Hal::wait(1000);
+  ESP3DHal::wait(1000);
 #if COMMUNICATION_PROTOCOL != MKS_SERIAL
   esp3d_commands.dispatch(NetConfig::localIP().c_str(),
                           ESP3DClientType::all_clients, no_id,

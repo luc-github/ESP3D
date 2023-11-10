@@ -118,7 +118,7 @@ bool ESP3DCommands::ESP420(const char* cmd_params,
       } else {
         line += ": ";
       }
-      line += Hal::getChipID();
+      line += ESP3DHal::getChipID();
       if (json) {
         line += "\"}";
         esp3dmsg->print(line.c_str());
@@ -146,7 +146,7 @@ bool ESP3DCommands::ESP420(const char* cmd_params,
       }
       line = "";
       // CPU temp
-      if (Hal::has_temperature_sensor()) {
+      if (ESP3DHal::has_temperature_sensor()) {
         if (json) {
           line += ",{\"id\":\"";
         }
@@ -156,7 +156,7 @@ bool ESP3DCommands::ESP420(const char* cmd_params,
         } else {
           line += ": ";
         }
-        line += String(Hal::temperature(), 1);
+        line += String(ESP3DHal::temperature(), 1);
         line += "C";
         if (json) {
           line += "\"}";
@@ -1459,9 +1459,9 @@ bool ESP3DCommands::ESP420(const char* cmd_params,
       } else {
         line += ": ";
       }
-      line += (Settings_ESP3D::GetSDDevice() == ESP_DIRECT_SD)   ? "direct "
-              : (Settings_ESP3D::GetSDDevice() == ESP_SHARED_SD) ? "shared "
-                                                                 : "none ";
+      line += (ESP3DSettings::GetSDDevice() == ESP_DIRECT_SD)   ? "direct "
+              : (ESP3DSettings::GetSDDevice() == ESP_SHARED_SD) ? "shared "
+                                                                : "none ";
       line += "(";
       line += ESP_SD::FilesystemName();
       line += ")";
@@ -1482,7 +1482,7 @@ bool ESP3DCommands::ESP420(const char* cmd_params,
       } else {
         line += ": ";
       }
-      line += Settings_ESP3D::read_byte(ESP_SD_CHECK_UPDATE_AT_BOOT) != 0
+      line += ESP3DSettings::read_byte(ESP_SD_CHECK_UPDATE_AT_BOOT) != 0
                   ? "ON"
                   : "OFF";
       if (json) {
@@ -1604,7 +1604,7 @@ bool ESP3DCommands::ESP420(const char* cmd_params,
       } else {
         line += ": ";
       }
-      line += Settings_ESP3D::GetFirmwareTargetShortName();
+      line += ESP3DSettings::GetFirmwareTargetShortName();
       if (json) {
         line += "\"}";
         esp3dmsg->print(line.c_str());
@@ -1644,7 +1644,7 @@ bool ESP3DCommands::ESP420(const char* cmd_params,
       } else {
         line += ": ";
       }
-      line += Settings_ESP3D::TargetBoard();
+      line += ESP3DSettings::TargetBoard();
       if (json) {
         line += "\"}";
         esp3dmsg->print(line.c_str());

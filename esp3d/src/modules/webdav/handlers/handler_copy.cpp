@@ -118,7 +118,7 @@ void WebdavServer::handler_copy(const char* url) {
                         size_t data_read = 0;
                         size_t data_to_read = fileOrigin.size();
                         while (data_read < data_to_read) {
-                          Hal::wait(0);
+                          ESP3DHal::wait(0);
 #if defined(ARDUINO_ARCH_ESP32)
                           uint8_t buff[2048];
 #endif  // ARDUINO_ARCH_ESP32

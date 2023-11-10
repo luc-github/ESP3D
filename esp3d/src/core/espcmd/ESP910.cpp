@@ -58,8 +58,8 @@ bool ESP3DCommands::ESP910(const char* cmd_params,
       }
     } else {  // set
       if (parameter == "ENABLE" || parameter == "DISABLE") {
-        if (!Settings_ESP3D::write_byte(ESP_BUZZER,
-                                        (parameter == "ENABLE") ? 1 : 0)) {
+        if (!ESP3DSettings::write_byte(ESP_BUZZER,
+                                       (parameter == "ENABLE") ? 1 : 0)) {
           response = format_response(COMMANDID, json, false, "Set failed");
           noError = false;
         } else {

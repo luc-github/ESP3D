@@ -66,7 +66,7 @@ const char* TimeService::getDateTime(time_t t) {
 bool TimeService::is_internet_time(bool readfromsettings) {
   if (readfromsettings) {
     _is_internet_time =
-        Settings_ESP3D::read_byte(ESP_INTERNET_TIME) ? true : false;
+        ESP3DSettings::read_byte(ESP_INTERNET_TIME) ? true : false;
     esp3d_log("Internet time is %s",
               _is_internet_time ? "enabled" : "disabled");
   }
@@ -108,9 +108,9 @@ bool TimeService::begin() {
   if (!is_internet_time(true)) {
     return true;
   }
-  s1 = Settings_ESP3D::read_string(ESP_TIME_SERVER1);
-  s2 = Settings_ESP3D::read_string(ESP_TIME_SERVER2);
-  s3 = Settings_ESP3D::read_string(ESP_TIME_SERVER3);
+  s1 = ESP3DSettings::read_string(ESP_TIME_SERVER1);
+  s2 = ESP3DSettings::read_string(ESP_TIME_SERVER2);
+  s3 = ESP3DSettings::read_string(ESP_TIME_SERVER3);
 #if defined(ARDUINO_ARCH_ESP32)
   configTzTime(_time_zone.c_str(), s1.c_str(), s2.c_str(), s3.c_str());
 #endif  // ARDUINO_ARCH_ESP32
@@ -142,14 +142,14 @@ bool TimeService::setTimeZone(const char* stime) {
   }
   if (valid) {
     _time_zone = stime;
-    return Settings_ESP3D::write_string(ESP_TIME_ZONE, _time_zone.c_str());
+    return ESP3DSettings::write_string(ESP_TIME_ZONE, _time_zone.c_str());
   }
   return false;
 }
 
 bool TimeService::updateTimeZone(bool fromsettings) {
   char out_str[7] = {0};
-  _time_zone = Settings_ESP3D::read_string(ESP_TIME_ZONE);
+  _time_zone = ESP3DSettings::read_string(ESP_TIME_ZONE);
 
   bool valid = false;
   for (uint8_t i = 0; i < SupportedTimeZonesSize; i++) {

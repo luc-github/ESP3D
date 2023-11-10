@@ -55,7 +55,7 @@ bool ESP3DCommands::ESP610(const char* cmd_params,
     parameter = clean_param(get_param(cmd_params, ""));
     // get
     if (parameter.length() == 0) {
-      uint8_t Ntype = Settings_ESP3D::read_byte(ESP_NOTIFICATION_TYPE);
+      uint8_t Ntype = ESP3DSettings::read_byte(ESP_NOTIFICATION_TYPE);
       String tmp;
       if (json) {
         tmp = "{\"type\":\"";
@@ -84,7 +84,7 @@ bool ESP3DCommands::ESP610(const char* cmd_params,
       if (json) {
         tmp += "\"";
       }
-      String ts = Settings_ESP3D::read_string(ESP_NOTIFICATION_SETTINGS);
+      String ts = ESP3DSettings::read_string(ESP_NOTIFICATION_SETTINGS);
       if (ts.length() > 0 && ts != "NONE") {
         if (json) {
           tmp += ",\"TS\":\"";
@@ -126,7 +126,7 @@ bool ESP3DCommands::ESP610(const char* cmd_params,
           noError = false;
         }
         if (noError) {
-          if (!Settings_ESP3D::write_byte(ESP_NOTIFICATION_TYPE, Ntype)) {
+          if (!ESP3DSettings::write_byte(ESP_NOTIFICATION_TYPE, Ntype)) {
             response = format_response(COMMANDID, json, false, "Set failed");
             noError = false;
           }
@@ -137,8 +137,8 @@ bool ESP3DCommands::ESP610(const char* cmd_params,
         parameter = get_param(cmd_params, "TS=");
         if (parameter.length() > 0) {
           hasParam = true;
-          if (!Settings_ESP3D::write_string(ESP_NOTIFICATION_SETTINGS,
-                                            parameter.c_str())) {
+          if (!ESP3DSettings::write_string(ESP_NOTIFICATION_SETTINGS,
+                                           parameter.c_str())) {
             response = format_response(COMMANDID, json, false, "Set TS failed");
             noError = false;
           }
@@ -149,8 +149,8 @@ bool ESP3DCommands::ESP610(const char* cmd_params,
         parameter = get_param(cmd_params, "T1=");
         if (parameter.length() > 0) {
           hasParam = true;
-          if (!Settings_ESP3D::write_string(ESP_NOTIFICATION_TOKEN1,
-                                            parameter.c_str())) {
+          if (!ESP3DSettings::write_string(ESP_NOTIFICATION_TOKEN1,
+                                           parameter.c_str())) {
             response = format_response(COMMANDID, json, false, "Set T1 failed");
             noError = false;
           }
@@ -161,8 +161,8 @@ bool ESP3DCommands::ESP610(const char* cmd_params,
         parameter = get_param(cmd_params, "T2=");
         if (parameter.length() > 0) {
           hasParam = true;
-          if (!Settings_ESP3D::write_string(ESP_NOTIFICATION_TOKEN2,
-                                            parameter.c_str())) {
+          if (!ESP3DSettings::write_string(ESP_NOTIFICATION_TOKEN2,
+                                           parameter.c_str())) {
             response = format_response(COMMANDID, json, false, "Set T2 failed");
             noError = false;
           } else {

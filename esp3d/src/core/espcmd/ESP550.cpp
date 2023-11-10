@@ -39,9 +39,9 @@ bool ESP3DCommands::ESP550(const char* cmd_params,
   if (auth_type == admin) {
     parameter = clean_param(get_param(cmd_params, ""));
     if (parameter.length() != 0) {
-      if (Settings_ESP3D::isValidStringSetting(parameter.c_str(),
-                                               ESP_ADMIN_PWD)) {
-        if (!Settings_ESP3D::write_string(ESP_ADMIN_PWD, parameter.c_str())) {
+      if (ESP3DSettings::isValidStringSetting(parameter.c_str(),
+                                              ESP_ADMIN_PWD)) {
+        if (!ESP3DSettings::write_string(ESP_ADMIN_PWD, parameter.c_str())) {
           response = format_response(COMMANDID, json, false, "Set failed");
           noError = false;
         } else {

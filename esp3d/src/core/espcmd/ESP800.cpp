@@ -70,7 +70,7 @@ bool ESP3DCommands::ESP800(const char* cmd_params,
   if (noError) {
     parameter = get_param(cmd_params, "setup=");
     if (parameter.length() > 0) {
-      if (!Settings_ESP3D::write_byte(ESP_SETUP, parameter == "0" ? 0 : 1)) {
+      if (!ESP3DSettings::write_byte(ESP_SETUP, parameter == "0" ? 0 : 1)) {
         response =
             format_response(COMMANDID, json, false, "Save setup flag failed");
         noError = false;
@@ -138,7 +138,7 @@ bool ESP3DCommands::ESP800(const char* cmd_params,
     } else {
       line += "FW target:";
     }
-    line += Settings_ESP3D::GetFirmwareTargetShortName();
+    line += ESP3DSettings::GetFirmwareTargetShortName();
     if (json) {
       line += "\"";
       esp3dmsg->print(line.c_str());
@@ -152,7 +152,7 @@ bool ESP3DCommands::ESP800(const char* cmd_params,
     } else {
       line += "FW ID:";
     }
-    line += Settings_ESP3D::GetFirmwareTarget();
+    line += ESP3DSettings::GetFirmwareTarget();
     if (json) {
       line += "\"";
       esp3dmsg->print(line.c_str());
@@ -166,8 +166,8 @@ bool ESP3DCommands::ESP800(const char* cmd_params,
     } else {
       line += "Setup:";
     }
-    line += Settings_ESP3D::read_byte(ESP_SETUP) == 0 ? F("Enabled")
-                                                      : F("Disabled");
+    line +=
+        ESP3DSettings::read_byte(ESP_SETUP) == 0 ? F("Enabled") : F("Disabled");
     if (json) {
       line += "\"";
       esp3dmsg->print(line.c_str());
@@ -182,9 +182,9 @@ bool ESP3DCommands::ESP800(const char* cmd_params,
     } else {
       line += "SD connection:";
     }
-    if (Settings_ESP3D::GetSDDevice() == ESP_DIRECT_SD) {
+    if (ESP3DSettings::GetSDDevice() == ESP_DIRECT_SD) {
       line += "direct";
-    } else if (Settings_ESP3D::GetSDDevice() == ESP_SHARED_SD) {
+    } else if (ESP3DSettings::GetSDDevice() == ESP_SHARED_SD) {
       line += "shared";
     } else {
       line += "none";

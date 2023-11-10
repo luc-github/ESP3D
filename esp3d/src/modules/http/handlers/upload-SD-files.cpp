@@ -255,6 +255,6 @@ void HTTP_Server::SDFileupload() {
     Serial2Socket.pause(false);
 #endif  // ESP3DLIB_ENV && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
   }
-  Hal::wait(5);
+  ESP3DHal::wait(5);
 }
 #endif  // HTTP_FEATURE && SD_DEVICE

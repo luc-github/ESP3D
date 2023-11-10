@@ -53,7 +53,7 @@ bool ESP3DCommands::ESP901(const char* cmd_params,
     if (parameter.length() == 0) {
       response = format_response(
           COMMANDID, json, true,
-          String(Settings_ESP3D::read_uint32(ESP_BAUD_RATE)).c_str());
+          String(ESP3DSettings::read_uint32(ESP_BAUD_RATE)).c_str());
     } else {  // set
 #ifdef AUTHENTICATION_FEATURE
       if (auth_type != admin) {
@@ -65,11 +65,11 @@ bool ESP3DCommands::ESP901(const char* cmd_params,
 #endif  // AUTHENTICATION_FEATURE
       if (noError) {
         uint ibuf = parameter.toInt();
-        if (Settings_ESP3D::isValidIntegerSetting(ibuf, ESP_BAUD_RATE)) {
+        if (ESP3DSettings::isValidIntegerSetting(ibuf, ESP_BAUD_RATE)) {
           response = format_response(COMMANDID, json, false, "Incorrect port");
           noError = false;
         } else {
-          if (!Settings_ESP3D::write_uint32(ESP_BAUD_RATE, ibuf)) {
+          if (!ESP3DSettings::write_uint32(ESP_BAUD_RATE, ibuf)) {
             response = format_response(COMMANDID, json, false, "Set failed");
             noError = false;
           } else {

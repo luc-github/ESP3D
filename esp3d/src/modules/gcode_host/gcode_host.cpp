@@ -90,7 +90,7 @@ bool GcodeHost::isAck(String &line) {
     esp3d_log("got ok");
     return true;
   }
-  if (Settings_ESP3D::GetFirmwareTarget() == SMOOTHIEWARE) {
+  if (ESP3DSettings::GetFirmwareTarget() == SMOOTHIEWARE) {
     if (line.indexOf("smoothie out") != -1) {
       esp3d_log("got smoothie out");
       return true;
@@ -461,7 +461,7 @@ String GcodeHost::CheckSumCommand(const char *command, uint32_t commandnb) {
 
 bool GcodeHost::resetCommandNumbering() {
   String resetcmd = "M110 N0";
-  if (Settings_ESP3D::GetFirmwareTarget() == SMOOTHIEWARE) {
+  if (ESP3DSettings::GetFirmwareTarget() == SMOOTHIEWARE) {
     resetcmd = "N0 M110";
   } else {
     resetcmd = "M110 N0";
@@ -474,7 +474,7 @@ bool GcodeHost::resetCommandNumbering() {
 uint32_t GcodeHost::getCommandNumber(String &response) {
   uint32_t l = 0;
   String sresend = "Resend:";
-  if (Settings_ESP3D::GetFirmwareTarget() == SMOOTHIEWARE) {
+  if (ESP3DSettings::GetFirmwareTarget() == SMOOTHIEWARE) {
     sresend = "rs N";
   }
   int pos = response.indexOf(sresend);

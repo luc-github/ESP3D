@@ -58,19 +58,19 @@ bool ESP3DCommands::ESP181(const char* cmd_params,
       } else {
         s += "ctrl=";
       }
-      s += String(Settings_ESP3D::read_uint32(ESP_FTP_CTRL_PORT));
+      s += String(ESP3DSettings::read_uint32(ESP_FTP_CTRL_PORT));
       if (json) {
         s += "\",\"active\":\"";
       } else {
         s += ", active=";
       }
-      s += String(Settings_ESP3D::read_uint32(ESP_FTP_DATA_ACTIVE_PORT));
+      s += String(ESP3DSettings::read_uint32(ESP_FTP_DATA_ACTIVE_PORT));
       if (json) {
         s += "\",\"passive\":\"";
       } else {
         s += ", passive=";
       }
-      s += String(Settings_ESP3D::read_uint32(ESP_FTP_DATA_PASSIVE_PORT));
+      s += String(ESP3DSettings::read_uint32(ESP_FTP_DATA_PASSIVE_PORT));
       if (json) {
         s += "\"}";
       }
@@ -91,12 +91,12 @@ bool ESP3DCommands::ESP181(const char* cmd_params,
         if (parameter.length() > 0) {
           hasParam = true;
           ibuf = parameter.toInt();
-          if (!Settings_ESP3D::isValidIntegerSetting(ibuf, ESP_FTP_CTRL_PORT)) {
+          if (!ESP3DSettings::isValidIntegerSetting(ibuf, ESP_FTP_CTRL_PORT)) {
             response =
                 format_response(COMMANDID, json, false, "Incorrect ctrl port");
             noError = false;
           } else {
-            if (!Settings_ESP3D::write_uint32(ESP_FTP_CTRL_PORT, ibuf)) {
+            if (!ESP3DSettings::write_uint32(ESP_FTP_CTRL_PORT, ibuf)) {
               response = format_response(COMMANDID, json, false, "Set failed");
               noError = false;
             }
@@ -107,14 +107,14 @@ bool ESP3DCommands::ESP181(const char* cmd_params,
           if (parameter.length() > 0) {
             ibuf = parameter.toInt();
             hasParam = true;
-            if (!Settings_ESP3D::isValidIntegerSetting(
+            if (!ESP3DSettings::isValidIntegerSetting(
                     ibuf, ESP_FTP_DATA_ACTIVE_PORT)) {
               response = format_response(COMMANDID, json, false,
                                          "Incorrect active port");
               noError = false;
             } else {
-              if (!Settings_ESP3D::write_uint32(ESP_FTP_DATA_ACTIVE_PORT,
-                                                ibuf)) {
+              if (!ESP3DSettings::write_uint32(ESP_FTP_DATA_ACTIVE_PORT,
+                                               ibuf)) {
                 response =
                     format_response(COMMANDID, json, false, "Set failed");
                 noError = false;
@@ -127,15 +127,14 @@ bool ESP3DCommands::ESP181(const char* cmd_params,
           if (parameter.length() > 0) {
             hasParam = true;
             ibuf = parameter.toInt();
-            if (!Settings_ESP3D::isValidIntegerSetting(
+            if (!ESP3DSettings::isValidIntegerSetting(
                     ibuf, ESP_FTP_DATA_PASSIVE_PORT)) {
               response = format_response(COMMANDID, json, false,
                                          "Incorrect passive port");
               noError = false;
             } else {
             }
-            if (!Settings_ESP3D::write_uint32(ESP_FTP_DATA_PASSIVE_PORT,
-                                              ibuf)) {
+            if (!ESP3DSettings::write_uint32(ESP_FTP_DATA_PASSIVE_PORT, ibuf)) {
               response = format_response(COMMANDID, json, false, "Set failed");
               noError = false;
             }

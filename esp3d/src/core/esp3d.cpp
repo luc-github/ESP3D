@@ -70,7 +70,7 @@ Esp3D::~Esp3D() { end(); }
 // Begin which setup everything
 bool Esp3D::begin() {
   BootDelay bd;
-  Hal::begin();
+  ESP3DHal::begin();
   LOG_ESP3D_INIT
 #if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
   Serial2Socket.enable();
@@ -92,7 +92,7 @@ bool Esp3D::begin() {
   }
 #endif  // SD_UPDATE_FEATURE
   esp3d_log("Mode %d", WiFi.getMode());
-  if (!Settings_ESP3D::begin()) {
+  if (!ESP3DSettings::begin()) {
     esp3d_log("Need reset settings");
     reset();
     // Restart ESP3D
@@ -127,7 +127,7 @@ bool Esp3D::begin() {
 #endif  // DISPLAY_DEVICE
   // Setup Network
 #if defined(WIFI_FEATURE) || defined(ETH_FEATURE) || defined(BLUETOOTH_FEATURE)
-  if (Settings_ESP3D::read_byte(ESP_BOOT_RADIO_STATE) == 1) {
+  if (ESP3DSettings::read_byte(ESP_BOOT_RADIO_STATE) == 1) {
     if (!NetConfig::begin()) {
       esp3d_log_e("Error setup network");
       res = false;
@@ -217,7 +217,7 @@ bool Esp3D::reset() {
     esp3d_log_e("Reset serial bridge error");
   }
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
-  if (!Settings_ESP3D::reset()) {
+  if (!ESP3DSettings::reset()) {
     esp3d_log_e("Reset settings error");
     resetOk = false;
   }

@@ -54,7 +54,7 @@ bool ESP3DCommands::ESP190(const char* cmd_params,
     if (parameter.length() == 0) {
       response = format_response(
           COMMANDID, json, true,
-          (Settings_ESP3D::read_byte(ESP_WEBDAV_ON) == 0) ? "OFF" : "ON");
+          (ESP3DSettings::read_byte(ESP_WEBDAV_ON) == 0) ? "OFF" : "ON");
       // webdav_server.dir();
     } else {  // set
 #ifdef AUTHENTICATION_FEATURE
@@ -77,8 +77,8 @@ bool ESP3DCommands::ESP190(const char* cmd_params,
             webdav_server.closeClient();
 
           } else {
-            if (!Settings_ESP3D::write_byte(ESP_WEBDAV_ON,
-                                            (parameter == "ON") ? 1 : 0)) {
+            if (!ESP3DSettings::write_byte(ESP_WEBDAV_ON,
+                                           (parameter == "ON") ? 1 : 0)) {
               response = format_response(COMMANDID, json, false, "Set failed");
               noError = false;
             }

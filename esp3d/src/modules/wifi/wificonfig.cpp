@@ -82,7 +82,7 @@ bool WiFiConfig::ConnectSTA2AP() {
   wl_status_t status = WiFi.status();
   esp3d_log("Connecting");
 #if COMMUNICATION_PROTOCOL != MKS_SERIAL
-  if (!Settings_ESP3D::isVerboseBoot()) {
+  if (!ESP3DSettings::isVerboseBoot()) {
     esp3d_commands.dispatch("Connecting", ESP3DClientType::all_clients, no_id,
                             ESP3DMessageType::unique, ESP3DClientType::system,
                             ESP3DAuthenticationLevel::admin);
@@ -109,13 +109,13 @@ bool WiFiConfig::ConnectSTA2AP() {
         dot++;
         break;
     }
-    if (Settings_ESP3D::isVerboseBoot()) {
+    if (ESP3DSettings::isVerboseBoot()) {
       esp3d_commands.dispatch((msg.c_str(),
                               ESP3DClientType::all_clients, no_id,
                               ESP3DMessageType::unique, ESP3DClientType::system,
                               ESP3DAuthenticationLevel::admin);
     }
-    Hal::wait(500);
+    ESP3DHal::wait(500);
     count++;
     status = WiFi.status();
   }
@@ -140,19 +140,19 @@ bool WiFiConfig::StartSTA() {
   WiFi.setSortMethod(WIFI_CONNECT_AP_BY_SIGNAL);
 #endif  // ARDUINO_ARCH_ESP32
   // Get parameters for STA
-  String SSID = Settings_ESP3D::read_string(ESP_STA_SSID);
-  String password = Settings_ESP3D::read_string(ESP_STA_PASSWORD);
+  String SSID = ESP3DSettings::read_string(ESP_STA_SSID);
+  String password = ESP3DSettings::read_string(ESP_STA_PASSWORD);
 
-  if (Settings_ESP3D::read_byte(ESP_STA_IP_MODE) != DHCP_MODE) {
-    int32_t IP = Settings_ESP3D::read_IP(ESP_STA_IP_VALUE);
-    int32_t GW = Settings_ESP3D::read_IP(ESP_STA_GATEWAY_VALUE);
-    int32_t MK = Settings_ESP3D::read_IP(ESP_STA_MASK_VALUE);
-    int32_t DNS = Settings_ESP3D::read_IP(ESP_STA_DNS_VALUE);
+  if (ESP3DSettings::read_byte(ESP_STA_IP_MODE) != DHCP_MODE) {
+    int32_t IP = ESP3DSettings::read_IP(ESP_STA_IP_VALUE);
+    int32_t GW = ESP3DSettings::read_IP(ESP_STA_GATEWAY_VALUE);
+    int32_t MK = ESP3DSettings::read_IP(ESP_STA_MASK_VALUE);
+    int32_t DNS = ESP3DSettings::read_IP(ESP_STA_DNS_VALUE);
     IPAddress ip(IP), mask(MK), gateway(GW), dns(DNS);
     WiFi.config(ip, gateway, mask, dns);
   }
 
-  if (Settings_ESP3D::isVerboseBoot()) {
+  if (ESP3DSettings::isVerboseBoot()) {
     String stmp;
     stmp = "Connecting to '" + SSID + "'";
     esp3d_commands.dispatch(stmp.c_str(), ESP3DClientType::all_clients, no_id,
@@ -198,12 +198,12 @@ bool WiFiConfig::StartAP(bool setupMode) {
   WiFi.setSleepMode(WIFI_NONE_SLEEP);
 #endif  // ARDUINO_ARCH_ESP8266
 
-  String SSID = Settings_ESP3D::read_string(ESP_AP_SSID);
-  String password = Settings_ESP3D::read_string(ESP_AP_PASSWORD);
+  String SSID = ESP3DSettings::read_string(ESP_AP_SSID);
+  String password = ESP3DSettings::read_string(ESP_AP_PASSWORD);
   // channel
-  int8_t channel = Settings_ESP3D::read_byte(ESP_AP_CHANNEL);
+  int8_t channel = ESP3DSettings::read_byte(ESP_AP_CHANNEL);
   // IP
-  int32_t IP = Settings_ESP3D::read_IP(ESP_AP_IP_VALUE);
+  int32_t IP = ESP3DSettings::read_IP(ESP_AP_IP_VALUE);
 
   IPAddress ip(IP);
   IPAddress gw(0, 0, 0, 0);
@@ -245,7 +245,7 @@ bool WiFiConfig::StartAP(bool setupMode) {
     // must be done after starting AP not before
     // https://github.com/espressif/arduino-esp32/issues/4222
     // on some phone 100 is ok but on some other it is not enough so 2000 is ok
-    Hal::wait(2000);
+    ESP3DHal::wait(2000);
     // Set static IP
     esp3d_log("Use: %s / %s / %s", ip.toString().c_str(), ip.toString().c_str(),
               mask.toString().c_str());
@@ -284,7 +284,7 @@ bool WiFiConfig::begin(int8_t& espMode) {
   bool res = false;
   end();
   esp3d_log("Starting Wifi Config");
-  if (Settings_ESP3D::isVerboseBoot()) {
+  if (ESP3DSettings::isVerboseBoot()) {
     esp3d_commands.dispatch("Starting WiFi", ESP3DClientType::all_clients,
                             no_id, ESP3DMessageType::unique,
                             ESP3DClientType::system,
@@ -299,13 +299,13 @@ bool WiFiConfig::begin(int8_t& espMode) {
     res = StartSTA();
     // AP is backup mode
     if (!res) {
-      if (Settings_ESP3D::isVerboseBoot()) {
+      if (ESP3DSettings::isVerboseBoot()) {
         esp3d_commands.dispatch(
             "Starting fallback mode", ESP3DClientType::all_clients, no_id,
             ESP3DMessageType::unique, ESP3DClientType::system,
             ESP3DAuthenticationLevel::admin);
       }
-      espMode = Settings_ESP3D::read_byte(ESP_STA_FALLBACK_MODE);
+      espMode = ESP3DSettings::read_byte(ESP_STA_FALLBACK_MODE);
       NetConfig::setMode(espMode);
       if (espMode == ESP_AP_SETUP) {
         esp3d_log("Starting AP mode in setup mode");

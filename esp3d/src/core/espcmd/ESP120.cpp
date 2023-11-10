@@ -53,7 +53,7 @@ bool ESP3DCommands::ESP120(const char* cmd_params,
     if (parameter.length() == 0) {
       response = format_response(
           COMMANDID, json, true,
-          (Settings_ESP3D::read_byte(ESP_HTTP_ON) == 0) ? "OFF" : "ON");
+          (ESP3DSettings::read_byte(ESP_HTTP_ON) == 0) ? "OFF" : "ON");
     } else {  // set
 #ifdef AUTHENTICATION_FEATURE
       if (auth_type != admin) {
@@ -70,8 +70,8 @@ bool ESP3DCommands::ESP120(const char* cmd_params,
                                      "Only ON or OFF mode supported!");
           noError = false;
         } else {
-          if (!Settings_ESP3D::write_byte(ESP_HTTP_ON,
-                                          (parameter == "ON") ? 1 : 0)) {
+          if (!ESP3DSettings::write_byte(ESP_HTTP_ON,
+                                         (parameter == "ON") ? 1 : 0)) {
             response = format_response(COMMANDID, json, false, "Set failed");
             noError = false;
           } else {

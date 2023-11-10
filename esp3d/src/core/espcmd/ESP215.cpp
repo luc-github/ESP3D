@@ -53,8 +53,8 @@ bool ESP3DCommands::ESP215(const char* cmd_params,
     if (parameter.length() == 0) {
       response = format_response(
           COMMANDID, json, true,
-          (Settings_ESP3D::read_byte(ESP_CALIBRATION) == 1) ? "Done"
-                                                            : "Not done");
+          (ESP3DSettings::read_byte(ESP_CALIBRATION) == 1) ? "Done"
+                                                           : "Not done");
     } else {  // set
       parameter.toUpperCase();
             if (has_tag (cmd_params, "CALIBRATE") {

@@ -122,7 +122,7 @@ bool AuthenticationService::begin(Authwebserver *webserver) {
   _webserver = webserver;
 #endif  // HTTP_FEATURE
   // value is in ms but storage is in min
-  _sessionTimeout = 1000 * 60 * Settings_ESP3D::read_byte(ESP_SESSION_TIMEOUT);
+  _sessionTimeout = 1000 * 60 * ESP3DSettings::read_byte(ESP_SESSION_TIMEOUT);
   return true;
 }
 void AuthenticationService::end() {
@@ -133,8 +133,8 @@ void AuthenticationService::end() {
 }
 
 void AuthenticationService::update() {
-  _adminpwd = Settings_ESP3D::read_string(ESP_ADMIN_PWD);
-  _userpwd = Settings_ESP3D::read_string(ESP_USER_PWD);
+  _adminpwd = ESP3DSettings::read_string(ESP_ADMIN_PWD);
+  _userpwd = ESP3DSettings::read_string(ESP_USER_PWD);
 }
 
 void AuthenticationService::handle() {}

@@ -53,7 +53,7 @@ bool ESP3DCommands::ESP160(const char* cmd_params,
     if (parameter.length() == 0) {
       response = format_response(
           COMMANDID, json, true,
-          (Settings_ESP3D::read_byte(ESP_WEBSOCKET_ON) == 0) ? "OFF" : "ON");
+          (ESP3DSettings::read_byte(ESP_WEBSOCKET_ON) == 0) ? "OFF" : "ON");
     } else {  // set
 #ifdef AUTHENTICATION_FEATURE
       if (auth_type != admin) {
@@ -74,8 +74,8 @@ bool ESP3DCommands::ESP160(const char* cmd_params,
           if (parameter == "CLOSE") {
             websocket_data_server.closeClients();
           } else {
-            if (!Settings_ESP3D::write_byte(ESP_WEBSOCKET_ON,
-                                            (parameter == "ON") ? 1 : 0)) {
+            if (!ESP3DSettings::write_byte(ESP_WEBSOCKET_ON,
+                                           (parameter == "ON") ? 1 : 0)) {
               response = format_response(COMMANDID, json, false, "Set failed");
               noError = false;
             }

@@ -113,11 +113,11 @@ bool Display::begin() {
   showScreenID(SPLASH_SCREEN);
   updateScreen(true);
 #if defined(DISPLAY_TOUCH_DRIVER)
-  if (Settings_ESP3D::read_byte(ESP_CALIBRATION) == 1) {
+  if (ESP3DSettings::read_byte(ESP_CALIBRATION) == 1) {
     uint16_t calibrationData[5];
     for (uint8_t i = 0; i < 5; i++) {
       calibrationData[i] =
-          Settings_ESP3D::read_uint32(ESP_CALIBRATION_1 + (4 * i));
+          ESP3DSettings::read_uint32(ESP_CALIBRATION_1 + (4 * i));
     }
     esp3d_screen.setTouch(calibrationData);
   }
@@ -190,7 +190,7 @@ void Display::updateScreen(bool force) {
     }
     if (need_update || force) {
       esp3d_screen.display();
-      Hal::wait(0);
+      ESP3DHal::wait(0);
     }
   }
 }

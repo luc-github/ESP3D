@@ -98,7 +98,7 @@ void WebdavServer::handler_put(const char* url) {
           Esp3dTimout updateWS(2000);
 #endif  // HTTP_FEATURE
           while (_client.available() && received < content_length) {
-            Hal::wait(0);
+            ESP3DHal::wait(0);
             size_t received_bytes = _client.read(chunk, sizeof(chunk));
             if (received_bytes != file.write(chunk, received_bytes)) {
               code = 500;

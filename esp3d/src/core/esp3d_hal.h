@@ -33,7 +33,7 @@
 #endif  // ARDUINO_ARCH_ESP32
 #include <Arduino.h>
 
-class Hal {
+class ESP3DHal {
  public:
   static bool begin();
   static void end();

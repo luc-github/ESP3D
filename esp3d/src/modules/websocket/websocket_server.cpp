@@ -163,10 +163,10 @@ WebSocket_Server::~WebSocket_Server() { end(); }
 bool WebSocket_Server::begin(uint16_t port) {
   end();
   if (port == 0) {
-    _port = Settings_ESP3D::read_uint32(ESP_HTTP_PORT) + 1;
+    _port = ESP3DSettings::read_uint32(ESP_HTTP_PORT) + 1;
   } else {
     _port = port;
-    if (Settings_ESP3D::read_byte(ESP_WEBSOCKET_ON) == 0) {
+    if (ESP3DSettings::read_byte(ESP_WEBSOCKET_ON) == 0) {
       return true;
     }
   }
@@ -294,7 +294,7 @@ void WebSocket_Server::flushRXbuffer() {
 }
 
 void WebSocket_Server::handle() {
-  Hal::wait(0);
+  ESP3DHal::wait(0);
   if (_started) {
     if (_TXbufferSize > 0) {
       if ((_TXbufferSize >= TXBUFFERSIZE) ||

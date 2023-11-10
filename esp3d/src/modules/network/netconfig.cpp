@@ -161,7 +161,7 @@ void NetConfig::onWiFiEvent(WiFiEvent_t event) {
 #ifdef ETH_FEATURE
     case ARDUINO_EVENT_ETH_START: {
       EthConfig::setConnected(false);
-      if (Settings_ESP3D::isVerboseBoot()) {
+      if (ESP3DSettings::isVerboseBoot()) {
         esp3d_commands.dispatch(
             "Checking connection", ESP3DClientType::all_clients, 0,
             ESP3DMessageType::unique, ESP3DClientType::system,
@@ -210,10 +210,10 @@ bool NetConfig::begin() {
   bool res = false;
   // clear everything
   end();
-  int8_t espMode = Settings_ESP3D::read_byte(ESP_RADIO_MODE);
+  int8_t espMode = ESP3DSettings::read_byte(ESP_RADIO_MODE);
   esp3d_log("Starting Network");
   if (espMode != ESP_NO_NETWORK) {
-    if (Settings_ESP3D::isVerboseBoot()) {
+    if (ESP3DSettings::isVerboseBoot()) {
       esp3d_commands.dispatch("Starting Network", ESP3DClientType::all_clients,
                               0, ESP3DMessageType::unique,
                               ESP3DClientType::system,
@@ -235,7 +235,7 @@ bool NetConfig::begin() {
     _events_registered = true;
   }
   // Get hostname
-  _hostname = Settings_ESP3D::read_string(ESP_HOSTNAME);
+  _hostname = ESP3DSettings::read_string(ESP_HOSTNAME);
   _mode = espMode;
   if (espMode == ESP_NO_NETWORK) {
     esp3d_commands.dispatch("Disable Network", ESP3DClientType::all_clients, 0,
@@ -243,7 +243,7 @@ bool NetConfig::begin() {
                             ESP3DAuthenticationLevel::admin);
     WiFi.mode(WIFI_OFF);
     ESP3D_Message::toScreen(ESP_OUTPUT_IP_ADDRESS, nullptr);
-    if (Settings_ESP3D::isVerboseBoot()) {
+    if (ESP3DSettings::isVerboseBoot()) {
       esp3d_commands.dispatch(RADIO_OFF_MSG, ESP3DClientType::all_clients, 0,
                               ESP3DMessageType::unique, ESP3DClientType::system,
                               ESP3DAuthenticationLevel::admin);
@@ -292,7 +292,7 @@ bool NetConfig::begin() {
                             ESP3DAuthenticationLevel::admin);
     WiFi.mode(WIFI_OFF);
     ESP3D_Message::toScreen(ESP_OUTPUT_IP_ADDRESS, nullptr);
-    if (Settings_ESP3D::isVerboseBoot()) {
+    if (ESP3DSettings::isVerboseBoot()) {
       esp3d_commands.dispatch(RADIO_OFF_MSG, ESP3DClientType::all_clients, 0,
                               ESP3DMessageType::unique, ESP3DClientType::system,
                               ESP3DAuthenticationLevel::admin);
@@ -364,7 +364,7 @@ void NetConfig::end() {
 
 const char* NetConfig::hostname(bool fromsettings) {
   if (fromsettings) {
-    _hostname = Settings_ESP3D::read_string(ESP_HOSTNAME);
+    _hostname = ESP3DSettings::read_string(ESP_HOSTNAME);
     return _hostname.c_str();
   }
 #if defined(WIFI_FEATURE)

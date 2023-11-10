@@ -84,7 +84,7 @@ void RecoveryService::handle() {
         esp3dmsg.printMSG("Reset requested");
         Esp3D::reset();
         esp3dmsg.flush();
-        Hal::wait(100);
+        ESP3DHal::wait(100);
         Esp3D::restart_esp();
       }
     }

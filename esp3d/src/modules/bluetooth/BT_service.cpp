@@ -116,7 +116,7 @@ bool BTService::begin() {
   end();
   // Get hostname
   // this allow to adjust if necessary
-  _btname = Settings_ESP3D::read_string(ESP_HOSTNAME);
+  _btname = ESP3DSettings::read_string(ESP_HOSTNAME);
 
   if (!SerialBT.begin(_btname)) {
     esp3dmsg.printERROR("BT failed start");
@@ -246,7 +246,7 @@ size_t BTService::write(const uint8_t *buffer, size_t size) {
         sizesent += available;
         starttime = millis();
       } else {
-        Hal::wait(5);
+        ESP3DHal::wait(5);
       }
     }
     return sizesent;

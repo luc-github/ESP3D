@@ -826,19 +826,19 @@ bool ESP3DCommands::_dispatchSetting(
   tmpstr.reserve(
       350);  // to save time and avoid several memories allocation delay
   const ESP3DSettingDescription *elementSetting =
-      Settings_ESP3D::getSettingPtr(index);
+      ESP3DSettings::getSettingPtr(index);
   if (!elementSetting) {
     return false;
   }
   switch (elementSetting->type) {
     case ESP3DSettingType::byte_t:
-      value = String(Settings_ESP3D::read_byte(index));
+      value = String(ESP3DSettings::read_byte(index));
       break;
     case ESP3DSettingType::integer_t:
-      value = String(Settings_ESP3D::read_uint32(index));
+      value = String(ESP3DSettings::read_uint32(index));
       break;
     case ESP3DSettingType::ip_t:
-      value = Settings_ESP3D::read_IP_String(index);
+      value = ESP3DSettings::read_IP_String(index);
       break;
     case ESP3DSettingType::float_t:
       // TODO Add float support ?
@@ -870,7 +870,7 @@ bool ESP3DCommands::_dispatchSetting(
                                                               // using  ********
         value = HIDDEN_PASSWORD;
       } else {
-        value = Settings_ESP3D::read_string(index);
+        value = ESP3DSettings::read_string(index);
       }
       break;
     default:

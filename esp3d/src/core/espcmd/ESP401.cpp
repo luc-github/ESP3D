@@ -87,10 +87,10 @@ bool ESP3DCommands::ESP401(const char* cmd_params,
       if (response) {
         // Byte value
         if (styp == "B") {
-          if (Settings_ESP3D::isValidByteSetting((uint8_t)sval.toInt(),
-                                                 spos.toInt())) {
-            if (!Settings_ESP3D::write_byte(spos.toInt(),
-                                            (uint8_t)sval.toInt())) {
+          if (ESP3DSettings::isValidByteSetting((uint8_t)sval.toInt(),
+                                                spos.toInt())) {
+            if (!ESP3DSettings::write_byte(spos.toInt(),
+                                           (uint8_t)sval.toInt())) {
               response = false;
               esp3d_log_e("Set failed");
             } else {
@@ -104,10 +104,10 @@ bool ESP3DCommands::ESP401(const char* cmd_params,
                   break;
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
                 case ESP_VERBOSE_BOOT:
-                  Settings_ESP3D::isVerboseBoot(true);
+                  ESP3DSettings::isVerboseBoot(true);
                   break;
                 case ESP_TARGET_FW:
-                  Settings_ESP3D::GetFirmwareTarget(true);
+                  ESP3DSettings::GetFirmwareTarget(true);
                   break;
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
                 case ESP_SECURE_SERIAL:
@@ -162,8 +162,8 @@ bool ESP3DCommands::ESP401(const char* cmd_params,
         }
         // Integer value
         if (styp == "I") {
-          if (Settings_ESP3D::isValidByteSetting(sval.toInt(), spos.toInt())) {
-            if (!Settings_ESP3D::write_uint32(spos.toInt(), sval.toInt())) {
+          if (ESP3DSettings::isValidByteSetting(sval.toInt(), spos.toInt())) {
+            if (!ESP3DSettings::write_uint32(spos.toInt(), sval.toInt())) {
               response = "Set failed";
               noError = false;
               esp3d_log_e("Set failed");
@@ -197,9 +197,8 @@ bool ESP3DCommands::ESP401(const char* cmd_params,
         }
         // String value
         if (styp == "S") {
-          if (Settings_ESP3D::isValidStringSetting(sval.c_str(),
-                                                   spos.toInt())) {
-            if (!Settings_ESP3D::write_string(spos.toInt(), sval.c_str())) {
+          if (ESP3DSettings::isValidStringSetting(sval.c_str(), spos.toInt())) {
+            if (!ESP3DSettings::write_string(spos.toInt(), sval.c_str())) {
               response = "Set failed";
               noError = false;
               esp3d_log_e("Set failed");
@@ -224,9 +223,9 @@ bool ESP3DCommands::ESP401(const char* cmd_params,
 #if defined(WIFI_FEATURE)
         // IP address
         if (styp == "A") {
-          if (Settings_ESP3D::isValidIPStringSetting(sval.c_str(),
-                                                     spos.toInt())) {
-            if (!Settings_ESP3D::write_IP_String(spos.toInt(), sval.c_str())) {
+          if (ESP3DSettings::isValidIPStringSetting(sval.c_str(),
+                                                    spos.toInt())) {
+            if (!ESP3DSettings::write_IP_String(spos.toInt(), sval.c_str())) {
               response = "Set failed";
               noError = false;
             } else {

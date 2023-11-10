@@ -34,15 +34,15 @@
 #include <esp_task_wdt.h>
 #include <soc/rtc_cntl_reg.h>
 
-TaskHandle_t Hal::xHandle = nullptr;
+TaskHandle_t ESP3DHal::xHandle = nullptr;
 #endif  // ARDUINO_ARCH_ESP32
 
 #include "esp3d_message.h"
 
-uint32_t Hal::_analogRange = 255;
-uint32_t Hal::_analogWriteFreq = 1000;
+uint32_t ESP3DHal::_analogRange = 255;
+uint32_t ESP3DHal::_analogWriteFreq = 1000;
 
-void Hal::pinMode(uint8_t pin, uint8_t mode) {
+void ESP3DHal::pinMode(uint8_t pin, uint8_t mode) {
 #if defined(ARDUINO_ARCH_ESP8266)
   if ((pin == 16) && (mode == INPUT_PULLUP)) {
     ::pinMode(pin, INPUT_PULLDOWN_16);
@@ -52,7 +52,7 @@ void Hal::pinMode(uint8_t pin, uint8_t mode) {
   ::pinMode(pin, mode);
 }
 
-int Hal::analogRead(uint8_t pin) {
+int ESP3DHal::analogRead(uint8_t pin) {
 #ifdef ARDUINO_ARCH_ESP8266  // only one ADC on ESP8266 A0
   (void)pin;
   return ::analogRead(A0);
@@ -61,7 +61,7 @@ int Hal::analogRead(uint8_t pin) {
 #endif
 }
 
-bool Hal::analogWrite(uint8_t pin, uint value) {
+bool ESP3DHal::analogWrite(uint8_t pin, uint value) {
   if (value > (_analogRange - 1)) {
     return false;
   }
@@ -73,13 +73,13 @@ bool Hal::analogWrite(uint8_t pin, uint value) {
 #endif  // ARDUINO_ARCH_ESP32
   return true;
 }
-void Hal::analogWriteFreq(uint32_t freq) {
+void ESP3DHal::analogWriteFreq(uint32_t freq) {
   _analogWriteFreq = freq;
 #ifdef ARDUINO_ARCH_ESP8266
   ::analogWriteFreq(_analogWriteFreq);
 #endif  // ARDUINO_ARCH_ESP8266
 }
-void Hal::analogRange(uint32_t range) {
+void ESP3DHal::analogRange(uint32_t range) {
   _analogRange = range;
   uint8_t resolution = 0;
   switch (_analogRange) {
@@ -110,7 +110,7 @@ void Hal::analogRange(uint32_t range) {
 }
 
 // Setup
-bool Hal::begin() {
+bool ESP3DHal::begin() {
 #if defined(ARDUINO_ARCH_ESP32) && defined(CAMERA_DEVICE)
   esp3d_log("Disable brown out");
   WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);  // disable brownout detector
@@ -134,10 +134,10 @@ bool Hal::begin() {
 }
 
 // End ESP3D
-void Hal::end() {}
+void ESP3DHal::end() {}
 
 // Watchdog feeder
-void Hal::wdtFeed() {
+void ESP3DHal::wdtFeed() {
 #ifdef ARDUINO_ARCH_ESP8266
   ESP.wdtFeed();
 #endif  // ARDUINO_ARCH_ESP8266
@@ -165,7 +165,7 @@ void Hal::wdtFeed() {
 }
 
 // wait function
-void Hal::wait(uint32_t milliseconds) {
+void ESP3DHal::wait(uint32_t milliseconds) {
 #if defined(ASYNCWEBSERVER)
   uint32_t timeout = millis();
   while ((millis() - timeout) < milliseconds) {
@@ -179,7 +179,7 @@ void Hal::wait(uint32_t milliseconds) {
 #endif  // !ASYNCWEBSERVER
 }
 
-uint16_t Hal::getChipID() {
+uint16_t ESP3DHal::getChipID() {
 #ifdef ARDUINO_ARCH_ESP8266
   return ESP.getChipId();
 #endif  // ARDUINO_ARCH_ESP8266
@@ -188,7 +188,7 @@ uint16_t Hal::getChipID() {
 #endif  // ARDUINO_ARCH_ESP32
 }
 
-bool Hal::has_temperature_sensor() {
+bool ESP3DHal::has_temperature_sensor() {
 #ifdef ARDUINO_ARCH_ESP8266
   return false;
 #endif  // ARDUINO_ARCH_ESP8266
@@ -202,7 +202,7 @@ bool Hal::has_temperature_sensor() {
 #endif  // ARDUINO_ARCH_ESP32
 }
 
-float Hal::temperature() {
+float ESP3DHal::temperature() {
 #ifdef ARDUINO_ARCH_ESP8266
   return 0.0;
 #endif  // ARDUINO_ARCH_ESP8266
@@ -217,7 +217,7 @@ float Hal::temperature() {
 #endif  // ARDUINO_ARCH_ESP32
 }
 
-bool Hal::is_pin_usable(uint pin) {
+bool ESP3DHal::is_pin_usable(uint pin) {
 #ifdef ARDUINO_ARCH_ESP8266
   if ((pin <= 5) || ((pin >= 12) && (pin <= 16))) {
     return true;

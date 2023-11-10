@@ -52,7 +52,7 @@ bool BuzzerDevice::begin() {
   if (_started) {
     end();
   }
-  if (Settings_ESP3D::read_byte(ESP_BUZZER) == 1) {
+  if (ESP3DSettings::read_byte(ESP_BUZZER) == 1) {
     _started = true;
     playsound(5000, 240);
     playsound(3000, 120);

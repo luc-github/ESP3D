@@ -37,11 +37,11 @@ const uint8_t DEFAULT_AP_MASK_VALUE[] = {255, 255, 255, 0};
 
 bool EthConfig::StartSTA() {
   bool res = true;
-  if ((Settings_ESP3D::read_byte(ESP_STA_IP_MODE) != DHCP_MODE)) {
-    int32_t IP = Settings_ESP3D::read_IP(ESP_STA_IP_VALUE);
-    int32_t GW = Settings_ESP3D::read_IP(ESP_STA_GATEWAY_VALUE);
-    int32_t MK = Settings_ESP3D::read_IP(ESP_STA_MASK_VALUE);
-    int32_t DNS = Settings_ESP3D::read_IP(ESP_STA_DNS_VALUE);
+  if ((ESP3DSettings::read_byte(ESP_STA_IP_MODE) != DHCP_MODE)) {
+    int32_t IP = ESP3DSettings::read_IP(ESP_STA_IP_VALUE);
+    int32_t GW = ESP3DSettings::read_IP(ESP_STA_GATEWAY_VALUE);
+    int32_t MK = ESP3DSettings::read_IP(ESP_STA_MASK_VALUE);
+    int32_t DNS = ESP3DSettings::read_IP(ESP_STA_DNS_VALUE);
     IPAddress ip(IP), mask(MK), gateway(GW), dns(DNS);
     res = ETH.config(ip, gateway, mask, dns);
   }
@@ -51,7 +51,7 @@ bool EthConfig::StartSTA() {
 {
     bool res = true;
     //static IP
-    int32_t IP = Settings_ESP3D::read_IP(ESP_AP_IP_VALUE);
+    int32_t IP = ESP3DSettings::read_IP(ESP_AP_IP_VALUE);
     IPAddress ip(IP), mask(DEFAULT_AP_MASK_VALUE), gateway(IP);
     if (!ETH.config(ip, gateway,mask)) {
         res = false;
@@ -96,7 +96,7 @@ bool EthConfig::begin(int8_t& espMode) {
   end();
   _started = ETH.begin();
   if (_started) {
-    if (Settings_ESP3D::isVerboseBoot()) {
+    if (ESP3DSettings::isVerboseBoot()) {
       esp3dmsg.printMSG("Starting Ethernet");
     }
     res = true;
@@ -108,13 +108,13 @@ bool EthConfig::begin(int8_t& espMode) {
   // DHCP is only for Client
   if (espMode == ESP_ETH_STA) {
     if (!StartSTA()) {
-      if (Settings_ESP3D::isVerboseBoot()) {
+      if (ESP3DSettings::isVerboseBoot()) {
         esp3dmsg.printMSG("Starting fallback mode");
       }
-      espMode = Settings_ESP3D::read_byte(ESP_STA_FALLBACK_MODE);
+      espMode = ESP3DSettings::read_byte(ESP_STA_FALLBACK_MODE);
       res = true;
     } else {
-      if (Settings_ESP3D::isVerboseBoot()) {
+      if (ESP3DSettings::isVerboseBoot()) {
         esp3dmsg.printMSG("Client started");
       }
     }
@@ -128,9 +128,9 @@ bool EthConfig::begin(int8_t& espMode) {
     // }
   }
 
-  // if ((Settings_ESP3D::read_byte(ESP_STA_IP_MODE) != DHCP_MODE) || (espMode
+  // if ((ESP3DSettings::read_byte(ESP_STA_IP_MODE) != DHCP_MODE) || (espMode
   // == ESP_ETH_SRV)){
-  if ((Settings_ESP3D::read_byte(ESP_STA_IP_MODE) != DHCP_MODE)) {
+  if ((ESP3DSettings::read_byte(ESP_STA_IP_MODE) != DHCP_MODE)) {
     // as no event to display static IP
     esp3dmsg.printMSG(ETH.localIP().toString().c_str());
   }

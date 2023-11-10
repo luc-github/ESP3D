@@ -68,14 +68,14 @@ bool ESP3DSensor::begin() {
     return false;
   }
   esp3d_log("Sensor Device created");
-  uint8_t sensortype = Settings_ESP3D::read_byte(ESP_SENSOR_TYPE);
+  uint8_t sensortype = ESP3DSettings::read_byte(ESP_SENSOR_TYPE);
   esp3d_log("Sensor %d", sensortype);
   // No Sensor defined - exit is not an error
   if (sensortype == 0) {
     esp3d_log("Sensor Device is not active at start");
     return true;
   }
-  _interval = Settings_ESP3D::read_uint32(ESP_SENSOR_INTERVAL);
+  _interval = ESP3DSettings::read_uint32(ESP_SENSOR_INTERVAL);
   if (!_device->begin()) {
     res = false;
   }

@@ -87,7 +87,7 @@ bool ESP_SD::enableSharedSD() {
   esp3d_log("SD shared enabled PIN %d with %d", ESP_FLAG_SHARED_SD_PIN,
             ESP_FLAG_SHARED_SD_VALUE);
   digitalWrite(ESP_FLAG_SHARED_SD_PIN, ESP_FLAG_SHARED_SD_VALUE);
-  Hal::wait(100);
+  ESP3DHal::wait(100);
 #endif  // ESP_FLAG_SHARED_SD_PIN
 
 #if SD_CARD_TYPE == ESP_FYSETC_WIFI_PRO_SDCARD
@@ -121,7 +121,7 @@ bool ESP_SD::disableSharedSD() {
 #endif  // SD_CARD_TYPE == ESP_FYSETC_WIFI_PRO_SDCARD
   // do the switch
   digitalWrite(ESP_FLAG_SHARED_SD_PIN, !ESP_FLAG_SHARED_SD_VALUE);
-  Hal::wait(100);
+  ESP3DHal::wait(100);
   return true;
 }
 #endif  // SD_DEVICE_CONNECTION == ESP_SHARED_SD

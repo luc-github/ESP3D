@@ -131,7 +131,7 @@ uint8_t ESP_SD::getState(bool refresh) {
 bool ESP_SD::begin() {
   _started = true;
   _state = ESP_SDCARD_NOT_PRESENT;
-  _spi_speed_divider = Settings_ESP3D::read_byte(ESP_SD_SPEED_DIV);
+  _spi_speed_divider = ESP3DSettings::read_byte(ESP_SD_SPEED_DIV);
   // sanity check
   if (_spi_speed_divider <= 0) {
     _spi_speed_divider = 1;
@@ -250,7 +250,7 @@ bool ESP_SD::format(ESP3D_Message* esp3dmsg) {
 
       firstBlock += ERASE_SIZE;
       if ((n++) % 64 == 63) {
-        Hal::wait(0);
+        ESP3DHal::wait(0);
       }
     } while (firstBlock < cardSectorCount);
 

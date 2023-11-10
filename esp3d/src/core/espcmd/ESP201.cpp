@@ -60,7 +60,7 @@ bool ESP3DCommands::ESP201(const char* cmd_params,
     } else {
       int pin = parameter.toInt();
       // check pin is valid and not serial used pins
-      if (Hal::is_pin_usable(pin)) {
+      if (ESP3DHal::is_pin_usable(pin)) {
         bool isdigital = true;
         parameter = get_param(cmd_params, "ANALOG=");
         if (parameter == "YES") {
@@ -78,21 +78,21 @@ bool ESP3DCommands::ESP201(const char* cmd_params,
             if (parameter != "YES") {
               parameter = get_param(cmd_params, "PULLUP=");
               if (parameter != "YES") {
-                Hal::pinMode(pin, INPUT);
+                ESP3DHal::pinMode(pin, INPUT);
               } else {
-                Hal::pinMode(pin, INPUT_PULLUP);
+                ESP3DHal::pinMode(pin, INPUT_PULLUP);
               }
             }
             value = digitalRead(pin);
           } else {
-            value = Hal::analogRead(pin);
+            value = ESP3DHal::analogRead(pin);
           }
           response =
               format_response(COMMANDID, json, true, String(value).c_str());
         } else {
           // it is a set
           int value = parameter.toInt();
-          Hal::pinMode(pin, OUTPUT);
+          ESP3DHal::pinMode(pin, OUTPUT);
           if (isdigital) {
             // verify it is a '0' or a '1'
             if ((value == 0) || (value == 1)) {
@@ -110,8 +110,8 @@ bool ESP3DCommands::ESP201(const char* cmd_params,
               analog_range = parameter.toInt();
             }
             if ((value >= 0) || (value <= analog_range + 1)) {
-              Hal::analogRange(analog_range);
-              Hal::analogWriteFreq(1000);
+              ESP3DHal::analogRange(analog_range);
+              ESP3DHal::analogWriteFreq(1000);
               analogWrite(pin, value);
               response =
                   format_response(COMMANDID, json, false, "Invalid value");

@@ -51,7 +51,7 @@ bool ESP3DCommands::ESP290(const char* cmd_params,
       if (!json) {
         esp3dmsg->printMSG("Pause");
       }
-      Hal::wait(parameter.toInt());
+      ESP3DHal::wait(parameter.toInt());
       response = format_response(COMMANDID, json, true, "ok");
     } else {
       response = format_response(COMMANDID, json, false, "Missing parameter");

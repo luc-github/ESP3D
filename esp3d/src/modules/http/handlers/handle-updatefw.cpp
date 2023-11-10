@@ -59,7 +59,7 @@ void HTTP_Server::handleUpdate() {
   _webserver->send(200, "application/json", jsonfile);
   // if success restart
   if (_upload_status == UPLOAD_STATUS_SUCCESSFUL) {
-    Hal::wait(1000);
+    ESP3DHal::wait(1000);
     Esp3D::restart_esp();
   } else {
     _upload_status = UPLOAD_STATUS_NONE;

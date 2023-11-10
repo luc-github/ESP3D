@@ -63,25 +63,25 @@ bool ESP3DCommands::ESP103(const char* cmd_params,
       } else {
         res += "IP:";
       }
-      res += Settings_ESP3D::read_IP_String(ESP_STA_IP_VALUE);
+      res += ESP3DSettings::read_IP_String(ESP_STA_IP_VALUE);
       if (json) {
         res += "\",\"gw\":\"";
       } else {
         res += ", GW:";
       }
-      res += Settings_ESP3D::read_IP_String(ESP_STA_GATEWAY_VALUE);
+      res += ESP3DSettings::read_IP_String(ESP_STA_GATEWAY_VALUE);
       if (json) {
         res += "\",\"msk\":\"";
       } else {
         res += ", MSK:";
       }
-      res += Settings_ESP3D::read_IP_String(ESP_STA_MASK_VALUE);
+      res += ESP3DSettings::read_IP_String(ESP_STA_MASK_VALUE);
       if (json) {
         res += "\",\"dns\":\"";
       } else {
         res += ", DNS:";
       }
-      res += Settings_ESP3D::read_IP_String(ESP_STA_DNS_VALUE);
+      res += ESP3DSettings::read_IP_String(ESP_STA_DNS_VALUE);
       if (json) {
         res += "\"}";
       }
@@ -101,35 +101,34 @@ bool ESP3DCommands::ESP103(const char* cmd_params,
         String MSK = get_param(cmd_params, "MSK=");
         String DNS = get_param(cmd_params, "DNS=");
 
-        if (!Settings_ESP3D::isValidIPStringSetting(IP.c_str(),
-                                                    ESP_STA_IP_VALUE)) {
+        if (!ESP3DSettings::isValidIPStringSetting(IP.c_str(),
+                                                   ESP_STA_IP_VALUE)) {
           response = format_response(COMMANDID, json, false, "Incorrect IP");
           noError = false;
         }
-        if (!Settings_ESP3D::isValidIPStringSetting(GW.c_str(),
-                                                    ESP_STA_GATEWAY_VALUE)) {
+        if (!ESP3DSettings::isValidIPStringSetting(GW.c_str(),
+                                                   ESP_STA_GATEWAY_VALUE)) {
           response =
               format_response(COMMANDID, json, false, "Incorrect gateway");
           noError = false;
         }
-        if (!Settings_ESP3D::isValidIPStringSetting(MSK.c_str(),
-                                                    ESP_STA_MASK_VALUE)) {
+        if (!ESP3DSettings::isValidIPStringSetting(MSK.c_str(),
+                                                   ESP_STA_MASK_VALUE)) {
           response = format_response(COMMANDID, json, false, "Incorrect mask");
           noError = false;
         }
-        if (!Settings_ESP3D::isValidIPStringSetting(DNS.c_str(),
-                                                    ESP_STA_DNS_VALUE)) {
+        if (!ESP3DSettings::isValidIPStringSetting(DNS.c_str(),
+                                                   ESP_STA_DNS_VALUE)) {
           response = format_response(COMMANDID, json, false, "Incorrect dns");
           noError = false;
         }
         if (noError) {
-          if (!Settings_ESP3D::write_IP_String(ESP_STA_IP_VALUE, IP.c_str()) ||
-              !Settings_ESP3D::write_IP_String(ESP_STA_GATEWAY_VALUE,
-                                               GW.c_str()) ||
-              !Settings_ESP3D::write_IP_String(ESP_STA_DNS_VALUE,
-                                               DNS.c_str()) ||
-              !Settings_ESP3D::write_IP_String(ESP_STA_MASK_VALUE,
-                                               MSK.c_str())) {
+          if (!ESP3DSettings::write_IP_String(ESP_STA_IP_VALUE, IP.c_str()) ||
+              !ESP3DSettings::write_IP_String(ESP_STA_GATEWAY_VALUE,
+                                              GW.c_str()) ||
+              !ESP3DSettings::write_IP_String(ESP_STA_DNS_VALUE, DNS.c_str()) ||
+              !ESP3DSettings::write_IP_String(ESP_STA_MASK_VALUE,
+                                              MSK.c_str())) {
             response = format_response(COMMANDID, json, false, "Set failed");
             noError = false;
           } else {

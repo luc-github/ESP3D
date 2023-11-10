@@ -63,7 +63,7 @@ bool ESP3DCommands::ESP444(const char* cmd_params,
         esp3dmsg->printLN(response.c_str());
       }
       esp3dmsg->flush();
-      Hal::wait(100);
+      ESP3DHal::wait(100);
       Esp3D::restart_esp();
     }
     if (noError && !has_tag(cmd_params, "RESTART") &&

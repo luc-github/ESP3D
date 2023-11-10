@@ -58,14 +58,13 @@ bool ESP3DCommands::ESP101(const char* cmd_params,
       if (clearSetting) {
         parameter = "";
       }
-      if (!Settings_ESP3D::isValidStringSetting(parameter.c_str(),
-                                                ESP_STA_PASSWORD)) {
+      if (!ESP3DSettings::isValidStringSetting(parameter.c_str(),
+                                               ESP_STA_PASSWORD)) {
         response =
             format_response(COMMANDID, json, false, "Incorrect password");
         noError = false;
       } else {
-        if (!Settings_ESP3D::write_string(ESP_STA_PASSWORD,
-                                          parameter.c_str())) {
+        if (!ESP3DSettings::write_string(ESP_STA_PASSWORD, parameter.c_str())) {
           response = format_response(COMMANDID, json, false, "Set failed");
           noError = false;
 

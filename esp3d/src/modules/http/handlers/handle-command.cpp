@@ -57,7 +57,7 @@ void HTTP_Server::handle_web_command() {
     cmd = _webserver->arg("cmd");
     ESP3D_Message esp3dmsg(_webserver);
     if (!cmd.endsWith("\n")) {
-      if (Settings_ESP3D::GetFirmwareTarget() == GRBL) {
+      if (ESP3DSettings::GetFirmwareTarget() == GRBL) {
         uint len = cmd.length();
         if (!((len == 1 && isRealTimeCommand(cmd[0])) ||
               (len == 2 && isRealTimeCommand(cmd[1])))) {

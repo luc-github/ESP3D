@@ -39,7 +39,7 @@ BMX280SensorDevice::~BMX280SensorDevice() { end(); }
 
 bool BMX280SensorDevice::begin() {
   end();
-  uint8_t sensortype = Settings_ESP3D::read_byte(ESP_SENSOR_TYPE);
+  uint8_t sensortype = ESP3DSettings::read_byte(ESP_SENSOR_TYPE);
   if (sensortype == 0) {
     esp3d_log("No Sensor active");
     return true;
@@ -115,7 +115,7 @@ uint8_t BMX280SensorDevice::GetModel(uint8_t i) {
 }
 
 const char *BMX280SensorDevice::GetCurrentModelString() {
-  uint8_t sensortype = Settings_ESP3D::read_byte(ESP_SENSOR_TYPE);
+  uint8_t sensortype = ESP3DSettings::read_byte(ESP_SENSOR_TYPE);
   for (uint8_t i = 0; i < NB_TYPE_SENSOR; i++) {
         if ((sensortype == SENSOR_TYPE[i]) {
       return SENSOR_NAME[i];
@@ -144,7 +144,7 @@ const char *BMX280SensorDevice::GetData() {
           uint8_t nbtry = 0;
           do {
             esp3d_log("try sensor %d", nbtry);
-            Hal::wait(100);
+            ESP3DHal::wait(100);
             nbtry++;
           } while (!bmx280_device->hasValue() && nbtry < 3);
           if (bmx280_device->hasValue()) {

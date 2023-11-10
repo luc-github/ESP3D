@@ -128,7 +128,7 @@ bool MKSService::begin() {
 
 void MKSService::commandMode(bool fromSettings) {
   if (fromSettings) {
-    _commandBaudRate = Settings_ESP3D::read_uint32(ESP_BAUD_RATE);
+    _commandBaudRate = ESP3DSettings::read_uint32(ESP_BAUD_RATE);
   }
   esp3d_log("Cmd Mode");
   _uploadMode = false;
@@ -388,7 +388,7 @@ void MKSService::messageWiFiControl(const uint8_t *dataFrame,
       if (NetConfig::started()) {
         NetConfig::end();
       }
-      Settings_ESP3D::reset(true);
+      ESP3DSettings::reset(true);
       break;
     default:
       esp3d_log_e("WiFi control flag not supported");
@@ -447,38 +447,38 @@ void MKSService::messageWiFiConfig(const uint8_t *dataFrame,
     password += (char)dataFrame[3 + j + dataFrame[1]];
   }
   if (dataFrame[0] == MKS_FRAME_NETWORK_AP_MODE) {
-    if (Settings_ESP3D::read_byte(ESP_RADIO_MODE) != ESP_WIFI_AP) {
-      Settings_ESP3D::write_byte(ESP_RADIO_MODE, ESP_WIFI_AP);
+    if (ESP3DSettings::read_byte(ESP_RADIO_MODE) != ESP_WIFI_AP) {
+      ESP3DSettings::write_byte(ESP_RADIO_MODE, ESP_WIFI_AP);
       needrestart = true;
     }
-    savedSsid = Settings_ESP3D::read_string(ESP_AP_SSID);
-    savedPassword = Settings_ESP3D::read_string(ESP_AP_PASSWORD);
+    savedSsid = ESP3DSettings::read_string(ESP_AP_SSID);
+    savedPassword = ESP3DSettings::read_string(ESP_AP_PASSWORD);
     if (savedSsid != ssid) {
-      Settings_ESP3D::write_string(ESP_AP_SSID, ssid.c_str());
+      ESP3DSettings::write_string(ESP_AP_SSID, ssid.c_str());
       needrestart = true;
     }
     if (savedPassword != password) {
-      Settings_ESP3D::write_string(ESP_AP_PASSWORD, password.c_str());
+      ESP3DSettings::write_string(ESP_AP_PASSWORD, password.c_str());
       needrestart = true;
     }
   } else {
-    if (Settings_ESP3D::read_byte(ESP_RADIO_MODE) != ESP_WIFI_STA) {
-      Settings_ESP3D::write_byte(ESP_RADIO_MODE, ESP_WIFI_STA);
+    if (ESP3DSettings::read_byte(ESP_RADIO_MODE) != ESP_WIFI_STA) {
+      ESP3DSettings::write_byte(ESP_RADIO_MODE, ESP_WIFI_STA);
       needrestart = true;
     }
-    savedSsid = Settings_ESP3D::read_string(ESP_STA_SSID);
-    savedPassword = Settings_ESP3D::read_string(ESP_STA_PASSWORD);
+    savedSsid = ESP3DSettings::read_string(ESP_STA_SSID);
+    savedPassword = ESP3DSettings::read_string(ESP_STA_PASSWORD);
     if (savedSsid != ssid) {
-      Settings_ESP3D::write_string(ESP_STA_SSID, ssid.c_str());
+      ESP3DSettings::write_string(ESP_STA_SSID, ssid.c_str());
       needrestart = true;
     }
     if (savedPassword != password) {
-      Settings_ESP3D::write_string(ESP_STA_PASSWORD, password.c_str());
+      ESP3DSettings::write_string(ESP_STA_PASSWORD, password.c_str());
       needrestart = true;
     }
     if (needrestart) {
       // change also to DHCP for new value
-      Settings_ESP3D::write_byte(ESP_STA_IP_MODE, DHCP_MODE);
+      ESP3DSettings::write_byte(ESP_STA_IP_MODE, DHCP_MODE);
     }
   }
   if (needrestart) {
@@ -496,7 +496,7 @@ bool MKSService::canSendFrame() {
       esp3d_log("Yes");
       return true;
     }
-    Hal::wait(0);
+    ESP3DHal::wait(0);
   }
   esp3d_log("Time out no board answer");
   return false;
@@ -594,7 +594,7 @@ bool MKSService::sendNetworkFrame() {
       _frame[MKS_FRAME_DATA_OFFSET + 7] = MKS_FRAME_NETWORK_STA_MODE;
       //////////////////////////////////
       // Wifi_name_len Segment
-      s = Settings_ESP3D::read_string(ESP_STA_SSID);
+      s = ESP3DSettings::read_string(ESP_STA_SSID);
       _frame[MKS_FRAME_DATA_OFFSET + 8] = s.length();
       dataOffset = MKS_FRAME_DATA_OFFSET + 9;
       //////////////////////////////////
@@ -603,7 +603,7 @@ bool MKSService::sendNetworkFrame() {
       dataOffset += s.length();
       //////////////////////////////////
       // Wifi_key_len Segment
-      s = Settings_ESP3D::read_string(ESP_STA_PASSWORD);
+      s = ESP3DSettings::read_string(ESP_STA_PASSWORD);
       _frame[dataOffset] = s.length();
       dataOffset++;
       //////////////////////////////////
@@ -630,7 +630,7 @@ bool MKSService::sendNetworkFrame() {
       _frame[MKS_FRAME_DATA_OFFSET + 7] = MKS_FRAME_NETWORK_AP_MODE;
       //////////////////////////////////
       // Wifi_name_len Segment
-      String s = Settings_ESP3D::read_string(ESP_AP_SSID);
+      String s = ESP3DSettings::read_string(ESP_AP_SSID);
       _frame[MKS_FRAME_DATA_OFFSET + 8] = s.length();
       dataOffset = MKS_FRAME_DATA_OFFSET + 9;
       //////////////////////////////////
@@ -639,7 +639,7 @@ bool MKSService::sendNetworkFrame() {
       dataOffset += s.length();
       //////////////////////////////////
       // Wifi_key_len Segment
-      s = Settings_ESP3D::read_string(ESP_AP_PASSWORD);
+      s = ESP3DSettings::read_string(ESP_AP_PASSWORD);
       _frame[dataOffset] = s.length();
       dataOffset++;
       //////////////////////////////////

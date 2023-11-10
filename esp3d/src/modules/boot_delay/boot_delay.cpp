@@ -38,10 +38,10 @@ BootDelay::~BootDelay() { end(); }
 bool BootDelay::started() { return _started; }
 
 bool BootDelay::begin() {
-  _totalduration = Settings_ESP3D::read_uint32(ESP_BOOT_DELAY);
+  _totalduration = ESP3DSettings::read_uint32(ESP_BOOT_DELAY);
   esp3d_log("Boot delay %d", _totalduration);
-  if (!Settings_ESP3D::isValidIntegerSetting(_totalduration, ESP_BOOT_DELAY)) {
-    _totalduration = Settings_ESP3D::getDefaultIntegerSetting(ESP_BOOT_DELAY);
+  if (!ESP3DSettings::isValidIntegerSetting(_totalduration, ESP_BOOT_DELAY)) {
+    _totalduration = ESP3DSettings::getDefaultIntegerSetting(ESP_BOOT_DELAY);
     esp3d_log("Boot delay modified %d", _totalduration);
   }
   _started = true;
@@ -72,6 +72,6 @@ void BootDelay::handle() {
         ESP3D_Message::toScreen(ESP_OUTPUT_PROGRESS, String(p).c_str());
       }
     }
-    Hal::wait(10);
+    ESP3DHal::wait(10);
   }
 }

@@ -77,7 +77,7 @@ void HTTP_Server::MKSFileupload() {
             filename.remove(0, strlen("SD:"));
           }
           MKSService::sendGcodeFrame(cmd.c_str());
-          Hal::wait(10);
+          ESP3DHal::wait(10);
         }
       }
       if (_webserver->hasArg(sfilename)) {
@@ -111,7 +111,7 @@ void HTTP_Server::MKSFileupload() {
               pushError(ESP_ERROR_FILE_WRITE, "File write failed");
             }
           }
-          Hal::wait(0);
+          ESP3DHal::wait(0);
         }
       }
 

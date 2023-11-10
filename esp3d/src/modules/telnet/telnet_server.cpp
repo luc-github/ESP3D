@@ -85,12 +85,12 @@ Telnet_Server::~Telnet_Server() { end(); }
  */
 bool Telnet_Server::begin(uint16_t port, bool debug) {
   end();
-  if (Settings_ESP3D::read_byte(ESP_TELNET_ON) != 1) {
+  if (ESP3DSettings::read_byte(ESP_TELNET_ON) != 1) {
     return true;
   }
   // Get telnet port
   if (port == 0) {
-    _port = Settings_ESP3D::read_uint32(ESP_TELNET_PORT);
+    _port = ESP3DSettings::read_uint32(ESP_TELNET_PORT);
   } else {
     _port = port;
   }
@@ -144,7 +144,7 @@ bool Telnet_Server::reset() {
 bool Telnet_Server::started() { return _started; }
 
 void Telnet_Server::handle() {
-  Hal::wait(0);
+  ESP3DHal::wait(0);
   if (isConnected()) {
     // check clients for data
     size_t len = _telnetClients.available();
@@ -241,7 +241,7 @@ size_t Telnet_Server::write(const uint8_t *buffer, size_t size) {
           sizesent += available;
           starttime = millis();
         } else {
-          Hal::wait(5);
+          ESP3DHal::wait(5);
         }
       }
       return sizesent;

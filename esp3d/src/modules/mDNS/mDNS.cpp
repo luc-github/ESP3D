@@ -77,7 +77,7 @@ bool mDNS_Service::begin(const char* hostname) {
       _started = false;
     } else {
       String stmp = "mDNS started with '" + _hostname + ".local'";
-      if (Settings_ESP3D::isVerboseBoot()) {
+      if (ESP3DSettings::isVerboseBoot()) {
         esp3dmsg.printMSG(stmp.c_str());
       }
       _started = true;
