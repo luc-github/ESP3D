@@ -28,9 +28,9 @@
 #define COMMANDID 180
 // Set ftp state which can be ON, OFF, CLOSE
 //[ESP180]<state> json=<no> pwd=<admin password>
-bool Commands::ESP180(const char* cmd_params,
-                      ESP3DAuthenticationLevel auth_type,
-                      ESP3D_Message* esp3dmsg) {
+bool ESP3DCommands::ESP180(const char* cmd_params,
+                           ESP3DAuthenticationLevel auth_type,
+                           ESP3D_Message* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;

@@ -30,9 +30,9 @@
 
 // Query and Control ESP700 stream
 //[ESP701]action=<PAUSE/RESUME/ABORT>
-bool Commands::ESP701(const char* cmd_params,
-                      ESP3DAuthenticationLevel auth_type,
-                      ESP3D_Message* esp3dmsg) {
+bool ESP3DCommands::ESP701(const char* cmd_params,
+                           ESP3DAuthenticationLevel auth_type,
+                           ESP3D_Message* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;

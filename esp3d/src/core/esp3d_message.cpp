@@ -24,12 +24,6 @@
 
 ESP3DRequest no_id{.id = 0};
 
-#if COMMUNICATION_PROTOCOL != SOCKET_SERIAL
-uint8_t _current_output_client = ESP_SERIAL_CLIENT;
-#else
-uint8_t _current_output_client = ESP_SOCKET_SERIAL_CLIENT;
-#endif  // COMMUNICATION_PROTOCOL != SOCKET_SERIAL
-
 #if COMMUNICATION_PROTOCOL != SOCKET_SERIAL || defined(ESP_SERIAL_BRIDGE_OUTPUT)
 #include "../modules/serial/serial_service.h"
 #endif  // COMMUNICATION_PROTOCOL != SOCKET_SERIAL

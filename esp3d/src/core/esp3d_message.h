@@ -112,17 +112,13 @@ class ESP3D_Message : public Print {
   int availableforwrite();
   static void toScreen(uint8_t output_type, const char *s);
   static const char *encodeString(const char *s);
-  static uint8_t getCurrentOutputClient() { return _current_output_client; }
-  static void setCurrentOutputClient(uint8_t client) {
-    _current_output_client = client;
-  }
+
 #ifdef HTTP_FEATURE
   bool footerSent() { return _footerSent; }
 #endif  // HTTP_FEATURE
  private:
   uint8_t _target;
   uint8_t _origin;
-  static uint8_t _current_output_client;
 #ifdef HTTP_FEATURE
   int _code;
   bool _headerSent;

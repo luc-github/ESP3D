@@ -28,9 +28,9 @@
 #define COMMANDID 101
 // STA Password
 //[ESP101]<Password> [json=no] [pwd=<admin password>]
-bool Commands::ESP101(const char* cmd_params,
-                      ESP3DAuthenticationLevel auth_type,
-                      ESP3D_Message* esp3dmsg) {
+bool ESP3DCommands::ESP101(const char* cmd_params,
+                           ESP3DAuthenticationLevel auth_type,
+                           ESP3D_Message* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   bool clearSetting = has_tag(cmd_params, "NOPASSWORD");

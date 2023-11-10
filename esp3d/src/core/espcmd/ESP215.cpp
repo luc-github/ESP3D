@@ -28,9 +28,9 @@
 #define COMMANDID 215
 // Touch Calibration
 //[ESP215]<CALIBRATE> json=<no> [pwd=<user password>]
-bool Commands::ESP215(const char* cmd_params,
-                      ESP3DAuthenticationLevel auth_type,
-                      ESP3D_Message* esp3dmsg) {
+bool ESP3DCommands::ESP215(const char* cmd_params,
+                           ESP3DAuthenticationLevel auth_type,
+                           ESP3D_Message* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;

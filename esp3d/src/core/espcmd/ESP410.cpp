@@ -29,9 +29,9 @@
 // output is JSON or plain text according parameter
 //[ESP410]json=<no>
 #define COMMANDID 410
-bool Commands::ESP410(const char* cmd_params,
-                      ESP3DAuthenticationLevel auth_type,
-                      ESP3D_Message* esp3dmsg) {
+bool ESP3DCommands::ESP410(const char* cmd_params,
+                           ESP3DAuthenticationLevel auth_type,
+                           ESP3D_Message* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;

@@ -25,10 +25,11 @@
 #include "../modules/authentication/authentication_service.h"
 #include "esp3d_message.h"
 
-class Commands {
+class ESP3DCommands {
  public:
-  Commands();
-  ~Commands();
+  ESP3DCommands();
+  ~ESP3DCommands();
+  void process(ESP3DMessage* msg);
   void process(uint8_t* sbuf, size_t len, ESP3D_Message* esp3dmsg,
                ESP3DAuthenticationLevel auth = guest,
                ESP3D_Message* esp3dmsgonly = nullptr, uint8_t outputignore = 0);
@@ -252,8 +253,13 @@ class Commands {
                 ESP3DClientType origin = ESP3DClientType::command,
                 ESP3DAuthenticationLevel authentication_level =
                     ESP3DAuthenticationLevel::guest);
+  ESP3DClientType getOutputClient(bool fromSettings = false);
+  void setOutputClient(ESP3DClientType output_client) {
+    _output_client = output_client;
+  }
 
  private:
+  ESP3DClientType _output_client;
   bool _dispatchSetting(bool json, const char* filter, ESP3DSettingIndex index,
                         const char* help, const char** optionValues,
                         const char** optionLabels, uint32_t maxsize,
@@ -262,6 +268,6 @@ class Commands {
                         ESP3D_Message* esp3dmsg, bool isFirst = false);
 };
 
-extern Commands esp3d_commands;
+extern ESP3DCommands esp3d_commands;
 
 #endif  // COMMANDS_H

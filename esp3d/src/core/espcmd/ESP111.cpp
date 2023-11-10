@@ -29,9 +29,9 @@
 #define COMMANDID 111
 // Get current IP
 //[ESP111] [json=no]
-bool Commands::ESP111(const char* cmd_params,
-                      ESP3DAuthenticationLevel auth_type,
-                      ESP3D_Message* esp3dmsg) {
+bool ESP3DCommands::ESP111(const char* cmd_params,
+                           ESP3DAuthenticationLevel auth_type,
+                           ESP3D_Message* esp3dmsg) {
   esp3d_log("Client is %d", output ? esp3dmsg->getTarget() : 0);
   (void)auth_type;
   bool noError = true;

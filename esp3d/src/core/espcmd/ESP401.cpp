@@ -44,9 +44,9 @@
 #endif  // SD_DEVICE
 // Set EEPROM setting
 //[ESP401]P=<position> T=<type> V=<value> json=<no> pwd=<user/admin password>
-bool Commands::ESP401(const char* cmd_params,
-                      ESP3DAuthenticationLevel auth_type,
-                      ESP3D_Message* esp3dmsg) {
+bool ESP3DCommands::ESP401(const char* cmd_params,
+                           ESP3DAuthenticationLevel auth_type,
+                           ESP3D_Message* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String spos = "";

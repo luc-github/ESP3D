@@ -301,8 +301,9 @@ const uint cmdlist[] = {0,
 
 // ESP3D Help
 //[ESP0] or [ESP]<command>
-bool Commands::ESP0(const char* cmd_params, ESP3DAuthenticationLevel auth_type,
-                    ESP3D_Message* esp3dmsg) {
+bool ESP3DCommands::ESP0(const char* cmd_params,
+                         ESP3DAuthenticationLevel auth_type,
+                         ESP3D_Message* esp3dmsg) {
   bool noError = true;
 
   String parameter;

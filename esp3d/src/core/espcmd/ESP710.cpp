@@ -28,9 +28,9 @@
 #define COMMANDID 710
 // Format ESP Filesystem
 //[ESP710]FORMATFS json=<no> pwd=<admin password>
-bool Commands::ESP710(const char* cmd_params,
-                      ESP3DAuthenticationLevel auth_type,
-                      ESP3D_Message* esp3dmsg) {
+bool ESP3DCommands::ESP710(const char* cmd_params,
+                           ESP3DAuthenticationLevel auth_type,
+                           ESP3D_Message* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;

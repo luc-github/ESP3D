@@ -28,9 +28,9 @@
 #define COMMANDID 214
 // Output to esp screen status
 //[ESP214]<Text>json=<no> pwd=<user/admin password>
-bool Commands::ESP214(const char* cmd_params,
-                      ESP3DAuthenticationLevel auth_type,
-                      ESP3D_Message* esp3dmsg) {
+bool ESP3DCommands::ESP214(const char* cmd_params,
+                           ESP3DAuthenticationLevel auth_type,
+                           ESP3D_Message* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;

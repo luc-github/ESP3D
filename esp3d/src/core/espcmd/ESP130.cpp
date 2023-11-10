@@ -28,9 +28,9 @@
 #define COMMANDID 130
 // Set TELNET state which can be ON, OFF, CLOSE
 //[ESP130]<state> json=<no> pwd=<admin password>
-bool Commands::ESP130(const char* cmd_params,
-                      ESP3DAuthenticationLevel auth_type,
-                      ESP3D_Message* esp3dmsg) {
+bool ESP3DCommands::ESP130(const char* cmd_params,
+                           ESP3DAuthenticationLevel auth_type,
+                           ESP3D_Message* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;

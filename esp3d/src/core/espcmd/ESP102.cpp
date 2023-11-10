@@ -34,9 +34,9 @@
 #define COMMANDID 102
 // Change STA IP mode (DHCP/STATIC)
 //[ESP102]<mode>[json=no] [pwd=<admin password>]
-bool Commands::ESP102(const char* cmd_params,
-                      ESP3DAuthenticationLevel auth_type,
-                      ESP3D_Message* esp3dmsg) {
+bool ESP3DCommands::ESP102(const char* cmd_params,
+                           ESP3DAuthenticationLevel auth_type,
+                           ESP3D_Message* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;

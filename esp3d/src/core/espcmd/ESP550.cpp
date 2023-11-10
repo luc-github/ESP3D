@@ -27,9 +27,9 @@
 #define COMMANDID 550
 // Change admin password
 //[ESP550]<password> json=<no> pwd=<admin password>
-bool Commands::ESP550(const char* cmd_params,
-                      ESP3DAuthenticationLevel auth_type,
-                      ESP3D_Message* esp3dmsg) {
+bool ESP3DCommands::ESP550(const char* cmd_params,
+                           ESP3DAuthenticationLevel auth_type,
+                           ESP3D_Message* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;

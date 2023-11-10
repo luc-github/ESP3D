@@ -28,9 +28,9 @@
 #define COMMANDID 115
 // Get/Set immediate Network (WiFi/BT/Ethernet) state which can be ON, OFF
 //[ESP115]<state> json=<no> pwd=<admin password>
-bool Commands::ESP115(const char* cmd_params,
-                      ESP3DAuthenticationLevel auth_type,
-                      ESP3D_Message* esp3dmsg) {
+bool ESP3DCommands::ESP115(const char* cmd_params,
+                           ESP3DAuthenticationLevel auth_type,
+                           ESP3D_Message* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;

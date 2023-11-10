@@ -28,9 +28,9 @@
 #define COMMANDID 900
 // Get state / Set Enable / Disable Serial Communication
 //[ESP900]<ENABLE/DISABLE> json=<no> [pwd=<admin password>]
-bool Commands::ESP900(const char* cmd_params,
-                      ESP3DAuthenticationLevel auth_type,
-                      ESP3D_Message* esp3dmsg) {
+bool ESP3DCommands::ESP900(const char* cmd_params,
+                           ESP3DAuthenticationLevel auth_type,
+                           ESP3D_Message* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;

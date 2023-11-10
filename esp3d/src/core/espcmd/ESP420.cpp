@@ -82,9 +82,9 @@
 // Get ESP current status
 // output is JSON or plain text according parameter
 //[ESP420]json=<no>
-bool Commands::ESP420(const char* cmd_params,
-                      ESP3DAuthenticationLevel auth_type,
-                      ESP3D_Message* esp3dmsg) {
+bool ESP3DCommands::ESP420(const char* cmd_params,
+                           ESP3DAuthenticationLevel auth_type,
+                           ESP3D_Message* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;

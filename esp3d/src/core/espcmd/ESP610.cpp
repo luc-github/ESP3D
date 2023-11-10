@@ -31,9 +31,9 @@
 // TS=<Settings> json=<no> [pwd=<admin password>] Get will give type and
 // settings
 // only not the protected T1/T2
-bool Commands::ESP610(const char* cmd_params,
-                      ESP3DAuthenticationLevel auth_type,
-                      ESP3D_Message* esp3dmsg) {
+bool ESP3DCommands::ESP610(const char* cmd_params,
+                           ESP3DAuthenticationLevel auth_type,
+                           ESP3D_Message* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;

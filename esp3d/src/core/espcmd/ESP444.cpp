@@ -27,9 +27,9 @@
 // cmd are RESTART / RESET
 //[ESP444]<cmd> json=<no> <pwd=admin>
 #define COMMANDID 444
-bool Commands::ESP444(const char* cmd_params,
-                      ESP3DAuthenticationLevel auth_type,
-                      ESP3D_Message* esp3dmsg) {
+bool ESP3DCommands::ESP444(const char* cmd_params,
+                           ESP3DAuthenticationLevel auth_type,
+                           ESP3D_Message* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;

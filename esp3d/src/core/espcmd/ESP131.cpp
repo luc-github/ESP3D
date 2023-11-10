@@ -27,9 +27,9 @@
 #define COMMANDID 131
 // Set TELNET port
 //[ESP131]<port> json=<no> pwd=<admin password>
-bool Commands::ESP131(const char* cmd_params,
-                      ESP3DAuthenticationLevel auth_type,
-                      ESP3D_Message* esp3dmsg) {
+bool ESP3DCommands::ESP131(const char* cmd_params,
+                           ESP3DAuthenticationLevel auth_type,
+                           ESP3D_Message* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;

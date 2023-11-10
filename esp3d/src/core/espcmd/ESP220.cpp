@@ -28,9 +28,9 @@
 // Get ESP pins definition
 // output is JSON or plain text according parameter
 //[ESP220]json=<no>
-bool Commands::ESP220(const char* cmd_params,
-                      ESP3DAuthenticationLevel auth_type,
-                      ESP3D_Message* esp3dmsg) {
+bool ESP3DCommands::ESP220(const char* cmd_params,
+                           ESP3DAuthenticationLevel auth_type,
+                           ESP3D_Message* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;

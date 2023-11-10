@@ -33,9 +33,9 @@
 // name=timestamp.jpg)
 //[ESP171]path=<target path> filename=<target filename> pwd=<admin/user
 // password>
-bool Commands::ESP171(const char* cmd_params,
-                      ESP3DAuthenticationLevel auth_type,
-                      ESP3D_Message* esp3dmsg) {
+bool ESP3DCommands::ESP171(const char* cmd_params,
+                           ESP3DAuthenticationLevel auth_type,
+                           ESP3D_Message* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;

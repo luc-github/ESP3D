@@ -28,9 +28,9 @@
 #define COMMANDID 250
 // Play sound
 //[ESP250]F=<frequency> D=<duration> json=<no> [pwd=<user password>]
-bool Commands::ESP250(const char* cmd_params,
-                      ESP3DAuthenticationLevel auth_type,
-                      ESP3D_Message* esp3dmsg) {
+bool ESP3DCommands::ESP250(const char* cmd_params,
+                           ESP3DAuthenticationLevel auth_type,
+                           ESP3D_Message* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;

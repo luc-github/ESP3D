@@ -29,16 +29,22 @@
 #include "../modules/mks/mks_service.h"
 #endif  // COMMUNICATION_PROTOCOL == MKS_SERIAL
 
-Commands esp3d_commands;
+ESP3DCommands esp3d_commands;
 
-Commands::Commands() {}
+ESP3DCommands::ESP3DCommands() {
+#if COMMUNICATION_PROTOCOL != SOCKET_SERIAL
+  _output_client = ESP3DClientType::serial;
+#else
+  _output_client = ESP3DClientType::socket_serial;
+#endif  //
+}
 
-Commands::~Commands() {}
+ESP3DCommands::~ESP3DCommands() {}
 
 // dispatch the command
-void Commands::process(uint8_t *sbuf, size_t len, ESP3D_Message *esp3dmsg,
-                       ESP3DAuthenticationLevel auth,
-                       ESP3D_Message *esp3dmsgonly, uint8_t outputignore) {
+void ESP3DCommands::process(uint8_t *sbuf, size_t len, ESP3D_Message *esp3dmsg,
+                            ESP3DAuthenticationLevel auth,
+                            ESP3D_Message *esp3dmsgonly, uint8_t outputignore) {
   static bool lastIsESP3D = false;
   esp3d_log("Client is %d, has only %d, has ignore %d",
             esp3dmsg ? esp3dmsg->getTarget() : 0,
@@ -111,7 +117,7 @@ void Commands::process(uint8_t *sbuf, size_t len, ESP3D_Message *esp3dmsg,
 }
 
 // check if current line is an [ESPXXX] command
-bool Commands::is_esp_command(uint8_t *sbuf, size_t len) {
+bool ESP3DCommands::is_esp_command(uint8_t *sbuf, size_t len) {
   // TODO
   // M117 should be handled here and transfered to [ESP214] if it is an host
   if (len < 5) {
@@ -140,7 +146,7 @@ bool Commands::is_esp_command(uint8_t *sbuf, size_t len) {
 
 // find space in string
 // if space is has \ before it is ignored
-int Commands::get_space_pos(const char *string, uint from) {
+int ESP3DCommands::get_space_pos(const char *string, uint from) {
   uint len = strlen(string);
   if (len < from) {
     return -1;
@@ -162,9 +168,9 @@ int Commands::get_space_pos(const char *string, uint from) {
 
 // return first label but pwd using labelseparator (usualy =) like
 // mylabel=myvalue will return mylabel
-const char *Commands::get_label(const char *cmd_params,
-                                const char *labelseparator,
-                                uint8_t startindex) {
+const char *ESP3DCommands::get_label(const char *cmd_params,
+                                     const char *labelseparator,
+                                     uint8_t startindex) {
   static String res;
   String tmp = "";
   res = "";
@@ -206,8 +212,8 @@ const char *Commands::get_label(const char *cmd_params,
   return res.c_str();
 }
 
-const char *Commands::format_response(uint cmdID, bool isjson, bool isok,
-                                      const char *message) {
+const char *ESP3DCommands::format_response(uint cmdID, bool isjson, bool isok,
+                                           const char *message) {
   static String res;
   res = "";
   if (!isjson) {
@@ -234,7 +240,7 @@ const char *Commands::format_response(uint cmdID, bool isjson, bool isok,
   return res.c_str();
 }
 
-const char *Commands::clean_param(const char *cmd_params) {
+const char *ESP3DCommands::clean_param(const char *cmd_params) {
   static String res;
   res = cmd_params;
   if (strlen(cmd_params) == 0) {
@@ -259,7 +265,8 @@ const char *Commands::clean_param(const char *cmd_params) {
 
 // extract parameter with corresponding label
 // if label is empty give whole line without authentication label/parameter
-const char *Commands::get_param(const char *cmd_params, const char *label) {
+const char *ESP3DCommands::get_param(const char *cmd_params,
+                                     const char *label) {
   static String res;
   res = "";
   int start = 1;
@@ -314,7 +321,7 @@ const char *Commands::get_param(const char *cmd_params, const char *label) {
   return res.c_str();
 }
 
-bool Commands::has_tag(const char *cmd_params, const char *tag) {
+bool ESP3DCommands::has_tag(const char *cmd_params, const char *tag) {
   esp3d_log("Checking for tag: %s, in %s", tag, cmd_params);
   String tmp = "";
   String stag = " ";
@@ -349,9 +356,9 @@ bool Commands::has_tag(const char *cmd_params, const char *tag) {
 }
 
 // execute internal command
-bool Commands::execute_internal_command(int cmd, const char *cmd_params,
-                                        ESP3DAuthenticationLevel auth_level,
-                                        ESP3D_Message *esp3dmsg) {
+bool ESP3DCommands::execute_internal_command(
+    int cmd, const char *cmd_params, ESP3DAuthenticationLevel auth_level,
+    ESP3D_Message *esp3dmsg) {
 #ifndef SERIAL_COMMAND_FEATURE
   if (esp3dmsg->getTarget() == ESP_SERIAL_CLIENT) {
     esp3dmsg->printMSG("Feature disabled");
@@ -808,7 +815,7 @@ bool Commands::execute_internal_command(int cmd, const char *cmd_params,
   return response;
 }
 
-bool Commands::_dispatchSetting(
+bool ESP3DCommands::_dispatchSetting(
     bool json, const char *filter, ESP3DSettingIndex index, const char *help,
     const char **optionValues, const char **optionLabels, uint32_t maxsize,
     uint32_t minsize, uint32_t minsize2, uint8_t precision, const char *unit,
@@ -966,9 +973,17 @@ bool Commands::_dispatchSetting(
   return true;
 }
 
-bool Commands::dispatch(const char *sbuf, ESP3DClientType target,
-                        ESP3DRequest requestId, ESP3DMessageType type,
-                        ESP3DClientType origin,
-                        ESP3DAuthenticationLevel authentication_level) {
+bool ESP3DCommands::dispatch(const char *sbuf, ESP3DClientType target,
+                             ESP3DRequest requestId, ESP3DMessageType type,
+                             ESP3DClientType origin,
+                             ESP3DAuthenticationLevel authentication_level) {
   return true;
+}
+
+void ESP3DCommands::process(ESP3DMessage *msg) {}
+
+ESP3DClientType ESP3DCommands::getOutputClient(bool fromSettings) {
+  // TODO: add setting for it when necessary
+  (void)fromSettings;
+  return _output_client;
 }

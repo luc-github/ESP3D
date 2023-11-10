@@ -33,9 +33,9 @@
 // light/framesize/quality/contrast/brightness/saturation/gainceiling/colorbar
 //              /awb/agc/aec/hmirror/vflip/awb_gain/agc_gain/aec_value/aec2/cw/bpc/wpc
 //              /raw_gma/lenc/special_effect/wb_mode/ae_level
-bool Commands::ESP170(const char* cmd_params,
-                      ESP3DAuthenticationLevel auth_type,
-                      ESP3D_Message* esp3dmsg) {
+bool ESP3DCommands::ESP170(const char* cmd_params,
+                           ESP3DAuthenticationLevel auth_type,
+                           ESP3D_Message* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;

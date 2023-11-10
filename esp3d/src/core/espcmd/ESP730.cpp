@@ -29,9 +29,9 @@
 // Action on ESP Filesystem
 // rmdir / remove / mkdir / exists / create
 //[ESP730]<Action>=<path> json=<no> pwd=<admin password>
-bool Commands::ESP730(const char* cmd_params,
-                      ESP3DAuthenticationLevel auth_type,
-                      ESP3D_Message* esp3dmsg) {
+bool ESP3DCommands::ESP730(const char* cmd_params,
+                           ESP3DAuthenticationLevel auth_type,
+                           ESP3D_Message* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;
