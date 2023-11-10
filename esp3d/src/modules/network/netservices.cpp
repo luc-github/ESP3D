@@ -91,18 +91,17 @@ bool NetServices::begin() {
   if (WiFi.getMode() != WIFI_AP) {
     if (!timeService.begin()) {
       if (timeService.is_internet_time()) {
-        esp3dmsg.printERROR("Failed contact time servers!");
-        esp3d_commands.dispatch("Disconnected", ESP3DClientType::all_clients,
-                                no_id, ESP3DMessageType::unique,
-                                ESP3DClientType::system,
-                                ESP3DAuthenticationLevel::admin);
+        esp3d_commands.dispatch(
+            "Failed contact time servers!", ESP3DClientType::all_clients, no_id,
+            ESP3DMessageType::unique, ESP3DClientType::system,
+            ESP3DAuthenticationLevel::admin);
+        esp3d_log_e("Failed contact time servers!");
       }
     } else {
       String tmp = "Current time :";
       tmp += timeService.getCurrentTime();
       if (Settings_ESP3D::isVerboseBoot()) {
-        esp3dmsg.printMSG(tmp.c_str());
-        esp3d_commands.dispatch("Disconnected", ESP3DClientType::all_clients,
+        esp3d_commands.dispatch(tmp.c_str(), ESP3DClientType::all_clients,
                                 no_id, ESP3DMessageType::unique,
                                 ESP3DClientType::system,
                                 ESP3DAuthenticationLevel::admin);
@@ -118,11 +117,6 @@ bool NetServices::begin() {
 #ifdef OTA_FEATURE
   if (WiFi.getMode() != WIFI_AP) {
     ArduinoOTA.onStart([]() {
-      ESP3D_Message esp3dmsg(ESP_ALL_CLIENTS);
-      esp3d_commands.dispatch("Disconnected", ESP3DClientType::all_clients,
-                              no_id, ESP3DMessageType::unique,
-                              ESP3DClientType::system,
-                              ESP3DAuthenticationLevel::admin);
       String type = "Start OTA updating ";
       if (ArduinoOTA.getCommand() == U_FLASH) {
         type += "sketch";
@@ -134,67 +128,63 @@ bool NetServices::begin() {
         ESP_FileSystem::end();
 #endif  // FILESYSTEM_FEATURE
       }
-      esp3dmsg.printMSG(type.c_str());
+      esp3d_commands.dispatch(type.c_str(), ESP3DClientType::all_clients, no_id,
+                              ESP3DMessageType::unique, ESP3DClientType::system,
+                              ESP3DAuthenticationLevel::admin);
     });
     ArduinoOTA.onEnd([]() {
-      ESP3D_Message esp3dmsg(ESP_ALL_CLIENTS);
-      esp3dmsg.printMSG("End OTA");
-      esp3d_commands.dispatch("Disconnected", ESP3DClientType::all_clients,
-                              no_id, ESP3DMessageType::unique,
-                              ESP3DClientType::system,
+      esp3d_commands.dispatch("End OTA", ESP3DClientType::all_clients, no_id,
+                              ESP3DMessageType::unique, ESP3DClientType::system,
                               ESP3DAuthenticationLevel::admin);
     });
     ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
       String prg = "OTA Progress ";
-      ESP3D_Message esp3dmsg(ESP_ALL_CLIENTS);
       prg += String(progress / (total / 100)) + "%";
-      esp3dmsg.printMSG(prg.c_str());
-      esp3d_commands.dispatch("Disconnected", ESP3DClientType::all_clients,
-                              no_id, ESP3DMessageType::unique,
-                              ESP3DClientType::system,
+      esp3d_commands.dispatch(prg.c_str(), ESP3DClientType::all_clients, no_id,
+                              ESP3DMessageType::unique, ESP3DClientType::system,
                               ESP3DAuthenticationLevel::admin);
     });
     ArduinoOTA.onError([](ota_error_t error) {
       String stmp = "OTA Error: " + String(error);
-      ESP3D_Message esp3dmsg(ESP_ALL_CLIENTS);
-      esp3dmsg.printERROR(stmp.c_str());
+      esp3d_commands.dispatch(stmp.c_str(), ESP3DClientType::all_clients, no_id,
+                              ESP3DMessageType::unique, ESP3DClientType::system,
+                              ESP3DAuthenticationLevel::admin);
       if (error == OTA_AUTH_ERROR) {
-        esp3dmsg.printERROR("Auth Failed");
-        esp3d_commands.dispatch("Disconnected", ESP3DClientType::all_clients,
+        esp3d_commands.dispatch("Auth Failed", ESP3DClientType::all_clients,
                                 no_id, ESP3DMessageType::unique,
                                 ESP3DClientType::system,
                                 ESP3DAuthenticationLevel::admin);
+        esp3d_log_e("Auth Failed");
       } else if (error == OTA_BEGIN_ERROR) {
-        esp3dmsg.printERROR("Begin Failed");
-        esp3d_commands.dispatch("Disconnected", ESP3DClientType::all_clients,
+        esp3d_log_e("Begin Failed");
+        esp3d_commands.dispatch("Begin Failed", ESP3DClientType::all_clients,
                                 no_id, ESP3DMessageType::unique,
                                 ESP3DClientType::system,
                                 ESP3DAuthenticationLevel::admin);
       } else if (error == OTA_CONNECT_ERROR) {
-        esp3dmsg.printERROR("Connect Failed");
-        esp3d_commands.dispatch("Disconnected", ESP3DClientType::all_clients,
+        esp3d_log_e("Connect Failed");
+        esp3d_commands.dispatch("Connect Failed", ESP3DClientType::all_clients,
                                 no_id, ESP3DMessageType::unique,
                                 ESP3DClientType::system,
                                 ESP3DAuthenticationLevel::admin);
       } else if (error == OTA_RECEIVE_ERROR) {
-        esp3dmsg.printERROR("Receive Failed");
-        esp3d_commands.dispatch("Disconnected", ESP3DClientType::all_clients,
+        esp3d_log_e("Receive Failed");
+        esp3d_commands.dispatch("Receive Failed", ESP3DClientType::all_clients,
                                 no_id, ESP3DMessageType::unique,
                                 ESP3DClientType::system,
                                 ESP3DAuthenticationLevel::admin);
       } else if (error == OTA_END_ERROR) {
-        esp3dmsg.printERROR("End Failed");
-        esp3d_commands.dispatch("Disconnected", ESP3DClientType::all_clients,
+        esp3d_log_e("End Failed");
+        esp3d_commands.dispatch("End Failed", ESP3DClientType::all_clients,
                                 no_id, ESP3DMessageType::unique,
                                 ESP3DClientType::system,
                                 ESP3DAuthenticationLevel::admin);
       }
     });
     if (Settings_ESP3D::isVerboseBoot()) {
-      esp3dmsg.printMSG("OTA service started");
-      esp3d_commands.dispatch("Disconnected", ESP3DClientType::all_clients,
-                              no_id, ESP3DMessageType::unique,
-                              ESP3DClientType::system,
+      esp3d_commands.dispatch("OTA service started",
+                              ESP3DClientType::all_clients, no_id,
+                              ESP3DMessageType::unique, ESP3DClientType::system,
                               ESP3DAuthenticationLevel::admin);
     }
     String lhostname = hostname;
@@ -221,7 +211,7 @@ bool NetServices::begin() {
                                 ESP3DAuthenticationLevel::admin);
       }
     } else {
-      esp3dmsg.printERROR("Failed start Captive Portal");
+      esp3d_log_e("Failed start Captive Portal");
       esp3d_commands.dispatch("Disconnected", ESP3DClientType::all_clients,
                               no_id, ESP3DMessageType::unique,
                               ESP3DClientType::system,
@@ -233,7 +223,7 @@ bool NetServices::begin() {
 #ifdef HTTP_FEATURE
   if (!HTTP_Server::begin()) {
     res = false;
-    esp3dmsg.printERROR("HTTP server failed");
+    esp3d_log_e("HTTP server failed");
     esp3d_commands.dispatch("Disconnected", ESP3DClientType::all_clients, no_id,
                             ESP3DMessageType::unique, ESP3DClientType::system,
                             ESP3DAuthenticationLevel::admin);
@@ -253,7 +243,7 @@ bool NetServices::begin() {
 #ifdef TELNET_FEATURE
   if (!telnet_server.begin()) {
     res = false;
-    esp3dmsg.printERROR("Telnet server failed");
+    esp3d_log_e("Telnet server failed");
     esp3d_commands.dispatch("Disconnected", ESP3DClientType::all_clients, no_id,
                             ESP3DMessageType::unique, ESP3DClientType::system,
                             ESP3DAuthenticationLevel::admin);
@@ -274,7 +264,7 @@ bool NetServices::begin() {
 #ifdef FTP_FEATURE
   if (!ftp_server.begin()) {
     res = false;
-    esp3dmsg.printERROR("Ftp server failed");
+    esp3d_log_e("Ftp server failed");
     esp3d_commands.dispatch("Disconnected", ESP3DClientType::all_clients, no_id,
                             ESP3DMessageType::unique, ESP3DClientType::system,
                             ESP3DAuthenticationLevel::admin);
