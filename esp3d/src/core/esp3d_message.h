@@ -33,8 +33,6 @@
 #define ESP_SERIAL_BRIDGE_CLIENT 150
 #define ESP_ALL_CLIENTS 255
 
-#define ESP_STREAM_HOST_OUTPUT ESP_SERIAL_CLIENT
-
 #define ESP_OUTPUT_IP_ADDRESS 0
 #define ESP_OUTPUT_STATUS 1
 #define ESP_OUTPUT_PROGRESS 2
@@ -81,6 +79,22 @@ struct ESP3DMessage {
   ESP3DAuthenticationLevel authentication_level;
   ESP3DRequest request_id;
   ESP3DMessageType type;
+};
+
+class ESP3DMessageManager final {
+  static ESP3DMessage *newMsg();
+  static ESP3DMessage *newMsg(ESP3DRequest requestId);
+  static bool deleteMessage(ESP3DMessage *message);
+  static bool copyMsgInfos(ESP3DMessage *newMsgPtr, ESP3DMessage msg);
+  static ESP3DMessage *copyMsgInfos(ESP3DMessage msg);
+  static ESP3DMessage *copyMsg(ESP3DMessage msg);
+  static ESP3DMessage *newMsg(ESP3DClientType origin, ESP3DClientType target,
+                              const uint8_t *data, size_t length,
+                              ESP3DAuthenticationLevel authentication_level);
+  static ESP3DMessage *newMsg(ESP3DClientType origin, ESP3DClientType target,
+                              ESP3DAuthenticationLevel authentication_level);
+  static bool setDataContent(ESP3DMessage *msg, const uint8_t *data,
+                             size_t length);
 };
 
 class ESP3D_Message : public Print {
