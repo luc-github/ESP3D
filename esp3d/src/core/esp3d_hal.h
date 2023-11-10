@@ -1,5 +1,5 @@
 /*
-  hal.h - esp3d hal class
+  esp3d_hal.h - esp3d hal class
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 

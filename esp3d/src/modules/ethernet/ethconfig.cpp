@@ -28,7 +28,7 @@
 #ifdef ARDUINO_ARCH_ESP8266
 #endif  // ARDUINO_ARCH_ESP8266
 #include "../../core/esp3d_message.h"
-#include "../../core/settings_esp3d.h"
+#include "../../core/esp3d_settings.h"
 #include "../network/netconfig.h"
 #include "ethconfig.h"
 bool EthConfig::_started = false;
@@ -55,7 +55,7 @@ bool EthConfig::StartSTA() {
     IPAddress ip(IP), mask(DEFAULT_AP_MASK_VALUE), gateway(IP);
     if (!ETH.config(ip, gateway,mask)) {
         res = false;
-        log_esp3d_e("Set static IP error");
+        esp3d_log_e("Set static IP error");
     }
     //start DHCP server
     if(res) {
@@ -72,7 +72,7 @@ bool EthConfig::StartSTA() {
 
         if (tcpip_adapter_dhcps_start(TCPIP_ADAPTER_IF_ETH) != ESP_OK){
             res = false;
-            log_esp3d_e("Start DHCP server failed");
+            esp3d_log_e("Start DHCP server failed");
         }
     }
     return res;

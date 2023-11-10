@@ -26,7 +26,7 @@
 #ifdef ARDUINO_ARCH_ESP8266
 #endif  // ARDUINO_ARCH_ESP8266
 #include "../../core/esp3d_message.h"
-#include "../../core/settings_esp3d.h"
+#include "../../core/esp3d_settings.h"
 #include "../network/netconfig.h"
 #include "../wifi/wificonfig.h"
 
@@ -81,7 +81,7 @@ bool WiFiConfig::ConnectSTA2AP() {
   uint8_t dot = 0;
   wl_status_t status = WiFi.status();
   ESP3D_Message esp3dmsg(ESP_ALL_CLIENTS);
-  log_esp3d("Connecting");
+  esp3d_log("Connecting");
 #if COMMUNICATION_PROTOCOL != MKS_SERIAL
   if (!Settings_ESP3D::isVerboseBoot()) {
     esp3dmsg.printMSG("Connecting");
@@ -105,7 +105,7 @@ bool WiFiConfig::ConnectSTA2AP() {
         }
         msg_out += ".";
         msg = msg_out;
-        log_esp3d("...");
+        esp3d_log("...");
         dot++;
         break;
     }
@@ -124,7 +124,7 @@ bool WiFiConfig::ConnectSTA2AP() {
  * Start client mode (Station)
  */
 bool WiFiConfig::StartSTA() {
-  log_esp3d("StartSTA");
+  esp3d_log("StartSTA");
   if ((WiFi.getMode() == WIFI_AP) || (WiFi.getMode() == WIFI_AP_STA)) {
     WiFi.softAPdisconnect();
   }
@@ -207,7 +207,7 @@ bool WiFiConfig::StartAP(bool setupMode) {
   IPAddress gw(0, 0, 0, 0);
   IPAddress mask(DEFAULT_AP_MASK_VALUE);
 #if defined(ARDUINO_ARCH_ESP8266)
-  log_esp3d("Use: %s / %s / %s", ip.toString().c_str(), ip.toString().c_str(),
+  esp3d_log("Use: %s / %s / %s", ip.toString().c_str(), ip.toString().c_str(),
             mask.toString().c_str());
   if (!WiFi.softAPConfig(ip, setupMode ? ip : gw, mask)) {
     esp3dmsg.printERROR("Set IP to AP failed");
@@ -229,14 +229,14 @@ bool WiFiConfig::StartAP(bool setupMode) {
       stmp += " (setup mode)";
     }
     esp3dmsg.printMSG(stmp.c_str());
-    log_esp3d("%s", stmp.c_str());
+    esp3d_log("%s", stmp.c_str());
 #if defined(ARDUINO_ARCH_ESP32)
     // must be done after starting AP not before
     // https://github.com/espressif/arduino-esp32/issues/4222
     // on some phone 100 is ok but on some other it is not enough so 2000 is ok
     Hal::wait(2000);
     // Set static IP
-    log_esp3d("Use: %s / %s / %s", ip.toString().c_str(), ip.toString().c_str(),
+    esp3d_log("Use: %s / %s / %s", ip.toString().c_str(), ip.toString().c_str(),
               mask.toString().c_str());
     if (!WiFi.softAPConfig(ip, setupMode ? ip : gw, mask)) {
       esp3dmsg.printERROR("Set IP to AP failed");
@@ -249,7 +249,7 @@ bool WiFiConfig::StartAP(bool setupMode) {
     return true;
   } else {
     esp3dmsg.printERROR("Starting AP failed");
-    log_esp3d_e("Starting AP failed");
+    esp3d_log_e("Starting AP failed");
     return false;
   }
 }
@@ -262,17 +262,17 @@ bool WiFiConfig::started() { return (WiFi.getMode() != WIFI_OFF); }
 bool WiFiConfig::begin(int8_t& espMode) {
   bool res = false;
   end();
-  log_esp3d("Starting Wifi Config");
+  esp3d_log("Starting Wifi Config");
   ESP3D_Message esp3dmsg(ESP_ALL_CLIENTS);
   if (Settings_ESP3D::isVerboseBoot()) {
     esp3dmsg.printMSG("Starting WiFi");
   }
   int8_t wifiMode = espMode;
   if (wifiMode == ESP_WIFI_AP || wifiMode == ESP_AP_SETUP) {
-    log_esp3d("Starting AP mode");
+    esp3d_log("Starting AP mode");
     res = StartAP(wifiMode == ESP_AP_SETUP);
   } else if (wifiMode == ESP_WIFI_STA) {
-    log_esp3d("Starting STA");
+    esp3d_log("Starting STA");
     res = StartSTA();
     // AP is backup mode
     if (!res) {
@@ -282,7 +282,7 @@ bool WiFiConfig::begin(int8_t& espMode) {
       espMode = Settings_ESP3D::read_byte(ESP_STA_FALLBACK_MODE);
       NetConfig::setMode(espMode);
       if (espMode == ESP_AP_SETUP) {
-        log_esp3d("Starting AP mode in setup mode");
+        esp3d_log("Starting AP mode in setup mode");
         res = StartAP(true);
       } else {
         // let setup to handle the change
@@ -434,7 +434,7 @@ const char* WiFiConfig::AP_Gateway_String() {
 #ifdef ARDUINO_ARCH_ESP8266
   struct ip_info ip_AP;
   if (!wifi_get_ip_info(SOFTAP_IF, &ip_AP)) {
-    log_esp3d_e("Error getting gateway ip");
+    esp3d_log_e("Error getting gateway ip");
   }
   tmp = IPAddress(ip_AP.gw).toString();
 #endif  // ARDUINO_ARCH_ESP8266
@@ -451,7 +451,7 @@ const char* WiFiConfig::AP_Mask_String() {
 #ifdef ARDUINO_ARCH_ESP8266
   struct ip_info ip_AP;
   if (!wifi_get_ip_info(SOFTAP_IF, &ip_AP)) {
-    log_esp3d_e("Error getting mask ip");
+    esp3d_log_e("Error getting mask ip");
   }
   tmp = IPAddress(ip_AP.netmask).toString();
 #endif  // ARDUINO_ARCH_ESP8266

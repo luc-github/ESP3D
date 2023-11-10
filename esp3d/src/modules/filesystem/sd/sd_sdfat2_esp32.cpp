@@ -26,7 +26,7 @@ sd_sdfat2_esp32.cpp - ESP3D sd support class
 
 #include <stack>
 
-#include "../../../core/settings_esp3d.h"
+#include "../../../core/esp3d_settings.h"
 #include "../esp_sd.h"
 
 #if SDFAT_FILE_TYPE == 1
@@ -89,13 +89,13 @@ time_t getDateTimeFile(File& filehandle) {
       timefile.tm_isdst = -1;
       dt = mktime(&timefile);
       if (dt == -1) {
-        log_esp3d_e("mktime failed");
+        esp3d_log_e("mktime failed");
       }
     } else {
-      log_esp3d_e("stat file failed");
+      esp3d_log_e("stat file failed");
     }
   } else {
-    log_esp3d_e("check file for stat failed");
+    esp3d_log_e("check file for stat failed");
   }
 #endif  // SD_TIMESTAMP_FEATURE
   return dt;
@@ -121,7 +121,7 @@ uint8_t ESP_SD::getState(bool refresh) {
   }
   // SD is idle or not detected, let see if still the case
   _state = ESP_SDCARD_NOT_PRESENT;
-  log_esp3d("Spi : CS: %d,  Miso: %d, Mosi: %d, SCK: %d",
+  esp3d_log("Spi : CS: %d,  Miso: %d, Mosi: %d, SCK: %d",
             ESP_SD_CS_PIN != -1 ? ESP_SD_CS_PIN : SS,
             ESP_SD_MISO_PIN != -1 ? ESP_SD_MISO_PIN : MISO,
             ESP_SD_MOSI_PIN != -1 ? ESP_SD_MOSI_PIN : MOSI,
@@ -313,18 +313,18 @@ bool ESP_SD::format(ESP3D_Message* esp3dmsg) {
 }
 
 ESP_SDFile ESP_SD::open(const char* path, uint8_t mode) {
-  log_esp3d("open %s, %d", path, mode);
+  esp3d_log("open %s, %d", path, mode);
   // do some check
   if (((strcmp(path, "/") == 0) &&
        ((mode == ESP_FILE_WRITE) || (mode == ESP_FILE_APPEND))) ||
       (strlen(path) == 0)) {
     _sizechanged = true;
-    log_esp3d_e("reject  %s", path);
+    esp3d_log_e("reject  %s", path);
     return ESP_SDFile();
   }
   // path must start by '/'
   if (path[0] != '/') {
-    log_esp3d_e("%s is invalid path", path);
+    esp3d_log_e("%s is invalid path", path);
     return ESP_SDFile();
   }
   if (mode != ESP_FILE_READ) {
@@ -332,7 +332,7 @@ ESP_SDFile ESP_SD::open(const char* path, uint8_t mode) {
     String p = path;
     p.remove(p.lastIndexOf('/') + 1);
     if (!exists(p.c_str())) {
-      log_esp3d_e("Error opening: %s", path);
+      esp3d_log_e("Error opening: %s", path);
       return ESP_SDFile();
     }
   }
@@ -342,10 +342,10 @@ ESP_SDFile ESP_SD::open(const char* path, uint8_t mode) {
   if (tmp) {
     ESP_SDFile esptmp(&tmp, strcmp(path, "/") == 0 ? true : tmp.isDir(),
                       (mode == ESP_FILE_READ) ? false : true, path);
-    log_esp3d("%s is a %s", path, tmp.isDir() ? "Dir" : "File");
+    esp3d_log("%s is a %s", path, tmp.isDir() ? "Dir" : "File");
     return esptmp;
   } else {
-    log_esp3d_e("open %s failed", path);
+    esp3d_log_e("open %s failed", path);
     return ESP_SDFile();
   }
 }
@@ -424,7 +424,7 @@ bool ESP_SD::rmdir(const char* path) {
     dir.close();
   }
   p = String();
-  log_esp3d("count %d has error %d\n", pathlist.size(), res);
+  esp3d_log("count %d has error %d\n", pathlist.size(), res);
   return res;
 }
 
@@ -490,7 +490,7 @@ ESP_SDFile::ESP_SDFile(void* handle, bool isdir, bool iswritemode,
         _lastwrite = 0;
       }
       _index = i;
-      // log_esp3d("Opening File at index %d",_index);
+      // esp3d_log("Opening File at index %d",_index);
       set = true;
     }
   }
@@ -517,7 +517,7 @@ const char* ESP_SDFile::shortname() const {
 
 void ESP_SDFile::close() {
   if (_index != -1) {
-    // log_esp3d("Closing File at index %d", _index);
+    // esp3d_log("Closing File at index %d", _index);
     tSDFile_handle[_index].close();
     // reopen if mode = write
     // udate size + date
@@ -530,21 +530,21 @@ void ESP_SDFile::close() {
       }
     }
     tSDFile_handle[_index] = File();
-    // log_esp3d("Closing File at index %d",_index);
+    // esp3d_log("Closing File at index %d",_index);
     _index = -1;
   }
 }
 
 ESP_SDFile ESP_SDFile::openNextFile() {
   if ((_index == -1) || !_isdir) {
-    log_esp3d("openNextFile failed");
+    esp3d_log("openNextFile failed");
     return ESP_SDFile();
   }
   File tmp = tSDFile_handle[_index].openNextFile();
   if (tmp) {
     char tmps[255];
     tmp.getName(tmps, 254);
-    log_esp3d("tmp name :%s %s", tmps, (tmp.isDir()) ? "isDir" : "isFile");
+    esp3d_log("tmp name :%s %s", tmps, (tmp.isDir()) ? "isDir" : "isFile");
     String s = _filename;
     if (s != "/") {
       s += "/";

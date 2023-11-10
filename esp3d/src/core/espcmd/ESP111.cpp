@@ -22,16 +22,17 @@
 #if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/network/netconfig.h"
-#include "../commands.h"
+#include "../esp3d_commands.h"
 #include "../esp3d_message.h"
-#include "../settings_esp3d.h"
+#include "../esp3d_settings.h"
 
 #define COMMANDID 111
 // Get current IP
 //[ESP111] [json=no]
-bool Commands::ESP111(const char* cmd_params, level_authenticate_type auth_type,
+bool Commands::ESP111(const char* cmd_params,
+                      ESP3DAuthenticationLevel auth_type,
                       ESP3D_Message* esp3dmsg) {
-  log_esp3d("Client is %d", output ? esp3dmsg->getTarget() : 0);
+  esp3d_log("Client is %d", output ? esp3dmsg->getTarget() : 0);
   (void)auth_type;
   bool noError = true;
   bool json = has_tag(cmd_params, "json");

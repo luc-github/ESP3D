@@ -24,9 +24,9 @@
 #include <WiFiClient.h>
 #include <WiFiServer.h>
 
-#include "../../core/hal.h"
-#include "../../core/settings_esp3d.h"
-#include "../../include/version.h"
+#include "../../core/esp3d_hal.h"
+#include "../../core/esp3d_settings.h"
+#include "../../include/esp3d_version.h"
 #include "../network/netconfig.h"
 #include "webdav_server.h"
 
@@ -136,7 +136,7 @@ void WebdavServer::parseRequest() {
   _headers.clear();
   // read the first line of the request to get the request method, URL and
   // HTTP
-  log_esp3d("Parsing new request:\n");
+  esp3d_log("Parsing new request:\n");
   if (_client.connected() && _client.available()) {
     bool hasError = false;
     bool lineIsRead = false;
@@ -147,7 +147,7 @@ void WebdavServer::parseRequest() {
       if (c == -1) {
         if (timeout.isTimeout()) {
           hasError = true;
-          log_esp3d_e("Timeout");
+          esp3d_log_e("Timeout");
           lineIsRead = true;
         }
       } else {
@@ -155,7 +155,7 @@ void WebdavServer::parseRequest() {
           lineIsRead = true;
           if (has_r != 1) {
             hasError = true;
-            log_esp3d_e("Bad line ending");
+            esp3d_log_e("Bad line ending");
           }
         } else if (c != '\r') {
           line += (char)c;
@@ -168,16 +168,16 @@ void WebdavServer::parseRequest() {
       send_response_code(400);
       send_webdav_headers();
       _client.print("\r\n");  // empty line
-      log_esp3d_e("Bad request line: %s", line.c_str());
+      esp3d_log_e("Bad request line: %s", line.c_str());
       return;
     }
 
-    log_esp3d("Request: %s", line.c_str());
+    esp3d_log("Request: %s", line.c_str());
     size_t pos1 = line.indexOf(' ');
     size_t pos2 = line.indexOf(' ', pos1 + 1);
     if (pos1 == -1 || pos2 == -1) {
       send_response_code(400);
-      log_esp3d_e("Bad request line: %s", line.c_str());
+      esp3d_log_e("Bad request line: %s", line.c_str());
       send_webdav_headers();
       _client.print("\r\n");  // empty line
       return;
@@ -194,7 +194,7 @@ void WebdavServer::parseRequest() {
     }
     // if encoded
     url = urlDecode(url.c_str());
-    log_esp3d("url ini: %s", url.c_str());
+    esp3d_log("url ini: %s", url.c_str());
     if (url != "/" && url[url.length() - 1] == '/') {
       url = url.substring(0, url.length() - 1);
     }
@@ -202,7 +202,7 @@ void WebdavServer::parseRequest() {
     if (url[0] != '/') {
       url = "/" + url;
     }
-    log_esp3d("url clean: %s", url.c_str());
+    esp3d_log("url clean: %s", url.c_str());
 
     // Now list all headers
     bool headers_read = false;
@@ -216,7 +216,7 @@ void WebdavServer::parseRequest() {
         if (c == -1) {
           if (timeout.isTimeout()) {
             hasError = true;
-            log_esp3d_e("Timeout");
+            esp3d_log_e("Timeout");
             lineIsRead = true;
           }
         } else {
@@ -224,7 +224,7 @@ void WebdavServer::parseRequest() {
             lineIsRead = true;
             if (has_r != 1) {
               hasError = true;
-              log_esp3d_e("Bad line ending %d r, %s", has_r, line.c_str());
+              esp3d_log_e("Bad line ending %d r, %s", has_r, line.c_str());
             }
           } else if (c != '\r') {
             line += (char)c;
@@ -233,12 +233,12 @@ void WebdavServer::parseRequest() {
           }
         }
       }
-      log_esp3d("Line: %s", line.c_str());
+      esp3d_log("Line: %s", line.c_str());
       if (hasError) {
         send_response_code(400);
         send_webdav_headers();
         _client.print("\r\n");  // empty line
-        log_esp3d_e("Bad request line: %s", line.c_str());
+        esp3d_log_e("Bad request line: %s", line.c_str());
         return;
       }
       if (line.length() == 0) {
@@ -249,7 +249,7 @@ void WebdavServer::parseRequest() {
         String header_value = line.substring(pos1 + 1);
         header_name.trim();
         header_value.trim();
-        log_esp3d("Header: %s = %s", header_name.c_str(), header_value.c_str());
+        esp3d_log("Header: %s = %s", header_name.c_str(), header_value.c_str());
         _headers.push_back(std::make_pair(header_name, header_value));
       }
     }
@@ -260,11 +260,11 @@ void WebdavServer::parseRequest() {
 
 bool WebdavServer::send_response_code(int code) {
   if (_headers_sent) {
-    log_esp3d_e("Headers already sent");
+    esp3d_log_e("Headers already sent");
     return false;
   }
   if (_response_code_sent) {
-    log_esp3d_e("Response code already sent");
+    esp3d_log_e("Response code already sent");
     return false;
   }
 
@@ -324,7 +324,7 @@ bool WebdavServer::send_response_code(int code) {
     default:
       _client.print("Unknown");
       _client.print("\r\n\r\n");
-      log_esp3d_e("Unknown code %d", code);
+      esp3d_log_e("Unknown code %d", code);
       return false;
       break;
   }
@@ -362,14 +362,14 @@ const char* WebdavServer::urlDecode(const char* url) {
     decoded[p] = 0x0;
     return decoded;
   } else {
-    log_esp3d_e("Can't allocate memory for decoded url");
+    esp3d_log_e("Can't allocate memory for decoded url");
     return nullptr;
   }
 }
 
 bool WebdavServer::send_header(const char* name, const char* value) {
   if (_headers_sent) {
-    log_esp3d_e("Headers already sent");
+    esp3d_log_e("Headers already sent");
     return false;
   }
   if (!_response_code_sent) {
@@ -384,7 +384,7 @@ bool WebdavServer::send_header(const char* name, const char* value) {
 
 bool WebdavServer::send_webdav_headers() {
   if (_headers_sent) {
-    log_esp3d_e("Headers already sent");
+    esp3d_log_e("Headers already sent");
     return false;
   }
   if (!_response_code_sent) {
@@ -424,7 +424,7 @@ bool WebdavServer::send_chunk_content(const char* response) {
   if (!_is_chunked) {
     _is_chunked = true;
     if (!send_header("Transfer-Encoding", "chunked")) {
-      log_esp3d_e("Can't send chunked header");
+      esp3d_log_e("Can't send chunked header");
       return false;
     }
     _headers_sent = true;
@@ -455,8 +455,8 @@ bool WebdavServer::send_response(const char* response) {
 }
 
 bool WebdavServer::selectHandler(const char* method, const char* url) {
-  log_esp3d("Method: %s", method);
-  log_esp3d("URL: %s", url);
+  esp3d_log("Method: %s", method);
+  esp3d_log("URL: %s", url);
   if (strcasecmp(method, "OPTIONS") == 0) {
     handler_options(url);
     return true;
@@ -505,7 +505,7 @@ bool WebdavServer::selectHandler(const char* method, const char* url) {
     handler_proppatch(url);
     return true;
   }
-  log_esp3d_e("Unknown method %s for %s", method, url);
+  esp3d_log_e("Unknown method %s for %s", method, url);
   send_response_code(405);
   send_webdav_headers();
   _client.print("\r\n");  // empty line
@@ -525,7 +525,7 @@ bool WebdavServer::hasHeader(const char* name) {
   for (auto it = _headers.begin(); it != _headers.end(); ++it) {
     // look for header with name
     std::pair<String, String> header = *it;
-    log_esp3d("Header: %s = %s", header.first.c_str(), header.second.c_str());
+    esp3d_log("Header: %s = %s", header.first.c_str(), header.second.c_str());
     // if present return true
     if (strcasecmp(header.first.c_str(), name) == 0) {
       return true;
@@ -541,7 +541,7 @@ const char* WebdavServer::getHeader(const char* name) {
     std::pair<String, String> header = *it;
     // if present return true
     if (strcasecmp(header.first.c_str(), name) == 0) {
-      log_esp3d("Header %s found value %s", name, header.second.c_str());
+      esp3d_log("Header %s found value %s", name, header.second.c_str());
       res = header.second;
       return res.c_str();
     }

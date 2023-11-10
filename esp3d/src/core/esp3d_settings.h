@@ -1,6 +1,6 @@
 
 /*
-  settings_esp3d.h -  settings esp3d functions class
+  esp3d_settings.h -  settings esp3d functions class
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 

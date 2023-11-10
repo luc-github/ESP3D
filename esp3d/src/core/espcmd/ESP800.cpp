@@ -20,9 +20,9 @@
 #include "../../include/esp3d_config.h"
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/network/netconfig.h"
-#include "../commands.h"
+#include "../esp3d_commands.h"
 #include "../esp3d_message.h"
-#include "../settings_esp3d.h"
+#include "../esp3d_settings.h"
 
 #ifdef FILESYSTEM_FEATURE
 #include "../../modules/filesystem/esp_filesystem.h"
@@ -48,7 +48,8 @@
 // eventually set time with pc time
 // output is JSON or plain text according parameter
 //[ESP800]json=<no><time=YYYY-MM-DDTHH:mm:ss> <version=3.0.0-a11> <setup=0/1>
-bool Commands::ESP800(const char* cmd_params, level_authenticate_type auth_type,
+bool Commands::ESP800(const char* cmd_params,
+                      ESP3DAuthenticationLevel auth_type,
                       ESP3D_Message* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
@@ -57,7 +58,7 @@ bool Commands::ESP800(const char* cmd_params, level_authenticate_type auth_type,
   int errorCode = 200;  // unless it is a server error use 200 as default and
                         // set error in json instead
 #ifdef AUTHENTICATION_FEATURE
-  if (auth_type == LEVEL_GUEST) {
+  if (auth_type == guest) {
     response = format_response(COMMANDID, json, false,
                                "Guest user can't use this command");
     noError = false;
@@ -85,7 +86,7 @@ bool Commands::ESP800(const char* cmd_params, level_authenticate_type auth_type,
       if (newtime.length() > 0) {
         if (!timeService.setTime(newtime.c_str())) {
           tparm = "Failed to set time";
-          log_esp3d_e("Failed to set time");
+          esp3d_log_e("Failed to set time");
         } else {
           tparm = "Manual";
         }
@@ -95,7 +96,7 @@ bool Commands::ESP800(const char* cmd_params, level_authenticate_type auth_type,
       if (timezone.length() > 0) {
         if (!timeService.setTimeZone(timezone.c_str())) {
           tparm = "Failed to set timezone";
-          log_esp3d_e("Failed to set timezone");
+          esp3d_log_e("Failed to set timezone");
         }
       }
     } else {

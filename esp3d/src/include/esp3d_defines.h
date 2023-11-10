@@ -1,5 +1,5 @@
 /*
-  defines.h - ESP3D defines file
+  esp3d_defines.h - ESP3D defines file
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 

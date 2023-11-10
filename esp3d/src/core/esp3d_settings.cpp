@@ -23,7 +23,7 @@
 #define STRING(x) STRINGIFY(x)
 #if defined(ESP_SAVE_SETTINGS)
 #include "esp3d_message.h"
-#include "settings_esp3d.h"
+#include "esp3d_settings.h"
 
 #if ESP_SAVE_SETTINGS == SETTINGS_IN_EEPROM
 #include <EEPROM.h>
@@ -331,13 +331,13 @@ uint8_t Settings_ESP3D::read_byte(int pos, bool *haserror) {
   if (haserror) {
     *haserror = true;
   }
-  log_esp3d("read_byte %d", pos);
+  esp3d_log("read_byte %d", pos);
   uint8_t value = getDefaultByteSetting(pos);
-  log_esp3d("default value %d", value);
+  esp3d_log("default value %d", value);
 #if ESP_SAVE_SETTINGS == SETTINGS_IN_EEPROM
   // check if parameters are acceptable
   if ((pos + 1 > EEPROM_SIZE)) {
-    log_esp3d_e("Error read byte %d", pos);
+    esp3d_log_e("Error read byte %d", pos);
     return value;
   }
   // read byte
@@ -348,7 +348,7 @@ uint8_t Settings_ESP3D::read_byte(int pos, bool *haserror) {
 #if ESP_SAVE_SETTINGS == SETTINGS_IN_PREFERENCES
   Preferences prefs;
   if (!prefs.begin(NAMESPACE, true)) {
-    log_esp3d_e("Error opening %s", NAMESPACE);
+    esp3d_log_e("Error opening %s", NAMESPACE);
     return value;
   }
   String p = "P_" + String(pos);
@@ -370,13 +370,13 @@ bool Settings_ESP3D::write_byte(int pos, const uint8_t value) {
 #if ESP_SAVE_SETTINGS == SETTINGS_IN_EEPROM
   // check if parameters are acceptable
   if (pos + 1 > EEPROM_SIZE) {
-    log_esp3d_e("Error read byte %d", pos);
+    esp3d_log_e("Error read byte %d", pos);
     return false;
   }
   EEPROM.begin(EEPROM_SIZE);
   EEPROM.write(pos, value);
   if (!EEPROM.commit()) {
-    log_esp3d_e("Error commit %d", pos);
+    esp3d_log_e("Error commit %d", pos);
     return false;
   }
   EEPROM.end();
@@ -384,14 +384,14 @@ bool Settings_ESP3D::write_byte(int pos, const uint8_t value) {
 #if ESP_SAVE_SETTINGS == SETTINGS_IN_PREFERENCES
   Preferences prefs;
   if (!prefs.begin(NAMESPACE, false)) {
-    log_esp3d_e("Error opening %s", NAMESPACE);
+    esp3d_log_e("Error opening %s", NAMESPACE);
     return false;
   }
   String p = "P_" + String(pos);
   uint8_t r = prefs.putChar(p.c_str(), value);
   prefs.end();
   if (r == 0) {
-    log_esp3d_e("Error commit %s", p.c_str());
+    esp3d_log_e("Error commit %s", p.c_str());
     return false;
   }
 #endif  // SETTINGS_IN_PREFERENCES
@@ -416,7 +416,7 @@ const char *Settings_ESP3D::read_string(int pos, bool *haserror) {
     *haserror = true;
   }
   if (!query) {
-    log_esp3d_e("Error unknow entry %d", pos);
+    esp3d_log_e("Error unknow entry %d", pos);
     return "";
   }
   uint8_t size_max = query->size;
@@ -430,12 +430,12 @@ const char *Settings_ESP3D::read_string(int pos, bool *haserror) {
   }
   // check if parameters are acceptable
   if (pos + size_max + 1 > EEPROM_SIZE) {
-    log_esp3d_e("Error read string %d", pos);
+    esp3d_log_e("Error read string %d", pos);
     return "";
   }
   byte_buffer = (char *)malloc(size_max + 1);
   if (!byte_buffer) {
-    log_esp3d_e("Error mem read string %d", pos);
+    esp3d_log_e("Error mem read string %d", pos);
     return "";
   }
   EEPROM.begin(EEPROM_SIZE);
@@ -466,7 +466,7 @@ const char *Settings_ESP3D::read_string(int pos, bool *haserror) {
   static String res;
 
   if (!prefs.begin(NAMESPACE, true)) {
-    log_esp3d_e("Error opening %s", NAMESPACE);
+    esp3d_log_e("Error opening %s", NAMESPACE);
     return "";
   }
   String p = "P_" + String(pos);
@@ -478,7 +478,7 @@ const char *Settings_ESP3D::read_string(int pos, bool *haserror) {
   prefs.end();
 
   if (res.length() > size_max) {
-    log_esp3d_e("String too long %d vs %d", res.length(), size_max);
+    esp3d_log_e("String too long %d vs %d", res.length(), size_max);
     res = res.substring(0, size_max - 1);
   }
 
@@ -495,23 +495,23 @@ bool Settings_ESP3D::write_string(int pos, const char *byte_buffer) {
   int size_buffer = strlen(byte_buffer);
   const ESP3DSettingDescription *query = getSettingPtr(pos);
   if (!query) {
-    log_esp3d_e("Error unknow entry %d", pos);
+    esp3d_log_e("Error unknow entry %d", pos);
     return false;
   }
   uint8_t size_max = query->size;
 
   // check if parameters are acceptable
   if (size_max == 0) {
-    log_esp3d_e("Error unknow entry %d", pos);
+    esp3d_log_e("Error unknow entry %d", pos);
     return false;
   }
   if (size_max < size_buffer) {
-    log_esp3d_e("Error string too long %d, %d", pos, size_buffer);
+    esp3d_log_e("Error string too long %d, %d", pos, size_buffer);
     return false;
   }
 #if ESP_SAVE_SETTINGS == SETTINGS_IN_EEPROM
   if (pos + size_buffer + 1 > EEPROM_SIZE || byte_buffer == NULL) {
-    log_esp3d_e("Error write string %d", pos);
+    esp3d_log_e("Error write string %d", pos);
     return false;
   }
   // copy the value(s)
@@ -522,7 +522,7 @@ bool Settings_ESP3D::write_string(int pos, const char *byte_buffer) {
   // 0 terminal
   EEPROM.write(pos + size_buffer, 0x00);
   if (!EEPROM.commit()) {
-    log_esp3d_e("Error commit %d", pos);
+    esp3d_log_e("Error commit %d", pos);
     return false;
   }
   EEPROM.end();
@@ -530,14 +530,14 @@ bool Settings_ESP3D::write_string(int pos, const char *byte_buffer) {
 #if ESP_SAVE_SETTINGS == SETTINGS_IN_PREFERENCES
   Preferences prefs;
   if (!prefs.begin(NAMESPACE, false)) {
-    log_esp3d_e("Error opening %s", NAMESPACE);
+    esp3d_log_e("Error opening %s", NAMESPACE);
     return false;
   }
   String p = "P_" + String(pos);
   uint8_t r = prefs.putString(p.c_str(), byte_buffer);
   prefs.end();
   if (r != size_buffer) {
-    log_esp3d_e("Error commit %s", p.c_str());
+    esp3d_log_e("Error commit %s", p.c_str());
     return false;
   }
 #endif  // SETTINGS_IN_PREFERENCES
@@ -554,7 +554,7 @@ uint32_t Settings_ESP3D::read_uint32(int pos, bool *haserror) {
   // check if parameters are acceptable
   uint8_t size_buffer = sizeof(uint32_t);
   if (pos + size_buffer > EEPROM_SIZE) {
-    log_esp3d_e("Error read int %d", pos);
+    esp3d_log_e("Error read int %d", pos);
     return res;
   }
   uint8_t i = 0;
@@ -569,7 +569,7 @@ uint32_t Settings_ESP3D::read_uint32(int pos, bool *haserror) {
 #if ESP_SAVE_SETTINGS == SETTINGS_IN_PREFERENCES
   Preferences prefs;
   if (!prefs.begin(NAMESPACE, true)) {
-    log_esp3d_e("Error opening %s", NAMESPACE);
+    esp3d_log_e("Error opening %s", NAMESPACE);
     return res;
   }
   String p = "P_" + String(pos);
@@ -602,7 +602,7 @@ bool Settings_ESP3D::write_uint32(int pos, const uint32_t value) {
   uint8_t size_buffer = sizeof(uint32_t);
   // check if parameters are acceptable
   if (pos + size_buffer > EEPROM_SIZE) {
-    log_esp3d_e("Error invalid entry %d", pos);
+    esp3d_log_e("Error invalid entry %d", pos);
     return false;
   }
   EEPROM.begin(EEPROM_SIZE);
@@ -611,7 +611,7 @@ bool Settings_ESP3D::write_uint32(int pos, const uint32_t value) {
     EEPROM.write(pos + i, ((uint8_t *)(&value))[i]);
   }
   if (!EEPROM.commit()) {
-    log_esp3d_e("Error commit %d", pos);
+    esp3d_log_e("Error commit %d", pos);
     return false;
   }
   EEPROM.end();
@@ -619,14 +619,14 @@ bool Settings_ESP3D::write_uint32(int pos, const uint32_t value) {
 #if ESP_SAVE_SETTINGS == SETTINGS_IN_PREFERENCES
   Preferences prefs;
   if (!prefs.begin(NAMESPACE, false)) {
-    log_esp3d_e("Error opening %s", NAMESPACE);
+    esp3d_log_e("Error opening %s", NAMESPACE);
     return false;
   }
   String p = "P_" + String(pos);
   uint8_t r = prefs.putUInt(p.c_str(), value);
   prefs.end();
   if (r == 0) {
-    log_esp3d_e("Error commit %s", p.c_str());
+    esp3d_log_e("Error commit %s", p.c_str());
     return false;
   }
 #endif  // SETTINGS_IN_PREFERENCES
@@ -652,30 +652,30 @@ bool Settings_ESP3D::reset(bool networkonly) {
       switch (query->type) {
         case ESP3DSettingType::string_t:
           if (!Settings_ESP3D::write_string(i, query->default_val)) {
-            log_esp3d_e("Error reset string %d to %s", i, query->default_val);
+            esp3d_log_e("Error reset string %d to %s", i, query->default_val);
             return false;
           }
           break;
         case ESP3DSettingType::byte_t:
           if (!Settings_ESP3D::write_byte(
                   i, (uint8_t)strtoul(query->default_val, NULL, 0))) {
-            log_esp3d_e("Error reset byte %d to %s", i, query->default_val);
+            esp3d_log_e("Error reset byte %d to %s", i, query->default_val);
             return false;
           }
           break;
         case ESP3DSettingType::integer_t:
         case ESP3DSettingType::ip_t:
           if (!Settings_ESP3D::write_uint32(i, getDefaultIntegerSetting(i))) {
-            log_esp3d_e("Error reset uint32 %d to %s", i, query->default_val);
+            esp3d_log_e("Error reset uint32 %d to %s", i, query->default_val);
             return false;
           }
           break;
         default:
-          log_esp3d_e("Error unknow entry %d", i);
+          esp3d_log_e("Error unknow entry %d", i);
           break;
       }
     } else {
-      log_esp3d_e("Error unknow entry %d", i);
+      esp3d_log_e("Error unknow entry %d", i);
     }
   }
   return true;
@@ -688,14 +688,14 @@ bool Settings_ESP3D::reset(bool networkonly) {
 int8_t Settings_ESP3D::GetSettingsVersion() {
   int8_t v = -1;
   String version = Settings_ESP3D::read_string(ESP_SETTINGS_VERSION);
-  if (!Settings_ESP3D::isValidStringSetting(version.c_str(),
-                                            ESP_SETTINGS_VERSION)) {
+  < if (!Settings_ESP3D::isValidStringSetting(version.c_str(),
+                                              ESP_SETTINGS_VERSION)) {
     log_esp3d_e("Invalid Settings Version %s expected %s", version.c_str(),
                 DEFAULT_SETTINGS_VERSION);
     return v;
   }
   v = version.substring(5).toInt();
-  log_esp3d("Settings Version %d", v);
+  esp3d_log("Settings Version %d", v);
   return v;
 }
 
@@ -1062,7 +1062,7 @@ uint32_t Settings_ESP3D::getDefaultIntegerSetting(
     if (query->type == ESP3DSettingType::integer_t)
       return (uint32_t)strtoul(query->default_val, NULL, 0);
     else {
-      log_esp3d_e("Error invalid type %d for %d", query->type, settingElement);
+      esp3d_log_e("Error invalid type %d for %d", query->type, settingElement);
     }
   }
   return 0;
@@ -1076,7 +1076,7 @@ const char *Settings_ESP3D::getDefaultStringSetting(
         query->type == ESP3DSettingType::ip_t)
       return query->default_val;
     else {
-      log_esp3d_e("Error invalid type %d for %d", query->type, settingElement);
+      esp3d_log_e("Error invalid type %d for %d", query->type, settingElement);
     }
   }
   return NULL;
@@ -1084,19 +1084,19 @@ const char *Settings_ESP3D::getDefaultStringSetting(
 
 uint8_t Settings_ESP3D::getDefaultByteSetting(
     ESP3DSettingIndex settingElement) {
-  log_esp3d("getDefaultByteSetting %d", settingElement);
+  esp3d_log("getDefaultByteSetting %d", settingElement);
   const ESP3DSettingDescription *query = getSettingPtr(settingElement);
 
   if (query) {
-    log_esp3d("getDefaultByteSetting found");
+    esp3d_log("getDefaultByteSetting found");
     if (query->type == ESP3DSettingType::byte_t) {
-      log_esp3d("getDefaultByteSetting is %s", query->default_val);
+      esp3d_log("getDefaultByteSetting is %s", query->default_val);
       return (uint8_t)strtoul(query->default_val, NULL, 0);
     } else {
-      log_esp3d_e("Error invalid type %d for %d", query->type, settingElement);
+      esp3d_log_e("Error invalid type %d for %d", query->type, settingElement);
     }
   } else {
-    log_esp3d_e("Error unknow entry %d", settingElement);
+    esp3d_log_e("Error unknow entry %d", settingElement);
   }
   return 0;
 }
@@ -1510,13 +1510,13 @@ const ESP3DSettingDescription *Settings_ESP3D::getSettingPtr(
       setting.default_val = DEFAULT_WEBDAV_PORT;
       break;
     default:
-      log_esp3d_e("Invalid setting %d", index);
+      esp3d_log_e("Invalid setting %d", index);
       return NULL;
       break;
   }
-  log_esp3d("Got index %d:", setting.index);
-  log_esp3d("type %d:", setting.type);
-  log_esp3d("size %d:", setting.size);
-  log_esp3d("default_val %s:", setting.default_val);
+  esp3d_log("Got index %d:", setting.index);
+  esp3d_log("type %d:", setting.type);
+  esp3d_log("size %d:", setting.size);
+  esp3d_log("default_val %s:", setting.default_val);
   return &setting;
 }

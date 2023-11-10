@@ -22,7 +22,7 @@ sdio_esp32.cpp - ESP3D sd support class
 #if (SD_DEVICE == ESP_SDIO)
 #include <stack>
 
-#include "../../../core/settings_esp3d.h"
+#include "../../../core/esp3d_settings.h"
 #include "../esp_sd.h"
 #include "FS.h"
 #include "SD_MMC.h"
@@ -59,40 +59,40 @@ uint8_t ESP_SD::getState(bool refresh) {
   _state = ESP_SDCARD_NOT_PRESENT;
   // refresh content if card was removed
   if (!lastinitok) {
-    log_esp3d("last init was failed try sd_mmc begin");
+    esp3d_log("last init was failed try sd_mmc begin");
     SD_MMC.end();
     if (SD_MMC.begin("/sdcard", SDIO_BIT_MODE)) {
-      log_esp3d("sd_mmc begin succeed");
+      esp3d_log("sd_mmc begin succeed");
       if (SD_MMC.cardType() != CARD_NONE) {
         _state = ESP_SDCARD_IDLE;
         lastinitok = true;
-        log_esp3d("sd_mmc card type succeed");
+        esp3d_log("sd_mmc card type succeed");
       } else {
-        log_esp3d_e("sd_mmc card type failed");
+        esp3d_log_e("sd_mmc card type failed");
       }
     } else {
-      log_esp3d_e("sd_mmc begin failed");
+      esp3d_log_e("sd_mmc begin failed");
     }
   } else {
-    log_esp3d("last init was ok try card type");
+    esp3d_log("last init was ok try card type");
     if (SD_MMC.cardType() != CARD_NONE) {
-      log_esp3d("checking sd_mmc card type succeed");
+      esp3d_log("checking sd_mmc card type succeed");
       _state = ESP_SDCARD_IDLE;
     } else {
       lastinitok = false;
-      log_esp3d_e("Soft sd check failed");
+      esp3d_log_e("Soft sd check failed");
       SD_MMC.end();
       if (SD_MMC.begin("/sdcard", SDIO_BIT_MODE)) {
-        log_esp3d("new sd_mmc begin succeed");
+        esp3d_log("new sd_mmc begin succeed");
         if (SD_MMC.cardType() != CARD_NONE) {
           _state = ESP_SDCARD_IDLE;
           lastinitok = true;
-          log_esp3d("new sd_mmc card type succeed");
+          esp3d_log("new sd_mmc card type succeed");
         } else {
-          log_esp3d_e("new sd_mmc card type failed");
+          esp3d_log_e("new sd_mmc card type failed");
         }
       } else {
-        log_esp3d("new sd_mmc begin failed");
+        esp3d_log("new sd_mmc begin failed");
       }
     }
   }
@@ -106,7 +106,7 @@ bool ESP_SD::begin() {
   SD_MMC.setPins(ESP_SDIO_CLK_PIN, ESP_SDIO_CMD_PIN, ESP_SDIO_D0_PIN,
                  ESP_SDIO_D1_PIN, ESP_SDIO_D2_PIN, ESP_SDIO_D3_PIN)
 #endif  //(ESP_SDIO_CLK_PIN != -1)
-      log_esp3d("Begin SDIO");
+      esp3d_log("Begin SDIO");
   _started = true;
 #ifdef SDMMC_FORCE_BEGIN
   _state = ESP_SDCARD_NOT_PRESENT;
@@ -170,12 +170,12 @@ ESP_SDFile ESP_SD::open(const char *path, uint8_t mode) {
   if (((strcmp(path, "/") == 0) &&
        ((mode == ESP_FILE_WRITE) || (mode == ESP_FILE_APPEND))) ||
       (strlen(path) == 0)) {
-    log_esp3d_e("File open check : failed");
+    esp3d_log_e("File open check : failed");
     return ESP_SDFile();
   }
   // path must start by '/'
   if (path[0] != '/') {
-    log_esp3d_e("File open path is invalid");
+    esp3d_log_e("File open path is invalid");
     return ESP_SDFile();
   }
   if (mode != ESP_FILE_READ) {
@@ -183,7 +183,7 @@ ESP_SDFile ESP_SD::open(const char *path, uint8_t mode) {
     String p = path;
     p.remove(p.lastIndexOf('/') + 1);
     if (!exists(p.c_str())) {
-      log_esp3d_e("Error opening: %s, %s does not exists", path, p.c_str());
+      esp3d_log_e("Error opening: %s, %s does not exists", path, p.c_str());
       return ESP_SDFile();
     }
   }
@@ -268,7 +268,7 @@ bool ESP_SD::rmdir(const char *path) {
     dir.close();
   }
   p = String();
-  log_esp3d("count %d", pathlist.size());
+  esp3d_log("count %d", pathlist.size());
   return res;
 }
 
@@ -318,7 +318,7 @@ ESP_SDFile::ESP_SDFile(void *handle, bool isdir, bool iswritemode,
       // time
       _lastwrite = tSDFile_handle[i].getLastWrite();
       _index = i;
-      // log_esp3d("Opening File at index %d",_index);
+      // esp3d_log("Opening File at index %d",_index);
       set = true;
     }
   }
@@ -330,7 +330,7 @@ bool ESP_SDFile::seek(uint32_t pos, uint8_t mode) {
 
 void ESP_SDFile::close() {
   if (_index != -1) {
-    // log_esp3d("Closing File at index %d", _index);
+    // esp3d_log("Closing File at index %d", _index);
     tSDFile_handle[_index].close();
     // reopen if mode = write
     // udate size + date
@@ -343,19 +343,19 @@ void ESP_SDFile::close() {
       }
     }
     tSDFile_handle[_index] = File();
-    // log_esp3d("Closing File at index %d",_index);
+    // esp3d_log("Closing File at index %d",_index);
     _index = -1;
   }
 }
 
 ESP_SDFile ESP_SDFile::openNextFile() {
   if ((_index == -1) || !_isdir) {
-    log_esp3d("openNextFile failed");
+    esp3d_log("openNextFile failed");
     return ESP_SDFile();
   }
   File tmp = tSDFile_handle[_index].openNextFile();
   if (tmp) {
-    log_esp3d("tmp name :%s %s %s", tmp.name(),
+    esp3d_log("tmp name :%s %s %s", tmp.name(),
               (tmp.isDirectory()) ? "isDir" : "isFile", _filename.c_str());
     String s = tmp.name();
     // if (s!="/")s+="/";

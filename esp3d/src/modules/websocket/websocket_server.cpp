@@ -24,9 +24,9 @@
 
 #include <WebSocketsServer.h>
 
-#include "../../core/commands.h"
+#include "../../core/esp3d_commands.h"
 #include "../../core/esp3d_message.h"
-#include "../../core/settings_esp3d.h"
+#include "../../core/esp3d_settings.h"
 #include "../authentication/authentication_service.h"
 #include "websocket_server.h"
 
@@ -37,7 +37,7 @@ WebSocket_Server websocket_data_server("arduino");
 void WebSocket_Server::pushMSG(const char *data) {
   if (_websocket_server) {
     _websocket_server->broadcastTXT(data);
-    log_esp3d("[%u]Broadcast %s", _current_id, data);
+    esp3d_log("[%u]Broadcast %s", _current_id, data);
   }
 }
 
@@ -54,7 +54,7 @@ void WebSocket_Server::enableOnly(uint num) {
 void WebSocket_Server::pushMSG(uint num, const char *data) {
   if (_websocket_server) {
     _websocket_server->sendTXT(num, data);
-    log_esp3d("[%u]Send %s", num, data);
+    esp3d_log("[%u]Send %s", num, data);
   }
 }
 
@@ -70,20 +70,20 @@ void handle_Websocket_Server_Event(uint8_t num, uint8_t type, uint8_t *payload,
   (void)num;
   switch (type) {
     case WStype_DISCONNECTED:
-      log_esp3d("[%u] Disconnected! port %d", num,
+      esp3d_log("[%u] Disconnected! port %d", num,
                 websocket_data_server.port());
       break;
     case WStype_CONNECTED: {
-      log_esp3d("[%u] Connected! port %d, %s", num,
+      esp3d_log("[%u] Connected! port %d, %s", num,
                 websocket_data_server.port(), payload);
     } break;
     case WStype_TEXT:
-      log_esp3d("[%u] get Text: %s port %d", num, payload,
+      esp3d_log("[%u] get Text: %s port %d", num, payload,
                 websocket_data_server.port());
       websocket_data_server.push2RXbuffer(payload, length);
       break;
     case WStype_BIN:
-      log_esp3d("[%u] get binary length: %u port %d", num, length,
+      esp3d_log("[%u] get binary length: %u port %d", num, length,
                 websocket_data_server.port());
       websocket_data_server.push2RXbuffer(payload, length);
       break;
@@ -101,11 +101,11 @@ void handle_Websocket_Terminal_Event(uint8_t num, uint8_t type,
   String msg;
   switch (type) {
     case WStype_DISCONNECTED:
-      log_esp3d("[%u] Socket Disconnected port %d!", num,
+      esp3d_log("[%u] Socket Disconnected port %d!", num,
                 websocket_terminal_server.port());
       break;
     case WStype_CONNECTED: {
-      log_esp3d("[%u] Connected! port %d, %s", num,
+      esp3d_log("[%u] Connected! port %d, %s", num,
                 websocket_terminal_server.port(), (const char *)payload);
       msg = "currentID:" + String(num);
       // send message to client
@@ -114,7 +114,7 @@ void handle_Websocket_Terminal_Event(uint8_t num, uint8_t type,
       msg = "activeID:" + String(num);
       websocket_terminal_server.pushMSG(msg.c_str());
       websocket_terminal_server.enableOnly(num);
-      log_esp3d("[%u] Socket connected port %d", num,
+      esp3d_log("[%u] Socket connected port %d", num,
                 websocket_terminal_server.port());
     } break;
     case WStype_TEXT:
@@ -132,12 +132,12 @@ void handle_Websocket_Terminal_Event(uint8_t num, uint8_t type,
         }
       }
 #endif  // AUTHENTICATION_FEATURE
-        // log_esp3d("[IGNORED][%u] get Text: %s  port %d", num, payload,
+        // esp3d_log("[IGNORED][%u] get Text: %s  port %d", num, payload,
         // websocket_terminal_server.port());
       break;
     case WStype_BIN:
       // we do not expect any input
-      // log_esp3d("[IGNORED][%u] get binary length: %u  port %d", num, length,
+      // esp3d_log("[IGNORED][%u] get binary length: %u  port %d", num, length,
       // websocket_terminal_server.port());
       break;
     default:
@@ -324,7 +324,7 @@ void WebSocket_Server::flushTXbuffer(void) {
     if ((_TXbufferSize > 0) && (_websocket_server->connectedClients() > 0)) {
       if (_websocket_server) {
         _websocket_server->broadcastBIN(_TXbuffer, _TXbufferSize);
-        log_esp3d("WS Broadcast bin port %d: %d bytes", port(), _TXbufferSize);
+        esp3d_log("WS Broadcast bin port %d: %d bytes", port(), _TXbufferSize);
       }
       // refresh timout
       _lastTXflush = millis();

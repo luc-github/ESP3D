@@ -22,6 +22,8 @@
 
 #include "../include/esp3d_config.h"
 
+ESP3DRequest no_id{.id = 0};
+
 #if COMMUNICATION_PROTOCOL != SOCKET_SERIAL
 uint8_t _current_output_client = ESP_SERIAL_CLIENT;
 #else
@@ -34,7 +36,7 @@ uint8_t _current_output_client = ESP_SOCKET_SERIAL_CLIENT;
 #if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
 #include "../modules/serial2socket/serial2socket.h"
 #endif  // COMMUNICATION_PROTOCOL == SOCKET_SERIAL
-#include "settings_esp3d.h"
+#include "esp3d_settings.h"
 #if defined(HTTP_FEATURE) || defined(WS_DATA_FEATURE)
 #include "../modules/websocket/websocket_server.h"
 #endif  // HTTP_FEATURE || WS_DATA_FEATURE
@@ -286,12 +288,12 @@ bool ESP3D_Message::isOutput(uint8_t flag, bool fromsettings) {
 
 size_t ESP3D_Message::dispatch(const uint8_t *sbuf, size_t len,
                                uint8_t ignoreClient) {
-  log_esp3d("Dispatch %d chars from client %d and ignore %d", len, _target,
+  esp3d_log("Dispatch %d chars from client %d and ignore %d", len, _target,
             ignoreClient);
 #if defined(GCODE_HOST_FEATURE)
   if (!(_target == ESP_STREAM_HOST_CLIENT ||
         ESP_STREAM_HOST_CLIENT == ignoreClient)) {
-    log_esp3d("Dispatch  to gcode host");
+    esp3d_log("Dispatch  to gcode host");
     esp3d_gcode_host.push(sbuf, len);
   }
 #endif  // GCODE_HOST_FEATURE
@@ -299,10 +301,10 @@ size_t ESP3D_Message::dispatch(const uint8_t *sbuf, size_t len,
   if (!(_target == ESP_SERIAL_CLIENT || ESP_SERIAL_CLIENT == ignoreClient)) {
     if (isOutput(ESP_SERIAL_CLIENT)) {
 #if COMMUNICATION_PROTOCOL == MKS_SERIAL
-      log_esp3d("Dispatch  to gcode frame");
+      esp3d_log("Dispatch  to gcode frame");
       MKSService::sendGcodeFrame((const char *)sbuf);
 #else
-      log_esp3d("Dispatch  to serial service");
+      esp3d_log("Dispatch  to serial service");
       serial_service.write(sbuf, len);
 #endif  // COMMUNICATION_PROTOCOL == MKS_SERIAL
     }
@@ -312,14 +314,14 @@ size_t ESP3D_Message::dispatch(const uint8_t *sbuf, size_t len,
 #if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
   if (!(_target == ESP_SOCKET_SERIAL_CLIENT ||
         ESP_SOCKET_SERIAL_CLIENT == ignoreClient)) {
-    log_esp3d("Dispatch to serial socket client %d is %d,  or is %d", _target,
+    esp3d_log("Dispatch to serial socket client %d is %d,  or is %d", _target,
               ESP_SOCKET_SERIAL_CLIENT, ignoreClient);
     Serial2Socket.push(sbuf, len);
   }
   if (!(_target == ESP_ECHO_SERIAL_CLIENT ||
         ESP_ECHO_SERIAL_CLIENT == ignoreClient ||
         _target == ESP_SOCKET_SERIAL_CLIENT)) {
-    log_esp3d("Dispatch to echo serial");
+    esp3d_log("Dispatch to echo serial");
     MYSERIAL1.write(sbuf, len);
   }
 #endif                     // COMMUNICATION_PROTOCOL == SOCKET_SERIAL
@@ -329,7 +331,7 @@ size_t ESP3D_Message::dispatch(const uint8_t *sbuf, size_t len,
         (ESP_WEBSOCKET_TERMINAL_CLIENT == ignoreClient) ||
         (ESP_HTTP_CLIENT == ignoreClient))) {
     if (websocket_terminal_server) {
-      log_esp3d("Dispatch websocket terminal");
+      esp3d_log("Dispatch websocket terminal");
       websocket_terminal_server.write(sbuf, len);
     }
   }
@@ -337,7 +339,7 @@ size_t ESP3D_Message::dispatch(const uint8_t *sbuf, size_t len,
 #if defined(BLUETOOTH_FEATURE)
   if (!(_target == ESP_BT_CLIENT || ESP_BT_CLIENT == ignoreClient)) {
     if (isOutput(ESP_BT_CLIENT) && bt_service.started()) {
-      log_esp3d("Dispatch to bt");
+      esp3d_log("Dispatch to bt");
       bt_service.write(sbuf, len);
     }
   }
@@ -346,7 +348,7 @@ size_t ESP3D_Message::dispatch(const uint8_t *sbuf, size_t len,
   if (!(_target == ESP_SERIAL_BRIDGE_CLIENT ||
         ESP_SERIAL_BRIDGE_CLIENT == ignoreClient)) {
     if (isOutput(ESP_SERIAL_BRIDGE_CLIENT) && serial_bridge_service.started()) {
-      log_esp3d("Dispatch to serial bridge");
+      esp3d_log("Dispatch to serial bridge");
       serial_bridge_service.write(sbuf, len);
     }
   }
@@ -354,7 +356,7 @@ size_t ESP3D_Message::dispatch(const uint8_t *sbuf, size_t len,
 #if defined(TELNET_FEATURE)
   if (!(_target == ESP_TELNET_CLIENT || ESP_TELNET_CLIENT == ignoreClient)) {
     if (isOutput(ESP_TELNET_CLIENT) && telnet_server.started()) {
-      log_esp3d("Dispatch  to telnet");
+      esp3d_log("Dispatch  to telnet");
       telnet_server.write(sbuf, len);
     }
   }
@@ -363,7 +365,7 @@ size_t ESP3D_Message::dispatch(const uint8_t *sbuf, size_t len,
   if (!(_target == ESP_WEBSOCKET_CLIENT ||
         ESP_WEBSOCKET_CLIENT == ignoreClient)) {
     if (isOutput(ESP_WEBSOCKET_CLIENT) && websocket_data_server.started()) {
-      log_esp3d("Dispatch to websocket data server");
+      esp3d_log("Dispatch to websocket data server");
       websocket_data_server.write(sbuf, len);
     }
   }
@@ -443,10 +445,10 @@ size_t ESP3D_Message::printLN(const char *s) {
 size_t ESP3D_Message::printMSGLine(const char *s) {
   if (_target == ESP_ALL_CLIENTS) {
     // process each client one by one
-    log_esp3d("PrintMSG to all clients");
+    esp3d_log("PrintMSG to all clients");
     for (uint8_t c = 0; c < sizeof(activeClients); c++) {
       if (activeClients[c]) {
-        log_esp3d("Sending PrintMSG to client %d", activeClients[c]);
+        esp3d_log("Sending PrintMSG to client %d", activeClients[c]);
         _target = activeClients[c];
         printMSG(s);
       }
@@ -458,7 +460,7 @@ size_t ESP3D_Message::printMSGLine(const char *s) {
     return 0;
   }
   String display;
-  log_esp3d("PrintMSG to client %d", _target);
+  esp3d_log("PrintMSG to client %d", _target);
   if (_target == ESP_HTTP_CLIENT) {
 #ifdef HTTP_FEATURE
     if (_webserver) {
@@ -522,10 +524,10 @@ size_t ESP3D_Message::printMSGLine(const char *s) {
 size_t ESP3D_Message::printMSG(const char *s, bool withNL) {
   if (_target == ESP_ALL_CLIENTS) {
     // process each client one by one
-    log_esp3d("PrintMSG to all clients");
+    esp3d_log("PrintMSG to all clients");
     for (uint8_t c = 0; c < sizeof(activeClients); c++) {
       if (activeClients[c]) {
-        log_esp3d("Sending PrintMSG to client %d", activeClients[c]);
+        esp3d_log("Sending PrintMSG to client %d", activeClients[c]);
         _target = activeClients[c];
         printMSG(s, withNL);
       }
@@ -537,7 +539,7 @@ size_t ESP3D_Message::printMSG(const char *s, bool withNL) {
     return 0;
   }
   String display;
-  log_esp3d("PrintMSG to client %d", _target);
+  esp3d_log("PrintMSG to client %d", _target);
   if (_target == ESP_HTTP_CLIENT) {
 #ifdef HTTP_FEATURE
     if (_webserver) {
@@ -579,7 +581,7 @@ size_t ESP3D_Message::printMSG(const char *s, bool withNL) {
 #endif  // HAS_REMOTE_SCREEN
         display += "M117 ";
         withNL = true;
-        log_esp3d("Screen should display %s%s", display.c_str(), s);
+        esp3d_log("Screen should display %s%s", display.c_str(), s);
       } else {
         if (_target == ESP_ECHO_SERIAL_CLIENT) {
           display = "echo:";
@@ -800,13 +802,13 @@ size_t ESP3D_Message::write(const uint8_t *buffer, size_t size) {
 #if defined(GCODE_HOST_FEATURE)
     case ESP_STREAM_HOST_CLIENT: {
 #if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
-      log_esp3d(
+      esp3d_log(
           "ESP_STREAM_HOST_CLIENT do a dispatch to all clients but socket "
           "serial");
       dispatch(buffer, size, ESP_SOCKET_SERIAL_CLIENT);
 #endif  // COMMUNICATION_PROTOCOL == SOCKET_SERIAL
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
-      log_esp3d(
+      esp3d_log(
           "ESP_STREAM_HOST_CLIENT do a dispatch to all clients but serial");
       dispatch(buffer, size, ESP_SERIAL_CLIENT);
 #endif  // COMMUNICATION_PROTOCOL == SOCKET_SERIAL
@@ -824,7 +826,7 @@ size_t ESP3D_Message::write(const uint8_t *buffer, size_t size) {
         // MKS_SERIAL
 #if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
     case ESP_REMOTE_SCREEN_CLIENT:
-      log_esp3d("Writing to remote screen: %s", buffer);
+      esp3d_log("Writing to remote screen: %s", buffer);
       return Serial2Socket.push(buffer, size);
       break;
     case ESP_ECHO_SERIAL_CLIENT:

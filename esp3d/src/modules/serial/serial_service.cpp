@@ -21,9 +21,9 @@
 #include "../../include/esp3d_config.h"
 #if COMMUNICATION_PROTOCOL == MKS_SERIAL || \
     COMMUNICATION_PROTOCOL == RAW_SERIAL || defined(ESP_SERIAL_BRIDGE_OUTPUT)
-#include "../../core/commands.h"
+#include "../../core/esp3d_commands.h"
 #include "../../core/esp3d_message.h"
-#include "../../core/settings_esp3d.h"
+#include "../../core/esp3d_settings.h"
 #include "serial_service.h"
 
 #if COMMUNICATION_PROTOCOL == MKS_SERIAL
@@ -123,14 +123,14 @@ void SerialService::setParameters() {
 // Setup Serial
 bool SerialService::begin(uint8_t serialIndex) {
   _serialIndex = serialIndex - 1;
-  log_esp3d("Serial %d begin for %d", _serialIndex, _id);
+  esp3d_log("Serial %d begin for %d", _serialIndex, _id);
   if (_id == BRIDGE_SERIAL &&
       Settings_ESP3D::read_byte(ESP_SERIAL_BRIDGE_ON) == 0) {
-    log_esp3d("Serial %d for %d is disabled", _serialIndex, _id);
+    esp3d_log("Serial %d for %d is disabled", _serialIndex, _id);
     return true;
   }
   if (_serialIndex >= MAX_SERIAL) {
-    log_esp3d_e("Serial %d begin for %d failed, index out of range",
+    esp3d_log_e("Serial %d begin for %d failed, index out of range",
                 _serialIndex, _id);
     return false;
   }
@@ -151,12 +151,12 @@ bool SerialService::begin(uint8_t serialIndex) {
       break;
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
     default:
-      log_esp3d_e("Serial %d begin for %d failed, unknown id", _serialIndex,
+      esp3d_log_e("Serial %d begin for %d failed, unknown id", _serialIndex,
                   _id);
       return false;
   }
   setParameters();
-  log_esp3d("Baud rate is %d , default is %d", br, defaultBr);
+  esp3d_log("Baud rate is %d , default is %d", br, defaultBr);
   _buffer_size = 0;
   // change only if different from current
   if (br != baudRate() || (_rxPin != -1) || (_txPin != -1)) {
@@ -176,7 +176,7 @@ bool SerialService::begin(uint8_t serialIndex) {
     Serials[_serialIndex]->begin(br, ESP_SERIAL_PARAM, ESP_RX_PIN, ESP_TX_PIN);
 #if defined(SERIAL_INDEPENDANT_TASK)
     // create serial task once
-    log_esp3d("Serial %d for %d Task creation", _serialIndex, _id);
+    esp3d_log("Serial %d for %d Task creation", _serialIndex, _id);
     if (_hserialtask == nullptr && _id == MAIN_SERIAL) {
       xTaskCreatePinnedToCore(
           ESP3DSerialTaskfn,            /* Task function. */
@@ -189,14 +189,14 @@ bool SerialService::begin(uint8_t serialIndex) {
       );
     }
     if (_hserialtask == nullptr) {
-      log_esp3d_e("Serial %d for %d Task creation failed", _serialIndex, _id);
+      esp3d_log_e("Serial %d for %d Task creation failed", _serialIndex, _id);
       return false;
     }
 #endif  // SERIAL_INDEPENDANT_TASK
 #endif  // ARDUINO_ARCH_ESP32
   }
   _started = true;
-  log_esp3d("Serial %d for %d is started", _serialIndex, _id);
+  esp3d_log("Serial %d for %d is started", _serialIndex, _id);
   return true;
 }
 // End serial
@@ -227,7 +227,7 @@ void SerialService::process() {
   size_t len = available();
   if (len > 0) {
     // if yes read them
-    log_esp3d("Got %d chars in serial", len);
+    esp3d_log("Got %d chars in serial", len);
     uint8_t *sbuf = (uint8_t *)malloc(len);
     if (sbuf) {
       size_t count = readBytes(sbuf, len);
@@ -265,7 +265,7 @@ void SerialService::flushbuffer() {
   // dispatch command
   if (_started) {
     esp3d_commands.process(_buffer, _buffer_size, &esp3dmsg,
-                           _needauthentication ? LEVEL_GUEST : LEVEL_ADMIN);
+                           _needauthentication ? guest : admin);
   }
   _lastflush = millis();
   _buffer_size = 0;
@@ -276,7 +276,7 @@ void SerialService::push2buffer(uint8_t *sbuf, size_t len) {
   if (!_started) {
     return;
   }
-  log_esp3d("buffer get %d data ", len);
+  esp3d_log("buffer get %d data ", len);
 #if COMMUNICATION_PROTOCOL == MKS_SERIAL
   static bool isFrameStarted = false;
   static bool isCommandFrame = false;
@@ -286,25 +286,25 @@ void SerialService::push2buffer(uint8_t *sbuf, size_t len) {
   // currently received
   static uint datalen = 0;
   for (size_t i = 0; i < len; i++) {
-    log_esp3d("Data : %c %x", sbuf[i], sbuf[i]);
+    esp3d_log("Data : %c %x", sbuf[i], sbuf[i]);
     framePos++;
     _lastflush = millis();
     // so frame head was detected
     if (isFrameStarted) {
       // checking it is a valid Frame header
       if (framePos == 1) {
-        log_esp3d("type = %x", sbuf[i]);
+        esp3d_log("type = %x", sbuf[i]);
         if (MKSService::isFrame(char(sbuf[i]))) {
           if (MKSService::isCommand(char(sbuf[i]))) {
             isCommandFrame = true;
-            log_esp3d("type: Command");
+            esp3d_log("type: Command");
           } else {
-            log_esp3d("type: other");
+            esp3d_log("type: other");
             type = sbuf[i];
             isCommandFrame = false;
           }
         } else {
-          log_esp3d_e("wrong frame type");
+          esp3d_log_e("wrong frame type");
           isFrameStarted = false;
           _buffer_size = 0;
         }
@@ -314,20 +314,20 @@ void SerialService::push2buffer(uint8_t *sbuf, size_t len) {
           datalen = sbuf[i];
         } else {
           datalen += (sbuf[i] << 8);
-          log_esp3d("Data len: %d", datalen);
+          esp3d_log("Data len: %d", datalen);
           if (datalen > (ESP3D_SERIAL_BUFFER_SIZE - 5)) {
-            log_esp3d_e("Overflow in data len");
+            esp3d_log_e("Overflow in data len");
             isFrameStarted = false;
             _buffer_size = 0;
           }
         }
       } else if (MKSService::isTail(char(sbuf[i]))) {
-        log_esp3d("got tail");
+        esp3d_log("got tail");
         _buffer[_buffer_size] = '\0';
-        log_esp3d("size is %d", _buffer_size);
+        esp3d_log("size is %d", _buffer_size);
         // let check integrity
         if (_buffer_size == datalen) {
-          log_esp3d("Flushing buffer");
+          esp3d_log("Flushing buffer");
           if (isCommandFrame) {
             flushbuffer();
           } else {
@@ -335,7 +335,7 @@ void SerialService::push2buffer(uint8_t *sbuf, size_t len) {
                                     _buffer_size);
           }
         } else {
-          log_esp3d_e("Error in data len");
+          esp3d_log_e("Error in data len");
         }
         // clear frame infos
         _buffer_size = 0;
@@ -347,7 +347,7 @@ void SerialService::push2buffer(uint8_t *sbuf, size_t len) {
           _buffer[_buffer_size] = sbuf[i];
           _buffer_size++;
         } else {
-          log_esp3d_e("Overflow in data len");
+          esp3d_log_e("Overflow in data len");
           isFrameStarted = false;
           _buffer_size = 0;
         }
@@ -355,7 +355,7 @@ void SerialService::push2buffer(uint8_t *sbuf, size_t len) {
     } else {
       // frame is not started let see if it is a head
       if (MKSService::isHead(char(sbuf[i]))) {
-        log_esp3d("got head");
+        esp3d_log("got head");
         // yes it is
         isFrameStarted = true;
         framePos = 0;
@@ -363,7 +363,7 @@ void SerialService::push2buffer(uint8_t *sbuf, size_t len) {
       } else {
         // no so let reset all and just ignore it
         // TODO should we handle these data ?
-        log_esp3d_e("Unidentified data : %c %x", sbuf[i], sbuf[i]);
+        esp3d_log_e("Unidentified data : %c %x", sbuf[i], sbuf[i]);
         isCommandFrame = false;
         framePos = -1;
         datalen = 0;
@@ -405,7 +405,7 @@ void SerialService::push2buffer(uint8_t *sbuf, size_t len) {
 
 // Reset Serial Setting (baud rate)
 bool SerialService::reset() {
-  log_esp3d("Reset serial");
+  esp3d_log("Reset serial");
   bool res = false;
   switch (_id) {
     case MAIN_SERIAL:

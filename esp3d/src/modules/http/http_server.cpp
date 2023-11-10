@@ -29,7 +29,7 @@
 #include <ESP8266WebServer.h>
 #define DOWNLOAD_PACKET_SIZE 1024
 #endif  // ARDUINO_ARCH_ESP8266
-#include "../../core/settings_esp3d.h"
+#include "../../core/esp3d_settings.h"
 #include "../authentication/authentication_service.h"
 #include "../filesystem/esp_filesystem.h"
 #include "../network/netconfig.h"
@@ -41,7 +41,7 @@
 
 #endif  // SD_DEVICE
 #ifdef ESP_BENCHMARK_FEATURE
-#include "../../core/benchmark.h"
+#include "../../core/esp3d_benchmark.h"
 #endif  // ESP_BENCHMARK_FEATURE
 
 bool HTTP_Server::_started = false;
@@ -181,7 +181,7 @@ bool HTTP_Server::StreamSDFile(const char* filename, const char* contentType) {
 
 void HTTP_Server::pushError(int code, const char* st, uint16_t web_error,
                             uint16_t timeout) {
-  log_esp3d("%s:%d", st, web_error);
+  esp3d_log("%s:%d", st, web_error);
   if (websocket_terminal_server.started() && st) {
     String s = "ERROR:" + String(code) + ":";
     s += st;

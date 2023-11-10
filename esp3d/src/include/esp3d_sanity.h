@@ -1,5 +1,5 @@
 /*
-  sanity_esp3d.h - esp3d sanity check functions
+  esp3d_sanity.h - esp3d sanity check functions
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 

@@ -28,16 +28,16 @@
 #endif  // HTTP_FEATURE
 
 void WebdavServer::handler_put(const char* url) {
-  log_esp3d("Processing PUT");
+  esp3d_log("Processing PUT");
   int code = 201;
   size_t content_length = 0;
   uint8_t fsType = WebDavFS::getFSType(url);
-  log_esp3d("FS type of %s : %d", url, fsType);
+  esp3d_log("FS type of %s : %d", url, fsType);
   if (hasHeader("Content-Length")) {
     content_length = atoi(getHeader("Content-Length"));
-    log_esp3d("Content-Length: %d", content_length);
+    esp3d_log("Content-Length: %d", content_length);
   } else {
-    log_esp3d("Content-Length not set");
+    esp3d_log("Content-Length not set");
   }
 
   // url cannot be root
@@ -46,13 +46,13 @@ void WebdavServer::handler_put(const char* url) {
       bool hasError = false;
       // check if file exists
       if (WebDavFS::exists(url)) {
-        log_esp3d("File %s already exists", url);
+        esp3d_log("File %s already exists", url);
         code = 204;
         WebDavFile file = WebDavFS::open(url);
         if (file) {
           if (file.isDirectory()) {
             code = 412;
-            log_esp3d_e("File %s is a directory", url);
+            esp3d_log_e("File %s is a directory", url);
             hasError = true;
           }
           file.close();
@@ -60,13 +60,13 @@ void WebdavServer::handler_put(const char* url) {
             // check size available
             if (WebDavFS::freeBytes(fsType) + file.size() < content_length) {
               code = 507;
-              log_esp3d_e("Not enough space");
+              esp3d_log_e("Not enough space");
               hasError = true;
             } else {  // there is enough space
               if (!WebDavFS::remove(
                       url)) {  // so delete existing file to replace it
                 code = 500;
-                log_esp3d_e("Failed to remove %s", url);
+                esp3d_log_e("Failed to remove %s", url);
                 hasError = true;
               }
             }
@@ -74,13 +74,13 @@ void WebdavServer::handler_put(const char* url) {
         } else {
           hasError = true;
           code = 500;
-          log_esp3d_e("Failed to open %s", url);
+          esp3d_log_e("Failed to open %s", url);
         }
       } else {
         // check size available
         if (WebDavFS::freeBytes(fsType) < content_length) {
           code = 507;
-          log_esp3d_e("Not enough space");
+          esp3d_log_e("Not enough space");
           hasError = true;
         }
       }
@@ -102,7 +102,7 @@ void WebdavServer::handler_put(const char* url) {
             size_t received_bytes = _client.read(chunk, sizeof(chunk));
             if (received_bytes != file.write(chunk, received_bytes)) {
               code = 500;
-              log_esp3d_e("Failed to write %s", url);
+              esp3d_log_e("Failed to write %s", url);
               break;
             } else {
               received += received_bytes;
@@ -118,9 +118,9 @@ void WebdavServer::handler_put(const char* url) {
           }
           if (received != content_length) {
             code = 500;
-            log_esp3d_e("Failed to write %s", url);
+            esp3d_log_e("Failed to write %s", url);
           } else {
-            log_esp3d("File %s written", url);
+            esp3d_log("File %s written", url);
             send_response_code(code);  // 201 or 204
             send_webdav_headers();
             time_t now = time(nullptr);
@@ -131,20 +131,20 @@ void WebdavServer::handler_put(const char* url) {
           file.close();
         } else {
           code = 500;
-          log_esp3d_e("Failed to open %s for writing", url);
+          esp3d_log_e("Failed to open %s for writing", url);
         }
       }
       WebDavFS::releaseFS(fsType);
     } else {
       code = 503;
-      log_esp3d_e("FS not available");
+      esp3d_log_e("FS not available");
     }
   } else {
     code = 400;
-    log_esp3d_e("Root cannot be deleted");
+    esp3d_log_e("Root cannot be deleted");
   }
   if (code != 201 && code != 204) {
-    log_esp3d_e("Sending response code %d", code);
+    esp3d_log_e("Sending response code %d", code);
     send_response_code(code);
     send_webdav_headers();
   }

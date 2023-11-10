@@ -41,9 +41,9 @@ Camera esp3d_camera;
 
 bool Camera::handle_snap(WebServer *webserver, const char *path,
                          const char *filename) {
-  log_esp3d("Camera stream reached");
+  esp3d_log("Camera stream reached");
   if (!_initialised) {
-    log_esp3d_e("Camera not started");
+    esp3d_log_e("Camera not started");
     if (webserver) {
       webserver->send(500, "text/plain", "Camera not started");
     }
@@ -82,10 +82,10 @@ bool Camera::handle_snap(WebServer *webserver, const char *path,
     HTTP_Server::set_http_headers();
     webserver->send(200);
   }
-  log_esp3d("Camera capture ongoing");
+  esp3d_log("Camera capture ongoing");
   fb = esp_camera_fb_get();
   if (!fb) {
-    log_esp3d_e("Camera capture failed");
+    esp3d_log_e("Camera capture failed");
     if (webserver) {
       webserver->send(500, "text/plain", "Capture failed");
     }
@@ -97,7 +97,7 @@ bool Camera::handle_snap(WebServer *webserver, const char *path,
       esp_camera_fb_return(fb);
       fb = NULL;
       if (!jpeg_converted) {
-        log_esp3d_e("JPEG compression failed");
+        esp3d_log_e("JPEG compression failed");
         res_error = true;
       }
     } else {
@@ -113,11 +113,11 @@ bool Camera::handle_snap(WebServer *webserver, const char *path,
     if (filename != nullptr && path != nullptr) {
       if (!ESP_SD::accessFS()) {
         res_error = true;
-        log_esp3d_e("SD not available");
+        esp3d_log_e("SD not available");
       } else {
         if (ESP_SD::getState(true) == ESP_SDCARD_NOT_PRESENT) {
           res_error = true;
-          log_esp3d_e("No SD");
+          esp3d_log_e("No SD");
         } else {
           ESP_SD::setState(ESP_SDCARD_BUSY);
           String wpath = path[0] == '/' ? path : String("/") + path;
@@ -133,10 +133,10 @@ bool Camera::handle_snap(WebServer *webserver, const char *path,
             if (f) {
               f.write((const uint8_t *)_jpg_buf, _jpg_buf_len);
               f.close();
-              log_esp3d("Camera capture done");
+              esp3d_log("Camera capture done");
             } else {
               res_error = true;
-              log_esp3d_e("Failed to open file for writing");
+              esp3d_log_e("Failed to open file for writing");
             }
           }
         }
@@ -145,7 +145,7 @@ bool Camera::handle_snap(WebServer *webserver, const char *path,
     }
 #endif  // SD_DEVICE
     if (!webserver && filename == nullptr && path == nullptr) {
-      log_esp3d_e("No output defined");
+      esp3d_log_e("No output defined");
       res_error = true;
     }
   }
@@ -172,7 +172,7 @@ Camera::Camera() {
 Camera::~Camera() { end(); }
 
 int Camera::command(const char *param, const char *value) {
-  log_esp3d("Camera: %s=%s\n", param, value);
+  esp3d_log("Camera: %s=%s\n", param, value);
   int res = 0;
   int val = atoi(value);
   sensor_t *s = esp_camera_sensor_get();
@@ -242,7 +242,7 @@ int Camera::command(const char *param, const char *value) {
 
 bool Camera::initHardware() {
   _initialised = false;
-  log_esp3d("Disable brown out");
+  esp3d_log("Disable brown out");
   WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);  // disable brownout detector
   stopHardware();
   camera_config_t config;
@@ -273,10 +273,10 @@ bool Camera::initHardware() {
   config.grab_mode = CAMERA_GRAB_LATEST;
   if (!psramFound()) {
     _initialised = false;
-    log_esp3d_e("psram is not enabled");
+    esp3d_log_e("psram is not enabled");
     return false;
   }
-  log_esp3d("Init camera");
+  esp3d_log("Init camera");
 #if CAM_PULLUP1 != -1
   pinMode(CAM_PULLUP1, INPUT_PULLUP);
 #endif  // CAM_PULLUP1
@@ -291,7 +291,7 @@ bool Camera::initHardware() {
 
 // https://github.com/espressif/esp32-camera/issues/66#issuecomment-526283681
 #if CAMERA_DEVICE == CAMERA_MODEL_AI_THINKER
-  log_esp3d("Specific config for CAMERA_MODEL_AI_THINKER");
+  esp3d_log("Specific config for CAMERA_MODEL_AI_THINKER");
   gpio_config_t gpio_pwr_config;
   gpio_pwr_config.pin_bit_mask = (1ULL << 32);
   gpio_pwr_config.mode = GPIO_MODE_OUTPUT;
@@ -302,10 +302,10 @@ bool Camera::initHardware() {
   gpio_set_level(GPIO_NUM_32, 0);
 #endif  // CAMERA_DEVICE == CAMERA_MODEL_AI_THINKER
   delay(500);
-  log_esp3d("Init camera config");
+  esp3d_log("Init camera config");
   esp_err_t err = esp_camera_init(&config);
   if (err != ESP_OK) {
-    log_esp3d_e("Camera init failed with error 0x%x", err);
+    esp3d_log_e("Camera init failed with error 0x%x", err);
   } else {
     _initialised = true;
   }
@@ -317,12 +317,12 @@ bool Camera::stopHardware() { return true; }
 // need to be call by device and by network
 bool Camera::begin() {
   end();
-  log_esp3d("Begin camera");
+  esp3d_log("Begin camera");
   if (!_initialised) {
-    log_esp3d("Init hardware not done");
+    esp3d_log("Init hardware not done");
     return false;
   }
-  log_esp3d("Init camera sensor settings");
+  esp3d_log("Init camera sensor settings");
   sensor_t *s = esp_camera_sensor_get();
   if (s != nullptr) {
     // initial sensors are flipped vertically and colors are a bit saturated
@@ -340,7 +340,7 @@ bool Camera::begin() {
     s->set_vflip(s, 1);
 #endif  // CAMERA_DEVICE_FLIP_VERTICALY
   } else {
-    log_esp3d("Cannot access camera sensor");
+    esp3d_log("Cannot access camera sensor");
   }
   _started = _initialised;
   return _started;

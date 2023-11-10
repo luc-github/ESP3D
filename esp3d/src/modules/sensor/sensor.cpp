@@ -21,7 +21,7 @@
 #include "../../include/esp3d_config.h"
 #ifdef SENSOR_DEVICE
 #include "../../core/esp3d_message.h"
-#include "../../core/settings_esp3d.h"
+#include "../../core/esp3d_settings.h"
 #include "sensor.h"
 
 // Include file according sensor
@@ -50,7 +50,7 @@ ESP3DSensor::ESP3DSensor() {
 ESP3DSensor::~ESP3DSensor() { end(); }
 
 bool ESP3DSensor::begin() {
-  log_esp3d("Sensor Begin");
+  esp3d_log("Sensor Begin");
   bool res = true;
   end();
   // new _device
@@ -64,15 +64,15 @@ bool ESP3DSensor::begin() {
   _device = (ESP3DSensorDevice*)new BMX280SensorDevice();
 #endif  // DHT11_DEVICE || DHT22_DEVICE
   if (!_device) {
-    log_esp3d_e("No device created");
+    esp3d_log_e("No device created");
     return false;
   }
-  log_esp3d("Sensor Device created");
+  esp3d_log("Sensor Device created");
   uint8_t sensortype = Settings_ESP3D::read_byte(ESP_SENSOR_TYPE);
-  log_esp3d("Sensor %d", sensortype);
+  esp3d_log("Sensor %d", sensortype);
   // No Sensor defined - exit is not an error
   if (sensortype == 0) {
-    log_esp3d("Sensor Device is not active at start");
+    esp3d_log("Sensor Device is not active at start");
     return true;
   }
   _interval = Settings_ESP3D::read_uint32(ESP_SENSOR_INTERVAL);

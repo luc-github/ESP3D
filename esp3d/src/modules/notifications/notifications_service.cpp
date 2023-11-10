@@ -36,7 +36,7 @@
 #include <WiFiClientSecure.h>
 
 #include "../../core/esp3d_message.h"
-#include "../../core/settings_esp3d.h"
+#include "../../core/esp3d_settings.h"
 #include "../network/netconfig.h"
 #include "notifications_service.h"
 
@@ -87,10 +87,10 @@ NotificationsService notificationsservice;
 void NotificationsService::BearSSLSetup(WiFiClientSecure& Notificationclient) {
   if (Notificationclient.probeMaxFragmentLength(_serveraddress.c_str(), _port,
                                                 BEARSSL_MFLN_SIZE)) {
-    log_esp3d("Handshake success");
+    esp3d_log("Handshake success");
     Notificationclient.setBufferSizes(BEARSSL_MFLN_SIZE, 512);
   } else {
-    log_esp3d_e("Handshake failed");
+    esp3d_log_e("Handshake failed");
     Notificationclient.setBufferSizes(BEARSSL_MFLN_SIZE_FALLBACK, 512);
   }
 }
@@ -106,32 +106,32 @@ bool NotificationsService::Wait4Answer(WiFiClientSecure& client,
     uint32_t starttimeout = millis();
     while (client.connected() && ((millis() - starttimeout) < timeout)) {
       answer = client.readStringUntil('\n');
-      log_esp3d("Answer: %s", answer.c_str());
+      esp3d_log("Answer: %s", answer.c_str());
       if ((answer.indexOf(linetrigger) != -1) || (strlen(linetrigger) == 0)) {
         break;
       }
       Hal::wait(10);
     }
     if (strlen(expected_answer) == 0) {
-      log_esp3d("Answer ignored as requested");
+      esp3d_log("Answer ignored as requested");
       return true;
     }
     if (answer.indexOf(expected_answer) == -1) {
-      log_esp3d("Did not got answer!");
+      esp3d_log("Did not got answer!");
       return false;
     } else {
-      log_esp3d("Got expected answer");
+      esp3d_log("Got expected answer");
       return true;
     }
   }
-  log_esp3d_e("Failed to send message");
+  esp3d_log_e("Failed to send message");
   return false;
 }
 
 bool NotificationsService::sendAutoNotification(const char* msg) {
   if (!(NetConfig::started()) || (NetConfig::getMode() != ESP_WIFI_STA) ||
       (!_started) || (!_autonotification)) {
-    log_esp3d("Auto notification rejected");
+    esp3d_log("Auto notification rejected");
     return false;
   }
   String msgtpl = msg;
@@ -141,10 +141,10 @@ bool NotificationsService::sendAutoNotification(const char* msg) {
     msgtpl.replace("%ESP_NAME%", NetConfig::hostname());
   }
   if (!sendMSG(ESP_NOTIFICATION_TITLE, msgtpl.c_str())) {
-    log_esp3d_e("Auto notification failed");
+    esp3d_log_e("Auto notification failed");
     return false;
   } else {
-    log_esp3d("Auto notification sent");
+    esp3d_log("Auto notification sent");
     return true;
   }
 }
@@ -180,7 +180,7 @@ const char* NotificationsService::getTypeString() {
 
 bool NotificationsService::sendMSG(const char* title, const char* message) {
   if (!_started) {
-    log_esp3d_e("Error notification not started");
+    esp3d_log_e("Error notification not started");
     return false;
   }
   if (!((strlen(title) == 0) && (strlen(message) == 0))) {
@@ -233,7 +233,7 @@ bool NotificationsService::sendPushoverMSG(const char* title,
   BearSSLSetup(Notificationclient);
 #endif  // ARDUINO_ARCH_ESP8266
   if (!Notificationclient.connect(_serveraddress.c_str(), _port)) {
-    log_esp3d_e("Error connecting  server %s:%d", _serveraddress.c_str(),
+    esp3d_log_e("Error connecting  server %s:%d", _serveraddress.c_str(),
                 _port);
     return false;
   }
@@ -257,7 +257,7 @@ bool NotificationsService::sendPushoverMSG(const char* title,
   postcmd += data.length();
   postcmd += "\r\n\r\n";
   postcmd += data;
-  log_esp3d("Query: %s", postcmd.c_str());
+  esp3d_log("Query: %s", postcmd.c_str());
   // send query
   Notificationclient.print(postcmd);
   res = Wait4Answer(Notificationclient, "{", "\"status\":1", PUSHOVERTIMEOUT);
@@ -281,7 +281,7 @@ bool NotificationsService::sendTelegramMSG(const char* title,
   BearSSLSetup(Notificationclient);
 #endif  // ARDUINO_ARCH_ESP8266
   if (!Notificationclient.connect(_serveraddress.c_str(), _port)) {
-    log_esp3d("Error connecting  server %s:%d", _serveraddress.c_str(), _port);
+    esp3d_log("Error connecting  server %s:%d", _serveraddress.c_str(), _port);
     return false;
   }
   (void)title;
@@ -304,7 +304,7 @@ bool NotificationsService::sendTelegramMSG(const char* title,
   postcmd += data.length();
   postcmd += "\r\n\r\n";
   postcmd += data;
-  log_esp3d("Query: %s", postcmd.c_str());
+  esp3d_log("Query: %s", postcmd.c_str());
   // send query
   Notificationclient.print(postcmd);
   res = Wait4Answer(Notificationclient, "{", "\"ok\":true", TELEGRAMTIMEOUT);
@@ -323,85 +323,85 @@ bool NotificationsService::sendEmailMSG(const char* title,
 #if defined(ARDUINO_ARCH_ESP8266)
   BearSSLSetup(Notificationclient);
 #endif  // ARDUINO_ARCH_ESP8266
-  log_esp3d("Connect to server");
+  esp3d_log("Connect to server");
   if (!Notificationclient.connect(_serveraddress.c_str(), _port)) {
-    log_esp3d_e("Error connecting  server %s:%d", _serveraddress.c_str(),
+    esp3d_log_e("Error connecting  server %s:%d", _serveraddress.c_str(),
                 _port);
     return false;
   }
   // Check answer of connection
   if (!Wait4Answer(Notificationclient, "220", "220", EMAILTIMEOUT)) {
-    log_esp3d_e("Connection failed!");
+    esp3d_log_e("Connection failed!");
     return false;
   }
   // Do HELO
-  log_esp3d("HELO");
+  esp3d_log("HELO");
   Notificationclient.print("HELO friend\r\n");
   if (!Wait4Answer(Notificationclient, "250", "250", EMAILTIMEOUT)) {
-    log_esp3d_e("HELO failed!");
+    esp3d_log_e("HELO failed!");
     return false;
   }
-  log_esp3d("AUTH LOGIN");
+  esp3d_log("AUTH LOGIN");
   // Request AUthentication
   Notificationclient.print("AUTH LOGIN\r\n");
   if (!Wait4Answer(Notificationclient, "334", "334", EMAILTIMEOUT)) {
-    log_esp3d("AUTH LOGIN failed!");
+    esp3d_log("AUTH LOGIN failed!");
     return false;
   }
-  log_esp3d("Send LOGIN");
+  esp3d_log("Send LOGIN");
   // sent Login
   Notificationclient.printf("%s\r\n", _token1.c_str());
   if (!Wait4Answer(Notificationclient, "334", "334", EMAILTIMEOUT)) {
-    log_esp3d_e("Sent login failed!");
+    esp3d_log_e("Sent login failed!");
     return false;
   }
-  log_esp3d("Send PASSWORD");
+  esp3d_log("Send PASSWORD");
   // Send password
   Notificationclient.printf("%s\r\n", _token2.c_str());
   if (!Wait4Answer(Notificationclient, "235", "235", EMAILTIMEOUT)) {
-    log_esp3d_e("Sent password failed!");
+    esp3d_log_e("Sent password failed!");
     return false;
   }
-  log_esp3d("MAIL FROM");
+  esp3d_log("MAIL FROM");
   // Send From
   Notificationclient.printf("MAIL FROM: <%s>\r\n", _settings.c_str());
   if (!Wait4Answer(Notificationclient, "250", "250", EMAILTIMEOUT)) {
-    log_esp3d_e("MAIL FROM failed!");
+    esp3d_log_e("MAIL FROM failed!");
     return false;
   }
-  log_esp3d("RCPT TO");
+  esp3d_log("RCPT TO");
   // Send To
   Notificationclient.printf("RCPT TO: <%s>\r\n", _settings.c_str());
   if (!Wait4Answer(Notificationclient, "250", "250", EMAILTIMEOUT)) {
-    log_esp3d_e("RCPT TO failed!");
+    esp3d_log_e("RCPT TO failed!");
     return false;
   }
-  log_esp3d("DATA");
+  esp3d_log("DATA");
   // Send Data
   Notificationclient.print("DATA\r\n");
   if (!Wait4Answer(Notificationclient, "354", "354", EMAILTIMEOUT)) {
-    log_esp3d_e("Preparing DATA failed!");
+    esp3d_log_e("Preparing DATA failed!");
     return false;
   }
-  log_esp3d("Send message");
+  esp3d_log("Send message");
   // Send message
   Notificationclient.printf("From:ESP3D<%s>\r\n", _settings.c_str());
   Notificationclient.printf("To: <%s>\r\n", _settings.c_str());
   Notificationclient.printf("Subject: %s\r\n\r\n", title);
   Notificationclient.println(message);
 
-  log_esp3d("Send final dot");
+  esp3d_log("Send final dot");
   // Send Final dot
   Notificationclient.print(".\r\n");
   if (!Wait4Answer(Notificationclient, "250", "250", EMAILTIMEOUT)) {
-    log_esp3d_e("Sending final dot failed!");
+    esp3d_log_e("Sending final dot failed!");
     return false;
   }
-  log_esp3d("QUIT");
+  esp3d_log("QUIT");
   // Quit
   Notificationclient.print("QUIT\r\n");
   if (!Wait4Answer(Notificationclient, "221", "221", EMAILTIMEOUT)) {
-    log_esp3d_e("QUIT failed!");
+    esp3d_log_e("QUIT failed!");
     return false;
   }
 
@@ -422,7 +422,7 @@ bool NotificationsService::sendLineMSG(const char* title, const char* message) {
 #endif  // ARDUINO_ARCH_ESP8266
   (void)title;
   if (!Notificationclient.connect(_serveraddress.c_str(), _port)) {
-    log_esp3d_e("Error connecting  server %s:%d", _serveraddress.c_str(),
+    esp3d_log_e("Error connecting  server %s:%d", _serveraddress.c_str(),
                 _port);
     return false;
   }
@@ -441,7 +441,7 @@ bool NotificationsService::sendLineMSG(const char* title, const char* message) {
   postcmd += data.length();
   postcmd += "\r\n\r\n";
   postcmd += data;
-  log_esp3d("Query: %s", postcmd.c_str());
+  esp3d_log("Query: %s", postcmd.c_str());
   // send query
   Notificationclient.print(postcmd);
   res = Wait4Answer(Notificationclient, "{", "\"status\":200", LINETIMEOUT);
@@ -465,7 +465,7 @@ bool NotificationsService::sendIFTTTMSG(const char* title,
 #endif  // ARDUINO_ARCH_ESP8266
   (void)title;
   if (!Notificationclient.connect(_serveraddress.c_str(), _port)) {
-    log_esp3d_e("Error connecting  server %s:%d", _serveraddress.c_str(),
+    esp3d_log_e("Error connecting  server %s:%d", _serveraddress.c_str(),
                 _port);
     return false;
   }
@@ -490,7 +490,7 @@ bool NotificationsService::sendIFTTTMSG(const char* title,
   postcmd += "\r\n\r\n";
   postcmd += data;
 
-  // log_esp3d("Query: %s", postcmd.c_str());
+  // esp3d_log("Query: %s", postcmd.c_str());
   // send query
   Notificationclient.print(postcmd);
   res = Wait4Answer(Notificationclient, "Congratulations", "Congratulations",
@@ -507,7 +507,7 @@ bool NotificationsService::getPortFromSettings() {
     return false;
   }
   _port = tmp.substring(pos + 1).toInt();
-  log_esp3d("port : %d", _port);
+  esp3d_log("port : %d", _port);
   if (_port > 0) {
     return true;
   } else {
@@ -525,7 +525,7 @@ bool NotificationsService::getServerAddressFromSettings() {
 
   // TODO add a check for valid email ?
   _serveraddress = tmp.substring(pos1 + 1, pos2);
-  log_esp3d("server : %s", _serveraddress.c_str());
+  esp3d_log("server : %s", _serveraddress.c_str());
   return true;
 }
 // Email#serveraddress:port
@@ -536,7 +536,7 @@ bool NotificationsService::getEmailFromSettings() {
     return false;
   }
   _settings = tmp.substring(0, pos);
-  log_esp3d("email : %s", _settings.c_str());
+  esp3d_log("email : %s", _settings.c_str());
   // TODO add a check for valid email ?
   return true;
 }
@@ -544,8 +544,8 @@ bool NotificationsService::getEmailFromSettings() {
 bool NotificationsService::decode64(const char* encodedURL, char* decodedURL) {
   size_t out_len = 0;
   out_len = base64_decode_chars(encodedURL, strlen(encodedURL), decodedURL);
-  log_esp3d("URLE: %s", encodedURL);
-  log_esp3d("URLD: %s", decodedURL);
+  esp3d_log("URLE: %s", encodedURL);
+  esp3d_log("URLD: %s", decodedURL);
   return (out_len > 0);
 }
 
@@ -559,7 +559,7 @@ bool NotificationsService::GET(const char* URL64) {
   if (decode64(URL64, (char*)decodedurl)) {
     http.begin(client, (const char*)decodedurl);
     int httpCode = http.GET();
-    log_esp3d("HTTP code: %d", httpCode);
+    esp3d_log("HTTP code: %d", httpCode);
     if (httpCode > 0) {
       if (httpCode == HTTP_CODE_OK) {
         res = true;
@@ -606,8 +606,8 @@ bool NotificationsService::begin() {
           base64::encode(Settings_ESP3D::read_string(ESP_NOTIFICATION_TOKEN1));
       _token2 =
           base64::encode(Settings_ESP3D::read_string(ESP_NOTIFICATION_TOKEN2));
-      // log_esp3d("%s",Settings_ESP3D::read_string(ESP_NOTIFICATION_TOKEN1));
-      // log_esp3d("%s",Settings_ESP3D::read_string(ESP_NOTIFICATION_TOKEN2));
+      // esp3d_log("%s",Settings_ESP3D::read_string(ESP_NOTIFICATION_TOKEN1));
+      // esp3d_log("%s",Settings_ESP3D::read_string(ESP_NOTIFICATION_TOKEN2));
       if (!getEmailFromSettings() || !getPortFromSettings() ||
           !getServerAddressFromSettings()) {
         return false;

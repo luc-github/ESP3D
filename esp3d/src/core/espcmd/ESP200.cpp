@@ -21,14 +21,15 @@
 #if defined(SD_DEVICE)
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/filesystem/esp_sd.h"
-#include "../commands.h"
+#include "../esp3d_commands.h"
 #include "../esp3d_message.h"
-#include "../settings_esp3d.h"
+#include "../esp3d_settings.h"
 
 #define COMMANDID 200
 // Get SD Card Status
 //[ESP200] json=<YES/NO> <RELEASESD> <REFRESH> pwd=<user/admin password>
-bool Commands::ESP200(const char* cmd_params, level_authenticate_type auth_type,
+bool Commands::ESP200(const char* cmd_params,
+                      ESP3DAuthenticationLevel auth_type,
                       ESP3D_Message* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
@@ -40,7 +41,7 @@ bool Commands::ESP200(const char* cmd_params, level_authenticate_type auth_type,
                         // set error in json instead
 
 #ifdef AUTHENTICATION_FEATURE
-  if (auth_type == LEVEL_GUEST) {
+  if (auth_type == guest) {
     response = format_response(COMMANDID, json, false,
                                "Guest user can't use this command");
     noError = false;

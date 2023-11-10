@@ -21,9 +21,10 @@
 #ifndef _AUTHENTICATION_LEVEL_TYPE_H
 #define _AUTHENTICATION_LEVEL_TYPE_H
 typedef enum {
-  LEVEL_GUEST = 0,
-  LEVEL_USER = 1,
-  LEVEL_ADMIN = 2
-} level_authenticate_type;
+  guest = 0,
+  user = 1,
+  admin = 2,
+  not_authenticated,
+} ESP3DAuthenticationLevel;
 
 #endif  //_AUTHENTICATION_LEVEL_TYPE_H

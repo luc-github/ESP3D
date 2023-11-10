@@ -21,7 +21,7 @@
 #include "authentication_service.h"
 
 #include "../../core/esp3d_message.h"
-#include "../../core/settings_esp3d.h"
+#include "../../core/esp3d_settings.h"
 
 #if defined(AUTHENTICATION_FEATURE)
 #if defined(HTTP_FEATURE)
@@ -49,16 +49,16 @@ uint8_t AuthenticationService::_current_nb_ip = 0;
 // #define ALLOW_MULTIPLE_SESSIONS
 
 // check authentification
-level_authenticate_type AuthenticationService::authenticated_level(
+ESP3DAuthenticationLevel AuthenticationService::authenticated_level(
     const char *pwd, ESP3D_Message *esp3dmsg) {
 #ifdef AUTHENTICATION_FEATURE
-  level_authenticate_type auth_type = LEVEL_GUEST;
+  ESP3DAuthenticationLevel auth_type = guest;
   if (pwd != nullptr) {
     if (isadmin(pwd)) {
-      auth_type = LEVEL_ADMIN;
+      auth_type = admin;
     }
-    if (isuser(pwd) && (auth_type != LEVEL_ADMIN)) {
-      auth_type = LEVEL_USER;
+    if (isuser(pwd) && (auth_type != admin)) {
+      auth_type = user;
     }
     return auth_type;
   } else {
@@ -70,17 +70,17 @@ level_authenticate_type AuthenticationService::authenticated_level(
 #if defined(HTTP_FEATURE)
     if (_webserver) {
       if (_webserver->hasHeader("Authorization")) {
-        // log_esp3d("Check authorization %",(_webserver->uri()).c_str());
+        // esp3d_log("Check authorization %",(_webserver->uri()).c_str());
         if (_webserver->authenticate(DEFAULT_ADMIN_LOGIN, _adminpwd.c_str())) {
-          auth_type = LEVEL_ADMIN;
+          auth_type = admin;
         } else {
           if (_webserver->authenticate(DEFAULT_USER_LOGIN, _userpwd.c_str())) {
-            auth_type = LEVEL_USER;
+            auth_type = user;
           }
         }
       }
       if (_webserver->hasHeader("Cookie")) {
-        // log_esp3d("Check Cookie %s",(_webserver->uri()).c_str());
+        // esp3d_log("Check Cookie %s",(_webserver->uri()).c_str());
         String cookie = _webserver->header("Cookie");
         int pos = cookie.indexOf("ESPSESSIONID=");
         if (pos != -1) {
@@ -90,7 +90,7 @@ level_authenticate_type AuthenticationService::authenticated_level(
           IPAddress ip = _webserver->getTarget().remoteIP();
           // check if cookie can be reset and clean table in same time
           auth_type = ResetAuthIP(ip, sessionID.c_str());
-          // log_esp3d("Authentication = %d", auth_type);
+          // esp3d_log("Authentication = %d", auth_type);
         }
       }
     }
@@ -100,7 +100,7 @@ level_authenticate_type AuthenticationService::authenticated_level(
 #else
   (void)pwd;
   (void)esp3dmsg;
-  return LEVEL_ADMIN;
+  return admin;
 #endif  // AUTHENTICATION_FEATURE
 }
 #ifdef AUTHENTICATION_FEATURE
@@ -216,7 +216,7 @@ bool AuthenticationService::ClearCurrentSession() {
   return ClearAuthIP(_webserver->client().remoteIP(), sessionID.c_str());
 }
 
-bool AuthenticationService::CreateSession(level_authenticate_type auth_level,
+bool AuthenticationService::CreateSession(ESP3DAuthenticationLevel auth_level,
                                           const char *username,
                                           const char *session_ID) {
   auth_ip *current_auth = new auth_ip;
@@ -302,7 +302,7 @@ uint32_t AuthenticationService::getSessionRemaining(const char *sessionID) {
 }
 
 // Review all IP to reset timers
-level_authenticate_type AuthenticationService::ResetAuthIP(
+ESP3DAuthenticationLevel AuthenticationService::ResetAuthIP(
     IPAddress ip, const char *sessionID) {
   auth_ip *current = _head;
   auth_ip *previous = NULL;
@@ -331,14 +331,14 @@ level_authenticate_type AuthenticationService::ResetAuthIP(
         if (strcmp(sessionID, current->sessionID) == 0) {
           // reset time
           current->last_time = millis();
-          return (level_authenticate_type)current->level;
+          return (ESP3DAuthenticationLevel)current->level;
         }
       }
       previous = current;
       current = current->_next;
     }
   }
-  return LEVEL_GUEST;
+  return guest;
 }
 #endif  // HTTP_FEATURE
 

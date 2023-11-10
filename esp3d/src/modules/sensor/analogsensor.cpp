@@ -22,9 +22,8 @@
 #ifdef SENSOR_DEVICE
 #if SENSOR_DEVICE == ANALOG_DEVICE
 #include "../../core/esp3d_message.h"
-#include "../../core/settings_esp3d.h"
+#include "../../core/esp3d_settings.h"
 #include "analogsensor.h"
-
 
 AnalogSensorDevice::AnalogSensorDevice() {}
 

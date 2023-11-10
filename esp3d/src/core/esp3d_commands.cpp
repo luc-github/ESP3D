@@ -18,12 +18,12 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // #define ESP_LOG_FEATURE LOG_OUTPUT_SERIAL0
-#include "commands.h"
+#include "esp3d_commands.h"
 
 #include "../include/esp3d_config.h"
 #include "esp3d.h"
 #include "esp3d_message.h"
-#include "settings_esp3d.h"
+#include "esp3d_settings.h"
 
 #if COMMUNICATION_PROTOCOL == MKS_SERIAL
 #include "../modules/mks/mks_service.h"
@@ -37,10 +37,10 @@ Commands::~Commands() {}
 
 // dispatch the command
 void Commands::process(uint8_t *sbuf, size_t len, ESP3D_Message *esp3dmsg,
-                       level_authenticate_type auth,
+                       ESP3DAuthenticationLevel auth,
                        ESP3D_Message *esp3dmsgonly, uint8_t outputignore) {
   static bool lastIsESP3D = false;
-  log_esp3d("Client is %d, has only %d, has ignore %d",
+  esp3d_log("Client is %d, has only %d, has ignore %d",
             esp3dmsg ? esp3dmsg->getTarget() : 0,
             esp3dmsgonly ? esp3dmsgonly->getTarget() : 0, outputignore);
   if (is_esp_command(sbuf, len)) {
@@ -58,8 +58,8 @@ void Commands::process(uint8_t *sbuf, size_t len, ESP3D_Message *esp3dmsg,
     cmd[1] = tmpbuf[5] == ']' ? 0 : tmpbuf[5];
     cmd[2] = tmpbuf[6] == ']' ? 0 : tmpbuf[6];
     cmd[3] = 0x0;
-    log_esp3d("It is ESP command %s", cmd);
-    log_esp3d("Respond to client  %d", (esp3dmsgonly == nullptr)
+    esp3d_log("It is ESP command %s", cmd);
+    esp3d_log("Respond to client  %d", (esp3dmsgonly == nullptr)
                                            ? esp3dmsg->getTarget()
                                            : esp3dmsgonly->getTarget());
     execute_internal_command(
@@ -81,7 +81,7 @@ void Commands::process(uint8_t *sbuf, size_t len, ESP3D_Message *esp3dmsg,
     // the web command will never get answer as answer go to websocket
     // This is sanity check as the http client should already answered
     if (esp3dmsg->getTarget() == ESP_HTTP_CLIENT && !esp3dmsg->footerSent()) {
-      if (auth != LEVEL_GUEST) {
+      if (auth != guest) {
         esp3dmsg->printMSG("");
       } else {
         esp3dmsg->printERROR("Wrong authentication!", 401);
@@ -90,12 +90,12 @@ void Commands::process(uint8_t *sbuf, size_t len, ESP3D_Message *esp3dmsg,
     }
 #endif  // HTTP_FEATURE
     if (esp3dmsgonly == nullptr) {
-      log_esp3d("Dispatch from %d, but %d", esp3dmsg->getTarget(),
+      esp3d_log("Dispatch from %d, but %d", esp3dmsg->getTarget(),
                 outputignore);
       // FIXME: code commented - need to use new API
       // esp3dmsg->dispatch(sbuf, len, outputignore);
     } else {
-      log_esp3d("Dispatch from %d to only  %d", esp3dmsg->getTarget(),
+      esp3d_log("Dispatch from %d to only  %d", esp3dmsg->getTarget(),
                 esp3dmsgonly->getTarget());
 #if COMMUNICATION_PROTOCOL == MKS_SERIAL
       if (esp3dmsgonly->getTarget() == ESP_SERIAL_CLIENT) {
@@ -315,11 +315,11 @@ const char *Commands::get_param(const char *cmd_params, const char *label) {
 }
 
 bool Commands::has_tag(const char *cmd_params, const char *tag) {
-  log_esp3d("Checking for tag: %s, in %s", tag, cmd_params);
+  esp3d_log("Checking for tag: %s, in %s", tag, cmd_params);
   String tmp = "";
   String stag = " ";
   if ((strlen(cmd_params) == 0) || (strlen(tag) == 0)) {
-    log_esp3d_e("No value provided for tag");
+    esp3d_log_e("No value provided for tag");
     return false;
   }
   stag += tag;
@@ -327,30 +327,30 @@ bool Commands::has_tag(const char *cmd_params, const char *tag) {
   tmp.trim();
   tmp = " " + tmp;
   if (tmp.indexOf(stag) == -1) {
-    log_esp3d("No tag detected");
+    esp3d_log("No tag detected");
     return false;
   }
-  log_esp3d("Tag detected");
+  esp3d_log("Tag detected");
   // to support plain , plain=yes , plain=no
   String param = String(tag) + "=";
-  log_esp3d("Checking  %s , in %s", param.c_str(), cmd_params);
+  esp3d_log("Checking  %s , in %s", param.c_str(), cmd_params);
   String parameter = get_param(cmd_params, param.c_str());
   if (parameter.length() != 0) {
-    log_esp3d("Parameter is %s", parameter.c_str());
+    esp3d_log("Parameter is %s", parameter.c_str());
     if (parameter == "YES" || parameter == "true" || parameter == "TRUE" ||
         parameter == "yes" || parameter == "1") {
       return true;
     }
-    log_esp3d("No parameter to enable  %s ", param.c_str());
+    esp3d_log("No parameter to enable  %s ", param.c_str());
     return false;
   }
-  log_esp3d("No parameter for %s but tag detected", param.c_str());
+  esp3d_log("No parameter for %s but tag detected", param.c_str());
   return true;
 }
 
 // execute internal command
 bool Commands::execute_internal_command(int cmd, const char *cmd_params,
-                                        level_authenticate_type auth_level,
+                                        ESP3DAuthenticationLevel auth_level,
                                         ESP3D_Message *esp3dmsg) {
 #ifndef SERIAL_COMMAND_FEATURE
   if (esp3dmsg->getTarget() == ESP_SERIAL_CLIENT) {
@@ -359,19 +359,19 @@ bool Commands::execute_internal_command(int cmd, const char *cmd_params,
   }
 #endif  // SERIAL_COMMAND_FEATURE
   bool response = true;
-  level_authenticate_type auth_type = auth_level;
-  // log_esp3d("Authentication = %d", auth_type);
+  ESP3DAuthenticationLevel auth_type = auth_level;
+  // esp3d_log("Authentication = %d", auth_type);
 // override if parameters
 #ifdef AUTHENTICATION_FEATURE
 
   // do not overwrite previous authetic <time=YYYY-MM-DD#H24:MM:SS>ation level
-  if (auth_type == LEVEL_GUEST) {
+  if (auth_type == guest) {
     String pwd = get_param(cmd_params, "pwd=");
     auth_type =
         AuthenticationService::authenticated_level(pwd.c_str(), esp3dmsg);
   }
 #endif  // AUTHENTICATION_FEATURE
-  // log_esp3d("Authentication = %d", auth_type);
+  // esp3d_log("Authentication = %d", auth_type);
   String parameter;
   switch (cmd) {
     // ESP3D Help
@@ -841,19 +841,19 @@ bool Commands::_dispatchSetting(
     case ESP3DSettingType::float_t:
       // TODO Add float support ?
       value = "Not supported";
-      log_esp3d_e("Float not supported");
+      esp3d_log_e("Float not supported");
       return false;
       break;
     case ESP3DSettingType::mask:
       // TODO Add Mask support ?
       value = "Not supported";
-      log_esp3d_e("Mask not supported");
+      esp3d_log_e("Mask not supported");
       return false;
       break;
     case ESP3DSettingType::bitsfield:
       // TODO Add bitfield support ?
       value = "Not supported";
-      log_esp3d_e("Bitsfield not supported");
+      esp3d_log_e("Bitsfield not supported");
       return false;
       break;
     case ESP3DSettingType::string_t:
@@ -873,7 +873,7 @@ bool Commands::_dispatchSetting(
       break;
     default:
       value = "Not supported";
-      log_esp3d_e("Type not supported");
+      esp3d_log_e("Type not supported");
       return false;
       break;
   }
@@ -968,5 +968,12 @@ bool Commands::_dispatchSetting(
     tmpstr += "\n";
   }
   esp3dmsg->print(tmpstr.c_str());
+  return true;
+}
+
+bool Commands::dispatch(const char *sbuf, ESP3DClientType target,
+                        ESP3DRequest requestId, ESP3DMessageType type,
+                        ESP3DClientType origin,
+                        ESP3DAuthenticationLevel authentication_level) {
   return true;
 }

@@ -20,9 +20,9 @@
 #include "../../include/esp3d_config.h"
 #if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
 #include "../../modules/network/netconfig.h"
-#include "../commands.h"
+#include "../esp3d_commands.h"
 #include "../esp3d_message.h"
-#include "../settings_esp3d.h"
+#include "../esp3d_settings.h"
 
 #if defined(WIFI_FEATURE)
 #include "../../modules/wifi/wificonfig.h"
@@ -34,7 +34,8 @@
 #define COMMANDID 102
 // Change STA IP mode (DHCP/STATIC)
 //[ESP102]<mode>[json=no] [pwd=<admin password>]
-bool Commands::ESP102(const char* cmd_params, level_authenticate_type auth_type,
+bool Commands::ESP102(const char* cmd_params,
+                      ESP3DAuthenticationLevel auth_type,
                       ESP3D_Message* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
@@ -43,7 +44,7 @@ bool Commands::ESP102(const char* cmd_params, level_authenticate_type auth_type,
   int errorCode = 200;  // unless it is a server error use 200 as default and
                         // set error in json instead
 #ifdef AUTHENTICATION_FEATURE
-  if (auth_type == LEVEL_GUEST) {
+  if (auth_type == guest) {
     response = format_response(COMMANDID, json, false,
                                "Guest user can't use this command");
     noError = false;
@@ -67,7 +68,7 @@ bool Commands::ESP102(const char* cmd_params, level_authenticate_type auth_type,
       }
     } else {  // set
 #ifdef AUTHENTICATION_FEATURE
-      if (auth_type != LEVEL_ADMIN) {
+      if (auth_type != admin) {
         response = format_response(COMMANDID, json, false,
                                    "Wrong authentication level");
         noError = false;

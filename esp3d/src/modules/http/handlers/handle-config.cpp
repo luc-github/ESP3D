@@ -26,14 +26,14 @@
 #if defined(ARDUINO_ARCH_ESP8266)
 #include <ESP8266WebServer.h>
 #endif  // ARDUINO_ARCH_ESP8266
-#include "../../../core/commands.h"
+#include "../../../core/esp3d_commands.h"
 #include "../../../core/esp3d_message.h"
 #include "../../authentication/authentication_service.h"
 
 // Handle web command query [ESP420]plain and send
 // answer//////////////////////////////
 void HTTP_Server::handle_config() {
-  level_authenticate_type auth_level =
+  ESP3DAuthenticationLevel auth_level =
       AuthenticationService::authenticated_level();
   String cmd = "[ESP420]";
   if (_webserver->hasArg("json")) {

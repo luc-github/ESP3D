@@ -97,10 +97,10 @@ class GcodeHost {
     return _fileName.c_str();
   }
   bool processScript(const char* line,
-                     level_authenticate_type auth_type = LEVEL_ADMIN,
+                     ESP3DAuthenticationLevel auth_type = admin,
                      ESP3D_Message* esp3dmsg = nullptr);
   bool processFile(const char* filename,
-                   level_authenticate_type auth_type = LEVEL_ADMIN,
+                   ESP3DAuthenticationLevel auth_type = admin,
                    ESP3D_Message* esp3dmsg = nullptr);
   bool abort();
   bool pause();
@@ -130,7 +130,7 @@ class GcodeHost {
   String _currentCommand;
   String _response;
   ESP3D_Message _outputStream(0);
-  level_authenticate_type _auth_type;
+  ESP3DAuthenticationLevel _auth_type;
   uint64_t _startTimeOut;
   bool _needRelease;
 };

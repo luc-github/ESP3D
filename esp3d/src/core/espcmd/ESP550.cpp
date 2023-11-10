@@ -20,14 +20,15 @@
 #include "../../include/esp3d_config.h"
 #if defined(AUTHENTICATION_FEATURE)
 #include "../../modules/authentication/authentication_service.h"
-#include "../commands.h"
+#include "../esp3d_commands.h"
 #include "../esp3d_message.h"
-#include "../settings_esp3d.h"
+#include "../esp3d_settings.h"
 
 #define COMMANDID 550
 // Change admin password
 //[ESP550]<password> json=<no> pwd=<admin password>
-bool Commands::ESP550(const char* cmd_params, level_authenticate_type auth_type,
+bool Commands::ESP550(const char* cmd_params,
+                      ESP3DAuthenticationLevel auth_type,
                       ESP3D_Message* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
@@ -35,7 +36,7 @@ bool Commands::ESP550(const char* cmd_params, level_authenticate_type auth_type,
   String parameter;
   int errorCode = 200;  // unless it is a server error use 200 as default and
                         // set error in json instead
-  if (auth_type == LEVEL_ADMIN) {
+  if (auth_type == admin) {
     parameter = clean_param(get_param(cmd_params, ""));
     if (parameter.length() != 0) {
       if (Settings_ESP3D::isValidStringSetting(parameter.c_str(),

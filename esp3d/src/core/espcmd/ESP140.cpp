@@ -21,15 +21,16 @@
 #if defined(TIMESTAMP_FEATURE)
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/time/time_service.h"
-#include "../commands.h"
+#include "../esp3d_commands.h"
 #include "../esp3d_message.h"
-#include "../settings_esp3d.h"
+#include "../esp3d_settings.h"
 
 #define COMMANDID 140
 // Sync / Set / Get current time
 //[ESP140]<SYNC> <srv1=XXXXX> <srv2=XXXXX> <srv3=XXXXX> <tzone=+HH:SS>
 //<ntp=YES/NO> <time=YYYY-MM-DDTHH:mm:ss> NOW json=<no> pwd=<admin password>
-bool Commands::ESP140(const char* cmd_params, level_authenticate_type auth_type,
+bool Commands::ESP140(const char* cmd_params,
+                      ESP3DAuthenticationLevel auth_type,
                       ESP3D_Message* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
@@ -40,7 +41,7 @@ bool Commands::ESP140(const char* cmd_params, level_authenticate_type auth_type,
                         // set error in json instead
 
 #ifdef AUTHENTICATION_FEATURE
-  if (auth_type == LEVEL_GUEST) {
+  if (auth_type == guest) {
     response = format_response(COMMANDID, json, false,
                                "Guest user can't use this command");
     noError = false;
@@ -53,7 +54,7 @@ bool Commands::ESP140(const char* cmd_params, level_authenticate_type auth_type,
     parameter = clean_param(get_param(cmd_params, ""));  // get
     if (parameter.length() != 0) {
 #ifdef AUTHENTICATION_FEATURE
-      if (auth_type != LEVEL_ADMIN) {
+      if (auth_type != admin) {
         response = format_response(COMMANDID, json, false,
                                    "Wrong authentication level");
         noError = false;
@@ -178,7 +179,7 @@ bool Commands::ESP140(const char* cmd_params, level_authenticate_type auth_type,
       parameter.toUpperCase();
       if (noError) {
         if (has_tag(parameter.c_str(), "SYNC")) {
-          log_esp3d("Sync time");
+          esp3d_log("Sync time");
           hasParam = true;
           if (timeService.is_internet_time()) {
             if (!timeService.begin()) {
@@ -192,7 +193,7 @@ bool Commands::ESP140(const char* cmd_params, level_authenticate_type auth_type,
             noError = false;
           }
           if (noError) {
-            log_esp3d("Get time");
+            esp3d_log("Get time");
             response = format_response(COMMANDID, json, true,
                                        timeService.getCurrentTime());
           }
@@ -205,7 +206,7 @@ bool Commands::ESP140(const char* cmd_params, level_authenticate_type auth_type,
           tmp += timeService.getTimeZone();
           tmp += ")";
           hasParam = true;
-          log_esp3d("Get time");
+          esp3d_log("Get time");
           response = format_response(COMMANDID, json, true, tmp.c_str());
         }
       }

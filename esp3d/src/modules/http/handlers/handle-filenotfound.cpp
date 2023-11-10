@@ -43,25 +43,25 @@
 void HTTP_Server::handle_not_found() {
   HTTP_Server::set_http_headers();
 
-  if (AuthenticationService::authenticated_level() == LEVEL_GUEST) {
+  if (AuthenticationService::authenticated_level() == guest) {
     _webserver->send(401, "text/plain", "Wrong authentication!");
     return;
   }
   String path = _webserver->urlDecode(_webserver->uri());
   String contentType = esp3d_string::getContentType(path.c_str());
   String pathWithGz = path + ".gz";
-  log_esp3d("URI: %s", path.c_str());
+  esp3d_log("URI: %s", path.c_str());
 #if defined(FILESYSTEM_FEATURE)
   if (ESP_FileSystem::exists(pathWithGz.c_str()) ||
       ESP_FileSystem::exists(path.c_str())) {
-    log_esp3d("Path found `%s`", path.c_str());
+    esp3d_log("Path found `%s`", path.c_str());
     if (ESP_FileSystem::exists(pathWithGz.c_str())) {
       _webserver->sendHeader("Content-Encoding", "gzip");
       path = pathWithGz;
-      log_esp3d("Path is gz `%s`", path.c_str());
+      esp3d_log("Path is gz `%s`", path.c_str());
     }
     if (!StreamFSFile(path.c_str(), contentType.c_str())) {
-      log_esp3d_e("Stream `%s` failed", path.c_str());
+      esp3d_log_e("Stream `%s` failed", path.c_str());
     }
     return;
   }
@@ -90,7 +90,7 @@ void HTTP_Server::handle_not_found() {
           Serial2Socket.pause();
 #endif  // ESP3DLIB_ENV && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
           if (!StreamSDFile(path.c_str(), contentType.c_str())) {
-            log_esp3d_e("Stream `%s` failed", path.c_str());
+            esp3d_log_e("Stream `%s` failed", path.c_str());
           }
 #if defined(ESP3DLIB_ENV) && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
           Serial2Socket.pause(false);
@@ -116,7 +116,7 @@ void HTTP_Server::handle_not_found() {
       path = pathWithGz;
     }
     if (!StreamFSFile(path.c_str(), contentType.c_str())) {
-      log_esp3d_e("Stream `%s` failed", path.c_str());
+      esp3d_log_e("Stream `%s` failed", path.c_str());
     }
     return;
   }

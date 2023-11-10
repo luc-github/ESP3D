@@ -30,11 +30,11 @@
 #include "../../authentication/authentication_service.h"
 // Web Update handler
 void HTTP_Server::handleUpdate() {
-  level_authenticate_type auth_level =
+  ESP3DAuthenticationLevel auth_level =
       AuthenticationService::authenticated_level();
   HTTP_Server::set_http_headers();
 
-  if (auth_level != LEVEL_ADMIN) {
+  if (auth_level != admin) {
     _upload_status = UPLOAD_STATUS_NONE;
     _webserver->send(401, "text/plain", "Wrong authentication!");
     return;

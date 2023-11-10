@@ -24,7 +24,7 @@
 #if defined(ESP3DLIB_ENV) && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
 #include <Arduino.h>
 
-#include "../../core/commands.h"
+#include "../../core/esp3d_commands.h"
 #include "../../core/esp3d_message.h"
 #include "serial2socket.h"
 
@@ -80,7 +80,7 @@ size_t Serial_2_Socket::write(uint8_t c) {
 
 size_t Serial_2_Socket::write(const uint8_t *buffer, size_t size) {
   if (buffer == NULL || size == 0 || !_started || _paused) {
-    log_esp3d("Serial2Socket: no data, not started or paused");
+    esp3d_log("Serial2Socket: no data, not started or paused");
     return size;
   }
   if (_TXbufferSize == 0) {
@@ -95,7 +95,7 @@ size_t Serial_2_Socket::write(const uint8_t *buffer, size_t size) {
     _TXbuffer[_TXbufferSize] = buffer[i];
     _TXbufferSize++;
     if (buffer[i] == (const uint8_t)'\n' || buffer[i] == (const uint8_t)'\r') {
-      log_esp3d("S2S: %s TXSize: %d", (const char *)_TXbuffer, _TXbufferSize);
+      esp3d_log("S2S: %s TXSize: %d", (const char *)_TXbuffer, _TXbufferSize);
       flush();
     }
   }
@@ -155,7 +155,7 @@ void Serial_2_Socket::handle_flush() {
   if (_TXbufferSize > 0 && _started && !_paused) {
     if ((_TXbufferSize >= S2S_TXBUFFERSIZE) ||
         ((millis() - _lastflush) > S2S_FLUSHTIMEOUT)) {
-      log_esp3d("force socket flush");
+      esp3d_log("force socket flush");
       flush();
     }
   }

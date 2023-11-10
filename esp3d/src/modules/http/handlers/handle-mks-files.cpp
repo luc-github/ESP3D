@@ -18,33 +18,34 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "../../../include/esp3d_config.h"
-#if defined (HTTP_FEATURE) && (COMMUNICATION_PROTOCOL == MKS_SERIAL)
+#if defined(HTTP_FEATURE) && (COMMUNICATION_PROTOCOL == MKS_SERIAL)
 #include "../http_server.h"
-#if defined (ARDUINO_ARCH_ESP32)
+#if defined(ARDUINO_ARCH_ESP32)
 #include <WebServer.h>
-#endif //ARDUINO_ARCH_ESP32
-#if defined (ARDUINO_ARCH_ESP8266)
+#endif  // ARDUINO_ARCH_ESP32
+#if defined(ARDUINO_ARCH_ESP8266)
 #include <ESP8266WebServer.h>
-#endif //ARDUINO_ARCH_ESP8266
-#include "../../mks/mks_service.h"
+#endif  // ARDUINO_ARCH_ESP8266
 #include "../../authentication/authentication_service.h"
+#include "../../mks/mks_service.h"
 
-void HTTP_Server::handleMKSUpload ()
-{
-    level_authenticate_type auth_level = AuthenticationService::authenticated_level();
-    if (auth_level == LEVEL_GUEST) {
-        _upload_status = UPLOAD_STATUS_NONE;
-        _webserver->send (401, "text/plain", "Wrong authentication!");
-        return;
-    }
-    if ( (_upload_status == UPLOAD_STATUS_FAILED) || (_upload_status == UPLOAD_STATUS_CANCELLED) ) {
-        _webserver->send (500, "text/plain", "Upload failed!");
-        _upload_status = UPLOAD_STATUS_NONE;
-        return;
-    }
-    //no error
-    _webserver->send (200, "text/plain", "{\"status\":\"ok\"}");
+void HTTP_Server::handleMKSUpload() {
+  ESP3DAuthenticationLevel auth_level =
+      AuthenticationService::authenticated_level();
+  if (auth_level == guest) {
     _upload_status = UPLOAD_STATUS_NONE;
+    _webserver->send(401, "text/plain", "Wrong authentication!");
+    return;
+  }
+  if ((_upload_status == UPLOAD_STATUS_FAILED) ||
+      (_upload_status == UPLOAD_STATUS_CANCELLED)) {
+    _webserver->send(500, "text/plain", "Upload failed!");
+    _upload_status = UPLOAD_STATUS_NONE;
+    return;
+  }
+  // no error
+  _webserver->send(200, "text/plain", "{\"status\":\"ok\"}");
+  _upload_status = UPLOAD_STATUS_NONE;
 }
 
-#endif //HTTP_FEATURE && (COMMUNICATION_PROTOCOL == MKS_SERIAL)
+#endif  // HTTP_FEATURE && (COMMUNICATION_PROTOCOL == MKS_SERIAL)

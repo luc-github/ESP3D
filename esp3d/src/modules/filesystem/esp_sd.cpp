@@ -65,15 +65,15 @@ bool ESP_SD::_enabled = false;
 #include <SPI.h>
 #endif  // SD_CARD_TYPE == ESP_FYSETC_WIFI_PRO_SDCARD
 bool ESP_SD::enableSharedSD() {
-  log_esp3d("Enable Shared SD if possible");
+  esp3d_log("Enable Shared SD if possible");
   if (_enabled) {
-    log_esp3d("Already enabled, skip");
+    esp3d_log("Already enabled, skip");
     return false;
   }
 #if defined(ESP_SD_CS_SENSE) && ESP_SD_CS_SENSE != -1
   bool active_cs = !digitalRead(ESP_SD_CS_SENSE);
   if (active_cs) {
-    log_esp3d("SD CS is active, skip");
+    esp3d_log("SD CS is active, skip");
     return false;
   }
 #endif  // ESP_SD_CS_SENSE
@@ -84,14 +84,14 @@ bool ESP_SD::enableSharedSD() {
   // Method : TBD
   // 1 - check sd cs state ? what about SDIO then ?
   // 2 - check M27 status ?
-  log_esp3d("SD shared enabled PIN %d with %d", ESP_FLAG_SHARED_SD_PIN,
+  esp3d_log("SD shared enabled PIN %d with %d", ESP_FLAG_SHARED_SD_PIN,
             ESP_FLAG_SHARED_SD_VALUE);
   digitalWrite(ESP_FLAG_SHARED_SD_PIN, ESP_FLAG_SHARED_SD_VALUE);
   Hal::wait(100);
 #endif  // ESP_FLAG_SHARED_SD_PIN
 
 #if SD_CARD_TYPE == ESP_FYSETC_WIFI_PRO_SDCARD
-  log_esp3d("Custom spi : CS: %d,  Miso: %d, Mosi: %d, SCK: %d", ESP_SD_CS_PIN,
+  esp3d_log("Custom spi : CS: %d,  Miso: %d, Mosi: %d, SCK: %d", ESP_SD_CS_PIN,
             ESP_SD_MISO_PIN, ESP_SD_MOSI_PIN, ESP_SD_SCK_PIN);
   SPI.begin(ESP_SD_SCK_PIN, ESP_SD_MISO_PIN, ESP_SD_MOSI_PIN, ESP_SD_CS_PIN);
 #endif  // SD_CARD_TYPE == ESP_FYSETC_WIFI_PRO_SDCARD
@@ -145,32 +145,32 @@ bool ESP_SD::accessFS(uint8_t FS) {
   bool res = true;
   // if card is busy do not let another task access SD and so prevent a release
   if (_state == ESP_SDCARD_BUSY) {
-    log_esp3d("SD Busy");
+    esp3d_log("SD Busy");
     return false;
   }
 #if SD_DEVICE_CONNECTION == ESP_SHARED_SD
   if (ESP_SD::enableSharedSD()) {
-    log_esp3d("Access shared SD ok");
+    esp3d_log("Access shared SD ok");
     res = true;
   } else {
-    log_esp3d_e("Enable shared SD failed");
+    esp3d_log_e("Enable shared SD failed");
     res = false;
   }
 #else
-  log_esp3d("Accessing Direct SD");
+  esp3d_log("Accessing Direct SD");
   res = true;
 #endif  // SD_DEVICE_CONNECTION == ESP_SHARED_SD
   if (res) {
-    log_esp3d("Checking SD state");
+    esp3d_log("Checking SD state");
     if (ESP_SD::getState(true) == ESP_SDCARD_NOT_PRESENT) {
-      log_esp3d_e("SD not present");
+      esp3d_log_e("SD not present");
       res = false;
       // Sd is not available so release it
       ESP_SD::releaseFS(FS);
     } else {
-      log_esp3d("SD present");
+      esp3d_log("SD present");
       res = true;
-      log_esp3d("Accessing SD is ok");
+      esp3d_log("Accessing SD is ok");
       ESP_SD::setState(ESP_SDCARD_BUSY);
     }
   }
@@ -178,17 +178,17 @@ bool ESP_SD::accessFS(uint8_t FS) {
 }
 void ESP_SD::releaseFS(uint8_t FS) {
   (void)FS;
-  log_esp3d("Release SD");
+  esp3d_log("Release SD");
   setState(ESP_SDCARD_IDLE);
 #if SD_DEVICE_CONNECTION == ESP_SHARED_SD
   _enabled = false;
 #if defined(ESP_FLAG_SHARED_SD_PIN) && ESP_FLAG_SHARED_SD_PIN != -1
   if (ESP_SD::disableSharedSD()) {
-    log_esp3d("Shared SD disabled");
+    esp3d_log("Shared SD disabled");
   }
 #endif  // ESP_FLAG_SHARED_SD_PIN
 #if defined(ESP3DLIB_ENV)
-  log_esp3d("Mount SD in Marlin");
+  esp3d_log("Mount SD in Marlin");
   card.mount();
 #endif  // ESP3DLIB_ENV
 #endif  // SD_DEVICE_CONNECTION == ESP_SHARED_SD
@@ -224,12 +224,12 @@ ESP_SDFile::ESP_SDFile(const char* name, const char* filename, bool isdir,
 }
 
 ESP_SDFile::~ESP_SDFile() {
-  // log_esp3d("Destructor %s index %d",(_isdir)?"Dir":"File", _index);
+  // esp3d_log("Destructor %s index %d",(_isdir)?"Dir":"File", _index);
 }
 
 ESP_SDFile::operator bool() const {
   if ((_index != -1) || (_filename.length() > 0)) {
-    // log_esp3d("Bool yes %d %d",_index,  _filename.length());
+    // esp3d_log("Bool yes %d %d",_index,  _filename.length());
     return true;
   } else {
     return false;
@@ -291,7 +291,7 @@ void ESP_SDFile::flush() {
 }
 
 ESP_SDFile& ESP_SDFile::operator=(const ESP_SDFile& other) {
-  // log_esp3d("Copy %s", other._filename.c_str());
+  // esp3d_log("Copy %s", other._filename.c_str());
   _isdir = other._isdir;
   _index = other._index;
   _filename = other._filename;

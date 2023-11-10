@@ -21,7 +21,7 @@
 #include "../../include/esp3d_config.h"
 #if defined(RECOVERY_FEATURE)
 #include "../../core/esp3d_message.h"
-#include "../../core/settings_esp3d.h"
+#include "../../core/esp3d_settings.h"
 #include "recovery_service.h"
 
 RecoveryService recovery_service;

@@ -42,7 +42,7 @@ void HTTP_Server::WebUpdateUpload() {
   static uint32_t downloadsize = 0;
   ESP3D_Message esp3dmsg(ESP_REMOTE_SCREEN_CLIENT);
   // only admin can update FW
-  if (AuthenticationService::authenticated_level() != LEVEL_ADMIN) {
+  if (AuthenticationService::authenticated_level() != admin) {
     _upload_status = UPLOAD_STATUS_FAILED;
     pushError(ESP_ERROR_AUTHENTICATION, "Upload rejected", 401);
     esp3dmsg.printERROR("Update rejected!", 401);

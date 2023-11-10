@@ -18,9 +18,9 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "../../include/esp3d_config.h"
-#include "../commands.h"
+#include "../esp3d_commands.h"
 #include "../esp3d_message.h"
-#include "../settings_esp3d.h"
+#include "../esp3d_settings.h"
 const char* help[] = {
     "[ESP] (id) - display this help",
 #if defined(WIFI_FEATURE)
@@ -304,7 +304,7 @@ const uint cmdlist[] = {0,
 
 // ESP3D Help
 //[ESP0] or [ESP]<command>
-bool Commands::ESP0(const char* cmd_params, level_authenticate_type auth_type,
+bool Commands::ESP0(const char* cmd_params, ESP3DAuthenticationLevel auth_type,
                     ESP3D_Message* esp3dmsg) {
   bool noError = true;
 

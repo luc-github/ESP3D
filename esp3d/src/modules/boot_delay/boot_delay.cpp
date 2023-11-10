@@ -21,7 +21,7 @@
 #include "boot_delay.h"
 
 #include "../../core/esp3d_message.h"
-#include "../../core/settings_esp3d.h"
+#include "../../core/esp3d_settings.h"
 #include "../../include/esp3d_config.h"
 
 #if defined(RECOVERY_FEATURE)
@@ -39,10 +39,10 @@ bool BootDelay::started() { return _started; }
 
 bool BootDelay::begin() {
   _totalduration = Settings_ESP3D::read_uint32(ESP_BOOT_DELAY);
-  log_esp3d("Boot delay %d", _totalduration);
+  esp3d_log("Boot delay %d", _totalduration);
   if (!Settings_ESP3D::isValidIntegerSetting(_totalduration, ESP_BOOT_DELAY)) {
     _totalduration = Settings_ESP3D::getDefaultIntegerSetting(ESP_BOOT_DELAY);
-    log_esp3d("Boot delay modified %d", _totalduration);
+    esp3d_log("Boot delay modified %d", _totalduration);
   }
   _started = true;
   ESP3D_Message::toScreen(ESP_OUTPUT_PROGRESS, "0");
@@ -51,7 +51,7 @@ bool BootDelay::begin() {
     handle();
   }
   ESP3D_Message::toScreen(ESP_OUTPUT_PROGRESS, "100");
-  log_esp3d("Boot delay done");
+  esp3d_log("Boot delay done");
   return _started;
 }
 void BootDelay::end() {}

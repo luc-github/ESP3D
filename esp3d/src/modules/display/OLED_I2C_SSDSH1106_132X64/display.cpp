@@ -24,7 +24,7 @@
 #include <SH1106Wire.h>
 
 #include "../../../core/esp3d_message.h"
-#include "../../../core/settings_esp3d.h"
+#include "../../../core/esp3d_settings.h"
 #include "../display.h"
 #include "Wire.h"
 #include "esp3d_logo.h"
@@ -95,7 +95,7 @@ void Display::end() {
 bool Display::begin() {
   bool res = true;
   _started = false;
-  log_esp3d("Init Display");
+  esp3d_log("Init Display");
 #if defined(DISPLAY_I2C_PIN_RST)
   pinMode(DISPLAY_I2C_PIN_RST, OUTPUT);
   digitalWrite(DISPLAY_I2C_PIN_RST,
@@ -167,12 +167,12 @@ void Display::setStatus(const char *status) { _status = status; }
  * esp3d_screen object
  */
 void Display::clearScreen() {
-  log_esp3d("clear screen");
+  esp3d_log("clear screen");
   esp3d_screen.clear();
 }
 
 void Display::updateScreen(bool force) {
-  log_esp3d("update screen");
+  esp3d_log("update screen");
   if (!ESP3D_Message::isOutput(ESP_SCREEN_CLIENT)) {
     return;
   }
@@ -233,7 +233,7 @@ uint16_t Display::sizetoFitSpace(const char *string, uint16_t maxwidth) {
 }
 
 void Display::setTextFont(uint8_t font) {
-  log_esp3d("setTextFont size %d", font);
+  esp3d_log("setTextFont size %d", font);
   switch (font) {
     case 3:
       esp3d_screen.setFont(ArialMT_Plain_16);
@@ -246,7 +246,7 @@ void Display::setTextFont(uint8_t font) {
 
 void Display::drawString(const char *string, int32_t poX, int32_t poY,
                          int16_t color) {
-  log_esp3d("drawString %s at %d,%d", string, poX, poY);
+  esp3d_log("drawString %s at %d,%d", string, poX, poY);
   if (!ESP3D_Message::isOutput(ESP_SCREEN_CLIENT)) {
     return;
   }
@@ -375,7 +375,7 @@ void Display::progress(uint8_t v) {
     // clear
     fillRect(10, _screenHeight - 2, _screenWidth - 20, 2, SCREEN_BG);
   }
-  log_esp3d("%d", v);
+  esp3d_log("%d", v);
   previous = v > 100 ? 100 : v;
   // display bar
   drawRect(10, _screenHeight - 2, ((_screenWidth - 20) * v) / 100, 2,
@@ -415,7 +415,7 @@ bool Display::mainScreenHandler(bool force) {
  * @return a boolean value.
  */
 bool Display::splash() {
-  log_esp3d("Splash");
+  esp3d_log("Splash");
   if (!ESP3D_Message::isOutput(ESP_SCREEN_CLIENT)) {
     return false;
   }
@@ -423,7 +423,7 @@ bool Display::splash() {
     drawXbm((_screenWidth - ESP3D_Logo_width) / 2,
             (_screenHeight - ESP3D_Logo_height) / 2, ESP3D_Logo_width,
             ESP3D_Logo_height, SPLASH_FG, SPLASH_BG, ESP3D_Logo);
-    log_esp3d("Display Splash");
+    esp3d_log("Display Splash");
     _splashDone = true;
     return true;
   }
@@ -462,19 +462,19 @@ bool Display::showStatus(bool force) {
     static int status_shift = -1;
     refresh_status = true;
     status += " ";
-    log_esp3d("current %s", status.c_str());
+    esp3d_log("current %s", status.c_str());
     if (status_shift != -1) {
       if ((uint16_t)(status_shift) > status.length()) {
         status_shift = -1;
       }
     }
-    log_esp3d("shift %d", status_shift);
+    esp3d_log("shift %d", status_shift);
     if (status_shift > 0) {
       status.remove(0, status_shift);
     }
-    log_esp3d("shifted %s", status.c_str());
+    esp3d_log("shifted %s", status.c_str());
     size = sizetoFitSpace(status.c_str(), STATUS_AREA_W);
-    log_esp3d("size available %d existing %d", size, status.length());
+    esp3d_log("size available %d existing %d", size, status.length());
     if (size < status.length()) {
       // cut
       status = status.substring(0, size);
@@ -482,7 +482,7 @@ bool Display::showStatus(bool force) {
     } else {
       status_shift = -1;
     }
-    log_esp3d("sized %s", status.c_str());
+    esp3d_log("sized %s", status.c_str());
   }
   if (refresh_status) {
     // clear area
@@ -539,19 +539,19 @@ bool Display::displaySignal(bool force) {
       refresh_label = true;
       static int label_shift = -1;
       label += " ";
-      // log_esp3d("current %s", label.c_str());
+      // esp3d_log("current %s", label.c_str());
       if (label_shift != -1) {
         if ((uint16_t)(label_shift) > label.length()) {
           label_shift = -1;
         }
       }
-      // log_esp3d("shift %d", label_shift);
+      // esp3d_log("shift %d", label_shift);
       if (label_shift > 0) {
         label.remove(0, label_shift);
       }
-      // log_esp3d("shifted %s", label.c_str());
+      // esp3d_log("shifted %s", label.c_str());
       size = sizetoFitSpace(label.c_str(), SSID_AREA_W);
-      // log_esp3d("size available %d existing %d",size, label.length());
+      // esp3d_log("size available %d existing %d",size, label.length());
       if (size < label.length()) {
         // cut
         label = label.substring(0, size);
@@ -559,7 +559,7 @@ bool Display::displaySignal(bool force) {
       } else {
         label_shift = -1;
       }
-      // log_esp3d("sized %s", label.c_str());
+      // esp3d_log("sized %s", label.c_str());
     }
     if (refresh_label || force) {
       // clear area
@@ -617,17 +617,17 @@ bool Display::displaySignal(bool force) {
       refresh_label = true;
       static int label_shift = -1;
       label += " ";
-      // log_esp3d("current %s", hostname.c_str());
+      // esp3d_log("current %s", hostname.c_str());
       if (label_shift > label.length()) {
         label_shift = -1;
       }
-      // log_esp3d("shift %d", label_shift);
+      // esp3d_log("shift %d", label_shift);
       if (label_shift > 0) {
         label.remove(0, label_shift);
       }
-      // log_esp3d("shifted %s", hostname.c_str());
+      // esp3d_log("shifted %s", hostname.c_str());
       size = sizetoFitSpace(label.c_str(), SSID_AREA_W);
-      // log_esp3d("size available %d existing %d",size, hostname.length());
+      // esp3d_log("size available %d existing %d",size, hostname.length());
       if (size < label.length()) {
         // cut
         label = label.substring(0, size);
@@ -635,7 +635,7 @@ bool Display::displaySignal(bool force) {
       } else {
         label_shift = -1;
       }
-      // log_esp3d("sized %s", hostname.c_str());
+      // esp3d_log("sized %s", hostname.c_str());
     }
     if (refresh_label || force) {
       // clear area
@@ -748,7 +748,7 @@ bool Display::displayIP(bool force) {
 #endif  // BLUETOOTH_FEATURE
       default:
         s = "";
-        log_esp3d("Unknown mode %d", NetConfig::getMode());
+        esp3d_log("Unknown mode %d", NetConfig::getMode());
         break;
     }
     if (s != label) {

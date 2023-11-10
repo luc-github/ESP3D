@@ -1,5 +1,5 @@
 /*
-  pins.h -  pins definition file
+  esp3d_pins.h -  pins definition file
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 

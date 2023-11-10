@@ -21,7 +21,7 @@
 #include "../../include/esp3d_config.h"
 #if defined(INPUT_DEVICE)
 #include "../../core/esp3d_message.h"
-#include "../../core/settings_esp3d.h"
+#include "../../core/esp3d_settings.h"
 #include "input.h"
 
 Input esp3d_input;

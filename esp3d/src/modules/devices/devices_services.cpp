@@ -21,7 +21,7 @@
 #include "../../include/esp3d_config.h"
 #ifdef CONNECTED_DEVICES_FEATURE
 #include "../../core/esp3d_message.h"
-#include "../../core/settings_esp3d.h"
+#include "../../core/esp3d_settings.h"
 #include "devices_services.h"
 
 #ifdef DISPLAY_DEVICE
@@ -50,37 +50,37 @@ bool DevicesServices::begin() {
   _started = false;
 #ifdef SD_DEVICE
   if (!ESP_SD::begin()) {
-    log_esp3d_e("Error sd intialization failed");
+    esp3d_log_e("Error sd intialization failed");
     res = false;
   }
 #endif  // SD_DEVICE
 #ifdef DISPLAY_DEVICE
   if (!esp3d_display.begin()) {
-    log_esp3d_e("Error starting display device");
+    esp3d_log_e("Error starting display device");
     res = false;
   }
 #endif  // DISPLAY_DEVICE
 #ifdef SENSOR_DEVICE
   if (!esp3d_sensor.begin()) {
-    log_esp3d_e("Error starting sensor device");
+    esp3d_log_e("Error starting sensor device");
     res = false;
   }
 #endif  // SENSOR_DEVICE
 #ifdef BUZZER_DEVICE
   if (!esp3d_buzzer.begin()) {
-    log_esp3d_e("Error starting buzzer device");
+    esp3d_log_e("Error starting buzzer device");
     res = false;
   }
 #endif  // BUZZER_DEVICE
 #ifdef RECOVERY_FEATURE
   if (!recovery_service.begin()) {
-    log_esp3d_e("Error starting recovery service");
+    esp3d_log_e("Error starting recovery service");
     res = false;
   }
 #endif  // RECOVERY_FEATURE
 #ifdef CAMERA_DEVICE
   if (!esp3d_camera.initHardware()) {
-    log_esp3d_e("Error camera intialization failed");
+    esp3d_log_e("Error camera intialization failed");
     res = false;
   }
 #endif  // CAMERA_DEVICE

@@ -19,9 +19,9 @@
 */
 #include "../../include/esp3d_config.h"
 #include "../../modules/authentication/authentication_service.h"
-#include "../commands.h"
+#include "../esp3d_commands.h"
 #include "../esp3d_message.h"
-#include "../settings_esp3d.h"
+#include "../esp3d_settings.h"
 
 #define COMMANDID 401
 #if COMMUNICATION_PROTOCOL != SOCKET_SERIAL || defined(ESP_SERIAL_BRIDGE_OUTPUT)
@@ -44,7 +44,8 @@
 #endif  // SD_DEVICE
 // Set EEPROM setting
 //[ESP401]P=<position> T=<type> V=<value> json=<no> pwd=<user/admin password>
-bool Commands::ESP401(const char* cmd_params, level_authenticate_type auth_type,
+bool Commands::ESP401(const char* cmd_params,
+                      ESP3DAuthenticationLevel auth_type,
                       ESP3D_Message* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
@@ -54,7 +55,7 @@ bool Commands::ESP401(const char* cmd_params, level_authenticate_type auth_type,
   int errorCode = 200;  // unless it is a server error use 200 as default and
                         // set error in json instead
 #ifdef AUTHENTICATION_FEATURE
-  if (auth_type != LEVEL_ADMIN) {
+  if (auth_type != admin) {
     response = "Wrong authentication level";
     noError = false;
     errorCode = 401;
@@ -91,7 +92,7 @@ bool Commands::ESP401(const char* cmd_params, level_authenticate_type auth_type,
             if (!Settings_ESP3D::write_byte(spos.toInt(),
                                             (uint8_t)sval.toInt())) {
               response = false;
-              log_esp3d_e("Set failed");
+              esp3d_log_e("Set failed");
             } else {
               // dynamique refresh is better than restart the boards
               switch (spos.toInt()) {
@@ -174,7 +175,7 @@ bool Commands::ESP401(const char* cmd_params, level_authenticate_type auth_type,
             if (!Settings_ESP3D::write_uint32(spos.toInt(), sval.toInt())) {
               response = "Set failed";
               noError = false;
-              log_esp3d_e("Set failed");
+              esp3d_log_e("Set failed");
             } else {
               // dynamique refresh is better than restart the board
               switch (spos.toInt()) {
@@ -210,7 +211,7 @@ bool Commands::ESP401(const char* cmd_params, level_authenticate_type auth_type,
             if (!Settings_ESP3D::write_string(spos.toInt(), sval.c_str())) {
               response = "Set failed";
               noError = false;
-              log_esp3d_e("Set failed");
+              esp3d_log_e("Set failed");
             } else {
               // dynamique refresh is better than restart the board
               switch (spos.toInt()) {

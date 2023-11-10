@@ -259,29 +259,29 @@ bool ESP_GBFS::remove(const char *path) {
 }
 
 bool ESP_GBFS::rename(const char *oldpath, const char *newpath) {
-  log_esp3d("rename global %s to %s", oldpath, newpath);
+  esp3d_log("rename global %s to %s", oldpath, newpath);
 #if defined(FILESYSTEM_FEATURE) || defined(SD_DEVICE)
   uint8_t t = getFSType(oldpath);
   if (t == FS_ROOT) {
-    log_esp3d_e("rename on root not allowed");
+    esp3d_log_e("rename on root not allowed");
     return false;
   }
   String o = getRealPath(oldpath);
   String n = getRealPath(newpath);
 #if defined(FILESYSTEM_FEATURE)
   if (t == FS_FLASH) {
-    log_esp3d("rename FS %s to %s", n.c_str(), o.c_str());
+    esp3d_log("rename FS %s to %s", n.c_str(), o.c_str());
     return ESP_FileSystem::rename(o.c_str(), n.c_str());
   }
 #endif  // FILESYSTEM_FEATURE
 #if defined(SD_DEVICE)
   if (t == FS_SD) {
-    log_esp3d("rename FS %s to %s", o.c_str(), n.c_str());
+    esp3d_log("rename FS %s to %s", o.c_str(), n.c_str());
     return ESP_SD::rename(o.c_str(), n.c_str());
   }
 #endif  // SD_DEVICE
 #endif  // FILESYSTEM_FEATURE || SD_DEVICE
-  log_esp3d_e("Unknow FS, rename not allowed");
+  esp3d_log_e("Unknow FS, rename not allowed");
   return false;
 }
 
@@ -339,24 +339,24 @@ void ESP_GBFS::closeAll() {
 
 ESP_GBFile ESP_GBFS::open(const char *path, uint8_t mode) {
   ESP_GBFile f;
-  log_esp3d("open %s", path);
+  esp3d_log("open %s", path);
 #if defined(FILESYSTEM_FEATURE) || defined(SD_DEVICE)
   uint8_t t = getFSType(path);
-  log_esp3d("type %d", t);
+  esp3d_log("type %d", t);
   if ((t == FS_ROOT) && (mode == ESP_FILE_READ)) {
     f = ESP_GBFile(FS_ROOT, "/");
-    log_esp3d("root");
+    esp3d_log("root");
     getNextFS(true);
   }
 #if defined(FILESYSTEM_FEATURE)
   if (t == FS_FLASH) {
-    log_esp3d("open flash : %s", getRealPath(path));
+    esp3d_log("open flash : %s", getRealPath(path));
     f = ESP_FileSystem::open(getRealPath(path), mode);
   }
 #endif  // FILESYSTEM_FEATURE
 #if defined(SD_DEVICE)
   if (t == FS_SD) {
-    log_esp3d("open SD : %s", getRealPath(path));
+    esp3d_log("open SD : %s", getRealPath(path));
     f = ESP_SD::open(getRealPath(path), mode);
   }
 #endif  // SD_DEVICE

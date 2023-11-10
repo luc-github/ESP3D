@@ -24,9 +24,9 @@
 #include <WiFiClient.h>
 #include <WiFiServer.h>
 
-#include "../../core/commands.h"
+#include "../../core/esp3d_commands.h"
 #include "../../core/esp3d_message.h"
-#include "../../core/settings_esp3d.h"
+#include "../../core/esp3d_settings.h"
 #include "telnet_server.h"
 
 Telnet_Server telnet_server;

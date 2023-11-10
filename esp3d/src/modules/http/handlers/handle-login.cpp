@@ -27,7 +27,7 @@
 #include <ESP8266WebServer.h>
 #endif  // ARDUINO_ARCH_ESP8266
 #include "../../../core/esp3d_message.h"
-#include "../../../core/settings_esp3d.h"
+#include "../../../core/esp3d_settings.h"
 #include "../../authentication/authentication_service.h"
 
 // login status check
@@ -48,7 +48,7 @@ void HTTP_Server::handle_login() {
         "{\"status\":\"disconnected\",\"authentication_lvl\":\"guest\"}");
     return;
   }
-  level_authenticate_type auth_level =
+  ESP3DAuthenticationLevel auth_level =
       AuthenticationService::authenticated_level();
   // check is it is a submission or a query
   if (_webserver->hasArg("SUBMIT")) {
@@ -87,14 +87,14 @@ void HTTP_Server::handle_login() {
             AuthenticationService::setSessionTimeout(timeout.toInt());
           }
           // it is a change or same level
-          if (((auth_level == LEVEL_USER) && (sUser == DEFAULT_USER_LOGIN)) ||
-              ((auth_level == LEVEL_ADMIN) && (sUser == DEFAULT_ADMIN_LOGIN))) {
+          if (((auth_level == user) && (sUser == DEFAULT_USER_LOGIN)) ||
+              ((auth_level == admin) && (sUser == DEFAULT_ADMIN_LOGIN))) {
             code = 200;
             status = "ok";
           } else {  // new authentication
             String session = AuthenticationService::create_session_ID();
             if (AuthenticationService::CreateSession(
-                    (sUser == DEFAULT_ADMIN_LOGIN) ? LEVEL_ADMIN : LEVEL_USER,
+                    (sUser == DEFAULT_ADMIN_LOGIN) ? admin : user,
                     sUser.c_str(), session.c_str())) {
               AuthenticationService::ClearCurrentSession();
               code = 200;
@@ -108,7 +108,7 @@ void HTTP_Server::handle_login() {
       }
     }
   } else {
-    if (auth_level == LEVEL_USER || auth_level == LEVEL_ADMIN) {
+    if (auth_level == user || auth_level == admin) {
       status = "Identified";
       code = 200;
     }
@@ -117,9 +117,9 @@ void HTTP_Server::handle_login() {
   String smsg = "{\"status\":\"";
   smsg += status;
   smsg += "\",\"authentication_lvl\":\"";
-  if (auth_level == LEVEL_USER) {
+  if (auth_level == user) {
     smsg += "user";
-  } else if (auth_level == LEVEL_ADMIN) {
+  } else if (auth_level == admin) {
     smsg += "admin";
   } else {
     smsg += "guest";

@@ -20,7 +20,7 @@
 
 #include "../include/esp3d_config.h"
 #if defined(ESP_BENCHMARK_FEATURE)
-#include "benchmark.h"
+#include "esp3d_benchmark.h"
 #include "../modules/websocket/websocket_server.h"
 void report_esp3d(const char * format, ...)
 {

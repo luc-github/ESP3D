@@ -20,17 +20,18 @@
 #include "../../include/esp3d_config.h"
 #if defined(DIRECT_PIN_FEATURE)
 #include "../../modules/authentication/authentication_service.h"
-#include "../commands.h"
+#include "../esp3d_commands.h"
+#include "../esp3d_hal.h"
 #include "../esp3d_message.h"
-#include "../hal.h"
-#include "../settings_esp3d.h"
+#include "../esp3d_settings.h"
 
 #define COMMANDID 201
 // Get/Set pin value
 //[ESP201]P<pin> V<value> [PULLUP=YES RAW=YES ANALOG=NO
 // ANALOG_RANGE=255]pwd=<admin password> Range can be 255 / 1024 / 2047 / 4095 /
 // 8191
-bool Commands::ESP201(const char* cmd_params, level_authenticate_type auth_type,
+bool Commands::ESP201(const char* cmd_params,
+                      ESP3DAuthenticationLevel auth_type,
                       ESP3D_Message* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
@@ -40,7 +41,7 @@ bool Commands::ESP201(const char* cmd_params, level_authenticate_type auth_type,
                         // set error in json instead
 
 #ifdef AUTHENTICATION_FEATURE
-  if (auth_type == LEVEL_GUEST) {
+  if (auth_type == guest) {
     response = format_response(COMMANDID, json, false,
                                "Guest user can't use this command");
     noError = false;
@@ -52,7 +53,7 @@ bool Commands::ESP201(const char* cmd_params, level_authenticate_type auth_type,
   if (noError) {
     // check if have pin
     parameter = get_param(cmd_params, "P=");
-    log_esp3d("Pin %s", parameter.c_str());
+    esp3d_log("Pin %s", parameter.c_str());
     if (parameter.length() == 0) {
       response = format_response(COMMANDID, json, false, "Missing pin");
       noError = false;
@@ -63,7 +64,7 @@ bool Commands::ESP201(const char* cmd_params, level_authenticate_type auth_type,
         bool isdigital = true;
         parameter = get_param(cmd_params, "ANALOG=");
         if (parameter == "YES") {
-          log_esp3d("Set as analog");
+          esp3d_log("Set as analog");
           isdigital = false;
         }
         // check if is set or get

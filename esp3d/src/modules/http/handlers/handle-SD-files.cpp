@@ -33,11 +33,11 @@
 // SD
 // SD files list and file commands
 void HTTP_Server::handleSDFileList() {
-  level_authenticate_type auth_level =
+  ESP3DAuthenticationLevel auth_level =
       AuthenticationService::authenticated_level();
   HTTP_Server::set_http_headers();
 
-  if (auth_level == LEVEL_GUEST) {
+  if (auth_level == guest) {
     _upload_status = UPLOAD_STATUS_NONE;
     _webserver->send(401, "text/plain", "Wrong authentication!");
     return;
@@ -66,7 +66,7 @@ void HTTP_Server::handleSDFileList() {
 
   if (ESP_SD::getState(true) == ESP_SDCARD_NOT_PRESENT) {
     _webserver->send(200, "text/plain", "{\"status\":\"no SD card\"}");
-    log_esp3d("Release Sd called");
+    esp3d_log("Release Sd called");
     ESP_SD::releaseFS();
     return;
   }
@@ -122,7 +122,7 @@ void HTTP_Server::handleSDFileList() {
       filename.replace("//", "/");
       if (filename != "/") {
         if (ESP_SD::rmdir(filename.c_str())) {
-          log_esp3d("Deleting %s", filename.c_str());
+          esp3d_log("Deleting %s", filename.c_str());
           status = shortname;
           status += " deleted";
         } else {
@@ -246,7 +246,7 @@ void HTTP_Server::handleSDFileList() {
   _webserver->sendContent_P(buffer2send.c_str(), buffer2send.length());
   _webserver->sendContent("");
   _upload_status = UPLOAD_STATUS_NONE;
-  log_esp3d("Release Sd called");
+  esp3d_log("Release Sd called");
   ESP_SD::releaseFS();
 }
 

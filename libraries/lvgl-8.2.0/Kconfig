@@ -264,7 +264,7 @@ menu "LVGL configuration"
                     bool "Log if something unwanted happened but didn't cause a problem"
                 config LV_LOG_LEVEL_ERROR
                     bool "Only critical issues, when the system may fail"
-                config LV_LOG_LEVEL_USER
+                config LV_LOG_user
                     bool "Only logs added by the user"
                 config LV_LOG_LEVEL_NONE
                     bool "Do not log anything"
@@ -276,7 +276,7 @@ menu "LVGL configuration"
                 default 1 if LV_LOG_LEVEL_INFO
                 default 2 if LV_LOG_LEVEL_WARN
                 default 3 if LV_LOG_LEVEL_ERROR
-                default 4 if LV_LOG_LEVEL_USER
+                default 4 if LV_LOG_user
                 default 5 if LV_LOG_LEVEL_NONE
 
             config LV_LOG_PRINTF

@@ -23,9 +23,9 @@
 #include "../../include/esp3d_config.h"
 
 #ifdef BLUETOOTH_FEATURE
-#include "../../core/commands.h"
+#include "../../core/esp3d_commands.h"
 #include "../../core/esp3d_message.h"
-#include "../../core/settings_esp3d.h"
+#include "../../core/esp3d_settings.h"
 #include "../network/netconfig.h"
 #include "BT_service.h"
 #include "BluetoothSerial.h"

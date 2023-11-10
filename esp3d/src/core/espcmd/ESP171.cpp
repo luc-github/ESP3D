@@ -23,9 +23,9 @@
 
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/camera/camera.h"
-#include "../commands.h"
+#include "../esp3d_commands.h"
 #include "../esp3d_message.h"
-#include "../settings_esp3d.h"
+#include "../esp3d_settings.h"
 #include "esp_camera.h"
 
 #define COMMANDID 171
@@ -33,7 +33,8 @@
 // name=timestamp.jpg)
 //[ESP171]path=<target path> filename=<target filename> pwd=<admin/user
 // password>
-bool Commands::ESP171(const char* cmd_params, level_authenticate_type auth_type,
+bool Commands::ESP171(const char* cmd_params,
+                      ESP3DAuthenticationLevel auth_type,
                       ESP3D_Message* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
@@ -44,7 +45,7 @@ bool Commands::ESP171(const char* cmd_params, level_authenticate_type auth_type,
   String path;
   String filename;
 #ifdef AUTHENTICATION_FEATURE
-  if (auth_type == LEVEL_GUEST) {
+  if (auth_type == guest) {
     response = format_response(COMMANDID, json, false,
                                "Guest user can't use this command");
     noError = false;

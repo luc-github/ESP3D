@@ -41,7 +41,7 @@
 #include "../bluetooth/BT_service.h"
 #endif  // BLUETOOTH_FEATURE
 #include "../../core/esp3d_message.h"
-#include "../../core/settings_esp3d.h"
+#include "../../core/esp3d_settings.h"
 #include "netservices.h"
 
 String NetConfig::_hostname = "";
@@ -126,24 +126,31 @@ String NetConfig::localIP() {
 
 // wifi event
 void NetConfig::onWiFiEvent(WiFiEvent_t event) {
-  ESP3D_Message esp3dmsg(ESP_ALL_CLIENTS);
   switch (event) {
     case WIFI_EVENT_STAMODE_CONNECTED:
       _needReconnect2AP = false;
       break;
     case WIFI_EVENT_STAMODE_DISCONNECTED: {
       if (_started) {
-        esp3dmsg.printMSG("Disconnected");
+        esp3d_commands.dispatch("Disconnected", ESP3DClientType::all_clients, 0,
+                                ESP3DMessageType::unique,
+                                ESP3DClientType::system,
+                                ESP3DAuthenticationLevel::admin);
         //_needReconnect2AP = true;
       }
     } break;
     case WIFI_EVENT_STAMODE_GOT_IP: {
 #if COMMUNICATION_PROTOCOL != MKS_SERIAL
-      esp3dmsg.printMSG(WiFi.localIP().toString().c_str());
+      esp3d_commands.dispatch(WiFi.localIP().toString().c_str(),
+                              ESP3DClientType::all_clients, 0,
+                              ESP3DMessageType::unique, ESP3DClientType::system,
+                              ESP3DAuthenticationLevel::admin);
 #endif  // #if COMMUNICATION_PROTOCOL == MKS_SERIAL
     } break;
     case WIFI_EVENT_SOFTAPMODE_STACONNECTED: {
-      esp3dmsg.printMSG("New client");
+      esp3d_commands.dispatch("New client", ESP3DClientType::all_clients, 0,
+                              ESP3DMessageType::unique, ESP3DClientType::system,
+                              ESP3DAuthenticationLevel::admin);
     } break;
 #ifdef ARDUINO_ARCH_ESP32
     case ARDUINO_EVENT_WIFI_STA_LOST_IP:
@@ -155,19 +162,31 @@ void NetConfig::onWiFiEvent(WiFiEvent_t event) {
     case ARDUINO_EVENT_ETH_START: {
       EthConfig::setConnected(false);
       if (Settings_ESP3D::isVerboseBoot()) {
-        esp3dmsg.printMSG("Checking connection");
+        esp3d_commands.dispatch(
+            "Checking connection", ESP3DClientType::all_clients, 0,
+            ESP3DMessageType::unique, ESP3DClientType::system,
+            ESP3DAuthenticationLevel::admin);
       }
     } break;
     case ARDUINO_EVENT_ETH_CONNECTED: {
-      esp3dmsg.printMSG("Cable connected");
+      esp3d_commands.dispatch("Cable connected", ESP3DClientType::all_clients,
+                              0, ESP3DMessageType::unique,
+                              ESP3DClientType::system,
+                              ESP3DAuthenticationLevel::admin);
       EthConfig::setConnected(true);
     } break;
     case ARDUINO_EVENT_ETH_DISCONNECTED: {
-      esp3dmsg.printMSG("Cable disconnected");
+      esp3d_commands.dispatch("Cable disconnected",
+                              ESP3DClientType::all_clients, 0,
+                              ESP3DMessageType::unique, ESP3DClientType::system,
+                              ESP3DAuthenticationLevel::admin);
       EthConfig::setConnected(false);
     } break;
     case ARDUINO_EVENT_ETH_GOT_IP:
-      esp3dmsg.printMSG(ETH.localIP().toString().c_str());
+      esp3d_commands.dispatch(ETH.localIP().toString().c_str(),
+                              ESP3DClientType::all_clients, 0,
+                              ESP3DMessageType::unique, ESP3DClientType::system,
+                              ESP3DAuthenticationLevel::admin);
       EthConfig::setConnected(true);
       break;
     case ARDUINO_EVENT_ETH_STOP:
@@ -192,11 +211,13 @@ bool NetConfig::begin() {
   // clear everything
   end();
   int8_t espMode = Settings_ESP3D::read_byte(ESP_RADIO_MODE);
-  ESP3D_Message esp3dmsg(ESP_ALL_CLIENTS);
-  log_esp3d("Starting Network");
+  esp3d_log("Starting Network");
   if (espMode != ESP_NO_NETWORK) {
     if (Settings_ESP3D::isVerboseBoot()) {
-      esp3dmsg.printMSG("Starting Network");
+      esp3d_commands.dispatch("Starting Network", ESP3DClientType::all_clients,
+                              0, ESP3DMessageType::unique,
+                              ESP3DClientType::system,
+                              ESP3DAuthenticationLevel::admin);
     }
   }
   // setup events
@@ -217,20 +238,24 @@ bool NetConfig::begin() {
   _hostname = Settings_ESP3D::read_string(ESP_HOSTNAME);
   _mode = espMode;
   if (espMode == ESP_NO_NETWORK) {
-    esp3dmsg.printMSG("Disable Network");
+    esp3d_commands.dispatch("Disable Network", ESP3DClientType::all_clients, 0,
+                            ESP3DMessageType::unique, ESP3DClientType::system,
+                            ESP3DAuthenticationLevel::admin);
     WiFi.mode(WIFI_OFF);
     ESP3D_Message::toScreen(ESP_OUTPUT_IP_ADDRESS, nullptr);
     if (Settings_ESP3D::isVerboseBoot()) {
-      ESP3D_Message esp3dmsg(ESP_ALL_CLIENTS);
-      esp3dmsg.printMSG(RADIO_OFF_MSG);
-      esp3dmsg.flush();
+      esp3d_commands.dispatch(RADIO_OFF_MSG, ESP3DClientType::all_clients, 0,
+                              ESP3DMessageType::unique, ESP3DClientType::system,
+                              ESP3DAuthenticationLevel::admin);
     }
     return true;
   }
 #if defined(WIFI_FEATURE)
   if ((espMode == ESP_AP_SETUP) || (espMode == ESP_WIFI_AP) ||
       (espMode == ESP_WIFI_STA)) {
-    esp3dmsg.printMSG("Setup wifi");
+    esp3d_commands.dispatch("Setup wifi", ESP3DClientType::all_clients, 0,
+                            ESP3DMessageType::unique, ESP3DClientType::system,
+                            ESP3DAuthenticationLevel::admin);
     res = WiFiConfig::begin(espMode);
   }
 #endif  // WIFI_FEATURE
@@ -262,13 +287,15 @@ bool NetConfig::begin() {
 #endif  // BLUETOOTH_FEATURE
 
   if (espMode == ESP_NO_NETWORK) {
-    esp3dmsg.printMSG("Disable Network");
+    esp3d_commands.dispatch("Disable Network", ESP3DClientType::all_clients, 0,
+                            ESP3DMessageType::unique, ESP3DClientType::system,
+                            ESP3DAuthenticationLevel::admin);
     WiFi.mode(WIFI_OFF);
     ESP3D_Message::toScreen(ESP_OUTPUT_IP_ADDRESS, nullptr);
     if (Settings_ESP3D::isVerboseBoot()) {
-      ESP3D_Message esp3dmsg(ESP_ALL_CLIENTS);
-      esp3dmsg.printMSG(RADIO_OFF_MSG);
-      esp3dmsg.flush();
+      esp3d_commands.dispatch(RADIO_OFF_MSG, ESP3DClientType::all_clients, 0,
+                              ESP3DMessageType::unique, ESP3DClientType::system,
+                              ESP3DAuthenticationLevel::admin);
     }
     return true;
   }
@@ -287,7 +314,7 @@ bool NetConfig::begin() {
     }
 #endif  // WIFI_FEATURE
     if (start_services) {
-      log_esp3d("Starting service");
+      esp3d_log("Starting service");
       res = NetServices::begin();
     }
   }
@@ -301,11 +328,11 @@ bool NetConfig::begin() {
 #endif  // ARDUINO_ARCH_ESP32
   LOG_ESP3D_NETWORK_INIT
   if (res) {
-    log_esp3d("Network config started");
+    esp3d_log("Network config started");
 
   } else {
     end();
-    log_esp3d_e("Network config failed");
+    esp3d_log_e("Network config failed");
   }
   ESP3D_Message::toScreen(ESP_OUTPUT_IP_ADDRESS, nullptr);
   return res;

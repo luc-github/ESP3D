@@ -1,5 +1,5 @@
 /*
-  version.h - ESP3D version file
+  esp3d_version.h - ESP3D version file
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 

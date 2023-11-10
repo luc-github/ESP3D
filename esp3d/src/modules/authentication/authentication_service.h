@@ -33,7 +33,7 @@ const char DEFAULT_USER_LOGIN[] = "user";
 #include <IPAddress.h>
 struct auth_ip {
   IPAddress ip;
-  level_authenticate_type level;
+  ESP3DAuthenticationLevel level;
   char userID[17];
   char sessionID[17];
   uint32_t last_time;
@@ -53,7 +53,7 @@ typedef void Authwebserver;
 #endif  // AUTHENTICATION_FEATURE
 class AuthenticationService {
  public:
-  static level_authenticate_type authenticated_level(
+  static ESP3DAuthenticationLevel authenticated_level(
       const char *pwd = nullptr, ESP3D_Message *esp3dmsg = nullptr);
 #ifdef AUTHENTICATION_FEATURE
   static bool begin(Authwebserver *webserver);
@@ -69,7 +69,7 @@ class AuthenticationService {
   static char *create_session_ID();
   static bool ClearCurrentSession();
   static bool ClearAllSessions();
-  static bool CreateSession(level_authenticate_type auth_level,
+  static bool CreateSession(ESP3DAuthenticationLevel auth_level,
                             const char *username, const char *session_ID);
 #endif  // HTTP_FEATURE
  private:
@@ -79,8 +79,8 @@ class AuthenticationService {
   static bool AddAuthIP(auth_ip *item);
   static bool ClearAuthIP(IPAddress ip, const char *sessionID);
   static auth_ip *GetAuth(IPAddress ip, const char *sessionID);
-  static level_authenticate_type ResetAuthIP(IPAddress ip,
-                                             const char *sessionID);
+  static ESP3DAuthenticationLevel ResetAuthIP(IPAddress ip,
+                                              const char *sessionID);
   static Authwebserver *_webserver;
   static uint32_t _sessionTimeout;
   static auth_ip *_head;

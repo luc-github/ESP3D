@@ -112,7 +112,7 @@ void Hal::analogRange(uint32_t range) {
 // Setup
 bool Hal::begin() {
 #if defined(ARDUINO_ARCH_ESP32) && defined(CAMERA_DEVICE)
-  log_esp3d("Disable brown out");
+  esp3d_log("Disable brown out");
   WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);  // disable brownout detector
 #endif  // ARDUINO_ARCH_ESP32 && CAMERA_DEVICE
   // Clear all wifi state
@@ -157,7 +157,7 @@ void Hal::wdtFeed() {
 #ifndef DISABLE_WDT_ESP3DLIB_TASK
   if (xHandle && esp_task_wdt_status(xHandle) == ESP_OK) {
     if (esp_task_wdt_reset() != ESP_OK) {
-      log_esp3d_e("WDT Reset failed");
+      esp3d_log_e("WDT Reset failed");
     }
   }
 #endif  // DISABLE_WDT_ESP3DLIB_TASK

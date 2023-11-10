@@ -26,9 +26,9 @@
 #if defined(ARDUINO_ARCH_ESP8266)
 #include <ESP8266WebServer.h>
 #endif  // ARDUINO_ARCH_ESP8266
-#include "../../../core/commands.h"
+#include "../../../core/esp3d_commands.h"
 #include "../../../core/esp3d_message.h"
-#include "../../../core/settings_esp3d.h"
+#include "../../../core/esp3d_settings.h"
 #include "../../authentication/authentication_service.h"
 
 const unsigned char realTimeCommands[] = {
@@ -45,13 +45,13 @@ bool isRealTimeCommand(unsigned char c) {
 
 // Handle web command query and send answer//////////////////////////////
 void HTTP_Server::handle_web_command() {
-  level_authenticate_type auth_level =
+  ESP3DAuthenticationLevel auth_level =
       AuthenticationService::authenticated_level();
-  if (auth_level == LEVEL_GUEST) {
+  if (auth_level == guest) {
     _webserver->send(401, "text/plain", "Wrong authentication!");
     return;
   }
-  // log_esp3d("Authentication = %d", auth_level);
+  // esp3d_log("Authentication = %d", auth_level);
   String cmd = "";
   if (_webserver->hasArg("cmd")) {
     cmd = _webserver->arg("cmd");
@@ -73,7 +73,7 @@ void HTTP_Server::handle_web_command() {
         cmd += "\n";  // need to validate command
       }
     }
-    log_esp3d("Web Command: %s", cmd.c_str());
+    esp3d_log("Web Command: %s", cmd.c_str());
     if (esp3d_commands.is_esp_command((uint8_t *)cmd.c_str(), cmd.length())) {
       esp3d_commands.process((uint8_t *)cmd.c_str(), cmd.length(), &output,
                              auth_level);

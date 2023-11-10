@@ -21,14 +21,15 @@
 #if defined(SD_DEVICE) && SD_DEVICE != ESP_SDIO
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/filesystem/esp_sd.h"
-#include "../commands.h"
+#include "../esp3d_commands.h"
 #include "../esp3d_message.h"
-#include "../settings_esp3d.h"
+#include "../esp3d_settings.h"
 
 #define COMMANDID 202
 // Get/Set SD card Speed factor 1 2 4 6 8 16 32
 //[ESP202]SPEED=<value> json=<no> pwd=<user/admin password>
-bool Commands::ESP202(const char* cmd_params, level_authenticate_type auth_type,
+bool Commands::ESP202(const char* cmd_params,
+                      ESP3DAuthenticationLevel auth_type,
                       ESP3D_Message* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
@@ -37,7 +38,7 @@ bool Commands::ESP202(const char* cmd_params, level_authenticate_type auth_type,
   int errorCode = 200;  // unless it is a server error use 200 as default and
                         // set error in json instead
 #ifdef AUTHENTICATION_FEATURE
-  if (auth_type == LEVEL_GUEST) {
+  if (auth_type == guest) {
     response = format_response(COMMANDID, json, false,
                                "Guest user can't use this command");
     noError = false;

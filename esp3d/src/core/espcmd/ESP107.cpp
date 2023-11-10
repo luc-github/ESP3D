@@ -22,14 +22,15 @@
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/network/netconfig.h"
 #include "../../modules/wifi/wificonfig.h"
-#include "../commands.h"
+#include "../esp3d_commands.h"
 #include "../esp3d_message.h"
-#include "../settings_esp3d.h"
+#include "../esp3d_settings.h"
 
 #define COMMANDID 107
 // Change AP IP
 //[ESP107]<IP> [json=no] pwd=<admin password>
-bool Commands::ESP107(const char* cmd_params, level_authenticate_type auth_type,
+bool Commands::ESP107(const char* cmd_params,
+                      ESP3DAuthenticationLevel auth_type,
                       ESP3D_Message* esp3dmsg) {
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
@@ -39,7 +40,7 @@ bool Commands::ESP107(const char* cmd_params, level_authenticate_type auth_type,
                         // set error in json instead
 
 #ifdef AUTHENTICATION_FEATURE
-  if (auth_type == LEVEL_GUEST) {
+  if (auth_type == guest) {
     response = format_response(COMMANDID, json, false,
                                "Guest user can't use this command");
     noError = false;
@@ -57,7 +58,7 @@ bool Commands::ESP107(const char* cmd_params, level_authenticate_type auth_type,
           Settings_ESP3D::read_IP_String(ESP_AP_IP_VALUE).c_str());
     } else {  // set
 #ifdef AUTHENTICATION_FEATURE
-      if (auth_type != LEVEL_ADMIN) {
+      if (auth_type != admin) {
         response = format_response(COMMANDID, json, false,
                                    "Wrong authentication level");
         noError = false;

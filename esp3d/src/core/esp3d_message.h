@@ -71,12 +71,14 @@ union ESP3DRequest {
 #endif  // HTTP_FEATURE
 };
 
+extern ESP3DRequest no_id;
+
 struct ESP3DMessage {
   uint8_t *data;
   size_t size;
   ESP3DClientType origin;
   ESP3DClientType target;
-  level_authenticate_type authentication_level;
+  ESP3DAuthenticationLevel authentication_level;
   ESP3DRequest request_id;
   ESP3DMessageType type;
 };
