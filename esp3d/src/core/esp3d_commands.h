@@ -25,7 +25,6 @@
 #include "../modules/authentication/authentication_service.h"
 #include "esp3d_message.h"
 
-
 class Commands {
  public:
   Commands();
@@ -229,8 +228,6 @@ class Commands {
   bool ESP901(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
               ESP3D_Message* esp3dmsg);
 #endif  // COMMUNICATION_PROTOCOL != SOCKET_SERIAL
-  bool ESP920(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
   bool ESP930(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
               ESP3D_Message* esp3dmsg);

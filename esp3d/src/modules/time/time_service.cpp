@@ -111,7 +111,6 @@ bool TimeService::begin() {
   s1 = Settings_ESP3D::read_string(ESP_TIME_SERVER1);
   s2 = Settings_ESP3D::read_string(ESP_TIME_SERVER2);
   s3 = Settings_ESP3D::read_string(ESP_TIME_SERVER3);
-  // d1 = Settings_ESP3D::read_byte(ESP_TIME_IS_DST);
 #if defined(ARDUINO_ARCH_ESP32)
   configTzTime(_time_zone.c_str(), s1.c_str(), s2.c_str(), s3.c_str());
 #endif  // ARDUINO_ARCH_ESP32

@@ -779,12 +779,7 @@ bool Commands::execute_internal_command(int cmd, const char *cmd_params,
       response = ESP910(cmd_params, auth_type, esp3dmsg);
       break;
 #endif  // BUZZER_DEVICE
-    case 920:
-      // Get state / Set state of output message clients
-      //[ESP910]<SERIAL / SCREEN / REMOTE_SCREEN/ WEBSOCKET / TELNET /BT /
-      // ALL>=<ON/OFF>[pwd=<admin password>]
-      response = ESP920(cmd_params, auth_type, esp3dmsg);
-      break;
+
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
     // Get state / Set Enable / Disable Serial Bridge Communication
     //[ESP930]<ENABLE/DISABLE>

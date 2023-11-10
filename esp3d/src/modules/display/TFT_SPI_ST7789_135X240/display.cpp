@@ -125,9 +125,6 @@ bool Display::begin() {
 }
 
 void Display::handle() {
-  if (!ESP3D_Message::isOutput(ESP_SCREEN_CLIENT)) {
-    return;
-  }
   if (_started) {
     updateScreen();
   }
@@ -167,9 +164,7 @@ void Display::clearScreen() {
 void Display::updateScreen(bool force) {
   static uint8_t lastScreenID = 255;
   esp3d_log("update screen");
-  if (!ESP3D_Message::isOutput(ESP_SCREEN_CLIENT)) {
-    return;
-  }
+
   static uint32_t last_update = millis();
   bool need_update = force;
   if (((millis() - last_update) > DISPLAY_REFRESH_TIME)) {
@@ -235,9 +230,7 @@ void Display::setTextFont(uint8_t font) {
 void Display::drawString(const char *string, int32_t poX, int32_t poY,
                          int16_t color) {
   esp3d_log("drawString %s at %d,%d", string, poX, poY);
-  if (!ESP3D_Message::isOutput(ESP_SCREEN_CLIENT)) {
-    return;
-  }
+
   esp3d_screen.setTextColor(color);
   esp3d_screen.drawString(string, poX, poY, _font);
 }
@@ -255,9 +248,6 @@ void Display::drawString(const char *string, int32_t poX, int32_t poY,
  */
 void Display::drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
                        int16_t color) {
-  if (!ESP3D_Message::isOutput(ESP_SCREEN_CLIENT)) {
-    return;
-  }
   esp3d_screen.drawLine(x0, y0, x1, y1, color);
 }
 
@@ -274,9 +264,6 @@ void Display::drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
  */
 void Display::drawRect(int16_t x, int16_t y, int16_t width, int16_t height,
                        int16_t color) {
-  if (!ESP3D_Message::isOutput(ESP_SCREEN_CLIENT)) {
-    return;
-  }
   esp3d_screen.drawRect(x, y, width, height, color);
 }
 
@@ -293,9 +280,6 @@ void Display::drawRect(int16_t x, int16_t y, int16_t width, int16_t height,
  */
 void Display::fillRect(int16_t x, int16_t y, int16_t width, int16_t height,
                        int16_t color) {
-  if (!ESP3D_Message::isOutput(ESP_SCREEN_CLIENT)) {
-    return;
-  }
   esp3d_screen.fillRect(x, y, width, height, color);
 }
 
@@ -313,9 +297,6 @@ void Display::fillRect(int16_t x, int16_t y, int16_t width, int16_t height,
  */
 void Display::drawXbm(int16_t x, int16_t y, int16_t width, int16_t height,
                       int16_t color, const uint8_t *xbm) {
-  if (!ESP3D_Message::isOutput(ESP_SCREEN_CLIENT)) {
-    return;
-  }
   esp3d_screen.drawXBitmap(x, y, xbm, width, height, color);
 }
 
@@ -333,9 +314,6 @@ void Display::drawXbm(int16_t x, int16_t y, int16_t width, int16_t height,
  */
 void Display::drawXbm(int16_t x, int16_t y, int16_t width, int16_t height,
                       uint16_t fgcolor, uint16_t bgcolor, const uint8_t *xbm) {
-  if (!ESP3D_Message::isOutput(ESP_SCREEN_CLIENT)) {
-    return;
-  }
   (void)fgcolor;
   (void)bgcolor;
   esp3d_screen.drawXBitmap(x, y, xbm, width, height, fgcolor, bgcolor);
@@ -350,9 +328,6 @@ void Display::drawXbm(int16_t x, int16_t y, int16_t width, int16_t height,
  * @return the value of the variable v.
  */
 void Display::progress(uint8_t v) {
-  if (!ESP3D_Message::isOutput(ESP_SCREEN_CLIENT)) {
-    return;
-  }
   static uint8_t previous = 0;
   if (previous > v) {
     // clear
@@ -399,9 +374,7 @@ bool Display::mainScreenHandler(bool force) {
  */
 bool Display::splash() {
   esp3d_log("Splash");
-  if (!ESP3D_Message::isOutput(ESP_SCREEN_CLIENT)) {
-    return false;
-  }
+
   if (!_splashDone) {
     drawXbm((_screenWidth - ESP3D_Logo_width) / 2,
             (_screenHeight - ESP3D_Logo_height) / 2, ESP3D_Logo_width,
@@ -413,12 +386,7 @@ bool Display::splash() {
   return false;
 }
 
-void Display::updateIP() {
-  if (!ESP3D_Message::isOutput(ESP_SCREEN_CLIENT)) {
-    return;
-  }
-  updateScreen(true);
-}
+void Display::updateIP() { updateScreen(true); }
 
 /**
  * It takes a string, and if it's too long to fit in the status area, it chops

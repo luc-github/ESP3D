@@ -489,60 +489,6 @@ bool Commands::ESP400(const char* cmd_params,
                    sizeof(YesNoValues) / sizeof(char*), -1, -1, -1, nullptr,
                    true, esp3dmsg);
 
-// Output flag
-// Serial
-#if COMMUNICATION_PROTOCOL == RAW_SERIAL || \
-    COMMUNICATION_PROTOCOL == MKS_SERIAL || \
-    COMMUNICATION_PROTOCOL == SOCKET_SERIAL
-
-  _dispatchSetting(json, "system/outputmsg", ESP_SERIAL_FLAG, "serial",
-                   YesNoValues, YesNoLabels,
-                   sizeof(YesNoValues) / sizeof(char*), -1, -1, -1, nullptr,
-                   true, esp3dmsg);
-#endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL ||
-
-#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
-  _dispatchSetting(json, "system/outputmsg", ESP_SERIAL_BRIDGE_FLAG,
-                   "serial_bridge", YesNoValues, YesNoLabels,
-                   sizeof(YesNoValues) / sizeof(char*), -1, -1, -1, nullptr,
-                   true, esp3dmsg);
-#endif  // ESP_SERIAL_BRIDGE_OUTPUT
-
-#if (defined(ESP3DLIB_ENV) && defined(HAS_DISPLAY)) || \
-    defined(HAS_SERIAL_DISPLAY)
-  _dispatchSetting(json, "system/outputmsg", ESP_REMOTE_SCREEN_FLAG, "M117",
-                   YesNoValues, YesNoLabels,
-                   sizeof(YesNoValues) / sizeof(char*), -1, -1, -1, nullptr,
-                   true, esp3dmsg);
-#endif  // ESP3DLIB_ENV
-
-#ifdef DISPLAY_DEVICE
-  _dispatchSetting(json, "system/outputmsg", ESP_SCREEN_FLAG, "M117",
-                   YesNoValues, YesNoLabels,
-                   sizeof(YesNoValues) / sizeof(char*), -1, -1, -1, nullptr,
-                   true, esp3dmsg);
-#endif  // DISPLAY_DEVICE
-
-#ifdef WS_DATA_FEATURE
-  _dispatchSetting(json, "system/outputmsg", ESP_WEBSOCKET_FLAG, "ws",
-                   YesNoValues, YesNoLabels,
-                   sizeof(YesNoValues) / sizeof(char*), -1, -1, -1, nullptr,
-                   true, esp3dmsg);
-#endif  // WS_DATA_FEATURE
-
-#ifdef BLUETOOTH_FEATURE
-  _dispatchSetting(json, "system/outputmsg", ESP_BT_FLAG, "BT", YesNoValues,
-                   YesNoLabels, sizeof(YesNoValues) / sizeof(char*), -1, -1, -1,
-                   nullptr, true, esp3dmsg);
-#endif  // BLUETOOTH_FEATURE
-
-#ifdef TELNET_FEATURE
-  _dispatchSetting(json, "system/outputmsg", ESP_TELNET_FLAG, "telnet",
-                   YesNoValues, YesNoLabels,
-                   sizeof(YesNoValues) / sizeof(char*), -1, -1, -1, nullptr,
-                   true, esp3dmsg);
-#endif  // TELNET_FEATURE
-
   if (json) {
     esp3dmsg->print("]}");
   } else {

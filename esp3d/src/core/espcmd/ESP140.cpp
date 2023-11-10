@@ -148,21 +148,6 @@ bool Commands::ESP140(const char* cmd_params,
           }
         }
       }
-      /*if (noError) {
-        parameter = get_param(cmd_params, "dst=");
-        if (parameter.length() > 0) {
-          hasParam = true;
-          parameter.toUpperCase();
-          if (parameter.length() > 0) {
-            if (!Settings_ESP3D::write_byte(ESP_TIME_IS_DST,
-                                            (parameter == "NO") ? 0 : 1)) {
-              response =
-                  format_response(COMMANDID, json, false, "Set dayligh failed");
-              noError = false;
-            }
-          }
-        }
-      }*/
       if (noError) {
         parameter = get_param(cmd_params, "time=");
         parameter.toUpperCase();

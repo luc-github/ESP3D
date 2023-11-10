@@ -140,15 +140,6 @@
 #define DEFAULT_CALIBRATION_DONE "0"
 #define DEFAULT_SESSION_TIMEOUT "3"
 
-// Default flags
-#define DEFAULT_SERIAL_OUTPUT_FLAG "1"
-#define DEFAULT_REMOTE_SCREEN_FLAG "1"
-#define DEFAULT_WEBSOCKET_FLAG "1"
-#define DEFAULT_TELNET_FLAG "1"
-#define DEFAULT_BT_FLAG "1"
-#define DEFAULT_SCREEN_FLAG "1"
-#define DEFAULT_SERIAL_BRIDGE_FLAG "1"
-
 // default string values
 #define DEFAULT_AP_SSID "ESP3D"
 #define DEFAULT_AP_PASSWORD "12345678"
@@ -203,29 +194,21 @@ uint16_t ESP3DSettingsData[] = {ESP_RADIO_MODE,
                                 ESP_AP_CHANNEL,
                                 ESP_BUZZER,
                                 ESP_INTERNET_TIME,
-                                ESP_SERIAL_FLAG,
                                 ESP_HTTP_ON,
                                 ESP_TELNET_ON,
                                 ESP_WEBSOCKET_ON,
                                 ESP_SD_SPEED_DIV,
                                 ESP_SENSOR_TYPE,
                                 ESP_TARGET_FW,
-                                ESP_TIME_IS_DST,
-                                ESP_REMOTE_SCREEN_FLAG,
                                 ESP_SD_MOUNT,
                                 ESP_SESSION_TIMEOUT,
-                                ESP_WEBSOCKET_FLAG,
                                 ESP_SD_CHECK_UPDATE_AT_BOOT,
                                 ESP_SETUP,
-                                ESP_TELNET_FLAG,
-                                ESP_BT_FLAG,
-                                ESP_SCREEN_FLAG,
                                 ESP_FTP_ON,
                                 ESP_AUTO_NOTIFICATION,
                                 ESP_VERBOSE_BOOT,
                                 ESP_WEBDAV_ON,
                                 ESP_SECURE_SERIAL,
-                                ESP_SERIAL_BRIDGE_FLAG,
                                 ESP_SERIAL_BRIDGE_ON,
                                 ESP_HOSTNAME,
                                 ESP_ADMIN_PWD,
@@ -928,20 +911,13 @@ bool Settings_ESP3D::isValidByteSetting(uint8_t value,
   switch (settingElement) {
     case ESP_BUZZER:
     case ESP_INTERNET_TIME:
-    case ESP_SERIAL_FLAG:
-    case ESP_REMOTE_SCREEN_FLAG:
     case ESP_HTTP_ON:
     case ESP_TELNET_ON:
     case ESP_WEBSOCKET_ON:
-    case ESP_WEBSOCKET_FLAG:
     case ESP_SD_CHECK_UPDATE_AT_BOOT:
     case ESP_SETUP:
-    case ESP_TELNET_FLAG:
-    case ESP_BT_FLAG:
-    case ESP_SCREEN_FLAG:
     case ESP_FTP_ON:
     case ESP_AUTO_NOTIFICATION:
-    case ESP_SERIAL_BRIDGE_FLAG:
     case ESP_SERIAL_BRIDGE_ON:
     case ESP_VERBOSE_BOOT:
     case ESP_WEBDAV_ON:
@@ -1118,23 +1094,16 @@ const ESP3DSettingDescription *Settings_ESP3D::getSettingPtr(
     case ESP_AP_CHANNEL:
     case ESP_BUZZER:
     case ESP_INTERNET_TIME:
-    case ESP_SERIAL_FLAG:
     case ESP_HTTP_ON:
     case ESP_TELNET_ON:
     case ESP_WEBSOCKET_ON:
     case ESP_SD_SPEED_DIV:
     case ESP_SENSOR_TYPE:
     case ESP_TARGET_FW:
-    case ESP_TIME_IS_DST:
-    case ESP_REMOTE_SCREEN_FLAG:
     case ESP_SD_MOUNT:
     case ESP_SESSION_TIMEOUT:
-    case ESP_WEBSOCKET_FLAG:
     case ESP_SD_CHECK_UPDATE_AT_BOOT:
     case ESP_SETUP:
-    case ESP_TELNET_FLAG:
-    case ESP_BT_FLAG:
-    case ESP_SCREEN_FLAG:
     case ESP_FTP_ON:
     case ESP_AUTO_NOTIFICATION:
     case ESP_VERBOSE_BOOT:
@@ -1142,7 +1111,6 @@ const ESP3DSettingDescription *Settings_ESP3D::getSettingPtr(
     case ESP_SECURE_SERIAL:
     case ESP_BOOT_RADIO_STATE:
     case ESP_STA_FALLBACK_MODE:
-    case ESP_SERIAL_BRIDGE_FLAG:
     case ESP_SERIAL_BRIDGE_ON:
     case ESP_STA_IP_MODE:
       setting.type = ESP3DSettingType::byte_t;  // byte
@@ -1207,23 +1175,16 @@ const ESP3DSettingDescription *Settings_ESP3D::getSettingPtr(
     case ESP_AP_CHANNEL:
     case ESP_BUZZER:
     case ESP_INTERNET_TIME:
-    case ESP_SERIAL_FLAG:
     case ESP_HTTP_ON:
     case ESP_TELNET_ON:
     case ESP_WEBSOCKET_ON:
     case ESP_SD_SPEED_DIV:
     case ESP_SENSOR_TYPE:
     case ESP_TARGET_FW:
-    case ESP_TIME_IS_DST:
-    case ESP_REMOTE_SCREEN_FLAG:
     case ESP_SD_MOUNT:
     case ESP_SESSION_TIMEOUT:
-    case ESP_WEBSOCKET_FLAG:
     case ESP_SD_CHECK_UPDATE_AT_BOOT:
     case ESP_SETUP:
-    case ESP_TELNET_FLAG:
-    case ESP_BT_FLAG:
-    case ESP_SCREEN_FLAG:
     case ESP_FTP_ON:
     case ESP_AUTO_NOTIFICATION:
     case ESP_VERBOSE_BOOT:
@@ -1231,7 +1192,6 @@ const ESP3DSettingDescription *Settings_ESP3D::getSettingPtr(
     case ESP_SECURE_SERIAL:
     case ESP_BOOT_RADIO_STATE:
     case ESP_STA_FALLBACK_MODE:
-    case ESP_SERIAL_BRIDGE_FLAG:
     case ESP_SERIAL_BRIDGE_ON:
     case ESP_STA_IP_MODE:
       setting.size = 1;  // 1 byte
@@ -1334,9 +1294,6 @@ const ESP3DSettingDescription *Settings_ESP3D::getSettingPtr(
     case ESP_INTERNET_TIME:
       setting.default_val = DEFAULT_INTERNET_TIME;
       break;
-    case ESP_SERIAL_FLAG:
-      setting.default_val = DEFAULT_SERIAL_OUTPUT_FLAG;
-      break;
     case ESP_HTTP_ON:
       setting.default_val = DEFAULT_HTTP_ON;
       break;
@@ -1355,35 +1312,17 @@ const ESP3DSettingDescription *Settings_ESP3D::getSettingPtr(
     case ESP_TARGET_FW:
       setting.default_val = STRING(DEFAULT_FW);
       break;
-    case ESP_TIME_IS_DST:
-      setting.default_val = DEFAULT_TIME_DST;
-      break;
-    case ESP_REMOTE_SCREEN_FLAG:
-      setting.default_val = DEFAULT_REMOTE_SCREEN_FLAG;
-      break;
     case ESP_SD_MOUNT:
       setting.default_val = DEFAULT_SD_MOUNT;
       break;
     case ESP_SESSION_TIMEOUT:
       setting.default_val = DEFAULT_SESSION_TIMEOUT;
       break;
-    case ESP_WEBSOCKET_FLAG:
-      setting.default_val = DEFAULT_WEBSOCKET_FLAG;
-      break;
     case ESP_SD_CHECK_UPDATE_AT_BOOT:
       setting.default_val = DEFAULT_SD_CHECK_UPDATE_AT_BOOT;
       break;
     case ESP_SETUP:
       setting.default_val = DEFAULT_SETUP;
-      break;
-    case ESP_TELNET_FLAG:
-      setting.default_val = DEFAULT_TELNET_FLAG;
-      break;
-    case ESP_BT_FLAG:
-      setting.default_val = DEFAULT_BT_FLAG;
-      break;
-    case ESP_SCREEN_FLAG:
-      setting.default_val = DEFAULT_SCREEN_FLAG;
       break;
     case ESP_FTP_ON:
       setting.default_val = DEFAULT_FTP_ON;
@@ -1405,9 +1344,6 @@ const ESP3DSettingDescription *Settings_ESP3D::getSettingPtr(
       break;
     case ESP_STA_FALLBACK_MODE:
       setting.default_val = DEFAULT_STA_FALLBACK_MODE;
-      break;
-    case ESP_SERIAL_BRIDGE_FLAG:
-      setting.default_val = DEFAULT_SERIAL_BRIDGE_FLAG;
       break;
     case ESP_SERIAL_BRIDGE_ON:
       setting.default_val = DEFAULT_SERIAL_BRIDGE_ON;

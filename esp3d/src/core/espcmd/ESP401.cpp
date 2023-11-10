@@ -103,15 +103,6 @@ bool Commands::ESP401(const char* cmd_params,
                   }
                   break;
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
-                case ESP_SERIAL_BRIDGE_FLAG:
-                case ESP_SERIAL_FLAG:
-                case ESP_REMOTE_SCREEN_FLAG:
-                case ESP_WEBSOCKET_FLAG:
-                case ESP_TELNET_FLAG:
-                case ESP_SCREEN_FLAG:
-                case ESP_BT_FLAG:
-                  ESP3D_Message::isOutput(ESP_ALL_CLIENTS, true);
-                  break;
                 case ESP_VERBOSE_BOOT:
                   Settings_ESP3D::isVerboseBoot(true);
                   break;

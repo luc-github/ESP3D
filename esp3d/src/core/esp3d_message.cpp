@@ -52,32 +52,6 @@ uint8_t _current_output_client = ESP_SOCKET_SERIAL_CLIENT;
 #if defined(GCODE_HOST_FEATURE)
 #include "../modules/gcode_host/gcode_host.h"
 #endif  // GCODE_HOST_FEATURE
-
-#if COMMUNICATION_PROTOCOL == RAW_SERIAL || \
-    COMMUNICATION_PROTOCOL == MKS_SERIAL || \
-    COMMUNICATION_PROTOCOL == SOCKET_SERIAL
-
-uint8_t ESP3D_Message::_serialoutputflags = 0;
-#endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
-        // MKS_SERIAL || COMMUNICATION_PROTOCOL == SOCKET_SERIAL
-#if defined(HAS_DISPLAY) || defined(HAS_SERIAL_DISPLAY)
-uint8_t ESP3D_Message::_remotescreenoutputflags = 0;
-#endif  // HAS_DISPLAY || HAS_SERIAL_DISPLAY
-#if defined(WS_DATA_FEATURE)
-uint8_t ESP3D_Message::_websocketoutputflags = DEFAULT_WEBSOCKET_FLAG;
-#endif  // WS_DATA_FEATURE
-#if defined(TELNET_FEATURE)
-uint8_t ESP3D_Message::_telnetoutputflags = 0;
-#endif  // TELNET_FEATURE
-#if defined(DISPLAY_DEVICE)
-uint8_t ESP3D_Message::_screenoutputflags = DEFAULT_SCREEN_FLAG;
-#endif  // DISPLAY_DEVICE
-#if defined(BLUETOOTH_FEATURE)
-uint8_t ESP3D_Message::_BToutputflags = DEFAULT_BT_FLAG;
-#endif  // BLUETOOTH_FEATURE
-#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
-uint8_t ESP3D_Message::_serialBridgeoutputflags = DEFAULT_SERIAL_BRIDGE_FLAG;
-#endif  // ESP_SERIAL_BRIDGE_OUTPUT
 #if defined(HTTP_FEATURE)
 #include "../modules/http/http_server.h"
 #if defined(ARDUINO_ARCH_ESP32)
@@ -212,80 +186,6 @@ ESP3D_Message::ESP3D_Message(WEBSERVER *webserver, uint8_t target,
 // destructor
 ESP3D_Message::~ESP3D_Message() { flush(); }
 
-bool ESP3D_Message::isOutput(uint8_t flag, bool fromsettings) {
-  if (fromsettings) {
-#if COMMUNICATION_PROTOCOL == RAW_SERIAL || \
-    COMMUNICATION_PROTOCOL == MKS_SERIAL || \
-    COMMUNICATION_PROTOCOL == SOCKET_SERIAL
-    _serialoutputflags = Settings_ESP3D::read_byte(ESP_SERIAL_FLAG);
-#endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
-        // MKS_SERIAL
-#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
-    _serialBridgeoutputflags =
-        Settings_ESP3D::read_byte(ESP_SERIAL_BRIDGE_FLAG);
-#endif  // ESP_SERIAL_BRIDGE_OUTPUT
-#if defined(HAS_DISPLAY) || defined(HAS_SERIAL_DISPLAY)
-    _remotescreenoutputflags =
-        Settings_ESP3D::read_byte(ESP_REMOTE_SCREEN_FLAG);
-#endif  // defined(HAS_DISPLAY) || defined(HAS_SERIAL_DISPLAY)
-#if defined(WS_DATA_FEATURE)
-    _websocketoutputflags = Settings_ESP3D::read_byte(ESP_WEBSOCKET_FLAG);
-#endif  // WS_DATA_FEATURE
-#if defined(TELNET_FEATURE)
-    _telnetoutputflags = Settings_ESP3D::read_byte(ESP_TELNET_FLAG);
-#endif  // TELNET_FEATURE
-#if defined(DISPLAY_DEVICE)
-    _screenoutputflags = Settings_ESP3D::read_byte(ESP_SCREEN_FLAG);
-#endif  // DISPLAY_DEVICE
-#if defined(BLUETOOTH_FEATURE)
-    _BToutputflags = Settings_ESP3D::read_byte(ESP_BT_FLAG);
-#endif  // BLUETOOTH_FEATURE
-  }
-  switch (flag) {
-    case ESP_ECHO_SERIAL_CLIENT:
-    case ESP_SERIAL_CLIENT:
-#if COMMUNICATION_PROTOCOL == RAW_SERIAL || \
-    COMMUNICATION_PROTOCOL == MKS_SERIAL || \
-    COMMUNICATION_PROTOCOL == SOCKET_SERIAL
-      return _serialoutputflags;
-#endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
-        // MKS_SERIAL
-      return 0;
-    case ESP_SERIAL_BRIDGE_CLIENT:
-#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
-      return _serialBridgeoutputflags;
-#endif  // ESP_SERIAL_BRIDGE_OUTPUT
-      return 0;
-    case ESP_REMOTE_SCREEN_CLIENT:
-#if defined(HAS_DISPLAY) || defined(HAS_SERIAL_DISPLAY)
-      return _remotescreenoutputflags;
-#endif  // defined(HAS_DISPLAY) || defined(HAS_SERIAL_DISPLAY)
-      return 0;
-    case ESP_WEBSOCKET_CLIENT:
-#if defined(WS_DATA_FEATURE)
-      return _websocketoutputflags;
-#endif  // WS_DATA_FEATURE
-      return 0;
-    case ESP_TELNET_CLIENT:
-#if defined(TELNET_FEATURE)
-      return _telnetoutputflags;
-#endif  // TELNET_FEATURE
-      return 0;
-    case ESP_SCREEN_CLIENT:
-#if defined(DISPLAY_DEVICE)
-      return _screenoutputflags;
-#endif  // DISPLAY_DEVICE
-      return 0;
-    case ESP_BT_CLIENT:
-#if defined(BLUETOOTH_FEATURE)
-      return _BToutputflags;
-#endif  // BLUETOOTH_FEATURE
-      return 0;
-    default:
-      return true;
-  }
-}
-
 size_t ESP3D_Message::dispatch(const uint8_t *sbuf, size_t len,
                                uint8_t ignoreClient) {
   esp3d_log("Dispatch %d chars from client %d and ignore %d", len, _target,
@@ -299,15 +199,13 @@ size_t ESP3D_Message::dispatch(const uint8_t *sbuf, size_t len,
 #endif  // GCODE_HOST_FEATURE
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
   if (!(_target == ESP_SERIAL_CLIENT || ESP_SERIAL_CLIENT == ignoreClient)) {
-    if (isOutput(ESP_SERIAL_CLIENT)) {
 #if COMMUNICATION_PROTOCOL == MKS_SERIAL
-      esp3d_log("Dispatch  to gcode frame");
-      MKSService::sendGcodeFrame((const char *)sbuf);
+    esp3d_log("Dispatch  to gcode frame");
+    MKSService::sendGcodeFrame((const char *)sbuf);
 #else
-      esp3d_log("Dispatch  to serial service");
-      serial_service.write(sbuf, len);
+    esp3d_log("Dispatch  to serial service");
+    serial_service.write(sbuf, len);
 #endif  // COMMUNICATION_PROTOCOL == MKS_SERIAL
-    }
   }
 #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
         // MKS_SERIAL
@@ -338,7 +236,7 @@ size_t ESP3D_Message::dispatch(const uint8_t *sbuf, size_t len,
 #endif  // HTTP_FEATURE
 #if defined(BLUETOOTH_FEATURE)
   if (!(_target == ESP_BT_CLIENT || ESP_BT_CLIENT == ignoreClient)) {
-    if (isOutput(ESP_BT_CLIENT) && bt_service.started()) {
+    if (bt_service.started()) {
       esp3d_log("Dispatch to bt");
       bt_service.write(sbuf, len);
     }
@@ -347,7 +245,7 @@ size_t ESP3D_Message::dispatch(const uint8_t *sbuf, size_t len,
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
   if (!(_target == ESP_SERIAL_BRIDGE_CLIENT ||
         ESP_SERIAL_BRIDGE_CLIENT == ignoreClient)) {
-    if (isOutput(ESP_SERIAL_BRIDGE_CLIENT) && serial_bridge_service.started()) {
+    if (serial_bridge_service.started()) {
       esp3d_log("Dispatch to serial bridge");
       serial_bridge_service.write(sbuf, len);
     }
@@ -355,7 +253,7 @@ size_t ESP3D_Message::dispatch(const uint8_t *sbuf, size_t len,
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
 #if defined(TELNET_FEATURE)
   if (!(_target == ESP_TELNET_CLIENT || ESP_TELNET_CLIENT == ignoreClient)) {
-    if (isOutput(ESP_TELNET_CLIENT) && telnet_server.started()) {
+    if (telnet_server.started()) {
       esp3d_log("Dispatch  to telnet");
       telnet_server.write(sbuf, len);
     }
@@ -364,7 +262,7 @@ size_t ESP3D_Message::dispatch(const uint8_t *sbuf, size_t len,
 #if defined(WS_DATA_FEATURE)
   if (!(_target == ESP_WEBSOCKET_CLIENT ||
         ESP_WEBSOCKET_CLIENT == ignoreClient)) {
-    if (isOutput(ESP_WEBSOCKET_CLIENT) && websocket_data_server.started()) {
+    if (websocket_data_server.started()) {
       esp3d_log("Dispatch to websocket data server");
       websocket_data_server.write(sbuf, len);
     }
@@ -375,9 +273,6 @@ size_t ESP3D_Message::dispatch(const uint8_t *sbuf, size_t len,
 
 // Flush
 void ESP3D_Message::flush() {
-  if (!isOutput(_target)) {
-    return;
-  }
   switch (_target) {
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
     case ESP_SERIAL_CLIENT:
@@ -419,9 +314,6 @@ void ESP3D_Message::flush() {
 }
 
 size_t ESP3D_Message::printLN(const char *s) {
-  if (!isOutput(_target)) {
-    return 0;
-  }
   switch (_target) {
     case ESP_HTTP_CLIENT:
       if (strlen(s) > 0) {
@@ -456,9 +348,7 @@ size_t ESP3D_Message::printMSGLine(const char *s) {
     _target = ESP_ALL_CLIENTS;
     return strlen(s);
   }
-  if (!isOutput(_target)) {
-    return 0;
-  }
+
   String display;
   esp3d_log("PrintMSG to client %d", _target);
   if (_target == ESP_HTTP_CLIENT) {
@@ -535,9 +425,7 @@ size_t ESP3D_Message::printMSG(const char *s, bool withNL) {
     _target = ESP_ALL_CLIENTS;
     return strlen(s);
   }
-  if (!isOutput(_target)) {
-    return 0;
-  }
+
   String display;
   esp3d_log("PrintMSG to client %d", _target);
   if (_target == ESP_HTTP_CLIENT) {
@@ -611,9 +499,7 @@ size_t ESP3D_Message::printMSG(const char *s, bool withNL) {
 
 size_t ESP3D_Message::printERROR(const char *s, int code_error) {
   String display = "";
-  if (!isOutput(_target)) {
-    return 0;
-  }
+
   if (_target == ESP_SCREEN_CLIENT) {
     return print(s);
   }
@@ -701,9 +587,6 @@ int ESP3D_Message::availableforwrite() {
   return 0;
 }
 size_t ESP3D_Message::write(uint8_t c) {
-  if (!isOutput(_target)) {
-    return 0;
-  }
   switch (_target) {
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
     case ESP_SERIAL_CLIENT:
@@ -757,9 +640,6 @@ size_t ESP3D_Message::write(uint8_t c) {
 }
 
 size_t ESP3D_Message::write(const uint8_t *buffer, size_t size) {
-  if (!isOutput(_target)) {
-    return 0;
-  }
   switch (_target) {
 #ifdef HTTP_FEATURE
     case ESP_HTTP_CLIENT:

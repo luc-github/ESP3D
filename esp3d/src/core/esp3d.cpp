@@ -75,8 +75,6 @@ bool Esp3D::begin() {
 #if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
   Serial2Socket.enable();
 #endif  // COMMUNICATION_PROTOCOL == SOCKET_SERIAL
-  // init output
-  ESP3D_Message::isOutput(ESP_ALL_CLIENTS, true);
   bool res = true;
 #if defined(CONNECTED_DEVICES_FEATURE)
   if (!DevicesServices::begin()) {

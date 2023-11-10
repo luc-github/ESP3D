@@ -172,8 +172,6 @@ const char* help[] = {
 #ifdef BUZZER_DEVICE
     "[ESP910](ENABLE/DISABLE) - display/set buzzer state",
 #endif  // BUZZER_DEVICE
-    "[ESP920](client)=(ON/OFF) - display/set SERIAL / SCREEN / REMOTE_SCREEN / "
-    "WEBSOCKET / TELNET /BT / ALL client state if available",
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
     "[ESP930](ON/OFF/CLOSE) - display/set serial bridge state",
     "[ESP931]<BAUD RATE> - display/set serial bridge baud rate",
@@ -290,7 +288,6 @@ const uint cmdlist[] = {0,
                         910,
 
 #endif  // BUZZER_DEVICE
-                        920,
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
                         930, 935,
 #endif  // defined(ESP_SERIAL_BRIDGE_OUTPUT)

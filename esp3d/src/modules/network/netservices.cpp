@@ -21,7 +21,6 @@
 #include "netservices.h"
 
 #include "../../core/esp3d_commands.h"
-#include "../../core/esp3d_message.h"
 #include "../../core/esp3d_settings.h"
 #include "../../include/esp3d_config.h"
 #include "netconfig.h"
@@ -85,7 +84,6 @@ bool NetServices::begin() {
   bool res = true;
   _started = false;
   String hostname = Settings_ESP3D::read_string(ESP_HOSTNAME);
-  ESP3D_Message esp3dmsg(ESP_ALL_CLIENTS);
   end();
 #ifdef TIMESTAMP_FEATURE
   if (WiFi.getMode() != WIFI_AP) {
@@ -204,17 +202,16 @@ bool NetServices::begin() {
     // provided IP to all DNS request
     if (dnsServer.start(DNS_PORT, "*", WiFi.softAPIP())) {
       if (Settings_ESP3D::isVerboseBoot()) {
-        esp3dmsg.printMSG("Captive Portal started");
-        esp3d_commands.dispatch("Disconnected", ESP3DClientType::all_clients,
-                                no_id, ESP3DMessageType::unique,
-                                ESP3DClientType::system,
-                                ESP3DAuthenticationLevel::admin);
+        esp3d_commands.dispatch(
+            "Captive Portal started", ESP3DClientType::all_clients, no_id,
+            ESP3DMessageType::unique, ESP3DClientType::system,
+            ESP3DAuthenticationLevel::admin);
       }
     } else {
       esp3d_log_e("Failed start Captive Portal");
-      esp3d_commands.dispatch("Disconnected", ESP3DClientType::all_clients,
-                              no_id, ESP3DMessageType::unique,
-                              ESP3DClientType::system,
+      esp3d_commands.dispatch("Failed start Captive Portal",
+                              ESP3DClientType::all_clients, no_id,
+                              ESP3DMessageType::unique, ESP3DClientType::system,
                               ESP3DAuthenticationLevel::admin);
     }
   }
@@ -224,15 +221,15 @@ bool NetServices::begin() {
   if (!HTTP_Server::begin()) {
     res = false;
     esp3d_log_e("HTTP server failed");
-    esp3d_commands.dispatch("Disconnected", ESP3DClientType::all_clients, no_id,
-                            ESP3DMessageType::unique, ESP3DClientType::system,
+    esp3d_commands.dispatch("HTTP server failed", ESP3DClientType::all_clients,
+                            no_id, ESP3DMessageType::unique,
+                            ESP3DClientType::system,
                             ESP3DAuthenticationLevel::admin);
   } else {
     if (HTTP_Server::started()) {
       String stmp = "HTTP server started port " + String(HTTP_Server::port());
       if (Settings_ESP3D::isVerboseBoot()) {
-        esp3dmsg.printMSG(stmp.c_str());
-        esp3d_commands.dispatch("Disconnected", ESP3DClientType::all_clients,
+        esp3d_commands.dispatch(stmp.c_str(), ESP3DClientType::all_clients,
                                 no_id, ESP3DMessageType::unique,
                                 ESP3DClientType::system,
                                 ESP3DAuthenticationLevel::admin);
@@ -244,7 +241,8 @@ bool NetServices::begin() {
   if (!telnet_server.begin()) {
     res = false;
     esp3d_log_e("Telnet server failed");
-    esp3d_commands.dispatch("Disconnected", ESP3DClientType::all_clients, no_id,
+    esp3d_commands.dispatch("Telnet server failed",
+                            ESP3DClientType::all_clients, no_id,
                             ESP3DMessageType::unique, ESP3DClientType::system,
                             ESP3DAuthenticationLevel::admin);
   } else {
@@ -252,8 +250,7 @@ bool NetServices::begin() {
       String stmp =
           "Telnet server started port " + String(telnet_server.port());
       if (Settings_ESP3D::isVerboseBoot()) {
-        esp3dmsg.printMSG(stmp.c_str());
-        esp3d_commands.dispatch("Disconnected", ESP3DClientType::all_clients,
+        esp3d_commands.dispatch(stmp.c_str(), ESP3DClientType::all_clients,
                                 no_id, ESP3DMessageType::unique,
                                 ESP3DClientType::system,
                                 ESP3DAuthenticationLevel::admin);
@@ -265,8 +262,9 @@ bool NetServices::begin() {
   if (!ftp_server.begin()) {
     res = false;
     esp3d_log_e("Ftp server failed");
-    esp3d_commands.dispatch("Disconnected", ESP3DClientType::all_clients, no_id,
-                            ESP3DMessageType::unique, ESP3DClientType::system,
+    esp3d_commands.dispatch("Ftp server failed", ESP3DClientType::all_clients,
+                            no_id, ESP3DMessageType::unique,
+                            ESP3DClientType::system,
                             ESP3DAuthenticationLevel::admin);
   } else {
     if (ftp_server.started()) {
@@ -275,8 +273,7 @@ bool NetServices::begin() {
           String(ftp_server.dataactiveport()) + "," +
           String(ftp_server.datapassiveport());
       if (Settings_ESP3D::isVerboseBoot()) {
-        esp3dmsg.printMSG(stmp.c_str());
-        esp3d_commands.dispatch("Disconnected", ESP3DClientType::all_clients,
+        esp3d_commands.dispatch(tmp.c_str(), ESP3DClientType::all_clients,
                                 no_id, ESP3DMessageType::unique,
                                 ESP3DClientType::system,
                                 ESP3DAuthenticationLevel::admin);
@@ -287,8 +284,9 @@ bool NetServices::begin() {
 #ifdef WS_DATA_FEATURE
   if (!websocket_data_server.begin(
           Settings_ESP3D::read_uint32(ESP_WEBSOCKET_PORT))) {
-    esp3dmsg.printMSG("Failed start Terminal Web Socket");
-    esp3d_commands.dispatch("Disconnected", ESP3DClientType::all_clients, no_id,
+    esp3d_log_e("Failed start Terminal Web Socket");
+    esp3d_commands.dispatch("Failed start Terminal Web Socket",
+                            ESP3DClientType::all_clients, no_id,
                             ESP3DMessageType::unique, ESP3DClientType::system,
                             ESP3DAuthenticationLevel::admin);
   } else {
@@ -296,8 +294,7 @@ bool NetServices::begin() {
       String stmp = "Websocket server started port " +
                     String(websocket_data_server.port());
       if (Settings_ESP3D::isVerboseBoot()) {
-        esp3dmsg.printMSG(stmp.c_str());
-        esp3d_commands.dispatch("Disconnected", ESP3DClientType::all_clients,
+        esp3d_commands.dispatch(stmp.c_str(), ESP3DClientType::all_clients,
                                 no_id, ESP3DMessageType::unique,
                                 ESP3DClientType::system,
                                 ESP3DAuthenticationLevel::admin);
@@ -307,8 +304,9 @@ bool NetServices::begin() {
 #endif  // WS_DATA_FEATURE
 #ifdef WEBDAV_FEATURE
   if (!webdav_server.begin()) {
-    esp3dmsg.printMSG("Failed start Terminal Web Socket");
-    esp3d_commands.dispatch("Disconnected", ESP3DClientType::all_clients, no_id,
+    esp3d_log("Failed start Terminal Web Socket");
+    esp3d_commands.dispatch("Failed start Terminal Web Socket",
+                            ESP3DClientType::all_clients, no_id,
                             ESP3DMessageType::unique, ESP3DClientType::system,
                             ESP3DAuthenticationLevel::admin);
   } else {
@@ -316,8 +314,7 @@ bool NetServices::begin() {
       String stmp =
           "WebDav server started port " + String(webdav_server.port());
       if (Settings_ESP3D::isVerboseBoot()) {
-        esp3dmsg.printMSG(stmp.c_str());
-        esp3d_commands.dispatch("Disconnected", ESP3DClientType::all_clients,
+        esp3d_commands.dispatch(stmp.c_str(), ESP3DClientType::all_clients,
                                 no_id, ESP3DMessageType::unique,
                                 ESP3DClientType::system,
                                 ESP3DAuthenticationLevel::admin);
@@ -327,8 +324,9 @@ bool NetServices::begin() {
 #endif  // WEBDAV_FEATURE
 #if defined(HTTP_FEATURE)
   if (!websocket_terminal_server.begin()) {
-    esp3dmsg.printMSG("Failed start Terminal Web Socket");
-    esp3d_commands.dispatch("Disconnected", ESP3DClientType::all_clients, no_id,
+    esp3d_log_e("Failed start Terminal Web Socket");
+    esp3d_commands.dispatch("Failed start Terminal Web Socket",
+                            ESP3DClientType::all_clients, no_id,
                             ESP3DMessageType::unique, ESP3DClientType::system,
                             ESP3DAuthenticationLevel::admin);
   }
@@ -360,10 +358,8 @@ bool NetServices::begin() {
     SSDP.begin();
     stmp = "SSDP started with '" + hostname + "'";
     if (Settings_ESP3D::isVerboseBoot()) {
-      esp3dmsg.printMSG(stmp.c_str());
-      esp3d_commands.dispatch("Disconnected", ESP3DClientType::all_clients,
-                              no_id, ESP3DMessageType::unique,
-                              ESP3DClientType::system,
+      esp3d_commands.dispatch(stmp.c_str(), ESP3DClientType::all_clients, no_id,
+                              ESP3DMessageType::unique, ESP3DClientType::system,
                               ESP3DAuthenticationLevel::admin);
     }
   }
@@ -374,8 +370,9 @@ bool NetServices::begin() {
 #endif  // NOTIFICATION_FEATURE
 #ifdef CAMERA_DEVICE
   if (!esp3d_camera.begin()) {
-    esp3dmsg.printMSG("Failed start camera streaming server");
-    esp3d_commands.dispatch("Disconnected", ESP3DClientType::all_clients, no_id,
+    esp3d_log_e("Failed start camera streaming server");
+    esp3d_commands.dispatch("Failed start camera streaming server",
+                            ESP3DClientType::all_clients, no_id,
                             ESP3DMessageType::unique, ESP3DClientType::system,
                             ESP3DAuthenticationLevel::admin);
   }
@@ -388,8 +385,8 @@ bool NetServices::begin() {
   }
   Hal::wait(1000);
 #if COMMUNICATION_PROTOCOL != MKS_SERIAL
-  esp3dmsg.printMSG(NetConfig::localIP().c_str());
-  esp3d_commands.dispatch("Disconnected", ESP3DClientType::all_clients, no_id,
+  esp3d_commands.dispatch(NetConfig::localIP().c_str(),
+                          ESP3DClientType::all_clients, no_id,
                           ESP3DMessageType::unique, ESP3DClientType::system,
                           ESP3DAuthenticationLevel::admin);
 #endif  // #if COMMUNICATION_PROTOCOL == MKS_SERIAL

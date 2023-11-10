@@ -59,7 +59,7 @@ typedef uint ESP3DSettingIndex;
 #define ESP_INTERNET_TIME 120      // 1  byte = flag
 #define ESP_HTTP_PORT 121          // 4  bytes = int
 #define ESP_TELNET_PORT 125        // 4  bytes = int
-#define ESP_SERIAL_FLAG 129        // 1  bytes = flag
+// #define  129        // 1  bytes = flag
 #define ESP_HOSTNAME \
   130  // 33 bytes 32+1 = string  ; warning does not support multibyte char like
        // chinese
@@ -93,7 +93,7 @@ typedef uint ESP3DSettingIndex;
 #define ESP_SENSOR_TYPE 460  // 1  bytes = flag
 #define ESP_TARGET_FW 461    // 1  bytes = flag
 #define ESP_FREE 462         // 1  bytes = flag
-#define ESP_TIME_IS_DST 463  // 1  bytes = flag
+// #define  463  // 1  bytes = flag
 #define ESP_TIME_SERVER1 \
   464  // 129 bytes 128+1 = string  ; warning does not support multibyte char
        // like chinese
@@ -103,23 +103,23 @@ typedef uint ESP3DSettingIndex;
 #define ESP_TIME_SERVER3 \
   722  // 129 bytes 128+1 = string  ; warning does not support multibyte char
        // like chinese
-#define ESP_REMOTE_SCREEN_FLAG 851       // 1  bytes = flag
-#define ESP_SD_MOUNT 852                 // 1  bytes = flag
-#define ESP_SESSION_TIMEOUT 853          // 1  bytes = flag
-#define ESP_WEBSOCKET_FLAG 854           // 1  bytes = flag
+// #define  851  // 1  bytes = flag
+#define ESP_SD_MOUNT 852         // 1  bytes = flag
+#define ESP_SESSION_TIMEOUT 853  // 1  bytes = flag
+// #define  854           // 1  bytes = flag
 #define ESP_SD_CHECK_UPDATE_AT_BOOT 855  // 1  bytes = flag
 #define ESP_NOTIFICATION_SETTINGS \
   856  // 129 bytes 128+1 = string  ; warning does not support multibyte char
        // like chinese
-#define ESP_CALIBRATION_1 985           // 4  bytes = int
-#define ESP_CALIBRATION_2 989           // 4  bytes = int
-#define ESP_CALIBRATION_3 993           // 4  bytes = int
-#define ESP_CALIBRATION_4 997           // 4  bytes = int
-#define ESP_CALIBRATION_5 1001          // 4  bytes = int
-#define ESP_SETUP 1005                  // 1 byte = flag
-#define ESP_TELNET_FLAG 1006            // 1 byte = flag
-#define ESP_BT_FLAG 1007                // 1 byte = flag
-#define ESP_SCREEN_FLAG 1008            // 1 byte = flag
+#define ESP_CALIBRATION_1 985   // 4  bytes = int
+#define ESP_CALIBRATION_2 989   // 4  bytes = int
+#define ESP_CALIBRATION_3 993   // 4  bytes = int
+#define ESP_CALIBRATION_4 997   // 4  bytes = int
+#define ESP_CALIBRATION_5 1001  // 4  bytes = int
+#define ESP_SETUP 1005          // 1 byte = flag
+// #define  1006            // 1 byte = flag
+// #define  1007                // 1 byte = flag
+// #define  1008            // 1 byte = flag
 #define ESP_FTP_CTRL_PORT 1009          // 4  bytes = int
 #define ESP_FTP_DATA_ACTIVE_PORT 1013   // 4  bytes = int
 #define ESP_FTP_DATA_PASSIVE_PORT 1017  // 4  bytes = int
@@ -133,9 +133,9 @@ typedef uint ESP3DSettingIndex;
 #define ESP_BOOT_RADIO_STATE 1034       // 1 byte = flag
 #define ESP_STA_FALLBACK_MODE 1035      // 1 byte = flag
 #define ESP_SERIAL_BRIDGE_ON 1036       // 1 byte = flag
-#define ESP_SERIAL_BRIDGE_FLAG 1037     // 1 byte = flag
-#define ESP_SERIAL_BRIDGE_BAUD 1038     // 4  bytes= int
-#define ESP_TIME_ZONE 1042              // 7 bytes 6+1 = string
+// #define  1037     // 1 byte = flag
+#define ESP_SERIAL_BRIDGE_BAUD 1038  // 4  bytes= int
+#define ESP_TIME_ZONE 1042           // 7 bytes 6+1 = string
 
 // Hidden password
 #define HIDDEN_PASSWORD "********"

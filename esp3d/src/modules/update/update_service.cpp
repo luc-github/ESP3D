@@ -91,45 +91,26 @@ const char* SysintKeysVal[] = {"Baud_rate", "Boot_delay"};
 
 const uint16_t SysintKeysPos[] = {ESP_BAUD_RATE, ESP_BOOT_DELAY};
 
-const char* ServboolKeysVal[] = {"Serial_Bridge_active",
-                                 "AUTONOTIFICATION",
-                                 "HTTP_active",
-                                 "TELNET_active",
-                                 "WebSocket_active",
-                                 "WebDav_active",
-                                 "Time_DST",
-                                 "CHECK_FOR_UPDATE",
-                                 "Active_buzzer",
-                                 "Active_Internet_time",
-                                 "Radio_enabled"};
+const char* ServboolKeysVal[] = {"Serial_Bridge_active", "AUTONOTIFICATION",
+                                 "HTTP_active",          "TELNET_active",
+                                 "WebSocket_active",     "WebDav_active",
+                                 "CHECK_FOR_UPDATE",     "Active_buzzer",
+                                 "Active_Internet_time", "Radio_enabled"};
 
-const uint16_t ServboolKeysPos[] = {
-    ESP_SERIAL_BRIDGE_ON, ESP_AUTO_NOTIFICATION,
-    ESP_HTTP_ON,          ESP_TELNET_ON,
-    ESP_WEBSOCKET_ON,     ESP_WEBDAV_ON,
-    ESP_TIME_IS_DST,      ESP_SD_CHECK_UPDATE_AT_BOOT,
-    ESP_BUZZER,           ESP_INTERNET_TIME,
-    ESP_BOOT_RADIO_STATE};
+const uint16_t ServboolKeysPos[] = {ESP_SERIAL_BRIDGE_ON,
+                                    ESP_AUTO_NOTIFICATION,
+                                    ESP_HTTP_ON,
+                                    ESP_TELNET_ON,
+                                    ESP_WEBSOCKET_ON,
+                                    ESP_WEBDAV_ON,
+                                    ESP_SD_CHECK_UPDATE_AT_BOOT,
+                                    ESP_BUZZER,
+                                    ESP_INTERNET_TIME,
+                                    ESP_BOOT_RADIO_STATE};
 
-const char* SysboolKeysVal[] = {"Active_Serial_Bridge",
-                                "Active_Remote_Screen",
-                                "Active_ESP3D_Screen",
-                                "Active_Serial ",
-                                "Active_WebSocket",
-                                "Active_Telnet",
-                                "Active_BT",
-                                "Boot_verbose",
-                                "Secure_serial"};
+const char* SysboolKeysVal[] = {"Boot_verbose", "Secure_serial"};
 
-const uint16_t SysboolKeysPos[] = {ESP_SERIAL_BRIDGE_FLAG,
-                                   ESP_REMOTE_SCREEN_FLAG,
-                                   ESP_SCREEN_FLAG,
-                                   ESP_SERIAL_FLAG,
-                                   ESP_WEBSOCKET_FLAG,
-                                   ESP_TELNET_FLAG,
-                                   ESP_BT_FLAG,
-                                   ESP_VERBOSE_BOOT,
-                                   ESP_SECURE_SERIAL};
+const uint16_t SysboolKeysPos[] = {ESP_VERBOSE_BOOT, ESP_SECURE_SERIAL};
 
 const char* NetbyteKeysVal[] = {"AP_channel"};
 

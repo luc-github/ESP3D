@@ -110,7 +110,6 @@ class ESP3D_Message : public Print {
   size_t printLN(const char *s);
   void flush();
   int availableforwrite();
-  static bool isOutput(uint8_t flag, bool fromsettings = false);
   static void toScreen(uint8_t output_type, const char *s);
   static const char *encodeString(const char *s);
   static uint8_t getCurrentOutputClient() { return _current_output_client; }
@@ -130,29 +129,6 @@ class ESP3D_Message : public Print {
   bool _footerSent;
   WEBSERVER *_webserver;
 #endif  // HTTP_FEATURE
-#if COMMUNICATION_PROTOCOL == RAW_SERIAL || \
-    COMMUNICATION_PROTOCOL == MKS_SERIAL || \
-    COMMUNICATION_PROTOCOL == SOCKET_SERIAL
-  static uint8_t _serialoutputflags;
-#endif  // COMMUNICATION_PROTOCOL
-#if defined(HAS_DISPLAY) || defined(HAS_SERIAL_DISPLAY)
-  static uint8_t _remotescreenoutputflags;
-#endif  // HAS_DISPLAY || HAS_SERIAL_DISPLAY
-#if defined(WS_DATA_FEATURE)
-  static uint8_t _websocketoutputflags;
-#endif  // WS_DATA_FEATURE
-#if defined(TELNET_FEATURE)
-  static uint8_t _telnetoutputflags;
-#endif  // TELNET_FEATURE
-#if defined(DISPLAY_DEVICE)
-  static uint8_t _screenoutputflags;
-#endif  // DISPLAY_DEVICE
-#if defined(BLUETOOTH_FEATURE)
-  static uint8_t _BToutputflags;
-#endif  // BLUETOOTH_FEATURE
-#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
-  static uint8_t _serialBridgeoutputflags;
-#endif  // ESP_SERIAL_BRIDGE_OUTPUT
 };
 
 #endif  //_ESP3DOUTPUT_H
