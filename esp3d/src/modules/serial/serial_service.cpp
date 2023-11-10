@@ -22,7 +22,6 @@
 #if COMMUNICATION_PROTOCOL == MKS_SERIAL || \
     COMMUNICATION_PROTOCOL == RAW_SERIAL || defined(ESP_SERIAL_BRIDGE_OUTPUT)
 #include "../../core/esp3d_commands.h"
-#include "../../core/esp3d_message.h"
 #include "../../core/esp3d_settings.h"
 #include "serial_service.h"
 
@@ -104,7 +103,7 @@ SerialService::~SerialService() { end(); }
 void ESP3DSerialTaskfn(void *parameter) {
   for (;;) {
     serial_service.process();
-    Hal::wait(SERIAL_YIELD);  // Yield to other tasks
+    ESP3DHal::wait(SERIAL_YIELD);  // Yield to other tasks
   }
   vTaskDelete(NULL);
 }
@@ -114,7 +113,7 @@ void ESP3DSerialTaskfn(void *parameter) {
 void SerialService::setParameters() {
 #if defined(AUTHENTICATION_FEATURE)
   _needauthentication =
-      (Settings_ESP3D::read_byte(ESP_SECURE_SERIAL) == 0) ? false : true;
+      (ESP3DSettings::read_byte(ESP_SECURE_SERIAL) == 0) ? false : true;
 #else
   _needauthentication = false;
 #endif  // AUTHENTICATION_FEATURE
@@ -125,7 +124,7 @@ bool SerialService::begin(uint8_t serialIndex) {
   _serialIndex = serialIndex - 1;
   esp3d_log("Serial %d begin for %d", _serialIndex, _id);
   if (_id == BRIDGE_SERIAL &&
-      Settings_ESP3D::read_byte(ESP_SERIAL_BRIDGE_ON) == 0) {
+      ESP3DSettings::read_byte(ESP_SERIAL_BRIDGE_ON) == 0) {
     esp3d_log("Serial %d for %d is disabled", _serialIndex, _id);
     return true;
   }
@@ -140,14 +139,14 @@ bool SerialService::begin(uint8_t serialIndex) {
   long defaultBr = 0;
   switch (_id) {
     case MAIN_SERIAL:
-      br = Settings_ESP3D::read_uint32(ESP_BAUD_RATE);
-      defaultBr = Settings_ESP3D::getDefaultIntegerSetting(ESP_BAUD_RATE);
+      br = ESP3DSettings::read_uint32(ESP_BAUD_RATE);
+      defaultBr = ESP3DSettings::getDefaultIntegerSetting(ESP_BAUD_RATE);
       break;
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
     case BRIDGE_SERIAL:
-      br = Settings_ESP3D::read_uint32(ESP_SERIAL_BRIDGE_BAUD);
+      br = ESP3DSettings::read_uint32(ESP_SERIAL_BRIDGE_BAUD);
       defaultBr =
-          Settings_ESP3D::getDefaultIntegerSetting(ESP_SERIAL_BRIDGE_BAUD);
+          ESP3DSettings::getDefaultIntegerSetting(ESP_SERIAL_BRIDGE_BAUD);
       break;
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
     default:
@@ -160,7 +159,7 @@ bool SerialService::begin(uint8_t serialIndex) {
   _buffer_size = 0;
   // change only if different from current
   if (br != baudRate() || (_rxPin != -1) || (_txPin != -1)) {
-    if (!Settings_ESP3D::isValidIntegerSetting(br, ESP_BAUD_RATE)) {
+    if (!ESP3DSettings::isValidIntegerSetting(br, ESP_BAUD_RATE)) {
       br = defaultBr;
     }
     Serials[_serialIndex]->setRxBufferSize(SERIAL_RX_BUFFER_SIZE);
@@ -409,17 +408,17 @@ bool SerialService::reset() {
   bool res = false;
   switch (_id) {
     case MAIN_SERIAL:
-      return Settings_ESP3D::write_uint32(
+      return ESP3DSettings::write_uint32(
           ESP_BAUD_RATE,
-          Settings_ESP3D::getDefaultIntegerSetting(ESP_BAUD_RATE));
+          ESP3DSettings::getDefaultIntegerSetting(ESP_BAUD_RATE));
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
     case BRIDGE_SERIAL:
-      res = Settings_ESP3D::write_byte(
+      res = ESP3DSettings::write_byte(
           ESP_SERIAL_BRIDGE_ON,
-          Settings_ESP3D::getDefaultByteSetting(ESP_SERIAL_BRIDGE_ON));
-      return res && Settings_ESP3D::write_uint32(
+          ESP3DSettings::getDefaultByteSetting(ESP_SERIAL_BRIDGE_ON));
+      return res && ESP3DSettings::write_uint32(
                         ESP_SERIAL_BRIDGE_BAUD,
-                        Settings_ESP3D::getDefaultIntegerSetting(
+                        ESP3DSettings::getDefaultIntegerSetting(
                             ESP_SERIAL_BRIDGE_BAUD));
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
     default:
@@ -480,7 +479,7 @@ size_t SerialService::write(const uint8_t *buffer, size_t size) {
         sizesent += available;
         starttime = millis();
       } else {
-        Hal::wait(5);
+        ESP3DHal::wait(5);
       }
     }
     return sizesent;
