@@ -111,7 +111,7 @@ bool ESP3DCommands::ESP401(const char* cmd_params,
                   break;
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
                 case ESP_SECURE_SERIAL:
-                  serial_service.setParameters();
+                  esp3d_serial_service.setParameters();
                   break;
 #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
         // MKS_SERIAL
@@ -177,7 +177,7 @@ bool ESP3DCommands::ESP401(const char* cmd_params,
 #endif  // SENSOR_DEVICE
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
                 case ESP_BAUD_RATE:
-                  serial_service.updateBaudRate(sval.toInt());
+                  esp3d_serial_service.updateBaudRate(sval.toInt());
                   break;
 #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
         // MKS_SERIAL

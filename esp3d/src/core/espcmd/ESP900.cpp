@@ -52,16 +52,16 @@ bool ESP3DCommands::ESP900(const char* cmd_params,
     // get
     String r;
     if (parameter.length() == 0) {
-      if (serial_service.started()) {
+      if (esp3d_serial_service.started()) {
         r = "ENABLED";
       } else {
         r = "DISABLED";
       }
-      r += " - Serial" + String(serial_service.serialIndex());
+      r += " - Serial" + String(esp3d_serial_service.serialIndex());
       response = format_response(COMMANDID, json, true, r.c_str());
     } else {  // set
       if (parameter == "ENABLE") {
-        if (serial_service.begin(ESP_SERIAL_OUTPUT)) {
+        if (esp3d_serial_service.begin(ESP_SERIAL_OUTPUT)) {
           response = format_response(COMMANDID, json, true, "ok");
         } else {
           response = format_response(COMMANDID, json, false,
@@ -70,7 +70,7 @@ bool ESP3DCommands::ESP900(const char* cmd_params,
         }
       } else if (parameter == "DISABLE") {
         response = format_response(COMMANDID, json, true, "ok");
-        serial_service.end();
+        esp3d_serial_service.end();
       } else {
         response = format_response(COMMANDID, json, false, "Incorrect command");
         noError = false;

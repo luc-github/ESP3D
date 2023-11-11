@@ -309,7 +309,7 @@ bool ESP3DCommands::ESP420(const char* cmd_params,
       } else {
         line += ": ";
       }
-      line += serial_service.baudRate();
+      line += esp3d_serial_service.baudRate();
       if (json) {
         line += "\"}";
         esp3dmsg->print(line.c_str());
@@ -1337,7 +1337,7 @@ bool ESP3DCommands::ESP420(const char* cmd_params,
       } else {
         line += ": ";
       }
-      line += serial_service.started() ? "ON" : "OFF";
+      line += esp3d_serial_service.started() ? "ON" : "OFF";
       if (json) {
         line += "\"}";
         esp3dmsg->print(line.c_str());

@@ -148,3 +148,19 @@ const char* esp3d_string::getContentType(const char* filename) {
   }
   return "application/octet-stream";
 }
+
+// tool function to avoid string corrupt JSON files
+const char* esp3d_string::encodeString(const char* s) {
+  static String tmp;
+  tmp = s;
+  while (tmp.indexOf("'") != -1) {
+    tmp.replace("'", "&#39;");
+  }
+  while (tmp.indexOf("\"") != -1) {
+    tmp.replace("\"", "&#34;");
+  }
+  if (tmp == "") {
+    tmp = " ";
+  }
+  return tmp.c_str();
+}

@@ -25,6 +25,7 @@ namespace esp3d_string {
 const char* getTimeString(time_t time, bool isGMT);
 const char* generateUUID(const char* seed);
 const char* getContentType(const char* filename);
+const char* encodeString(const char* s);
 }  // namespace esp3d_string
 
 #endif  //_ESP3D_STRING_H

@@ -101,7 +101,7 @@ bool Esp3D::begin() {
   // BT do not start automaticaly so should be OK
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
   // Serial service
-  if (!serial_service.begin(ESP_SERIAL_OUTPUT)) {
+  if (!esp3d_serial_service.begin(ESP_SERIAL_OUTPUT)) {
     esp3d_log_e("Error with serial service");
     res = false;
   }
@@ -157,7 +157,7 @@ void Esp3D::handle() {
     restart_now();
   }
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
-  serial_service.handle();
+  esp3d_serial_service.handle();
 #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
         // MKS_SERIAL
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
@@ -195,7 +195,7 @@ bool Esp3D::end() {
   ESP_FileSystem::end();
 #endif  // FILESYSTEM_FEATURE
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
-  serial_service.end();
+  esp3d_serial_service.end();
 #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
         // MKS_SERIAL
   return true;
@@ -205,7 +205,7 @@ bool Esp3D::end() {
 bool Esp3D::reset() {
   bool resetOk = true;
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
-  if (!serial_service.reset()) {
+  if (!esp3d_serial_service.reset()) {
     resetOk = false;
     esp3d_log_e("Reset serial error");
   }
@@ -235,17 +235,17 @@ void Esp3D::restart_now() {
 #endif  // ESP3D_ETH_PHY_POWER_PIN
   esp3d_log("Restarting");
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
-  if (!serial_service.started()) {
-    serial_service.begin(ESP_SERIAL_OUTPUT);
+  if (!esp3d_serial_service.started()) {
+    esp3d_serial_service.begin(ESP_SERIAL_OUTPUT);
   }
-  serial_service.flush();
+  esp3d_serial_service.flush();
 #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
         // MKS_SERIAL
 #if defined(FILESYSTEM_FEATURE)
   ESP_FileSystem::end();
 #endif  // FILESYSTEM_FEATURE
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
-  serial_service.swap();
+  esp3d_serial_service.swap();
 #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
         // MKS_SERIAL
   ESP.restart();

@@ -315,7 +315,7 @@ size_t ESP3D_Message::dispatch(const uint8_t* sbuf, size_t len,
     MKSService::sendGcodeFrame((const char*)sbuf);
 #else
     esp3d_log("Dispatch  to serial service");
-    serial_service.write(sbuf, len);
+    esp3d_serial_service.writeBytes(sbuf, len);
 #endif  // COMMUNICATION_PROTOCOL == MKS_SERIAL
   }
 #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
@@ -387,7 +387,7 @@ void ESP3D_Message::flush() {
   switch (_target) {
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
     case ESP_SERIAL_CLIENT:
-      serial_service.flush();
+      esp3d_serial_service.flush();
       break;
 #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
         // MKS_SERIAL
@@ -665,7 +665,8 @@ int ESP3D_Message::availableforwrite() {
   switch (_target) {
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
     case ESP_SERIAL_CLIENT:
-      return serial_service.availableForWrite();
+      return true;
+      // return esp3d_serial_service.availableForWrite();
 #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
         // MKS_SERIAL
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
@@ -689,7 +690,8 @@ int ESP3D_Message::availableforwrite() {
 #endif  // WS_DATA_FEATURE
     case ESP_ALL_CLIENTS:
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
-      return serial_service.availableForWrite();
+      return true;
+      // return esp3d_serial_service.availableForWrite();
 #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
         // MKS_SERIAL
     default:
@@ -697,11 +699,12 @@ int ESP3D_Message::availableforwrite() {
   }
   return 0;
 }
+/*
 size_t ESP3D_Message::write(uint8_t c) {
   switch (_target) {
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
     case ESP_SERIAL_CLIENT:
-      return serial_service.write(c);
+      return esp3d_serial_service.write(c);
 #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
         // MKS_SERIAL
 #if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
@@ -738,7 +741,7 @@ size_t ESP3D_Message::write(uint8_t c) {
       telnet_server.write(c);
 #endif  // TELNET_FEATURE
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
-      serial_service.write(c);
+      esp3d_serial_service.write(c);
 #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
         // MKS_SERIAL
 #if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
@@ -748,7 +751,7 @@ size_t ESP3D_Message::write(uint8_t c) {
     default:
       return 0;
   }
-}
+}*/
 
 size_t ESP3D_Message::write(const uint8_t* buffer, size_t size) {
   switch (_target) {
@@ -811,7 +814,7 @@ size_t ESP3D_Message::write(const uint8_t* buffer, size_t size) {
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
     case ESP_REMOTE_SCREEN_CLIENT:
     case ESP_SERIAL_CLIENT:
-      return serial_service.write(buffer, size);
+      return esp3d_serial_service.writeBytes(buffer, size);
       break;
 #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
         // MKS_SERIAL
@@ -838,7 +841,7 @@ size_t ESP3D_Message::write(const uint8_t* buffer, size_t size) {
       telnet_server.write(buffer, size);
 #endif  // TELNET_FEATURE
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
-      serial_service.write(buffer, size);
+      esp3d_serial_service.writeBytes(buffer, size);
 #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
         // MKS_SERIAL
 #if COMMUNICATION_PROTOCOL == SOCKET_SERIAL

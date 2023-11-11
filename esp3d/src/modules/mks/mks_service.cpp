@@ -132,12 +132,12 @@ void MKSService::commandMode(bool fromSettings) {
   }
   esp3d_log("Cmd Mode");
   _uploadMode = false;
-  serial_service.updateBaudRate(_commandBaudRate);
+  esp3d_serial_service.updateBaudRate(_commandBaudRate);
 }
 void MKSService::uploadMode() {
   esp3d_log("Upload Mode");
   _uploadMode = true;
-  serial_service.updateBaudRate(UPLOAD_BAUD_RATE);
+  esp3d_serial_service.updateBaudRate(UPLOAD_BAUD_RATE);
 }
 
 uint MKSService::getFragmentID(uint32_t fragmentNumber, bool isLast) {

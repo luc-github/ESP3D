@@ -82,6 +82,7 @@ struct ESP3DMessage {
 };
 
 class ESP3DMessageManager final {
+ public:
   static ESP3DMessage *newMsg();
   static ESP3DMessage *newMsg(ESP3DRequest requestId);
   static bool deleteMessage(ESP3DMessage *message);
@@ -105,14 +106,13 @@ class ESP3D_Message : public Print {
                 uint8_t origin = 0);
 #endif  // HTTP_FEATURE
   ~ESP3D_Message();
-  size_t write(uint8_t c);
+  // size_t write(uint8_t c);
   size_t write(const uint8_t *buffer, size_t size);
-
   inline size_t write(const char *s) { return write((uint8_t *)s, strlen(s)); }
-  inline size_t write(unsigned long n) { return write((uint8_t)n); }
-  inline size_t write(long n) { return write((uint8_t)n); }
-  inline size_t write(unsigned int n) { return write((uint8_t)n); }
-  inline size_t write(int n) { return write((uint8_t)n); }
+  // inline size_t write(unsigned long n) { return write((uint8_t)n); }
+  // inline size_t write(long n) { return write((uint8_t)n); }
+  // inline size_t write(unsigned int n) { return write((uint8_t)n); }
+  // inline size_t write(int n) { return write((uint8_t)n); }
   uint8_t target(uint8_t target);
   uint8_t origin(uint8_t origin);
   uint8_t getTarget() { return _target; }

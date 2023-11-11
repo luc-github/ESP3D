@@ -973,6 +973,8 @@ bool ESP3DCommands::_dispatchSetting(
   return true;
 }
 
+void ESP3DCommands::process(ESP3DMessage *msg) {}
+
 bool ESP3DCommands::dispatch(const char *sbuf, ESP3DClientType target,
                              ESP3DRequest requestId, ESP3DMessageType type,
                              ESP3DClientType origin,
@@ -980,10 +982,34 @@ bool ESP3DCommands::dispatch(const char *sbuf, ESP3DClientType target,
   return true;
 }
 
-void ESP3DCommands::process(ESP3DMessage *msg) {}
-
 ESP3DClientType ESP3DCommands::getOutputClient(bool fromSettings) {
   // TODO: add setting for it when necessary
   (void)fromSettings;
   return _output_client;
+}
+
+bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
+  bool sendOk = true;
+  esp3d_log("Dispatch message origin %d to client %d , size: %d,  type: %d",
+            static_cast<uint8_t>(msg->origin),
+            static_cast<uint8_t>(msg->target), msg->size,
+            static_cast<uint8_t>(msg->type));
+  if (!msg) {
+    esp3d_log_e("no msg");
+    return false;
+  }
+  // currently only echo back no test done on success
+  // TODO check add is successful
+  switch (msg->target) {
+    default:
+      esp3d_log_e("No valid target specified %d",
+                  static_cast<uint8_t>(msg->target));
+      sendOk = false;
+  }
+  // clear message
+  if (!sendOk) {
+    esp3d_log("Send msg failed");
+    ESP3DMessageManager::deleteMessage(msg);
+  }
+  return sendOk;
 }

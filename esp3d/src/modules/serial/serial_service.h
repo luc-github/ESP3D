@@ -21,17 +21,18 @@
 #ifndef _SERIAL_SERVICES_H
 #define _SERIAL_SERVICES_H
 
-#include "Print.h"
+#include "../../core/esp3d_message.h"
+#include "../../core/esp3d_client_types.h"
 
 #define ESP3D_SERIAL_BUFFER_SIZE 1024
 
 extern const long SupportedBaudList[];
 extern const size_t SupportedBaudListSize;
 
-class SerialService : public Print {
+class ESP3DSerialService final {
  public:
-  SerialService(uint8_t id);
-  ~SerialService();
+  ESP3DSerialService(uint8_t id);
+  ~ESP3DSerialService();
   void setParameters();
   bool begin(uint8_t serialIndex);
   bool end();
@@ -44,22 +45,14 @@ class SerialService : public Print {
   const long *get_baudratelist(uint8_t *count);
   void flush();
   void swap();
-  int availableForWrite();
-  int available();
-  size_t write(uint8_t c);
-  size_t write(const uint8_t *buffer, size_t size);
-  inline size_t write(const char *s) { return write((uint8_t *)s, strlen(s)); }
-  inline size_t write(unsigned long n) { return write((uint8_t)n); }
-  inline size_t write(long n) { return write((uint8_t)n); }
-  inline size_t write(unsigned int n) { return write((uint8_t)n); }
-  inline size_t write(int n) { return write((uint8_t)n); }
-  int read();
+  size_t writeBytes(const uint8_t *buffer, size_t size);
   size_t readBytes(uint8_t *sbuf, size_t len);
   inline bool started() { return _started; }
+  bool dispatch(ESP3DMessage *message);
 
  private:
   uint8_t _serialIndex;
-  uint8_t _target;
+  ESP3DClientType _origin;
   uint8_t _id;
   int8_t _rxPin;
   int8_t _txPin;
@@ -72,10 +65,10 @@ class SerialService : public Print {
   void flushbuffer();
 };
 
-extern SerialService serial_service;
+extern ESP3DSerialService esp3d_serial_service;
 
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
-extern SerialService serial_bridge_service;
+extern ESP3DSerialService serial_bridge_service;
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
 
 #endif  //_SERIAL_SERVICES_H
