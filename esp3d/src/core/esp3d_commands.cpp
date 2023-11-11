@@ -129,16 +129,16 @@ bool ESP3DCommands::is_esp_command(uint8_t *sbuf, size_t len) {
        (char(sbuf[6]) == ']') || (char(sbuf[7]) == ']'))) {
     return true;
   }
-  if ((char(sbuf[0]) == 'e') && (char(sbuf[1]) == 'c') &&
-      (char(sbuf[2]) == 'h') && (char(sbuf[3]) == 'o') &&
-      (char(sbuf[4]) == ':') && (char(sbuf[5]) == ' ') &&
-      (char(sbuf[6]) == '[') && (char(sbuf[7]) == 'E')) {
-    if (len >= 14) {
-      if ((char(sbuf[8]) == 'S') && (char(sbuf[9]) == 'P') &&
-          ((char(sbuf[4]) == ']') || (char(sbuf[5]) == ']') ||
-           (char(sbuf[6]) == ']') || (char(sbuf[7]) == ']'))) {
-        return true;
-      }
+  // echo command header on some targeted firmware
+  if (len >= 14) {
+    if ((char(sbuf[0]) == 'e') && (char(sbuf[1]) == 'c') &&
+        (char(sbuf[2]) == 'h') && (char(sbuf[3]) == 'o') &&
+        (char(sbuf[4]) == ':') && (char(sbuf[5]) == ' ') &&
+        (char(sbuf[6]) == '[') && (char(sbuf[7]) == 'E') &&
+        (char(sbuf[8]) == 'S') && (char(sbuf[9]) == 'P') &&
+        ((char(sbuf[4]) == ']') || (char(sbuf[5]) == ']') ||
+         (char(sbuf[6]) == ']') || (char(sbuf[7]) == ']'))) {
+      return true;
     }
   }
   return false;
@@ -355,7 +355,167 @@ bool ESP3DCommands::has_tag(const char *cmd_params, const char *tag) {
   return true;
 }
 
+bool ESP3DCommands::hasTag(ESP3DMessage *msg, uint start, const char *label) {
+  if (!msg) {
+    esp3d_log_e("no msg for tag %s", label);
+    return false;
+  }
+  String lbl = label;
+  // esp3d_log("checking message for tag %s", label);
+  uint lenLabel = strlen(label);
+  lbl += "=";
+  lbl = get_param(msg, start, lbl.c_str());
+  if (lbl.length() != 0) {
+    // esp3d_log("Label is used with parameter %s", lbl.c_str());
+    // make result uppercase
+    lbl.toUpperCase();
+    return (lbl == "YES" || lbl == "1" || lbl == "TRUE");
+  }
+  bool prevCharIsEscaped = false;
+  bool prevCharIsspace = true;
+  // esp3d_log("Checking  label as tag");
+  for (uint i = start; i < msg->size; i++) {
+    char c = char(msg->data[i]);
+    // esp3d_log("%c", c);
+    if (c == label[0] && prevCharIsspace) {
+      uint p = 0;
+      while (i < msg->size && p < lenLabel && c == label[p]) {
+        i++;
+        p++;
+        if (i < msg->size) {
+          c = char(msg->data[i]);
+          // esp3d_log("%c vs %c", c, char(msg->data[i]));
+        }
+      }
+      if (p == lenLabel) {
+        // end of params
+        if (i == msg->size || std::isspace(c)) {
+          // esp3d_log("label %s found", label);
+          return true;
+        }
+      }
+      if (std::isspace(c) && !prevCharIsEscaped) {
+        prevCharIsspace = true;
+      }
+      if (c == '\\') {
+        prevCharIsEscaped = true;
+      } else {
+        prevCharIsEscaped = false;
+      }
+    }
+  }
+  // esp3d_log("label %s not found", label);
+  return false;
+}
+
+const char *ESP3DCommands::get_param(ESP3DMessage *msg, uint start,
+                                     const char *label, bool *found) {
+  if (!msg) {
+    return "";
+  }
+  return get_param((const char *)msg->data, msg->size, start, label, found);
+}
+
+const char *ESP3DCommands::get_param(const char *data, uint size, uint start,
+                                     const char *label, bool *found) {
+  int startPos = -1;
+  uint lenLabel = strlen(label);
+  static String value;
+  bool prevCharIsEscaped = false;
+  bool prevCharIsspace = true;
+  value.clear();
+  uint startp = start;
+  if (found) {
+    *found = false;
+  }
+  while (char(data[startp]) == ' ' && startp < size) {
+    startp++;
+  }
+  for (uint i = startp; i < size; i++) {
+    char c = char(data[i]);
+    if (c == label[0] && startPos == -1 && prevCharIsspace) {
+      uint p = 0;
+      while (i < size && p < lenLabel && c == label[p]) {
+        i++;
+        p++;
+        if (i < size) {
+          c = char(data[i]);
+        }
+      }
+      if (p == lenLabel) {
+        startPos = i;
+        if (found) {
+          *found = true;
+        }
+      }
+    }
+    if (std::isspace(c) && !prevCharIsEscaped) {
+      prevCharIsspace = true;
+    }
+    if (startPos > -1 && i < size) {
+      if (c == '\\') {
+        prevCharIsEscaped = true;
+      }
+      if (std::isspace(c) && !prevCharIsEscaped) {
+        return value.c_str();
+      }
+
+      if (c != '\\') {
+        value += c;
+        prevCharIsEscaped = false;
+      }
+    }
+  }
+  return value.c_str();
+}
+
+const char *ESP3DCommands::get_clean_param(ESP3DMessage *msg, uint start) {
+  if (!msg) {
+    return "";
+  }
+  static String value;
+  bool prevCharIsEscaped = false;
+  uint startp = start;
+  while (char(msg->data[startp]) == ' ' && startp < msg->size) {
+    startp++;
+  }
+  value.clear();
+  for (uint i = startp; i < msg->size; i++) {
+    char c = char(msg->data[i]);
+    if (c == '\\') {
+      prevCharIsEscaped = true;
+    }
+    if (std::isspace(c) && !prevCharIsEscaped) {
+      // esp3d_log("testing *%s*", value.c_str());
+      if (value == "json" || value.startsWith("json=") ||
+          value.startsWith("pwd=")) {
+        value.clear();
+      } else {
+        return value.c_str();
+      }
+    }
+    if (c != '\\') {
+      if ((std::isspace(c) && prevCharIsEscaped) || !std::isspace(c)) {
+        value += c;
+      }
+      prevCharIsEscaped = false;
+    }
+  }
+  // for empty value
+  if (value == "json" || value.startsWith("json=") ||
+      value.startsWith("pwd=")) {
+    value.clear();
+  }
+  return value.c_str();
+}
+
+bool ESP3DCommands::has_param(ESP3DMessage *msg, uint start) {
+  return strlen(get_clean_param(msg, start)) != 0;
+}
+
 // execute internal command
+/*
+
 bool ESP3DCommands::execute_internal_command(
     int cmd, const char *cmd_params, ESP3DAuthenticationLevel auth_level,
     ESP3D_Message *esp3dmsg) {
@@ -527,7 +687,8 @@ bool ESP3DCommands::execute_internal_command(
     // Get/Set Camera command value / list all values in JSON/plain
     //[ESP170]label=<value> pwd=<admin/user password>
     // label can be:
-    // light/framesize/quality/contrast/brightness/saturation/gainceiling/colorbar/awb/agc/aec/hmirror/vflip/awb_gain/agc_gain/aec_value/aec2/cw/bpc/wpc/raw_gma/lenc/special_effect/wb_mode/ae_level
+    //
+light/framesize/quality/contrast/brightness/saturation/gainceiling/colorbar/awb/agc/aec/hmirror/vflip/awb_gain/agc_gain/aec_value/aec2/cw/bpc/wpc/raw_gma/lenc/special_effect/wb_mode/ae_level
     case 170:
       response = ESP170(cmd_params, auth_type, esp3dmsg);
       break;
@@ -814,7 +975,37 @@ bool ESP3DCommands::execute_internal_command(
   }
   return response;
 }
+*/
+void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
+                                             ESP3DMessage *msg) {
+  if (!msg) {
+    return;
+  }
+#ifdef AUTHENTICATION_FEATURE
 
+  // do not overwrite previous authetic <time=YYYY-MM-DD#H24:MM:SS>ation level
+  if (auth_type == guest) {
+    String pwd = get_param(cmd_params, "pwd=");
+    auth_type =
+        AuthenticationService::authenticated_level(pwd.c_str(), esp3dmsg);
+  }
+#endif  // AUTHENTICATION_FEATURE
+  switch (cmd) {
+    default:
+      msg->target = msg->origin;
+      if (hasTag(msg, cmd_params_pos, "json")) {
+        /* if (!dispatch(msg,
+                       "{\"cmd\":\"0\",\"status\":\"error\",\"data\":\"Invalid "
+                       "Command\"}")) {
+           esp3d_log_e("Out of memory");
+         }*/
+      } else {
+        /*  if (!dispatch(msg, "Invalid Command\n")) {
+            esp3d_log_e("Out of memory");
+          }*/
+      }
+  }
+}
 bool ESP3DCommands::_dispatchSetting(
     bool json, const char *filter, ESP3DSettingIndex index, const char *help,
     const char **optionValues, const char **optionLabels, uint32_t maxsize,
@@ -973,7 +1164,53 @@ bool ESP3DCommands::_dispatchSetting(
   return true;
 }
 
-void ESP3DCommands::process(ESP3DMessage *msg) {}
+void ESP3DCommands::process(ESP3DMessage *msg) {
+  static bool lastIsESP3D = false;
+  if (!msg) {
+    return;
+  }
+  if (is_esp_command(msg->data, msg->size)) {
+    esp3d_log("Detected ESP command");
+    lastIsESP3D = true;
+    uint cmdId = 0;
+    uint espcmdpos = 0;
+    bool startcmd = false;
+    bool endcmd = false;
+    for (uint i = 0; i < msg->size && espcmdpos == 0; i++) {
+      if (char(msg->data[i]) == ']') {  // start command flag
+        endcmd = true;
+        espcmdpos = i + 1;
+      } else if (char(msg->data[i]) == '[') {  // end command flag
+        startcmd = true;
+      } else if (startcmd && !endcmd &&
+                 std::isdigit(static_cast<unsigned char>(
+                     char(msg->data[i])))) {  // command id
+        if (cmdId != 0) {
+          cmdId = (cmdId * 10);
+        }
+        cmdId += (msg->data[i] - 48);
+      }
+    }
+    // execute esp command
+    execute_internal_command(cmdId, espcmdpos, msg);
+  } else {
+    esp3d_log("Dispatch command, len %d, to %d", msg->size,
+              static_cast<uint8_t>(msg->target));
+
+    // Work around to avoid to dispatch single \n or \r to everyone as it is
+    // part of previous ESP3D command
+    if (msg->size == 1 &&
+        ((char(msg->data[0]) == '\n') || (char(msg->data[0]) == '\r')) &&
+        lastIsESP3D) {
+      lastIsESP3D = false;
+      // delete message
+      ESP3DMessageManager::deleteMessage(msg);
+      return;
+    }
+    lastIsESP3D = false;
+    dispatch(msg);
+  }
+}
 
 bool ESP3DCommands::dispatch(const char *sbuf, ESP3DClientType target,
                              ESP3DRequest requestId, ESP3DMessageType type,

@@ -36,15 +36,29 @@ class ESP3DCommands {
   bool is_esp_command(uint8_t* sbuf, size_t len);
   bool execute_internal_command(int cmd, const char* cmd_params,
                                 ESP3DAuthenticationLevel auth_level,
-                                ESP3D_Message* esp3dmsg);
+                                ESP3D_Message* esp3dmsg);  // TODO: remove
+  void execute_internal_command(int cmd, int cmd_params_pos, ESP3DMessage* msg);
   int get_space_pos(const char* string, uint from = 0);
-  const char* get_param(const char* cmd_params, const char* label);
+  const char* get_param(const char* cmd_params,
+                        const char* label);  // TODO: remove
+
+  const char* get_param(ESP3DMessage* msg, uint start, const char* label,
+                        bool* found = nullptr);
+  const char* get_param(const char* data, uint size, uint start,
+                        const char* label, bool* found = nullptr);
+
   const char* get_label(const char* cmd_params, const char* labelseparator,
-                        uint8_t startindex = 0);
-  const char* clean_param(const char* cmd_params);
+                        uint8_t startindex = 0);    // TODO: remove
+  const char* clean_param(const char* cmd_params);  // TODO: remove
+
   const char* format_response(uint cmdID, bool isjson = false, bool isok = true,
                               const char* message = "");
-  bool has_tag(const char* cmd_params, const char* tag);
+
+  bool has_tag(const char* cmd_params, const char* tag);  // TODO: remove
+  bool hasTag(ESP3DMessage* msg, uint start, const char* label);
+  const char* get_clean_param(ESP3DMessage* msg, uint start);
+  bool has_param(ESP3DMessage* msg, uint start);
+
   bool ESP0(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
             ESP3D_Message* esp3dmsg);
 #if defined(WIFI_FEATURE)
