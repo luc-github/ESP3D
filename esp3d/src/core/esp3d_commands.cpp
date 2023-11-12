@@ -1000,14 +1000,14 @@ void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
       esp3d_log("Invalid Command: %s", tmpstr.c_str());
       if (hasTag(msg, cmd_params_pos, "json")) {
         String tmpstr = "{\"cmd\":\"";
-        tmpstr += std::to_string(cmd);
+        tmpstr += String(cmd);
         tmpstr += "\",\"status\":\"error\",\"data\":\"Invalid Command\"}";
         if (!dispatch(msg, tmpstr.c_str())) {
           esp3d_log_e("Out of memory");
         }
       } else {
         String tmpstr = "Invalid Command:";
-        tmpstr += std::to_string(cmd);
+        tmpstr += String(cmd);
         tmpstr += "\n";
         if (!dispatch(msg, tmpstr.c_str())) {
           esp3d_log_e("Out of memory");
