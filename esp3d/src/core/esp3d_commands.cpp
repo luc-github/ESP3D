@@ -29,6 +29,10 @@
 #include "../modules/mks/mks_service.h"
 #endif  // COMMUNICATION_PROTOCOL == MKS_SERIAL
 
+#if COMMUNICATION_PROTOCOL == RAW_SERIAL
+#include "../modules/serial/serial_service.h"
+#endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL
+
 ESP3DCommands esp3d_commands;
 
 ESP3DCommands::ESP3DCommands() {
@@ -995,14 +999,14 @@ void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
       msg->target = msg->origin;
       esp3d_log("Invalid Command: %s", tmpstr.c_str());
       if (hasTag(msg, cmd_params_pos, "json")) {
-        std::string tmpstr = "{\"cmd\":\"";
+        String tmpstr = "{\"cmd\":\"";
         tmpstr += std::to_string(cmd);
         tmpstr += "\",\"status\":\"error\",\"data\":\"Invalid Command\"}";
         if (!dispatch(msg, tmpstr.c_str())) {
           esp3d_log_e("Out of memory");
         }
       } else {
-        std::string tmpstr = "Invalid Command:";
+        String tmpstr = "Invalid Command:";
         tmpstr += std::to_string(cmd);
         tmpstr += "\n";
         if (!dispatch(msg, tmpstr.c_str())) {
@@ -1237,6 +1241,8 @@ bool ESP3DCommands::dispatch(const char *sbuf, ESP3DClientType target,
                              ESP3DRequest requestId, ESP3DMessageType type,
                              ESP3DClientType origin,
                              ESP3DAuthenticationLevel authentication_level) {
+  // TODO:  add code to dispatch message
+  // FIXME:
   return true;
 }
 
@@ -1259,6 +1265,28 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
   // currently only echo back no test done on success
   // TODO check add is successful
   switch (msg->target) {
+#if COMMUNICATION_PROTOCOL == MKS_SERIAL || \
+    COMMUNICATION_PROTOCOL == RAW_SERIAL || defined(ESP_SERIAL_BRIDGE_OUTPUT)
+    case ESP3DClientType::serial:
+      if (!esp3d_serial_service.dispatch(msg)) {
+        sendOk = false;
+        esp3d_log_e("Serial dispatch failed");
+      }
+      break;
+#endif  // COMMUNICATION_PROTOCOL == MKS_SERIAL || COMMUNICATION_PROTOCOL ==
+        // RAW_SERIAL || defined(ESP_SERIAL_BRIDGE_OUTPUT)
+    case ESP3DClientType::all_clients:
+      // TODO:Add each client one by one
+
+      //...
+
+      // Send pending if any or cancel message is no client did handle it
+      if (msg->target == ESP3DClientType::all_clients) {
+        sendOk = false;
+      } else {
+        return dispatch(msg);
+      }
+      break;
     default:
       esp3d_log_e("No valid target specified %d",
                   static_cast<uint8_t>(msg->target));
