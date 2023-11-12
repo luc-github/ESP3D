@@ -85,7 +85,7 @@ class ESP3DMessageManager final {
  public:
   static ESP3DMessage *newMsg();
   static ESP3DMessage *newMsg(ESP3DRequest requestId);
-  static bool deleteMessage(ESP3DMessage *message);
+  static bool deleteMsg(ESP3DMessage *message);
   static bool copyMsgInfos(ESP3DMessage *newMsgPtr, ESP3DMessage msg);
   static ESP3DMessage *copyMsgInfos(ESP3DMessage msg);
   static ESP3DMessage *copyMsg(ESP3DMessage msg);

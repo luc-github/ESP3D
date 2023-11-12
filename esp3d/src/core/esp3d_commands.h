@@ -267,7 +267,8 @@ class ESP3DCommands {
                 ESP3DClientType origin = ESP3DClientType::command,
                 ESP3DAuthenticationLevel authentication_level =
                     ESP3DAuthenticationLevel::guest);
-
+  bool dispatch(ESP3DMessage* msg, const char* sbuf);
+  bool dispatch(ESP3DMessage* msg, uint8_t* sbuf, size_t len);
   bool dispatch(ESP3DMessage* msg);
   ESP3DClientType getOutputClient(bool fromSettings = false);
   void setOutputClient(ESP3DClientType output_client) {

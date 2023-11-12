@@ -24,7 +24,7 @@
 
 ESP3DRequest no_id{.id = 0};
 
-bool ESP3DMessageManager::deleteMessage(ESP3DMessage* message) {
+bool ESP3DMessageManager::deleteMsg(ESP3DMessage* message) {
   if (!message) return false;
   if (message->data) {
     free(message->data);
@@ -95,7 +95,7 @@ ESP3DMessage* ESP3DMessageManager::newMsg(
   ESP3DMessage* newMsgPtr = newMsg(origin, target, authentication_level);
   if (newMsgPtr) {
     if (!setDataContent(newMsgPtr, data, length)) {
-      deleteMessage(newMsgPtr);
+      deleteMsg(newMsgPtr);
       newMsgPtr = nullptr;
     }
   }

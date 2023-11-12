@@ -993,16 +993,21 @@ void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
   switch (cmd) {
     default:
       msg->target = msg->origin;
+      esp3d_log("Invalid Command: %s", tmpstr.c_str());
       if (hasTag(msg, cmd_params_pos, "json")) {
-        /* if (!dispatch(msg,
-                       "{\"cmd\":\"0\",\"status\":\"error\",\"data\":\"Invalid "
-                       "Command\"}")) {
-           esp3d_log_e("Out of memory");
-         }*/
+        std::string tmpstr = "{\"cmd\":\"";
+        tmpstr += std::to_string(cmd);
+        tmpstr += "\",\"status\":\"error\",\"data\":\"Invalid Command\"}";
+        if (!dispatch(msg, tmpstr.c_str())) {
+          esp3d_log_e("Out of memory");
+        }
       } else {
-        /*  if (!dispatch(msg, "Invalid Command\n")) {
-            esp3d_log_e("Out of memory");
-          }*/
+        std::string tmpstr = "Invalid Command:";
+        tmpstr += std::to_string(cmd);
+        tmpstr += "\n";
+        if (!dispatch(msg, tmpstr.c_str())) {
+          esp3d_log_e("Out of memory");
+        }
       }
   }
 }
@@ -1204,12 +1209,28 @@ void ESP3DCommands::process(ESP3DMessage *msg) {
         lastIsESP3D) {
       lastIsESP3D = false;
       // delete message
-      ESP3DMessageManager::deleteMessage(msg);
+      ESP3DMessageManager::deleteMsg(msg);
       return;
     }
     lastIsESP3D = false;
     dispatch(msg);
   }
+}
+bool ESP3DCommands::dispatch(ESP3DMessage *msg, const char *sbuf) {
+  return dispatch(msg, (uint8_t *)sbuf, strlen(sbuf));
+}
+
+bool ESP3DCommands::dispatch(ESP3DMessage *msg, uint8_t *sbuf, size_t len) {
+  if (!msg) {
+    esp3d_log_e("no msg");
+    return false;
+  }
+  if (!ESP3DMessageManager::setDataContent(msg, sbuf, len)) {
+    esp3d_log_e("Out of memory");
+    ESP3DMessageManager::deleteMsg(msg);
+    return false;
+  }
+  return dispatch(msg);
 }
 
 bool ESP3DCommands::dispatch(const char *sbuf, ESP3DClientType target,
@@ -1246,7 +1267,7 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
   // clear message
   if (!sendOk) {
     esp3d_log("Send msg failed");
-    ESP3DMessageManager::deleteMessage(msg);
+    ESP3DMessageManager::deleteMsg(msg);
   }
   return sendOk;
 }

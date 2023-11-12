@@ -519,7 +519,7 @@ bool ESP3DSerialService::dispatch(ESP3DMessage *message) {
   }
 
   // Delete message now
-  ESP3DMessageManager::deleteMessage(message);
+  ESP3DMessageManager::deleteMsg(message);
   return done;
 }
 
