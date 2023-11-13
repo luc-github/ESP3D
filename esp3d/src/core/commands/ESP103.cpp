@@ -21,7 +21,6 @@
 #if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
 #include "../../modules/network/netconfig.h"
 #include "../esp3d_commands.h"
-#include "../esp3d_message.h"
 #include "../esp3d_settings.h"
 
 #if defined(WIFI_FEATURE)
@@ -31,123 +30,91 @@
 #include "../../modules/ethernet/ethconfig.h"
 #endif  // ETH_FEATURE
 #include "../../modules/authentication/authentication_service.h"
-#define COMMANDID 103
+#define COMMAND_ID 103
 // Change STA IP/Mask/GW
 //[ESP103]IP=<IP> MSK=<IP> GW=<IP> DNS=<IP> [json=no] [pwd=<admin password>
 void ESP3DCommands::ESP103(int cmd_params_pos, ESP3DMessage* msg) {
-  /*
-  bool noError = true;
-  bool json = has_tag(cmd_params, "json");
-  String response;
-  String parameter;
-  int errorCode = 200;  // unless it is a server error use 200 as default and
-                        // set error in json instead
-#ifdef AUTHENTICATION_FEATURE
-  if (auth_type == guest) {
-    response = format_response(COMMANDID, json, false,
-                               "Guest user can't use this command");
-    noError = false;
-    errorCode = 401;
+  ESP3DClientType target = msg->origin;
+  ESP3DRequest requestId = msg->request_id;
+  (void)requestId;
+  msg->target = target;
+  msg->origin = ESP3DClientType::command;
+  bool hasError = false;
+  String error_msg = "Invalid parameters";
+  String ok_msg = "ok";
+  bool json = hasTag(msg, cmd_params_pos, "json");
+  String tmpstr;
+  const char* cmdList[] = {"IP=", "MSK=", "GW=", "DNS="};
+  uint8_t cmdListSize = sizeof(cmdList) / sizeof(char*);
+  const ESP3DSettingIndex settingIndex[] = {
+      ESP_STA_IP_VALUE, ESP_STA_MASK_VALUE, ESP_STA_GATEWAY_VALUE,
+      ESP_STA_DNS_VALUE};
+#if ESP3D_AUTHENTICATION_FEATURE
+  if (msg->authentication_level == ESP3DAuthenticationLevel::guest) {
+    msg->authentication_level = ESP3DAuthenticationLevel::not_authenticated;
+    dispatchAuthenticationError(msg, COMMAND_ID, json);
+    return;
   }
-#else
-  (void)auth_type;
-#endif  // AUTHENTICATION_FEATURE
-  if (noError) {
-    parameter = clean_param(get_param(cmd_params, ""));
-    // get
-    if (parameter.length() == 0) {
-      String res;
-      if (json) {
-        res += "{\"ip\":\"";
-      } else {
-        res += "IP:";
-      }
-      res += ESP3DSettings::readIPString(ESP_STA_IP_VALUE);
-      if (json) {
-        res += "\",\"gw\":\"";
-      } else {
-        res += ", GW:";
-      }
-      res += ESP3DSettings::readIPString(ESP_STA_GATEWAY_VALUE);
-      if (json) {
-        res += "\",\"msk\":\"";
-      } else {
-        res += ", MSK:";
-      }
-      res += ESP3DSettings::readIPString(ESP_STA_MASK_VALUE);
-      if (json) {
-        res += "\",\"dns\":\"";
-      } else {
-        res += ", DNS:";
-      }
-      res += ESP3DSettings::readIPString(ESP_STA_DNS_VALUE);
-      if (json) {
-        res += "\"}";
-      }
-      response = format_response(COMMANDID, json, true, res.c_str());
-    } else {  // set
-#ifdef AUTHENTICATION_FEATURE
-      if (auth_type != admin) {
-        response = format_response(COMMANDID, json, false,
-                                   "Wrong authentication level");
-        noError = false;
-        errorCode = 401;
-      }
-#endif  // AUTHENTICATION_FEATURE
-      if (noError) {
-        String IP = get_param(cmd_params, "IP=");
-        String GW = get_param(cmd_params, "GW=");
-        String MSK = get_param(cmd_params, "MSK=");
-        String DNS = get_param(cmd_params, "DNS=");
-
-        if (!ESP3DSettings::isValidIPStringSetting(IP.c_str(),
-                                                   ESP_STA_IP_VALUE)) {
-          response = format_response(COMMANDID, json, false, "Incorrect IP");
-          noError = false;
-        }
-        if (!ESP3DSettings::isValidIPStringSetting(GW.c_str(),
-                                                   ESP_STA_GATEWAY_VALUE)) {
-          response =
-              format_response(COMMANDID, json, false, "Incorrect gateway");
-          noError = false;
-        }
-        if (!ESP3DSettings::isValidIPStringSetting(MSK.c_str(),
-                                                   ESP_STA_MASK_VALUE)) {
-          response = format_response(COMMANDID, json, false, "Incorrect mask");
-          noError = false;
-        }
-        if (!ESP3DSettings::isValidIPStringSetting(DNS.c_str(),
-                                                   ESP_STA_DNS_VALUE)) {
-          response = format_response(COMMANDID, json, false, "Incorrect dns");
-          noError = false;
-        }
-        if (noError) {
-          if (!ESP3DSettings::writeIPString(ESP_STA_IP_VALUE, IP.c_str()) ||
-              !ESP3DSettings::writeIPString(ESP_STA_GATEWAY_VALUE,
-                                              GW.c_str()) ||
-              !ESP3DSettings::writeIPString(ESP_STA_DNS_VALUE, DNS.c_str()) ||
-              !ESP3DSettings::writeIPString(ESP_STA_MASK_VALUE,
-                                              MSK.c_str())) {
-            response = format_response(COMMANDID, json, false, "Set failed");
-            noError = false;
-          } else {
-            response = format_response(COMMANDID, json, true, "ok");
-          }
-        }
-      }
-    }
-  }
-  if (json) {
-    esp3dmsg->printLN(response.c_str());
-  } else {
-    if (noError) {
-      esp3dmsg->printMSG(response.c_str());
+#endif  // ESP3D_AUTHENTICATION_FEATURE
+  tmpstr = get_clean_param(msg, cmd_params_pos);
+  if (tmpstr.length() == 0) {
+    if (json) {
+      ok_msg = "{\"ip\":\"";
     } else {
-      esp3dmsg->printERROR(response.c_str(), errorCode);
+      ok_msg = "IP: ";
+    }
+    ok_msg += ESP3DSettings::readIPString(ESP_STA_IP_VALUE);
+    if (json) {
+      ok_msg += "\",\"gw\":\"";
+    } else {
+      ok_msg += ", GW: ";
+    }
+    ok_msg += ESP3DSettings::readIPString(ESP_STA_GATEWAY_VALUE);
+    if (json) {
+      ok_msg += "\",\"msk\":\"";
+    } else {
+      ok_msg += ", MSK: ";
+    }
+    ok_msg += ESP3DSettings::readIPString(ESP_STA_MASK_VALUE);
+    if (json) {
+      ok_msg += "\",\"dns\":\"";
+    } else {
+      ok_msg += ", DNS: ";
+    }
+    ok_msg += ESP3DSettings::readIPString(ESP_STA_DNS_VALUE);
+    if (json) {
+      ok_msg += "\"}";
+    } else {
+      ok_msg += "\n";
+    }
+  } else {
+    bool hasParam = false;
+    for (uint8_t i = 0; i < cmdListSize; i++) {
+      tmpstr = get_param(msg, cmd_params_pos, cmdList[i]);
+      if (tmpstr.length() != 0) {
+        hasParam = true;
+        if (ESP3DSettings::isValidIPStringSetting(tmpstr.c_str(),
+                                                  settingIndex[i])) {
+          esp3d_log("Value %s is valid", tmpstr.c_str());
+          if (!ESP3DSettings::writeIPString(settingIndex[i], tmpstr.c_str())) {
+            hasError = true;
+            error_msg = "Set value failed";
+          }
+        } else {
+          hasError = true;
+          error_msg = "Invalid parameter";
+        }
+      }
+    }
+    if (!hasParam && !hasError) {
+      hasError = true;
+      error_msg = "Invalid parameter";
     }
   }
-
-  return noError;*/
+  if (!dispatchAnswer(msg, COMMAND_ID, json, hasError,
+                      hasError ? error_msg.c_str() : ok_msg.c_str())) {
+    esp3d_log_e("Error sending response to clients");
+  }
 }
 
 #endif  // WIFI_FEATURE || ETH_FEATURE
