@@ -172,7 +172,7 @@
 #define DEFAULT_TIME_SERVER2 "time.google.com"
 #define DEFAULT_TIME_SERVER3 "0.pool.ntp.org"
 
-#define DEFAULT_SETTINGS_VERSION "ESP3D"
+#define DEFAULT_SETTINGS_VERSION "ESP3D30"
 
 // default IP values
 #define DEFAULT_STA_IP_VALUE "192.168.0.254"
@@ -180,7 +180,7 @@
 #define DEFAULT_STA_MASK_VALUE "255.255.255.0"
 #define DEFAULT_STA_DNS_VALUE DEFAULT_STA_IP_VALUE
 
-#define DEFAULT_AP_IP_VALUE "192.1680.0.1"
+#define DEFAULT_AP_IP_VALUE "192.168.0.1"
 #define DEFAULT_AP_GATEWAY_VALUE DEFAULT_AP_IP_VALUE
 #define DEFAULT_AP_MASK_VALUE "255.255.255.0"
 #define DEFAULT_AP_DNS_VALUE DEFAULT_AP_IP_VALUE
@@ -644,7 +644,8 @@ bool Settings_ESP3D::write_IP(int pos, const uint32_t value) {
 // clear all entries
 bool Settings_ESP3D::reset(bool networkonly) {
   uint nb_settings = sizeof(ESP3DSettingsData) / sizeof(uint16_t);
-  for (uint i = 0; i < nb_settings; i++) {
+  for (uint j = 0; j < nb_settings; j++) {
+    uint16_t i = ESP3DSettingsData[j];
     if (networkonly && i == ESP_SETTINGS_VERSION) {
       return true;
     }
@@ -690,9 +691,10 @@ bool Settings_ESP3D::reset(bool networkonly) {
 int8_t Settings_ESP3D::GetSettingsVersion() {
   int8_t v = -1;
   String version = Settings_ESP3D::read_string(ESP_SETTINGS_VERSION);
-  if ((version == "ESP3D") || (version.length() != 7) ||
-      (version.indexOf("ESP3D") != 0)) {
-    log_esp3d_e("Invalid Settings Version %s", version.c_str());
+  if (!Settings_ESP3D::isValidStringSetting(version.c_str(),
+                                            ESP_SETTINGS_VERSION)) {
+    log_esp3d_e("Invalid Settings Version %s expected %s", version.c_str(),
+                DEFAULT_SETTINGS_VERSION);
     return v;
   }
   v = version.substring(5).toInt();
@@ -803,7 +805,7 @@ bool Settings_ESP3D::isValidStringSetting(const char *value,
   }
   switch (settingElement) {
     case ESP_SETTINGS_VERSION:
-      return (!strcmp(value, DEFAULT_SETTINGS_VERSION) == 0);
+      return (strcmp(value, DEFAULT_SETTINGS_VERSION) == 0);
       break;
     case ESP_HOSTNAME:
       // only letter and digit
