@@ -402,7 +402,7 @@
 /* Printer screen
  *  If your printer has a display
  */
- #define PRINTER_HAS_DISPLAY
+#define PRINTER_HAS_DISPLAY
 
 /* ESP3D screen
  * Screen connected to ESP board
@@ -594,7 +594,7 @@
 // LOG_OUTPUT_WEBSOCKET
 #define ESP_LOG_FEATURE LOG_OUTPUT_SERIAL0
 
-#define ESP3D_DEBUG_LEVEL LOG_LEVEL_DEBUG
+#define ESP3D_DEBUG_LEVEL LOG_LEVEL_VERBOSE
 
 #define ESP_NO_SANITY_CHECK
 

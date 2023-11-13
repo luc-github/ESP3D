@@ -74,6 +74,7 @@ bool TimeService::is_internet_time(bool readfromsettings) {
 }
 
 bool TimeService::begin() {
+  esp3d_log("Starting TimeService");
   end();
   String s1, s2, s3, t1;
   byte d1;

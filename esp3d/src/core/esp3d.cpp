@@ -77,6 +77,7 @@ bool Esp3D::begin() {
 #endif  // COMMUNICATION_PROTOCOL == SOCKET_SERIAL
   bool res = true;
 #if defined(CONNECTED_DEVICES_FEATURE)
+  esp3d_log("Starting Devices feature");
   if (!DevicesServices::begin()) {
     esp3d_log_e("Error setup connected devices");
     res = false;
@@ -116,6 +117,7 @@ bool Esp3D::begin() {
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
   // Setup Filesystem
 #if defined(FILESYSTEM_FEATURE)
+  esp3d_log("Starting Filesystem feature");
   if (!ESP_FileSystem::begin()) {
     esp3d_log_e("Error with filesystem service");
     res = false;
@@ -127,6 +129,7 @@ bool Esp3D::begin() {
 #endif  // DISPLAY_DEVICE
   // Setup Network
 #if defined(WIFI_FEATURE) || defined(ETH_FEATURE) || defined(BLUETOOTH_FEATURE)
+  esp3d_log("Starting Netconfig feature");
   if (ESP3DSettings::read_byte(ESP_BOOT_RADIO_STATE) == 1) {
     if (!NetConfig::begin()) {
       esp3d_log_e("Error setup network");
@@ -143,6 +146,7 @@ bool Esp3D::begin() {
   esp3d_gcode_host.processFile(ESP_AUTOSTART_SCRIPT_FILE);
 #endif  // ESP_AUTOSTART_FEATURE
 #endif  // GCODE_HOST_FEATURE
+  esp3d_log("Esp3d Started");
   _started = true;
   return res;
 }

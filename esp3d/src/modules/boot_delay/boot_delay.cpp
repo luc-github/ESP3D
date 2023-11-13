@@ -82,8 +82,10 @@ void BootDelay::handle() {
       uint8_t p = (100 * (millis() - _startdelay)) / _totalduration;
       if (p != lastpercent) {
         lastpercent = p;
+#if defined(DISPLAY_DEVICE)
         esp3d_commands.dispatch(String(p).c_str(), ESP3DClientType::rendering,
                                 reqId, ESP3DMessageType::unique);
+#endif // DISPLAY_DEVICE
       }
     }
     ESP3DHal::wait(10);
