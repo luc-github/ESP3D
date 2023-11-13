@@ -28,9 +28,8 @@
 #define COMMANDID 930
 // Set Bridge Serial state which can be ON, OFF, CLOSE
 //[ESP930]<state> json=<no> pwd=<admin password>
-bool ESP3DCommands::ESP930(const char* cmd_params,
-                           ESP3DAuthenticationLevel auth_type,
-                           ESP3D_Message* esp3dmsg) {
+void ESP3DCommands::ESP930(int cmd_params_pos, ESP3DMessage* msg) {
+  /*
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;
@@ -101,7 +100,7 @@ bool ESP3DCommands::ESP930(const char* cmd_params,
       esp3dmsg->printERROR(response.c_str(), errorCode);
     }
   }
-  return noError;
+  return noError;*/
 }
 
 #endif  // TELNET_FEATURE

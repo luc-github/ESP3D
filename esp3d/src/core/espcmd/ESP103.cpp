@@ -34,9 +34,8 @@
 #define COMMANDID 103
 // Change STA IP/Mask/GW
 //[ESP103]IP=<IP> MSK=<IP> GW=<IP> DNS=<IP> [json=no] [pwd=<admin password>
-bool ESP3DCommands::ESP103(const char* cmd_params,
-                           ESP3DAuthenticationLevel auth_type,
-                           ESP3D_Message* esp3dmsg) {
+void ESP3DCommands::ESP103(int cmd_params_pos, ESP3DMessage* msg) {
+  /*
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;
@@ -148,7 +147,7 @@ bool ESP3DCommands::ESP103(const char* cmd_params,
     }
   }
 
-  return noError;
+  return noError;*/
 }
 
 #endif  // WIFI_FEATURE || ETH_FEATURE

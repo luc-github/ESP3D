@@ -110,8 +110,7 @@ bool WiFiConfig::ConnectSTA2AP() {
         break;
     }
     if (ESP3DSettings::isVerboseBoot()) {
-      esp3d_commands.dispatch((msg.c_str(),
-                              ESP3DClientType::all_clients, no_id,
+      esp3d_commands.dispatch(msg.c_str(), ESP3DClientType::all_clients, no_id,
                               ESP3DMessageType::unique, ESP3DClientType::system,
                               ESP3DAuthenticationLevel::admin);
     }

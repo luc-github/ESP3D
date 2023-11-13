@@ -22,7 +22,7 @@
 
 #ifdef MDNS_FEATURE
 
-#include "../../core/esp3d_message.h"
+#include "../../core/esp3d_commands.h"
 #include "../../core/esp3d_settings.h"
 #include "mDNS.h"
 
@@ -70,15 +70,20 @@ bool mDNS_Service::begin(const char* hostname) {
   if (WiFi.getMode() != WIFI_AP) {
     _hostname = hostname;
     _hostname.toLowerCase();
-    ESP3D_Message esp3dmsg(ESP_ALL_CLIENTS);
     esp3d_log("Start mdsn for %s", _hostname.c_str());
     if (!MDNS.begin(_hostname.c_str())) {
-      esp3dmsg.printERROR("mDNS failed to start");
+      esp3d_commands.dispatch("mDNS failed to start",
+                              ESP3DClientType::all_clients, no_id,
+                              ESP3DMessageType::unique, ESP3DClientType::system,
+                              ESP3DAuthenticationLevel::admin);
       _started = false;
     } else {
       String stmp = "mDNS started with '" + _hostname + ".local'";
       if (ESP3DSettings::isVerboseBoot()) {
-        esp3dmsg.printMSG(stmp.c_str());
+        esp3d_commands.dispatch(stmp.c_str(), ESP3DClientType::all_clients,
+                                no_id, ESP3DMessageType::unique,
+                                ESP3DClientType::system,
+                                ESP3DAuthenticationLevel::admin);
       }
       _started = true;
     }

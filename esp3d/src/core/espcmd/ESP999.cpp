@@ -30,9 +30,8 @@
 #define COMMANDID 999
 // Set quiet boot if strapping pin is High
 //[ESP999]QUIETBOOT [pwd=<admin/user password>]
-bool ESP3DCommands::ESP999(const char* cmd_params,
-                           ESP3DAuthenticationLevel auth_type,
-                           ESP3D_Message* esp3dmsg) {
+void ESP3DCommands::ESP999(int cmd_params_pos, ESP3DMessage* msg) {
+  /*
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;
@@ -76,7 +75,7 @@ bool ESP3DCommands::ESP999(const char* cmd_params,
       esp3dmsg->printERROR(response.c_str(), errorCode);
     }
   }
-  return noError;
+  return noError;*/
 }
 
 #endif  // defined(ARDUINO_ARCH_ESP32) && (CONFIG_IDF_TARGET_ESP32S3 ||

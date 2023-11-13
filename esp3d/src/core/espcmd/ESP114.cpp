@@ -27,9 +27,8 @@
 // Get/Set Boot radio state which can be ON, OFF
 //[ESP114]<state> json=<no> pwd=<user/admin password>
 #define COMMANDID 114
-bool ESP3DCommands::ESP114(const char* cmd_params,
-                           ESP3DAuthenticationLevel auth_type,
-                           ESP3D_Message* esp3dmsg) {
+void ESP3DCommands::ESP114(int cmd_params_pos, ESP3DMessage* msg) {
+  /*
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;
@@ -90,7 +89,7 @@ bool ESP3DCommands::ESP114(const char* cmd_params,
       esp3dmsg->printERROR(response.c_str(), errorCode);
     }
   }
-  return noError;
+  return noError;*/
 }
 
 #endif  // defined(WIFI_FEATURE) || defined(ETH_FEATURE) || defined(BT_FEATURE)

@@ -29,9 +29,8 @@
 // Sync / Set / Get current time
 //[ESP140]<SYNC> <srv1=XXXXX> <srv2=XXXXX> <srv3=XXXXX> <tzone=+HH:SS>
 //<ntp=YES/NO> <time=YYYY-MM-DDTHH:mm:ss> NOW json=<no> pwd=<admin password>
-bool ESP3DCommands::ESP140(const char* cmd_params,
-                           ESP3DAuthenticationLevel auth_type,
-                           ESP3D_Message* esp3dmsg) {
+void ESP3DCommands::ESP140(int cmd_params_pos, ESP3DMessage* msg) {
+  /*
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response = "ok";
@@ -247,7 +246,7 @@ bool ESP3DCommands::ESP140(const char* cmd_params,
       esp3dmsg->printERROR(response.c_str(), errorCode);
     }
   }
-  return noError;
+  return noError;*/
 }
 
 #endif  // TIMESTAMP_FEATURE

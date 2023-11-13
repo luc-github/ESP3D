@@ -20,7 +20,7 @@
 
 #include "boot_delay.h"
 
-#include "../../core/esp3d_message.h"
+#include "../../core/esp3d_commands.h"
 #include "../../core/esp3d_settings.h"
 #include "../../include/esp3d_config.h"
 
@@ -45,12 +45,21 @@ bool BootDelay::begin() {
     esp3d_log("Boot delay modified %d", _totalduration);
   }
   _started = true;
-  ESP3D_Message::toScreen(ESP_OUTPUT_PROGRESS, "0");
+#if defined(DISPLAY_DEVICE)
+  ESP3DRequest reqId = {
+      .id = ESP_OUTPUT_PROGRESS,
+  };
+  esp3d_commands.dispatch("0", ESP3DClientType::rendering, reqId,
+#endif  //                                ESP3DMessageType::unique);
+
   if (_totalduration > 0) {
     _startdelay = millis();
     handle();
   }
-  ESP3D_Message::toScreen(ESP_OUTPUT_PROGRESS, "100");
+#if defined(DISPLAY_DEVICE)
+  esp3d_commands.dispatch("100", ESP3DClientType::rendering, reqId,
+                                  ESP3DMessageType::unique);
+#endif  // DISPLAY_DEVICE
   esp3d_log("Boot delay done");
   return _started;
 }
@@ -59,6 +68,10 @@ void BootDelay::end() {}
 void BootDelay::handle() {
   uint8_t lastpercent = 0;
   uint32_t lastSent = millis();
+  ESP3DRequest reqId = {
+      .id = ESP_OUTPUT_PROGRESS,
+  };
+
   while ((millis() - _startdelay) < _totalduration) {
 #if defined(RECOVERY_FEATURE)
     recovery_service.handle();
@@ -69,7 +82,8 @@ void BootDelay::handle() {
       uint8_t p = (100 * (millis() - _startdelay)) / _totalduration;
       if (p != lastpercent) {
         lastpercent = p;
-        ESP3D_Message::toScreen(ESP_OUTPUT_PROGRESS, String(p).c_str());
+        esp3d_commands.dispatch(String(p).c_str(), ESP3DClientType::rendering,
+                                reqId, ESP3DMessageType::unique);
       }
     }
     ESP3DHal::wait(10);

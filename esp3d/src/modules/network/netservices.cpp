@@ -331,9 +331,10 @@ bool NetServices::begin() {
                             ESP3DAuthenticationLevel::admin);
   }
 #endif  // HTTP_FEATURE
-#ifdef MDNS_FEATURE
+#if defined(MDNS_FEATURE) && defined(HTTP_FEATURE)
   esp3d_mDNS.addESP3DServices(HTTP_Server::port());
 #endif  // MDNS_FEATURE
+#if defined(MDNS_FEATURE) && defined(HTTP_FEATURE)
 #ifdef SSDP_FEATURE
   // SSDP service presentation
   if (WiFi.getMode() != WIFI_AP && HTTP_Server::started()) {
@@ -363,7 +364,8 @@ bool NetServices::begin() {
                               ESP3DAuthenticationLevel::admin);
     }
   }
-#endif  // SSDP_FEATURE
+#endif  // defined(MDNS_FEATURE) && defined(HTTP_FEATURE)
+#endif  // MDNS_FEATURE
 #ifdef NOTIFICATION_FEATURE
   notificationsservice.begin();
   notificationsservice.sendAutoNotification(NOTIFICATION_ESP_ONLINE);

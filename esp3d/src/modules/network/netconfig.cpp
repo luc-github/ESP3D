@@ -40,7 +40,7 @@
 #if defined(BLUETOOTH_FEATURE)
 #include "../bluetooth/BT_service.h"
 #endif  // BLUETOOTH_FEATURE
-#include "../../core/esp3d_message.h"
+#include "../../core/esp3d_commands.h"
 #include "../../core/esp3d_settings.h"
 #include "netservices.h"
 
@@ -132,8 +132,8 @@ void NetConfig::onWiFiEvent(WiFiEvent_t event) {
       break;
     case WIFI_EVENT_STAMODE_DISCONNECTED: {
       if (_started) {
-        esp3d_commands.dispatch("Disconnected", ESP3DClientType::all_clients, 0,
-                                ESP3DMessageType::unique,
+        esp3d_commands.dispatch("Disconnected", ESP3DClientType::all_clients,
+                                no_id, ESP3DMessageType::unique,
                                 ESP3DClientType::system,
                                 ESP3DAuthenticationLevel::admin);
         //_needReconnect2AP = true;
@@ -142,13 +142,13 @@ void NetConfig::onWiFiEvent(WiFiEvent_t event) {
     case WIFI_EVENT_STAMODE_GOT_IP: {
 #if COMMUNICATION_PROTOCOL != MKS_SERIAL
       esp3d_commands.dispatch(WiFi.localIP().toString().c_str(),
-                              ESP3DClientType::all_clients, 0,
+                              ESP3DClientType::all_clients, no_id,
                               ESP3DMessageType::unique, ESP3DClientType::system,
                               ESP3DAuthenticationLevel::admin);
 #endif  // #if COMMUNICATION_PROTOCOL == MKS_SERIAL
     } break;
     case WIFI_EVENT_SOFTAPMODE_STACONNECTED: {
-      esp3d_commands.dispatch("New client", ESP3DClientType::all_clients, 0,
+      esp3d_commands.dispatch("New client", ESP3DClientType::all_clients, no_id,
                               ESP3DMessageType::unique, ESP3DClientType::system,
                               ESP3DAuthenticationLevel::admin);
     } break;
@@ -163,28 +163,28 @@ void NetConfig::onWiFiEvent(WiFiEvent_t event) {
       EthConfig::setConnected(false);
       if (ESP3DSettings::isVerboseBoot()) {
         esp3d_commands.dispatch(
-            "Checking connection", ESP3DClientType::all_clients, 0,
+            "Checking connection", ESP3DClientType::all_clients, no_id,
             ESP3DMessageType::unique, ESP3DClientType::system,
             ESP3DAuthenticationLevel::admin);
       }
     } break;
     case ARDUINO_EVENT_ETH_CONNECTED: {
       esp3d_commands.dispatch("Cable connected", ESP3DClientType::all_clients,
-                              0, ESP3DMessageType::unique,
+                              no_id, ESP3DMessageType::unique,
                               ESP3DClientType::system,
                               ESP3DAuthenticationLevel::admin);
       EthConfig::setConnected(true);
     } break;
     case ARDUINO_EVENT_ETH_DISCONNECTED: {
       esp3d_commands.dispatch("Cable disconnected",
-                              ESP3DClientType::all_clients, 0,
+                              ESP3DClientType::all_clients, no_id,
                               ESP3DMessageType::unique, ESP3DClientType::system,
                               ESP3DAuthenticationLevel::admin);
       EthConfig::setConnected(false);
     } break;
     case ARDUINO_EVENT_ETH_GOT_IP:
       esp3d_commands.dispatch(ETH.localIP().toString().c_str(),
-                              ESP3DClientType::all_clients, 0,
+                              ESP3DClientType::all_clients, no_id,
                               ESP3DMessageType::unique, ESP3DClientType::system,
                               ESP3DAuthenticationLevel::admin);
       EthConfig::setConnected(true);
@@ -215,7 +215,7 @@ bool NetConfig::begin() {
   if (espMode != ESP_NO_NETWORK) {
     if (ESP3DSettings::isVerboseBoot()) {
       esp3d_commands.dispatch("Starting Network", ESP3DClientType::all_clients,
-                              0, ESP3DMessageType::unique,
+                              no_id, ESP3DMessageType::unique,
                               ESP3DClientType::system,
                               ESP3DAuthenticationLevel::admin);
     }
@@ -238,14 +238,22 @@ bool NetConfig::begin() {
   _hostname = ESP3DSettings::read_string(ESP_HOSTNAME);
   _mode = espMode;
   if (espMode == ESP_NO_NETWORK) {
-    esp3d_commands.dispatch("Disable Network", ESP3DClientType::all_clients, 0,
-                            ESP3DMessageType::unique, ESP3DClientType::system,
+    esp3d_commands.dispatch("Disable Network", ESP3DClientType::all_clients,
+                            no_id, ESP3DMessageType::unique,
+                            ESP3DClientType::system,
                             ESP3DAuthenticationLevel::admin);
     WiFi.mode(WIFI_OFF);
-    ESP3D_Message::toScreen(ESP_OUTPUT_IP_ADDRESS, nullptr);
+#if defined(DISPLAY_DEVICE)
+    ESP3DRequest reqId = {
+        .id = ESP_OUTPUT_IP_ADDRESS,
+    };
+    esp3d_commands.dispatch(" ", ESP3DClientType::rendering, reqId,
+                            ESP3DMessageType::unique);
+#endif  // DISPLAY_DEVICE
     if (ESP3DSettings::isVerboseBoot()) {
-      esp3d_commands.dispatch(RADIO_OFF_MSG, ESP3DClientType::all_clients, 0,
-                              ESP3DMessageType::unique, ESP3DClientType::system,
+      esp3d_commands.dispatch(RADIO_OFF_MSG, ESP3DClientType::all_clients,
+                              no_id, ESP3DMessageType::unique,
+                              ESP3DClientType::system,
                               ESP3DAuthenticationLevel::admin);
     }
     return true;
@@ -253,7 +261,7 @@ bool NetConfig::begin() {
 #if defined(WIFI_FEATURE)
   if ((espMode == ESP_AP_SETUP) || (espMode == ESP_WIFI_AP) ||
       (espMode == ESP_WIFI_STA)) {
-    esp3d_commands.dispatch("Setup wifi", ESP3DClientType::all_clients, 0,
+    esp3d_commands.dispatch("Setup wifi", ESP3DClientType::all_clients, no_id,
                             ESP3DMessageType::unique, ESP3DClientType::system,
                             ESP3DAuthenticationLevel::admin);
     res = WiFiConfig::begin(espMode);
@@ -276,7 +284,13 @@ bool NetConfig::begin() {
   if (espMode == ESP_BT) {
     WiFi.mode(WIFI_OFF);
     String msg = "BT On";
-    ESP3D_Message::toScreen(ESP_OUTPUT_STATUS, msg.c_str());
+#if defined(DISPLAY_DEVICE)
+    ESP3DRequest reqId = {
+        .id = ESP_OUTPUT_STATUS,
+    };
+    esp3d_commands.dispatch(msg.c_str(), ESP3DClientType::rendering, reqId,
+                            ESP3DMessageType::unique);
+#endif  // DISPLAY_DEVICE
     res = bt_service.begin();
   }
 #else
@@ -287,14 +301,22 @@ bool NetConfig::begin() {
 #endif  // BLUETOOTH_FEATURE
 
   if (espMode == ESP_NO_NETWORK) {
-    esp3d_commands.dispatch("Disable Network", ESP3DClientType::all_clients, 0,
-                            ESP3DMessageType::unique, ESP3DClientType::system,
+    esp3d_commands.dispatch("Disable Network", ESP3DClientType::all_clients,
+                            no_id, ESP3DMessageType::unique,
+                            ESP3DClientType::system,
                             ESP3DAuthenticationLevel::admin);
     WiFi.mode(WIFI_OFF);
-    ESP3D_Message::toScreen(ESP_OUTPUT_IP_ADDRESS, nullptr);
+#if defined(DISPLAY_DEVICE)
+    ESP3DRequest reqId = {
+        .id = ESP_OUTPUT_IP_ADDRESS,
+    };
+    esp3d_commands.dispatch(" ", ESP3DClientType::rendering, reqId,
+                            ESP3DMessageType::unique);
+#endif  // DISPLAY_DEVICE
     if (ESP3DSettings::isVerboseBoot()) {
-      esp3d_commands.dispatch(RADIO_OFF_MSG, ESP3DClientType::all_clients, 0,
-                              ESP3DMessageType::unique, ESP3DClientType::system,
+      esp3d_commands.dispatch(RADIO_OFF_MSG, ESP3DClientType::all_clients,
+                              no_id, ESP3DMessageType::unique,
+                              ESP3DClientType::system,
                               ESP3DAuthenticationLevel::admin);
     }
     return true;
@@ -334,7 +356,13 @@ bool NetConfig::begin() {
     end();
     esp3d_log_e("Network config failed");
   }
-  ESP3D_Message::toScreen(ESP_OUTPUT_IP_ADDRESS, nullptr);
+#if defined(DISPLAY_DEVICE)
+  ESP3DRequest reqId = {
+      .id = ESP_OUTPUT_IP_ADDRESS,
+  };
+  esp3d_commands.dispatch(" ", ESP3DClientType::rendering, reqId,
+                          ESP3DMessageType::unique);
+#endif  // DISPLAY_DEVICE
   return res;
 }
 

@@ -49,8 +49,6 @@ class ESP3DCommands {
   bool has_param(ESP3DMessage* msg, uint start);
 
   void ESP0(int cmd_params_pos, ESP3DMessage* msg);
-
-  /*
 #if defined(WIFI_FEATURE)
   void ESP100(int cmd_params_pos, ESP3DMessage* msg);
   void ESP101(int cmd_params_pos, ESP3DMessage* msg);
@@ -185,7 +183,6 @@ class ESP3DCommands {
      CONFIG_IDF_TARGET_ESP32C3)
   void ESP999(int cmd_params_pos, ESP3DMessage* msg);
 #endif  // ARDUINO_ARCH_ESP32
-*/
   bool dispatch(const char* sbuf, ESP3DClientType target,
                 ESP3DRequest requestId,
                 ESP3DMessageType type = ESP3DMessageType::head,

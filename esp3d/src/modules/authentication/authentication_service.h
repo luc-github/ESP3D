@@ -54,7 +54,7 @@ typedef void Authwebserver;
 class AuthenticationService {
  public:
   static ESP3DAuthenticationLevel authenticated_level(
-      const char *pwd = nullptr, ESP3D_Message *esp3dmsg = nullptr);
+      const char *pwd = nullptr, ESP3DMessage *esp3dmsg = nullptr);
 #ifdef AUTHENTICATION_FEATURE
   static bool begin(Authwebserver *webserver);
   static void end();

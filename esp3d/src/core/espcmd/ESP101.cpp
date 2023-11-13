@@ -28,9 +28,8 @@
 #define COMMANDID 101
 // STA Password
 //[ESP101]<Password> [json=no] [pwd=<admin password>]
-bool ESP3DCommands::ESP101(const char* cmd_params,
-                           ESP3DAuthenticationLevel auth_type,
-                           ESP3D_Message* esp3dmsg) {
+void ESP3DCommands::ESP101(int cmd_params_pos, ESP3DMessage* msg) {
+  /*
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   bool clearSetting = has_tag(cmd_params, "NOPASSWORD");
@@ -84,6 +83,6 @@ bool ESP3DCommands::ESP101(const char* cmd_params,
       esp3dmsg->printERROR(response.c_str(), errorCode);
     }
   }
-  return noError;
+  return noError;*/
 }
 #endif  // WIFI_FEATURE

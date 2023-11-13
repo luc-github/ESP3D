@@ -50,7 +50,7 @@ uint8_t AuthenticationService::_current_nb_ip = 0;
 
 // check authentification
 ESP3DAuthenticationLevel AuthenticationService::authenticated_level(
-    const char *pwd, ESP3D_Message *esp3dmsg) {
+    const char *pwd, ESP3DMessage *esp3dmsg) {
 #ifdef AUTHENTICATION_FEATURE
   ESP3DAuthenticationLevel auth_type = guest;
   if (pwd != nullptr) {

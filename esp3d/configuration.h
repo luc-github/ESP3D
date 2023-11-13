@@ -101,7 +101,7 @@
 /* Use WiFi
  * Enable wifi communications
  */
-// #define WIFI_FEATURE
+#define WIFI_FEATURE
 
 /* Use Ethernet
  * Enable ethernet communications
@@ -402,7 +402,7 @@
 /* Printer screen
  *  If your printer has a display
  */
-// #define PRINTER_HAS_DISPLAY
+ #define PRINTER_HAS_DISPLAY
 
 /* ESP3D screen
  * Screen connected to ESP board

@@ -163,9 +163,8 @@ const uint8_t SupportedSPIDividerStrSize =
 
 // Get full ESP3D settings
 //[ESP400]<pwd=admin>
-bool ESP3DCommands::ESP400(const char* cmd_params,
-                           ESP3DAuthenticationLevel auth_type,
-                           ESP3D_Message* esp3dmsg) {
+void ESP3DCommands::ESP400(int cmd_params_pos, ESP3DMessage* msg) {
+  /*
   bool noError = true;
   bool json = has_tag(cmd_params, "json");
   String response;
@@ -494,5 +493,5 @@ bool ESP3DCommands::ESP400(const char* cmd_params,
   } else {
     esp3dmsg->println("ok");
   }
-  return true;
+  return true;*/
 }
