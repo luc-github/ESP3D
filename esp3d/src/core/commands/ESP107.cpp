@@ -54,7 +54,7 @@ void ESP3DCommands::ESP107(int cmd_params_pos, ESP3DMessage* msg) {
     if (parameter.length() == 0) {
       response = format_response(
           COMMANDID, json, true,
-          ESP3DSettings::read_IP_String(ESP_AP_IP_VALUE).c_str());
+          ESP3DSettings::readIPString(ESP_AP_IP_VALUE).c_str());
     } else {  // set
 #ifdef AUTHENTICATION_FEATURE
       if (auth_type != admin) {
@@ -70,7 +70,7 @@ void ESP3DCommands::ESP107(int cmd_params_pos, ESP3DMessage* msg) {
           response = format_response(COMMANDID, json, false, "Incorrect IP");
           noError = false;
         }
-        if (!ESP3DSettings::write_IP_String(ESP_AP_IP_VALUE,
+        if (!ESP3DSettings::writeIPString(ESP_AP_IP_VALUE,
                                             parameter.c_str())) {
           response = format_response(COMMANDID, json, false, "Set failed");
           noError = false;

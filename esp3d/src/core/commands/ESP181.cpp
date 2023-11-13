@@ -57,19 +57,19 @@ void ESP3DCommands::ESP181(int cmd_params_pos, ESP3DMessage* msg) {
       } else {
         s += "ctrl=";
       }
-      s += String(ESP3DSettings::read_uint32(ESP_FTP_CTRL_PORT));
+      s += String(ESP3DSettings::readUint32(ESP_FTP_CTRL_PORT));
       if (json) {
         s += "\",\"active\":\"";
       } else {
         s += ", active=";
       }
-      s += String(ESP3DSettings::read_uint32(ESP_FTP_DATA_ACTIVE_PORT));
+      s += String(ESP3DSettings::readUint32(ESP_FTP_DATA_ACTIVE_PORT));
       if (json) {
         s += "\",\"passive\":\"";
       } else {
         s += ", passive=";
       }
-      s += String(ESP3DSettings::read_uint32(ESP_FTP_DATA_PASSIVE_PORT));
+      s += String(ESP3DSettings::readUint32(ESP_FTP_DATA_PASSIVE_PORT));
       if (json) {
         s += "\"}";
       }
@@ -95,7 +95,7 @@ void ESP3DCommands::ESP181(int cmd_params_pos, ESP3DMessage* msg) {
                 format_response(COMMANDID, json, false, "Incorrect ctrl port");
             noError = false;
           } else {
-            if (!ESP3DSettings::write_uint32(ESP_FTP_CTRL_PORT, ibuf)) {
+            if (!ESP3DSettings::writeUint32(ESP_FTP_CTRL_PORT, ibuf)) {
               response = format_response(COMMANDID, json, false, "Set failed");
               noError = false;
             }
@@ -112,7 +112,7 @@ void ESP3DCommands::ESP181(int cmd_params_pos, ESP3DMessage* msg) {
                                          "Incorrect active port");
               noError = false;
             } else {
-              if (!ESP3DSettings::write_uint32(ESP_FTP_DATA_ACTIVE_PORT,
+              if (!ESP3DSettings::writeUint32(ESP_FTP_DATA_ACTIVE_PORT,
                                                ibuf)) {
                 response =
                     format_response(COMMANDID, json, false, "Set failed");
@@ -133,7 +133,7 @@ void ESP3DCommands::ESP181(int cmd_params_pos, ESP3DMessage* msg) {
               noError = false;
             } else {
             }
-            if (!ESP3DSettings::write_uint32(ESP_FTP_DATA_PASSIVE_PORT, ibuf)) {
+            if (!ESP3DSettings::writeUint32(ESP_FTP_DATA_PASSIVE_PORT, ibuf)) {
               response = format_response(COMMANDID, json, false, "Set failed");
               noError = false;
             }

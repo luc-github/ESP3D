@@ -52,7 +52,7 @@ void ESP3DCommands::ESP105(int cmd_params_pos, ESP3DMessage* msg) {
     // get
     if (parameter.length() == 0) {
       response = format_response(COMMANDID, json, true,
-                                 ESP3DSettings::read_string(ESP_AP_SSID));
+                                 ESP3DSettings::readString(ESP_AP_SSID));
     } else {  // set
 #ifdef AUTHENTICATION_FEATURE
       if (auth_type != admin) {
@@ -68,7 +68,7 @@ void ESP3DCommands::ESP105(int cmd_params_pos, ESP3DMessage* msg) {
           response = format_response(COMMANDID, json, false, "Incorrect SSID");
           noError = false;
         } else {
-          if (!ESP3DSettings::write_string(ESP_AP_SSID, parameter.c_str())) {
+          if (!ESP3DSettings::writeString(ESP_AP_SSID, parameter.c_str())) {
             response = format_response(COMMANDID, json, false, "Set failed");
             noError = false;
           } else {

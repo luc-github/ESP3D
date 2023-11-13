@@ -51,7 +51,7 @@ void ESP3DCommands::ESP930(int cmd_params_pos, ESP3DMessage* msg) {
     // get
     if (parameter.length() == 0) {
       String r =
-          (ESP3DSettings::read_byte(ESP_SERIAL_BRIDGE_ON) == 0) ? "OFF" : "ON";
+          (ESP3DSettings::readByte(ESP_SERIAL_BRIDGE_ON) == 0) ? "OFF" : "ON";
       r += " - Serial" + String(serial_bridge_service.serialIndex());
       response = format_response(COMMANDID, json, true, r.c_str());
     } else {  // set
@@ -74,7 +74,7 @@ void ESP3DCommands::ESP930(int cmd_params_pos, ESP3DMessage* msg) {
           if (parameter == "CLOSE") {
             serial_bridge_service.end();
           } else {
-            if (!ESP3DSettings::write_byte(ESP_SERIAL_BRIDGE_ON,
+            if (!ESP3DSettings::writeByte(ESP_SERIAL_BRIDGE_ON,
                                            (parameter == "ON") ? 1 : 0)) {
               response = format_response(COMMANDID, json, false, "Set failed");
               noError = false;

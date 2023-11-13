@@ -52,7 +52,7 @@ void ESP3DCommands::ESP112(int cmd_params_pos, ESP3DMessage* msg) {
     // Get hostname
     if (parameter.length() == 0) {
       response = format_response(COMMANDID, json, true,
-                                 ESP3DSettings::read_string(ESP_HOSTNAME));
+                                 ESP3DSettings::readString(ESP_HOSTNAME));
     } else {  // set host name
 #ifdef AUTHENTICATION_FEATURE
       if (auth_type != admin) {
@@ -69,7 +69,7 @@ void ESP3DCommands::ESP112(int cmd_params_pos, ESP3DMessage* msg) {
               format_response(COMMANDID, json, false, "Incorrect hostname");
           noError = false;
         } else {
-          if (!ESP3DSettings::write_string(ESP_HOSTNAME, parameter.c_str())) {
+          if (!ESP3DSettings::writeString(ESP_HOSTNAME, parameter.c_str())) {
             response = format_response(COMMANDID, json, false, "Set failed");
             noError = false;
           } else {

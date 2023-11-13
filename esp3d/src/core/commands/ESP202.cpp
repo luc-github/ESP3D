@@ -52,12 +52,12 @@ void ESP3DCommands::ESP202(int cmd_params_pos, ESP3DMessage* msg) {
     if (parameter.length() == 0) {
       response = format_response(
           COMMANDID, json, true,
-          String(ESP3DSettings::read_byte(ESP_SD_SPEED_DIV)).c_str());
+          String(ESP3DSettings::readByte(ESP_SD_SPEED_DIV)).c_str());
     } else {  // set
       parameter = get_param(cmd_params, "SPEED=");
       if (ESP3DSettings::isValidByteSetting(parameter.toInt(),
                                             ESP_SD_SPEED_DIV)) {
-        if (!ESP3DSettings::write_byte(ESP_SD_SPEED_DIV, parameter.toInt())) {
+        if (!ESP3DSettings::writeByte(ESP_SD_SPEED_DIV, parameter.toInt())) {
           response = format_response(COMMANDID, json, false, "Set failed");
           noError = false;
 

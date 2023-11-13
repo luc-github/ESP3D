@@ -51,7 +51,7 @@ void ESP3DCommands::ESP402(int cmd_params_pos, ESP3DMessage* msg) {
     if (parameter.length() == 0) {
       response = format_response(
           COMMANDID, json, true,
-          (ESP3DSettings::read_byte(ESP_SD_CHECK_UPDATE_AT_BOOT) == 0) ? "OFF"
+          (ESP3DSettings::readByte(ESP_SD_CHECK_UPDATE_AT_BOOT) == 0) ? "OFF"
                                                                        : "ON");
     } else {  // set
 #ifdef AUTHENTICATION_FEATURE
@@ -69,7 +69,7 @@ void ESP3DCommands::ESP402(int cmd_params_pos, ESP3DMessage* msg) {
                                      "Only ON or OFF mode supported");
           noError = false;
         } else {
-          if (!ESP3DSettings::write_byte(ESP_SD_CHECK_UPDATE_AT_BOOT,
+          if (!ESP3DSettings::writeByte(ESP_SD_CHECK_UPDATE_AT_BOOT,
                                          (parameter == "ON") ? 1 : 0)) {
             response = format_response(COMMANDID, json, false, "Set failed");
             noError = false;

@@ -52,7 +52,7 @@ void ESP3DCommands::ESP215(int cmd_params_pos, ESP3DMessage* msg) {
     if (parameter.length() == 0) {
       response = format_response(
           COMMANDID, json, true,
-          (ESP3DSettings::read_byte(ESP_CALIBRATION) == 1) ? "Done"
+          (ESP3DSettings::readByte(ESP_CALIBRATION) == 1) ? "Done"
                                                            : "Not done");
     } else {  // set
       parameter.toUpperCase();

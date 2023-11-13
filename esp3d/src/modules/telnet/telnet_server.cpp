@@ -85,12 +85,12 @@ Telnet_Server::~Telnet_Server() { end(); }
  */
 bool Telnet_Server::begin(uint16_t port, bool debug) {
   end();
-  if (ESP3DSettings::read_byte(ESP_TELNET_ON) != 1) {
+  if (ESP3DSettings::readByte(ESP_TELNET_ON) != 1) {
     return true;
   }
   // Get telnet port
   if (port == 0) {
-    _port = ESP3DSettings::read_uint32(ESP_TELNET_PORT);
+    _port = ESP3DSettings::readUint32(ESP_TELNET_PORT);
   } else {
     _port = port;
   }

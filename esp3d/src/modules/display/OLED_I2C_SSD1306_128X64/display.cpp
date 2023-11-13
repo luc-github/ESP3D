@@ -113,11 +113,11 @@ bool Display::begin() {
   showScreenID(SPLASH_SCREEN);
   updateScreen(true);
 #if defined(DISPLAY_TOUCH_DRIVER)
-  if (ESP3DSettings::read_byte(ESP_CALIBRATION) == 1) {
+  if (ESP3DSettings::readByte(ESP_CALIBRATION) == 1) {
     uint16_t calibrationData[5];
     for (uint8_t i = 0; i < 5; i++) {
       calibrationData[i] =
-          ESP3DSettings::read_uint32(ESP_CALIBRATION_1 + (4 * i));
+          ESP3DSettings::readUint32(ESP_CALIBRATION_1 + (4 * i));
     }
     esp3d_screen.setTouch(calibrationData);
   }

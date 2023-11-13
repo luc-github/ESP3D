@@ -52,7 +52,7 @@ void ESP3DCommands::ESP114(int cmd_params_pos, ESP3DMessage* msg) {
     if (parameter.length() == 0) {
       response = format_response(
           COMMANDID, json, true,
-          (ESP3DSettings::read_byte(ESP_BOOT_RADIO_STATE) == 0) ? "OFF" : "ON");
+          (ESP3DSettings::readByte(ESP_BOOT_RADIO_STATE) == 0) ? "OFF" : "ON");
     } else {  // set
 #ifdef AUTHENTICATION_FEATURE
       if (auth_type != admin) {
@@ -69,7 +69,7 @@ void ESP3DCommands::ESP114(int cmd_params_pos, ESP3DMessage* msg) {
                                      "Only ON or OFF mode supported");
           noError = false;
         } else {
-          if (!ESP3DSettings::write_byte(ESP_BOOT_RADIO_STATE,
+          if (!ESP3DSettings::writeByte(ESP_BOOT_RADIO_STATE,
                                          (parameter == "ON") ? 1 : 0)) {
             response = format_response(COMMANDID, json, false, "Set failed");
             noError = false;

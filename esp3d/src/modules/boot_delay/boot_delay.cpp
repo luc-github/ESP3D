@@ -38,7 +38,7 @@ BootDelay::~BootDelay() { end(); }
 bool BootDelay::started() { return _started; }
 
 bool BootDelay::begin() {
-  _totalduration = ESP3DSettings::read_uint32(ESP_BOOT_DELAY);
+  _totalduration = ESP3DSettings::readUint32(ESP_BOOT_DELAY);
   esp3d_log("Boot delay %d", _totalduration);
   if (!ESP3DSettings::isValidIntegerSetting(_totalduration, ESP_BOOT_DELAY)) {
     _totalduration = ESP3DSettings::getDefaultIntegerSetting(ESP_BOOT_DELAY);
@@ -85,7 +85,7 @@ void BootDelay::handle() {
 #if defined(DISPLAY_DEVICE)
         esp3d_commands.dispatch(String(p).c_str(), ESP3DClientType::rendering,
                                 reqId, ESP3DMessageType::unique);
-#endif // DISPLAY_DEVICE
+#endif  // DISPLAY_DEVICE
       }
     }
     ESP3DHal::wait(10);

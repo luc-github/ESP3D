@@ -217,10 +217,10 @@ void HTTP_Server::cancelUpload() {
 bool HTTP_Server::begin() {
   bool no_error = true;
   end();
-  if (ESP3DSettings::read_byte(ESP_HTTP_ON) != 1) {
+  if (ESP3DSettings::readByte(ESP_HTTP_ON) != 1) {
     return no_error;
   }
-  _port = ESP3DSettings::read_uint32(ESP_HTTP_PORT);
+  _port = ESP3DSettings::readUint32(ESP_HTTP_PORT);
   _webserver = new WEBSERVER(_port);
   if (!_webserver) {
     return false;

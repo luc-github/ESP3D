@@ -116,7 +116,7 @@ bool BTService::begin() {
   end();
   // Get hostname
   // this allow to adjust if necessary
-  _btname = ESP3DSettings::read_string(ESP_HOSTNAME);
+  _btname = ESP3DSettings::readString(ESP_HOSTNAME);
 
   if (!SerialBT.begin(_btname)) {
     esp3dmsg.printERROR("BT failed start");

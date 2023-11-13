@@ -40,7 +40,7 @@ void ESP3DCommands::ESP550(int cmd_params_pos, ESP3DMessage* msg) {
     if (parameter.length() != 0) {
       if (ESP3DSettings::isValidStringSetting(parameter.c_str(),
                                               ESP_ADMIN_PWD)) {
-        if (!ESP3DSettings::write_string(ESP_ADMIN_PWD, parameter.c_str())) {
+        if (!ESP3DSettings::writeString(ESP_ADMIN_PWD, parameter.c_str())) {
           response = format_response(COMMANDID, json, false, "Set failed");
           noError = false;
         } else {

@@ -37,7 +37,7 @@ const uint8_t DEFAULT_AP_MASK_VALUE[] = {255, 255, 255, 0};
 
 bool EthConfig::StartSTA() {
   bool res = true;
-  if ((ESP3DSettings::read_byte(ESP_STA_IP_MODE) != DHCP_MODE)) {
+  if ((ESP3DSettings::readByte(ESP_STA_IP_MODE) != DHCP_MODE)) {
     int32_t IP = ESP3DSettings::read_IP(ESP_STA_IP_VALUE);
     int32_t GW = ESP3DSettings::read_IP(ESP_STA_GATEWAY_VALUE);
     int32_t MK = ESP3DSettings::read_IP(ESP_STA_MASK_VALUE);
@@ -111,7 +111,7 @@ bool EthConfig::begin(int8_t& espMode) {
       if (ESP3DSettings::isVerboseBoot()) {
         esp3dmsg.printMSG("Starting fallback mode");
       }
-      espMode = ESP3DSettings::read_byte(ESP_STA_FALLBACK_MODE);
+      espMode = ESP3DSettings::readByte(ESP_STA_FALLBACK_MODE);
       res = true;
     } else {
       if (ESP3DSettings::isVerboseBoot()) {
@@ -128,9 +128,9 @@ bool EthConfig::begin(int8_t& espMode) {
     // }
   }
 
-  // if ((ESP3DSettings::read_byte(ESP_STA_IP_MODE) != DHCP_MODE) || (espMode
+  // if ((ESP3DSettings::readByte(ESP_STA_IP_MODE) != DHCP_MODE) || (espMode
   // == ESP_ETH_SRV)){
-  if ((ESP3DSettings::read_byte(ESP_STA_IP_MODE) != DHCP_MODE)) {
+  if ((ESP3DSettings::readByte(ESP_STA_IP_MODE) != DHCP_MODE)) {
     // as no event to display static IP
     esp3dmsg.printMSG(ETH.localIP().toString().c_str());
   }

@@ -52,7 +52,7 @@ void ESP3DCommands::ESP931(int cmd_params_pos, ESP3DMessage* msg) {
     if (parameter.length() == 0) {
       response = format_response(
           COMMANDID, json, true,
-          String(ESP3DSettings::read_uint32(ESP_SERIAL_BRIDGE_BAUD)).c_str());
+          String(ESP3DSettings::readUint32(ESP_SERIAL_BRIDGE_BAUD)).c_str());
     } else {  // set
 #ifdef AUTHENTICATION_FEATURE
       if (auth_type != admin) {
@@ -68,7 +68,7 @@ void ESP3DCommands::ESP931(int cmd_params_pos, ESP3DMessage* msg) {
           response = format_response(COMMANDID, json, false, "Incorrect port");
           noError = false;
         } else {
-          if (!ESP3DSettings::write_uint32(ESP_SERIAL_BRIDGE_BAUD, ibuf)) {
+          if (!ESP3DSettings::writeUint32(ESP_SERIAL_BRIDGE_BAUD, ibuf)) {
             response = format_response(COMMANDID, json, false, "Set failed");
             noError = false;
           } else {

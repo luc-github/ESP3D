@@ -83,7 +83,7 @@ bool NetServices::_restart = false;
 bool NetServices::begin() {
   bool res = true;
   _started = false;
-  String hostname = ESP3DSettings::read_string(ESP_HOSTNAME);
+  String hostname = ESP3DSettings::readString(ESP_HOSTNAME);
   end();
 #ifdef TIMESTAMP_FEATURE
   if (WiFi.getMode() != WIFI_AP) {
@@ -283,7 +283,7 @@ bool NetServices::begin() {
 #endif  // FTP_FEATURE
 #ifdef WS_DATA_FEATURE
   if (!websocket_data_server.begin(
-          ESP3DSettings::read_uint32(ESP_WEBSOCKET_PORT))) {
+          ESP3DSettings::readUint32(ESP_WEBSOCKET_PORT))) {
     esp3d_log_e("Failed start Terminal Web Socket");
     esp3d_commands.dispatch("Failed start Terminal Web Socket",
                             ESP3DClientType::all_clients, no_id,

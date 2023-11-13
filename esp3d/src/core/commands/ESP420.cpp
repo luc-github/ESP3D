@@ -1481,7 +1481,7 @@ void ESP3DCommands::ESP420(int cmd_params_pos, ESP3DMessage* msg) {
       } else {
         line += ": ";
       }
-      line += ESP3DSettings::read_byte(ESP_SD_CHECK_UPDATE_AT_BOOT) != 0
+      line += ESP3DSettings::readByte(ESP_SD_CHECK_UPDATE_AT_BOOT) != 0
                   ? "ON"
                   : "OFF";
       if (json) {

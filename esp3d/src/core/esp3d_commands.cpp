@@ -754,13 +754,13 @@ bool ESP3DCommands::dispatchSetting(bool json, const char *filter,
   }
   switch (elementSetting->type) {
     case ESP3DSettingType::byte_t:
-      value = String(ESP3DSettings::read_byte(index));
+      value = String(ESP3DSettings::readByte(index));
       break;
     case ESP3DSettingType::integer_t:
-      value = String(ESP3DSettings::read_uint32(index));
+      value = String(ESP3DSettings::readUint32(index));
       break;
     case ESP3DSettingType::ip_t:
-      value = ESP3DSettings::read_IP_String(index);
+      value = ESP3DSettings::readIPString(index);
       break;
     case ESP3DSettingType::float_t:
       // TODO Add float support ?
@@ -785,7 +785,7 @@ bool ESP3DCommands::dispatchSetting(bool json, const char *filter,
                                                               // using  ********
         value = HIDDEN_PASSWORD;
       } else {
-        value = ESP3DSettings::read_string(index);
+        value = ESP3DSettings::readString(index);
       }
   }
   if (json) {
@@ -1026,13 +1026,13 @@ bool ESP3DCommands::_dispatchSetting(
   }
   switch (elementSetting->type) {
     case ESP3DSettingType::byte_t:
-      value = String(ESP3DSettings::read_byte(index));
+      value = String(ESP3DSettings::readByte(index));
       break;
     case ESP3DSettingType::integer_t:
-      value = String(ESP3DSettings::read_uint32(index));
+      value = String(ESP3DSettings::readUint32(index));
       break;
     case ESP3DSettingType::ip_t:
-      value = ESP3DSettings::read_IP_String(index);
+      value = ESP3DSettings::readIPString(index);
       break;
     case ESP3DSettingType::float_t:
       // TODO Add float support ?
@@ -1064,7 +1064,7 @@ bool ESP3DCommands::_dispatchSetting(
                                                               // using ********
         value = HIDDEN_PASSWORD;
       } else {
-        value = ESP3DSettings::read_string(index);
+        value = ESP3DSettings::readStringindex);
       }
       break;
     default:

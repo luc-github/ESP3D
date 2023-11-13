@@ -53,7 +53,7 @@ uint8_t AnalogSensorDevice::nbType() { return 1; }
 uint8_t AnalogSensorDevice::GetModel(uint8_t i) { return ANALOG_DEVICE; }
 
 const char *AnalogSensorDevice::GetCurrentModelString() {
-  uint8_t sensortype = ESP3DSettings::read_byte(ESP_SENSOR_TYPE);
+  uint8_t sensortype = ESP3DSettings::readByte(ESP_SENSOR_TYPE);
   if (sensortype == ANALOG_DEVICE) {
     return GetModelString();
   }

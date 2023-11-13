@@ -376,17 +376,17 @@ bool processingFileFunction(const char* section, const char* key,
     switch (T) {
       case 'S':
         esp3d_log("Saving setting to ESP3D");
-        res = ESP3DSettings::write_string(P, value);
+        res = ESP3DSettings::writeStringP, value);
         break;
       case 'B':
       case 'F':
-        res = ESP3DSettings::write_byte(P, b);
+        res = ESP3DSettings::writeByte(P, b);
         break;
       case 'I':
-        res = ESP3DSettings::write_uint32(P, v);
+        res = ESP3DSettings::writeUint32(P, v);
         break;
       case 'A':
-        res = ESP3DSettings::write_IP_String(P, value);
+        res = ESP3DSettings::writeIPString(P, value);
         break;
       default:
         esp3d_log("Unknown flag");
@@ -457,7 +457,7 @@ bool UpdateService::flash(const char* filename, int type) {
 
 bool UpdateService::begin() {
   bool res = false;
-  if (ESP3DSettings::read_byte(ESP_SD_CHECK_UPDATE_AT_BOOT) != 0) {
+  if (ESP3DSettings::readByte(ESP_SD_CHECK_UPDATE_AT_BOOT) != 0) {
     if (ESP_SD::accessFS()) {
       esp3d_log("Update SD for update requestest");
       if (ESP_SD::getState(true) != ESP_SDCARD_NOT_PRESENT) {

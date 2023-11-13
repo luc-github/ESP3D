@@ -88,11 +88,11 @@ WebdavServer::~WebdavServer() { end(); }
  */
 bool WebdavServer::begin() {
   end();
-  if (ESP3DSettings::read_byte(ESP_WEBDAV_ON) != 1) {
+  if (ESP3DSettings::readByte(ESP_WEBDAV_ON) != 1) {
     return true;
   }
   // Get webdav port
-  _port = ESP3DSettings::read_uint32(ESP_WEBDAV_PORT);
+  _port = ESP3DSettings::readUint32(ESP_WEBDAV_PORT);
 
   // create instance
   _tcpServer = new WiFiServer(_port);

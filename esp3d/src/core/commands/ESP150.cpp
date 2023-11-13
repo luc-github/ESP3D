@@ -55,7 +55,7 @@ void ESP3DCommands::ESP150(int cmd_params_pos, ESP3DMessage* msg) {
       } else {
         s += "delay=";
       }
-      s += String(ESP3DSettings::read_uint32(ESP_BOOT_DELAY));
+      s += String(ESP3DSettings::readUint32(ESP_BOOT_DELAY));
       if (json) {
         s += "\",\"verbose\":\"";
       } else {
@@ -87,7 +87,7 @@ void ESP3DCommands::ESP150(int cmd_params_pos, ESP3DMessage* msg) {
             noError = false;
           }
           if (noError) {
-            if (!ESP3DSettings::write_uint32(ESP_BOOT_DELAY, ibuf)) {
+            if (!ESP3DSettings::writeUint32(ESP_BOOT_DELAY, ibuf)) {
               response = format_response(COMMANDID, json, false, "Set failed");
               noError = false;
             }
@@ -98,7 +98,7 @@ void ESP3DCommands::ESP150(int cmd_params_pos, ESP3DMessage* msg) {
           if (parameter.length() != 0) {
             hasParameter = true;
             if ((parameter == "ON") || (parameter == "OFF")) {
-              if (!ESP3DSettings::write_byte(ESP_VERBOSE_BOOT,
+              if (!ESP3DSettings::writeByte(ESP_VERBOSE_BOOT,
                                              (parameter == "ON") ? 1 : 0)) {
                 response =
                     format_response(COMMANDID, json, false, "Set failed");

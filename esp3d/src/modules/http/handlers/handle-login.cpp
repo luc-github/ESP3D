@@ -68,8 +68,8 @@ void HTTP_Server::handle_login() {
           // check new password
           if (ESP3DSettings::isValidStringSetting(newpassword.c_str(),
                                                   ESP_ADMIN_PWD)) {
-            if (!ESP3DSettings::write_string(ESP_ADMIN_PWD,
-                                             newpassword.c_str())) {
+            if (!ESP3DSettings::writeString(ESP_ADMIN_PWD,
+                                            newpassword.c_str())) {
               code = 500;
               status = "Set failed!";
             } else {

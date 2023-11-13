@@ -69,7 +69,7 @@ void ESP3DCommands::ESP800(int cmd_params_pos, ESP3DMessage* msg) {
   if (noError) {
     parameter = get_param(cmd_params, "setup=");
     if (parameter.length() > 0) {
-      if (!ESP3DSettings::write_byte(ESP_SETUP, parameter == "0" ? 0 : 1)) {
+      if (!ESP3DSettings::writeByte(ESP_SETUP, parameter == "0" ? 0 : 1)) {
         response =
             format_response(COMMANDID, json, false, "Save setup flag failed");
         noError = false;
@@ -166,7 +166,7 @@ void ESP3DCommands::ESP800(int cmd_params_pos, ESP3DMessage* msg) {
       line += "Setup:";
     }
     line +=
-        ESP3DSettings::read_byte(ESP_SETUP) == 0 ? F("Enabled") : F("Disabled");
+        ESP3DSettings::readByte(ESP_SETUP) == 0 ? F("Enabled") : F("Disabled");
     if (json) {
       line += "\"";
       esp3dmsg->print(line.c_str());

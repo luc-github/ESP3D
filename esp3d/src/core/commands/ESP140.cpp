@@ -66,7 +66,7 @@ void ESP3DCommands::ESP140(int cmd_params_pos, ESP3DMessage* msg) {
           hasParam = true;
           if (ESP3DSettings::isValidIPStringSetting(parameter.c_str(),
                                                     ESP_TIME_SERVER1)) {
-            if (!ESP3DSettings::write_string(ESP_TIME_SERVER1,
+            if (!ESP3DSettings::writeString(ESP_TIME_SERVER1,
                                              parameter.c_str())) {
               response = format_response(COMMANDID, json, false,
                                          "Set server 1 failed");
@@ -81,7 +81,7 @@ void ESP3DCommands::ESP140(int cmd_params_pos, ESP3DMessage* msg) {
           hasParam = true;
           if (!ESP3DSettings::isValidIPStringSetting(parameter.c_str(),
                                                      ESP_TIME_SERVER2)) {
-            if (!ESP3DSettings::write_string(ESP_TIME_SERVER2,
+            if (!ESP3DSettings::writeString(ESP_TIME_SERVER2,
                                              parameter.c_str())) {
               response = format_response(COMMANDID, json, false,
                                          "Set server 2 failed");
@@ -96,7 +96,7 @@ void ESP3DCommands::ESP140(int cmd_params_pos, ESP3DMessage* msg) {
           hasParam = true;
           if (!ESP3DSettings::isValidIPStringSetting(parameter.c_str(),
                                                      ESP_TIME_SERVER3)) {
-            if (!ESP3DSettings::write_string(ESP_TIME_SERVER3,
+            if (!ESP3DSettings::writeString(ESP_TIME_SERVER3,
                                              parameter.c_str())) {
               response = format_response(COMMANDID, json, false,
                                          "Set server 3 failed");
@@ -117,7 +117,7 @@ void ESP3DCommands::ESP140(int cmd_params_pos, ESP3DMessage* msg) {
             }
           }
           if (isvalid) {
-            if (!ESP3DSettings::write_string(ESP_TIME_ZONE,
+            if (!ESP3DSettings::writeString(ESP_TIME_ZONE,
                                              parameter.c_str())) {
               response = format_response(COMMANDID, json, false,
                                          "Set time zone failed");
@@ -138,7 +138,7 @@ void ESP3DCommands::ESP140(int cmd_params_pos, ESP3DMessage* msg) {
           hasParam = true;
           parameter.toUpperCase();
           if (parameter.length() > 0) {
-            if (!ESP3DSettings::write_byte(ESP_INTERNET_TIME,
+            if (!ESP3DSettings::writeByte(ESP_INTERNET_TIME,
                                            (parameter == "NO") ? 0 : 1)) {
               response = format_response(COMMANDID, json, false,
                                          "Set internet time failed");
@@ -206,31 +206,31 @@ void ESP3DCommands::ESP140(int cmd_params_pos, ESP3DMessage* msg) {
       } else {
         tmp += "srv1=";
       }
-      tmp += ESP3DSettings::read_string(ESP_TIME_SERVER1);
+      tmp += ESP3DSettings::readString(ESP_TIME_SERVER1);
       if (json) {
         tmp += "\",\"srv2\":\"";
       } else {
         tmp += ", srv2=";
       }
-      tmp += ESP3DSettings::read_string(ESP_TIME_SERVER2);
+      tmp += ESP3DSettings::readString(ESP_TIME_SERVER2);
       if (json) {
         tmp += "\",\"srv3\":\"";
       } else {
         tmp += ", srv3=";
       }
-      tmp += ESP3DSettings::read_string(ESP_TIME_ZONE);
+      tmp += ESP3DSettings::readString(ESP_TIME_ZONE);
       if (json) {
         tmp += "\",\"tzone\":\"";
       } else {
         tmp += ", tzone=";
       }
-      tmp += ESP3DSettings::read_byte(ESP_INTERNET_TIME);
+      tmp += ESP3DSettings::readByte(ESP_INTERNET_TIME);
       if (json) {
         tmp += "\",\"ntp\":\"";
       } else {
         tmp += ", ntp=";
       }
-      tmp += ESP3DSettings::read_byte(ESP_INTERNET_TIME) ? "YES" : "NO";
+      tmp += ESP3DSettings::readByte(ESP_INTERNET_TIME) ? "YES" : "NO";
       if (json) {
         tmp += "\"}";
       }

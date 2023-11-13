@@ -501,7 +501,7 @@ bool NotificationsService::sendIFTTTMSG(const char* title,
 
 // Email#serveraddress:port
 bool NotificationsService::getPortFromSettings() {
-  String tmp = ESP3DSettings::read_string(ESP_NOTIFICATION_SETTINGS);
+  String tmp = ESP3DSettings::readString(ESP_NOTIFICATION_SETTINGS);
   int pos = tmp.lastIndexOf(':');
   if (pos == -1) {
     return false;
@@ -516,7 +516,7 @@ bool NotificationsService::getPortFromSettings() {
 }
 // Email#serveraddress:port
 bool NotificationsService::getServerAddressFromSettings() {
-  String tmp = ESP3DSettings::read_string(ESP_NOTIFICATION_SETTINGS);
+  String tmp = ESP3DSettings::readString(ESP_NOTIFICATION_SETTINGS);
   int pos1 = tmp.indexOf('#');
   int pos2 = tmp.lastIndexOf(':');
   if ((pos1 == -1) || (pos2 == -1)) {
@@ -530,7 +530,7 @@ bool NotificationsService::getServerAddressFromSettings() {
 }
 // Email#serveraddress:port
 bool NotificationsService::getEmailFromSettings() {
-  String tmp = ESP3DSettings::read_string(ESP_NOTIFICATION_SETTINGS);
+  String tmp = ESP3DSettings::readString(ESP_NOTIFICATION_SETTINGS);
   int pos = tmp.indexOf('#');
   if (pos == -1) {
     return false;
@@ -573,41 +573,41 @@ bool NotificationsService::GET(const char* URL64) {
 bool NotificationsService::begin() {
   bool res = true;
   end();
-  _notificationType = ESP3DSettings::read_byte(ESP_NOTIFICATION_TYPE);
+  _notificationType = ESP3DSettings::readByte(ESP_NOTIFICATION_TYPE);
   switch (_notificationType) {
     case 0:  // no notification = no error but no start
       _started = true;
       return true;
     case ESP_PUSHOVER_NOTIFICATION:
-      _token1 = ESP3DSettings::read_string(ESP_NOTIFICATION_TOKEN1);
-      _token2 = ESP3DSettings::read_string(ESP_NOTIFICATION_TOKEN2);
+      _token1 = ESP3DSettings::readString(ESP_NOTIFICATION_TOKEN1);
+      _token2 = ESP3DSettings::readString(ESP_NOTIFICATION_TOKEN2);
       _port = PUSHOVERPORT;
       _serveraddress = PUSHOVERSERVER;
       break;
     case ESP_TELEGRAM_NOTIFICATION:
-      _token1 = ESP3DSettings::read_string(ESP_NOTIFICATION_TOKEN1);
-      _token2 = ESP3DSettings::read_string(ESP_NOTIFICATION_TOKEN2);
+      _token1 = ESP3DSettings::readString(ESP_NOTIFICATION_TOKEN1);
+      _token2 = ESP3DSettings::readString(ESP_NOTIFICATION_TOKEN2);
       _port = TELEGRAMPORT;
       _serveraddress = TELEGRAMSERVER;
       break;
     case ESP_LINE_NOTIFICATION:
-      _token1 = ESP3DSettings::read_string(ESP_NOTIFICATION_TOKEN1);
+      _token1 = ESP3DSettings::readString(ESP_NOTIFICATION_TOKEN1);
       _port = LINEPORT;
       _serveraddress = LINESERVER;
       break;
     case ESP_IFTTT_NOTIFICATION:
-      _token1 = ESP3DSettings::read_string(ESP_NOTIFICATION_TOKEN1);
-      _token2 = ESP3DSettings::read_string(ESP_NOTIFICATION_TOKEN2);
+      _token1 = ESP3DSettings::readString(ESP_NOTIFICATION_TOKEN1);
+      _token2 = ESP3DSettings::readString(ESP_NOTIFICATION_TOKEN2);
       _port = IFTTTPORT;
       _serveraddress = IFTTTSERVER;
       break;
     case ESP_EMAIL_NOTIFICATION:
       _token1 =
-          base64::encode(ESP3DSettings::read_string(ESP_NOTIFICATION_TOKEN1));
+          base64::encode(ESP3DSettings::readString(ESP_NOTIFICATION_TOKEN1));
       _token2 =
-          base64::encode(ESP3DSettings::read_string(ESP_NOTIFICATION_TOKEN2));
-      // esp3d_log("%s",ESP3DSettings::read_string(ESP_NOTIFICATION_TOKEN1));
-      // esp3d_log("%s",ESP3DSettings::read_string(ESP_NOTIFICATION_TOKEN2));
+          base64::encode(ESP3DSettings::readString(ESP_NOTIFICATION_TOKEN2));
+      // esp3d_log("%s",ESP3DSettings::readString(ESP_NOTIFICATION_TOKEN1));
+      // esp3d_log("%s",ESP3DSettings::readString(ESP_NOTIFICATION_TOKEN2));
       if (!getEmailFromSettings() || !getPortFromSettings() ||
           !getServerAddressFromSettings()) {
         return false;
@@ -618,7 +618,7 @@ bool NotificationsService::begin() {
       break;
   }
   _autonotification =
-      (ESP3DSettings::read_byte(ESP_AUTO_NOTIFICATION) == 0) ? false : true;
+      (ESP3DSettings::readByte(ESP_AUTO_NOTIFICATION) == 0) ? false : true;
   if (!res) {
     end();
   }

@@ -130,7 +130,7 @@ bool Esp3D::begin() {
   // Setup Network
 #if defined(WIFI_FEATURE) || defined(ETH_FEATURE) || defined(BLUETOOTH_FEATURE)
   esp3d_log("Starting Netconfig feature");
-  if (ESP3DSettings::read_byte(ESP_BOOT_RADIO_STATE) == 1) {
+  if (ESP3DSettings::readByte(ESP_BOOT_RADIO_STATE) == 1) {
     if (!NetConfig::begin()) {
       esp3d_log_e("Error setup network");
       res = false;

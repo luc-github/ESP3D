@@ -40,7 +40,7 @@ DHTSensorDevice::~DHTSensorDevice() { end(); }
 
 bool DHTSensorDevice::begin() {
   end();
-  uint8_t dhttype = ESP3DSettings::read_byte(ESP_SENSOR_TYPE);
+  uint8_t dhttype = ESP3DSettings::readByte(ESP_SENSOR_TYPE);
   esp3d_log("Read %d, %s", dhttype,
             dhttype == 1   ? "DHT11"
             : dhttype == 2 ? "DHT22"
@@ -108,7 +108,7 @@ uint8_t DHTSensorDevice::GetModel(uint8_t i) {
 }
 
 const char *DHTSensorDevice::GetCurrentModelString() {
-  uint8_t dhttype = ESP3DSettings::read_byte(ESP_SENSOR_TYPE);
+  uint8_t dhttype = ESP3DSettings::readByte(ESP_SENSOR_TYPE);
   for (uint8_t i = 0; i < NB_TYPE_SENSOR; i++) {
     if ((DHTesp::DHT_MODEL_t)dhttype == SENSOR_TYPE[i]) {
       return SENSOR_NAME[i];

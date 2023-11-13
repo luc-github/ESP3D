@@ -60,16 +60,15 @@ extern const uint8_t SupportedApChannelsSize;
 class ESP3DSettings {
  public:
   static bool begin();
-  static uint8_t read_byte(int pos, bool *haserror = NULL);
-  static uint32_t read_uint32(int pos, bool *haserror = NULL);
+  static uint8_t readByte(int pos, bool *haserror = NULL);
+  static uint32_t readUint32(int pos, bool *haserror = NULL);
   static uint32_t read_IP(int pos, bool *haserror = NULL);
-  static String read_IP_String(int pos, bool *haserror = NULL);
-  static const char *read_string(int pos, bool *haserror = NULL);
-  static bool write_byte(int pos, const uint8_t value);
-  static bool write_string(int pos, const char *byte_buffer);
-  static bool write_uint32(int pos, const uint32_t value);
-  static bool write_IP(int pos, const uint32_t value);
-  static bool write_IP_String(int pos, const char *value);
+  static String readIPString(int pos, bool *haserror = NULL);
+  static const char *readString(int pos, bool *haserror = NULL);
+  static bool writeByte(int pos, const uint8_t value);
+  static bool writeString(int pos, const char *byte_buffer);
+  static bool writeUint32(int pos, const uint32_t value);
+  static bool writeIPString(int pos, const char *value);
   static bool reset(bool networkonly = false);
   static int8_t GetSettingsVersion();
   static uint8_t GetFirmwareTarget(bool fromsettings = false);

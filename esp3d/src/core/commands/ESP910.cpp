@@ -57,7 +57,7 @@ void ESP3DCommands::ESP910(int cmd_params_pos, ESP3DMessage* msg) {
       }
     } else {  // set
       if (parameter == "ENABLE" || parameter == "DISABLE") {
-        if (!ESP3DSettings::write_byte(ESP_BUZZER,
+        if (!ESP3DSettings::writeByte(ESP_BUZZER,
                                        (parameter == "ENABLE") ? 1 : 0)) {
           response = format_response(COMMANDID, json, false, "Set failed");
           noError = false;

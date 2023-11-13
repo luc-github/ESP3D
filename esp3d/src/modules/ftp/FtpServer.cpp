@@ -159,12 +159,12 @@ bool FtpServer::started() { return _started; }
 
 bool FtpServer::begin() {
   end();
-  if (ESP3DSettings::read_byte(ESP_FTP_ON) != 1) {
+  if (ESP3DSettings::readByte(ESP_FTP_ON) != 1) {
     return true;
   }
-  ctrlPort = ESP3DSettings::read_uint32(ESP_FTP_CTRL_PORT);
-  activePort = ESP3DSettings::read_uint32(ESP_FTP_DATA_ACTIVE_PORT);
-  passivePort = ESP3DSettings::read_uint32(ESP_FTP_DATA_PASSIVE_PORT);
+  ctrlPort = ESP3DSettings::readUint32(ESP_FTP_CTRL_PORT);
+  activePort = ESP3DSettings::readUint32(ESP_FTP_DATA_ACTIVE_PORT);
+  passivePort = ESP3DSettings::readUint32(ESP_FTP_DATA_PASSIVE_PORT);
   ftpServer = new WiFiServer(ctrlPort);
   if (!ftpServer) {
     return false;

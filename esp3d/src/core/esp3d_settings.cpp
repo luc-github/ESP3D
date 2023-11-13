@@ -263,7 +263,7 @@ bool ESP3DSettings::begin() {
 bool ESP3DSettings::isVerboseBoot(bool fromsettings) {
 #if COMMUNICATION_PROTOCOL != MKS_SERIAL
   if (fromsettings) {
-    _isverboseboot = read_byte(ESP_VERBOSE_BOOT);
+    _isverboseboot = readByte(ESP_VERBOSE_BOOT);
   }
 #else
   _isverboseboot = false;
@@ -277,7 +277,7 @@ uint8_t ESP3DSettings::GetFirmwareTarget(bool fromsettings) {
   _FirmwareTarget = FIXED_FW_TARGET;
 #else
   if (fromsettings) {
-    _FirmwareTarget = read_byte(ESP_TARGET_FW);
+    _FirmwareTarget = readByte(ESP_TARGET_FW);
   }
 #endif  // #if defined( FIXED_FW_TARGET )
   return _FirmwareTarget;
@@ -310,11 +310,11 @@ const char *ESP3DSettings::GetFirmwareTargetShortName() {
   return response.c_str();
 }
 
-uint8_t ESP3DSettings::read_byte(int pos, bool *haserror) {
+uint8_t ESP3DSettings::readByte(int pos, bool *haserror) {
   if (haserror) {
     *haserror = true;
   }
-  esp3d_log("read_byte %d", pos);
+  esp3d_log("readByte %d", pos);
   uint8_t value = getDefaultByteSetting(pos);
   esp3d_log("default value %d", value);
 #if ESP_SAVE_SETTINGS == SETTINGS_IN_EEPROM
@@ -349,7 +349,7 @@ uint8_t ESP3DSettings::read_byte(int pos, bool *haserror) {
 }
 
 // write a flag / byte
-bool ESP3DSettings::write_byte(int pos, const uint8_t value) {
+bool ESP3DSettings::writeByte(int pos, const uint8_t value) {
 #if ESP_SAVE_SETTINGS == SETTINGS_IN_EEPROM
   // check if parameters are acceptable
   if (pos + 1 > EEPROM_SIZE) {
@@ -393,7 +393,7 @@ bool ESP3DSettings::is_string(const char *s, uint len) {
 // read a string
 // a string is multibyte + \0, this is won't work if 1 char is multibyte like
 // chinese char
-const char *ESP3DSettings::read_string(int pos, bool *haserror) {
+const char *ESP3DSettings::readString(int pos, bool *haserror) {
   const ESP3DSettingDescription *query = getSettingPtr(pos);
   if (haserror) {
     *haserror = true;
@@ -474,7 +474,7 @@ const char *ESP3DSettings::read_string(int pos, bool *haserror) {
 }
 
 // write a string (array of byte with a 0x00  at the end)
-bool ESP3DSettings::write_string(int pos, const char *byte_buffer) {
+bool ESP3DSettings::writeString(int pos, const char *byte_buffer) {
   int size_buffer = strlen(byte_buffer);
   const ESP3DSettingDescription *query = getSettingPtr(pos);
   if (!query) {
@@ -528,7 +528,7 @@ bool ESP3DSettings::write_string(int pos, const char *byte_buffer) {
 }
 
 // read a uint32
-uint32_t ESP3DSettings::read_uint32(int pos, bool *haserror) {
+uint32_t ESP3DSettings::readUint32(int pos, bool *haserror) {
   if (haserror) {
     *haserror = true;
   }
@@ -571,16 +571,16 @@ uint32_t ESP3DSettings::read_uint32(int pos, bool *haserror) {
 
 // read an IP
 uint32_t ESP3DSettings::read_IP(int pos, bool *haserror) {
-  return read_uint32(pos, haserror);
+  return readUint32(pos, haserror);
 }
 
 // read an IP
-String ESP3DSettings::read_IP_String(int pos, bool *haserror) {
-  return _IpToString(read_uint32(pos, haserror));
+String ESP3DSettings::readIPString(int pos, bool *haserror) {
+  return _IpToString(readUint32(pos, haserror));
 }
 
 // write a uint32
-bool ESP3DSettings::write_uint32(int pos, const uint32_t value) {
+bool ESP3DSettings::writeUint32(int pos, const uint32_t value) {
 #if ESP_SAVE_SETTINGS == SETTINGS_IN_EEPROM
   uint8_t size_buffer = sizeof(uint32_t);
   // check if parameters are acceptable
@@ -616,11 +616,6 @@ bool ESP3DSettings::write_uint32(int pos, const uint32_t value) {
   return true;
 }
 
-// write a IP
-bool ESP3DSettings::write_IP(int pos, const uint32_t value) {
-  return write_uint32(pos, value);
-}
-
 // clear all entries
 bool ESP3DSettings::reset(bool networkonly) {
   uint nb_settings = sizeof(ESP3DSettingsData) / sizeof(uint16_t);
@@ -634,13 +629,13 @@ bool ESP3DSettings::reset(bool networkonly) {
     if (query) {
       switch (query->type) {
         case ESP3DSettingType::string_t:
-          if (!ESP3DSettings::write_string(i, query->default_val)) {
+          if (!ESP3DSettings::writeString(i, query->default_val)) {
             esp3d_log_e("Error reset string %d to %s", i, query->default_val);
             return false;
           }
           break;
         case ESP3DSettingType::byte_t:
-          if (!ESP3DSettings::write_byte(
+          if (!ESP3DSettings::writeByte(
                   i, (uint8_t)strtoul(query->default_val, NULL, 0))) {
             esp3d_log_e("Error reset byte %d to %s", i, query->default_val);
             return false;
@@ -648,7 +643,7 @@ bool ESP3DSettings::reset(bool networkonly) {
           break;
         case ESP3DSettingType::integer_t:
         case ESP3DSettingType::ip_t:
-          if (!ESP3DSettings::write_uint32(i, getDefaultIntegerSetting(i))) {
+          if (!ESP3DSettings::writeUint32(i, getDefaultIntegerSetting(i))) {
             esp3d_log_e("Error reset uint32 %d to %s", i, query->default_val);
             return false;
           }
@@ -670,10 +665,11 @@ bool ESP3DSettings::reset(bool networkonly) {
 //  * 03 and up is version
 int8_t ESP3DSettings::GetSettingsVersion() {
   int8_t v = -1;
-  String version = Settings_ESP3D::read_string(ESP_SETTINGS_VERSION);
-  < if (!Settings_ESP3D::isValidStringSetting(version.c_str(),
-                                              ESP_SETTINGS_VERSION)) {
-    log_esp3d_e("Invalid Settings Version %s expected %s", version.c_str(),
+
+  String version = ESP3DSettings::readString(ESP_SETTINGS_VERSION);
+  if (!ESP3DSettings::isValidStringSetting(version.c_str(),
+                                           ESP_SETTINGS_VERSION)) {
+    esp3d_log_e("Invalid Settings Version %s, should be %s", version.c_str(),
                 DEFAULT_SETTINGS_VERSION);
     return v;
   }
@@ -683,8 +679,8 @@ int8_t ESP3DSettings::GetSettingsVersion() {
 }
 
 // write a IP from string
-bool ESP3DSettings::write_IP_String(int pos, const char *value) {
-  return write_uint32(pos, _stringToIP(value));
+bool ESP3DSettings::writeIPString(int pos, const char *value) {
+  return writeUint32(pos, _stringToIP(value));
 }
 
 // Helper to convert  IP string to int

@@ -88,7 +88,7 @@ void ESP3DCommands::ESP401(int cmd_params_pos, ESP3DMessage* msg) {
         if (styp == "B") {
           if (ESP3DSettings::isValidByteSetting((uint8_t)sval.toInt(),
                                                 spos.toInt())) {
-            if (!ESP3DSettings::write_byte(spos.toInt(),
+            if (!ESP3DSettings::writeByte(spos.toInt(),
                                            (uint8_t)sval.toInt())) {
               response = false;
               esp3d_log_e("Set failed");
@@ -162,7 +162,7 @@ void ESP3DCommands::ESP401(int cmd_params_pos, ESP3DMessage* msg) {
         // Integer value
         if (styp == "I") {
           if (ESP3DSettings::isValidByteSetting(sval.toInt(), spos.toInt())) {
-            if (!ESP3DSettings::write_uint32(spos.toInt(), sval.toInt())) {
+            if (!ESP3DSettings::writeUint32(spos.toInt(), sval.toInt())) {
               response = "Set failed";
               noError = false;
               esp3d_log_e("Set failed");
@@ -197,7 +197,7 @@ void ESP3DCommands::ESP401(int cmd_params_pos, ESP3DMessage* msg) {
         // String value
         if (styp == "S") {
           if (ESP3DSettings::isValidStringSetting(sval.c_str(), spos.toInt())) {
-            if (!ESP3DSettings::write_string(spos.toInt(), sval.c_str())) {
+            if (!ESP3DSettings::writeStringspos.toInt(), sval.c_str())) {
               response = "Set failed";
               noError = false;
               esp3d_log_e("Set failed");
@@ -224,7 +224,7 @@ void ESP3DCommands::ESP401(int cmd_params_pos, ESP3DMessage* msg) {
         if (styp == "A") {
           if (ESP3DSettings::isValidIPStringSetting(sval.c_str(),
                                                     spos.toInt())) {
-            if (!ESP3DSettings::write_IP_String(spos.toInt(), sval.c_str())) {
+            if (!ESP3DSettings::writeIPString(spos.toInt(), sval.c_str())) {
               response = "Set failed";
               noError = false;
             } else {

@@ -115,7 +115,7 @@ uint8_t ESP_SD::getState(bool refresh) {
 bool ESP_SD::begin() {
   _started = true;
   _state = ESP_SDCARD_NOT_PRESENT;
-  _spi_speed_divider = ESP3DSettings::read_byte(ESP_SD_SPEED_DIV);
+  _spi_speed_divider = ESP3DSettings::readByte(ESP_SD_SPEED_DIV);
   // sanity check
   if (_spi_speed_divider <= 0) {
     _spi_speed_divider = 1;

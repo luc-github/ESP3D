@@ -139,10 +139,10 @@ bool WiFiConfig::StartSTA() {
   WiFi.setSortMethod(WIFI_CONNECT_AP_BY_SIGNAL);
 #endif  // ARDUINO_ARCH_ESP32
   // Get parameters for STA
-  String SSID = ESP3DSettings::read_string(ESP_STA_SSID);
-  String password = ESP3DSettings::read_string(ESP_STA_PASSWORD);
+  String SSID = ESP3DSettings::readString(ESP_STA_SSID);
+  String password = ESP3DSettings::readString(ESP_STA_PASSWORD);
 
-  if (ESP3DSettings::read_byte(ESP_STA_IP_MODE) != DHCP_MODE) {
+  if (ESP3DSettings::readByte(ESP_STA_IP_MODE) != DHCP_MODE) {
     int32_t IP = ESP3DSettings::read_IP(ESP_STA_IP_VALUE);
     int32_t GW = ESP3DSettings::read_IP(ESP_STA_GATEWAY_VALUE);
     int32_t MK = ESP3DSettings::read_IP(ESP_STA_MASK_VALUE);
@@ -197,10 +197,10 @@ bool WiFiConfig::StartAP(bool setupMode) {
   WiFi.setSleepMode(WIFI_NONE_SLEEP);
 #endif  // ARDUINO_ARCH_ESP8266
 
-  String SSID = ESP3DSettings::read_string(ESP_AP_SSID);
-  String password = ESP3DSettings::read_string(ESP_AP_PASSWORD);
+  String SSID = ESP3DSettings::readString(ESP_AP_SSID);
+  String password = ESP3DSettings::readString(ESP_AP_PASSWORD);
   // channel
-  int8_t channel = ESP3DSettings::read_byte(ESP_AP_CHANNEL);
+  int8_t channel = ESP3DSettings::readByte(ESP_AP_CHANNEL);
   // IP
   int32_t IP = ESP3DSettings::read_IP(ESP_AP_IP_VALUE);
 
@@ -304,7 +304,7 @@ bool WiFiConfig::begin(int8_t& espMode) {
             ESP3DMessageType::unique, ESP3DClientType::system,
             ESP3DAuthenticationLevel::admin);
       }
-      espMode = ESP3DSettings::read_byte(ESP_STA_FALLBACK_MODE);
+      espMode = ESP3DSettings::readByte(ESP_STA_FALLBACK_MODE);
       NetConfig::setMode(espMode);
       if (espMode == ESP_AP_SETUP) {
         esp3d_log("Starting AP mode in setup mode");

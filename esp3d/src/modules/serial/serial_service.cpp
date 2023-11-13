@@ -113,7 +113,7 @@ void ESP3DSerialTaskfn(void *parameter) {
 void ESP3DSerialService::setParameters() {
 #if defined(AUTHENTICATION_FEATURE)
   _needauthentication =
-      (ESP3DSettings::read_byte(ESP_SECURE_SERIAL) == 0) ? false : true;
+      (ESP3DSettings::readByte(ESP_SECURE_SERIAL) == 0) ? false : true;
 #else
   _needauthentication = false;
 #endif  // AUTHENTICATION_FEATURE
@@ -124,7 +124,7 @@ bool ESP3DSerialService::begin(uint8_t serialIndex) {
   _serialIndex = serialIndex - 1;
   esp3d_log("Serial %d begin for %d", _serialIndex, _id);
   if (_id == BRIDGE_SERIAL &&
-      ESP3DSettings::read_byte(ESP_SERIAL_BRIDGE_ON) == 0) {
+      ESP3DSettings::readByte(ESP_SERIAL_BRIDGE_ON) == 0) {
     esp3d_log("Serial %d for %d is disabled", _serialIndex, _id);
     return true;
   }
@@ -139,12 +139,12 @@ bool ESP3DSerialService::begin(uint8_t serialIndex) {
   long defaultBr = 0;
   switch (_id) {
     case MAIN_SERIAL:
-      br = ESP3DSettings::read_uint32(ESP_BAUD_RATE);
+      br = ESP3DSettings::readUint32(ESP_BAUD_RATE);
       defaultBr = ESP3DSettings::getDefaultIntegerSetting(ESP_BAUD_RATE);
       break;
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
     case BRIDGE_SERIAL:
-      br = ESP3DSettings::read_uint32(ESP_SERIAL_BRIDGE_BAUD);
+      br = ESP3DSettings::readUint32(ESP_SERIAL_BRIDGE_BAUD);
       defaultBr =
           ESP3DSettings::getDefaultIntegerSetting(ESP_SERIAL_BRIDGE_BAUD);
       break;
@@ -410,18 +410,18 @@ bool ESP3DSerialService::reset() {
   bool res = false;
   switch (_id) {
     case MAIN_SERIAL:
-      return ESP3DSettings::write_uint32(
+      return ESP3DSettings::writeUint32(
           ESP_BAUD_RATE,
           ESP3DSettings::getDefaultIntegerSetting(ESP_BAUD_RATE));
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
     case BRIDGE_SERIAL:
-      res = ESP3DSettings::write_byte(
+      res = ESP3DSettings::writeByte(
           ESP_SERIAL_BRIDGE_ON,
           ESP3DSettings::getDefaultByteSetting(ESP_SERIAL_BRIDGE_ON));
-      return res && ESP3DSettings::write_uint32(
-                        ESP_SERIAL_BRIDGE_BAUD,
-                        ESP3DSettings::getDefaultIntegerSetting(
-                            ESP_SERIAL_BRIDGE_BAUD));
+      return res &&
+             ESP3DSettings::writeUint32(ESP_SERIAL_BRIDGE_BAUD,
+                                        ESP3DSettings::getDefaultIntegerSetting(
+                                            ESP_SERIAL_BRIDGE_BAUD));
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
     default:
       return res;

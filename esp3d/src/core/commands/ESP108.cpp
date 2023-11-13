@@ -53,7 +53,7 @@ void ESP3DCommands::ESP108(int cmd_params_pos, ESP3DMessage* msg) {
     if (parameter.length() == 0) {
       response = format_response(
           COMMANDID, json, true,
-          String(ESP3DSettings::read_byte(ESP_AP_CHANNEL)).c_str());
+          String(ESP3DSettings::readByte(ESP_AP_CHANNEL)).c_str());
     } else {  // set
 #ifdef AUTHENTICATION_FEATURE
       if (auth_type != admin) {
@@ -70,7 +70,7 @@ void ESP3DCommands::ESP108(int cmd_params_pos, ESP3DMessage* msg) {
               format_response(COMMANDID, json, false, "Incorrect channel");
           noError = false;
         } else {
-          if (!ESP3DSettings::write_byte(ESP_AP_CHANNEL, (int8_t)bbuf)) {
+          if (!ESP3DSettings::writeByte(ESP_AP_CHANNEL, (int8_t)bbuf)) {
             response = format_response(COMMANDID, json, false, "Set failed");
             noError = false;
           } else {

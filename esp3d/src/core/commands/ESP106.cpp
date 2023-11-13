@@ -63,7 +63,7 @@ void ESP3DCommands::ESP106(int cmd_params_pos, ESP3DMessage* msg) {
         response = format_response(COMMANDID, json, false, "Set failed");
         noError = false;
       } else {
-        if (!ESP3DSettings::write_string(ESP_AP_PASSWORD, parameter.c_str())) {
+        if (!ESP3DSettings::writeString(ESP_AP_PASSWORD, parameter.c_str())) {
           response = format_response(COMMANDID, json, false, "Set failed");
           noError = false;
         } else {

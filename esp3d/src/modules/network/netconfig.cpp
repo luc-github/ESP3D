@@ -210,7 +210,7 @@ bool NetConfig::begin() {
   bool res = false;
   // clear everything
   end();
-  int8_t espMode = ESP3DSettings::read_byte(ESP_RADIO_MODE);
+  int8_t espMode = ESP3DSettings::readByte(ESP_RADIO_MODE);
   esp3d_log("Starting Network");
   if (espMode != ESP_NO_NETWORK) {
     if (ESP3DSettings::isVerboseBoot()) {
@@ -235,7 +235,7 @@ bool NetConfig::begin() {
     _events_registered = true;
   }
   // Get hostname
-  _hostname = ESP3DSettings::read_string(ESP_HOSTNAME);
+  _hostname = ESP3DSettings::readString(ESP_HOSTNAME);
   _mode = espMode;
   if (espMode == ESP_NO_NETWORK) {
     esp3d_commands.dispatch("Disable Network", ESP3DClientType::all_clients,
@@ -392,7 +392,7 @@ void NetConfig::end() {
 
 const char* NetConfig::hostname(bool fromsettings) {
   if (fromsettings) {
-    _hostname = ESP3DSettings::read_string(ESP_HOSTNAME);
+    _hostname = ESP3DSettings::readString(ESP_HOSTNAME);
     return _hostname.c_str();
   }
 #if defined(WIFI_FEATURE)
