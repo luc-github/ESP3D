@@ -21,7 +21,6 @@
 #if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
 #include "../../modules/network/netconfig.h"
 #include "../esp3d_commands.h"
-#include "../esp3d_message.h"
 #include "../esp3d_settings.h"
 
 #if defined(WIFI_FEATURE)
@@ -31,77 +30,65 @@
 #include "../../modules/ethernet/ethconfig.h"
 #endif  // ETH_FEATURE
 #include "../../modules/authentication/authentication_service.h"
-#define COMMANDID 102
+#define COMMAND_ID 102
 // Change STA IP mode (DHCP/STATIC)
 //[ESP102]<mode>[json=no] [pwd=<admin password>]
 void ESP3DCommands::ESP102(int cmd_params_pos, ESP3DMessage* msg) {
-  /*
-  bool noError = true;
-  bool json = has_tag(cmd_params, "json");
-  String response;
-  String parameter;
-  int errorCode = 200;  // unless it is a server error use 200 as default and
-                        // set error in json instead
-#ifdef AUTHENTICATION_FEATURE
-  if (auth_type == guest) {
-    response = format_response(COMMANDID, json, false,
-                               "Guest user can't use this command");
-    noError = false;
-    errorCode = 401;
+  ESP3DClientType target = msg->origin;
+  ESP3DRequest requestId = msg->request_id;
+  (void)requestId;
+  msg->target = target;
+  msg->origin = ESP3DClientType::command;
+  bool hasError = false;
+  String error_msg = "Invalid parameters";
+  String ok_msg = "ok";
+  bool json = hasTag(msg, cmd_params_pos, "json");
+  String tmpstr;
+  uint8_t byteValue = (uint8_t)-1;
+#if ESP3D_AUTHENTICATION_FEATURE
+  if (msg->authentication_level == ESP3DAuthenticationLevel::guest) {
+    msg->authentication_level = ESP3DAuthenticationLevel::not_authenticated;
+    dispatchAuthenticationError(msg, COMMAND_ID, json);
+    return;
   }
-#else
-  (void)auth_type;
-#endif  // AUTHENTICATION_FEATURE
-  if (noError) {
-    parameter = clean_param(get_param(cmd_params, ""));
-    // get
-    if (parameter.length() == 0) {
-      int8_t resp = ESP3DSettings::readByte(ESP_STA_IP_MODE);
-      if (resp == DHCP_MODE) {
-        response = format_response(COMMANDID, json, true, "DHCP");
-      } else if (resp == STATIC_IP_MODE) {
-        response = format_response(COMMANDID, json, true, "STATIC");
-      } else {
-        noError = false;
-        response = format_response(COMMANDID, json, true, "Unknow");
-      }
-    } else {  // set
-#ifdef AUTHENTICATION_FEATURE
-      if (auth_type != admin) {
-        response = format_response(COMMANDID, json, false,
-                                   "Wrong authentication level");
-        noError = false;
-        errorCode = 401;
-      }
-#endif  // AUTHENTICATION_FEATURE
-      if (noError) {
-        parameter.toUpperCase();
-        if (!((parameter == "STATIC") || (parameter == "DHCP"))) {
-          response = format_response(COMMANDID, json, false,
-                                     "only STATIC or DHCP mode supported");
-          noError = false;
-        } else {
-          uint8_t bbuf = (parameter == "DHCP") ? DHCP_MODE : STATIC_IP_MODE;
-          if (!ESP3DSettings::writeByte(ESP_STA_IP_MODE, bbuf)) {
-            response = format_response(COMMANDID, json, false, "Set failed");
-            noError = false;
-          } else {
-            response = format_response(COMMANDID, json, true, "ok");
-          }
-        }
-      }
-    }
-  }
-  if (json) {
-    esp3dmsg->printLN(response.c_str());
-  } else {
-    if (noError) {
-      esp3dmsg->printMSG(response.c_str());
+#endif  // ESP3D_AUTHENTICATION_FEATURE
+  tmpstr = get_clean_param(msg, cmd_params_pos);
+  if (tmpstr.length() == 0) {
+    byteValue = ESP3DSettings::readByte(ESP_STA_IP_MODE);
+    if (byteValue == static_cast<uint8_t>(DHCP_MODE)) {
+      ok_msg = "DHCP";
+    } else if (byteValue == static_cast<uint8_t>(STATIC_IP_MODE)) {
+      ok_msg = "STATIC";
     } else {
-      esp3dmsg->printERROR(response.c_str(), errorCode);
+      ok_msg = "Unknown:" + String(byteValue);
+    }
+  } else {
+    if (tmpstr == "DHCP") {
+      byteValue = static_cast<uint8_t>(DHCP_MODE);
+    } else if (tmpstr == "STATIC") {
+      byteValue = static_cast<uint8_t>(STATIC_IP_MODE);
+    } else {
+      byteValue = (uint8_t)-1;  // unknow flag so put outof range value
+    }
+    esp3d_log("got %s param for a value of %d, is valid %d", tmpstr.c_str(),
+              byteValue,
+              ESP3DSettings::isValidByteSetting(byteValue, ESP_STA_IP_MODE));
+    if (ESP3DSettings::isValidByteSetting(byteValue, ESP_STA_IP_MODE)) {
+      esp3d_log("Value %d is valid", byteValue);
+      if (!ESP3DSettings::writeByte(ESP_STA_IP_MODE, byteValue)) {
+        hasError = true;
+        error_msg = "Set value failed";
+      }
+    } else {
+      hasError = true;
+      error_msg = "Invalid parameter";
     }
   }
-  return noError;*/
+
+  if (!dispatchAnswer(msg, COMMAND_ID, json, hasError,
+                      hasError ? error_msg.c_str() : ok_msg.c_str())) {
+    esp3d_log_e("Error sending response to clients");
+  }
 }
 
 #endif  // WIFI_FEATURE || ETH_FEATURE
