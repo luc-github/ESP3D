@@ -19,7 +19,6 @@
 */
 #include "../../include/esp3d_config.h"
 #include "../esp3d_commands.h"
-#include "../esp3d_message.h"
 #include "../esp3d_settings.h"
 const char* help[] = {
     "[ESP] (id) - display this help",

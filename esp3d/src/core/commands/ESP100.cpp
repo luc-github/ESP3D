@@ -22,7 +22,6 @@
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/wifi/wificonfig.h"
 #include "../esp3d_commands.h"
-#include "../esp3d_message.h"
 #include "../esp3d_settings.h"
 
 #define COMMANDID 100

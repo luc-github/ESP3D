@@ -192,6 +192,24 @@ class ESP3DCommands {
   bool dispatch(ESP3DMessage* msg, const char* sbuf);
   bool dispatch(ESP3DMessage* msg, uint8_t* sbuf, size_t len);
   bool dispatch(ESP3DMessage* msg);
+  bool dispatchAnswer(ESP3DMessage* msg, uint cmdid, bool json, bool hasError,
+                      const char* answerMsg);
+  bool dispatchIdValue(bool json, const char* Id, const char* value,
+                       ESP3DClientType target, ESP3DRequest requestId,
+                       bool isFirst = false);
+  bool dispatchKeyValue(bool json, const char* key, const char* value,
+                        ESP3DClientType target, ESP3DRequest requestId,
+                        bool nested = false, bool isFirst = false);
+  bool dispatchSetting(bool json, const char* filter, ESP3DSettingIndex index,
+                       const char* help, const char** optionValues,
+                       const char** optionLabels, uint32_t maxsize,
+                       uint32_t minsize, uint32_t minsize2, uint8_t precision,
+                       const char* unit, bool needRestart,
+                       ESP3DClientType target, ESP3DRequest requestId,
+                       bool isFirst = false);
+  bool dispatchAuthenticationError(ESP3DMessage* msg, uint cmdid, bool json);
+  bool formatCommand(char* cmd, size_t len);
+  bool isRealTimeCommand(char* cmd, size_t len);
   ESP3DClientType getOutputClient(bool fromSettings = false);
   void setOutputClient(ESP3DClientType output_client) {
     _output_client = output_client;
