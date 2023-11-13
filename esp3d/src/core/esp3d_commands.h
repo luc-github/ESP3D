@@ -52,204 +52,138 @@ class ESP3DCommands {
 
   /*
 #if defined(WIFI_FEATURE)
-  bool ESP100(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
-  bool ESP101(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
+  void ESP100(int cmd_params_pos, ESP3DMessage* msg);
+  void ESP101(int cmd_params_pos, ESP3DMessage* msg);
 #endif  // WIFI_FEATURE
 #if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
-  bool ESP102(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
-  bool ESP103(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
+  void ESP102(int cmd_params_pos, ESP3DMessage* msg);
+  void ESP103(int cmd_params_pos, ESP3DMessage* msg);
 #endif  // WIFI_FEATURE ||ETH_FEATURE
 #if defined(WIFI_FEATURE) || defined(BLUETOOTH_FEATURE) || defined(ETH_FEATURE)
-  bool ESP104(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
+  void ESP104(int cmd_params_pos, ESP3DMessage* msg);
 #endif  // WIFI_FEATURE || BLUETOOTH_FEATURE || ETH_FEATURE
 #if defined(WIFI_FEATURE)
-  bool ESP105(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
-  bool ESP106(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
-  bool ESP107(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
-  bool ESP108(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
+  void ESP105(int cmd_params_pos, ESP3DMessage* msg);
+  void ESP106(int cmd_params_pos, ESP3DMessage* msg);
+  void ESP107(int cmd_params_pos, ESP3DMessage* msg);
+  void ESP108(int cmd_params_pos, ESP3DMessage* msg);
 #endif  // WIFI_FEATURE
 #if defined(WIFI_FEATURE) || defined(BLUETOOTH_FEATURE) || defined(ETH_FEATURE)
-  bool ESP110(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
+  void ESP110(int cmd_params_pos, ESP3DMessage* msg);
 #endif  // WIFI_FEATURE || BLUETOOTH_FEATURE || ETH_FEATURE
 #if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
-  bool ESP111(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
+  void ESP111(int cmd_params_pos, ESP3DMessage* msg);
 #endif  // WIFI_FEATURE || ETH_FEATURE
 #if defined(WIFI_FEATURE) || defined(ETH_FEATURE) || defined(BT_FEATURE)
-  bool ESP112(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
-  bool ESP114(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
-  bool ESP115(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
+  void ESP112(int cmd_params_pos, ESP3DMessage* msg);
+  void ESP114(int cmd_params_pos, ESP3DMessage* msg);
+  void ESP115(int cmd_params_pos, ESP3DMessage* msg);
 #endif  // WIFI_FEATURE || BLUETOOTH_FEATURE || ETH_FEATURE
 #if defined(HTTP_FEATURE)
-  bool ESP120(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
-  bool ESP121(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
+  void ESP120(int cmd_params_pos, ESP3DMessage* msg);
+  void ESP121(int cmd_params_pos, ESP3DMessage* msg);
 #endif  // HTTP_FEATURE
 #if defined(TELNET_FEATURE)
-  bool ESP130(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
-  bool ESP131(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
+  void ESP130(int cmd_params_pos, ESP3DMessage* msg);
+  void ESP131(int cmd_params_pos, ESP3DMessage* msg);
 #endif  // TELNET_FEATURE
 #if defined(TIMESTAMP_FEATURE)
-  bool ESP140(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
+  void ESP140(int cmd_params_pos, ESP3DMessage* msg);
 #endif  // TIMESTAMP_FEATURE
-  bool ESP150(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
+  void ESP150(int cmd_params_pos, ESP3DMessage* msg);
 #if defined(WS_DATA_FEATURE)
-  bool ESP160(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
-  bool ESP161(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
+  void ESP160(int cmd_params_pos, ESP3DMessage* msg);
+  void ESP161(int cmd_params_pos, ESP3DMessage* msg);
 #endif  // WS_DATA_FEATURE
 #if defined(CAMERA_DEVICE)
-  bool ESP170(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
-  bool ESP171(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
+  void ESP170(int cmd_params_pos, ESP3DMessage* msg);
+  void ESP171(int cmd_params_pos, ESP3DMessage* msg);
 #endif  // CAMERA_DEVICE
 #if defined(FTP_FEATURE)
-  bool ESP180(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
-  bool ESP181(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
+  void ESP180(int cmd_params_pos, ESP3DMessage* msg);
+  void ESP181(int cmd_params_pos, ESP3DMessage* msg);
 #endif  // FTP_FEATURE
 #if defined(WEBDAV_FEATURE)
-  bool ESP190(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
-  bool ESP191(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
+  void ESP190(int cmd_params_pos, ESP3DMessage* msg);
+  void ESP191(int cmd_params_pos, ESP3DMessage* msg);
 #endif  // WEBDAV_FEATURE
 #if defined(SD_DEVICE)
-  bool ESP200(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
+  void ESP200(int cmd_params_pos, ESP3DMessage* msg);
 #if SD_DEVICE != ESP_SDIO
-  bool ESP202(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
+  void ESP202(int cmd_params_pos, ESP3DMessage* msg);
 #endif  // SD_DEVICE != ESP_SDIO
 #ifdef SD_UPDATE_FEATURE
-  bool ESP402(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
+  void ESP402(int cmd_params_pos, ESP3DMessage* msg);
 #endif  // SD_UPDATE_FEATURE
 #endif  // SD_DEVICE
 #ifdef DIRECT_PIN_FEATURE
-  bool ESP201(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
+  void ESP201(int cmd_params_pos, ESP3DMessage* msg);
 #endif  // DIRECT_PIN_FEATURE
 #if defined(DISPLAY_DEVICE)
-  bool ESP214(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
+  void ESP214(int cmd_params_pos, ESP3DMessage* msg);
 #if defined(DISPLAY_TOUCH_DRIVER)
-  bool ESP215(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
+  void ESP215(int cmd_params_pos, ESP3DMessage* msg);
 #endif  // DISPLAY_TOUCH_DRIVER
 #endif  // DISPLAY_DEVICE
 #ifdef SENSOR_DEVICE
-  bool ESP210(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
+  void ESP210(int cmd_params_pos, ESP3DMessage* msg);
 #endif  // SENSOR_DEVICE
-  bool ESP220(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
-  bool ESP290(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
-  bool ESP400(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
-  bool ESP401(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
+  void ESP220(int cmd_params_pos, ESP3DMessage* msg);
+  void ESP290(int cmd_params_pos, ESP3DMessage* msg);
+  void ESP400(int cmd_params_pos, ESP3DMessage* msg);
+  void ESP401(int cmd_params_pos, ESP3DMessage* msg);
 #if defined(WIFI_FEATURE)
-  bool ESP410(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
+  void ESP410(int cmd_params_pos, ESP3DMessage* msg);
 #endif  // WIFI_FEATURE
-  bool ESP420(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
-  bool ESP444(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
+  void ESP420(int cmd_params_pos, ESP3DMessage* msg);
+  void ESP444(int cmd_params_pos, ESP3DMessage* msg);
 #ifdef MDNS_FEATURE
-  bool ESP450(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
+  void ESP450(int cmd_params_pos, ESP3DMessage* msg);
 #endif  // MDNS_FEATURE
 #if defined(AUTHENTICATION_FEATURE)
-  bool ESP550(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
-  bool ESP555(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
+  void ESP550(int cmd_params_pos, ESP3DMessage* msg);
+  void ESP555(int cmd_params_pos, ESP3DMessage* msg);
 #endif  // AUTHENTICATION_FEATURE
 #if defined(NOTIFICATION_FEATURE)
-  bool ESP600(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
-  bool ESP610(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
-  bool ESP620(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
+  void ESP600(int cmd_params_pos, ESP3DMessage* msg);
+  void ESP610(int cmd_params_pos, ESP3DMessage* msg);
+  void ESP620(int cmd_params_pos, ESP3DMessage* msg);
 #endif  // NOTIFICATION_FEATURE
 #if defined(GCODE_HOST_FEATURE)
-  bool ESP700(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
-  bool ESP701(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
+  void ESP700(int cmd_params_pos, ESP3DMessage* msg);
+  void ESP701(int cmd_params_pos, ESP3DMessage* msg);
 #endif  // GCODE_HOST_FEATURE
 #if defined(FILESYSTEM_FEATURE)
-  bool ESP710(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
-  bool ESP720(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
-  bool ESP730(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
+  void ESP710(int cmd_params_pos, ESP3DMessage* msg);
+  void ESP720(int cmd_params_pos, ESP3DMessage* msg);
+  void ESP730(int cmd_params_pos, ESP3DMessage* msg);
 #endif  // FILESYSTEM_FEATURE
 #if defined(SD_DEVICE)
-  bool ESP715(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
-  bool ESP750(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
-  bool ESP740(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
+  void ESP715(int cmd_params_pos, ESP3DMessage* msg);
+  void ESP750(int cmd_params_pos, ESP3DMessage* msg);
+  void ESP740(int cmd_params_pos, ESP3DMessage* msg);
 #endif  // SD_DEVICE
 #if defined(GLOBAL_FILESYSTEM_FEATURE)
-  bool ESP780(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
-  bool ESP790(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
+  void ESP780(int cmd_params_pos, ESP3DMessage* msg);
+  void ESP790(int cmd_params_pos, ESP3DMessage* msg);
 #endif  // GLOBAL_FILESYSTEM_FEATURE
-  bool ESP800(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
+  void ESP800(int cmd_params_pos, ESP3DMessage* msg);
 #if COMMUNICATION_PROTOCOL != SOCKET_SERIAL
-  bool ESP900(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
-  bool ESP901(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
+  void ESP900(int cmd_params_pos, ESP3DMessage* msg);
+  void ESP901(int cmd_params_pos, ESP3DMessage* msg);
 #endif  // COMMUNICATION_PROTOCOL != SOCKET_SERIAL
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
-  bool ESP930(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
-  bool ESP931(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
+  void ESP930(int cmd_params_pos, ESP3DMessage* msg);
+  void ESP931(int cmd_params_pos, ESP3DMessage* msg);
 #endif  // defined (ESP_SERIAL_BRIDGE_OUTPUT)
 #ifdef BUZZER_DEVICE
-  bool ESP910(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
-  bool ESP250(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
+  void ESP910(int cmd_params_pos, ESP3DMessage* msg);
+  void ESP250(int cmd_params_pos, ESP3DMessage* msg);
 #endif  // BUZZER_DEVICE
 #if defined(ARDUINO_ARCH_ESP32) &&                             \
     (CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32S2 || \
      CONFIG_IDF_TARGET_ESP32C3)
-  bool ESP999(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-              ESP3D_Message* esp3dmsg);
+  void ESP999(int cmd_params_pos, ESP3DMessage* msg);
 #endif  // ARDUINO_ARCH_ESP32
 */
   bool dispatch(const char* sbuf, ESP3DClientType target,

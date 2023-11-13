@@ -259,469 +259,6 @@ bool ESP3DCommands::has_param(ESP3DMessage *msg, uint start) {
   return strlen(get_clean_param(msg, start)) != 0;
 }
 
-// execute internal command
-/*
-
-bool ESP3DCommands::execute_internal_command(
-    int cmd, const char *cmd_params, ESP3DAuthenticationLevel auth_level,
-    ESP3D_Message *esp3dmsg) {
-#ifndef SERIAL_COMMAND_FEATURE
-  if (esp3dmsg->getTarget() == ESP_SERIAL_CLIENT) {
-    esp3dmsg->printMSG("Feature disabled");
-    return false;
-  }
-#endif  // SERIAL_COMMAND_FEATURE
-  bool response = true;
-  ESP3DAuthenticationLevel auth_type = auth_level;
-  // esp3d_log("Authentication = %d", auth_type);
-// override if parameters
-#ifdef AUTHENTICATION_FEATURE
-
-  // do not overwrite previous authetic <time=YYYY-MM-DD#H24:MM:SS>ation level
-  if (auth_type == guest) {
-    String pwd = get_param(cmd_params, "pwd=");
-    auth_type =
-        AuthenticationService::authenticated_level(pwd.c_str(), esp3dmsg);
-  }
-#endif  // AUTHENTICATION_FEATURE
-  // esp3d_log("Authentication = %d", auth_type);
-  String parameter;
-  switch (cmd) {
-    // ESP3D Help
-    //[ESP0] or [ESP]
-    case 0:
-      response = ESP0(cmd_params, auth_type, esp3dmsg);
-      break;
-#if defined(WIFI_FEATURE)
-    // STA SSID
-    //[ESP100]<SSID>[pwd=<admin password>]
-    case 100:
-      response = ESP100(cmd_params, auth_type, esp3dmsg);
-      break;
-    // STA Password
-    //[ESP101]<Password>[pwd=<admin password>]
-    case 101:
-      response = ESP101(cmd_params, auth_type, esp3dmsg);
-      break;
-#endif  // WIFI_FEATURE
-#if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
-    // Change STA IP mode (DHCP/STATIC)
-    //[ESP102]<mode>pwd=<admin password>
-    case 102:
-      response = ESP102(cmd_params, auth_type, esp3dmsg);
-      break;
-    // Change STA IP/Mask/GW
-    //[ESP103]IP=<IP> MSK=<IP> GW=<IP> pwd=<admin password>
-    case 103:
-      response = ESP103(cmd_params, auth_type, esp3dmsg);
-      break;
-#endif  // WIFI_FEATURE ||ETH_FEATURE
-#if defined(WIFI_FEATURE) || defined(BLUETOOTH_FEATURE) || defined(ETH_FEATURE)
-    // Set fallback mode which can be BT,  WIFI-AP, OFF
-    //[ESP104]<state>pwd=<admin password>
-    case 104:
-      response = ESP104(cmd_params, auth_type, esp3dmsg);
-      break;
-#endif  // WIFI_FEATURE || BLUETOOTH_FEATURE || ETH_FEATURE)
-#if defined(WIFI_FEATURE)
-    // AP SSID
-    //[ESP105]<SSID>[pwd=<admin password>]
-    case 105:
-      response = ESP105(cmd_params, auth_type, esp3dmsg);
-      break;
-    // AP Password
-    //[ESP106]<Password>[pwd=<admin password>]
-    case 106:
-      response = ESP106(cmd_params, auth_type, esp3dmsg);
-      break;
-    // Change AP IP
-    //[ESP107]<IP> pwd=<admin password>
-    case 107:
-      response = ESP107(cmd_params, auth_type, esp3dmsg);
-      break;
-    // Change AP channel
-    //[ESP108]<channel>pwd=<admin password>
-    case 108:
-      response = ESP108(cmd_params, auth_type, esp3dmsg);
-      break;
-#endif  // WIFI_FEATURE
-
-#if defined(WIFI_FEATURE) || defined(BLUETOOTH_FEATURE) || defined(ETH_FEATURE)
-    // Set radio state at boot which can be BT, WIFI-STA, WIFI-AP, ETH-STA, OFF
-    //[ESP110]<state>pwd=<admin password>
-    case 110:
-      response = ESP110(cmd_params, auth_type, esp3dmsg);
-      break;
-#endif  // WIFI_FEATURE || BLUETOOTH_FEATURE || ETH_FEATURE)
-
-#if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
-    // Get current IP
-    //[ESP111]
-    case 111:
-      response = ESP111(cmd_params, auth_type, esp3dmsg);
-      break;
-#endif  // WIFI_FEATURE || ETH_FEATURE)
-
-#if defined(WIFI_FEATURE) || defined(ETH_FEATURE) || defined(BT_FEATURE)
-    // Get/Set hostname
-    //[ESP112]<Hostname> pwd=<admin password>
-    case 112:
-      response = ESP112(cmd_params, auth_type, esp3dmsg);
-      break;
-    // Get/Set boot Network (WiFi/BT/Ethernet) state which can be ON, OFF
-    //[ESP114]<state>pwd=<admin password>
-    case 114:
-      response = ESP114(cmd_params, auth_type, esp3dmsg);
-      break;
-    // Get/Set immediate Network (WiFi/BT/Ethernet) state which can be ON, OFF
-    //[ESP115]<state>pwd=<admin password>
-    case 115:
-      response = ESP115(cmd_params, auth_type, esp3dmsg);
-      break;
-#endif  // WIFI_FEATURE|| ETH_FEATURE || BT_FEATURE
-
-#ifdef HTTP_FEATURE
-    // Set HTTP state which can be ON, OFF
-    //[ESP120]<state>pwd=<admin password>
-    case 120:
-      response = ESP120(cmd_params, auth_type, esp3dmsg);
-      break;
-    // Set HTTP port
-    //[ESP121]<port>pwd=<admin password>
-    case 121:
-      response = ESP121(cmd_params, auth_type, esp3dmsg);
-      break;
-#endif  // HTTP_FEATURE
-#ifdef TELNET_FEATURE
-    // Set TELNET state which can be ON, OFF
-    //[ESP130]<state>pwd=<admin password>
-    case 130:
-      response = ESP130(cmd_params, auth_type, esp3dmsg);
-      break;
-    // Set TELNET port
-    //[ESP131]<port>pwd=<admin password>
-    case 131:
-      response = ESP131(cmd_params, auth_type, esp3dmsg);
-      break;
-#endif  // TELNET_FEATURE
-#ifdef TIMESTAMP_FEATURE
-    // Sync / Set / Get current time
-    //[ESP140]<SYNC>  <srv1=XXXXX> <srv2=XXXXX> <srv3=XXXXX> <zone=xxx>
-    //<dst=YES/NO> <time=YYYY-MM-DD#H24:MM:SS> pwd=<admin password>
-    case 140:
-      response = ESP140(cmd_params, auth_type, esp3dmsg);
-      break;
-#endif  // TIMESTAMP_FEATURE
-    // Get/Set display/set boot delay in ms / Verbose boot
-    //[ESP150]<delay=time in milliseconds><verbose=YES/NO>[pwd=<admin password>]
-    case 150:
-      response = ESP150(cmd_params, auth_type, esp3dmsg);
-      break;
-#ifdef WS_DATA_FEATURE
-    // Set WebSocket state which can be ON, OFF
-    //[ESP160]<state>pwd=<admin password>
-    case 160:
-      response = ESP160(cmd_params, auth_type, esp3dmsg);
-      break;
-    // Set WebSocket port
-    //[ESP161]<port>pwd=<admin password>
-    case 161:
-      response = ESP161(cmd_params, auth_type, esp3dmsg);
-      break;
-#endif  // WS_DATA_FEATURE
-#ifdef CAMERA_DEVICE
-    // Get/Set Camera command value / list all values in JSON/plain
-    //[ESP170]label=<value> pwd=<admin/user password>
-    // label can be:
-    //
-light/framesize/quality/contrast/brightness/saturation/gainceiling/colorbar/awb/agc/aec/hmirror/vflip/awb_gain/agc_gain/aec_value/aec2/cw/bpc/wpc/raw_gma/lenc/special_effect/wb_mode/ae_level
-    case 170:
-      response = ESP170(cmd_params, auth_type, esp3dmsg);
-      break;
-    // Save frame to target path and filename (default target = today date,
-    // default name=timestamp.jpg) [ESP171]path=<target path> filename=<target
-    // filename> pwd=<admin/user password>
-    case 171:
-      response = ESP171(cmd_params, auth_type, esp3dmsg);
-      break;
-#endif  // CAMERA_DEVICE
-#ifdef FTP_FEATURE
-    // Set Ftp state which can be ON, OFF
-    //[ESP180]<state>pwd=<admin password>
-    case 180:
-      response = ESP180(cmd_params, auth_type, esp3dmsg);
-      break;
-    // Set/get ftp ports
-    //[ESP181]ctrl=<port> active=<port> passive=<port> pwd=<admin password>
-    case 181:
-      response = ESP181(cmd_params, auth_type, esp3dmsg);
-      break;
-#endif  // FTP_FEATURE
-#ifdef WEBDAV_FEATURE
-    // Set webdav state which can be ON, OFF
-    //[ESP190]<state>pwd=<admin password>
-    case 190:
-      response = ESP190(cmd_params, auth_type, esp3dmsg);
-      break;
-    // Set/get webdav port
-    //[ESP191]ctrl=<port> active=<port> passive=<port> pwd=<admin password>
-    case 191:
-      response = ESP191(cmd_params, auth_type, esp3dmsg);
-      break;
-#endif  // WEBDAV_FEATURE
-#if defined(SD_DEVICE)
-    // Get/Set SD Card Status
-    //[ESP200] json=<YES/NO> <RELEASESD> <REFRESH> pwd=<user/admin password>
-    case 200:
-      response = ESP200(cmd_params, auth_type, esp3dmsg);
-      break;
-#if SD_DEVICE != ESP_SDIO
-    // Get/Set SD card Speed factor 1 2 4 6 8 16 32
-    //[ESP202]SPEED=<value>pwd=<user/admin password>
-    case 202:
-      response = ESP202(cmd_params, auth_type, esp3dmsg);
-      break;
-#endif  // SD_DEVICE != ESP_SDIO
-#ifdef SD_UPDATE_FEATURE
-    // Get/Set SD Check at boot state which can be ON, OFF
-    //[ESP402]<state>pwd=<admin password>
-    case 402:
-      response = ESP402(cmd_params, auth_type, esp3dmsg);
-      break;
-#endif  // #ifdef SD_UPDATE_FEATURE
-#endif  // SD_DEVICE
-#ifdef DIRECT_PIN_FEATURE
-    // Get/Set pin value
-    //[ESP201]P<pin> V<value> [PULLUP=YES RAW=YES]pwd=<admin password>
-    case 201:
-      response = ESP201(cmd_params, auth_type, esp3dmsg);
-      break;
-#endif  // DIRECT_PIN_FEATURE
-#ifdef SENSOR_DEVICE
-    // Get SENSOR Value / type/Set SENSOR type
-    //[ESP210] <TYPE> <type=NONE/xxx> <interval=XXX in millisec>
-    case 210:
-      response = ESP210(cmd_params, auth_type, esp3dmsg);
-      break;
-#endif  // #ifdef SENSOR_DEVICE
-#if defined(DISPLAY_DEVICE)
-    // Output to esp screen status
-    //[ESP214]<Text>pwd=<user password>
-    case 214:
-      response = ESP214(cmd_params, auth_type, esp3dmsg);
-      break;
-#if defined(DISPLAY_TOUCH_DRIVER)
-    // Touch Calibration
-    //[ESP215]<CALIBRATE>[pwd=<user password>]
-    case 215:
-      response = ESP215(cmd_params, auth_type, esp3dmsg);
-      break;
-#endif  // DISPLAY_TOUCH_DRIVER
-#ifdef BUZZER_DEVICE
-    // Play sound
-    //[ESP250]F=<frequency> D=<duration> [pwd=<user password>]
-    case 250:
-      response = ESP250(cmd_params, auth_type, esp3dmsg);
-      break;
-#endif  // BUZZER_DEVICE
-#endif  // DISPLAY_DEVICE
-    // Show pins
-    //[ESP220][pwd=<user password>]
-    case 220:
-      response = ESP220(cmd_params, auth_type, esp3dmsg);
-      break;
-    // Delay command
-    //[ESP290]<delay in ms>[pwd=<user password>]
-    case 290:
-      response = ESP290(cmd_params, auth_type, esp3dmsg);
-      break;
-    // Get full ESP3D settings
-    //[ESP400]<pwd=admin>
-    case 400:
-      response = ESP400(cmd_params, auth_type, esp3dmsg);
-      break;
-    // Set EEPROM setting
-    //[ESP401]P=<position> T=<type> V=<value> pwd=<user/admin password>
-    case 401:
-      response = ESP401(cmd_params, auth_type, esp3dmsg);
-      break;
-#if defined(WIFI_FEATURE)
-    // Get available AP list (limited to 30)
-    // esp3dmsg is JSON or plain text according parameter
-    //[ESP410]<plain>
-    case 410:
-      response = ESP410(cmd_params, auth_type, esp3dmsg);
-      break;
-#endif  // WIFI_FEATURE
-    // Get ESP current status
-    // esp3dmsg is JSON or plain text according parameter
-    //[ESP420]<plain>
-    case 420:
-      response = ESP420(cmd_params, auth_type, esp3dmsg);
-      break;
-    // Set ESP State
-    // cmd are RESTART / RESET
-    //[ESP444]<cmd><pwd=admin>
-    case 444:
-      response = ESP444(cmd_params, auth_type, esp3dmsg);
-      break;
-#ifdef MDNS_FEATURE
-    // Get ESP3D list
-    //[ESP450] pwd=<admin/user password>
-    case 450:
-      response = ESP450(cmd_params, auth_type, esp3dmsg);
-      break;
-#endif  // MDNS_FEATURE
-#ifdef AUTHENTICATION_FEATURE
-    // Change admin password
-    //[ESP550]<password>pwd=<admin password>
-    case 550:
-      response = ESP550(cmd_params, auth_type, esp3dmsg);
-      break;
-    // Change user password
-    //[ESP555]<password>pwd=<admin/user password>
-    case 555:
-      response = ESP555(cmd_params, auth_type, esp3dmsg);
-      break;
-#endif  // AUTHENTICATION_FEATURE
-#if defined(NOTIFICATION_FEATURE)
-    // Send Notification
-    //[ESP600]<msg>[pwd=<admin password>]
-    case 600:
-      response = ESP600(cmd_params, auth_type, esp3dmsg);
-      break;
-    // Set/Get Notification settings
-    //[ESP610]type=<NONE/PUSHOVER/EMAIL/LINE> T1=<token1> T2=<token2>
-    // TS=<Settings> [pwd=<admin password>] Get will give type and settings only
-    // not the protected T1/T2
-    case 610:
-      response = ESP610(cmd_params, auth_type, esp3dmsg);
-      break;
-    // Send Notification using URL
-    //[ESP620]URL=<encoded url> [pwd=<admin password>]
-    case 620:
-      response = ESP620(cmd_params, auth_type, esp3dmsg);
-      break;
-#endif  // NOTIFICATION_FEATURE
-#if defined(FILESYSTEM_FEATURE)
-    // Format ESP Filesystem
-    //[ESP710]FORMAT pwd=<admin password>
-    case 710:
-      response = ESP710(cmd_params, auth_type, esp3dmsg);
-      break;
-    // List ESP Filesystem
-    //[ESP720]<Root> pwd=<admin password>
-    case 720:
-      response = ESP720(cmd_params, auth_type, esp3dmsg);
-      break;
-    // Action on ESP Filesystem
-    // rmdir / remove / mkdir / exists
-    //[ESP730]<Action>=<path> pwd=<admin password>
-    case 730:
-      response = ESP730(cmd_params, auth_type, esp3dmsg);
-      break;
-#endif  // FILESYSTEM_FEATURE
-#if defined(SD_DEVICE)
-    // Format ESP Filesystem
-    //[ESP715]FORMATSD pwd=<admin password>
-    case 715:
-      response = ESP715(cmd_params, auth_type, esp3dmsg);
-      break;
-#endif  // SD_DEVICE
-#if defined(GCODE_HOST_FEATURE)
-    // Open local file
-    //[ESP700]<filename>
-    case 700:
-      response = ESP700(cmd_params, auth_type, esp3dmsg);
-      break;
-    // Get Status and Control ESP700 stream
-    //[ESP701]action=<PAUSE/RESUME/ABORT>
-    case 701:
-      response = ESP701(cmd_params, auth_type, esp3dmsg);
-      break;
-#endif  // GCODE_HOST_FEATURE
-#if defined(SD_DEVICE)
-    // List SD Filesystem
-    //[ESP740]<Root> pwd=<admin password>
-    case 740:
-      response = ESP740(cmd_params, auth_type, esp3dmsg);
-      break;
-    // Action on SD Filesystem
-    // rmdir / remove / mkdir / exists
-    //[ESP750]<Action>=<path> pwd=<admin password>
-    case 750:
-      response = ESP750(cmd_params, auth_type, esp3dmsg);
-      break;
-#endif  // SD_DEVICE
-#if defined(GLOBAL_FILESYSTEM_FEATURE)
-    // List Global Filesystem
-    //[ESP780]<Root> pwd=<admin password>
-    case 780:
-      response = ESP780(cmd_params, auth_type, esp3dmsg);
-      break;
-    // Action on Global Filesystem
-    // rmdir / remove / mkdir / exists
-    //[ESP790]<Action>=<path> pwd=<admin password>
-    case 790:
-      response = ESP790(cmd_params, auth_type, esp3dmsg);
-      break;
-#endif  // GLOBAL_FILESYSTEM_FEATURE
-    // Get fw version firmare target and fw version
-    // eventually set time with pc time
-    // output is JSON or plain text according parameter
-    //[ESP800]<plain><time=YYYY-MM-DD-HH-MM-SS>
-    case 800:
-      response = ESP800(cmd_params, auth_type, esp3dmsg);
-      break;
-
-#if COMMUNICATION_PROTOCOL != SOCKET_SERIAL
-    // Get state / Set Enable / Disable Serial Communication
-    //[ESP900]<ENABLE/DISABLE>
-    case 900:
-      response = ESP900(cmd_params, auth_type, esp3dmsg);
-      break;
-    // Get / Set Serial Baud Rate
-    //[ESP901]<BAUD RATE> json=<no> pwd=<admin/user password>
-    case 901:
-      response = ESP901(cmd_params, auth_type, esp3dmsg);
-      break;
-#endif  // COMMUNICATION_PROTOCOL != SOCKET_SERIAL
-#ifdef BUZZER_DEVICE
-    // Get state / Set Enable / Disable buzzer
-    //[ESP910]<ENABLE/DISABLE>
-    case 910:
-      response = ESP910(cmd_params, auth_type, esp3dmsg);
-      break;
-#endif  // BUZZER_DEVICE
-
-#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
-    // Get state / Set Enable / Disable Serial Bridge Communication
-    //[ESP930]<ENABLE/DISABLE>
-    case 930:
-      response = ESP930(cmd_params, auth_type, esp3dmsg);
-      break;
-    // Get / Set Serial Bridge Baud Rate
-    //[ESP931]<BAUD RATE> json=<no> pwd=<admin/user password>
-    case 931:
-      response = ESP931(cmd_params, auth_type, esp3dmsg);
-      break;
-#endif  // defined(ESP_SERIAL_BRIDGE_OUTPUT)
-#if defined(ARDUINO_ARCH_ESP32) &&                             \
-    (CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32S2 || \
-     CONFIG_IDF_TARGET_ESP32C3)
-    case 999:
-      // Set quiet boot if strapping pin is High
-      //[ESP999]<QUIETBOOT> [pwd=<admin/user password>]
-      response = ESP999(cmd_params, auth_type, esp3dmsg);
-      break;
-#endif  // ARDUINO_ARCH_ESP32
-    default:
-      esp3dmsg->printERROR("Invalid Command");
-      response = false;
-  }
-  return response;
-}
-*/
 void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
                                              ESP3DMessage *msg) {
   if (!msg) {
@@ -743,6 +280,442 @@ void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
     case 0:
       ESP0(cmd_params_pos, msg);
       break;
+
+#if defined(WIFI_FEATURE)
+    // STA SSID
+    //[ESP100]<SSID>[pwd=<admin password>]
+    case 100:
+      ESP100(cmd_params_pos, msg);
+      break;
+    // STA Password
+    //[ESP101]<Password>[pwd=<admin password>]
+    case 101:
+      ESP101(cmd_params_pos, msg);
+      break;
+#endif  // WIFI_FEATURE
+      /*#if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
+          // Change STA IP mode (DHCP/STATIC)
+          //[ESP102]<mode>pwd=<admin password>
+          case 102:
+            ESP102(cmd_params_pos, msg);
+            break;
+          // Change STA IP/Mask/GW
+          //[ESP103]IP=<IP> MSK=<IP> GW=<IP> pwd=<admin password>
+          case 103:
+            ESP103(cmd_params_pos, msg);
+            break;
+      #endif  // WIFI_FEATURE ||ETH_FEATURE
+      #if defined(WIFI_FEATURE) || defined(BLUETOOTH_FEATURE) ||
+      defined(ETH_FEATURE)
+          // Set fallback mode which can be BT,  WIFI-AP, OFF
+          //[ESP104]<state>pwd=<admin password>
+          case 104:
+            ESP104(cmd_params_pos, msg);
+            break;
+      #endif  // WIFI_FEATURE || BLUETOOTH_FEATURE || ETH_FEATURE)
+      #if defined(WIFI_FEATURE)
+          // AP SSID
+          //[ESP105]<SSID>[pwd=<admin password>]
+          case 105:
+            ESP105(cmd_params_pos, msg);
+            break;
+          // AP Password
+          //[ESP106]<Password>[pwd=<admin password>]
+          case 106:
+            ESP106(cmd_params_pos, msg);
+            break;
+          // Change AP IP
+          //[ESP107]<IP> pwd=<admin password>
+          case 107:
+            ESP107(cmd_params_pos, msg);
+            break;
+          // Change AP channel
+          //[ESP108]<channel>pwd=<admin password>
+          case 108:
+            ESP108(cmd_params_pos, msg);
+            break;
+      #endif  // WIFI_FEATURE
+
+      #if defined(WIFI_FEATURE) || defined(BLUETOOTH_FEATURE) ||
+      defined(ETH_FEATURE)
+          // Set radio state at boot which can be BT, WIFI-STA, WIFI-AP,
+      ETH-STA, OFF
+          //[ESP110]<state>pwd=<admin password>
+          case 110:
+            ESP110(cmd_params_pos, msg);
+            break;
+      #endif  // WIFI_FEATURE || BLUETOOTH_FEATURE || ETH_FEATURE)
+
+      #if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
+          // Get current IP
+          //[ESP111]
+          case 111:
+            ESP111(cmd_params_pos, msg);
+            break;
+      #endif  // WIFI_FEATURE || ETH_FEATURE)
+
+      #if defined(WIFI_FEATURE) || defined(ETH_FEATURE) || defined(BT_FEATURE)
+          // Get/Set hostname
+          //[ESP112]<Hostname> pwd=<admin password>
+          case 112:
+            ESP112(cmd_params_pos, msg);
+            break;
+          // Get/Set boot Network (WiFi/BT/Ethernet) state which can be ON, OFF
+          //[ESP114]<state>pwd=<admin password>
+          case 114:
+            ESP114(cmd_params_pos, msg);
+            break;
+          // Get/Set immediate Network (WiFi/BT/Ethernet) state which can be ON,
+      OFF
+          //[ESP115]<state>pwd=<admin password>
+          case 115:
+            ESP115(cmd_params_pos, msg);
+            break;
+      #endif  // WIFI_FEATURE|| ETH_FEATURE || BT_FEATURE
+
+      #ifdef HTTP_FEATURE
+          // Set HTTP state which can be ON, OFF
+          //[ESP120]<state>pwd=<admin password>
+          case 120:
+            ESP120(cmd_params_pos, msg);
+            break;
+          // Set HTTP port
+          //[ESP121]<port>pwd=<admin password>
+          case 121:
+            ESP121(cmd_params_pos, msg);
+            break;
+      #endif  // HTTP_FEATURE
+      #ifdef TELNET_FEATURE
+          // Set TELNET state which can be ON, OFF
+          //[ESP130]<state>pwd=<admin password>
+          case 130:
+            ESP130(cmd_params_pos, msg);
+            break;
+          // Set TELNET port
+          //[ESP131]<port>pwd=<admin password>
+          case 131:
+            ESP131(cmd_params_pos, msg);
+            break;
+      #endif  // TELNET_FEATURE
+      #ifdef TIMESTAMP_FEATURE
+          // Sync / Set / Get current time
+          //[ESP140]<SYNC>  <srv1=XXXXX> <srv2=XXXXX> <srv3=XXXXX> <zone=xxx>
+          //<dst=YES/NO> <time=YYYY-MM-DD#H24:MM:SS> pwd=<admin password>
+          case 140:
+            ESP140(cmd_params_pos, msg);
+            break;
+      #endif  // TIMESTAMP_FEATURE
+          // Get/Set display/set boot delay in ms / Verbose boot
+          //[ESP150]<delay=time in milliseconds><verbose=YES/NO>[pwd=<admin
+      password>] case 150: ESP150(cmd_params_pos, msg);
+            break;
+      #ifdef WS_DATA_FEATURE
+          // Set WebSocket state which can be ON, OFF
+          //[ESP160]<state>pwd=<admin password>
+          case 160:
+            ESP160(cmd_params_pos, msg);
+            break;
+          // Set WebSocket port
+          //[ESP161]<port>pwd=<admin password>
+          case 161:
+            ESP161(cmd_params_pos, msg);
+            break;
+      #endif  // WS_DATA_FEATURE
+      #ifdef CAMERA_DEVICE
+          // Get/Set Camera command value / list all values in JSON/plain
+          //[ESP170]label=<value> pwd=<admin/user password>
+          // label can be:
+          //
+      light/framesize/quality/contrast/brightness/saturation/gainceiling/colorbar/awb/agc/aec/hmirror/vflip/awb_gain/agc_gain/aec_value/aec2/cw/bpc/wpc/raw_gma/lenc/special_effect/wb_mode/ae_level
+          case 170:
+            ESP170(cmd_params_pos, msg);
+            break;
+          // Save frame to target path and filename (default target = today
+      date,
+          // default name=timestamp.jpg) [ESP171]path=<target path>
+      filename=<target
+          // filename> pwd=<admin/user password>
+          case 171:
+            ESP171(cmd_params_pos, msg);
+            break;
+      #endif  // CAMERA_DEVICE
+      #ifdef FTP_FEATURE
+          // Set Ftp state which can be ON, OFF
+          //[ESP180]<state>pwd=<admin password>
+          case 180:
+            ESP180(cmd_params_pos, msg);
+            break;
+          // Set/get ftp ports
+          //[ESP181]ctrl=<port> active=<port> passive=<port> pwd=<admin
+      password>
+      case 181:
+      ESP181(cmd_params_pos, msg);
+            break;
+      #endif  // FTP_FEATURE
+      #ifdef WEBDAV_FEATURE
+          // Set webdav state which can be ON, OFF
+          //[ESP190]<state>pwd=<admin password>
+          case 190:
+            ESP190(cmd_params_pos, msg);
+            break;
+          // Set/get webdav port
+          //[ESP191]ctrl=<port> active=<port> passive=<port> pwd=<admin
+      password>
+      case 191:
+      ESP191(cmd_params_pos, msg);
+            break;
+      #endif  // WEBDAV_FEATURE
+      #if defined(SD_DEVICE)
+          // Get/Set SD Card Status
+          //[ESP200] json=<YES/NO> <RELEASESD> <REFRESH> pwd=<user/admin
+      password>
+      case 200:
+      ESP200(cmd_params_pos, msg);
+            break;
+      #if SD_DEVICE != ESP_SDIO
+          // Get/Set SD card Speed factor 1 2 4 6 8 16 32
+          //[ESP202]SPEED=<value>pwd=<user/admin password>
+          case 202:
+            ESP202(cmd_params_pos, msg);
+            break;
+      #endif  // SD_DEVICE != ESP_SDIO
+      #ifdef SD_UPDATE_FEATURE
+          // Get/Set SD Check at boot state which can be ON, OFF
+          //[ESP402]<state>pwd=<admin password>
+          case 402:
+            ESP402(cmd_params_pos, msg);
+            break;
+      #endif  // #ifdef SD_UPDATE_FEATURE
+      #endif  // SD_DEVICE
+      #ifdef DIRECT_PIN_FEATURE
+          // Get/Set pin value
+          //[ESP201]P<pin> V<value> [PULLUP=YES RAW=YES]pwd=<admin password>
+          case 201:
+            ESP201(cmd_params_pos, msg);
+            break;
+      #endif  // DIRECT_PIN_FEATURE
+      #ifdef SENSOR_DEVICE
+          // Get SENSOR Value / type/Set SENSOR type
+          //[ESP210] <TYPE> <type=NONE/xxx> <interval=XXX in millisec>
+          case 210:
+            ESP210(cmd_params_pos, msg);
+            break;
+      #endif  // #ifdef SENSOR_DEVICE
+      #if defined(DISPLAY_DEVICE)
+          // Output to esp screen status
+          //[ESP214]<Text>pwd=<user password>
+          case 214:
+            ESP214(cmd_params_pos, msg);
+            break;
+      #if defined(DISPLAY_TOUCH_DRIVER)
+          // Touch Calibration
+          //[ESP215]<CALIBRATE>[pwd=<user password>]
+          case 215:
+            ESP215(cmd_params_pos, msg);
+            break;
+      #endif  // DISPLAY_TOUCH_DRIVER
+      #ifdef BUZZER_DEVICE
+          // Play sound
+          //[ESP250]F=<frequency> D=<duration> [pwd=<user password>]
+          case 250:
+            ESP250(cmd_params_pos, msg);
+            break;
+      #endif  // BUZZER_DEVICE
+      #endif  // DISPLAY_DEVICE
+          // Show pins
+          //[ESP220][pwd=<user password>]
+          case 220:
+            ESP220(cmd_params_pos, msg);
+            break;
+          // Delay command
+          //[ESP290]<delay in ms>[pwd=<user password>]
+          case 290:
+            ESP290(cmd_params_pos, msg);
+            break;
+          // Get full ESP3D settings
+          //[ESP400]<pwd=admin>
+          case 400:
+            ESP400(cmd_params_pos, msg);
+            break;
+          // Set EEPROM setting
+          //[ESP401]P=<position> T=<type> V=<value> pwd=<user/admin password>
+          case 401:
+            ESP401(cmd_params_pos, msg);
+            break;
+      #if defined(WIFI_FEATURE)
+          // Get available AP list (limited to 30)
+          // esp3dmsg is JSON or plain text according parameter
+          //[ESP410]<plain>
+          case 410:
+            ESP410(cmd_params_pos, msg);
+            break;
+      #endif  // WIFI_FEATURE
+          // Get ESP current status
+          // esp3dmsg is JSON or plain text according parameter
+          //[ESP420]<plain>
+          case 420:
+            ESP420(cmd_params_pos, msg);
+            break;
+          // Set ESP State
+          // cmd are RESTART / RESET
+          //[ESP444]<cmd><pwd=admin>
+          case 444:
+            ESP444(cmd_params_pos, msg);
+            break;
+      #ifdef MDNS_FEATURE
+          // Get ESP3D list
+          //[ESP450] pwd=<admin/user password>
+          case 450:
+            ESP450(cmd_params_pos, msg);
+            break;
+      #endif  // MDNS_FEATURE
+      #ifdef AUTHENTICATION_FEATURE
+          // Change admin password
+          //[ESP550]<password>pwd=<admin password>
+          case 550:
+            ESP550(cmd_params_pos, msg);
+            break;
+          // Change user password
+          //[ESP555]<password>pwd=<admin/user password>
+          case 555:
+            ESP555(cmd_params_pos, msg);
+            break;
+      #endif  // AUTHENTICATION_FEATURE
+      #if defined(NOTIFICATION_FEATURE)
+          // Send Notification
+          //[ESP600]<msg>[pwd=<admin password>]
+          case 600:
+            ESP600(cmd_params_pos, msg);
+            break;
+          // Set/Get Notification settings
+          //[ESP610]type=<NONE/PUSHOVER/EMAIL/LINE> T1=<token1> T2=<token2>
+          // TS=<Settings> [pwd=<admin password>] Get will give type and
+      settings only
+          // not the protected T1/T2
+          case 610:
+            ESP610(cmd_params_pos, msg);
+            break;
+          // Send Notification using URL
+          //[ESP620]URL=<encoded url> [pwd=<admin password>]
+          case 620:
+            ESP620(cmd_params_pos, msg);
+            break;
+      #endif  // NOTIFICATION_FEATURE
+      #if defined(FILESYSTEM_FEATURE)
+          // Format ESP Filesystem
+          //[ESP710]FORMAT pwd=<admin password>
+          case 710:
+            ESP710(cmd_params_pos, msg);
+            break;
+          // List ESP Filesystem
+          //[ESP720]<Root> pwd=<admin password>
+          case 720:
+            ESP720(cmd_params_pos, msg);
+            break;
+          // Action on ESP Filesystem
+          // rmdir / remove / mkdir / exists
+          //[ESP730]<Action>=<path> pwd=<admin password>
+          case 730:
+            ESP730(cmd_params_pos, msg);
+            break;
+      #endif  // FILESYSTEM_FEATURE
+      #if defined(SD_DEVICE)
+          // Format ESP Filesystem
+          //[ESP715]FORMATSD pwd=<admin password>
+          case 715:
+            ESP715(cmd_params_pos, msg);
+            break;
+      #endif  // SD_DEVICE
+      #if defined(GCODE_HOST_FEATURE)
+          // Open local file
+          //[ESP700]<filename>
+          case 700:
+            ESP700(cmd_params_pos, msg);
+            break;
+          // Get Status and Control ESP700 stream
+          //[ESP701]action=<PAUSE/RESUME/ABORT>
+          case 701:
+            ESP701(cmd_params_pos, msg);
+            break;
+      #endif  // GCODE_HOST_FEATURE
+      #if defined(SD_DEVICE)
+          // List SD Filesystem
+          //[ESP740]<Root> pwd=<admin password>
+          case 740:
+            ESP740(cmd_params_pos, msg);
+            break;
+          // Action on SD Filesystem
+          // rmdir / remove / mkdir / exists
+          //[ESP750]<Action>=<path> pwd=<admin password>
+          case 750:
+            ESP750(cmd_params_pos, msg);
+            break;
+      #endif  // SD_DEVICE
+      #if defined(GLOBAL_FILESYSTEM_FEATURE)
+          // List Global Filesystem
+          //[ESP780]<Root> pwd=<admin password>
+          case 780:
+            ESP780(cmd_params_pos, msg);
+            break;
+          // Action on Global Filesystem
+          // rmdir / remove / mkdir / exists
+          //[ESP790]<Action>=<path> pwd=<admin password>
+          case 790:
+            ESP790(cmd_params_pos, msg);
+            break;
+      #endif  // GLOBAL_FILESYSTEM_FEATURE
+          // Get fw version firmare target and fw version
+          // eventually set time with pc time
+          // output is JSON or plain text according parameter
+          //[ESP800]<plain><time=YYYY-MM-DD-HH-MM-SS>
+          case 800:
+            ESP800(cmd_params_pos, msg);
+            break;
+
+      #if COMMUNICATION_PROTOCOL != SOCKET_SERIAL
+          // Get state / Set Enable / Disable Serial Communication
+          //[ESP900]<ENABLE/DISABLE>
+          case 900:
+            ESP900(cmd_params_pos, msg);
+            break;
+          // Get / Set Serial Baud Rate
+          //[ESP901]<BAUD RATE> json=<no> pwd=<admin/user password>
+          case 901:
+            ESP901(cmd_params_pos, msg);
+            break;
+      #endif  // COMMUNICATION_PROTOCOL != SOCKET_SERIAL
+      #ifdef BUZZER_DEVICE
+          // Get state / Set Enable / Disable buzzer
+          //[ESP910]<ENABLE/DISABLE>
+          case 910:
+            ESP910(cmd_params_pos, msg);
+            break;
+      #endif  // BUZZER_DEVICE
+
+      #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
+          // Get state / Set Enable / Disable Serial Bridge Communication
+          //[ESP930]<ENABLE/DISABLE>
+          case 930:
+            ESP930(cmd_params_pos, msg);
+            break;
+          // Get / Set Serial Bridge Baud Rate
+          //[ESP931]<BAUD RATE> json=<no> pwd=<admin/user password>
+          case 931:
+            ESP931(cmd_params_pos, msg);
+            break;
+      #endif  // defined(ESP_SERIAL_BRIDGE_OUTPUT)
+      #if defined(ARDUINO_ARCH_ESP32) &&                             \
+          (CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32S2 || \
+           CONFIG_IDF_TARGET_ESP32C3)
+          case 999:
+            // Set quiet boot if strapping pin is High
+            //[ESP999]<QUIETBOOT> [pwd=<admin/user password>]
+            ESP999(cmd_params_pos, msg);
+            break;
+      #endif  // ARDUINO_ARCH_ESP32
+
+      */
+
     default:
       msg->target = msg->origin;
       esp3d_log("Invalid Command: %d", cmd);
