@@ -23,6 +23,9 @@
 #include "../include/esp3d_config.h"
 
 ESP3DRequest no_id{.id = 0};
+#if defined(ESP_LOG_FEATURE)
+int msg_counting = 0;
+#endif  // ESP_LOG_FEATURE
 
 bool ESP3DMessageManager::deleteMsg(ESP3DMessage* message) {
   if (!message) return false;
@@ -31,12 +34,14 @@ bool ESP3DMessageManager::deleteMsg(ESP3DMessage* message) {
   }
   free(message);
   message = NULL;
+  esp3d_log("Deletion : Now we have %ld msg", --msg_counting);
   return true;
 }
 
 ESP3DMessage* ESP3DMessageManager::newMsg() {
   ESP3DMessage* newMsgPtr = (ESP3DMessage*)malloc(sizeof(ESP3DMessage));
   if (newMsgPtr) {
+    esp3d_log("Creation : Now we have %ld msg", ++msg_counting);
     // esp3d_log("Creation : Now we have %ld msg", ++msg_counting);
     newMsgPtr->data = nullptr;
     newMsgPtr->size = 0;
@@ -45,6 +50,8 @@ ESP3DMessage* ESP3DMessageManager::newMsg() {
     newMsgPtr->authentication_level = ESP3DAuthenticationLevel::guest;
     newMsgPtr->request_id.id = millis();
     newMsgPtr->type = ESP3DMessageType::head;
+  } else {
+    esp3d_log_e("Out of memory");
   }
   return newMsgPtr;
 }
@@ -135,6 +142,7 @@ bool ESP3DMessageManager::setDataContent(ESP3DMessage* msg, const uint8_t* data,
     msg->size = length;
     msg->data[length] =
         '\0';  // add some security in case data is called as string
+    esp3d_log("Data content set to %s", msg->data);
     return true;
   }
   esp3d_log_e("Out of memory");

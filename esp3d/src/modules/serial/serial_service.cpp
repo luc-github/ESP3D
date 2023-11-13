@@ -510,13 +510,18 @@ bool ESP3DSerialService::dispatch(ESP3DMessage *message) {
       // if message is not null
       if (message->data && message->size != 0) {
         if (writeBytes(message->data, message->size) == message->size) {
+          flush();
           // Delete message now
           ESP3DMessageManager::deleteMsg(message);
           done = true;
         } else {
           esp3d_log_e("Error while sending data");
         }
+      } else {
+        esp3d_log_e("Error null data");
       }
+    } else {
+      esp3d_log_e("Error null message");
     }
   }
   return done;

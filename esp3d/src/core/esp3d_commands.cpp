@@ -45,81 +45,6 @@ ESP3DCommands::ESP3DCommands() {
 
 ESP3DCommands::~ESP3DCommands() {}
 
-// dispatch the command
-void ESP3DCommands::process(uint8_t *sbuf, size_t len, ESP3D_Message *esp3dmsg,
-                            ESP3DAuthenticationLevel auth,
-                            ESP3D_Message *esp3dmsgonly, uint8_t outputignore) {
-  static bool lastIsESP3D = false;
-  esp3d_log("Client is %d, has only %d, has ignore %d",
-            esp3dmsg ? esp3dmsg->getTarget() : 0,
-            esp3dmsgonly ? esp3dmsgonly->getTarget() : 0, outputignore);
-  if (is_esp_command(sbuf, len)) {
-    lastIsESP3D = true;
-    size_t slen = len;
-    String tmpbuf = (const char *)sbuf;
-    if (tmpbuf.startsWith("echo:")) {
-      tmpbuf.replace("echo: ", "");
-      tmpbuf.replace("echo:", "");
-      slen = tmpbuf.length();
-    }
-
-    uint8_t cmd[4] = {0, 0, 0, 0};
-    cmd[0] = tmpbuf[4] == ']' ? 0 : tmpbuf[4];
-    cmd[1] = tmpbuf[5] == ']' ? 0 : tmpbuf[5];
-    cmd[2] = tmpbuf[6] == ']' ? 0 : tmpbuf[6];
-    cmd[3] = 0x0;
-    esp3d_log("It is ESP command %s", cmd);
-    esp3d_log("Respond to client  %d", (esp3dmsgonly == nullptr)
-                                           ? esp3dmsg->getTarget()
-                                           : esp3dmsgonly->getTarget());
-    execute_internal_command(
-        String((const char *)cmd).toInt(),
-        (slen > (strlen((const char *)cmd) + 5))
-            ? (const char *)&tmpbuf[strlen((const char *)cmd) + 5]
-            : "",
-        auth, (esp3dmsgonly == nullptr) ? esp3dmsg : esp3dmsgonly);
-  } else {
-    // Work around to avoid to dispatch single \n to everyone as it is part of
-    // previous ESP3D command
-    if (lastIsESP3D && len == 1 && sbuf[0] == '\n') {
-      lastIsESP3D = false;
-      return;
-    }
-    lastIsESP3D = false;
-    // Dispatch to all clients but current or to define output
-#if defined(HTTP_FEATURE)
-    // the web command will never get answer as answer go to websocket
-    // This is sanity check as the http client should already answered
-    if (esp3dmsg->getTarget() == ESP_HTTP_CLIENT && !esp3dmsg->footerSent()) {
-      if (auth != guest) {
-        esp3dmsg->printMSG("");
-      } else {
-        esp3dmsg->printERROR("Wrong authentication!", 401);
-        return;
-      }
-    }
-#endif  // HTTP_FEATURE
-    if (esp3dmsgonly == nullptr) {
-      esp3d_log("Dispatch from %d, but %d", esp3dmsg->getTarget(),
-                outputignore);
-      // FIXME: code commented - need to use new API
-      // esp3dmsg->dispatch(sbuf, len, outputignore);
-    } else {
-      esp3d_log("Dispatch from %d to only  %d", esp3dmsg->getTarget(),
-                esp3dmsgonly->getTarget());
-#if COMMUNICATION_PROTOCOL == MKS_SERIAL
-      if (esp3dmsgonly->getTarget() == ESP_SERIAL_CLIENT) {
-        MKSService::sendGcodeFrame((const char *)sbuf);
-      } else {
-        esp3dmsgonly->write(sbuf, len);
-      }
-#else
-      esp3dmsgonly->write(sbuf, len);
-#endif  // COMMUNICATION_PROTOCOL == MKS_SERIAL
-    }
-  }
-}
-
 // check if current line is an [ESPXXX] command
 bool ESP3DCommands::is_esp_command(uint8_t *sbuf, size_t len) {
   // TODO
@@ -148,74 +73,6 @@ bool ESP3DCommands::is_esp_command(uint8_t *sbuf, size_t len) {
   return false;
 }
 
-// find space in string
-// if space is has \ before it is ignored
-int ESP3DCommands::get_space_pos(const char *string, uint from) {
-  uint len = strlen(string);
-  if (len < from) {
-    return -1;
-  }
-  for (uint i = from; i < len; i++) {
-    if (string[i] == ' ') {
-      // if it is first char
-      if (i == from) {
-        return from;
-      }
-      // if not first one and previous char is not '\'
-      if (string[i - 1] != '\\') {
-        return (i);
-      }
-    }
-  }
-  return -1;
-}
-
-// return first label but pwd using labelseparator (usualy =) like
-// mylabel=myvalue will return mylabel
-const char *ESP3DCommands::get_label(const char *cmd_params,
-                                     const char *labelseparator,
-                                     uint8_t startindex) {
-  static String res;
-  String tmp = "";
-  res = "";
-  int start = 1;
-  int end = -1;
-  res = cmd_params;
-  res.replace("\r ", "");
-  res.replace("\n ", "");
-  res.trim();
-  if ((res.length() == 0) || (startindex >= res.length())) {
-    return res.c_str();
-  }
-
-  if (strlen(labelseparator) > 0) {
-    end = res.indexOf(labelseparator, startindex);
-    if (end == -1) {
-      return "";
-    }
-    start = end;
-    for (int8_t p = end; p >= startindex; p--, start--) {
-      if (res[p] == ' ') {
-        p = -1;
-        start += 2;
-      }
-    }
-    if (start == -1) {
-      start = 0;
-    }
-    if (start > end) {
-      return "";
-    }
-    tmp = res.substring(start, end);
-    if (tmp == "pwd") {
-      res = get_label(cmd_params, labelseparator, end + 1);
-    } else {
-      res = tmp;
-    }
-  }
-  return res.c_str();
-}
-
 const char *ESP3DCommands::format_response(uint cmdID, bool isjson, bool isok,
                                            const char *message) {
   static String res;
@@ -242,121 +99,6 @@ const char *ESP3DCommands::format_response(uint cmdID, bool isjson, bool isok,
     res += "}";
   }
   return res.c_str();
-}
-
-const char *ESP3DCommands::clean_param(const char *cmd_params) {
-  static String res;
-  res = cmd_params;
-  if (strlen(cmd_params) == 0) {
-    return "";
-  }
-  String tmp = cmd_params;
-  tmp.trim();
-  if (tmp == "json" || tmp.startsWith("json ")) {
-    return "";
-  }
-  if (tmp.indexOf("json=") != -1) {
-    // remove formating flag
-    res = tmp.substring(0, tmp.indexOf("json="));
-  } else {
-    if (tmp.endsWith(" json")) {
-      // remove formating flag
-      res = tmp.substring(0, tmp.length() - 5);
-    }
-  }
-  return res.c_str();
-}
-
-// extract parameter with corresponding label
-// if label is empty give whole line without authentication label/parameter
-const char *ESP3DCommands::get_param(const char *cmd_params,
-                                     const char *label) {
-  static String res;
-  res = "";
-  int start = 1;
-  int end = -1;
-  String tmp = "";
-  String slabel = " ";
-  res = cmd_params;
-  res.replace("\r ", "");
-  res.replace("\n ", "");
-  res.trim();
-  if (res.length() == 0) {
-    return res.c_str();
-  }
-
-  tmp = " " + res;
-  slabel += label;
-  if (strlen(label) > 0) {
-    start = tmp.indexOf(slabel);
-    if (start == -1) {
-      return "";
-    }
-    start += slabel.length();
-    end = get_space_pos(tmp.c_str(), start);
-  }
-  if (end == -1) {
-    end = tmp.length();
-  }
-  // extract parameter
-  res = tmp.substring(start, end);
-
-#ifdef AUTHENTICATION_FEATURE
-  // if no label remove authentication parameters
-  if (strlen(label) == 0) {
-    tmp = " " + res;
-    start = tmp.indexOf(" pwd=");
-    if (start != -1) {
-      end = get_space_pos(tmp.c_str(), start + 1);
-      res = "";
-      if (start != 0) {
-        res = tmp.substring(0, start);
-      }
-      if (end != -1) {
-        res += " " + tmp.substring(end + 1, tmp.length());
-      }
-    }
-  }
-#endif  // AUTHENTICATION_FEATURE
-  // remove space format
-  res.replace("\\ ", " ");
-  // be sure no extra space
-  res.trim();
-  return res.c_str();
-}
-
-bool ESP3DCommands::has_tag(const char *cmd_params, const char *tag) {
-  esp3d_log("Checking for tag: %s, in %s", tag, cmd_params);
-  String tmp = "";
-  String stag = " ";
-  if ((strlen(cmd_params) == 0) || (strlen(tag) == 0)) {
-    esp3d_log_e("No value provided for tag");
-    return false;
-  }
-  stag += tag;
-  tmp = cmd_params;
-  tmp.trim();
-  tmp = " " + tmp;
-  if (tmp.indexOf(stag) == -1) {
-    esp3d_log("No tag detected");
-    return false;
-  }
-  esp3d_log("Tag detected");
-  // to support plain , plain=yes , plain=no
-  String param = String(tag) + "=";
-  esp3d_log("Checking  %s , in %s", param.c_str(), cmd_params);
-  String parameter = get_param(cmd_params, param.c_str());
-  if (parameter.length() != 0) {
-    esp3d_log("Parameter is %s", parameter.c_str());
-    if (parameter == "YES" || parameter == "true" || parameter == "TRUE" ||
-        parameter == "yes" || parameter == "1") {
-      return true;
-    }
-    esp3d_log("No parameter to enable  %s ", param.c_str());
-    return false;
-  }
-  esp3d_log("No parameter for %s but tag detected", param.c_str());
-  return true;
 }
 
 bool ESP3DCommands::hasTag(ESP3DMessage *msg, uint start, const char *label) {
@@ -983,6 +725,7 @@ light/framesize/quality/contrast/brightness/saturation/gainceiling/colorbar/awb/
 void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
                                              ESP3DMessage *msg) {
   if (!msg) {
+    esp3d_log_e("no msg for cmd %d", cmd);
     return;
   }
 #ifdef AUTHENTICATION_FEATURE
@@ -995,9 +738,14 @@ void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
   }
 #endif  // AUTHENTICATION_FEATURE
   switch (cmd) {
+      // ESP3D Help
+    //[ESP0] or [ESP]
+    case 0:
+      ESP0(cmd_params_pos, msg);
+      break;
     default:
       msg->target = msg->origin;
-      esp3d_log("Invalid Command: %s", tmpstr.c_str());
+      esp3d_log("Invalid Command: %d", cmd);
       if (hasTag(msg, cmd_params_pos, "json")) {
         String tmpstr = "{\"cmd\":\"";
         tmpstr += String(cmd);
@@ -1014,172 +762,174 @@ void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
         }
       }
   }
-}
-bool ESP3DCommands::_dispatchSetting(
-    bool json, const char *filter, ESP3DSettingIndex index, const char *help,
-    const char **optionValues, const char **optionLabels, uint32_t maxsize,
-    uint32_t minsize, uint32_t minsize2, uint8_t precision, const char *unit,
-    bool needRestart, ESP3D_Message *esp3dmsg, bool isFirst) {
-  String tmpstr;
-  String value;
-  char out_str[255];
-  tmpstr.reserve(
-      350);  // to save time and avoid several memories allocation delay
-  const ESP3DSettingDescription *elementSetting =
-      ESP3DSettings::getSettingPtr(index);
-  if (!elementSetting) {
-    return false;
-  }
-  switch (elementSetting->type) {
-    case ESP3DSettingType::byte_t:
-      value = String(ESP3DSettings::read_byte(index));
-      break;
-    case ESP3DSettingType::integer_t:
-      value = String(ESP3DSettings::read_uint32(index));
-      break;
-    case ESP3DSettingType::ip_t:
-      value = ESP3DSettings::read_IP_String(index);
-      break;
-    case ESP3DSettingType::float_t:
-      // TODO Add float support ?
-      value = "Not supported";
-      esp3d_log_e("Float not supported");
-      return false;
-      break;
-    case ESP3DSettingType::mask:
-      // TODO Add Mask support ?
-      value = "Not supported";
-      esp3d_log_e("Mask not supported");
-      return false;
-      break;
-    case ESP3DSettingType::bitsfield:
-      // TODO Add bitfield support ?
-      value = "Not supported";
-      esp3d_log_e("Bitsfield not supported");
-      return false;
-      break;
-    case ESP3DSettingType::string_t:
-      // String
-      if (index == ESP_AP_PASSWORD || index == ESP_STA_PASSWORD ||
-#ifdef NOTIFICATION_FEATURE
-          index == ESP_NOTIFICATION_TOKEN1 ||
-          index == ESP_NOTIFICATION_TOKEN2 ||
-#endif  // NOTIFICATION_FEATURE
+} /*
+ bool ESP3DCommands::_dispatchSetting(
+     bool json, const char *filter, ESP3DSettingIndex index, const char *help,
+     const char **optionValues, const char **optionLabels, uint32_t maxsize,
+     uint32_t minsize, uint32_t minsize2, uint8_t precision, const char *unit,
+     bool needRestart, ESP3D_Message *esp3dmsg, bool isFirst) {
+   String tmpstr;
+   String value;
+   char out_str[255];
+   tmpstr.reserve(
+       350);  // to save time and avoid several memories allocation delay
+   const ESP3DSettingDescription *elementSetting =
+       ESP3DSettings::getSettingPtr(index);
+   if (!elementSetting) {
+     return false;
+   }
+   switch (elementSetting->type) {
+     case ESP3DSettingType::byte_t:
+       value = String(ESP3DSettings::read_byte(index));
+       break;
+     case ESP3DSettingType::integer_t:
+       value = String(ESP3DSettings::read_uint32(index));
+       break;
+     case ESP3DSettingType::ip_t:
+       value = ESP3DSettings::read_IP_String(index);
+       break;
+     case ESP3DSettingType::float_t:
+       // TODO Add float support ?
+       value = "Not supported";
+       esp3d_log_e("Float not supported");
+       return false;
+       break;
+     case ESP3DSettingType::mask:
+       // TODO Add Mask support ?
+       value = "Not supported";
+       esp3d_log_e("Mask not supported");
+       return false;
+       break;
+     case ESP3DSettingType::bitsfield:
+       // TODO Add bitfield support ?
+       value = "Not supported";
+       esp3d_log_e("Bitsfield not supported");
+       return false;
+       break;
+     case ESP3DSettingType::string_t:
+       // String
+       if (index == ESP_AP_PASSWORD || index == ESP_STA_PASSWORD ||
+ #ifdef NOTIFICATION_FEATURE
+           index == ESP_NOTIFICATION_TOKEN1 ||
+           index == ESP_NOTIFICATION_TOKEN2 ||
+ #endif  // NOTIFICATION_FEATURE
 
-          index == ESP_USER_PWD || index == ESP_ADMIN_PWD) {  // hide passwords
-                                                              // using  ********
-        value = HIDDEN_PASSWORD;
-      } else {
-        value = ESP3DSettings::read_string(index);
-      }
-      break;
-    default:
-      value = "Not supported";
-      esp3d_log_e("Type not supported");
-      return false;
-      break;
-  }
-  if (json) {
-    if (!isFirst) {
-      tmpstr += ",";
-    }
-    tmpstr += "{\"F\":\"";
-    tmpstr += filter;
-    tmpstr += "\",\"P\":\"";
-    tmpstr += String(static_cast<uint16_t>(index));
-    tmpstr += "\",\"T\":\"";
-    // Limited support already done for above so even not supported we can
-    // define it once will be enabled
-    switch (elementSetting->type) {
-      case ESP3DSettingType::byte_t:
-        tmpstr += "B";
-        break;
-      case ESP3DSettingType::integer_t:
-        tmpstr += "I";
-        break;
-      case ESP3DSettingType::ip_t:
-        tmpstr += "A";
-        break;
-      case ESP3DSettingType::float_t:
-        tmpstr += "F";
-        break;
-      case ESP3DSettingType::mask:
-        tmpstr += "M";
-        break;
-      case ESP3DSettingType::bitsfield:
-        tmpstr += "X";
-        break;
-      default:
-        tmpstr += "S";
-    }
-    tmpstr += "\",\"V\":\"";
-    tmpstr += value;
-    tmpstr += "\",\"H\":\"";
-    tmpstr += help;
-    tmpstr += "\"";
-    if (needRestart) {
-      tmpstr += ",\"R\":\"1\"";
-    }
-    if (optionValues && optionLabels) {
-      tmpstr += ",\"O\":[";
-      for (uint8_t i = 0; i < maxsize; i++) {
-        if (i > 0) {
-          tmpstr += ",";
-        }
-        tmpstr += "{\"";
-        // be sure we have same size for both array to avoid overflow
-        tmpstr += optionLabels[i];
-        tmpstr += "\":\"";
-        tmpstr += optionValues[i];
-        tmpstr += "\"}";
-      }
-      tmpstr += "]";
-    }
-    if (unit) {
-      tmpstr += ",\"R\":\"";
-      tmpstr += unit;
-      tmpstr += "\"";
-    }
-    if (precision != ((uint8_t)-1)) {
-      tmpstr += ",\"E\":\"";
-      tmpstr += String(precision);
-      tmpstr += "\"";
-    }
-    if (maxsize != (uint32_t)-1 && !optionValues) {
-      tmpstr += ",\"S\":\"";
-      tmpstr += String(maxsize);
-      tmpstr += "\"";
-    }
-    if (minsize != (uint32_t)-1) {
-      tmpstr += ",\"M\":\"";
-      tmpstr += String(minsize);
-      tmpstr += "\"";
-    }
-    if (minsize2 != (uint32_t)-1) {
-      tmpstr += ",\"MS\":\"";
-      tmpstr += String(minsize2);
-      tmpstr += "\"";
-    }
-    tmpstr += "}";
-  } else {
-    tmpstr = filter;
-    tmpstr += "/";
-    tmpstr += help;
-    tmpstr += ": ";
-    tmpstr += value;
-    tmpstr += "\n";
-  }
-  esp3dmsg->print(tmpstr.c_str());
-  return true;
-}
+           index == ESP_USER_PWD || index == ESP_ADMIN_PWD) {  // hide passwords
+                                                               // using ********
+         value = HIDDEN_PASSWORD;
+       } else {
+         value = ESP3DSettings::read_string(index);
+       }
+       break;
+     default:
+       value = "Not supported";
+       esp3d_log_e("Type not supported");
+       return false;
+       break;
+   }
+   if (json) {
+     if (!isFirst) {
+       tmpstr += ",";
+     }
+     tmpstr += "{\"F\":\"";
+     tmpstr += filter;
+     tmpstr += "\",\"P\":\"";
+     tmpstr += String(static_cast<uint16_t>(index));
+     tmpstr += "\",\"T\":\"";
+     // Limited support already done for above so even not supported we can
+     // define it once will be enabled
+     switch (elementSetting->type) {
+       case ESP3DSettingType::byte_t:
+         tmpstr += "B";
+         break;
+       case ESP3DSettingType::integer_t:
+         tmpstr += "I";
+         break;
+       case ESP3DSettingType::ip_t:
+         tmpstr += "A";
+         break;
+       case ESP3DSettingType::float_t:
+         tmpstr += "F";
+         break;
+       case ESP3DSettingType::mask:
+         tmpstr += "M";
+         break;
+       case ESP3DSettingType::bitsfield:
+         tmpstr += "X";
+         break;
+       default:
+         tmpstr += "S";
+     }
+     tmpstr += "\",\"V\":\"";
+     tmpstr += value;
+     tmpstr += "\",\"H\":\"";
+     tmpstr += help;
+     tmpstr += "\"";
+     if (needRestart) {
+       tmpstr += ",\"R\":\"1\"";
+     }
+     if (optionValues && optionLabels) {
+       tmpstr += ",\"O\":[";
+       for (uint8_t i = 0; i < maxsize; i++) {
+         if (i > 0) {
+           tmpstr += ",";
+         }
+         tmpstr += "{\"";
+         // be sure we have same size for both array to avoid overflow
+         tmpstr += optionLabels[i];
+         tmpstr += "\":\"";
+         tmpstr += optionValues[i];
+         tmpstr += "\"}";
+       }
+       tmpstr += "]";
+     }
+     if (unit) {
+       tmpstr += ",\"R\":\"";
+       tmpstr += unit;
+       tmpstr += "\"";
+     }
+     if (precision != ((uint8_t)-1)) {
+       tmpstr += ",\"E\":\"";
+       tmpstr += String(precision);
+       tmpstr += "\"";
+     }
+     if (maxsize != (uint32_t)-1 && !optionValues) {
+       tmpstr += ",\"S\":\"";
+       tmpstr += String(maxsize);
+       tmpstr += "\"";
+     }
+     if (minsize != (uint32_t)-1) {
+       tmpstr += ",\"M\":\"";
+       tmpstr += String(minsize);
+       tmpstr += "\"";
+     }
+     if (minsize2 != (uint32_t)-1) {
+       tmpstr += ",\"MS\":\"";
+       tmpstr += String(minsize2);
+       tmpstr += "\"";
+     }
+     tmpstr += "}";
+   } else {
+     tmpstr = filter;
+     tmpstr += "/";
+     tmpstr += help;
+     tmpstr += ": ";
+     tmpstr += value;
+     tmpstr += "\n";
+   }
+   esp3dmsg->print(tmpstr.c_str());
+   return true;
+ }*/
 
 void ESP3DCommands::process(ESP3DMessage *msg) {
   static bool lastIsESP3D = false;
   if (!msg) {
+    esp3d_log_e("no msg");
     return;
   }
+  esp3d_log("Processing message %d", msg->size);
   if (is_esp_command(msg->data, msg->size)) {
-    esp3d_log("Detected ESP command");
+    esp3d_log_e("Detected ESP command");
     lastIsESP3D = true;
     uint cmdId = 0;
     uint espcmdpos = 0;
@@ -1201,6 +951,7 @@ void ESP3DCommands::process(ESP3DMessage *msg) {
       }
     }
     // execute esp command
+    esp3d_log("Execute internal command %d", cmdId);
     execute_internal_command(cmdId, espcmdpos, msg);
   } else {
     esp3d_log("Dispatch command, len %d, to %d", msg->size,
@@ -1213,6 +964,7 @@ void ESP3DCommands::process(ESP3DMessage *msg) {
         lastIsESP3D) {
       lastIsESP3D = false;
       // delete message
+      esp3d_log("Delete message");
       ESP3DMessageManager::deleteMsg(msg);
       return;
     }
@@ -1241,9 +993,15 @@ bool ESP3DCommands::dispatch(const char *sbuf, ESP3DClientType target,
                              ESP3DRequest requestId, ESP3DMessageType type,
                              ESP3DClientType origin,
                              ESP3DAuthenticationLevel authentication_level) {
-  // TODO:  add code to dispatch message
-  // FIXME:
-  return true;
+  ESP3DMessage *newMsgPtr = ESP3DMessageManager::newMsg(origin, target);
+  if (newMsgPtr) {
+    newMsgPtr->request_id = requestId;
+    newMsgPtr->type = type;
+    newMsgPtr->authentication_level = authentication_level;
+    return dispatch(newMsgPtr, sbuf);
+  }
+  esp3d_log_e("no newMsgPtr");
+  return false;
 }
 
 ESP3DClientType ESP3DCommands::getOutputClient(bool fromSettings) {

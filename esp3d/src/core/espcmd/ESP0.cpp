@@ -181,195 +181,230 @@ const char* help[] = {
      CONFIG_IDF_TARGET_ESP32C3)
     "[ESP999](QUIETBOOT) [pwd=<admin/user password>] - set quiet boot mode",
 #endif  // ARDUINO_ARCH_ESP32
-    ""};
-const uint cmdlist[] = {0,
+};
+const uint cmdlist[] = {
+    0,
 #if defined(WIFI_FEATURE)
-                        100, 101,
+    100, 101,
 #endif  // WIFI_FEATURE
 #if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
-                        102, 103,
+    102, 103,
 #endif  // WIFI_FEATURE || ETH_FEATURE
 #if defined(WIFI_FEATURE) || defined(BLUETOOTH_FEATURE) || defined(ETH_FEATURE)
-                        104,
+    104,
 #endif  // WIFI_FEATURE || BLUETOOTH_FEATURE || ETH_FEATURE
 #if defined(WIFI_FEATURE)
-                        105, 106, 107, 108,
+    105, 106, 107, 108,
 #endif  // WIFI_FEATURE
 #if defined(WIFI_FEATURE) || defined(BLUETOOTH_FEATURE) || defined(ETH_FEATURE)
-                        110,
+    110,
 #endif  // WIFI_FEATURE || BLUETOOTH_FEATURE || ETH_FEATURE
 #if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
-                        111,
+    111,
 #endif  // WIFI_FEATURE || ETH_FEATURE
 #if defined(WIFI_FEATURE) || defined(ETH_FEATURE) || defined(BT_FEATURE)
-                        112, 114, 115,
+    112, 114, 115,
 #endif  // WIFI_FEATURE || ETH_FEATURE || BT_FEATURE
 #if defined(HTTP_FEATURE)
-                        120, 121,
+    120, 121,
 #endif  // HTTP_FEATURE
 #if defined(TELNET_FEATURE)
-                        130, 131,
+    130, 131,
 #endif  // TELNET_FEATURE
 #if defined(TIMESTAMP_FEATURE)
-                        140,
+    140,
 #endif  // TIMESTAMP_FEATURE
-                        150,
+    150,
 #if defined(WS_DATA_FEATURE)
-                        160, 161,
+    160, 161,
 #endif  // WS_DATA_FEATURE
 #if defined(CAMERA_DEVICE)
-                        170, 171,
+    170, 171,
 #endif  // CAMERA_DEVICE
 #if defined(FTP_FEATURE)
-                        180, 181,
+    180, 181,
 #endif  // FTP_FEATURE
 #if defined(WEBDAV_FEATURE)
-                        190, 191,
+    190, 191,
 #endif  // WEBDAV_FEATURE
 #if defined(SD_DEVICE)
-                        200,
+    200,
 #endif  // SD_DEVICE
 #ifdef DIRECT_PIN_FEATURE
-                        201,
+    201,
 #endif  // DIRECT_PIN_FEATURE
 #if defined(SD_DEVICE) && SD_DEVICE != ESP_SDIO
-                        202,
+    202,
 #endif  // SD_DEVICE
 #ifdef SENSOR_DEVICE
-                        210,
+    210,
 #endif  // SENSOR_DEVICE
 #if defined(DISPLAY_DEVICE)
-                        214,
+    214,
 #if defined(DISPLAY_TOUCH_DRIVER)
-                        215,
+    215,
 #endif  // DISPLAY_TOUCH_DRIVER
 #endif  // DISPLAY_DEVICE
-                        220,
+    220,
 #ifdef BUZZER_DEVICE
-                        250,
+    250,
 #endif  // BUZZER_DEVICE
-                        290, 400, 401,
+    290, 400, 401,
 #if defined(WIFI_FEATURE)
-                        410,
+    410,
 #endif  // WIFI_FEATURE
-                        420, 444,
+    420, 444,
 #ifdef MDNS_FEATURE
-                        450,
+    450,
 #endif  // MDNS_FEATURE
 #if defined(AUTHENTICATION_FEATURE)
-                        550, 555,
+    550, 555,
 #endif  // AUTHENTICATION_FEATURE
 #if defined(NOTIFICATION_FEATURE)
-                        600, 610, 620,
+    600, 610, 620,
 #endif  // NOTIFICATION_FEATURE
 #if defined(GCODE_HOST_FEATURE)
-                        700, 701,
+    700, 701,
 #endif  // GCODE_HOST_FEATURE
 #if defined(FILESYSTEM_FEATURE)
-                        710,
+    710,
 #endif  // FILESYSTEM_FEATURE
 #if defined(SD_DEVICE)
-                        715,
+    715,
 #endif  // SD_DEVICE
 #if defined(FILESYSTEM_FEATURE)
-                        720, 730,
+    720, 730,
 #endif  // FILESYSTEM_FEATURE
 #if defined(SD_DEVICE)
-                        740, 750,
+    740, 750,
 #endif  // SD_DEVICE
 #if defined(GLOBAL_FILESYSTEM_FEATURE)
-                        780, 790,
+    780, 790,
 #endif  // GLOBAL_FILESYSTEM_FEATURE
-                        800,
+    800,
 #if COMMUNICATION_PROTOCOL != SOCKET_SERIAL
-                        900, 901,
+    900, 901,
 #endif  // COMMUNICATION_PROTOCOL != SOCKET_SERIAL
 #ifdef BUZZER_DEVICE
-                        910,
+    910,
 
 #endif  // BUZZER_DEVICE
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
-                        930, 935,
+    930, 935,
 #endif  // defined(ESP_SERIAL_BRIDGE_OUTPUT)
 #if defined(ARDUINO_ARCH_ESP32) &&                             \
     (CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32S2 || \
      CONFIG_IDF_TARGET_ESP32C3)
-                        999,
+    999,
 #endif  // ARDUINO_ARCH_ESP32 && CONFIG_IDF_TARGET_ESP32S3 ||
         // CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
-                        0};
+};
 
 // ESP3D Help
 //[ESP0] or [ESP]<command>
-bool ESP3DCommands::ESP0(const char* cmd_params,
-                         ESP3DAuthenticationLevel auth_type,
-                         ESP3D_Message* esp3dmsg) {
+void ESP3DCommands::ESP0(int cmd_params_pos, ESP3DMessage* msg) {
   bool noError = true;
-
-  String parameter;
+  ESP3DClientType target = msg->origin;
+  ESP3DRequest requestId = msg->request_id;
+  msg->target = target;
+  msg->origin = ESP3DClientType::command;
+  String tmpstr;
   const uint cmdNb = sizeof(help) / sizeof(char*);
-  (void)auth_type;
-  bool json = has_tag(cmd_params, "json");
-  parameter = clean_param(get_param(cmd_params, ""));
-  if (parameter.length() == 0) {
-    if (json) {
-      esp3dmsg->print("{\"cmd\":\"0\",\"status\":\"ok\",\"data\":[");
-    } else {
-      esp3dmsg->printMSGLine("[List of ESP3D commands]");
+  const uint cmdlistNb = sizeof(cmdlist) / sizeof(uint);
+  bool json = hasTag(msg, cmd_params_pos, "json");
+  if (cmdNb != cmdlistNb) {
+    esp3d_log("Help corrupted: %d vs %d", cmdNb, cmdlistNb);
+    msg->type = ESP3DMessageType::unique;
+    if (!dispatch(msg, "Help corrupted")) {
+      esp3d_log_e("Error sending command to clients");
     }
-
-    for (uint i = 0; i < cmdNb - 1; i++) {
+    return;
+  }
+  tmpstr = get_clean_param(msg, cmd_params_pos);
+  if (tmpstr.length() == 0) {
+    // use msg for first answer
+    if (json) {
+      tmpstr = "{\"cmd\":\"0\",\"status\":\"ok\",\"data\":[";
+    } else {
+      tmpstr = "[List of ESP3D commands]\n";
+    }
+    msg->type = ESP3DMessageType::head;
+    if (!dispatch(msg, tmpstr.c_str())) {
+      esp3d_log_e("Error sending command to clients");
+      return;
+    }
+    yield();
+    for (uint i = 0; i < cmdNb; i++) {
       if (json) {
-        esp3dmsg->print("{\"id\":\"");
-        esp3dmsg->print(String(cmdlist[i]).c_str());
-        esp3dmsg->print("\",\"help\":\"");
-        esp3dmsg->print(String(help[i]).c_str());
-        esp3dmsg->print("\"}");
-        if (i < cmdNb - 2) {
-          esp3dmsg->print(",");
+        tmpstr = "{\"id\":\"";
+        tmpstr += String(cmdlist[i]);
+        tmpstr += "\",\"help\":\"";
+        tmpstr += help[i];
+        tmpstr += "\"}";
+        if (i < cmdNb - 1 && (cmdNb - 1) > 0) {
+          tmpstr += ",";
         }
       } else {
-        esp3dmsg->printMSGLine(help[i]);
+        tmpstr = help[i];
+        tmpstr += "\n";
       }
+
+      if (!dispatch(tmpstr.c_str(), target, requestId,
+                    ESP3DMessageType::core)) {
+        esp3d_log_e("Error sending answer to clients");
+        return;
+      }
+      esp3d_log("Help sent: %d", i);
+
+      yield();
     }
+
     if (json) {
-      esp3dmsg->printLN("]}");
+      if (!dispatch("]}", target, requestId, ESP3DMessageType::tail)) {
+        esp3d_log_e("Error sending answer to clients");
+        return;
+      }
+    } else {
+      if (!dispatch("ok\n", target, requestId, ESP3DMessageType::tail)) {
+        esp3d_log_e("Error sending answer to clients");
+        return;
+      }
     }
   } else {
-    bool found = false;
-    uint cmdval = parameter.toInt();
-    if (sizeof(help) / sizeof(char*) != sizeof(cmdlist) / sizeof(uint)) {
-      String s = "Error in code:" + String(sizeof(help) / sizeof(char*)) +
-                 "entries vs " + String(sizeof(cmdlist) / sizeof(uint));
-      esp3dmsg->printLN(s.c_str());
-      return false;
-    }
-    for (uint i = 0; i < cmdNb - 1; i++) {
+    uint cmdval = atoi(tmpstr.c_str());
+    for (uint i = 0; i < cmdNb; i++) {
       if (cmdlist[i] == cmdval) {
         if (json) {
-          esp3dmsg->print(
-              "{\"cmd\":\"0\",\"status\":\"ok\",\"data\":{\"id\":\"");
-          esp3dmsg->print(String(cmdval).c_str());
-          esp3dmsg->print("\",\"help\":\"");
-          esp3dmsg->print(help[i]);
-          esp3dmsg->printLN("\"}}");
+          tmpstr = "{\"cmd\":\"0\",\"status\":\"ok\",\"data\":{\"id\":\"";
+          tmpstr += String(cmdval);
+          tmpstr += "\",\"help\":\"";
+          tmpstr += help[i];
+          tmpstr += "\"}}";
         } else {
-          esp3dmsg->printMSGLine(help[i]);
+          tmpstr = help[i];
+          tmpstr += "\n";
         }
-        found = true;
+        msg->type = ESP3DMessageType::unique;
+        if (!dispatch(msg, tmpstr.c_str())) {
+          return;
+        }
+        return;
       }
     }
-    if (!found) {
-      String msg = "This command is not supported: ";
-      msg += parameter;
-      noError = false;
-      String response = format_response(0, json, noError, msg.c_str());
-      if (json) {
-        esp3dmsg->printLN(response.c_str());
-      } else {
-        esp3dmsg->printERROR(response.c_str());
-      }
+    if (json) {
+      tmpstr =
+          "{\"cmd\":\"0\",\"status\":\"error\",\"data\":\"This command is not "
+          "supported: ";
+      tmpstr += String(cmdval);
+      tmpstr += "\"}";
+    } else {
+      tmpstr = "This command is not supported: ";
+      tmpstr += String(cmdval);
+      tmpstr += "\n";
+    }
+    msg->type = ESP3DMessageType::unique;
+    if (!dispatch(msg, tmpstr.c_str())) {
+      return;
     }
   }
-  return noError;
 }

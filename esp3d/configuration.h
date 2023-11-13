@@ -576,7 +576,7 @@
 /* Add serial task
  * ESP32 need to add a task to handle serial communication
  */
-#define SERIAL_INDEPENDANT_TASK
+// #define SERIAL_INDEPENDANT_TASK
 
 /************************************
  *
@@ -592,11 +592,11 @@
 // LOG_OUTPUT_SERIAL2
 // LOG_OUTPUT_TELNET
 // LOG_OUTPUT_WEBSOCKET
-// #define ESP_LOG_FEATURE LOG_OUTPUT_SERIAL0
+#define ESP_LOG_FEATURE LOG_OUTPUT_SERIAL0
 
-#define ESP3D_DEBUG_LEVEL LOG_LEVEL_ERROR
+#define ESP3D_DEBUG_LEVEL LOG_LEVEL_DEBUG
 
-// #define ESP_NO_SANITY_CHECK
+#define ESP_NO_SANITY_CHECK
 
 #ifdef ESP_LOG_FEATURE
 #define LOG_ESP3D_BAUDRATE 115200

@@ -91,9 +91,11 @@ class ESP3DMessageManager final {
   static ESP3DMessage *copyMsg(ESP3DMessage msg);
   static ESP3DMessage *newMsg(ESP3DClientType origin, ESP3DClientType target,
                               const uint8_t *data, size_t length,
-                              ESP3DAuthenticationLevel authentication_level);
+                              ESP3DAuthenticationLevel authentication_level =
+                                  ESP3DAuthenticationLevel::guest);
   static ESP3DMessage *newMsg(ESP3DClientType origin, ESP3DClientType target,
-                              ESP3DAuthenticationLevel authentication_level);
+                              ESP3DAuthenticationLevel authentication_level =
+                                  ESP3DAuthenticationLevel::guest);
   static bool setDataContent(ESP3DMessage *msg, const uint8_t *data,
                              size_t length);
 };

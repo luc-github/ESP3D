@@ -23,7 +23,6 @@
 #include "../include/esp3d_config.h"
 #include "../include/esp3d_defines.h"
 
-
 #ifndef ESP3D_DEBUG_LEVEL
 #define ESP3D_DEBUG_LEVEL LOG_LEVEL_NONE
 #endif  // ESP3D_DEBUG_LEVEL

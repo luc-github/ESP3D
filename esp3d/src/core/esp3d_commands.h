@@ -30,37 +30,27 @@ class ESP3DCommands {
   ESP3DCommands();
   ~ESP3DCommands();
   void process(ESP3DMessage* msg);
-  void process(uint8_t* sbuf, size_t len, ESP3D_Message* esp3dmsg,
-               ESP3DAuthenticationLevel auth = guest,
-               ESP3D_Message* esp3dmsgonly = nullptr, uint8_t outputignore = 0);
+
   bool is_esp_command(uint8_t* sbuf, size_t len);
-  bool execute_internal_command(int cmd, const char* cmd_params,
-                                ESP3DAuthenticationLevel auth_level,
-                                ESP3D_Message* esp3dmsg);  // TODO: remove
+
   void execute_internal_command(int cmd, int cmd_params_pos, ESP3DMessage* msg);
-  int get_space_pos(const char* string, uint from = 0);
-  const char* get_param(const char* cmd_params,
-                        const char* label);  // TODO: remove
 
   const char* get_param(ESP3DMessage* msg, uint start, const char* label,
                         bool* found = nullptr);
+
   const char* get_param(const char* data, uint size, uint start,
                         const char* label, bool* found = nullptr);
-
-  const char* get_label(const char* cmd_params, const char* labelseparator,
-                        uint8_t startindex = 0);    // TODO: remove
-  const char* clean_param(const char* cmd_params);  // TODO: remove
 
   const char* format_response(uint cmdID, bool isjson = false, bool isok = true,
                               const char* message = "");
 
-  bool has_tag(const char* cmd_params, const char* tag);  // TODO: remove
   bool hasTag(ESP3DMessage* msg, uint start, const char* label);
   const char* get_clean_param(ESP3DMessage* msg, uint start);
   bool has_param(ESP3DMessage* msg, uint start);
 
-  bool ESP0(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
-            ESP3D_Message* esp3dmsg);
+  void ESP0(int cmd_params_pos, ESP3DMessage* msg);
+
+  /*
 #if defined(WIFI_FEATURE)
   bool ESP100(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
               ESP3D_Message* esp3dmsg);
@@ -261,6 +251,7 @@ class ESP3DCommands {
   bool ESP999(const char* cmd_params, ESP3DAuthenticationLevel auth_level,
               ESP3D_Message* esp3dmsg);
 #endif  // ARDUINO_ARCH_ESP32
+*/
   bool dispatch(const char* sbuf, ESP3DClientType target,
                 ESP3DRequest requestId,
                 ESP3DMessageType type = ESP3DMessageType::head,
@@ -277,12 +268,10 @@ class ESP3DCommands {
 
  private:
   ESP3DClientType _output_client;
-  bool _dispatchSetting(bool json, const char* filter, ESP3DSettingIndex index,
-                        const char* help, const char** optionValues,
-                        const char** optionLabels, uint32_t maxsize,
-                        uint32_t minsize, uint32_t minsize2, uint8_t precision,
-                        const char* unit, bool needRestart,
-                        ESP3D_Message* esp3dmsg, bool isFirst = false);
+  /*bool _dispatchSetting(bool json, const char* filter, ESP3DSettingIndex
+index, const char* help, const char** optionValues, const char** optionLabels,
+uint32_t maxsize, uint32_t minsize, uint32_t minsize2, uint8_t precision, const
+char* unit, bool needRestart, ESP3D_Message* esp3dmsg, bool isFirst = false);*/
 };
 
 extern ESP3DCommands esp3d_commands;
