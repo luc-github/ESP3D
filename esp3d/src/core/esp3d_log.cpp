@@ -33,15 +33,15 @@ void initEsp3dLog() {
   LOG_OUTPUT_SERIAL.begin(LOG_ESP3D_BAUDRATE, SERIAL_8N1, SERIAL_FULL,
                           (ESP_LOG_TX_PIN == -1) ? 1 : ESP_LOG_TX_PIN);
 #if ESP_LOG_RX_PIN != -1
-  LOG_OUTPUT_SERIAL.pins((ESP_LOG_TX_PIN == -1) ? 1 : ESP_LOG_TX_PIN,
-                         ESP_LOG_RX_PIN)
+  LOG_OUTPUT_SERIAL
+      .pins((ESP_LOG_TX_PIN == -1) ? 1 : ESP_LOG_TX_PIN, ESP_LOG_RX_PIN)
 #endif  // ESP_LOG_RX_PIN != -1
 #endif  // ARDUINO_ARCH_ESP8266
 #if defined(ARDUINO_ARCH_ESP32)
-      if (ESP_LOG_FEATURE == ESP_SERIAL_OUTPUT) {
-    LOG_OUTPUT_SERIAL.begin(LOG_ESP3D_BAUDRATE, SERIAL_8N1, ESP_LOG_RX_PIN,
-                            ESP_LOG_TX_PIN);
-  }
+
+          LOG_OUTPUT_SERIAL.begin(LOG_ESP3D_BAUDRATE, SERIAL_8N1,
+                                  ESP_LOG_RX_PIN, ESP_LOG_TX_PIN);
+
 #endif  // ARDUINO_ARCH_ESP32
 
 #endif  // (ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL0) || (ESP_LOG_FEATURE ==
