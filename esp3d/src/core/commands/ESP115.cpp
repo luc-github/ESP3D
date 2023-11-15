@@ -22,7 +22,6 @@
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/network/netconfig.h"
 #include "../esp3d_commands.h"
-#include "../esp3d_message.h"
 #include "../esp3d_settings.h"
 
 #define COMMAND_ID 115
@@ -36,9 +35,9 @@ void ESP3DCommands::ESP115(int cmd_params_pos, ESP3DMessage* msg) {
   msg->origin = ESP3DClientType::command;
   bool hasError = false;
   String error_msg = "Invalid parameters";
-  std::string ok_msg = "ok";
+  String ok_msg = "ok";
   bool json = hasTag(msg, cmd_params_pos, "json");
-  std::string tmpstr;
+  String tmpstr;
 #if defined(AUTHENTICATION_FEATURE)
   if (msg->authentication_level == ESP3DAuthenticationLevel::guest) {
     msg->authentication_level = ESP3DAuthenticationLevel::not_authenticated;

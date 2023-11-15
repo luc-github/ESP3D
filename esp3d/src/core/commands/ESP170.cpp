@@ -68,7 +68,7 @@ void ESP3DCommands::ESP170(int cmd_params_pos, ESP3DMessage* msg) {
   msg->target = target;
   msg->origin = ESP3DClientType::command;
   bool json = hasTag(msg, cmd_params_pos, "json");
-  std::string tmpstr;
+  String tmpstr;
 #if AUTHENTICATION_FEATURE
   if (msg->authentication_level == ESP3DAuthenticationLevel::guest) {
     dispatchAuthenticationError(msg, COMMAND_ID, json);
