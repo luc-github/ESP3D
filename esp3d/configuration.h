@@ -497,6 +497,11 @@
  */
 // #define CAMERA_DEVICE_FLIP_VERTICALY
 
+/* Flip horizontally
+* Flip camera horizontally
+*/
+//#define CAMERA_DEVICE_FLIP_HORIZONTALY
+
 /************************************
  *
  * Levels of security
