@@ -22,66 +22,58 @@
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/wifi/wificonfig.h"
 #include "../esp3d_commands.h"
-#include "../esp3d_message.h"
 #include "../esp3d_settings.h"
 
-#define COMMANDID 106
+#define COMMAND_ID 106
 // AP Password
 //[ESP106]<Password> [json=no] [pwd=<admin password>]
 void ESP3DCommands::ESP106(int cmd_params_pos, ESP3DMessage* msg) {
-  /*
-  bool noError = true;
-  bool json = has_tag(cmd_params, "json");
-  bool clearSetting = has_tag(cmd_params, "NOPASSWORD");
-  String response;
-  String parameter;
-  int errorCode = 200;  // unless it is a server error use 200 as default and
-                        // set error in json instead
-
-#ifdef AUTHENTICATION_FEATURE
-  if (auth_type != admin) {
-    response =
-        format_response(COMMANDID, json, false, "Wrong authentication level");
-    noError = false;
-    errorCode = 401;
+  ESP3DClientType target = msg->origin;
+  ESP3DRequest requestId = msg->request_id;
+  (void)requestId;
+  msg->target = target;
+  msg->origin = ESP3DClientType::command;
+  bool hasError = false;
+  String error_msg = "Invalid parameters";
+  String ok_msg = "ok";
+  bool clearSetting = hasTag(msg, cmd_params_pos, "NOPASSWORD");
+  bool json = hasTag(msg, cmd_params_pos, "json");
+  String tmpstr;
+#if AUTHENTICATION_FEATURE
+  if (msg->authentication_level == ESP3DAuthenticationLevel::guest) {
+    msg->authentication_level = ESP3DAuthenticationLevel::not_authenticated;
+    dispatchAuthenticationError(msg, COMMAND_ID, json);
+    return;
   }
-#else
-  (void)auth_type;
 #endif  // AUTHENTICATION_FEATURE
-  if (noError) {
-    parameter = clean_param(get_param(cmd_params, ""));
-    if (parameter.length() == 0) {
-      response =
-          format_response(COMMANDID, json, false, "Password not displayable");
-      noError = false;
-    } else {
-      if (clearSetting) {
-        parameter = "";
-      }
-      if (!ESP3DSettings::isValidStringSetting(parameter.c_str(),
-                                               ESP_AP_PASSWORD)) {
-        response = format_response(COMMANDID, json, false, "Set failed");
-        noError = false;
-      } else {
-        if (!ESP3DSettings::writeString(ESP_AP_PASSWORD, parameter.c_str())) {
-          response = format_response(COMMANDID, json, false, "Set failed");
-          noError = false;
-        } else {
-          response = format_response(COMMANDID, json, true, "ok");
-        }
-      }
-    }
-  }
-  if (json) {
-    esp3dmsg->printLN(response.c_str());
+  tmpstr = get_clean_param(msg, cmd_params_pos);
+  if (tmpstr.length() == 0) {
+    hasError = true;
+    error_msg = "Password not displayable";
   } else {
-    if (noError) {
-      esp3dmsg->printMSG(response.c_str());
+    if (clearSetting) {
+      esp3d_log("NOPASSWORD flag detected, set string to empty string");
+      tmpstr = "";
+    }
+    esp3d_log(
+        "got %s param for a value of %s, is valid %d", tmpstr.c_str(),
+        tmpstr.c_str(),
+        ESP3DSettings::isValidStringSetting(tmpstr.c_str(), ESP_AP_PASSWORD));
+    if (ESP3DSettings::isValidStringSetting(tmpstr.c_str(), ESP_AP_PASSWORD)) {
+      esp3d_log("Value %s is valid", tmpstr.c_str());
+      if (!ESP3DSettings::writeString(ESP_AP_PASSWORD, tmpstr.c_str())) {
+        hasError = true;
+        error_msg = "Set value failed";
+      }
     } else {
-      esp3dmsg->printERROR(response.c_str(), errorCode);
+      hasError = true;
+      error_msg = "Invalid parameter";
     }
   }
-  return noError;*/
+  if (!dispatchAnswer(msg, COMMAND_ID, json, hasError,
+                      hasError ? error_msg.c_str() : ok_msg.c_str())) {
+    esp3d_log_e("Error sending response to clients");
+  }
 }
 
 #endif  // WIFI_FEATURE

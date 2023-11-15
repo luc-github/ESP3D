@@ -22,74 +22,55 @@
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/wifi/wificonfig.h"
 #include "../esp3d_commands.h"
-#include "../esp3d_message.h"
 #include "../esp3d_settings.h"
 
-#define COMMANDID 108
+#define COMMAND_ID 108
 // Change AP channel
 //[ESP108]<channel> [json=no] [pwd=<admin password>]
 void ESP3DCommands::ESP108(int cmd_params_pos, ESP3DMessage* msg) {
-  /*
-  bool noError = true;
-  bool json = has_tag(cmd_params, "json");
-  String response;
-  String parameter;
-  int errorCode = 200;  // unless it is a server error use 200 as default and
-                        // set error in json instead
-
-#ifdef AUTHENTICATION_FEATURE
-  if (auth_type == guest) {
-    response = format_response(COMMANDID, json, false,
-                               "Guest user can't use this command");
-    noError = false;
-    errorCode = 401;
+  ESP3DClientType target = msg->origin;
+  ESP3DRequest requestId = msg->request_id;
+  (void)requestId;
+  msg->target = target;
+  msg->origin = ESP3DClientType::command;
+  bool hasError = false;
+  String error_msg = "Invalid parameters";
+  String ok_msg = "ok";
+  bool json = hasTag(msg, cmd_params_pos, "json");
+  String tmpstr;
+  uint8_t byteValue = 0;
+#if AUTHENTICATION_FEATURE
+  if (msg->authentication_level == ESP3DAuthenticationLevel::guest) {
+    msg->authentication_level = ESP3DAuthenticationLevel::not_authenticated;
+    dispatchAuthenticationError(msg, COMMAND_ID, json);
+    return;
   }
-#else
-  (void)auth_type;
 #endif  // AUTHENTICATION_FEATURE
-  if (noError) {
-    parameter = clean_param(get_param(cmd_params, ""));
-    // get
-    if (parameter.length() == 0) {
-      response = format_response(
-          COMMANDID, json, true,
-          String(ESP3DSettings::readByte(ESP_AP_CHANNEL)).c_str());
-    } else {  // set
-#ifdef AUTHENTICATION_FEATURE
-      if (auth_type != admin) {
-        response = format_response(COMMANDID, json, false,
-                                   "Wrong authentication level");
-        noError = false;
-        errorCode = 401;
-      }
-#endif  // AUTHENTICATION_FEATURE
-      if (noError) {
-        int bbuf = parameter.toInt();
-        if (!ESP3DSettings::isValidByteSetting(bbuf, ESP_AP_CHANNEL)) {
-          response =
-              format_response(COMMANDID, json, false, "Incorrect channel");
-          noError = false;
-        } else {
-          if (!ESP3DSettings::writeByte(ESP_AP_CHANNEL, (int8_t)bbuf)) {
-            response = format_response(COMMANDID, json, false, "Set failed");
-            noError = false;
-          } else {
-            response = format_response(COMMANDID, json, true, "ok");
-          }
-        }
-      }
-    }
-  }
-  if (json) {
-    esp3dmsg->printLN(response.c_str());
+  tmpstr = get_clean_param(msg, cmd_params_pos);
+  if (tmpstr.length() == 0) {
+    byteValue = ESP3DSettings::readByte(ESP_AP_CHANNEL);
+    ok_msg = String(byteValue);
   } else {
-    if (noError) {
-      esp3dmsg->printMSG(response.c_str());
+    byteValue = atoi(tmpstr.c_str());
+    esp3d_log("got %s param for a value of %d, is valid %d", tmpstr.c_str(),
+              byteValue,
+              ESP3DSettings::isValidByteSetting(byteValue, ESP_AP_CHANNEL));
+    if (ESP3DSettings::isValidByteSetting(byteValue, ESP_AP_CHANNEL)) {
+      esp3d_log("Value %d is valid", byteValue);
+      if (!ESP3DSettings::writeByte(ESP_AP_CHANNEL, byteValue)) {
+        hasError = true;
+        error_msg = "Set value failed";
+      }
     } else {
-      esp3dmsg->printERROR(response.c_str(), errorCode);
+      hasError = true;
+      error_msg = "Invalid parameter";
     }
   }
-  return noError;*/
+
+  if (!dispatchAnswer(msg, COMMAND_ID, json, hasError,
+                      hasError ? error_msg.c_str() : ok_msg.c_str())) {
+    esp3d_log_e("Error sending response to clients");
+  }
 }
 
 #endif  // WIFI_FEATURE

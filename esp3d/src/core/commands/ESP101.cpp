@@ -39,13 +39,13 @@ void ESP3DCommands::ESP101(int cmd_params_pos, ESP3DMessage* msg) {
   bool json = hasTag(msg, cmd_params_pos, "json");
   bool clearSetting = hasTag(msg, cmd_params_pos, "NOPASSWORD");
   String tmpstr;
-#if ESP3D_AUTHENTICATION_FEATURE
+#if AUTHENTICATION_FEATURE
   if (msg->authentication_level == ESP3DAuthenticationLevel::guest) {
     msg->authentication_level = ESP3DAuthenticationLevel::not_authenticated;
     dispatchAuthenticationError(msg, COMMAND_ID, json);
     return;
   }
-#endif  // ESP3D_AUTHENTICATION_FEATURE
+#endif  // AUTHENTICATION_FEATURE
   tmpstr = get_clean_param(msg, cmd_params_pos);
   if (tmpstr.length() == 0) {
     hasError = true;
@@ -55,15 +55,13 @@ void ESP3DCommands::ESP101(int cmd_params_pos, ESP3DMessage* msg) {
       esp3d_log("NOPASSWORD flag detected, set string to empty string");
       tmpstr = "";
     }
-    esp3d_log("got %s param for a value of %s, is valid %d", tmpstr.c_str(),
-              tmpstr.c_str(),
-              ESP3DSettings::isValidStringSetting(
-                  tmpstr.c_str(), ESP_STA_PASSWORD));
-    if (ESP3DSettings::isValidStringSetting(
-            tmpstr.c_str(), ESP_STA_PASSWORD)) {
+    esp3d_log(
+        "got %s param for a value of %s, is valid %d", tmpstr.c_str(),
+        tmpstr.c_str(),
+        ESP3DSettings::isValidStringSetting(tmpstr.c_str(), ESP_STA_PASSWORD));
+    if (ESP3DSettings::isValidStringSetting(tmpstr.c_str(), ESP_STA_PASSWORD)) {
       esp3d_log("Value %s is valid", tmpstr.c_str());
-      if (!ESP3DSettings::writeString(ESP_STA_PASSWORD,
-                                        tmpstr.c_str())) {
+      if (!ESP3DSettings::writeString(ESP_STA_PASSWORD, tmpstr.c_str())) {
         hasError = true;
         error_msg = "Set value failed";
       }
