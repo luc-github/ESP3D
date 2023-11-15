@@ -45,7 +45,7 @@ const char* help[] = {
     "WIFI-AP, WIFI-SETUP, ETH-STA, OFF",
 #endif  // WIFI_FEATURE || BLUETOOTH_FEATURE || ETH_FEATURE
 #if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
-    "[ESP111](header)display current IP",
+    "[ESP111](OUTPUT=PRINT)(ALL) display current IP and network informations",
 #endif  // WIFI_FEATURE || ETH_FEATURE
 #if defined(WIFI_FEATURE) || defined(ETH_FEATURE) || defined(BT_FEATURE)
     "[ESP112](Hostname) - display/set Hostname",

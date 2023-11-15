@@ -32,6 +32,9 @@
 
 const uint8_t DEFAULT_AP_MASK_VALUE[] = {255, 255, 255, 0};
 
+IPAddress WiFiConfig::_ap_gateway;
+IPAddress WiFiConfig::_ap_subnet;
+
 const char* WiFiConfig::hostname() {
   static String tmp;
 #if defined(ARDUINO_ARCH_ESP8266)
@@ -222,7 +225,10 @@ bool WiFiConfig::StartAP(bool setupMode) {
                             ESP3DClientType::system,
                             ESP3DAuthenticationLevel::admin);
   }
+  _ap_gateway = setupMode ? ip : gw;
+  _ap_subnet = mask;
 #endif  // ARDUINO_ARCH_ESP8266
+
   // Start AP
   if (WiFi.softAP(SSID.c_str(),
                   (password.length() > 0) ? password.c_str() : nullptr,
@@ -262,6 +268,8 @@ bool WiFiConfig::StartAP(bool setupMode) {
     }
     WiFi.setSleep(false);
     WiFi.softAPsetHostname(NetConfig::hostname(true));
+    _ap_gateway = setupMode ? ip : gw;
+    _ap_subnet = mask;
 #endif  // ARDUINO_ARCH_ESP32
     return true;
   } else {

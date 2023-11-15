@@ -58,6 +58,9 @@ class NetConfig {
   static void setMode(uint8_t mode);
   static bool started() { return _started; }
   static String localIP();
+  static String localGW();
+  static String localMSK();
+  static String localDNS();
   static IPAddress localIPAddress();
 
  private:

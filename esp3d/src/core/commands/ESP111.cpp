@@ -23,50 +23,90 @@
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/network/netconfig.h"
 #include "../esp3d_commands.h"
-#include "../esp3d_message.h"
 #include "../esp3d_settings.h"
 
-#define COMMANDID 111
+#define COMMAND_ID 111
 // Get current IP
-//[ESP111] [json=no]
+//[ESP111] OUTPUT=PRINTER ALL [json=no]
 void ESP3DCommands::ESP111(int cmd_params_pos, ESP3DMessage* msg) {
-  /*
-  esp3d_log("Client is %d", output ? esp3dmsg->getTarget() : 0);
-  (void)auth_type;
-  bool noError = true;
-  bool json = has_tag(cmd_params, "json");
-  String response;
-  String parameter = clean_param(get_param(cmd_params, ""));
-  if (parameter.length() == 0) {
-    response =
-        format_response(COMMANDID, json, true, NetConfig::localIP().c_str());
+  ESP3DClientType target = msg->origin;
+  ESP3DRequest requestId = msg->request_id;
+  (void)requestId;
+  msg->target = target;
+  msg->origin = ESP3DClientType::command;
+  bool hasError = false;
+  String error_msg = "Invalid parameters";
+  String ok_msg = "ok";
+  bool json = hasTag(msg, cmd_params_pos, "json");
+  bool respjson = json;
+  bool showAll = hasTag(msg, cmd_params_pos, "ALL");
+  String tmpstr;
+#if ESP3D_AUTHENTICATION_FEATURE
+  if (msg->authentication_level == ESP3DAuthenticationLevel::guest) {
+    msg->authentication_level = ESP3DAuthenticationLevel::not_authenticated;
+    dispatchAuthenticationError(msg, COMMAND_ID, json);
+    return;
+  }
+#endif  // ESP3D_AUTHENTICATION_FEATURE
+  tmpstr = get_clean_param(msg, cmd_params_pos);
+
+  tmpstr = get_param(msg, cmd_params_pos, "OUTPUT=");
+  if (tmpstr == "PRINTER") {
+    msg->target = ESP3DClientType::remote_screen;
+    json = false;
+  }
+  if (!showAll) {
+    ok_msg = NetConfig::localIP().c_str();
   } else {
-    parameter = get_param(cmd_params, "OUTPUT=");
-    if (parameter != "PRINTER") {
-      response = format_response(COMMANDID, json, false, "Unknown parameter");
+    if (json) {
+      ok_msg = "{\"ip\":\"";
+    } else {
+      ok_msg = "IP: ";
+    }
+    ok_msg += NetConfig::localIP().c_str();
+    if (json) {
+      ok_msg += "\",\"gw\":\"";
+    } else {
+      ok_msg += "\nGW: ";
+    }
+    ok_msg += NetConfig::localGW().c_str();
+    if (json) {
+      ok_msg += "\",\"msk\":\"";
+    } else {
+      ok_msg += "\nMSK: ";
+    }
+    ok_msg += NetConfig::localMSK().c_str();
+    if (json) {
+      ok_msg += "\",\"dns\":\"";
+    } else {
+      ok_msg += "\nDNS: ";
+    }
+    ok_msg += NetConfig::localDNS().c_str();
+    if (json) {
+      ok_msg += "\"}";
+    } else {
+      ok_msg += "\n";
     }
   }
 
-  if (noError) {
-    parameter = get_param(cmd_params, "OUTPUT=");
-    if (json) {
-      esp3dmsg->printLN(response.c_str());
+  if (msg->target == ESP3DClientType::remote_screen) {
+    if (respjson) {
+      tmpstr = "{\"cmd\":\"111\",\"status\":\"ok\",\"data\":\"ok\"}";
     } else {
-      esp3dmsg->printMSG(response.c_str());
-      if (parameter == "PRINTER") {
-        ESP3D_Message printerOutput(ESP_REMOTE_SCREEN_CLIENT,
-                                    esp3dmsg->getOrigin());
-        printerOutput.printMSG(NetConfig::localIP().c_str());
-      }
+      tmpstr = "ok\n";
     }
-  } else {
-    if (json) {
-      esp3dmsg->printLN(response.c_str());
-    } else {
-      esp3dmsg->printERROR(response.c_str(), 200);
+    // send response to original client
+    if (!dispatch(tmpstr.c_str(), target, msg->request_id,
+                  ESP3DMessageType::unique)) {
+      esp3d_log_e("Error sending response to original client");
     }
   }
-  return noError;*/
+
+  // Printer does not support json just normal serial
+  if (!dispatchAnswer(msg, COMMAND_ID, json, hasError,
+                      hasError ? error_msg.c_str() : ok_msg.c_str())) {
+    esp3d_log_e("Error sending response to clients");
+  }
 }
 
 #endif  // WIFI_FEATURE

@@ -124,6 +124,75 @@ String NetConfig::localIP() {
   return currentIP;
 }
 
+/**
+ * Get Gateway IP string what ever is enabled
+ */
+String NetConfig::localGW() {
+  static String currentIP = "";
+#if defined(WIFI_FEATURE)
+  if (WiFi.getMode() == WIFI_STA) {
+    currentIP = WiFi.localIP().toString();
+  } else if (WiFi.getMode() == WIFI_AP) {
+    currentIP = WiFiConfig::getAPGateway().toString();
+  }
+#endif  // WIFI_FEATURE
+#if defined(ETH_FEATURE)
+  if (EthConfig::started()) {
+    currentIP = ETH.localIP().toString();
+  }
+#endif  // ETH_FEATURE
+  if (currentIP.length() == 0) {
+    currentIP = "0.0.0.0";
+  }
+  return currentIP;
+}
+
+/**
+ * Get Network mask string what ever is enabled
+ */
+String NetConfig::localMSK() {
+  static String currentIP = "";
+#if defined(WIFI_FEATURE)
+  if (WiFi.getMode() == WIFI_STA) {
+    currentIP = WiFi.subnetMask().toString();
+  } else if (WiFi.getMode() == WIFI_AP) {
+    currentIP = WiFiConfig::getAPSubnet().toString();
+  }
+#endif  // WIFI_FEATURE
+#if defined(ETH_FEATURE)
+  if (EthConfig::started()) {
+    currentIP = ETH.subnetMask().toString();
+  }
+#endif  // ETH_FEATURE
+  if (currentIP.length() == 0) {
+    currentIP = "0.0.0.0";
+  }
+  return currentIP;
+}
+
+/**
+ * Get DNS IP string what ever is enabled
+ */
+String NetConfig::localDNS() {
+  static String currentIP = "";
+#if defined(WIFI_FEATURE)
+  if (WiFi.getMode() == WIFI_STA) {
+    currentIP = WiFi.dnsIP().toString();
+  } else if (WiFi.getMode() == WIFI_AP) {
+    currentIP = WiFi.softAPIP().toString();
+  }
+#endif  // WIFI_FEATURE
+#if defined(ETH_FEATURE)
+  if (EthConfig::started()) {
+    currentIP = ETH.dnsIP().toString();
+  }
+#endif  // ETH_FEATURE
+  if (currentIP.length() == 0) {
+    currentIP = "0.0.0.0";
+  }
+  return currentIP;
+}
+
 // wifi event
 void NetConfig::onWiFiEvent(WiFiEvent_t event) {
   switch (event) {

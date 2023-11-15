@@ -1287,6 +1287,9 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
       // change text to GCODE M117
       tmp = "M117 ";
       tmp += (const char *)msg->data;
+      // replace end of line with space
+      tmp.replace("\n", " ");
+      tmp.replace("\r", "");
       tmp += "\n";
       if (ESP3DMessageManager::setDataContent(msg, (uint8_t *)tmp.c_str(),
                                               tmp.length())) {
@@ -1300,18 +1303,21 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
       // TODO:Add each client one by one
 #ifdef PRINTER_HAS_DISPLAY
       if (msg->origin != ESP3DClientType::remote_screen) {
-        msg->request_id.id = 0;
-        if (msg->target == ESP3DClientType::all_clients) {
-          // become the reference message
-          msg->target = ESP3DClientType::remote_screen;
-        } else {
-          // duplicate message because current is  already pending
-          ESP3DMessage *copy_msg = ESP3DMessageManager::copyMsg(*msg);
-          if (copy_msg) {
-            copy_msg->target = ESP3DClientType::remote_screen;
-            dispatch(copy_msg);
+        String msgstr = (const char *)msg->data;
+        msgstr.trim();
+        if (msgstr.length() > 0) {
+          if (msg->target == ESP3DClientType::all_clients) {
+            // become the reference message
+            msg->target = ESP3DClientType::remote_screen;
           } else {
-            esp3d_log_e("Cannot duplicate message for remote screen");
+            // duplicate message because current is  already pending
+            ESP3DMessage *copy_msg = ESP3DMessageManager::copyMsg(*msg);
+            if (copy_msg) {
+              copy_msg->target = ESP3DClientType::remote_screen;
+              dispatch(copy_msg);
+            } else {
+              esp3d_log_e("Cannot duplicate message for remote screen");
+            }
           }
         }
       }

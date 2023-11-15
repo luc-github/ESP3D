@@ -187,44 +187,6 @@ archetype = "section"
 title = "[ESP104]"
 weight = 800
 +++
-Set station fallback mode state at boot which can be BT, WIFI-AP,  OFF
-
-## Input
-`[ESP104]<mode> json=<no> pwd=<admin/user password>`
-
-* json=no
-the output format   
-can be in JSON or plain text
-
-* pwd=<admin password>
-
-the admin password if authentication is enabled
-
-* mode
-  * if mode is empty, it will display current mode
-  * if mode is not empty, it will set the setting mode: `BT`, `WIFI-AP` or `OFF`
-
-## Output
-
-- In json format
-
-```json
-{
-   "cmd":"104",
-   "status":"ok",
-   "data":"OFF"
-}
-```
-
-* `cmd` Id of requested command, should be `104`
-* `status` status of command, should be `ok`
-* `data` content of response, here the mode
-
-+++
-archetype = "section"
-title = "[ESP104]"
-weight = 800
-+++
 Set station fallback mode state at boot which can be BT, WIFI-SETUP,  OFF
 
 ## Input
@@ -252,6 +214,10 @@ the admin password if authentication is enabled
    "data":"OFF"
 }
 ```
+* `cmd` Id of requested command, should be `104`
+* `status` status of command, should be `ok`
+* `data` content of response, here the mode
+
 
 +++
 archetype = "section"
@@ -455,7 +421,7 @@ weight = 800
 Display current IP
 
 ## Input
-`[ESP111]<OUTPUT=PRINTER> json=<no> pwd=<admin/user password>`
+`[ESP111]<OUTPUT=PRINTER> <ALL> json=<no> pwd=<admin/user password>`
 
 * json=no
 the output format
@@ -467,6 +433,9 @@ the admin password if authentication is enabled
 * OUTPUT
   * if OUTPUT is empty, it will display current IP as text `192.168.0.1`
   * if OUTPUT is `PRINTER`, it will display current IP in printer format `M117 192.168.0.1`
+
+* ALL
+  * it is set it will display IP, GW, MSK, DNS ip
 
 ## Output
 
