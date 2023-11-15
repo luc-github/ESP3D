@@ -22,231 +22,153 @@
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/time/time_service.h"
 #include "../esp3d_commands.h"
-#include "../esp3d_message.h"
 #include "../esp3d_settings.h"
 
-#define COMMANDID 140
+#define COMMAND_ID 140
 // Sync / Set / Get current time
 //[ESP140]<SYNC> <srv1=XXXXX> <srv2=XXXXX> <srv3=XXXXX> <tzone=+HH:SS>
 //<ntp=YES/NO> <time=YYYY-MM-DDTHH:mm:ss> NOW json=<no> pwd=<admin password>
 void ESP3DCommands::ESP140(int cmd_params_pos, ESP3DMessage* msg) {
-  /*
-  bool noError = true;
-  bool json = has_tag(cmd_params, "json");
-  String response = "ok";
-  String parameter;
-  bool hasParam = false;
-  int errorCode = 200;  // unless it is a server error use 200 as default and
-                        // set error in json instead
-
-#ifdef AUTHENTICATION_FEATURE
-  if (auth_type == guest) {
-    response = format_response(COMMANDID, json, false,
-                               "Guest user can't use this command");
-    noError = false;
-    errorCode = 401;
+  ESP3DClientType target = msg->origin;
+  ESP3DRequest requestId = msg->request_id;
+  (void)requestId;
+  msg->target = target;
+  msg->origin = ESP3DClientType::command;
+  bool hasError = false;
+  String error_msg = "Invalid parameters";
+  String ok_msg = "ok";
+  bool json = hasTag(msg, cmd_params_pos, "json");
+  bool sync = hasTag(msg, cmd_params_pos, "sync");
+  bool now = hasTag(msg, cmd_params_pos, "now");
+  String tmpstr;
+  const char* cmdList[] = {"srv1", "srv2", "srv3", "tzone", "ntp", "time"};
+  uint8_t cmdListSize = sizeof(cmdList) / sizeof(char*);
+  const ESP3DSettingIndex settingIndex[] = {
+      ESP_TIME_SERVER1, ESP_TIME_SERVER2,  ESP_TIME_SERVER3,
+      ESP_TIME_ZONE,    ESP_INTERNET_TIME, (ESP3DSettingIndex)-1,
+  };
+#if defined(AUTHENTICATION_FEATURE)
+  if (msg->authentication_level == ESP3DAuthenticationLevel::guest) {
+    msg->authentication_level = ESP3DAuthenticationLevel::not_authenticated;
+    dispatchAuthenticationError(msg, COMMAND_ID, json);
+    return;
   }
-#else
-  (void)auth_type;
 #endif  // AUTHENTICATION_FEATURE
-  if (noError) {
-    parameter = clean_param(get_param(cmd_params, ""));  // get
-    if (parameter.length() != 0) {
-#ifdef AUTHENTICATION_FEATURE
-      if (auth_type != admin) {
-        response = format_response(COMMANDID, json, false,
-                                   "Wrong authentication level");
-        noError = false;
-        errorCode = 401;
-      }
-#endif  // AUTHENTICATION_FEATURE
-      if (noError) {
-        parameter = get_param(cmd_params, "srv1=");
-        if (parameter.length() > 0) {
-          hasParam = true;
-          if (ESP3DSettings::isValidIPStringSetting(parameter.c_str(),
-                                                    ESP_TIME_SERVER1)) {
-            if (!ESP3DSettings::writeString(ESP_TIME_SERVER1,
-                                             parameter.c_str())) {
-              response = format_response(COMMANDID, json, false,
-                                         "Set server 1 failed");
-              noError = false;
-            }
-          }
-        }
-      }
-      if (noError) {
-        parameter = get_param(cmd_params, "srv2=");
-        if (parameter.length() > 0) {
-          hasParam = true;
-          if (!ESP3DSettings::isValidIPStringSetting(parameter.c_str(),
-                                                     ESP_TIME_SERVER2)) {
-            if (!ESP3DSettings::writeString(ESP_TIME_SERVER2,
-                                             parameter.c_str())) {
-              response = format_response(COMMANDID, json, false,
-                                         "Set server 2 failed");
-              noError = false;
-            }
-          }
-        }
-      }
-      if (noError) {
-        parameter = get_param(cmd_params, "srv3=");
-        if (parameter.length() > 0) {
-          hasParam = true;
-          if (!ESP3DSettings::isValidIPStringSetting(parameter.c_str(),
-                                                     ESP_TIME_SERVER3)) {
-            if (!ESP3DSettings::writeString(ESP_TIME_SERVER3,
-                                             parameter.c_str())) {
-              response = format_response(COMMANDID, json, false,
-                                         "Set server 3 failed");
-              noError = false;
-            }
-          }
-        }
-      }
-      if (noError) {
-        parameter = get_param(cmd_params, "tzone=");
-        if (parameter.length() > 0) {
-          hasParam = true;
-          bool isvalid = false;
-          for (uint8_t i = 0; i < SupportedTimeZonesSize; i++) {
-            if (parameter == SupportedTimeZones[i]) {
-              isvalid = true;
-              break;
-            }
-          }
-          if (isvalid) {
-            if (!ESP3DSettings::writeString(ESP_TIME_ZONE,
-                                             parameter.c_str())) {
-              response = format_response(COMMANDID, json, false,
-                                         "Set time zone failed");
-              noError = false;
-            }
-          } else {
-            response =
-                format_response(COMMANDID, json, false, "Invalid time zone");
-            noError = false;
-          }
-        }
-      }
-
-      if (noError) {
-        parameter = get_param(cmd_params, "ntp=");
-        parameter.toUpperCase();
-        if (parameter.length() > 0) {
-          hasParam = true;
-          parameter.toUpperCase();
-          if (parameter.length() > 0) {
-            if (!ESP3DSettings::writeByte(ESP_INTERNET_TIME,
-                                           (parameter == "NO") ? 0 : 1)) {
-              response = format_response(COMMANDID, json, false,
-                                         "Set internet time failed");
-              noError = false;
-            }
-          }
-        }
-      }
-      if (noError) {
-        parameter = get_param(cmd_params, "time=");
-        parameter.toUpperCase();
-        if (parameter.length() > 0) {
-          hasParam = true;
-          if (!timeService.setTime(parameter.c_str())) {
-            response =
-                format_response(COMMANDID, json, false, "Set time failed");
-            noError = false;
-          }
-        }
-      }
-      parameter = clean_param(get_param(cmd_params, ""));
-      parameter.toUpperCase();
-      if (noError) {
-        if (has_tag(parameter.c_str(), "SYNC")) {
-          esp3d_log("Sync time");
-          hasParam = true;
-          if (timeService.is_internet_time()) {
-            if (!timeService.begin()) {
-              response =
-                  format_response(COMMANDID, json, false, "Init time failed");
-              noError = false;
-            }
-          } else {
-            response =
-                format_response(COMMANDID, json, false, "Time is manual");
-            noError = false;
-          }
-          if (noError) {
-            esp3d_log("Get time");
-            response = format_response(COMMANDID, json, true,
-                                       timeService.getCurrentTime());
-          }
-        }
-      }
-      if (noError) {
-        if (has_tag(parameter.c_str(), "NOW")) {
-          String tmp = timeService.getCurrentTime();
-          tmp += " (";
-          tmp += timeService.getTimeZone();
-          tmp += ")";
-          hasParam = true;
-          esp3d_log("Get time");
-          response = format_response(COMMANDID, json, true, tmp.c_str());
-        }
-      }
-      if (noError && !hasParam) {
-        response = format_response(COMMANDID, json, false, "No parameter");
-        noError = false;
-      }
+  tmpstr = get_clean_param(msg, cmd_params_pos);
+  if (tmpstr.length() == 0) {
+    if (json) {
+      ok_msg = "{";
     } else {
-      // get display settings
-      String tmp = "";
-      if (json) {
-        tmp += "{\"srv1\":\"";
-      } else {
-        tmp += "srv1=";
-      }
-      tmp += ESP3DSettings::readString(ESP_TIME_SERVER1);
-      if (json) {
-        tmp += "\",\"srv2\":\"";
-      } else {
-        tmp += ", srv2=";
-      }
-      tmp += ESP3DSettings::readString(ESP_TIME_SERVER2);
-      if (json) {
-        tmp += "\",\"srv3\":\"";
-      } else {
-        tmp += ", srv3=";
-      }
-      tmp += ESP3DSettings::readString(ESP_TIME_ZONE);
-      if (json) {
-        tmp += "\",\"tzone\":\"";
-      } else {
-        tmp += ", tzone=";
-      }
-      tmp += ESP3DSettings::readByte(ESP_INTERNET_TIME);
-      if (json) {
-        tmp += "\",\"ntp\":\"";
-      } else {
-        tmp += ", ntp=";
-      }
-      tmp += ESP3DSettings::readByte(ESP_INTERNET_TIME) ? "YES" : "NO";
-      if (json) {
-        tmp += "\"}";
-      }
-      response = format_response(COMMANDID, json, true, tmp.c_str());
+      ok_msg = "";
     }
-  }
-  if (json) {
-    esp3dmsg->printLN(response.c_str());
+    // no need to show time right now
+    for (uint i = 0; i < cmdListSize - 2; i++) {
+      if (json) {
+        if (i > 0) {
+          ok_msg += ",";
+        }
+        ok_msg += "\"";
+      } else {
+        if (i > 0) {
+          ok_msg += ", ";
+        }
+      }
+      ok_msg += cmdList[i];
+
+      if (json) {
+        ok_msg += "\":\"";
+      } else {
+        ok_msg += ": ";
+      }
+      ok_msg += ESP3DSettings::readString(settingIndex[i]);
+      if (json) {
+        ok_msg += "\"";
+      } else {
+      }
+    }
+    if (json) {
+      ok_msg += ",\"ntp\":\"";
+    } else {
+      ok_msg += ", ntp: ";
+    }
+    ok_msg += ESP3DSettings::readByte(ESP_INTERNET_TIME) ? "yes" : "no";
+    if (json) {
+      ok_msg += "\"";
+    } else {
+    }
+
+    if (json) {
+      ok_msg += "}";
+    }
   } else {
-    if (noError) {
-      esp3dmsg->printMSG(response.c_str());
-    } else {
-      esp3dmsg->printERROR(response.c_str(), errorCode);
+    bool hasParam = false;
+    String tmpkey;
+    for (uint8_t i = 0; i < cmdListSize; i++) {
+      tmpkey = cmdList[i];
+      tmpkey += "=";
+      tmpstr = get_param(msg, cmd_params_pos, tmpkey.c_str());
+      if (tmpstr.length() != 0) {
+        hasParam = true;
+        if (settingIndex[i] == (ESP3DSettingIndex)-1) {
+          // set time
+          if (!timeService.setTime(tmpstr.c_str())) {
+            hasError = true;
+            error_msg = "Set time failed";
+          }
+        } else if (settingIndex[i] == ESP_INTERNET_TIME) {
+          tmpstr.toLowerCase();
+          if (tmpstr == "yes" || tmpstr == "no" || tmpstr == "1" ||
+              tmpstr == "0" || tmpstr == "true" || tmpstr == "false") {
+            uint8_t val = 0;
+            if (tmpstr == "yes" || tmpstr == "1" || tmpstr == "true") {
+              val = 1;
+            }
+            if (!ESP3DSettings::writeByte(settingIndex[i], val)) {
+              hasError = true;
+              error_msg = "Set value failed";
+            }
+          } else {
+            hasError = true;
+            error_msg = "Invalid token parameter";
+          }
+
+        } else {
+          if (ESP3DSettings::isValidStringSetting(tmpstr.c_str(),
+                                                  settingIndex[i])) {
+            esp3d_log_d("Value %s is valid", tmpstr.c_str());
+            if (!ESP3DSettings::writeString(settingIndex[i], tmpstr.c_str())) {
+              hasError = true;
+              error_msg = "Set value failed";
+            }
+          } else {
+            hasError = true;
+            error_msg = "Invalid token parameter";
+            esp3d_log_e("Value %s is invalid", tmpstr.c_str());
+          }
+        }
+      }
+    }
+    if (!hasError && now) {
+      ok_msg = timeService.getCurrentTime();
+      ok_msg += "  (";
+      ok_msg += timeService.getTimeZone();
+      ok_msg += ")";
+      hasParam = true;
+    }
+    if (!hasError && sync) {
+      // apply changes without restarting the board
+      timeService.begin();
+      hasParam = true;
+    }
+    if (!hasParam && !hasError) {
+      hasError = true;
+      error_msg = "Invalid parameter";
     }
   }
-  return noError;*/
+  if (!dispatchAnswer(msg, COMMAND_ID, json, hasError,
+                      hasError ? error_msg.c_str() : ok_msg.c_str())) {
+    esp3d_log_e("Error sending response to clients");
+  }
 }
 
 #endif  // TIMESTAMP_FEATURE

@@ -828,7 +828,7 @@ bool ESP3DSettings::isValidStringSetting(const char *value,
       return true;  // no more check for time server
       break;
     case ESP_TIME_ZONE:
-      if (len != settingPtr->size - 1) {
+      if (len != settingPtr->size) {
         return false;
       }
       for (uint8_t i = 0; i < SupportedTimeZonesSize; i++) {

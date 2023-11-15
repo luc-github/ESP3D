@@ -39,7 +39,7 @@ void ESP3DCommands::ESP106(int cmd_params_pos, ESP3DMessage* msg) {
   bool clearSetting = hasTag(msg, cmd_params_pos, "NOPASSWORD");
   bool json = hasTag(msg, cmd_params_pos, "json");
   String tmpstr;
-#if AUTHENTICATION_FEATURE
+#if defined(AUTHENTICATION_FEATURE)
   if (msg->authentication_level == ESP3DAuthenticationLevel::guest) {
     msg->authentication_level = ESP3DAuthenticationLevel::not_authenticated;
     dispatchAuthenticationError(msg, COMMAND_ID, json);

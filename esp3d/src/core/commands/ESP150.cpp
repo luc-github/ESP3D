@@ -23,114 +23,96 @@
 #include "../esp3d_message.h"
 #include "../esp3d_settings.h"
 
-#define COMMANDID 150
+#define COMMAND_ID 150
 // Get/Set display/set boot delay in ms / Verbose boot
 //[ESP150]<delay=time in milliseconds><verbose=ON/OFF>[pwd=<admin password>]
 void ESP3DCommands::ESP150(int cmd_params_pos, ESP3DMessage* msg) {
-  /*
-  bool noError = true;
-  bool json = has_tag(cmd_params, "json");
-  String response;
-  String parameter;
-  int errorCode = 200;  // unless it is a server error use 200 as default and
-                        // set error in json instead
-
-#ifdef AUTHENTICATION_FEATURE
-  if (auth_type == guest) {
-    response = format_response(COMMANDID, json, false,
-                               "Guest user can't use this command");
-    noError = false;
-    errorCode = 401;
+  ESP3DClientType target = msg->origin;
+  ESP3DRequest requestId = msg->request_id;
+  (void)requestId;
+  msg->target = target;
+  msg->origin = ESP3DClientType::command;
+  bool hasError = false;
+  String error_msg = "Invalid parameters";
+  String ok_msg = "ok";
+  String tmpstr;
+  bool json = hasTag(msg, cmd_params_pos, "json");
+  bool hasParam = false;
+#if defined(AUTHENTICATION_FEATURE)
+  if (msg->authentication_level == ESP3DAuthenticationLevel::guest) {
+    msg->authentication_level = ESP3DAuthenticationLevel::not_authenticated;
+    dispatchAuthenticationError(msg, COMMAND_ID, json);
+    return;
   }
-#else
-  (void)auth_type;
 #endif  // AUTHENTICATION_FEATURE
-  if (noError) {
-    parameter = clean_param(get_param(cmd_params, ""));
-    // get
-    if (parameter.length() == 0) {
-      String s = "";
-      if (json) {
-        s += "{\"delay\":\"";
-      } else {
-        s += "delay=";
-      }
-      s += String(ESP3DSettings::readUint32(ESP_BOOT_DELAY));
-      if (json) {
-        s += "\",\"verbose\":\"";
-      } else {
-        s += ", verbose=";
-      }
-      s += ESP3DSettings::isVerboseBoot(true) ? "ON" : "OFF";
-      if (json) {
-        s += "\"}";
-      }
-      response = format_response(COMMANDID, json, true, s.c_str());
+  tmpstr = get_clean_param(msg, cmd_params_pos);
+  if (tmpstr.length() == 0) {
+    if (json) {
+      ok_msg = "{\"delay\":\"";
     } else {
-#ifdef AUTHENTICATION_FEATURE
-      if (auth_type != admin) {
-        response = format_response(COMMANDID, json, false,
-                                   "Wrong authentication level");
-        noError = false;
-        errorCode = 401;
-      }
-#endif  // AUTHENTICATION_FEATURE
-      if (noError) {
-        bool hasParameter = false;
-        parameter = get_param(cmd_params, "delay=");
-        if (parameter.length() != 0) {
-          hasParameter = true;
-          uint ibuf = parameter.toInt();
-          if (!ESP3DSettings::isValidIntegerSetting(ibuf, ESP_BOOT_DELAY)) {
-            response =
-                format_response(COMMANDID, json, false, "Incorrect delay");
-            noError = false;
-          }
-          if (noError) {
-            if (!ESP3DSettings::writeUint32(ESP_BOOT_DELAY, ibuf)) {
-              response = format_response(COMMANDID, json, false, "Set failed");
-              noError = false;
-            }
-          }
-        }
-        if (noError) {
-          parameter = get_param(cmd_params, "verbose=");
-          if (parameter.length() != 0) {
-            hasParameter = true;
-            if ((parameter == "ON") || (parameter == "OFF")) {
-              if (!ESP3DSettings::writeByte(ESP_VERBOSE_BOOT,
-                                             (parameter == "ON") ? 1 : 0)) {
-                response =
-                    format_response(COMMANDID, json, false, "Set failed");
-                noError = false;
-              } else {
-                ESP3DSettings::isVerboseBoot(true);
-              }
-            } else {
-              response = format_response(COMMANDID, json, false,
-                                         "Only verbose +ON/OFF is allowed");
-              noError = false;
-            }
-          }
-        }
-        if (noError && !hasParameter) {
-          response =
-              format_response(COMMANDID, json, false, "Incorrect command");
-          noError = false;
-        } else if (noError) {
-          response = format_response(COMMANDID, json, true, "ok");
-        }
-      }
+      ok_msg = "delay=";
     }
-  }
-  if (json) {
-    esp3dmsg->printLN(response.c_str());
+    ok_msg += String(ESP3DSettings::readUint32(ESP_BOOT_DELAY));
+    if (json) {
+      ok_msg += "\",\"verbose\":\"";
+    } else {
+      ok_msg += ", verbose=";
+    }
+    ok_msg += ESP3DSettings::isVerboseBoot(true) ? "ON" : "OFF";
+    if (json) {
+      ok_msg += "\"}";
+    }
   } else {
-    if (noError) {
-      esp3dmsg->printMSG(response.c_str());
-    } else {
-      esp3dmsg->printERROR(response.c_str(), errorCode);
+    tmpstr = get_param(msg, cmd_params_pos, "delay=");
+    if (tmpstr.length() != 0) {
+      hasParam = true;
+      if (ESP3DSettings::isValidIntegerSetting(tmpstr.toInt(),
+                                               ESP_BOOT_DELAY)) {
+        if (!ESP3DSettings::writeUint32(ESP_BOOT_DELAY, tmpstr.toInt())) {
+          hasError = true;
+          error_msg = "Set delay failed";
+          esp3d_log_e("%s", error_msg.c_str());
+        }
+      } else {
+        hasError = true;
+        error_msg = "Incorrect delay";
+        esp3d_log_e("%s", error_msg.c_str());
+      }
+    }
+    if (!hasError) {
+      tmpstr = get_param(msg, cmd_params_pos, "verbose=");
+      if (tmpstr.length() != 0) {
+        hasParam = true;
+        tmpstr.toUpperCase();
+        if (tmpstr == "ON" || tmpstr == "OFF" || tmpstr == "1" ||
+            tmpstr == "0" || tmpstr == "TRUE" || tmpstr == "FALSE" ||
+            tmpstr == "YES" || tmpstr == "NO") {
+          uint8_t val = 0;
+          if (tmpstr == "ON" || tmpstr == "1" || tmpstr == "TRUE" ||
+              tmpstr == "YES") {
+            val = 1;
+          }
+          if (!ESP3DSettings::writeByte(ESP_VERBOSE_BOOT, val)) {
+            hasError = true;
+            error_msg = "Set delay failed";
+            esp3d_log_e("%s", error_msg.c_str());
+          }
+        } else {
+          hasError = true;
+          error_msg = "Incorrect verbose setting";
+          esp3d_log_e("%s", error_msg.c_str());
+        }
+      }
+    }
+    if (!hasError && !hasParam) {
+      hasError = true;
+      error_msg = "Incorrect parameter";
+      esp3d_log_e("%s", error_msg.c_str());
     }
   }
-  return noError;*/
+
+  if (!dispatchAnswer(msg, COMMAND_ID, json, hasError,
+                      hasError ? error_msg.c_str() : ok_msg.c_str())) {
+    esp3d_log_e("Error sending response to clients");
+  }
 }

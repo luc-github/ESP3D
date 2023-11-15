@@ -1302,7 +1302,8 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
     case ESP3DClientType::all_clients:
       // TODO:Add each client one by one
 #ifdef PRINTER_HAS_DISPLAY
-      if (msg->origin != ESP3DClientType::remote_screen) {
+      if (msg->origin != ESP3DClientType::remote_screen &&
+          msg->origin != getOutputClient()) {
         String msgstr = (const char *)msg->data;
         msgstr.trim();
         if (msgstr.length() > 0) {

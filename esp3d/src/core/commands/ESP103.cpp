@@ -49,7 +49,7 @@ void ESP3DCommands::ESP103(int cmd_params_pos, ESP3DMessage* msg) {
   const ESP3DSettingIndex settingIndex[] = {
       ESP_STA_IP_VALUE, ESP_STA_MASK_VALUE, ESP_STA_GATEWAY_VALUE,
       ESP_STA_DNS_VALUE};
-#if AUTHENTICATION_FEATURE
+#if defined(AUTHENTICATION_FEATURE)
   if (msg->authentication_level == ESP3DAuthenticationLevel::guest) {
     msg->authentication_level = ESP3DAuthenticationLevel::not_authenticated;
     dispatchAuthenticationError(msg, COMMAND_ID, json);
@@ -84,9 +84,7 @@ void ESP3DCommands::ESP103(int cmd_params_pos, ESP3DMessage* msg) {
     ok_msg += ESP3DSettings::readIPString(ESP_STA_DNS_VALUE);
     if (json) {
       ok_msg += "\"}";
-    } else {
-      ok_msg += "\n";
-    }
+    } 
   } else {
     bool hasParam = false;
     for (uint8_t i = 0; i < cmdListSize; i++) {

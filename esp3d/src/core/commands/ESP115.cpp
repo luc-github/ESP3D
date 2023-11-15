@@ -25,76 +25,57 @@
 #include "../esp3d_message.h"
 #include "../esp3d_settings.h"
 
-#define COMMANDID 115
+#define COMMAND_ID 115
 // Get/Set immediate Network (WiFi/BT/Ethernet) state which can be ON, OFF
 //[ESP115]<state> json=<no> pwd=<admin password>
 void ESP3DCommands::ESP115(int cmd_params_pos, ESP3DMessage* msg) {
-  /*
-  bool noError = true;
-  bool json = has_tag(cmd_params, "json");
-  String response;
-  String parameter;
-  int errorCode = 200;  // unless it is a server error use 200 as default and
-                        // set error in json instead
-
-#ifdef AUTHENTICATION_FEATURE
-  if (auth_type == guest) {
-    response = format_response(COMMANDID, json, false,
-                               "Guest user can't use this command");
-    noError = false;
-    errorCode = 401;
+  ESP3DClientType target = msg->origin;
+  ESP3DRequest requestId = msg->request_id;
+  (void)requestId;
+  msg->target = target;
+  msg->origin = ESP3DClientType::command;
+  bool hasError = false;
+  String error_msg = "Invalid parameters";
+  std::string ok_msg = "ok";
+  bool json = hasTag(msg, cmd_params_pos, "json");
+  std::string tmpstr;
+#if defined(AUTHENTICATION_FEATURE)
+  if (msg->authentication_level == ESP3DAuthenticationLevel::guest) {
+    msg->authentication_level = ESP3DAuthenticationLevel::not_authenticated;
+    dispatchAuthenticationError(msg, COMMAND_ID, json);
+    return;
   }
-#else
-  (void)auth_type;
 #endif  // AUTHENTICATION_FEATURE
-  if (noError) {
-    parameter = clean_param(get_param(cmd_params, ""));
-    // get
-    if (parameter.length() == 0) {
-      response = format_response(COMMANDID, json, true,
-                                 (NetConfig::started()) ? "ON" : "OFF");
-    } else {  // set
-#ifdef AUTHENTICATION_FEATURE
-      if (auth_type != admin) {
-        response = format_response(COMMANDID, json, false,
-                                   "Wrong authentication level");
-        noError = false;
-        errorCode = 401;
+  tmpstr = get_clean_param(msg, cmd_params_pos);
+
+  uint8_t current_radio_mode = NetConfig::getMode();
+  if (tmpstr.length() == 0) {
+    if (current_radio_mode == ESP_NO_NETWORK) {
+      ok_msg = "OFF";
+    } else {
+      ok_msg = "ON";
+    }
+  } else {
+    if (tmpstr == "OFF") {
+      if (current_radio_mode != ESP_NO_NETWORK) {
+        NetConfig::end();
       }
-#endif  // AUTHENTICATION_FEATURE
-      if (noError) {
-        parameter.toUpperCase();
-        if ((parameter == "ON") || (parameter == "OFF")) {
-          if (parameter == "ON") {
-            if (!NetConfig::begin()) {
-              response = format_response(COMMANDID, json, false,
-                                         "Cannot setup network");
-              noError = false;
-            }
-          } else {
-            NetConfig::end();
-          }
-          if (noError) {
-            response = format_response(COMMANDID, json, true, "ok");
-          }
-        } else {
-          response = format_response(COMMANDID, json, false,
-                                     "Only mode ON and OFF are supported");
-          noError = false;
+    } else if (tmpstr == "ON") {
+      if (current_radio_mode == ESP_NO_NETWORK) {
+        if (!NetConfig::begin()) {
+          hasError = true;
+          error_msg = "Fail to start network";
         }
       }
-    }
-  }
-  if (json) {
-    esp3dmsg->printLN(response.c_str());
-  } else {
-    if (noError) {
-      esp3dmsg->printMSG(response.c_str());
     } else {
-      esp3dmsg->printERROR(response.c_str(), errorCode);
+      hasError = true;
+      error_msg = "Invalid parameter";
     }
   }
-  return noError;*/
+  if (!dispatchAnswer(msg, COMMAND_ID, json, hasError,
+                      hasError ? error_msg.c_str() : ok_msg.c_str())) {
+    esp3d_log_e("Error sending response to clients");
+  }
 }
 
 #endif  // WIFI_FEATURE || ETH_FEATURE || BT_FEATURE

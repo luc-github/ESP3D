@@ -41,13 +41,13 @@ void ESP3DCommands::ESP111(int cmd_params_pos, ESP3DMessage* msg) {
   bool respjson = json;
   bool showAll = hasTag(msg, cmd_params_pos, "ALL");
   String tmpstr;
-#if ESP3D_AUTHENTICATION_FEATURE
+#if defined(AUTHENTICATION_FEATURE)
   if (msg->authentication_level == ESP3DAuthenticationLevel::guest) {
     msg->authentication_level = ESP3DAuthenticationLevel::not_authenticated;
     dispatchAuthenticationError(msg, COMMAND_ID, json);
     return;
   }
-#endif  // ESP3D_AUTHENTICATION_FEATURE
+#endif  // AUTHENTICATION_FEATURE
   tmpstr = get_clean_param(msg, cmd_params_pos);
 
   tmpstr = get_param(msg, cmd_params_pos, "OUTPUT=");
@@ -84,8 +84,6 @@ void ESP3DCommands::ESP111(int cmd_params_pos, ESP3DMessage* msg) {
     ok_msg += NetConfig::localDNS().c_str();
     if (json) {
       ok_msg += "\"}";
-    } else {
-      ok_msg += "\n";
     }
   }
 

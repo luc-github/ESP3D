@@ -25,77 +25,61 @@
 #include "../esp3d_message.h"
 #include "../esp3d_settings.h"
 
-#define COMMANDID 160
+#define COMMAND_ID 160
 // Set WebSocket state which can be ON, OFF, CLOSE
 //[ESP160]<state> json=<no> pwd=<admin password>
 void ESP3DCommands::ESP160(int cmd_params_pos, ESP3DMessage* msg) {
-  /*
-  bool noError = true;
-  bool json = has_tag(cmd_params, "json");
-  String response;
-  String parameter;
-  int errorCode = 200;  // unless it is a server error use 200 as default and
-                        // set error in json instead
-#ifdef AUTHENTICATION_FEATURE
-  if (auth_type == guest) {
-    response = format_response(COMMANDID, json, false,
-                               "Guest user can't use this command");
-    noError = false;
-    errorCode = 401;
+  ESP3DClientType target = msg->origin;
+  ESP3DRequest requestId = msg->request_id;
+  (void)requestId;
+  msg->target = target;
+  msg->origin = ESP3DClientType::command;
+  bool hasError = false;
+  String error_msg = "Invalid parameters";
+  String ok_msg = "ok";
+  bool json = hasTag(msg, cmd_params_pos, "json");
+  bool closeClients = hasTag(msg, cmd_params_pos, "CLOSE");
+  bool stateON = hasTag(msg, cmd_params_pos, "ON");
+  bool stateOFF = hasTag(msg, cmd_params_pos, "OFF");
+  bool has_param = false;
+  String tmpstr;
+#if AUTHENTICATION_FEATURE
+  if (msg->authentication_level == ESP3DAuthenticationLevel::guest) {
+    msg->authentication_level = ESP3DAuthenticationLevel::not_authenticated;
+    dispatchAuthenticationError(msg, COMMAND_ID, json);
+    return;
   }
-#else
-  (void)auth_type;
 #endif  // AUTHENTICATION_FEATURE
-  if (noError) {
-    parameter = clean_param(get_param(cmd_params, ""));
-    // get
-    if (parameter.length() == 0) {
-      response = format_response(
-          COMMANDID, json, true,
-          (ESP3DSettings::readByte(ESP_WEBSOCKET_ON) == 0) ? "OFF" : "ON");
-    } else {  // set
-#ifdef AUTHENTICATION_FEATURE
-      if (auth_type != admin) {
-        response = format_response(COMMANDID, json, false,
-                                   "Wrong authentication level");
-        noError = false;
-        errorCode = 401;
-      }
-#endif  // AUTHENTICATION_FEATURE
-      if (noError) {
-        parameter.toUpperCase();
-        if (!((parameter == "ON") || (parameter == "OFF") ||
-              (parameter == "CLOSE"))) {
-          response = format_response(COMMANDID, json, false,
-                                     "Only ON or OFF or CLOSE mode supported!");
-          noError = false;
-        } else {
-          if (parameter == "CLOSE") {
-            websocket_data_server.closeClients();
-          } else {
-            if (!ESP3DSettings::writeByte(ESP_WEBSOCKET_ON,
-                                           (parameter == "ON") ? 1 : 0)) {
-              response = format_response(COMMANDID, json, false, "Set failed");
-              noError = false;
-            }
-          }
-          if (noError) {
-            response = format_response(COMMANDID, json, true, "ok");
-          }
-        }
-      }
-    }
-  }
-  if (json) {
-    esp3dmsg->printLN(response.c_str());
-  } else {
-    if (noError) {
-      esp3dmsg->printMSG(response.c_str());
+  tmpstr = get_clean_param(msg, cmd_params_pos);
+  ESP3DState setting_mode =
+      (ESP3DState)esp3dTftsettings.readByte(ESP_WEBSOCKET_ON);
+  if (tmpstr.length() == 0) {
+    if (setting_mode == ESP3DState::off) {
+      ok_msg = "OFF";
     } else {
-      esp3dmsg->printERROR(response.c_str(), errorCode);
+      ok_msg = "ON";
+    }
+  } else {
+    if (stateON || stateOFF) {
+      if (!esp3dTftsettings.writeByte(ESP_WEBSOCKET_ON, stateOFF ? 0 : 1)) {
+        hasError = true;
+        error_msg = "Set value failed";
+      }
+      has_param = true;
+    }
+    if (closeClients) {
+      has_param = true;
+      websocket_data_server.closeClients();
+    }
+    if (!has_param) {
+      hasError = true;
+      error_msg = "Invalid parameter";
     }
   }
-  return noError;*/
+  if (!dispatchAnswer(msg, COMMAND_ID, json, hasError,
+                      hasError ? error_msg.c_str() : ok_msg.c_str())) {
+    esp3d_log_e("Error sending response to clients");
+  }
 }
 
 #endif  // WS_DATA_FEATURE
