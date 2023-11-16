@@ -22,73 +22,57 @@
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/buzzer/buzzer.h"
 #include "../esp3d_commands.h"
-#include "../esp3d_message.h"
 #include "../esp3d_settings.h"
 
-#define COMMANDID 250
+#define COMMAND_ID 250
 // Play sound
 //[ESP250]F=<frequency> D=<duration> json=<no> [pwd=<user password>]
 void ESP3DCommands::ESP250(int cmd_params_pos, ESP3DMessage* msg) {
-  /*
-  bool noError = true;
-  bool json = has_tag(cmd_params, "json");
-  String response;
-  String parameter;
-  int errorCode = 200;  // unless it is a server error use 200 as default and
-                        // set error in json instead
-#ifdef AUTHENTICATION_FEATURE
-  if (auth_type == guest) {
-    response = format_response(COMMANDID, json, false,
-                               "Guest user can't use this command");
-    noError = false;
-    errorCode = 401;
+  ESP3DClientType target = msg->origin;
+  ESP3DRequest requestId = msg->request_id;
+  (void)requestId;
+  msg->target = target;
+  msg->origin = ESP3DClientType::command;
+  bool hasError = false;
+  String error_msg = "Invalid parameters";
+  String ok_msg = "ok";
+  String F = get_param(msg, cmd_params_pos, "F=");
+  String D = get_param(msg, cmd_params_pos, "D=");
+  int freq = -1;
+  int duration = 0;
+  if (F.length() > 0) {
+    freq = F.toInt();
   }
-#else
-  (void)auth_type;
+  if (D.length() > 0) {
+    duration = D.toInt();
+  }
+  bool json = hasTag(msg, cmd_params_pos, "json");
+  String tmpstr;
+#if defined(AUTHENTICATION_FEATURE)
+  if (msg->authentication_level == ESP3DAuthenticationLevel::guest) {
+    msg->authentication_level = ESP3DAuthenticationLevel::not_authenticated;
+    dispatchAuthenticationError(msg, COMMAND_ID, json);
+    return;
+  }
 #endif  // AUTHENTICATION_FEATURE
-  if (noError) {
-    if (!esp3d_buzzer.started()) {
-      response = format_response(COMMANDID, json, false, "Buzzer disabled");
-      noError = false;
-    } else {
-      parameter = get_param(cmd_params, "");
-      // get
-      if (parameter.length() == 0) {
-        esp3d_buzzer.beep();
-      } else {
-        int f, d;
-        // frequency
-        parameter = get_param(cmd_params, "F=");
-        if (parameter.length() == 0) {
-          response = format_response(COMMANDID, json, false, "No frequency");
-          noError = false;
-        } else {
-          f = parameter.toInt();
-          parameter = get_param(cmd_params, "D=");
-          if (parameter.length() == 0) {
-            response = format_response(COMMANDID, json, false, "No duration");
-            noError = false;
-          } else {
-            d = parameter.toInt();
-            esp3d_buzzer.beep(f, d);
-          }
-        }
-      }
-      if (noError) {
-        response = format_response(COMMANDID, json, true, "ok");
-      }
-    }
-  }
-  if (json) {
-    esp3dmsg->printLN(response.c_str());
+
+  if (f == -1 && d == 0) {
+    esp3d_buzzer.beep();
   } else {
-    if (noError) {
-      esp3dmsg->printMSG(response.c_str());
-    } else {
-      esp3dmsg->printERROR(response.c_str(), errorCode);
+    if (f == -1) {
+      f = 1000;
+    }
+    if (d != 0) {
+      esp3d_buzzer.beep(f, d);
     }
   }
-  return noError;*/
+  if (!dispatchAnswer(msg, COMMAND_ID, json, hasError,
+                      hasError ? error_msg.c_str() : ok_msg.c_str())) {
+    esp3d_log_e("Error sending response to clients");
+  }
+
+  return noError;
+  * /
 }
 
 #endif  // BUZZER_DEVICE

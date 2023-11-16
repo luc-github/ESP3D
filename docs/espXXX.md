@@ -1184,12 +1184,11 @@ the admin password if authentication is enabled
       * if V is empty, it will display current pin value
       * if V is not empty, it will set the pin value
  * RAW
-      * if RAW is present, it will not set the pin mode
+      * if RAW is present, it will set the pin mode
 
   * PULLUP
-      * if PULLUP is present, it will set the pin mode to pullup
+      * if PULLUP is present, it will set the pullup pin mode
 
- 
   * ANALOG
       * if ANALOG is present, it will set the pin ANALOG
 

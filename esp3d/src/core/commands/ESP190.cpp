@@ -24,7 +24,7 @@
 #include "../esp3d_commands.h"
 #include "../esp3d_settings.h"
 
-#define COMMANDID 190
+#define COMMAND_ID 190
 // Set WebDav state which can be ON, OFF, CLOSE
 //[ESP190]<state> json=<no> pwd=<admin password>
 void ESP3DCommands::ESP190(int cmd_params_pos, ESP3DMessage* msg) {
@@ -50,8 +50,7 @@ void ESP3DCommands::ESP190(int cmd_params_pos, ESP3DMessage* msg) {
   }
 #endif  // AUTHENTICATION_FEATURE
   tmpstr = get_clean_param(msg, cmd_params_pos);
-  ESP3DState setting_mode =
-      (ESP3DState)esp3dTftsettings.readByte(ESP_WEBDAV_ON);
+  ESP3DState setting_mode = (ESP3DState)ESP3DSettings::readByte(ESP_WEBDAV_ON);
   if (tmpstr.length() == 0) {
     if (setting_mode == ESP3DState::off) {
       ok_msg = "OFF";
@@ -60,7 +59,7 @@ void ESP3DCommands::ESP190(int cmd_params_pos, ESP3DMessage* msg) {
     }
   } else {
     if (stateON || stateOFF) {
-      if (!esp3dTftsettings.writeByte(ESP_WEBDAV_ON, stateOFF ? 0 : 1)) {
+      if (!ESP3DSettings::writeByte(ESP_WEBDAV_ON, stateOFF ? 0 : 1)) {
         hasError = true;
         error_msg = "Set value failed";
       }

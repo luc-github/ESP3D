@@ -273,7 +273,7 @@ bool NetServices::begin() {
           String(ftp_server.dataactiveport()) + "," +
           String(ftp_server.datapassiveport());
       if (ESP3DSettings::isVerboseBoot()) {
-        esp3d_commands.dispatch(tmp.c_str(), ESP3DClientType::all_clients,
+        esp3d_commands.dispatch(stmp.c_str(), ESP3DClientType::all_clients,
                                 no_id, ESP3DMessageType::unique,
                                 ESP3DClientType::system,
                                 ESP3DAuthenticationLevel::admin);

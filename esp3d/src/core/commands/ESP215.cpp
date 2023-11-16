@@ -22,65 +22,57 @@
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/display/display.h"
 #include "../esp3d_commands.h"
-#include "../esp3d_message.h"
 #include "../esp3d_settings.h"
 
-#define COMMANDID 215
+#define COMMAND_ID 215
 // Touch Calibration
 //[ESP215]<CALIBRATE> json=<no> [pwd=<user password>]
 void ESP3DCommands::ESP215(int cmd_params_pos, ESP3DMessage* msg) {
-  /*
-  bool noError = true;
-  bool json = has_tag(cmd_params, "json");
-  String response;
-  String parameter;
-  int errorCode = 200;  // unless it is a server error use 200 as default and
-                        // set error in json instead
-#ifdef AUTHENTICATION_FEATURE
-  if (auth_type == guest) {
-    response = format_response(COMMANDID, json, false,
-                               "Guest user can't use this command");
-    noError = false;
-    errorCode = 401;
+  ESP3DClientType target = msg->origin;
+  ESP3DRequest requestId = msg->request_id;
+  (void)requestId;
+  msg->target = target;
+  msg->origin = ESP3DClientType::command;
+  bool hasError = false;
+  String error_msg = "Invalid parameters";
+  String ok_msg = "ok";
+  bool json = hasTag(msg, cmd_params_pos, "json");
+  bool calibrate = hasTag(msg, cmd_params_pos, "CALIBRATE");
+  String tmpstr;
+#if defined(AUTHENTICATION_FEATURE)
+  if (msg->authentication_level == ESP3DAuthenticationLevel::guest) {
+    msg->authentication_level = ESP3DAuthenticationLevel::not_authenticated;
+    dispatchAuthenticationError(msg, COMMAND_ID, json);
+    return;
   }
-#else
-  (void)auth_type;
 #endif  // AUTHENTICATION_FEATURE
-  if (noError) {
-    parameter = clean_param(get_param(cmd_params, ""));
-    // get
-    if (parameter.length() == 0) {
-      response = format_response(
-          COMMANDID, json, true,
-          (ESP3DSettings::readByte(ESP_CALIBRATION) == 1) ? "Done"
-                                                           : "Not done");
-    } else {  // set
-      parameter.toUpperCase();
-            if (has_tag (cmd_params, "CALIBRATE") {
-        if (!json) {
-          esp3dmsg->printMSG("Please follow screen instructions");
-        }
-        response = format_response(COMMANDID, json, true, ok);
-        esp3d_display.startCalibration();
-            } else {
-        if (parameter.indexOf("CALIBRATE") == -1) {
-          response =
-              format_response(COMMANDID, json, false, "Invalid parameter");
-          noError = false;
-        }
-            }
-    }
-  }
-  if (json) {
-    esp3dmsg->printLN(response.c_str());
-  } else {
-    if (noError) {
-            esp3dmsg->printMSG(response.c_str());
+  tmpstr = get_clean_param(msg, cmd_params_pos);
+  if (tmpstr.length() == 0) {
+    const ESP3DSettingDescription* settingPtr =
+        ESP3DSettings::getSettingPtr(ESP_CALIBRATION);
+    if (settingPtr) {
+      ok_msg =
+          ESP3DSettings::readByte(ESP_CALIBRATION) == 1 ? "Done" : "Not done";
     } else {
-            esp3dmsg->printERROR(response.c_str(), errorCode);
+      hasError = true;
+      error_msg = "This setting is unknown";
+      esp3d_log_e("%s", error_msg.c_str());
+    }
+  } else {
+    tmpstr.toUpperCase();
+    if (!calibrate) {
+      hasError = true;
+      error_msg = "Missing parameter";
+      esp3d_log_e("%s", error_msg.c_str());
+    } else {
+      ok_msg = "ok - Please follow screen instructions";
+      esp3d_display.startCalibration();
     }
   }
-  return noError;*/
+  if (!dispatchAnswer(msg, COMMAND_ID, json, hasError,
+                      hasError ? error_msg.c_str() : ok_msg.c_str())) {
+    esp3d_log_e("Error sending response to clients");
+  }
 }
 
 #endif  // DISPLAY_DEVICE && DISPLAY_TOUCH_DRIVER

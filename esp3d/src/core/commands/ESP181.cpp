@@ -23,7 +23,7 @@
 #include "../esp3d_commands.h"
 #include "../esp3d_settings.h"
 
-#define COMMANDID 181
+#define COMMAND_ID 181
 // Set/Get Ftp ports
 //[ESP181]ctrl=<port> active=<port> passive=<port> json=<no> pwd=<admin
 // password>

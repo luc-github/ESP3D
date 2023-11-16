@@ -83,7 +83,7 @@ class ESP_SD {
   static uint64_t freeBytes(bool refresh = false);
   static uint maxPathLength();
   static const char* FilesystemName();
-  static bool format(ESP3D_Message* output = nullptr);
+  static bool format();
   static ESP_SDFile open(const char* path, uint8_t mode = ESP_FILE_READ);
   static bool exists(const char* path);
   static bool remove(const char* path);

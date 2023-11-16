@@ -153,7 +153,7 @@ uint64_t ESP_GBFS::freeBytes(uint8_t FS) {
 }
 
 // Format is not always available for all FS
-bool format(uint8_t FS, ESP3D_Message *esp3dmsg = nullptr) {
+bool format(uint8_t FS) {
 #ifdef FILESYSTEM_FEATURE
   if (FS == FS_FLASH) {
     return ESP_FileSystem::format();
@@ -161,10 +161,10 @@ bool format(uint8_t FS, ESP3D_Message *esp3dmsg = nullptr) {
 #endif  // FILESYSTEM_FEATURE
 #ifdef SD_DEVICE
   if (FS == FS_SD) {
-    return ESP_SD::format(esp3dmsg);
+    return ESP_SD::format();
   }
 #endif  // SD_DEVICE
-  esp3dmsg->printERROR("Not available");
+  esp3d_log_e("Not available");
   return false;
 }
 

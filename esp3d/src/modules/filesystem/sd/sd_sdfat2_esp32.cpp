@@ -230,7 +230,7 @@ bool ESP_SD::rename(const char* oldpath, const char* newpath) {
   return SD.rename(oldpath, newpath);
 }
 
-bool ESP_SD::format(ESP3D_Message* esp3dmsg) {
+bool ESP_SD::format() {
   if (ESP_SD::getState(true) == ESP_SDCARD_IDLE) {
     uint32_t const ERASE_SIZE = 262144L;
     uint32_t cardSectorCount = 0;
@@ -242,74 +242,59 @@ bool ESP_SD::format(ESP3D_Message* esp3dmsg) {
     // prepare
     m_card = cardFactory.newCard(SD_CONFIG);
     if (!m_card || m_card->errorCode()) {
-      if (esp3dmsg) {
-        esp3dmsg->printMSG("card init failed.");
-      }
+      esp3d_log_e("card init failed.");
       return false;
     }
 
     cardSectorCount = m_card->sectorCount();
     if (!cardSectorCount) {
-      if (esp3dmsg) {
-        esp3dmsg->printMSG("Get sector count failed.");
-      }
+      esp3d_log_e("Get sector count failed.");
       return false;
     }
 
-    if (esp3dmsg) {
-      String s =
-          "Capacity detected :" + String(cardSectorCount * 5.12e-7) + "GB";
-      esp3dmsg->printMSG(s.c_str());
+    esp3d_log("Capacity detected :%d GB", cardSectorCount * 5.12e-7);
+  }
+
+  uint32_t firstBlock = 0;
+  uint32_t lastBlock;
+  uint16_t n = 0;
+  do {
+    lastBlock = firstBlock + ERASE_SIZE - 1;
+    if (lastBlock >= cardSectorCount) {
+      lastBlock = cardSectorCount - 1;
     }
-
-    uint32_t firstBlock = 0;
-    uint32_t lastBlock;
-    uint16_t n = 0;
-    do {
-      lastBlock = firstBlock + ERASE_SIZE - 1;
-      if (lastBlock >= cardSectorCount) {
-        lastBlock = cardSectorCount - 1;
-      }
-      if (!m_card->erase(firstBlock, lastBlock)) {
-        if (esp3dmsg) {
-          esp3dmsg->printMSG("erase failed");
-        }
-        return false;
-      }
-
-      firstBlock += ERASE_SIZE;
-      if ((n++) % 64 == 63) {
-        ESP3DHal::wait(0);
-      }
-    } while (firstBlock < cardSectorCount);
-
-    if (!m_card->readSector(0, sectorBuffer)) {
-      if (esp3dmsg) {
-        esp3dmsg->printMSG("readBlock");
-      }
-    }
-
-    ExFatFormatter exFatFormatter;
-    FatFormatter fatFormatter;
-
-    // Format exFAT if larger than 32GB.
-    bool rtn = cardSectorCount > 67108864
-                   ? exFatFormatter.format(m_card, sectorBuffer, nullptr)
-                   : fatFormatter.format(m_card, sectorBuffer, nullptr);
-
-    if (!rtn) {
-      if (esp3dmsg) {
-        esp3dmsg->printMSG("erase failed");
-      }
+    if (!m_card->erase(firstBlock, lastBlock)) {
+      esp3d_log_e("erase failed");
       return false;
     }
 
-    return true;
+    firstBlock += ERASE_SIZE;
+    if ((n++) % 64 == 63) {
+      ESP3DHal::wait(0);
+    }
+  } while (firstBlock < cardSectorCount);
+
+  if (!m_card->readSector(0, sectorBuffer)) {
+    esp3d_log("readBlock");
   }
-  if (esp3dmsg) {
-    esp3dmsg->printMSG("cannot erase");
+
+  ExFatFormatter exFatFormatter;
+  FatFormatter fatFormatter;
+
+  // Format exFAT if larger than 32GB.
+  bool rtn = cardSectorCount > 67108864
+                 ? exFatFormatter.format(m_card, sectorBuffer, nullptr)
+                 : fatFormatter.format(m_card, sectorBuffer, nullptr);
+
+  if (!rtn) {
+     esp3d_log_e(("erase failed");
+    return false;
   }
-  return false;
+
+  return true;
+}
+ esp3d_log_e(("cannot erase");
+return false;
 }
 
 ESP_SDFile ESP_SD::open(const char* path, uint8_t mode) {
@@ -318,35 +303,35 @@ ESP_SDFile ESP_SD::open(const char* path, uint8_t mode) {
   if (((strcmp(path, "/") == 0) &&
        ((mode == ESP_FILE_WRITE) || (mode == ESP_FILE_APPEND))) ||
       (strlen(path) == 0)) {
-    _sizechanged = true;
-    esp3d_log_e("reject  %s", path);
-    return ESP_SDFile();
+     _sizechanged = true;
+     esp3d_log_e("reject  %s", path);
+     return ESP_SDFile();
   }
   // path must start by '/'
   if (path[0] != '/') {
-    esp3d_log_e("%s is invalid path", path);
-    return ESP_SDFile();
+     esp3d_log_e("%s is invalid path", path);
+     return ESP_SDFile();
   }
   if (mode != ESP_FILE_READ) {
-    // check container exists
-    String p = path;
-    p.remove(p.lastIndexOf('/') + 1);
-    if (!exists(p.c_str())) {
-      esp3d_log_e("Error opening: %s", path);
-      return ESP_SDFile();
-    }
+     // check container exists
+     String p = path;
+     p.remove(p.lastIndexOf('/') + 1);
+     if (!exists(p.c_str())) {
+       esp3d_log_e("Error opening: %s", path);
+       return ESP_SDFile();
+     }
   }
   File tmp = SD.open(path, (mode == ESP_FILE_READ)    ? FILE_READ
                            : (mode == ESP_FILE_WRITE) ? FILE_WRITE
                                                       : FILE_WRITE);
   if (tmp) {
-    ESP_SDFile esptmp(&tmp, strcmp(path, "/") == 0 ? true : tmp.isDir(),
-                      (mode == ESP_FILE_READ) ? false : true, path);
-    esp3d_log("%s is a %s", path, tmp.isDir() ? "Dir" : "File");
-    return esptmp;
+     ESP_SDFile esptmp(&tmp, strcmp(path, "/") == 0 ? true : tmp.isDir(),
+                       (mode == ESP_FILE_READ) ? false : true, path);
+     esp3d_log("%s is a %s", path, tmp.isDir() ? "Dir" : "File");
+     return esptmp;
   } else {
-    esp3d_log_e("open %s failed", path);
-    return ESP_SDFile();
+     esp3d_log_e("open %s failed", path);
+     return ESP_SDFile();
   }
 }
 
@@ -354,14 +339,14 @@ bool ESP_SD::exists(const char* path) {
   bool res = false;
   // root should always be there if started
   if (strcmp(path, "/") == 0) {
-    return _started;
+     return _started;
   }
   res = SD.exists(path);
   if (!res) {
-    ESP_SDFile root = ESP_SD::open(path, ESP_FILE_READ);
-    if (root) {
-      res = root.isDirectory();
-    }
+     ESP_SDFile root = ESP_SD::open(path, ESP_FILE_READ);
+     if (root) {
+       res = root.isDirectory();
+     }
   }
   return res;
 }
@@ -376,52 +361,52 @@ bool ESP_SD::mkdir(const char* path) { return SD.mkdir(path); }
 bool ESP_SD::rmdir(const char* path) {
   String p = path;
   if (!p.endsWith("/")) {
-    p += '/';
+     p += '/';
   }
   if (!p.startsWith("/")) {
-    p = '/' + p;
+     p = '/' + p;
   }
   if (!exists(p.c_str())) {
-    return false;
+     return false;
   }
   bool res = true;
   std::stack<String> pathlist;
   pathlist.push(p);
   while (pathlist.size() > 0 && res) {
-    File dir = SD.open(pathlist.top().c_str());
-    dir.rewindDirectory();
-    File f = dir.openNextFile();
-    bool candelete = true;
-    while (f && res) {
-      if (f.isDir()) {
-        candelete = false;
-        String newdir;
-        char tmp[255];
-        f.getName(tmp, 254);
-        newdir = pathlist.top() + tmp;
-        newdir += "/";
-        pathlist.push(newdir);
-        f.close();
-        f = File();
-      } else {
-        char tmp[255];
-        f.getName(tmp, 254);
-        _sizechanged = true;
-        String filepath = pathlist.top() + tmp;
-        f.close();
-        if (!SD.remove(filepath.c_str())) {
-          res = false;
-        }
-        f = dir.openNextFile();
-      }
-    }
-    if (candelete) {
-      if (pathlist.top() != "/") {
-        res = SD.rmdir(pathlist.top().c_str());
-      }
-      pathlist.pop();
-    }
-    dir.close();
+     File dir = SD.open(pathlist.top().c_str());
+     dir.rewindDirectory();
+     File f = dir.openNextFile();
+     bool candelete = true;
+     while (f && res) {
+       if (f.isDir()) {
+         candelete = false;
+         String newdir;
+         char tmp[255];
+         f.getName(tmp, 254);
+         newdir = pathlist.top() + tmp;
+         newdir += "/";
+         pathlist.push(newdir);
+         f.close();
+         f = File();
+       } else {
+         char tmp[255];
+         f.getName(tmp, 254);
+         _sizechanged = true;
+         String filepath = pathlist.top() + tmp;
+         f.close();
+         if (!SD.remove(filepath.c_str())) {
+           res = false;
+         }
+         f = dir.openNextFile();
+       }
+     }
+     if (candelete) {
+       if (pathlist.top() != "/") {
+         res = SD.rmdir(pathlist.top().c_str());
+       }
+       pathlist.pop();
+     }
+     dir.close();
   }
   p = String();
   esp3d_log("count %d has error %d\n", pathlist.size(), res);
@@ -430,14 +415,14 @@ bool ESP_SD::rmdir(const char* path) {
 
 void ESP_SD::closeAll() {
   for (uint8_t i = 0; i < ESP_MAX_SD_OPENHANDLE; i++) {
-    tSDFile_handle[i].close();
-    tSDFile_handle[i] = File();
+     tSDFile_handle[i].close();
+     tSDFile_handle[i] = File();
   }
 }
 
 bool ESP_SDFile::seek(uint32_t pos, uint8_t mode) {
   if (mode == ESP_SEEK_END) {
-    return tSDFile_handle[_index].seek(-pos);  // based on SDFS comment
+     return tSDFile_handle[_index].seek(-pos);  // based on SDFS comment
   }
   return tSDFile_handle[_index].seek(pos);
 }
@@ -453,46 +438,46 @@ ESP_SDFile::ESP_SDFile(void* handle, bool isdir, bool iswritemode,
   _iswritemode = iswritemode;
   _size = 0;
   if (!handle) {
-    return;
+     return;
   }
   bool set = false;
   for (uint8_t i = 0; (i < ESP_MAX_SD_OPENHANDLE) && !set; i++) {
-    if (!tSDFile_handle[i]) {
-      tSDFile_handle[i] = *((File*)handle);
-      // filename
-      char tmp[255];
-      tSDFile_handle[i].getName(tmp, 254);
-      _filename = path;
-      // name
-      _name = tmp;
-      if (_name.endsWith("/")) {
-        _name.remove(_name.length() - 1, 1);
-        _isdir = true;
-      }
-      if (_name[0] == '/') {
-        _name.remove(0, 1);
-      }
-      int pos = _name.lastIndexOf('/');
-      if (pos != -1) {
-        _name.remove(0, pos + 1);
-      }
-      if (_name.length() == 0) {
-        _name = "/";
-      }
-      // size
-      _size = tSDFile_handle[i].size();
-      // time
-      if (!_isdir && !iswritemode) {
-        _lastwrite = getDateTimeFile(tSDFile_handle[i]);
+     if (!tSDFile_handle[i]) {
+       tSDFile_handle[i] = *((File*)handle);
+       // filename
+       char tmp[255];
+       tSDFile_handle[i].getName(tmp, 254);
+       _filename = path;
+       // name
+       _name = tmp;
+       if (_name.endsWith("/")) {
+         _name.remove(_name.length() - 1, 1);
+         _isdir = true;
+       }
+       if (_name[0] == '/') {
+         _name.remove(0, 1);
+       }
+       int pos = _name.lastIndexOf('/');
+       if (pos != -1) {
+         _name.remove(0, pos + 1);
+       }
+       if (_name.length() == 0) {
+         _name = "/";
+       }
+       // size
+       _size = tSDFile_handle[i].size();
+       // time
+       if (!_isdir && !iswritemode) {
+         _lastwrite = getDateTimeFile(tSDFile_handle[i]);
 
-      } else {
-        // no need date time for directory
-        _lastwrite = 0;
-      }
-      _index = i;
-      // esp3d_log("Opening File at index %d",_index);
-      set = true;
-    }
+       } else {
+         // no need date time for directory
+         _lastwrite = 0;
+       }
+       _index = i;
+       // esp3d_log("Opening File at index %d",_index);
+       set = true;
+     }
   }
 }
 // todo need also to add short filename
@@ -503,56 +488,56 @@ const char* ESP_SDFile::shortname() const {
   static char sname[13];
   File ftmp = SD.open(_filename.c_str());
   if (ftmp) {
-    ftmp.getSFN(sname, 12);
-    ftmp.close();
-    if (strlen(sname) == 0) {
-      return _name.c_str();
-    }
-    return sname;
+     ftmp.getSFN(sname, 12);
+     ftmp.close();
+     if (strlen(sname) == 0) {
+       return _name.c_str();
+     }
+     return sname;
   } else {
-    return _name.c_str();
+     return _name.c_str();
   }
 #endif
 }
 
 void ESP_SDFile::close() {
   if (_index != -1) {
-    // esp3d_log("Closing File at index %d", _index);
-    tSDFile_handle[_index].close();
-    // reopen if mode = write
-    // udate size + date
-    if (_iswritemode && !_isdir) {
-      File ftmp = SD.open(_filename.c_str());
-      if (ftmp) {
-        _size = ftmp.size();
-        _lastwrite = getDateTimeFile(ftmp);
-        ftmp.close();
-      }
-    }
-    tSDFile_handle[_index] = File();
-    // esp3d_log("Closing File at index %d",_index);
-    _index = -1;
+     // esp3d_log("Closing File at index %d", _index);
+     tSDFile_handle[_index].close();
+     // reopen if mode = write
+     // udate size + date
+     if (_iswritemode && !_isdir) {
+       File ftmp = SD.open(_filename.c_str());
+       if (ftmp) {
+         _size = ftmp.size();
+         _lastwrite = getDateTimeFile(ftmp);
+         ftmp.close();
+       }
+     }
+     tSDFile_handle[_index] = File();
+     // esp3d_log("Closing File at index %d",_index);
+     _index = -1;
   }
 }
 
 ESP_SDFile ESP_SDFile::openNextFile() {
   if ((_index == -1) || !_isdir) {
-    esp3d_log("openNextFile failed");
-    return ESP_SDFile();
+     esp3d_log("openNextFile failed");
+     return ESP_SDFile();
   }
   File tmp = tSDFile_handle[_index].openNextFile();
   if (tmp) {
-    char tmps[255];
-    tmp.getName(tmps, 254);
-    esp3d_log("tmp name :%s %s", tmps, (tmp.isDir()) ? "isDir" : "isFile");
-    String s = _filename;
-    if (s != "/") {
-      s += "/";
-    }
-    s += tmps;
-    ESP_SDFile esptmp(&tmp, tmp.isDir(), false, s.c_str());
-    esptmp.close();
-    return esptmp;
+     char tmps[255];
+     tmp.getName(tmps, 254);
+     esp3d_log("tmp name :%s %s", tmps, (tmp.isDir()) ? "isDir" : "isFile");
+     String s = _filename;
+     if (s != "/") {
+       s += "/";
+     }
+     s += tmps;
+     ESP_SDFile esptmp(&tmp, tmp.isDir(), false, s.c_str());
+     esptmp.close();
+     return esptmp;
   }
   return ESP_SDFile();
 }

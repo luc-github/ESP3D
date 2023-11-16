@@ -51,7 +51,7 @@ void ESP3DCommands::ESP160(int cmd_params_pos, ESP3DMessage* msg) {
 #endif  // AUTHENTICATION_FEATURE
   tmpstr = get_clean_param(msg, cmd_params_pos);
   ESP3DState setting_mode =
-      (ESP3DState)esp3dTftsettings.readByte(ESP_WEBSOCKET_ON);
+      (ESP3DState)ESP3DSettings::readByte(ESP_WEBSOCKET_ON);
   if (tmpstr.length() == 0) {
     if (setting_mode == ESP3DState::off) {
       ok_msg = "OFF";
@@ -60,7 +60,7 @@ void ESP3DCommands::ESP160(int cmd_params_pos, ESP3DMessage* msg) {
     }
   } else {
     if (stateON || stateOFF) {
-      if (!esp3dTftsettings.writeByte(ESP_WEBSOCKET_ON, stateOFF ? 0 : 1)) {
+      if (!ESP3DSettings::writeByte(ESP_WEBSOCKET_ON, stateOFF ? 0 : 1)) {
         hasError = true;
         error_msg = "Set value failed";
       }

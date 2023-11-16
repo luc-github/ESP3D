@@ -20,7 +20,7 @@
 
 #include "../../include/esp3d_config.h"
 #ifdef SENSOR_DEVICE
-#include "../../core/esp3d_message.h"
+#include "../../core/esp3d_commands.h"
 #include "../../core/esp3d_settings.h"
 #include "sensor.h"
 
@@ -34,10 +34,6 @@
 #if SENSOR_DEVICE == BMP280_DEVICE || SENSOR_DEVICE == BME280_DEVICE
 #include "bmx280.h"
 #endif  // BMP280_DEVICE || BME280_DEVICE
-
-#if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
-#include "../websocket/websocket_server.h"
-#endif  // WIFI_FEATURE || ETH_FEATURE
 
 ESP3DSensor esp3d_sensor;
 
@@ -158,7 +154,9 @@ void ESP3DSensor::handle() {
       _lastReadTime = millis();
 #if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
       String s = "SENSOR:" + data;
-      websocket_terminal_server.pushMSG(s.c_str());
+      esp3d_commands.dispatch(s.c_str(), ESP3DClientType::webui_websocket,
+                              no_id, ESP3DMessageType::unique,
+                              ESP3DClientType::system);
 #endif  // WIFI_FEATURE || ETH_FEATURE
     }
   }

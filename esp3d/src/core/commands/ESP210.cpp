@@ -22,139 +22,106 @@
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/sensor/sensor.h"
 #include "../esp3d_commands.h"
-#include "../esp3d_message.h"
 #include "../esp3d_settings.h"
 
-#define COMMANDID 210
+#define COMMAND_ID 210
 // Get Sensor Value / type/Set Sensor type
 //[ESP210]<type=NONE/xxx> <interval=XXX in millisec> json=<no> pwd=<admin
 // password>
 void ESP3DCommands::ESP210(int cmd_params_pos, ESP3DMessage* msg) {
-  /*
-  bool noError = true;
-  bool json = has_tag(cmd_params, "json");
-  String response;
-  String parameter;
-  bool hasParam = false;
-  int errorCode = 200;  // unless it is a server error use 200 as default and
-                        // set error in json instead
-#ifdef AUTHENTICATION_FEATURE
-  if (auth_type == guest) {
-    response = format_response(COMMANDID, json, false,
-                               "Guest user can't use this command");
-    noError = false;
-    errorCode = 401;
+  ESP3DClientType target = msg->origin;
+  ESP3DRequest requestId = msg->request_id;
+  (void)requestId;
+  msg->target = target;
+  msg->origin = ESP3DClientType::command;
+  bool hasError = false;
+  String error_msg = "Invalid parameters";
+  String ok_msg = "ok";
+  String stype = get_param(msg, cmd_params_pos, "type=");
+  String sint = get_param(msg, cmd_params_pos, "interval=");
+  bool json = hasTag(msg, cmd_params_pos, "json");
+  String tmpstr;
+#if defined(AUTHENTICATION_FEATURE)
+  if (msg->authentication_level == ESP3DAuthenticationLevel::guest) {
+    msg->authentication_level = ESP3DAuthenticationLevel::not_authenticated;
+    dispatchAuthenticationError(msg, COMMAND_ID, json);
+    return;
   }
-#else
-  (void)auth_type;
-#endif  // AUTHENTICATION_FEATURE
-  if (noError) {
-    parameter = clean_param(get_param(cmd_params, ""));
-    // get
-    if (parameter.length() == 0) {
-      String s;
-      if (json) {
-        s = "{\"type\":\"";
-      } else {
-        s = "type=";
-      }
-      if (esp3d_sensor.started()) {
-        s += esp3d_sensor.GetCurrentModelString();
-      } else {
-        s += "NONE";
-      }
-      if (json) {
-        s += ":\",\"interval\":";
-      } else {
-        s += ", interval=";
-      }
-      s += esp3d_sensor.interval();
-      if (json) {
-        s += ":\",\"value\":";
-      } else {
-        s += "ms, value=";
-      }
-      s += esp3d_sensor.GetData();
-      if (json) {
-        s += "\"}";
-      }
-      response = format_response(COMMANDID, json, true, s.c_str());
+#endif                                              // AUTHENTICATION_FEATURE
+  if (stype.length() == 0 && sint.length() == 0) {  // Get
+    String s;
+    if (json) {
+      s = "{\"type\":\"";
     } else {
-#ifdef AUTHENTICATION_FEATURE
-      if (auth_type != admin) {
-        response = format_response(COMMANDID, json, false,
-                                   "Wrong authentication level");
-        noError = false;
-        errorCode = 401;
+      s = "type=";
+    }
+    if (esp3d_sensor.started()) {
+      s += esp3d_sensor.GetCurrentModelString();
+    } else {
+      s += "NONE";
+    }
+    if (json) {
+      s += ":\",\"interval\":";
+    } else {
+      s += ", interval=";
+    }
+    s += esp3d_sensor.interval();
+    if (json) {
+      s += ":\",\"value\":";
+    } else {
+      s += "ms, value=";
+    }
+    s += esp3d_sensor.GetData();
+    if (json) {
+      s += "}";
+    }
+    ok_msg = s;
+  } else {  // Set
+    if (stype.length() != 0) {
+      stype.toUpperCase();
+      int8_t v = -1;
+      if (stype == "NONE") {
+        v = 0;
+      } else if (esp3d_sensor.isModelValid(
+                     esp3d_sensor.getIDFromString(stype.c_str()))) {
+        v = esp3d_sensor.getIDFromString(stype.c_str());
+      } else {
+        hasError = true;
+        error_msg = "Invalid parameter";
+        esp3d_log_e("%s", error_msg.c_str());
       }
-#endif  // AUTHENTICATION_FEATURE
-      if (noError) {
-        parameter = get_param(cmd_params, "type=");
-        if (parameter.length() != 0) {
-          hasParam = true;
-          parameter.toUpperCase();
-          int8_t v = -1;
-          if (parameter == "NONE") {
-            v = 0;
-          } else if (esp3d_sensor.isModelValid(
-                         esp3d_sensor.getIDFromString(parameter.c_str()))) {
-            v = esp3d_sensor.getIDFromString(parameter.c_str());
-          } else {
-            response =
-                format_response(COMMANDID, json, false, "Invalid parameter");
-            noError = false;
-          }
-          if (v != -1) {
-            if (!ESP3DSettings::writeByte(ESP_SENSOR_TYPE, v)) {
-              response = format_response(COMMANDID, json, false, "Set failed");
-              noError = false;
-            }
-            if (noError) {
-              if (!esp3d_sensor.begin()) {
-                response =
-                    format_response(COMMANDID, json, false, "Starting failed");
-                noError = false;
-              }
-            }
-
-          } else {
-            response = format_response(COMMANDID, json, false, "Invalid type");
-            noError = false;
-          }
+      if (v != -1) {
+        if (!ESP3DSettings::writeByte(ESP_SENSOR_TYPE, v)) {
+          hasError = true;
+          error_msg = "Set failed";
+          esp3d_log_e("%s", error_msg.c_str());
         }
+        if (!esp3d_sensor.begin()) {
+          hasError = true;
+          error_msg = "Starting failed";
+          esp3d_log_e("%s", error_msg.c_str());
+        }
+      } else {
+        hasError = true;
+        error_msg = "Invalid type";
+        esp3d_log_e("%s", error_msg.c_str());
       }
-      if (noError) {
-        parameter = get_param(cmd_params, "interval=");
-        if (parameter.length() != 0) {
-          hasParam = true;
-          if (!ESP3DSettings::writeUint32(ESP_SENSOR_INTERVAL,
-                                           parameter.toInt())) {
-            response = format_response(COMMANDID, json, false, "Set failed");
-            noError = false;
-          }
-          esp3d_sensor.setInterval(parameter.toInt());
-        }
-      }
-      if (noError) {
-        if (hasParam) {
-          response = format_response(COMMANDID, json, true, "ok");
-        } else {
-          response = format_response(COMMANDID, json, false, "No parameter");
-          noError = false;
-        }
+    }
+    if (!hasError && sint.length() != 0 &&
+        ESP3DSettings::isValidIntegerSetting(sint.toInt(),
+                                             ESP_SENSOR_INTERVAL)) {
+      if (!ESP3DSettings::writeUint32(ESP_SENSOR_INTERVAL, sint.toInt())) {
+        hasError = true;
+        error_msg = "Set failed";
+        esp3d_log_e("%s", error_msg.c_str());
+      } else {
+        esp3d_sensor.setInterval(sint.toInt());
       }
     }
   }
-  if (json) {
-    esp3dmsg->printLN(response.c_str());
-  } else {
-    if (noError) {
-      esp3dmsg->printMSG(response.c_str());
-    } else {
-      esp3dmsg->printERROR(response.c_str(), errorCode);
-    }
+  if (!dispatchAnswer(msg, COMMAND_ID, json, hasError,
+                      hasError ? error_msg.c_str() : ok_msg.c_str())) {
+    esp3d_log_e("Error sending response to clients");
   }
-  return noError;*/
 }
-
 #endif  // SENSOR_DEVICE

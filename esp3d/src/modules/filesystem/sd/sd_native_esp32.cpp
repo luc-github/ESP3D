@@ -154,11 +154,9 @@ bool ESP_SD::rename(const char *oldpath, const char *newpath) {
   return SD.rename(oldpath, newpath);
 }
 
-bool ESP_SD::format(ESP3D_Message *esp3dmsg) {
+bool ESP_SD::format() {
   // not available yet
-  if (esp3dmsg) {
-    esp3dmsg->printERROR("Not implemented!");
-  }
+  esp3d_log_e("Not implemented!");
   return false;
 }
 
