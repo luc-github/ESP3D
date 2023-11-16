@@ -31,7 +31,7 @@
 #ifdef TIMESTAMP_FEATURE
 #include "../../modules/time/time_service.h"
 #endif  // TIMESTAMP_FEATURE
-#define COMMANDID 400
+#define COMMAND_ID 400
 
 const char* YesNoLabels[] = {"no", "yes"};
 const char* YesNoValues[] = {"0", "1"};
@@ -164,334 +164,338 @@ const uint8_t SupportedSPIDividerStrSize =
 // Get full ESP3D settings
 //[ESP400]<pwd=admin>
 void ESP3DCommands::ESP400(int cmd_params_pos, ESP3DMessage* msg) {
-  /*
-  bool noError = true;
-  bool json = has_tag(cmd_params, "json");
-  String response;
-  String parameter;
-  uint8_t count = 0;
-  const long* bl = NULL;
-  int errorCode = 200;  // unless it is a server error use 200 as default and
-                        // set error in json instead
-#ifdef AUTHENTICATION_FEATURE
-  if (auth_type != admin) {
-    response =
-        format_response(COMMANDID, json, false, "Wrong authentication level");
-    noError = false;
-    errorCode = 401;
-    if (json) {
-      esp3dmsg->printLN(response.c_str());
-    } else {
-      if (noError) {
-        esp3dmsg->printERROR(response.c_str(), errorCode);
-      }
-    }
-    return false;
+  ESP3DClientType target = msg->origin;
+  ESP3DRequest requestId = msg->request_id;
+  msg->target = target;
+  msg->origin = ESP3DClientType::command;
+  bool json = hasTag(msg, cmd_params_pos, "json");
+  String tmpstr;
+#if ESP3D_AUTHENTICATION_FEATURE
+  if (msg->authentication_level == ESP3DAuthenticationLevel::guest) {
+    msg->authentication_level = ESP3DAuthenticationLevel::not_authenticated;
+    dispatchAuthenticationError(msg, COMMAND_ID, json);
+    return;
   }
-#else
-  (void)auth_type;
-#endif  // AUTHENTICATION_FEATURE
+#endif  // ESP3D_AUTHENTICATION_FEATURE
   if (json) {
-    esp3dmsg->print("{\"cmd\":\"400\",\"status\":\"ok\",\"data\":[");
+    tmpstr = "{\"cmd\":\"400\",\"status\":\"ok\",\"data\":[";
+
   } else {
-    esp3dmsg->println("Settings:");
+    tmpstr = "Settings:\n";
   }
+  msg->type = ESP3DMessageType::head;
+  if (!dispatch(msg, tmpstr.c_str())) {
+    esp3d_log_e("Error sending response to clients");
+    return;
+  }
+
 #if defined(WIFI_FEATURE) || defined(ETH_FEATURE) || defined(BT_FEATURE)
   // Hostname network/network
-  _dispatchSetting(json, "network/network", ESP_HOSTNAME, "hostname", NULL,
-                   NULL, 32, 1, 1, -1, NULL, true, output, true);
+  dispatchSetting(json, "network/network", ESP_HOSTNAME, "hostname", NULL, NULL,
+                  32, 1, 1, -1, NULL, true, target, requestId, true);
 #endif  // WIFI_FEATURE || ETH_FEATURE || BT_FEATURE
 
   // radio mode network/network
-  _dispatchSetting(json, "network/network", ESP_RADIO_MODE, "radio mode",
+  dispatchSetting(json, "network/network", ESP_RADIO_MODE, "radio mode",
                    RadioModeValues, RadioModeLabels,
                    sizeof(RadioModeValues) / sizeof(char*), -1, -1, -1, NULL,
-                   true, esp3dmsg);
+                   true, target, requestId);
 
   // Radio State at Boot
-  _dispatchSetting(json, "network/network", ESP_BOOT_RADIO_STATE, "radio_boot",
+  dispatchSetting(json, "network/network", ESP_BOOT_RADIO_STATE, "radio_boot",
                    YesNoValues, YesNoLabels,
                    sizeof(YesNoValues) / sizeof(char*), -1, -1, -1, NULL, true,
-                   esp3dmsg);
+                   target, requestId);
 #ifdef WIFI_FEATURE
   // STA SSID network/sta
-  _dispatchSetting(json, "network/sta", ESP_STA_SSID, "SSID", nullptr, nullptr,
-                   32, 1, 1, -1, nullptr, true, esp3dmsg);
+  dispatchSetting(json, "network/sta", ESP_STA_SSID, "SSID", nullptr, nullptr,
+                   32, 1, 1, -1, nullptr, true, target, requestId);
 
   // STA Password network/sta
-  _dispatchSetting(json, "network/sta", ESP_STA_PASSWORD, "pwd", nullptr,
-                   nullptr, 64, 8, 0, -1, nullptr, true, esp3dmsg);
+  dispatchSetting(json, "network/sta", ESP_STA_PASSWORD, "pwd", nullptr,
+                   nullptr, 64, 8, 0, -1, nullptr, true, target, requestId);
 
 #endif  // WIFI_FEATURE
 #if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
   // STA IP mode
-  _dispatchSetting(json, "network/sta", ESP_STA_IP_MODE, "ip mode",
+  dispatchSetting(json, "network/sta", ESP_STA_IP_MODE, "ip mode",
                    IpModeValues, IpModeLabels,
                    sizeof(IpModeLabels) / sizeof(char*), -1, -1, -1, nullptr,
-                   true, esp3dmsg);
+                   true, target, requestId);
   // STA static IP
-  _dispatchSetting(json, "network/sta", ESP_STA_IP_VALUE, "ip", nullptr,
-                   nullptr, -1, -1, -1, -1, nullptr, true, esp3dmsg);
+  dispatchSetting(json, "network/sta", ESP_STA_IP_VALUE, "ip", nullptr,
+                   nullptr, -1, -1, -1, -1, nullptr, true, target, requestId);
 
   // STA static Gateway
-  _dispatchSetting(json, "network/sta", ESP_STA_GATEWAY_VALUE, "gw", nullptr,
-                   nullptr, -1, -1, -1, -1, nullptr, true, esp3dmsg);
+  dispatchSetting(json, "network/sta", ESP_STA_GATEWAY_VALUE, "gw", nullptr,
+                   nullptr, -1, -1, -1, -1, nullptr, true, target, requestId);
   // STA static Mask
-  _dispatchSetting(json, "network/sta", ESP_STA_MASK_VALUE, "msk", nullptr,
-                   nullptr, -1, -1, -1, -1, nullptr, true, esp3dmsg);
+  dispatchSetting(json, "network/sta", ESP_STA_MASK_VALUE, "msk", nullptr,
+                   nullptr, -1, -1, -1, -1, nullptr, true, target, requestId);
   // STA static DNS
-  _dispatchSetting(json, "network/sta", ESP_STA_DNS_VALUE, "DNS", nullptr,
-                   nullptr, -1, -1, -1, -1, nullptr, true, esp3dmsg);
+  dispatchSetting(json, "network/sta", ESP_STA_DNS_VALUE, "DNS", nullptr,
+                   nullptr, -1, -1, -1, -1, nullptr, true, target, requestId);
 
 #endif  // WIFI_FEATURE || ETH_FEATURE
 
 #if defined(WIFI_FEATURE) || defined(ETH_FEATURE) || defined(BT_FEATURE)
   // Sta fallback mode
-  _dispatchSetting(json, "network/sta", ESP_STA_FALLBACK_MODE,
+  dispatchSetting(json, "network/sta", ESP_STA_FALLBACK_MODE,
                    "sta fallback mode", FallbackValues, FallbackLabels,
                    sizeof(FallbackValues) / sizeof(char*), -1, -1, -1, nullptr,
-                   true, esp3dmsg);
+                   true, target, requestId);
 #endif  // WIFI_FEATURE || ETH_FEATURE || BT_FEATURE
 #if defined(WIFI_FEATURE)
   // AP SSID network/ap
-  _dispatchSetting(json, "network/ap", ESP_AP_SSID, "SSID", nullptr, nullptr,
-                   32, 1, 1, -1, nullptr, true, esp3dmsg);
+  dispatchSetting(json, "network/ap", ESP_AP_SSID, "SSID", nullptr, nullptr,
+                   32, 1, 1, -1, nullptr, true, target, requestId);
 
   // AP password
-  _dispatchSetting(json, "network/ap", ESP_AP_PASSWORD, "pwd", nullptr, nullptr,
-                   64, 8, 0, -1, nullptr, true, esp3dmsg);
+  dispatchSetting(json, "network/ap", ESP_AP_PASSWORD, "pwd", nullptr, nullptr,
+                   64, 8, 0, -1, nullptr, true, target, requestId);
   // AP static IP
-  _dispatchSetting(json, "network/ap", ESP_AP_IP_VALUE, "ip", nullptr, nullptr,
-                   -1, -1, -1, -1, nullptr, true, esp3dmsg);
+  dispatchSetting(json, "network/ap", ESP_AP_IP_VALUE, "ip", nullptr, nullptr,
+                   -1, -1, -1, -1, nullptr, true, target, requestId);
 
   // AP Channel
-  _dispatchSetting(json, "network/ap", ESP_AP_CHANNEL, "channel",
+  dispatchSetting(json, "network/ap", ESP_AP_CHANNEL, "channel",
                    SupportedApChannelsStr, SupportedApChannelsStr,
                    sizeof(SupportedApChannelsStr) / sizeof(char*), -1, -1, -1,
-                   nullptr, true, esp3dmsg);
+                   nullptr, true, target, requestId);
 #endif  // WIFI_FEATURE
 
 #ifdef AUTHENTICATION_FEATURE
   // Admin password
-  _dispatchSetting(json, "security/security", ESP_ADMIN_PWD, "adm pwd", nullptr,
-                   nullptr, 20, 0, -1, -1, nullptr, true, esp3dmsg);
+  dispatchSetting(json, "security/security", ESP_ADMIN_PWD, "adm pwd", nullptr,
+                   nullptr, 20, 0, -1, -1, nullptr, true, target, requestId);
   // User password
-  _dispatchSetting(json, "security/security", ESP_USER_PWD, "user pwd", nullptr,
-                   nullptr, 20, 0, -1, -1, nullptr, true, esp3dmsg);
+  dispatchSetting(json, "security/security", ESP_USER_PWD, "user pwd", nullptr,
+                   nullptr, 20, 0, -1, -1, nullptr, true, target, requestId);
 
   // session timeout
-  _dispatchSetting(json, "security/security", ESP_SESSION_TIMEOUT,
+  dispatchSetting(json, "security/security", ESP_SESSION_TIMEOUT,
                    "session timeout", nullptr, nullptr, 255, 0, -1, -1, nullptr,
-                   true, esp3dmsg);
+                   true, target, requestId);
 
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
   // Secure Serial
-  _dispatchSetting(json, "security/security", ESP_SECURE_SERIAL, "serial",
+  dispatchSetting(json, "security/security", ESP_SECURE_SERIAL, "serial",
                    YesNoValues, YesNoLabels,
                    sizeof(YesNoValues) / sizeof(char*), -1, -1, -1, nullptr,
-                   true, esp3dmsg);
+                   true, target, requestId);
 
 #endif  // COMMUNICATION_PROTOCOL
 #endif  // AUTHENTICATION_FEATURE
 #ifdef HTTP_FEATURE
   // HTTP On service/http
-  _dispatchSetting(json, "service/http", ESP_HTTP_ON, "enable", YesNoValues,
+  dispatchSetting(json, "service/http", ESP_HTTP_ON, "enable", YesNoValues,
                    YesNoLabels, sizeof(YesNoValues) / sizeof(char*), -1, -1, -1,
-                   nullptr, true, esp3dmsg);
+                   nullptr, true, target, requestId);
   // HTTP port
-  _dispatchSetting(json, "service/http", ESP_HTTP_PORT, "port", nullptr,
-                   nullptr, 65535, 1, -1, -1, nullptr, true, esp3dmsg);
+  dispatchSetting(json, "service/http", ESP_HTTP_PORT, "port", nullptr,
+                   nullptr, 65535, 1, -1, -1, nullptr, true, target, requestId);
 #endif  // HTTP_FEATURE
 
 #ifdef TELNET_FEATURE
   // TELNET On service/telnet
-  _dispatchSetting(json, "service/telnetp", ESP_TELNET_ON, "enable",
+  dispatchSetting(json, "service/telnetp", ESP_TELNET_ON, "enable",
                    YesNoValues, YesNoLabels,
                    sizeof(YesNoValues) / sizeof(char*), -1, -1, -1, nullptr,
-                   true, esp3dmsg);
+                   true, target, requestId);
 
   // TELNET Port
-  _dispatchSetting(json, "service/telnetp", ESP_TELNET_PORT, "port", nullptr,
-                   nullptr, 65535, 1, -1, -1, nullptr, true, esp3dmsg);
+  dispatchSetting(json, "service/telnetp", ESP_TELNET_PORT, "port", nullptr,
+                   nullptr, 65535, 1, -1, -1, nullptr, true, target, requestId);
 #endif  // TELNET_FEATURE
 
 #ifdef WS_DATA_FEATURE
   // Websocket On service
-  _dispatchSetting(json, "service/websocketp", ESP_WEBSOCKET_ON, "enable",
+  dispatchSetting(json, "service/websocketp", ESP_WEBSOCKET_ON, "enable",
                    YesNoValues, YesNoLabels,
                    sizeof(YesNoValues) / sizeof(char*), -1, -1, -1, nullptr,
-                   true, esp3dmsg);
+                   true, target, requestId);
 
   // Websocket Port
-  _dispatchSetting(json, "service/websocketp", ESP_WEBSOCKET_PORT, "port",
-                   nullptr, nullptr, 65535, 1, -1, -1, nullptr, true, esp3dmsg);
+  dispatchSetting(json, "service/websocketp", ESP_WEBSOCKET_PORT, "port",
+                   nullptr, nullptr, 65535, 1, -1, -1, nullptr, true, target,
+                   requestId);
 #endif  // WS_DATA_FEATURE
 
 #ifdef WEBDAV_FEATURE
   // WebDav On service
-  _dispatchSetting(json, "service/webdavp", ESP_WEBDAV_ON, "enable",
+  dispatchSetting(json, "service/webdavp", ESP_WEBDAV_ON, "enable",
                    YesNoValues, YesNoLabels,
                    sizeof(YesNoValues) / sizeof(char*), -1, -1, -1, nullptr,
-                   true, esp3dmsg);
+                   true, target, requestId);
 
   // WebDav Port
-  _dispatchSetting(json, "service/webdavp", ESP_WEBDAV_PORT, "port", nullptr,
-                   nullptr, 65535, 1, -1, -1, nullptr, true, esp3dmsg);
+  dispatchSetting(json, "service/webdavp", ESP_WEBDAV_PORT, "port", nullptr,
+                   nullptr, 65535, 1, -1, -1, nullptr, true, target, requestId);
 #endif  // WEBDAV_FEATURE
 
 #ifdef FTP_FEATURE
   // FTP On service/ftp
-  _dispatchSetting(json, "service/ftp", ESP_FTP_ON, "enable", YesNoValues,
+  dispatchSetting(json, "service/ftp", ESP_FTP_ON, "enable", YesNoValues,
                    YesNoLabels, sizeof(YesNoValues) / sizeof(char*), -1, -1, -1,
-                   nullptr, true, esp3dmsg);
+                   nullptr, true, target, requestId);
 
   // FTP Ports
   // CTRL Port
-  _dispatchSetting(json, "service/ftp", ESP_FTP_CTRL_PORT, "control port",
-                   nullptr, nullptr, 65535, 1, -1, -1, nullptr, true, esp3dmsg);
+  dispatchSetting(json, "service/ftp", ESP_FTP_CTRL_PORT, "control port",
+                   nullptr, nullptr, 65535, 1, -1, -1, nullptr, true, target,
+                   requestId);
 
   // Active Port
-  _dispatchSetting(json, "service/ftp", ESP_FTP_DATA_ACTIVE_PORT, "active port",
-                   nullptr, nullptr, 65535, 1, -1, -1, nullptr, true, esp3dmsg);
+  dispatchSetting(json, "service/ftp", ESP_FTP_DATA_ACTIVE_PORT, "active port",
+                   nullptr, nullptr, 65535, 1, -1, -1, nullptr, true, target,
+                   requestId);
 
   // Passive Port
-  _dispatchSetting(json, "service/ftp", ESP_FTP_DATA_PASSIVE_PORT,
+  dispatchSetting(json, "service/ftp", ESP_FTP_DATA_PASSIVE_PORT,
                    "passive port", nullptr, nullptr, 65535, 1, -1, -1, nullptr,
-                   true, esp3dmsg);
+                   true, target, requestId);
 #endif  // FTP_FEATURE
 
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
   // Serial bridge On service
-  _dispatchSetting(json, "service/serial_bridge", ESP_SERIAL_BRIDGE_ON,
+  dispatchSetting(json, "service/serial_bridge", ESP_SERIAL_BRIDGE_ON,
                    "enable", YesNoValues, YesNoLabels,
                    sizeof(YesNoValues) / sizeof(char*), -1, -1, -1, nullptr,
-                   true, esp3dmsg);
+                   true, target, requestId);
 
   // Baud Rate
-  _dispatchSetting(json, "service/serial_bridge", ESP_SERIAL_BRIDGE_BAUD,
+  dispatchSetting(json, "service/serial_bridge", ESP_SERIAL_BRIDGE_BAUD,
                    "baud", SupportedBaudListSizeStr, SupportedBaudListSizeStr,
                    sizeof(SupportedBaudListSizeStr) / sizeof(char*), -1, -1, -1,
-                   nullptr, true, esp3dmsg);
+                   nullptr, true, target, requestId);
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
 
 #ifdef TIMESTAMP_FEATURE
 
   // Internet Time
-  _dispatchSetting(json, "service/time", ESP_INTERNET_TIME, "i-time",
+  dispatchSetting(json, "service/time", ESP_INTERNET_TIME, "i-time",
                    YesNoValues, YesNoLabels,
                    sizeof(YesNoValues) / sizeof(char*), -1, -1, -1, nullptr,
-                   true, esp3dmsg);
+                   true, target, requestId);
 
   // Time zone
-  _dispatchSetting(json, "service/time", ESP_TIME_ZONE, "tzone",
+  dispatchSetting(json, "service/time", ESP_TIME_ZONE, "tzone",
                    SupportedTimeZones, SupportedTimeZones,
-                   SupportedTimeZonesSize, -1, -1, -1, nullptr, true, esp3dmsg);
+                   SupportedTimeZonesSize, -1, -1, -1, nullptr, true, target,
+                   requestId);
 
   // Time Server1
-  _dispatchSetting(json, "service/time", ESP_TIME_SERVER1, "t-server", nullptr,
-                   nullptr, 127, 0, -1, -1, nullptr, true, esp3dmsg);
+  dispatchSetting(json, "service/time", ESP_TIME_SERVER1, "t-server", nullptr,
+                   nullptr, 127, 0, -1, -1, nullptr, true, target, requestId);
 
   // Time Server2
-  _dispatchSetting(json, "service/time", ESP_TIME_SERVER2, "t-server", nullptr,
-                   nullptr, 127, 0, -1, -1, nullptr, true, esp3dmsg);
+  dispatchSetting(json, "service/time", ESP_TIME_SERVER2, "t-server", nullptr,
+                   nullptr, 127, 0, -1, -1, nullptr, true, target, requestId);
 
   // Time Server3
-  _dispatchSetting(json, "service/time", ESP_TIME_SERVER3, "t-server", nullptr,
-                   nullptr, 127, 0, -1, -1, nullptr, true, esp3dmsg);
+  dispatchSetting(json, "service/time", ESP_TIME_SERVER3, "t-server", nullptr,
+                   nullptr, 127, 0, -1, -1, nullptr, true, target, requestId);
 #endif  // TIMESTAMP_FEATURE
 
 #ifdef NOTIFICATION_FEATURE
   // Auto notification
-  _dispatchSetting(json, "service/notification", ESP_AUTO_NOTIFICATION,
+  dispatchSetting(json, "service/notification", ESP_AUTO_NOTIFICATION,
                    "auto notif", YesNoValues, YesNoLabels,
                    sizeof(YesNoValues) / sizeof(char*), -1, -1, -1, nullptr,
-                   true, esp3dmsg);
+                   true, target, requestId);
 
   // Notification type
-  _dispatchSetting(json, "service/notification", ESP_NOTIFICATION_TYPE,
+  dispatchSetting(json, "service/notification", ESP_NOTIFICATION_TYPE,
                    "notification", NotificationsValues, NotificationsLabels,
                    sizeof(NotificationsValues) / sizeof(char*), -1, -1, -1,
-                   nullptr, true, esp3dmsg);
+                   nullptr, true, target, requestId);
 
   // Token 1
-  _dispatchSetting(json, "service/notification", ESP_NOTIFICATION_TOKEN1, "t1",
-                   nullptr, nullptr, 63, 1, 1, -1, nullptr, true, esp3dmsg);
+  dispatchSetting(json, "service/notification", ESP_NOTIFICATION_TOKEN1, "t1",
+                   nullptr, nullptr, 63, 1, 1, -1, nullptr, true, target,
+                   requestId);
 
   // Token 2
-  _dispatchSetting(json, "service/notification", ESP_NOTIFICATION_TOKEN2, "t2",
-                   nullptr, nullptr, 63, 1, 1, -1, nullptr, true, esp3dmsg);
+  dispatchSetting(json, "service/notification", ESP_NOTIFICATION_TOKEN2, "t2",
+                   nullptr, nullptr, 63, 1, 1, -1, nullptr, true, target,
+                   requestId);
 
   // Notifications Settings
-  _dispatchSetting(json, "service/notification", ESP_NOTIFICATION_SETTINGS,
+  dispatchSetting(json, "service/notification", ESP_NOTIFICATION_SETTINGS,
                    "ts", nullptr, nullptr, 128, 0, -1, -1, nullptr, true,
-                   esp3dmsg);
+                   target, requestId);
 #endif  // NOTIFICATION_FEATURE
 
 #ifdef BUZZER_DEVICE
   // Buzzer state
-  _dispatchSetting(json, "device/device", ESP_BUZZER, "buzzer", YesNoValues,
+  dispatchSetting(json, "device/device", ESP_BUZZER, "buzzer", YesNoValues,
                    YesNoLabels, sizeof(YesNoValues) / sizeof(char*), -1, -1, -1,
-                   nullptr, true, esp3dmsg);
+                   nullptr, true, target, requestId);
 #endif  // BUZZER_DEVICE
 
 #ifdef SENSOR_DEVICE
   // Sensor type
-  _dispatchSetting(json, "device/sensor", ESP_SENSOR_TYPE, "type", SensorValues,
+  dispatchSetting(json, "device/sensor", ESP_SENSOR_TYPE, "type", SensorValues,
                    SensorLabels, sizeof(SensorValues) / sizeof(char*), -1, -1,
-                   -1, nullptr, true, esp3dmsg);
+                   -1, nullptr, true, target, requestId);
 
   // Sensor interval
-  _dispatchSetting(json, "device/sensor", ESP_SENSOR_INTERVAL, "intervalms",
-                   nullptr, nullptr, 60000, 0, -1, -1, nullptr, true, esp3dmsg);
+  dispatchSetting(json, "device/sensor", ESP_SENSOR_INTERVAL, "intervalms",
+                   nullptr, nullptr, 60000, 0, -1, -1, nullptr, true, target,
+                   requestId);
 
 #endif  // SENSOR_DEVICE
 #if defined(SD_DEVICE)
 #if SD_DEVICE != ESP_SDIO
   // SPI SD Divider
-  _dispatchSetting(json, "device/sd", ESP_SD_SPEED_DIV, "speedx",
+  dispatchSetting(json, "device/sd", ESP_SD_SPEED_DIV, "speedx",
                    SupportedSPIDividerStr, SupportedSPIDividerStr,
                    SupportedSPIDividerStrSize, -1, -1, -1, nullptr, true,
-                   esp3dmsg);
+                   target, requestId);
 #endif  // SD_DEVICE != ESP_SDIO
 #ifdef SD_UPDATE_FEATURE
   // SD CHECK UPDATE AT BOOT feature
-  _dispatchSetting(json, "device/sd", ESP_SD_CHECK_UPDATE_AT_BOOT, "SD updater",
+  dispatchSetting(json, "device/sd", ESP_SD_CHECK_UPDATE_AT_BOOT, "SD updater",
                    YesNoValues, YesNoLabels,
                    sizeof(YesNoValues) / sizeof(char*), -1, -1, -1, nullptr,
-                   true, esp3dmsg);
+                   true, target, requestId);
 #endif  // SD_UPDATE_FEATURE
 #endif  // SD_DEVICE
 
 #if !defined(FIXED_FW_TARGET)
   // Target FW
-  _dispatchSetting(json, "system/system", ESP_TARGET_FW, "targetfw",
+  dispatchSetting(json, "system/system", ESP_TARGET_FW, "targetfw",
                    FirmwareValues, FirmwareLabels,
                    sizeof(FirmwareValues) / sizeof(char*), -1, -1, -1, nullptr,
-                   true, esp3dmsg);
+                   true, target, requestId);
 #endif  // FIXED_FW_TARGET
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
   // Baud Rate
-  _dispatchSetting(json, "system/system", ESP_BAUD_RATE, "baud",
+  dispatchSetting(json, "system/system", ESP_BAUD_RATE, "baud",
                    SupportedBaudListSizeStr, SupportedBaudListSizeStr,
                    sizeof(SupportedBaudListSizeStr) / sizeof(char*), -1, -1, -1,
-                   nullptr, true, esp3dmsg);
+                   nullptr, true, target, requestId);
 #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
         // MKS_SERIAL
 
   // Start delay
-  _dispatchSetting(json, "system/boot", ESP_BOOT_DELAY, "bootdelay", nullptr,
-                   nullptr, 40000, 0, -1, -1, nullptr, true, esp3dmsg);
+  dispatchSetting(json, "system/boot", ESP_BOOT_DELAY, "bootdelay", nullptr,
+                   nullptr, 40000, 0, -1, -1, nullptr, true, target, requestId);
 
   // Verbose boot
-  _dispatchSetting(json, "system/boot", ESP_VERBOSE_BOOT, "verbose",
+  dispatchSetting(json, "system/boot", ESP_VERBOSE_BOOT, "verbose",
                    YesNoValues, YesNoLabels,
                    sizeof(YesNoValues) / sizeof(char*), -1, -1, -1, nullptr,
-                   true, esp3dmsg);
+                   true, target, requestId);
+
 
   if (json) {
-    esp3dmsg->print("]}");
+    if (!dispatch("]}", target, requestId, ESP3DMessageType::tail)) {
+      esp3d_log_e("Error sending response to clients");
+    }
   } else {
-    esp3dmsg->println("ok");
+    if (!dispatch("ok\n", target, requestId, ESP3DMessageType::tail)) {
+      esp3d_log_e("Error sending response to clients");
+    }
   }
-  return true;*/
 }
