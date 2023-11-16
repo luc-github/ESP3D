@@ -458,6 +458,16 @@
  * Sensor feature
  *
  ************************************/
+// ESP3D connected sensor
+// NO_SENSOR_DEVICE
+// DHT11_DEVICE
+// DHT22_DEVICE
+// ANALOG_DEVICE
+// BMP280_DEVICE
+// BME280_DEVICE
+// Sensor connected to ESP board
+// #define SENSOR_DEVICE DHT11_DEVICE
+
 /* Sensor pin
  * The pin used for the sensor
  */
