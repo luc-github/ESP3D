@@ -22,126 +22,137 @@
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/wifi/wificonfig.h"
 #include "../esp3d_commands.h"
-#include "../esp3d_message.h"
 #include "../esp3d_settings.h"
+#include "../esp3d_string.h"
 
 // Get available AP list (limited to 30)
 // output is JSON or plain text according parameter
 //[ESP410]json=<no>
-#define COMMANDID 410
+#define COMMAND_ID 410
 void ESP3DCommands::ESP410(int cmd_params_pos, ESP3DMessage* msg) {
-  /*
-  bool noError = true;
-  bool json = has_tag(cmd_params, "json");
-  String response;
-  String parameter;
-  int errorCode = 200;  // unless it is a server error use 200 as default and
-                        // set error in json instead
-
-#ifdef AUTHENTICATION_FEATURE
-  if (auth_type == guest) {
-    response = format_response(COMMANDID, json, false,
-                               "Guest user can't use this command");
-    noError = false;
-    errorCode = 401;
+  ESP3DClientType target = msg->origin;
+  ESP3DRequest requestId = msg->request_id;
+  (void)requestId;
+  msg->target = target;
+  msg->origin = ESP3DClientType::command;
+  bool hasError = false;
+  String error_msg = "Invalid parameters";
+  String ok_msg = "ok";
+  bool json = hasTag(msg, cmd_params_pos, "json");
+  String tmpstr;
+#if defined(AUTHENTICATION_FEATURE)
+  if (msg->authentication_level == ESP3DAuthenticationLevel::guest) {
+    msg->authentication_level = ESP3DAuthenticationLevel::not_authenticated;
+    dispatchAuthenticationError(msg, COMMAND_ID, json);
+    return;
   }
-#else
-  (void)auth_type;
 #endif  // AUTHENTICATION_FEATURE
-  if (noError) {
-    parameter = clean_param(get_param(cmd_params, ""));
-    if (parameter.length() == 0) {
-      // Backup current mode
+  tmpstr = get_clean_param(msg, cmd_params_pos);
+  if (tmpstr.length() != 0) {
+    hasError = true;
+    error_msg = "This command doesn't take parameters";
+    esp3d_log_e("%s", error_msg.c_str());
+
+  } else {
+    if (WiFi.getMode() == WIFI_STA || WiFi.getMode() == WIFI_AP) {
       uint8_t currentmode = WiFi.getMode();
       int n = 0;
       uint8_t total = 0;
-      if (!json) {
-        esp3dmsg->printMSGLine("Start Scan");
+      if (json) {
+        tmpstr = "{\"cmd\":\"410\",\"status\":\"ok\",\"data\":[";
+
+      } else {
+        tmpstr = "Start Scan\n";
       }
+      msg->type = ESP3DMessageType::head;
+      if (!dispatch(msg, tmpstr.c_str())) {
+        esp3d_log_e("Error sending response to clients");
+        return;
+      }
+      // Set Sta Mode if necessary
       if (currentmode == WIFI_AP) {
         WiFi.mode(WIFI_AP_STA);
       }
+      // Scan
       n = WiFi.scanNetworks();
-      if (currentmode == WIFI_AP) {
-        WiFi.mode((WiFiMode_t)currentmode);
-      }
-      if (json) {
-        esp3dmsg->print("{\"cmd\":\"410\",\"status\":\"ok\",\"data\":[");
-      }
-      String line;
+
       for (int i = 0; i < n; ++i) {
-        line = "";
+        tmpstr = "";
         if (WiFi.RSSI(i) >= MIN_RSSI) {
           if (total > 0) {
             if (json) {
-              line += ",";
+              tmpstr += ",";
             }
           }
           total++;
           if (json) {
-            line += "{\"SSID\":\"";
-            line += ESP3D_Message::encodeString(WiFi.SSID(i).c_str());
+            tmpstr += "{\"SSID\":\"";
+            tmpstr += esp3d_string::encodeString(WiFi.SSID(i).c_str());
           } else {
-            line += WiFi.SSID(i).c_str();
+            tmpstr += WiFi.SSID(i).c_str();
           }
           if (json) {
-            line += "\",\"SIGNAL\":\"";
+            tmpstr += "\",\"SIGNAL\":\"";
           } else {
-            line += "\t";
+            tmpstr += "\t";
           }
-          line += String(WiFiConfig::getSignal(WiFi.RSSI(i)));
+          tmpstr += String(WiFiConfig::getSignal(WiFi.RSSI(i)));
           if (!json) {
-            line += "%";
+            tmpstr += "%";
           }
           if (json) {
-            line += "\",\"IS_PROTECTED\":\"";
+            tmpstr += "\",\"IS_PROTECTED\":\"";
           }
           if (WiFi.encryptionType(i) == ENC_TYPE_NONE) {
             if (json) {
-              line += "0";
+              tmpstr += "0";
             } else {
-              line += "\tOpen";
+              tmpstr += "\tOpen";
             }
           } else {
             if (json) {
-              line += "1";
+              tmpstr += "1";
             } else {
-              line += "\tSecure";
+              tmpstr += "\tSecure";
             }
           }
           if (json) {
-            line += "\"}";
-          }
-          if (json) {
-            esp3dmsg->print(line.c_str());
+            tmpstr += "\"}";
           } else {
-            esp3dmsg->printMSGLine(line.c_str());
+            tmpstr += "\n";
+          }
+          if (!dispatch(tmpstr.c_str(), target, requestId,
+                        ESP3DMessageType::core)) {
+            esp3d_log_e("Error sending answer to clients");
           }
         }
       }
+
+      // Restore mode
+      if (currentmode == WIFI_AP) {
+        WiFi.mode((WiFiMode_t)currentmode);
+      }
       WiFi.scanDelete();
       if (json) {
-        esp3dmsg->printLN("]}");
+        tmpstr = "]}";
       } else {
-        esp3dmsg->printMSGLine("End Scan");
+        tmpstr = "End Scan\n";
       }
-      return true;
+      if (!dispatch(tmpstr.c_str(), target, requestId,
+                    ESP3DMessageType::tail)) {
+        esp3d_log_e("Error sending answer to clients");
+      }
+      return;
     } else {
-      response = format_response(COMMANDID, json, false,
-                                 "This command doesn't take parameters");
-      noError = false;
+      hasError = true;
+      error_msg = "WiFi not enabled";
+      esp3d_log_e("%s", error_msg.c_str());
     }
   }
-  if (json) {
-    esp3dmsg->printLN(response.c_str());
-  } else {
-    if (noError) {
-      esp3dmsg->printMSG(response.c_str());
-    } else {
-      esp3dmsg->printERROR(response.c_str(), errorCode);
-    }
+  if (!dispatchAnswer(msg, COMMAND_ID, json, hasError,
+                      hasError ? error_msg.c_str() : ok_msg.c_str())) {
+    esp3d_log_e("Error sending response to clients");
   }
-  return noError;*/
 }
 
 #endif  // WIFI_FEATURE

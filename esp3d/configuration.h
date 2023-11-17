@@ -444,12 +444,12 @@
 /* Enable buzzer
  * Your esp board has a passive buzzer
  */
-// #define BUZZER_DEVICE
+#define BUZZER_DEVICE
 
 /* Buzzer pin
  * The pin used for the passive buzzer
  */
-// #define ESP3D_BUZZER_PIN 33
+#define ESP3D_BUZZER_PIN 33
 
 /************************************
  *

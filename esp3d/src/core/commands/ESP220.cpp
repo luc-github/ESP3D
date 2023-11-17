@@ -20,7 +20,6 @@
 #include "../../include/esp3d_config.h"
 #include "../../modules/authentication/authentication_service.h"
 #include "../esp3d_commands.h"
-#include "../esp3d_message.h"
 #include "../esp3d_settings.h"
 
 #define COMMAND_ID 220

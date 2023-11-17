@@ -26,6 +26,7 @@
 
 #include "../../core/esp3d_settings.h"
 #include "buzzer.h"
+// #include "esp32-hal-ledc.h"
 
 BuzzerDevice esp3d_buzzer;
 Ticker buzzer_tick;
@@ -52,6 +53,10 @@ bool BuzzerDevice::begin() {
   if (_started) {
     end();
   }
+#if defined(ARDUINO_ARCH_ESP32)
+  setToneChannel(0);
+  ledcSetup(0, 12000, 8);
+#endif  // defined(ARDUINO_ARCH_ESP32)
   if (ESP3DSettings::readByte(ESP_BUZZER) == 1) {
     _started = true;
     playsound(5000, 240);
