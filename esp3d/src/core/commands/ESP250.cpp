@@ -56,23 +56,20 @@ void ESP3DCommands::ESP250(int cmd_params_pos, ESP3DMessage* msg) {
   }
 #endif  // AUTHENTICATION_FEATURE
 
-  if (f == -1 && d == 0) {
+  if (freq == -1 && duration == 0) {
     esp3d_buzzer.beep();
   } else {
-    if (f == -1) {
-      f = 1000;
+    if (freq == -1) {
+      freq = 1000;
     }
-    if (d != 0) {
-      esp3d_buzzer.beep(f, d);
+    if (duration != 0) {
+      esp3d_buzzer.beep(freq, duration);
     }
   }
   if (!dispatchAnswer(msg, COMMAND_ID, json, hasError,
                       hasError ? error_msg.c_str() : ok_msg.c_str())) {
     esp3d_log_e("Error sending response to clients");
   }
-
-  return noError;
-  * /
 }
 
 #endif  // BUZZER_DEVICE
