@@ -25,13 +25,111 @@
 #include "../esp3d_message.h"
 #include "../esp3d_settings.h"
 
-#define COMMANDID 610
+#define COMMAND_ID 610
 // Set/Get Notification settings
 //[ESP610]type=<NONE/PUSHOVER/EMAIL/LINE/IFTTT> T1=<token1> T2=<token2>
 // TS=<Settings> json=<no> [pwd=<admin password>] Get will give type and
 // settings
 // only not the protected T1/T2
 void ESP3DCommands::ESP610(int cmd_params_pos, ESP3DMessage* msg) {
+  ESP3DClientType target = msg->origin;
+  ESP3DRequest requestId = msg->request_id;
+  (void)requestId;
+  msg->target = target;
+  msg->origin = ESP3DClientType::command;
+  bool hasError = false;
+  String error_msg = "Invalid parameters";
+  String ok_msg = "ok";
+  bool json = hasTag(msg, cmd_params_pos, "json");
+  String tmpstr;
+  const char* cmdList[] = {"type=", "T1=", "T2=", "TS="};
+  uint8_t cmdListSize = sizeof(cmdList) / sizeof(char*);
+  const char* notificationStr[] = {"NONE", "PUSHOVER", "EMAIL",
+                                   "LINE", "TELEGRAM", "IFTTT"};
+  uint8_t notificationStrSize = sizeof(notificationStr) / sizeof(char*);
+  const ESP3DSettingIndex settingIndex[] = {
+      ESP_NOTIFICATION_TYPE, ESP_NOTIFICATION_TOKEN1, ESP_NOTIFICATION_TOKEN2,
+      ESP_NOTIFICATION_SETTINGS};
+#if defined(AUTHENTICATION_FEATURE)
+  if (msg->authentication_level == ESP3DAuthenticationLevel::guest) {
+    msg->authentication_level = ESP3DAuthenticationLevel::not_authenticated;
+    dispatchAuthenticationError(msg, COMMAND_ID, json);
+    return;
+  }
+#endif  // AUTHENTICATION_FEATURE
+  tmpstr = get_clean_param(msg, cmd_params_pos);
+  if (tmpstr.length() == 0) {
+    if (json) {
+      ok_msg = "{\"type\":\"";
+    } else {
+      ok_msg = "type: ";
+    }
+    uint8_t Ntype = ESP3DSettings::readByte(ESP_NOTIFICATION_TYPE);
+    ok_msg += Ntype < notificationStrSize ? notificationStr[Ntype] : "Unknown";
+
+    if (json) {
+      ok_msg += "\",\"TS\":\"";
+    } else {
+      ok_msg += ", TS: ";
+    }
+    ok_msg += ESP3DSettings::readString(ESP_NOTIFICATION_SETTINGS);
+
+    if (json) {
+      ok_msg += "\"}";
+    }
+  } else {
+    bool hasParam = false;
+    for (uint8_t i = 0; i < cmdListSize; i++) {
+      bool isPresent = false;
+      tmpstr = get_param(msg, cmd_params_pos, cmdList[i], &isPresent);
+      if (tmpstr.length() != 0 || isPresent) {
+        hasParam = true;
+        if (i > 0) {
+          if (ESP3DSettings::isValidStringSetting(tmpstr.c_str(),
+                                                  settingIndex[i])) {
+            esp3d_log("Value %s is valid", tmpstr.c_str());
+            if (!ESP3DSettings::writeString(settingIndex[i], tmpstr.c_str())) {
+              hasError = true;
+              error_msg = "Set value failed";
+            }
+          } else {
+            hasError = true;
+            error_msg = "Invalid parameter";
+          }
+        } else {
+          tmpstr.toUpperCase();
+          int id = -1;
+          for (uint8_t j = 0; j < notificationStrSize; j++) {
+            if (tmpstr == notificationStr[j]) {
+              id = j;
+              break;
+            }
+          }
+          if (id != -1) {
+            if (!ESP3DSettings::writeByte(ESP_NOTIFICATION_TYPE, id)) {
+              hasError = true;
+              error_msg = "Set value failed";
+            }
+          } else {
+            hasError = true;
+            error_msg = "Invalid parameter";
+            esp3d_log_e("%s", error_msg.c_str());
+          }
+        }
+      }
+    }
+    if (!hasParam && !hasError) {
+      hasError = true;
+      error_msg = "Invalid parameter";
+    }
+    if (!hasError) {
+      notificationsservice.begin();
+    }
+  }
+  if (!dispatchAnswer(msg, COMMAND_ID, json, hasError,
+                      hasError ? error_msg.c_str() : ok_msg.c_str())) {
+    esp3d_log_e("Error sending response to clients");
+  }
   /*
   bool noError = true;
   bool json = has_tag(cmd_params, "json");

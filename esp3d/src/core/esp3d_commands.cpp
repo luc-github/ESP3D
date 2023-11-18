@@ -593,10 +593,9 @@ void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
       break;
       // Set/Get Notification settings
       //[ESP610]type=<NONE/PUSHOVER/EMAIL/LINE> T1=<token1> T2=<token2>
-      // TS=<Settings> pwd=<admin password> Get will give type and
-    settings only
-        // not the protected T1/T2
-        case 610:
+      // TS=<Settings> pwd=<admin password> Get will give type and settings only
+      // not the protected T1/T2
+    case 610:
       ESP610(cmd_params_pos, msg);
       break;
     // Send Notification using URL

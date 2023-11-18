@@ -163,12 +163,12 @@
 
 // Enable notifications
 // Allows to send notifications to the user
-// #define NOTIFICATION_FEATURE
+#define NOTIFICATION_FEATURE
 
 /* Notification message when online
  * The message that will be sent when the ESP is online
  */
-// #define NOTIFICATION_ESP_ONLINE "Hi, %ESP_NAME% is now online at %ESP_IP%"
+#define NOTIFICATION_ESP_ONLINE "Hi, %ESP_NAME% is now online at %ESP_IP%"
 
 /* Notification title message
  * The title of notification
@@ -444,12 +444,12 @@
 /* Enable buzzer
  * Your esp board has a passive buzzer
  */
-#define BUZZER_DEVICE
+// #define BUZZER_DEVICE
 
 /* Buzzer pin
  * The pin used for the passive buzzer
  */
-#define ESP3D_BUZZER_PIN 33
+// #define ESP3D_BUZZER_PIN 33
 
 /************************************
  *

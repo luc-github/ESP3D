@@ -25,54 +25,43 @@
 #include "../esp3d_message.h"
 #include "../esp3d_settings.h"
 
-#define COMMANDID 620
+#define COMMAND_ID 620
 // Send Notification using URL
 //[ESP620]URL=<encoded url> json=<no>[pwd=<admin/user password>]
 void ESP3DCommands::ESP620(int cmd_params_pos, ESP3DMessage* msg) {
-  /*
-  bool noError = true;
-  bool json = has_tag(cmd_params, "json");
-  String response;
-  String parameter;
-  int errorCode = 200;  // unless it is a server error use 200 as default and
-                        // set error in json instead
-#ifdef AUTHENTICATION_FEATURE
-  if (auth_type == guest) {
-    response = format_response(COMMANDID, json, false,
-                               "Guest user can't use this command");
-    noError = false;
-    errorCode = 401;
+  ESP3DClientType target = msg->origin;
+  ESP3DRequest requestId = msg->request_id;
+  (void)requestId;
+  msg->target = target;
+  msg->origin = ESP3DClientType::command;
+  bool hasError = false;
+  String error_msg = "Invalid parameters";
+  String ok_msg = "ok";
+  bool json = hasTag(msg, cmd_params_pos, "json");
+  String tmpstr;
+#if defined(AUTHENTICATION_FEATURE)
+  if (msg->authentication_level == ESP3DAuthenticationLevel::guest) {
+    msg->authentication_level = ESP3DAuthenticationLevel::not_authenticated;
+    dispatchAuthenticationError(msg, COMMAND_ID, json);
+    return;
   }
-#else
-  (void)auth_type;
 #endif  // AUTHENTICATION_FEATURE
-  if (noError) {
-    parameter = get_param(cmd_params, "");
-    // get
-    if (parameter.length() == 0) {
-      response = format_response(COMMANDID, json, false, "Message is missing");
-      noError = false;
-    } else {
-      parameter = get_param(cmd_params, "URL=");
-      if (notificationsservice.GET(parameter.c_str())) {
-        response = format_response(COMMANDID, json, true, "ok");
-      } else {
-        response =
-            format_response(COMMANDID, json, false, "Send notification failed");
-        noError = false;
-      }
-    }
-  }
-  if (json) {
-    esp3dmsg->printLN(response.c_str());
+  tmpstr = get_param(msg, cmd_params_pos, "URL=");
+  if (tmpstr.length() == 0) {
+    hasError = true;
+    error_msg = "URL is missing";
   } else {
-    if (noError) {
-      esp3dmsg->printMSG(response.c_str());
+    if (notificationsservice.GET(tmpstr.c_str())) {
+      ok_msg = "Notification sent";
     } else {
-      esp3dmsg->printERROR(response.c_str(), errorCode);
+      hasError = true;
+      error_msg = "Send notification failed";
     }
   }
-  return noError;*/
+  if (!dispatchAnswer(msg, COMMAND_ID, json, hasError,
+                      hasError ? error_msg.c_str() : ok_msg.c_str())) {
+    esp3d_log_e("Error sending response to clients");
+  }
 }
 
 #endif  // NOTIFICATION_FEATURE
