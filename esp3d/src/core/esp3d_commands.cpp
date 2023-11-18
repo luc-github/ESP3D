@@ -820,7 +820,7 @@ bool ESP3DCommands::dispatchSetting(bool json, const char *filter,
         tmpstr += "S";
     }
     tmpstr += "\",\"V\":\"";
-    tmpstr += value;
+    tmpstr += value;  // TODO: need to encode string ?
     tmpstr += "\",\"H\":\"";
     tmpstr += help;
     tmpstr += "\"";

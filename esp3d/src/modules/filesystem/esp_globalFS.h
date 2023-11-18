@@ -96,7 +96,6 @@ class ESP_GBFS {
   static bool rmdir(const char *path);
   static bool rename(const char *oldpath, const char *newpath);
   static void closeAll();
-  static String &formatBytes(uint64_t bytes);
   static const char *getNextFS(bool reset = false);
   static uint8_t getFSType(const char *path);
 

@@ -22,6 +22,7 @@
 #include "../esp3d_commands.h"
 #include "../esp3d_message.h"
 #include "../esp3d_settings.h"
+#include "../esp3d_string.h"
 
 #if COMMUNICATION_PROTOCOL != SOCKET_SERIAL || defined(ESP_SERIAL_BRIDGE_OUTPUT)
 #include "../../modules/serial/serial_service.h"
@@ -77,1597 +78,643 @@
 #if defined(DISPLAY_DEVICE)
 #include "../../modules/display/display.h"
 #endif  // DISPLAY_DEVICE
-#define COMMANDID 420
+#define COMMAND_ID 420
 
 // Get ESP current status
 // output is JSON or plain text according parameter
 //[ESP420]json=<no>
 void ESP3DCommands::ESP420(int cmd_params_pos, ESP3DMessage* msg) {
-  /*
-  bool noError = true;
-  bool json = has_tag(cmd_params, "json");
-  String response;
-  String parameter;
-  int errorCode = 200;  // unless it is a server error use 200 as default and
-                        // set error in json instead
-#ifdef AUTHENTICATION_FEATURE
-  if (auth_type == guest) {
-    response = format_response(COMMANDID, json, false,
-                               "Guest user can't use this command");
-    noError = false;
-    errorCode = 401;
+  ESP3DClientType target = msg->origin;
+  ESP3DRequest requestId = msg->request_id;
+  msg->target = target;
+  msg->origin = ESP3DClientType::command;
+  bool json = hasTag(msg, cmd_params_pos, "json");
+  bool addPreTag = hasTag(msg, cmd_params_pos, "addPreTag");
+  String tmpstr;
+#if ESP3D_AUTHENTICATION_FEATURE
+  if (msg->authentication_level == ESP3DAuthenticationLevel::guest) {
+    dispatchAuthenticationError(msg, COMMAND_ID, json);
+    return;
   }
-#else
-  (void)auth_type;
-#endif  // AUTHENTICATION_FEATURE
-  if (noError) {
-    parameter = clean_param(get_param(cmd_params, ""));
-    if (parameter.length() == 0) {
-      String line = "";
-      if (json) {
-        line = "{\"cmd\":\"420\",\"status\":\"ok\",\"data\":[";
-      }
-      // Chip ID
-      if (json) {
-        line += "{\"id\":\"";
-      }
-      line += "chip id";
-      if (json) {
-        line += "\",\"value\":\"";
-      } else {
-        line += ": ";
-      }
-      line += ESP3DHal::getChipID();
-      if (json) {
-        line += "\"}";
-        esp3dmsg->print(line.c_str());
-      } else {
-        esp3dmsg->printMSGLine(line.c_str());
-      }
-      line = "";
-      // CPU freq
-      if (json) {
-        line += ",{\"id\":\"";
-      }
-      line += "CPU Freq";
-      if (json) {
-        line += "\",\"value\":\"";
-      } else {
-        line += ": ";
-      }
-      line += ESP.getCpuFreqMHz();
-      line += "Mhz";
-      if (json) {
-        line += "\"}";
-        esp3dmsg->print(line.c_str());
-      } else {
-        esp3dmsg->printMSGLine(line.c_str());
-      }
-      line = "";
-      // CPU temp
-      if (ESP3DHal::has_temperature_sensor()) {
-        if (json) {
-          line += ",{\"id\":\"";
-        }
-        line += "CPU Temp";
-        if (json) {
-          line += "\",\"value\":\"";
-        } else {
-          line += ": ";
-        }
-        line += String(ESP3DHal::temperature(), 1);
-        line += "C";
-        if (json) {
-          line += "\"}";
-          esp3dmsg->print(line.c_str());
-        } else {
-          esp3dmsg->printMSGLine(line.c_str());
-        }
-        line = "";
-      }
-      // Free Memory
-      if (json) {
-        line += ",{\"id\":\"";
-      }
-      line += "free mem";
-      if (json) {
-        line += "\",\"value\":\"";
-      } else {
-        line += ": ";
-      }
-#ifdef FILESYSTEM_FEATURE
-      line += ESP_FileSystem::formatBytes(ESP.getFreeHeap()).c_str();
-#else
-      line += ESP.getFreeHeap();
-#endif  // FILESYSTEM_FEATURE
+#endif  // ESP3D_AUTHENTICATION_FEATURE
+  if (json) {
+    tmpstr = "{\"cmd\":\"420\",\"status\":\"ok\",\"data\":[";
+
+  } else {
+    if (addPreTag) {
+      tmpstr = "<pre>\n";
+    } else {
+      tmpstr = "Configuration:\n";
+    }
+  }
+  msg->type = ESP3DMessageType::head;
+  if (!dispatch(msg, tmpstr.c_str())) {
+    esp3d_log_e("Error sending response to clients");
+    return;
+  }
+  // First entry
+
+  // Chip ID
+  tmpstr = ESP3DHal::getChipID();
+  if (!dispatchIdValue(json, "chip id", tmpstr.c_str(), target, requestId,
+                       true)) {
+    return;
+  }
+
+  // CPU Freq
+  tmpstr = String(ESP.getCpuFreqMHz());
+  tmpstr += "Mhz";
+  if (!dispatchIdValue(json, "CPU Freq", tmpstr.c_str(), target, requestId,
+                       false)) {
+    return;
+  }
+
+  // CPU Temp
+  if (ESP3DHal::has_temperature_sensor()) {
+    tmpstr = String(ESP3DHal::temperature(), 1);
+    tmpstr += "C";
+    if (!dispatchIdValue(json, "CPU Temp", tmpstr.c_str(), target, requestId,
+                         false)) {
+      return;
+    }
+  }
+
+  // Free Memory
+  tmpstr = esp3d_string::formatBytes(ESP.getFreeHeap());
 
 #ifdef ARDUINO_ARCH_ESP32
 #ifdef BOARD_HAS_PSRAM
-      line += " - PSRAM:";
-      line += ESP_FileSystem::formatBytes(ESP.getFreePsram());
-
+  tmpstr += " - PSRAM:";
+  tmpstr += esp3d_string::formatBytes(ESP.getFreePsram());
 #endif  // BOARD_HAS_PSRAM
 #endif  // ARDUINO_ARCH_ESP32
-      if (json) {
-        line += "\"}";
-        esp3dmsg->print(line.c_str());
-      } else {
-        esp3dmsg->printMSGLine(line.c_str());
-      }
-      line = "";
-      // SDK version
-      if (json) {
-        line += ",{\"id\":\"";
-      }
-      line += "SDK";
-      if (json) {
-        line += "\",\"value\":\"";
-      } else {
-        line += ": ";
-      }
-      line += ESP.getSdkVersion();
-      if (json) {
-        line += "\"}";
-        esp3dmsg->print(line.c_str());
-      } else {
-        esp3dmsg->printMSGLine(line.c_str());
-      }
-      line = "";
-      // Flash size
-      if (json) {
-        line += ",{\"id\":\"";
-      }
-      line += "flash size";
-      if (json) {
-        line += "\",\"value\":\"";
-      } else {
-        line += ": ";
-      }
-#ifdef FILESYSTEM_FEATURE
-      line += ESP_FileSystem::formatBytes(ESP.getFlashChipSize());
-#else
-      line += ESP.getFlashChipSize();
-#endif  // FILESYSTEM_FEATURE
-      if (json) {
-        line += "\"}";
-        esp3dmsg->print(line.c_str());
-      } else {
-        esp3dmsg->printMSGLine(line.c_str());
-      }
-      line = "";
+  if (!dispatchIdValue(json, "free mem", tmpstr.c_str(), target, requestId,
+                       false)) {
+    return;
+  }
+
+  // SDK Version
+  tmpstr = ESP.getSdkVersion();
+  if (!dispatchIdValue(json, "SDK", tmpstr.c_str(), target, requestId, false)) {
+    return;
+  }
+
+  // Flash size
+  tmpstr = esp3d_string::formatBytes(ESP.getFlashChipSize());
+  if (!dispatchIdValue(json, "flash size", tmpstr.c_str(), target, requestId,
+                       false)) {
+    return;
+  }
 
 #if (defined(WIFI_FEATURE) || defined(ETH_FEATURE)) && \
     (defined(OTA_FEATURE) || defined(WEB_UPDATE_FEATURE))
-      // update space
-      if (json) {
-        line += ",{\"id\":\"";
-      }
-      line += "size for update";
-      if (json) {
-        line += "\",\"value\":\"";
-      } else {
-        line += ": ";
-      }
-      line += ESP_FileSystem::formatBytes(ESP_FileSystem::max_update_size());
-      if (json) {
-        line += "\"}";
-        esp3dmsg->print(line.c_str());
-      } else {
-        esp3dmsg->printMSGLine(line.c_str());
-      }
-      line = "";
+  // update space
+  tmpstr = esp3d_string::formatBytes(ESP_FileSystem::max_update_size());
+  if (!dispatchIdValue(json, "size for update", tmpstr.c_str(), target,
+                       requestId, false)) {
+    return;
+  }
 #endif  // WIFI_FEATURE || ETH_FEATURE
+
 #if defined(FILESYSTEM_FEATURE)
-      // FileSystem type
-      if (json) {
-        line += ",{\"id\":\"";
-      }
-      line += "FS type";
-      if (json) {
-        line += "\",\"value\":\"";
-      } else {
-        line += ": ";
-      }
-      line += ESP_FileSystem::FilesystemName();
-      if (json) {
-        line += "\"}";
-        esp3dmsg->print(line.c_str());
-      } else {
-        esp3dmsg->printMSGLine(line.c_str());
-      }
-      line = "";
-      // FileSystem capacity
-      if (json) {
-        line += ",{\"id\":\"";
-      }
-      line += "FS usage";
-      if (json) {
-        line += "\",\"value\":\"";
-      } else {
-        line += ": ";
-      }
-      line += ESP_FileSystem::formatBytes(ESP_FileSystem::usedBytes());
-      line += "/";
-      line += ESP_FileSystem::formatBytes(ESP_FileSystem::totalBytes());
-      if (json) {
-        line += "\"}";
-        esp3dmsg->print(line.c_str());
-      } else {
-        esp3dmsg->printMSGLine(line.c_str());
-      }
-      line = "";
+  // FileSystem type
+  tmpstr = ESP_FileSystem::FilesystemName();
+  if (!dispatchIdValue(json, "FS type", tmpstr.c_str(), target, requestId,
+                       false)) {
+    return;
+  }
+  // FileSystem capacity
+  tmpstr = esp3d_string::formatBytes(ESP_FileSystem::usedBytes());
+  tmpstr += "/";
+  tmpstr += esp3d_string::formatBytes(ESP_FileSystem::totalBytes());
+  if (!dispatchIdValue(json, "FS usage", tmpstr.c_str(), target, requestId,
+                       false)) {
+    return;
+  }
 #endif  // FILESYSTEM_FEATURE
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
-      // baud rate
-      if (json) {
-        line += ",{\"id\":\"";
-      }
-      line += "baud";
-      if (json) {
-        line += "\",\"value\":\"";
-      } else {
-        line += ": ";
-      }
-      line += esp3d_serial_service.baudRate();
-      if (json) {
-        line += "\"}";
-        esp3dmsg->print(line.c_str());
-      } else {
-        esp3dmsg->printMSGLine(line.c_str());
-      }
-      line = "";
+  // baud rate
+  tmpstr = String(esp3d_serial_service.baudRate());
+  if (!dispatchIdValue(json, "baud", tmpstr.c_str(), target, requestId,
+                       false)) {
+    return;
+  }
 #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
         // MKS_SERIAL
 #if defined(WIFI_FEATURE)
-      if (WiFi.getMode() != WIFI_OFF) {
-        // sleep mode
-        if (json) {
-          line += ",{\"id\":\"";
-        }
-        line += "sleep mode";
-        if (json) {
-          line += "\",\"value\":\"";
-        } else {
-          line += ": ";
-        }
-        line += WiFiConfig::getSleepModeString();
-        if (json) {
-          line += "\"}";
-          esp3dmsg->print(line.c_str());
-        } else {
-          esp3dmsg->printMSGLine(line.c_str());
-        }
-        line = "";
-      }
+  if (WiFi.getMode() != WIFI_OFF) {
+    // sleep mode
+    tmpstr = WiFiConfig::getSleepModeString();
+    if (!dispatchIdValue(json, "sleep mode", tmpstr.c_str(), target, requestId,
+                         false)) {
+      return;
+    }
+  }
 #endif  // WIFI_FEATURE
-#if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
-      // Wifi enabled
-      if (json) {
-        line += ",{\"id\":\"";
-      }
-      line += "wifi";
-      if (json) {
-        line += "\",\"value\":\"";
-      } else {
-        line += ": ";
-      }
-      line += (WiFi.getMode() == WIFI_OFF) ? "OFF" : "ON";
-      if (json) {
-        line += "\"}";
-        esp3dmsg->print(line.c_str());
-      } else {
-        esp3dmsg->printMSGLine(line.c_str());
-      }
-      line = "";
+#if defined(WIFI_FEATURE)
+  // Wifi enabled
+  tmpstr = (WiFi.getMode() == WIFI_OFF) ? "OFF" : "ON";
+  if (!dispatchIdValue(json, "wifi", tmpstr.c_str(), target, requestId,
+                       false)) {
+    return;
+  }
+#endif  // WIFI_FEATURE
 #if defined(ETH_FEATURE)
-      // Ethernet enabled
-      if (json) {
-        line += ",{\"id\":\"";
-      }
-      line += "ethernet";
-      if (json) {
-        line += "\",\"value\":\"";
-      } else {
-        line += ": ";
-      }
-      line += (EthConfig::started()) ? "ON" : "OFF";
-      if (json) {
-        line += "\"}";
-        esp3dmsg->print(line.c_str());
-      } else {
-        esp3dmsg->printMSGLine(line.c_str());
-      }
-      line = "";
+  // Ethernet enabled
+  tmpstr = (EthConfig::started()) ? "ON" : "OFF";
+  if (!dispatchIdValue(json, "ethernet", tmpstr.c_str(), target, requestId,
+                       false)) {
+    return;
+  }
 #endif  // ETH_FEATURE
+
 #if defined(BLUETOOTH_FEATURE)
-      // BT enabled
-      if (json) {
-        line += ",{\"id\":\"";
-      }
-      line += "bt";
-      if (json) {
-        line += "\",\"value\":\"";
-      } else {
-        line += ": ";
-      }
-      line += (bt_service.started()) ? "ON" : "OFF";
-      if (json) {
-        line += "\"}";
-        esp3dmsg->print(line.c_str());
-      } else {
-        esp3dmsg->printMSGLine(line.c_str());
-      }
-      line = "";
+  // BT enabled
+  tmpstr = (bt_service.started()) ? "ON" : "OFF";
+  if (!dispatchIdValue(json, "bt", tmpstr.c_str(), target, requestId, false)) {
+    return;
+  }
 #endif  // BLUETOOTH_FEATURE
-        // Hostname
-      if (json) {
-        line += ",{\"id\":\"";
-      }
-      line += "hostname";
-      if (json) {
-        line += "\",\"value\":\"";
-      } else {
-        line += ": ";
-      }
-      if (json) {
-        line += ESP3D_Message::encodeString(NetConfig::hostname());
-      } else {
-        line += NetConfig::hostname();
-      }
-      if (json) {
-        line += "\"}";
-        esp3dmsg->print(line.c_str());
-      } else {
-        esp3dmsg->printMSGLine(line.c_str());
-      }
-      line = "";
+#if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
+  // Hostname
+  tmpstr = NetConfig::hostname();
+  if (!dispatchIdValue(json, "hostname", tmpstr.c_str(), target, requestId,
+                       false)) {
+    return;
+  }
+
 #if defined(HTTP_FEATURE)
-      if (HTTP_Server::started()) {
-        // http port
-        if (json) {
-          line += ",{\"id\":\"";
-        }
-        line += "HTTP port";
-        if (json) {
-          line += "\",\"value\":\"";
-        } else {
-          line += ": ";
-        }
-        line += HTTP_Server::port();
-        if (json) {
-          line += "\"}";
-          esp3dmsg->print(line.c_str());
-        } else {
-          esp3dmsg->printMSGLine(line.c_str());
-        }
-        line = "";
-      }
+  if (HTTP_Server::started()) {
+    // http port
+    tmpstr = String(HTTP_Server::port());
+    if (!dispatchIdValue(json, "HTTP port", tmpstr.c_str(), target, requestId,
+                         false)) {
+      return;
+    }
+  }
 #endif  // HTTP_FEATURE
 #if defined(TELNET_FEATURE)
-      if (telnet_server.started()) {
-        // telnet port
-        if (json) {
-          line += ",{\"id\":\"";
-        }
-        line += "Telnet port";
-        if (json) {
-          line += "\",\"value\":\"";
-        } else {
-          line += ": ";
-        }
-        line += telnet_server.port();
-        if (json) {
-          line += "\"}";
-          esp3dmsg->print(line.c_str());
-        } else {
-          esp3dmsg->printMSGLine(line.c_str());
-        }
-        line = "";
-        if (telnet_server.isConnected()) {
-          if (json) {
-            line += ",{\"id\":\"";
-          }
-          line += "Telnet Client";
-          if (json) {
-            line += "\",\"value\":\"";
-          } else {
-            line += ": ";
-          }
-          line += telnet_server.clientIPAddress();
-          if (json) {
-            line += "\"}";
-            esp3dmsg->print(line.c_str());
-          } else {
-            esp3dmsg->printMSGLine(line.c_str());
-          }
-          line = "";
-        }
-      }
+  if (telnet_server.started()) {
+    // telnet port
+    tmpstr = String(telnet_server.port());
+    if (!dispatchIdValue(json, "Telnet port", tmpstr.c_str(), target, requestId,
+                         false)) {
+      return;
+    }
+  }
 #endif  // TELNET_FEATURE
 #if defined(WEBDAV_FEATURE)
-      if (webdav_server.started()) {
-        // WebDav port
-        if (json) {
-          line += ",{\"id\":\"";
-        }
-        line += "WebDav port";
-        if (json) {
-          line += "\",\"value\":\"";
-        } else {
-          line += ": ";
-        }
-        line += webdav_server.port();
-        if (json) {
-          line += "\"}";
-          esp3dmsg->print(line.c_str());
-        } else {
-          esp3dmsg->printMSGLine(line.c_str());
-        }
-        line = "";
-        if (webdav_server.isConnected()) {
-          if (json) {
-            line += ",{\"id\":\"";
-          }
-          line += "WebDav Client";
-          if (json) {
-            line += "\",\"value\":\"";
-          } else {
-            line += ": ";
-          }
-          line += webdav_server.clientIPAddress();
-          if (json) {
-            line += "\"}";
-            esp3dmsg->print(line.c_str());
-          } else {
-            esp3dmsg->printMSGLine(line.c_str());
-          }
-          line = "";
-        }
-      }
+  if (webdav_server.started()) {
+    // WebDav port
+    tmpstr = String(webdav_server.port());
+    if (!dispatchIdValue(json, "WebDav port", tmpstr.c_str(), target, requestId,
+                         false)) {
+      return;
+    }
+  }
 #endif  // WEBDAV_FEATURE
 #if defined(FTP_FEATURE)
-      if (ftp_server.started()) {
-        // ftp ports
-        if (json) {
-          line += ",{\"id\":\"";
-        }
-        line += "Ftp ports";
-        if (json) {
-          line += "\",\"value\":\"";
-        } else {
-          line += ": ";
-        }
-        line += String(ftp_server.ctrlport()) + "," +
-                String(ftp_server.dataactiveport()) + "," +
-                String(ftp_server.datapassiveport());
-        if (json) {
-          line += "\"}";
-          esp3dmsg->print(line.c_str());
-        } else {
-          esp3dmsg->printMSGLine(line.c_str());
-        }
-        line = "";
-
-        if (ftp_server.isConnected()) {
-          if (json) {
-            line += ",{\"id\":\"";
-          }
-          line += "Ftp Client";
-          if (json) {
-            line += "\",\"value\":\"";
-          } else {
-            line += ": ";
-          }
-          line += ftp_server.clientIPAddress();
-          if (json) {
-            line += "\"}";
-            esp3dmsg->print(line.c_str());
-          } else {
-            esp3dmsg->printMSGLine(line.c_str());
-          }
-          line = "";
-        }
-      }
+  if (ftp_server.started()) {
+    // ftp ports
+    tmpstr = String(ftp_server.ctrlport());
+    tmpstr += ",";
+    tmpstr += String(ftp_server.dataactiveport());
+    tmpstr += ",";
+    tmpstr += String(ftp_server.datapassiveport());
+    if (!dispatchIdValue(json, "Ftp ports", tmpstr.c_str(), target, requestId,
+                         false)) {
+      return;
+    }
+  }
 #endif  // FTP_FEATURE
 #if defined(WS_DATA_FEATURE)
-      if (websocket_data_server.started()) {
-        // websocket port
-        if (json) {
-          line += ",{\"id\":\"";
-        }
-        line += "Websocket port";
-        if (json) {
-          line += "\",\"value\":\"";
-        } else {
-          line += ": ";
-        }
-        line += websocket_data_server.port();
-        if (json) {
-          line += "\"}";
-          esp3dmsg->print(line.c_str());
-        } else {
-          esp3dmsg->printMSGLine(line.c_str());
-        }
-        line = "";
-      }
+  if (websocket_data_server.started()) {
+    // websocket port
+    tmpstr = String(websocket_data_server.port());
+    if (!dispatchIdValue(json, "Websocket port", tmpstr.c_str(), target,
+                         requestId, false)) {
+      return;
+    }
+  }
 #endif  // WS_DATA_FEATURE
 #if defined(CAMERA_DEVICE)
-      if (esp3d_camera.started()) {
-        // camera name
-        if (json) {
-          line += ",{\"id\":\"";
-        }
-        line += "camera name";
-        if (json) {
-          line += "\",\"value\":\"";
-        } else {
-          line += ": ";
-        }
-        line += esp3d_camera.GetModelString();
-        line += "(";
-        line += esp3d_camera.GetModel();
-        line += ")";
-        if (json) {
-          line += "\"}";
-          esp3dmsg->print(line.c_str());
-        } else {
-          esp3dmsg->printMSGLine(line.c_str());
-        }
-        line = "";
-      }
-
+  if (esp3d_camera.started()) {
+    // camera name
+    tmpstr = esp3d_camera.GetModelString();
+    tmpstr += "(";
+    tmpstr += esp3d_camera.GetModel();
+    tmpstr += ")";
+    if (!dispatchIdValue(json, "camera name", tmpstr.c_str(), target, requestId,
+                         false)) {
+      return;
+    }
+  }
 #endif  // CAMERA_DEVICE
-#if defined(DISPLAY_DEVICE)
-      if (json) {
-        line += ",{\"id\":\"";
-      }
-      line += "display";
-      if (json) {
-        line += "\",\"value\":\"";
-      } else {
-        line += ": ";
-      }
-      line += esp3d_display.getModelString();
-      if (json) {
-        line += "\"}";
-        esp3dmsg->print(line.c_str());
-      } else {
-        esp3dmsg->printMSGLine(line.c_str());
-      }
-      line = "";
-#endif  // DISPLAY_DEVICE
-#if defined(BLUETOOTH_FEATURE)
-      if (bt_service.started()) {
-        // BT mode
-        if (json) {
-          line += ",{\"id\":\"";
-        }
-        line += "bt";
-        if (json) {
-          line += "\",\"value\":\"";
-        } else {
-          line += ": ";
-        }
-        line += BTService::macAddress();
+#endif  // #if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
 
-        if (json) {
-          line += "\"}";
-          esp3dmsg->print(line.c_str());
-        } else {
-          esp3dmsg->printMSGLine(line.c_str());
-        }
-        line = "";
-        // BT status
-        if (json) {
-          line += ",{\"id\":\"";
-        }
-        line += "BT Status";
-        if (json) {
-          line += "\",\"value\":\"";
-        } else {
-          line += ": ";
-        }
-        line += (bt_service.isConnected()) ? "connected" : "disconnected";
-        if (bt_service.isConnected()) {
-          line += " (client: ";
-          line += BTService::clientmacAddress();
-          line += ")";
-        }
-        if (json) {
-          line += "\"}";
-          esp3dmsg->print(line.c_str());
-        } else {
-          esp3dmsg->printMSGLine(line.c_str());
-        }
-        line = "";
-      }
+#if defined(DISPLAY_DEVICE)
+  tmpstr = esp3d_display.getModelString();
+  if (!dispatchIdValue(json, "display", tmpstr.c_str(), target, requestId,
+                       false)) {
+    return;
+  }
+#endif  // DISPLAY_DEVICE
+
+#if defined(BLUETOOTH_FEATURE)
+  if (bt_service.started()) {
+    // BT mode
+    tmpstr = BTService::macAddress();
+    if (!dispatchIdValue(json, "bt", tmpstr.c_str(), target, requestId,
+                         false)) {
+      return;
+    }
+    // BT status
+    tmpstr = (bt_service.isConnected()) ? "connected" : "disconnected";
+    if (bt_service.isConnected()) {
+      tmpstr += " (client: ";
+      tmpstr += BTService::clientmacAddress();
+      tmpstr += ")";
+    }
+    if (!dispatchIdValue(json, "BT Status", tmpstr.c_str(), target, requestId,
+                         false)) {
+      return;
+    }
+  }
 #endif  // BLUETOOTH_FEATURE
 #if defined(ETH_FEATURE)
-      if (EthConfig::started()) {
-        // Ethernet mode
-        if (json) {
-          line += ",{\"id\":\"";
-        }
-        line += "ethernet";
-        if (json) {
-          line += "\",\"value\":\"";
-        } else {
-          line += ": ";
-        }
-        line += ETH.macAddress();
-        if (json) {
-          line += "\"}";
-          esp3dmsg->print(line.c_str());
-        } else {
-          esp3dmsg->printMSGLine(line.c_str());
-        }
-        line = "";
-        // Ethernet cable
-        if (json) {
-          line += ",{\"id\":\"";
-        }
-        line += "cable";
-        if (json) {
-          line += "\",\"value\":\"";
-        } else {
-          line += ": ";
-        }
-        line += (EthConfig::linkUp()) ? "connected" : "disconnected";
+  if (EthConfig::started()) {
+    // Ethernet mode
+    tmpstr = ETH.macAddress();
+    if (!dispatchIdValue(json, "ethernet", tmpstr.c_str(), target, requestId,
+                         false)) {
+      return;
+    }
+    // Ethernet cable
+    tmpstr = (EthConfig::linkUp()) ? "connected" : "disconnected";
 
-        if (EthConfig::linkUp()) {
-          line += " (";
-          line += ETH.linkSpeed();
-          line += "Mbps)";
-        }
-        if (json) {
-          line += "\"}";
-          esp3dmsg->print(line.c_str());
-        } else {
-          esp3dmsg->printMSGLine(line.c_str());
-        }
-        line = "";
-        // IP mode
-        if (json) {
-          line += ",{\"id\":\"";
-        }
-        line += "ip mode";
-        if (json) {
-          line += "\",\"value\":\"";
-        } else {
-          line += ": ";
-        }
-        line += (NetConfig::isIPModeDHCP(ESP_ETH_STA)) ? "dhcp" : "static";
-        if (json) {
-          line += "\"}";
-          esp3dmsg->print(line.c_str());
-        } else {
-          esp3dmsg->printMSGLine(line.c_str());
-        }
-        line = "";
-        // IP value
-        if (json) {
-          line += ",{\"id\":\"";
-        }
-        line += "ip";
-        if (json) {
-          line += "\",\"value\":\"";
-        } else {
-          line += ": ";
-        }
-        line += ETH.localIP().toString();
-        if (json) {
-          line += "\"}";
-          esp3dmsg->print(line.c_str());
-        } else {
-          esp3dmsg->printMSGLine(line.c_str());
-        }
-        line = "";
-        // GW value
-        if (json) {
-          line += ",{\"id\":\"";
-        }
-        line += "gw";
-        if (json) {
-          line += "\",\"value\":\"";
-        } else {
-          line += ": ";
-        }
-        line += ETH.gatewayIP().toString();
-        if (json) {
-          line += "\"}";
-          esp3dmsg->print(line.c_str());
-        } else {
-          esp3dmsg->printMSGLine(line.c_str());
-        }
-        line = "";
-        // Mask value
-        if (json) {
-          line += ",{\"id\":\"";
-        }
-        line += "msk";
-        if (json) {
-          line += "\",\"value\":\"";
-        } else {
-          line += ": ";
-        }
-        line += ETH.subnetMask().toString();
-        if (json) {
-          line += "\"}";
-          esp3dmsg->print(line.c_str());
-        } else {
-          esp3dmsg->printMSGLine(line.c_str());
-        }
-        line = "";
-        // DNS value
-        if (json) {
-          line += ",{\"id\":\"";
-        }
-        line += "DNS";
-        if (json) {
-          line += "\",\"value\":\"";
-        } else {
-          line += ": ";
-        }
-        line += ETH.dnsIP().toString();
-        if (json) {
-          line += "\"}";
-          esp3dmsg->print(line.c_str());
-        } else {
-          esp3dmsg->printMSGLine(line.c_str());
-        }
-        line = "";
-      }
+    if (EthConfig::linkUp()) {
+      tmpstr += " (";
+      tmpstr += ETH.linkSpeed();
+      tmpstr += "Mbps)";
+    }
+    if (!dispatchIdValue(json, "cable", tmpstr.c_str(), target, requestId,
+                         false)) {
+      return;
+    }
+    // IP mode
+    tmpstr = (NetConfig::isIPModeDHCP(ESP_ETH_STA)) ? "dhcp" : "static";
+    if (!dispatchIdValue(json, "ip mode", tmpstr.c_str(), target, requestId,
+                         false)) {
+      return;
+    }
+    // IP value
+    tmpstr = ETH.localIP().toString();
+    if (!dispatchIdValue(json, "ip", tmpstr.c_str(), target, requestId,
+                         false)) {
+      return;
+    }
+    // GW value
+    tmpstr = ETH.gatewayIP().toString();
+    if (!dispatchIdValue(json, "gw", tmpstr.c_str(), target, requestId,
+                         false)) {
+      return;
+    }
+    // Mask value
+    tmpstr = ETH.subnetMask().toString();
+    if (!dispatchIdValue(json, "msk", tmpstr.c_str(), target, requestId,
+                         false)) {
+      return;
+    }
+    // DNS value
+    tmpstr = ETH.dnsIP().toString();
+    if (!dispatchIdValue(json, "DNS", tmpstr.c_str(), target, requestId,
+                         false)) {
+      return;
+    }
+  }
 #endif  // ETH_FEATURE
 #if defined(WIFI_FEATURE)
-      if (WiFi.getMode() != WIFI_OFF) {
-        // WiFi Mode
-        if (json) {
-          line += ",{\"id\":\"";
-        }
-        if (WiFi.getMode() == WIFI_STA) {
-          line += "sta";
-        } else if (WiFi.getMode() == WIFI_AP) {
-          line += "ap";
-        } else if (WiFi.getMode() ==
-                   WIFI_AP_STA) {  // we should not be in this state but just in
-                                   // case ....
-          line += "mixed";
-        } else {
-          line += "unknown";
-        }
+  if (WiFi.getMode() != WIFI_OFF) {
+    // WiFi Mode
+    tmpstr = (WiFi.getMode() == WIFI_STA)      ? "sta"
+             : (WiFi.getMode() == WIFI_AP)     ? "ap"
+             : (WiFi.getMode() == WIFI_AP_STA) ? "mixed"
+                                               : "unknown";
+    if (!dispatchIdValue(json, "wifi mode", tmpstr.c_str(), target, requestId,
+                         false)) {
+      return;
+    }
+    // WiFi mac
+    tmpstr = (WiFi.getMode() == WIFI_STA)  ? WiFi.macAddress()
+             : (WiFi.getMode() == WIFI_AP) ? WiFi.softAPmacAddress()
+             : (WiFi.getMode() == WIFI_AP_STA)
+                 ? WiFi.macAddress() + "/" + WiFi.softAPmacAddress()
+                 : "unknown";
+    if (!dispatchIdValue(json, "mac", tmpstr.c_str(), target, requestId,
+                         false)) {
+      return;
+    }
 
-        if (json) {
-          line += "\",\"value\":\"";
-        } else {
-          line += ": ";
+    // WiFi Station
+    if (WiFi.getMode() == WIFI_STA) {
+      // Connected to SSID
+      tmpstr = (WiFi.isConnected()) ? WiFi.SSID() : "";
+      if (!dispatchIdValue(json, "SSID", tmpstr.c_str(), target, requestId,
+                           false)) {
+        return;
+      }
+      if (WiFi.isConnected()) {  // in case query come from serial
+        // Signal strength
+        tmpstr = WiFiConfig::getSignal(WiFi.RSSI(), false);
+        tmpstr += "%";
+        if (!dispatchIdValue(json, "signal", tmpstr.c_str(), target, requestId,
+                             false)) {
+          return;
         }
-        line += "ON";
-        if (json) {
-          line += "\"}";
-          esp3dmsg->print(line.c_str());
-        } else {
-          esp3dmsg->printMSGLine(line.c_str());
+        // Phy Mode
+        tmpstr = WiFiConfig::getPHYModeString(WIFI_STA);
+        if (!dispatchIdValue(json, "phy mode", tmpstr.c_str(), target,
+                             requestId, false)) {
+          return;
         }
-        line = "";
-
-        // WiFi mac
-        if (json) {
-          line += ",{\"id\":\"";
+        // Channel
+        tmpstr = String(WiFi.channel());
+        if (!dispatchIdValue(json, "channel", tmpstr.c_str(), target, requestId,
+                             false)) {
+          return;
         }
-        line += "mac";
-        if (json) {
-          line += "\",\"value\":\"";
-        } else {
-          line += ": ";
+        // IP Mode
+        tmpstr = (NetConfig::isIPModeDHCP(ESP_WIFI_STA)) ? "dhcp" : "static";
+        if (!dispatchIdValue(json, "ip mode", tmpstr.c_str(), target, requestId,
+                             false)) {
+          return;
         }
-        if (WiFi.getMode() == WIFI_STA) {
-          line += WiFi.macAddress();
-        } else if (WiFi.getMode() == WIFI_AP) {
-          line += WiFi.softAPmacAddress();
-        } else if (WiFi.getMode() ==
-                   WIFI_AP_STA) {  // we should not be in this state but just in
-                                   // case ....
-          line += WiFi.macAddress();
-          line += "/";
-          line += WiFi.softAPmacAddress();
-        } else {
-          line += "unknown";
+        // IP value
+        tmpstr = WiFi.localIP().toString();
+        if (!dispatchIdValue(json, "ip", tmpstr.c_str(), target, requestId,
+                             false)) {
+          return;
         }
-        if (json) {
-          line += "\"}";
-          esp3dmsg->print(line.c_str());
-        } else {
-          esp3dmsg->printMSGLine(line.c_str());
+        // Gateway value
+        tmpstr = WiFi.gatewayIP().toString();
+        if (!dispatchIdValue(json, "gw", tmpstr.c_str(), target, requestId,
+                             false)) {
+          return;
         }
-        line = "";
-
-        // WiFi Station
-        if (WiFi.getMode() == WIFI_STA) {
-          // Connected to SSID
-          if (json) {
-            line += ",{\"id\":\"";
-          }
-          line += "SSID";
-          if (json) {
-            line += "\",\"value\":\"";
-          } else {
-            line += ": ";
-          }
-          if (WiFi.isConnected()) {
-            if (json) {
-              line += ESP3D_Message::encodeString(WiFi.SSID().c_str());
-            } else {
-              line += WiFi.SSID();
-            }
-          }
-          if (json) {
-            line += "\"}";
-            esp3dmsg->print(line.c_str());
-          } else {
-            esp3dmsg->printMSGLine(line.c_str());
-          }
-          line = "";
-          if (WiFi.isConnected()) {  // in case query come from serial
-            // Signal strength
-            if (json) {
-              line += ",{\"id\":\"";
-            }
-            line += "signal";
-            if (json) {
-              line += "\",\"value\":\"";
-            } else {
-              line += ": ";
-            }
-            line += WiFiConfig::getSignal(WiFi.RSSI(), false);
-            line += "%";
-            if (json) {
-              line += "\"}";
-              esp3dmsg->print(line.c_str());
-            } else {
-              esp3dmsg->printMSGLine(line.c_str());
-            }
-            line = "";
-            // Phy Mode
-            if (json) {
-              line += ",{\"id\":\"";
-            }
-            line += "phy mode";
-            if (json) {
-              line += "\",\"value\":\"";
-            } else {
-              line += ": ";
-            }
-            line += WiFiConfig::getPHYModeString(WIFI_STA);
-            if (json) {
-              line += "\"}";
-              esp3dmsg->print(line.c_str());
-            } else {
-              esp3dmsg->printMSGLine(line.c_str());
-            }
-            line = "";
-            // Channel
-            if (json) {
-              line += ",{\"id\":\"";
-            }
-            line += "channel";
-            if (json) {
-              line += "\",\"value\":\"";
-            } else {
-              line += ": ";
-            }
-            line += WiFi.channel();
-            if (json) {
-              line += "\"}";
-              esp3dmsg->print(line.c_str());
-            } else {
-              esp3dmsg->printMSGLine(line.c_str());
-            }
-            line = "";
-            // IP Mode
-            if (json) {
-              line += ",{\"id\":\"";
-            }
-            line += "ip mode";
-            if (json) {
-              line += "\",\"value\":\"";
-            } else {
-              line += ": ";
-            }
-            line += (NetConfig::isIPModeDHCP(ESP_WIFI_STA)) ? "dhcp" : "static";
-            if (json) {
-              line += "\"}";
-              esp3dmsg->print(line.c_str());
-            } else {
-              esp3dmsg->printMSGLine(line.c_str());
-            }
-            line = "";
-            // IP value
-            if (json) {
-              line += ",{\"id\":\"";
-            }
-            line += "ip";
-            if (json) {
-              line += "\",\"value\":\"";
-            } else {
-              line += ": ";
-            }
-            line += WiFi.localIP().toString();
-            if (json) {
-              line += "\"}";
-              esp3dmsg->print(line.c_str());
-            } else {
-              esp3dmsg->printMSGLine(line.c_str());
-            }
-            line = "";
-            // Gateway value
-            if (json) {
-              line += ",{\"id\":\"";
-            }
-            line += "gw";
-            if (json) {
-              line += "\",\"value\":\"";
-            } else {
-              line += ": ";
-            }
-            line += WiFi.gatewayIP().toString();
-            if (json) {
-              line += "\"}";
-              esp3dmsg->print(line.c_str());
-            } else {
-              esp3dmsg->printMSGLine(line.c_str());
-            }
-            line = "";
-            // Mask value
-            if (json) {
-              line += ",{\"id\":\"";
-            }
-            line += "msk";
-            if (json) {
-              line += "\",\"value\":\"";
-            } else {
-              line += ": ";
-            }
-            line += WiFi.subnetMask().toString();
-            if (json) {
-              line += "\"}";
-              esp3dmsg->print(line.c_str());
-            } else {
-              esp3dmsg->printMSGLine(line.c_str());
-            }
-            line = "";
-            // DNS value
-            if (json) {
-              line += ",{\"id\":\"";
-            }
-            line += "DNS";
-            if (json) {
-              line += "\",\"value\":\"";
-            } else {
-              line += ": ";
-            }
-            line += WiFi.dnsIP().toString();
-            if (json) {
-              line += "\"}";
-              esp3dmsg->print(line.c_str());
-            } else {
-              esp3dmsg->printMSGLine(line.c_str());
-            }
-            line = "";
-          }
-          // Disabled Mode
-          if (json) {
-            line += ",{\"id\":\"";
-          }
-          line += "ap";
-
-          if (json) {
-            line += "\",\"value\":\"";
-          } else {
-            line += ": ";
-          }
-          line += "OFF";
-          if (json) {
-            line += "\"}";
-            esp3dmsg->print(line.c_str());
-          } else {
-            esp3dmsg->printMSGLine(line.c_str());
-          }
-          line = "";
-          // Disabled Mode
-          if (json) {
-            line += ",{\"id\":\"";
-          }
-          line += "mac";
-          if (json) {
-            line += "\",\"value\":\"";
-          } else {
-            line += ": ";
-          }
-          line += WiFi.softAPmacAddress();
-          if (json) {
-            line += "\"}";
-            esp3dmsg->print(line.c_str());
-          } else {
-            esp3dmsg->printMSGLine(line.c_str());
-          }
-          line = "";
-        } else if (WiFi.getMode() == WIFI_AP) {
-          // AP SSID
-          if (json) {
-            line += ",{\"id\":\"";
-          }
-          line += "SSID";
-          if (json) {
-            line += "\",\"value\":\"";
-          } else {
-            line += ": ";
-          }
-          if (json) {
-            line += ESP3D_Message::encodeString(WiFiConfig::AP_SSID());
-          } else {
-            line += WiFiConfig::AP_SSID();
-          }
-          if (json) {
-            line += "\"}";
-            esp3dmsg->print(line.c_str());
-          } else {
-            esp3dmsg->printMSGLine(line.c_str());
-          }
-          line = "";
-          // AP Visibility
-          if (json) {
-            line += ",{\"id\":\"";
-          }
-          line += "visible";
-          if (json) {
-            line += "\",\"value\":\"";
-          } else {
-            line += ": ";
-          }
-          line += (WiFiConfig::is_AP_visible()) ? "yes" : "no";
-          if (json) {
-            line += "\"}";
-            esp3dmsg->print(line.c_str());
-          } else {
-            esp3dmsg->printMSGLine(line.c_str());
-          }
-          line = "";
-          // AP Authentication
-          if (json) {
-            line += ",{\"id\":\"";
-          }
-          line += "authentication";
-          if (json) {
-            line += "\",\"value\":\"";
-          } else {
-            line += ": ";
-          }
-          line += WiFiConfig::AP_Auth_String();
-          if (json) {
-            line += "\"}";
-            esp3dmsg->print(line.c_str());
-          } else {
-            esp3dmsg->printMSGLine(line.c_str());
-          }
-          line = "";
-          // DHCP Server
-          if (json) {
-            line += ",{\"id\":\"";
-          }
-          line += "DHCP Server";
-          if (json) {
-            line += "\",\"value\":\"";
-          } else {
-            line += ": ";
-          }
-          line += (NetConfig::isDHCPServer(ESP_WIFI_AP)) ? "ON" : "OFF";
-          if (json) {
-            line += "\"}";
-            esp3dmsg->print(line.c_str());
-          } else {
-            esp3dmsg->printMSGLine(line.c_str());
-          }
-          line = "";
-          // IP Value
-          if (json) {
-            line += ",{\"id\":\"";
-          }
-          line += "ip";
-          if (json) {
-            line += "\",\"value\":\"";
-          } else {
-            line += ": ";
-          }
-          line += WiFi.softAPIP().toString();
-          if (json) {
-            line += "\"}";
-            esp3dmsg->print(line.c_str());
-          } else {
-            esp3dmsg->printMSGLine(line.c_str());
-          }
-          line = "";
-          // Gateway Value
-          if (json) {
-            line += ",{\"id\":\"";
-          }
-          line += "gw";
-          if (json) {
-            line += "\",\"value\":\"";
-          } else {
-            line += ": ";
-          }
-          line += WiFiConfig::AP_Gateway_String();
-          if (json) {
-            line += "\"}";
-            esp3dmsg->print(line.c_str());
-          } else {
-            esp3dmsg->printMSGLine(line.c_str());
-          }
-          line = "";
-          // Mask Value
-          if (json) {
-            line += ",{\"id\":\"";
-          }
-          line += "msk";
-          if (json) {
-            line += "\",\"value\":\"";
-          } else {
-            line += ": ";
-          }
-          line += WiFiConfig::AP_Mask_String();
-          if (json) {
-            line += "\"}";
-            esp3dmsg->print(line.c_str());
-          } else {
-            esp3dmsg->printMSGLine(line.c_str());
-          }
-          line = "";
-          // Connected clients
-          const char* entry = NULL;
-          uint8_t nb = 0;
-          entry = WiFiConfig::getConnectedSTA(&nb, true);
-          if (json) {
-            line += ",{\"id\":\"";
-          }
-          line += "clients";
-          if (json) {
-            line += "\",\"value\":\"";
-          } else {
-            line += ": ";
-          }
-          line += nb;
-          if (json) {
-            line += "\"}";
-            esp3dmsg->print(line.c_str());
-          } else {
-            esp3dmsg->printMSGLine(line.c_str());
-          }
-          line = "";
-          for (uint8_t i = 0; i < nb; i++) {
-            // Client
-            if (json) {
-              line += ",{\"id\":\"";
-            }
-            line += "# " + String(i);
-
-            if (json) {
-              line += "\",\"value\":\"";
-            } else {
-              line += ": ";
-            }
-            line += entry;
-            if (json) {
-              line += "\"}";
-              esp3dmsg->print(line.c_str());
-            } else {
-              esp3dmsg->printMSGLine(line.c_str());
-            }
-            line = "";
-            // get next
-            entry = WiFiConfig::getConnectedSTA();
-          }
-          // Disabled Mode
-          if (json) {
-            line += ",{\"id\":\"";
-          }
-          line += "sta";
-
-          if (json) {
-            line += "\",\"value\":\"";
-          } else {
-            line += ": ";
-          }
-          line += "OFF";
-          if (json) {
-            line += "\"}";
-            esp3dmsg->print(line.c_str());
-          } else {
-            esp3dmsg->printMSGLine(line.c_str());
-          }
-          line = "";
-          // Disabled Mode
-          if (json) {
-            line += ",{\"id\":\"";
-          }
-          line += "mac";
-          if (json) {
-            line += "\",\"value\":\"";
-          } else {
-            line += ": ";
-          }
-          line += WiFi.macAddress();
-          if (json) {
-            line += "\"}";
-            esp3dmsg->print(line.c_str());
-          } else {
-            esp3dmsg->printMSGLine(line.c_str());
-          }
-          line = "";
+        // Mask value
+        tmpstr = WiFi.subnetMask().toString();
+        if (!dispatchIdValue(json, "msk", tmpstr.c_str(), target, requestId,
+                             false)) {
+          return;
+        }
+        // DNS value
+        tmpstr = WiFi.dnsIP().toString();
+        if (!dispatchIdValue(json, "DNS", tmpstr.c_str(), target, requestId,
+                             false)) {
+          return;
         }
       }
+      // Disabled Mode
+      tmpstr = "OFF";
+      if (!dispatchIdValue(json, "ap", tmpstr.c_str(), target, requestId,
+                           false)) {
+        return;
+      }
+      // Disabled Mode
+      tmpstr = WiFi.softAPmacAddress();
+      if (!dispatchIdValue(json, "mac", tmpstr.c_str(), target, requestId,
+                           false)) {
+        return;
+      }
+    } else if (WiFi.getMode() == WIFI_AP) {
+      // AP SSID
+      tmpstr = WiFiConfig::AP_SSID();
+      if (!dispatchIdValue(json, "SSID", tmpstr.c_str(), target, requestId,
+                           false)) {
+        return;
+      }
+      // AP Visibility
+      tmpstr = (WiFiConfig::is_AP_visible()) ? "yes" : "no";
+      if (!dispatchIdValue(json, "visible", tmpstr.c_str(), target, requestId,
+                           false)) {
+        return;
+      }
+      // AP Authentication
+      tmpstr = WiFiConfig::AP_Auth_String();
+      if (!dispatchIdValue(json, "authentication", tmpstr.c_str(), target,
+                           requestId, false)) {
+        return;
+      }
+      // DHCP Server
+      tmpstr = (NetConfig::isDHCPServer(ESP_WIFI_AP)) ? "ON" : "OFF";
+      if (!dispatchIdValue(json, "DHCP Server", tmpstr.c_str(), target,
+                           requestId, false)) {
+        return;
+      }
+      // IP Value
+      tmpstr = WiFi.softAPIP().toString();
+      if (!dispatchIdValue(json, "ip", tmpstr.c_str(), target, requestId,
+                           false)) {
+        return;
+      }
+      // Gateway Value
+      tmpstr = WiFiConfig::AP_Gateway_String();
+      if (!dispatchIdValue(json, "gw", tmpstr.c_str(), target, requestId,
+                           false)) {
+        return;
+      }
+      // Mask Value
+      tmpstr = WiFiConfig::AP_Mask_String();
+      if (!dispatchIdValue(json, "msk", tmpstr.c_str(), target, requestId,
+                           false)) {
+        return;
+      }
+      // Connected clients
+      const char* entry = NULL;
+      uint8_t nb = 0;
+      entry = WiFiConfig::getConnectedSTA(&nb, true);
+
+      tmpstr = String(nb);
+      if (!dispatchIdValue(json, "clients", tmpstr.c_str(), target, requestId,
+                           false)) {
+        return;
+      }
+      for (uint8_t i = 0; i < nb; i++) {
+        // Client
+        tmpstr = entry;
+        String label = "# " + String(i);
+        if (!dispatchIdValue(json, label.c_str(), tmpstr.c_str(), target,
+                             requestId, false)) {
+          return;
+        }
+        entry = WiFiConfig::getConnectedSTA();
+      }
+
+      // Disabled Mode
+      tmpstr = "OFF";
+      if (!dispatchIdValue(json, "sta", tmpstr.c_str(), target, requestId,
+                           false)) {
+        return;
+      }
+      // Disabled Mode
+      tmpstr = WiFi.macAddress();
+      if (!dispatchIdValue(json, "mac", tmpstr.c_str(), target, requestId,
+                           false)) {
+        return;
+      }
+    }
+  } 
 #endif  // WIFI_FEATURE
-#endif  // WIFI_FEATURE || ETH FEATURE
-#if defined(TIMESTAMP_FEATURE)
-      if (json) {
-        line += ",{\"id\":\"";
-      }
-      line += "i-time";
-      if (json) {
-        line += "\",\"value\":\"";
-      } else {
-        line += ": ";
-      }
-      line += timeService.started() ? "ON" : "OFF";
-      if (json) {
-        line += "\"}";
-        esp3dmsg->print(line.c_str());
-      } else {
-        esp3dmsg->printMSGLine(line.c_str());
-      }
-      line = "";
-#endif  // TIMESTAMP_FEATURE
-#if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
-      if (json) {
-        line += ",{\"id\":\"";
-      }
-      line += "serial";
-      if (json) {
-        line += "\",\"value\":\"";
-      } else {
-        line += ": ";
-      }
-      line += esp3d_serial_service.started() ? "ON" : "OFF";
-      if (json) {
-        line += "\"}";
-        esp3dmsg->print(line.c_str());
-      } else {
-        esp3dmsg->printMSGLine(line.c_str());
-      }
-      line = "";
-#endif  // COMMUNICATION_PROTOCOL
-#if defined(AUTHENTICATION_FEATURE)
-      if (json) {
-        line += ",{\"id\":\"";
-      }
-      line += "authentication";
-      if (json) {
-        line += "\",\"value\":\"";
-      } else {
-        line += ": ";
-      }
-      line += "ON";
-      if (json) {
-        line += "\"}";
-        esp3dmsg->print(line.c_str());
-      } else {
-        esp3dmsg->printMSGLine(line.c_str());
-      }
-      line = "";
-#endif  // AUTHENTICATION_FEATURE
-#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
-      if (json) {
-        line += ",{\"id\":\"";
-      }
-      line += "serial_bridge";
-      if (json) {
-        line += "\",\"value\":\"";
-      } else {
-        line += ": ";
-      }
-      if (serial_bridge_service.started()) {
-        line += "ON";
-      } else {
-        line += "OFF";
-      }
-      if (json) {
-        line += "\"}";
-        esp3dmsg->print(line.c_str());
-      } else {
-        esp3dmsg->printMSGLine(line.c_str());
-      }
-      line = "";
-      if (json) {
-        line += ",{\"id\":\"";
-      }
-      line += "baud";
-      if (json) {
-        line += "\",\"value\":\"";
-      } else {
-        line += ": ";
-      }
-      line += serial_bridge_service.baudRate();
-      if (json) {
-        line += "\"}";
-        esp3dmsg->print(line.c_str());
-      } else {
-        esp3dmsg->printMSGLine(line.c_str());
-      }
-      line = "";
 
-#endif  // ESP_SERIAL_BRIDGE_OUTPUT
-#if defined(HAS_SERIAL_DISPLAY)
-      if (json) {
-        line += ",{\"id\":\"";
-      }
-      line += "M117";
-      if (json) {
-        line += "\",\"value\":\"";
-      } else {
-        line += ": ";
-      }
-      line += "ON";
-      if (json) {
-        line += "\"}";
-        esp3dmsg->print(line.c_str());
-      } else {
-        esp3dmsg->printMSGLine(line.c_str());
-      }
-      line = "";
-#endif  // HAS_SERIAL_DISPLAY
+#if defined(TIMESTAMP_FEATURE)
+  // NTP enabled
+  tmpstr = (timeService.started()) ? "ON" : "OFF";
+  if (!dispatchIdValue(json, "ntp", tmpstr.c_str(), target, requestId, false)) {
+    return;
+  }
+#endif  // TIMESTAMP_FEATURE
+
+#if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
+  // serial enabled
+  tmpstr = (esp3d_serial_service.started()) ? "ON" : "OFF";
+  if (!dispatchIdValue(json, "serial", tmpstr.c_str(), target, requestId,
+                       false)) {
+    return;
+  }
+#endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
+        // MKS_SERIAL
+#if defined(AUTHENTICATION_FEATURE)
+  // authentication enabled
+  tmpstr = (authentication_service.started()) ? "ON" : "OFF";
+  if (!dispatchIdValue(json, "authentication", tmpstr.c_str(), target,
+                       requestId, false)) {
+    return;
+  }
+#endif  // AUTHENTICATION_FEATURE
 #if defined(NOTIFICATION_FEATURE)
-      if (json) {
-        line += ",{\"id\":\"";
-      }
-      line += "notification";
-      if (json) {
-        line += "\",\"value\":\"";
-      } else {
-        line += ": ";
-      }
-      line += notificationsservice.started() ? "ON" : "OFF";
-      if (notificationsservice.started()) {
-        line += " (";
-        line += notificationsservice.getTypeString();
-        line += ")";
-      }
-      if (json) {
-        line += "\"}";
-        esp3dmsg->print(line.c_str());
-      } else {
-        esp3dmsg->printMSGLine(line.c_str());
-      }
-      line = "";
+  // notification enabled
+  tmpstr = (notificationsservice.started()) ? "ON" : "OFF";
+  if (notificationsservice.started()) {
+    tmpstr += " (";
+    tmpstr += notificationsservice.getTypeString();
+    tmpstr += ")";
+  }
+  if (!dispatchIdValue(json, "notification", tmpstr.c_str(), target, requestId,
+                       false)) {
+    return;
+  }
 #endif  // NOTIFICATION_FEATURE
-#ifdef SD_DEVICE
-      if (json) {
-        line += ",{\"id\":\"";
-      }
-      line += "sd";
-      if (json) {
-        line += "\",\"value\":\"";
-      } else {
-        line += ": ";
-      }
-      line += (ESP3DSettings::GetSDDevice() == ESP_DIRECT_SD)   ? "direct "
-              : (ESP3DSettings::GetSDDevice() == ESP_SHARED_SD) ? "shared "
-                                                                : "none ";
-      line += "(";
-      line += ESP_SD::FilesystemName();
-      line += ")";
-      if (json) {
-        line += "\"}";
-        esp3dmsg->print(line.c_str());
-      } else {
-        esp3dmsg->printMSGLine(line.c_str());
-      }
-      line = "";
+#if defined(SD_DEVICE)
+  // SD enabled
+  tmpstr = (ESP3DSettings::GetSDDevice() == ESP_DIRECT_SD)   ? "direct "
+           : (ESP3DSettings::GetSDDevice() == ESP_SHARED_SD) ? "shared "
+                                                             : "none ";
+  tmpstr += "(";
+  tmpstr += ESP_SD::FilesystemName();
+  tmpstr += ")";
+  if (!dispatchIdValue(json, "sd", tmpstr.c_str(), target, requestId, false)) {
+    return;
+  }
+
 #ifdef SD_UPDATE_FEATURE
-      if (json) {
-        line += ",{\"id\":\"";
-      }
-      line += "SD updater";
-      if (json) {
-        line += "\",\"value\":\"";
-      } else {
-        line += ": ";
-      }
-      line += ESP3DSettings::readByte(ESP_SD_CHECK_UPDATE_AT_BOOT) != 0
-                  ? "ON"
-                  : "OFF";
-      if (json) {
-        line += "\"}";
-        esp3dmsg->print(line.c_str());
-      } else {
-        esp3dmsg->printMSGLine(line.c_str());
-      }
-      line = "";
+  // SD updater enabled
+  tmpstr =
+      ESP3DSettings::readByte(ESP_SD_CHECK_UPDATE_AT_BOOT) != 0 ? "ON" : "OFF";
+  if (!dispatchIdValue(json, "SD updater", tmpstr.c_str(), target, requestId,
+                       false)) {
+    return;
+  }
 #endif  // SD_UPDATE_FEATURE
 
 #endif  // SD_DEVICE
 #if defined(SENSOR_DEVICE)
-      if (json) {
-        line += ",{\"id\":\"";
-      }
-      line += "sensor";
-      if (json) {
-        line += "\",\"value\":\"";
-      } else {
-        line += ": ";
-      }
-      line += esp3d_sensor.started() ? "ON" : "OFF";
-      if (esp3d_sensor.started()) {
-        line += " (";
-        line += esp3d_sensor.GetCurrentModelString();
-        line += ")";
-      }
-      if (json) {
-        line += "\"}";
-        esp3dmsg->print(line.c_str());
-      } else {
-        esp3dmsg->printMSGLine(line.c_str());
-      }
-      line = "";
+  // sensor enabled
+  tmpstr = (esp3d_sensor.started()) ? "ON" : "OFF";
+  if (esp3d_sensor.started()) {
+    tmpstr += " (";
+    tmpstr += esp3d_sensor.GetCurrentModelString();
+    tmpstr += ")";
+  }
+  if (!dispatchIdValue(json, "sensor", tmpstr.c_str(), target, requestId,
+                       false)) {
+    return;
+  }
 #endif  // SENSOR_DEVICE
 #if defined(BUZZER_DEVICE)
-      if (json) {
-        line += ",{\"id\":\"";
-      }
-      line += "buzzer";
-      if (json) {
-        line += "\",\"value\":\"";
-      } else {
-        line += ": ";
-      }
-      line += esp3d_buzzer.started() ? "ON" : "OFF";
-      if (json) {
-        line += "\"}";
-        esp3dmsg->print(line.c_str());
-      } else {
-        esp3dmsg->printMSGLine(line.c_str());
-      }
-      line = "";
+  // buzzer enabled
+  tmpstr = (esp3d_buzzer.started()) ? "ON" : "OFF";
+  if (!dispatchIdValue(json, "buzzer", tmpstr.c_str(), target, requestId,
+                       false)) {
+    return;
+  }
 #endif  // BUZZER_DEVICE
-#if defined(ESP_LOG_FEATURE)
-      // debug
-      if (json) {
-        line += ",{\"id\":\"";
-      }
-      line += "log";
-      if (json) {
-        line += "\",\"value\":\"";
-      } else {
-        line += ": ";
-      }
-#if ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL0
-      line += "Serial";
-#endif  // LOG_OUTPUT_SERIAL0
-#if ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL1
-      line += "Serial1";
-#endif  // LOG_OUTPUT_SERIAL1
-#if ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL2
-      line += "Serial2";
-#endif  // LOG_OUTPUT_SERIAL2
-#if ESP_LOG_FEATURE == LOG_OUTPUT_TELNET
-      line += "Telnet(" + String(LOG_ESP3D_OUTPUT_PORT) + ")";
-#endif  // LOG_OUTPUT_TELNET
-#if ESP_LOG_FEATURE == LOG_OUTPUT_WEBSOCKET
-      line += "Websocket(" + String(LOG_ESP3D_OUTPUT_PORT) + ")";
-#endif  // LOG_OUTPUT_WEBSOCKET
-      if (json) {
-        line += "\"}";
-        esp3dmsg->print(line.c_str());
-      } else {
-        esp3dmsg->printMSGLine(line.c_str());
-      }
-      line = "";
-#endif  // ESP_LOG_FEATURE
-#if COMMUNICATION_PROTOCOL == MKS_SERIAL
-      // Target Firmware
-      if (json) {
-        line += ",{\"id\":\"serial";
-      } else {
-        line += "Serial";
-      }
-      if (json) {
-        line += "\",\"value\":\"";
-      } else {
-        line += ": ";
-      }
-      line += "MKS";
-      if (json) {
-        line += "\"}";
-        esp3dmsg->print(line.c_str());
-      } else {
-        esp3dmsg->printMSGLine(line.c_str());
-      }
-      line = "";
-#endif  // COMMUNICATION_PROTOCOL
-        // Target Firmware
-      if (json) {
-        line += ",{\"id\":\"targetfw";
-      } else {
-        line += "Target Fw";
-      }
-      if (json) {
-        line += "\",\"value\":\"";
-      } else {
-        line += ": ";
-      }
-      line += ESP3DSettings::GetFirmwareTargetShortName();
-      if (json) {
-        line += "\"}";
-        esp3dmsg->print(line.c_str());
-      } else {
-        esp3dmsg->printMSGLine(line.c_str());
-      }
-      line = "";
-      // FW version
-      if (json) {
-        line += ",{\"id\":\"";
-      }
-      line += "FW ver";
-      if (json) {
-        line += "\",\"value\":\"";
-      } else {
-        line += ": ";
-      }
-#if defined(SHORT_BUILD_VERSION)
-      line += SHORT_BUILD_VERSION "-";
-#endif  // SHORT_BUILD_VERSION
-      line += FW_VERSION;
-      if (json) {
-        line += "\"}";
-        esp3dmsg->print(line.c_str());
-      } else {
-        esp3dmsg->printMSGLine(line.c_str());
-      }
-      line = "";
-      // FW architecture
-      if (json) {
-        line += ",{\"id\":\"";
-      }
+#if defined(CAMERA_DEVICE)
+  // camera enabled
+  tmpstr = (esp3d_camera.started()) ? "ON" : "OFF";
+  if (esp3d_camera.started()) {
+    tmpstr += " (";
 
-      line += "FW arch";
-      if (json) {
-        line += "\",\"value\":\"";
-      } else {
-        line += ": ";
-      }
-      line += ESP3DSettings::TargetBoard();
-      if (json) {
-        line += "\"}";
-        esp3dmsg->print(line.c_str());
-      } else {
-        esp3dmsg->printMSGLine(line.c_str());
-      }
-      if (json) {
-        esp3dmsg->printLN("]}");
-      }
-      return true;
-    } else {
-      response = format_response(COMMANDID, json, false,
-                                 "This command doesn't take parameters");
-      noError = false;
-    }
+    tmpstr += esp3d_camera.GetModelString();
+    tmpstr += ")";
   }
+  if (!dispatchIdValue(json, "camera", tmpstr.c_str(), target, requestId,
+                       false)) {
+    return;
+  }
+#endif  // CAMERA_DEVICE
+
+// Serial mode
+#if COMMUNICATION_PROTOCOL == MKS_SERIAL
+  tmpstr = "MKS";
+  if (!dispatchIdValue(json, "serial", tmpstr.c_str(), target, requestId,
+                       false)) {
+    return;
+  }
+#endif  // COMMUNICATION_PROTOCOL == MKS_SERIAL
+
+  // Target Firmware
+  tmpstr = ESP3DSettings::GetFirmwareTargetShortName();
+  if (!dispatchIdValue(json, "targetfw", tmpstr.c_str(), target, requestId,
+                       false)) {
+    return;
+  }
+
+  // FW version
+
+  tmpstr = "";
+#if defined(SHORT_BUILD_VERSION)
+  tmpstr += SHORT_BUILD_VERSION "-";
+#endif  // SHORT_BUILD_VERSION
+  tmpstr += FW_VERSION;
+
+  if (!dispatchIdValue(json, "FW ver", tmpstr.c_str(), target, requestId,
+                       false)) {
+    return;
+  }
+
+  // FW architecture
+  tmpstr = ESP3DSettings::TargetBoard();
+  if (!dispatchIdValue(json, "FW arch", tmpstr.c_str(), target, requestId,
+                       false)) {
+    return;
+  }
+
+  // end of list
   if (json) {
-    esp3dmsg->printLN(response.c_str());
+    if (!dispatch("]}", target, requestId, ESP3DMessageType::tail)) {
+      esp3d_log_e("Error sending answer to clients");
+    }
   } else {
-    if (noError) {
-      esp3dmsg->printMSG(response.c_str());
-    } else {
-      esp3dmsg->printERROR(response.c_str(), errorCode);
+    {
+      if (addPreTag) {
+        tmpstr = "</pre>\n";
+      } else {
+        tmpstr = "ok\n";
+      }
+      if (!dispatch(tmpstr.c_str(), target, requestId,
+                    ESP3DMessageType::tail)) {
+        esp3d_log_e("Error sending answer to clients");
+      }
     }
   }
-  return noError;*/
 }

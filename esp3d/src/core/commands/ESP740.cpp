@@ -124,7 +124,7 @@ void ESP3DCommands::ESP740(int cmd_params_pos, ESP3DMessage* msg) {
                   line += "{\"name\":\"";
                   line += sub.name();
                   line += "\",\"size\":\"";
-                  line += ESP_SD::formatBytes(sub.size());
+                  line += esp3d_string::formatBytes(sub.size());
                   if (time.length() > 0) {
                     line += "\",\"time\":\"";
                     line += time;
@@ -134,7 +134,7 @@ void ESP3DCommands::ESP740(int cmd_params_pos, ESP3DMessage* msg) {
                   line += "     \t ";
                   line += sub.name();
                   line += " \t";
-                  line += ESP_SD::formatBytes(sub.size());
+                  line += esp3d_string::formatBytes(sub.size());
                   line += " \t";
                   line += time;
                 }
@@ -150,9 +150,9 @@ void ESP3DCommands::ESP740(int cmd_params_pos, ESP3DMessage* msg) {
             f.close();
             if (json) {
               line = "], \"total\":\"";
-              line += ESP_SD::formatBytes(ESP_SD::totalBytes());
+              line += esp3d_string::formatBytes(ESP_SD::totalBytes());
               line += "\",\"used\":\"";
-              line += ESP_SD::formatBytes(ESP_SD::usedBytes());
+              line += esp3d_string::formatBytes(ESP_SD::usedBytes());
               line += "\",\"occupation\":\"";
               uint64_t total = ESP_SD::totalBytes();
               if (total == 0) {
@@ -176,11 +176,11 @@ void ESP3DCommands::ESP740(int cmd_params_pos, ESP3DMessage* msg) {
               }
               esp3dmsg->printMSGLine(line.c_str());
               line = "Total ";
-              line += ESP_SD::formatBytes(ESP_SD::totalBytes());
+              line += esp3d_string::formatBytes(ESP_SD::totalBytes());
               line += ", Used ";
-              line += ESP_SD::formatBytes(ESP_SD::usedBytes());
+              line += esp3d_string::formatBytes(ESP_SD::usedBytes());
               line += ", Available: ";
-              line += ESP_SD::formatBytes(ESP_SD::freeBytes());
+              line += esp3d_string::formatBytes(ESP_SD::freeBytes());
               esp3dmsg->printMSGLine(line.c_str());
             }
             ESP_SD::releaseFS();

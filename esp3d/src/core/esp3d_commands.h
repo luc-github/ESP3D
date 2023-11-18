@@ -217,10 +217,6 @@ class ESP3DCommands {
 
  private:
   ESP3DClientType _output_client;
-  /*bool _dispatchSetting(bool json, const char* filter, ESP3DSettingIndex
-index, const char* help, const char** optionValues, const char** optionLabels,
-uint32_t maxsize, uint32_t minsize, uint32_t minsize2, uint8_t precision, const
-char* unit, bool needRestart, ESP3D_Message* esp3dmsg, bool isFirst = false);*/
 };
 
 extern ESP3DCommands esp3d_commands;

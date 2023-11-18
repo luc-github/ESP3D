@@ -68,7 +68,6 @@ class ESP_SDFile {
 
 class ESP_SD {
  public:
-  static String& formatBytes(uint64_t bytes);
   static bool begin();
   static bool accessFS(uint8_t FS = FS_SD);
   static void releaseFS(uint8_t FS = FS_SD);

@@ -187,7 +187,7 @@ void HTTP_Server::handleSDFileList() {
         if (sub.isDirectory()) {
           buffer2send += "-1";
         } else {
-          buffer2send += ESP_SD::formatBytes(sub.size());
+          buffer2send += esp3d_string::formatBytes(sub.size());
         }
 #ifdef FILESYSTEM_TIMESTAMP_FEATURE
         buffer2send += "\",\"time\":\"";
@@ -239,9 +239,9 @@ void HTTP_Server::handleSDFileList() {
   }
   buffer2send += "\"status\":\"" + status + "\",";
   buffer2send +=
-      "\"total\":\"" + ESP_SD::formatBytes(ESP_SD::totalBytes()) + "\",";
+      "\"total\":\"" + esp3d_string::formatBytes(ESP_SD::totalBytes()) + "\",";
   buffer2send +=
-      "\"used\":\"" + ESP_SD::formatBytes(ESP_SD::usedBytes()) + "\"}";
+      "\"used\":\"" + esp3d_string::formatBytes(ESP_SD::usedBytes()) + "\"}";
   path = "";
   _webserver->sendContent_P(buffer2send.c_str(), buffer2send.length());
   _webserver->sendContent("");

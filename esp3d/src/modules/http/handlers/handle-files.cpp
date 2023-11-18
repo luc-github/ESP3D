@@ -168,7 +168,7 @@ void HTTP_Server::handleFSFileList() {
         if (sub.isDirectory()) {
           buffer2send += "-1";
         } else {
-          buffer2send += ESP_FileSystem::formatBytes(sub.size());
+          buffer2send += esp3d_string::formatBytes(sub.size());
         }
 #ifdef FILESYSTEM_TIMESTAMP_FEATURE
         buffer2send += "\",\"time\":\"";
@@ -212,11 +212,10 @@ void HTTP_Server::handleFSFileList() {
   }
   buffer2send += "\"status\":\"" + status + "\",";
   buffer2send += "\"total\":\"" +
-                 ESP_FileSystem::formatBytes(ESP_FileSystem::totalBytes()) +
+                 esp3d_string::formatBytes(ESP_FileSystem::totalBytes()) +
                  "\",";
   buffer2send += "\"used\":\"" +
-                 ESP_FileSystem::formatBytes(ESP_FileSystem::usedBytes()) +
-                 "\"}";
+                 esp3d_string::formatBytes(ESP_FileSystem::usedBytes()) + "\"}";
   path = "";
   _webserver->sendContent_P(buffer2send.c_str(), buffer2send.length());
   _webserver->sendContent("");

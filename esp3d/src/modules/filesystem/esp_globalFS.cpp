@@ -40,21 +40,6 @@ bool ESP_GBFS::isavailable(uint8_t FS) {
 uint8_t ESP_GBFS::_nbFS = 0;
 String ESP_GBFS::_rootlist[MAX_FS];
 
-// helper to format size to readable string
-String &ESP_GBFS::formatBytes(uint64_t bytes) {
-  static String res;
-  if (bytes < 1024) {
-    res = String((uint16_t)bytes) + " B";
-  } else if (bytes < (1024 * 1024)) {
-    res = String((float)(bytes / 1024.0), 2) + " KB";
-  } else if (bytes < (1024 * 1024 * 1024)) {
-    res = String((float)(bytes / 1024.0 / 1024.0), 2) + " MB";
-  } else {
-    res = String((float)(bytes / 1024.0 / 1024.0 / 1024.0), 2) + " GB";
-  }
-  return res;
-}
-
 // depending FS
 uint64_t ESP_GBFS::totalBytes(uint8_t FS) {
 #ifdef FILESYSTEM_FEATURE

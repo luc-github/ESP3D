@@ -73,6 +73,7 @@
 
 #include "../../core/esp3d_message.h"
 #include "../../core/esp3d_settings.h"
+#include "../../core/esp3d_string.h"
 #include "../authentication/authentication_service.h"
 #include "../network/netconfig.h"
 #include "ExtStreaming.h"
@@ -1020,7 +1021,7 @@ bool FtpServer::processCommand() {
         capacity = FTPFS::totalBytes();
         free = FTPFS::freeBytes();
 #endif
-        client << F("200 ") << FTPFS::formatBytes(free) << F(" free of ")
+        client << F("200 ") << esp3d_string::formatBytes(free) << F(" free of ")
                << FTPFS::formatBytes(capacity) << F(" capacity") << eol;
         esp3d_log("FTP: releaseFS");
         releaseFS();

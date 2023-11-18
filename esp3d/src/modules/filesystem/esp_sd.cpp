@@ -196,21 +196,6 @@ void ESP_SD::releaseFS(uint8_t FS) {
 
 void ESP_SD::handle() {}
 
-// helper to format size to readable string
-String& ESP_SD::formatBytes(uint64_t bytes) {
-  static String res;
-  if (bytes < 1024) {
-    res = String((uint16_t)bytes) + " B";
-  } else if (bytes < (1024 * 1024)) {
-    res = String((float)(bytes / 1024.0), 2) + " KB";
-  } else if (bytes < (1024 * 1024 * 1024)) {
-    res = String((float)(bytes / 1024.0 / 1024.0), 2) + " MB";
-  } else {
-    res = String((float)(bytes / 1024.0 / 1024.0 / 1024.0), 2) + " GB";
-  }
-  return res;
-}
-
 ESP_SDFile::ESP_SDFile(const char* name, const char* filename, bool isdir,
                        size_t size) {
   _isdir = isdir;

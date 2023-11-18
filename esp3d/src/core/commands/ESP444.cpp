@@ -26,59 +26,53 @@
 // Set ESP State
 // cmd are RESTART / RESET
 //[ESP444]<cmd> json=<no> <pwd=admin>
-#define COMMANDID 444
+#define COMMAND_ID 444
 void ESP3DCommands::ESP444(int cmd_params_pos, ESP3DMessage* msg) {
-  /*
-  bool noError = true;
-  bool json = has_tag(cmd_params, "json");
-  String response;
-  String parameter;
-  int errorCode = 200;  // unless it is a server error use 200 as default and
-                        // set error in json instead
-#ifdef AUTHENTICATION_FEATURE
-  if (auth_type != admin) {
-    response =
-        format_response(COMMANDID, json, false, "Wrong authentication level");
-    noError = false;
-    errorCode = 401;
+  ESP3DClientType target = msg->origin;
+  ESP3DRequest requestId = msg->request_id;
+  (void)requestId;
+  msg->target = target;
+  msg->origin = ESP3DClientType::command;
+  bool json = hasTag(msg, cmd_params_pos, "json");
+  String tmpstr;
+  bool isRestart = hasTag(msg, cmd_params_pos, "RESTART");
+  bool isReset = hasTag(msg, cmd_params_pos, "RESET");
+  bool hasError = false;
+  String error_msg = "Invalid parameters";
+  String ok_msg = "";
+#if ESP3D_AUTHENTICATION_FEATURE
+  if (msg->authentication_level != ESP3DAuthenticationLevel::admin) {
+    msg->authentication_level = ESP3DAuthenticationLevel::not_authenticated;
+    dispatchAuthenticationError(msg, COMMAND_ID, json);
+    return;
   }
-#else
-  (void)auth_type;
-#endif  // AUTHENTICATION_FEATURE
-  if (noError) {
-    if (has_tag(cmd_params, "RESET")) {
-      if (Esp3D::reset()) {
-        response = format_response(COMMANDID, json, true, "ok");
-      } else {
-        response = format_response(COMMANDID, json, false, "Reset failed");
-        noError = false;
-      }
-    }
-    if (noError && has_tag(cmd_params, "RESTART")) {
-      if (!json) {
-        esp3dmsg->printMSG("Restart ongoing");
-      } else {
-        response = format_response(COMMANDID, json, true, "Restart ongoing");
-        esp3dmsg->printLN(response.c_str());
-      }
-      esp3dmsg->flush();
-      ESP3DHal::wait(100);
-      Esp3D::restart_esp();
-    }
-    if (noError && !has_tag(cmd_params, "RESTART") &&
-        !has_tag(cmd_params, "RESET")) {
-      response = format_response(COMMANDID, json, false, "Invalid parameter");
-      noError = false;
-    }
+#endif  // ESP3D_AUTHENTICATION_FEATURE
+  if (isReset) {
+    Esp3D::reset();
+    esp3d_log("Resetting settings");
   }
-  if (json) {
-    esp3dmsg->printLN(response.c_str());
+
+  if (!(isRestart || isReset)) {
+    hasError = true;
+    esp3d_log_e("%s", error_msg.c_str());
   } else {
-    if (noError) {
-      esp3dmsg->printMSG(response.c_str());
-    } else {
-      esp3dmsg->printERROR(response.c_str(), errorCode);
+    if (isReset) {
+      ok_msg += "Reset done";
+    }
+    if (isRestart) {
+      if (ok_msg.length() > 0) {
+        ok_msg += ", ";
+      }
+      ok_msg += "Now restarting...";
     }
   }
-  return noError;*/
+  if (!dispatchAnswer(msg, COMMAND_ID, json, hasError,
+                      hasError ? error_msg.c_str() : ok_msg.c_str())) {
+    esp3d_log_e("Error sending response to clients");
+    return;
+  }
+  if (isRestart) {
+    ESP3DHal::wait(100);
+    Esp3D::restart_esp();
+  }
 }

@@ -118,7 +118,7 @@ void ESP3DCommands::ESP720(int cmd_params_pos, ESP3DMessage* msg) {
               line += "{\"name\":\"";
               line += sub.name();
               line += "\",\"size\":\"";
-              line += ESP_FileSystem::formatBytes(sub.size());
+              line += esp3d_string::formatBytes(sub.size());
               if (time.length() > 0) {
                 line += "\",\"time\":\"";
                 line += time;
@@ -128,7 +128,7 @@ void ESP3DCommands::ESP720(int cmd_params_pos, ESP3DMessage* msg) {
               line += "     \t ";
               line += sub.name();
               line += " \t";
-              line += ESP_FileSystem::formatBytes(sub.size());
+              line += esp3d_string::formatBytes(sub.size());
               line += " \t";
               line += time;
             }
@@ -145,9 +145,9 @@ void ESP3DCommands::ESP720(int cmd_params_pos, ESP3DMessage* msg) {
 
         if (json) {
           line = "], \"total\":\"";
-          line += ESP_FileSystem::formatBytes(ESP_FileSystem::totalBytes());
+          line += esp3d_string::formatBytes(ESP_FileSystem::totalBytes());
           line += "\",\"used\":\"";
-          line += ESP_FileSystem::formatBytes(ESP_FileSystem::usedBytes());
+          line += esp3d_string::formatBytes(ESP_FileSystem::usedBytes());
           line += "\",\"occupation\":\"";
           uint64_t total = ESP_FileSystem::totalBytes();
           if (total == 0) {
@@ -171,11 +171,11 @@ void ESP3DCommands::ESP720(int cmd_params_pos, ESP3DMessage* msg) {
           }
           esp3dmsg->printMSGLine(line.c_str());
           line = "Total ";
-          line += ESP_FileSystem::formatBytes(ESP_FileSystem::totalBytes());
+          line += esp3d_string::formatBytes(ESP_FileSystem::totalBytes());
           line += ", Used ";
-          line += ESP_FileSystem::formatBytes(ESP_FileSystem::usedBytes());
+          line += esp3d_string::formatBytes(ESP_FileSystem::usedBytes());
           line += ", Available: ";
-          line += ESP_FileSystem::formatBytes(ESP_FileSystem::freeBytes());
+          line += esp3d_string::formatBytes(ESP_FileSystem::freeBytes());
           esp3dmsg->printMSGLine(line.c_str());
         }
 

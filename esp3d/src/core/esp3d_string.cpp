@@ -164,3 +164,18 @@ const char* esp3d_string::encodeString(const char* s) {
   }
   return tmp.c_str();
 }
+
+// helper to format size to readable string
+const char* esp3d_string::formatBytes(uint64_t bytes) {
+  static String res;
+  if (bytes < 1024) {
+    res = String((uint16_t)bytes) + " B";
+  } else if (bytes < (1024 * 1024)) {
+    res = String((float)(bytes / 1024.0), 2) + " KB";
+  } else if (bytes < (1024 * 1024 * 1024)) {
+    res = String((float)(bytes / 1024.0 / 1024.0), 2) + " MB";
+  } else {
+    res = String((float)(bytes / 1024.0 / 1024.0 / 1024.0), 2) + " GB";
+  }
+  return res.c_str();
+}

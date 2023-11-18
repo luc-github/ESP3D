@@ -38,21 +38,6 @@ uint8_t ESP_FileSystem::getFSType(const char* path) {
   return FS_FLASH;
 }
 
-// helper to format size to readable string
-String& ESP_FileSystem::formatBytes(uint64_t bytes) {
-  static String res;
-  if (bytes < 1024) {
-    res = String((uint16_t)bytes) + " B";
-  } else if (bytes < (1024 * 1024)) {
-    res = String((float)(bytes / 1024.0), 2) + " KB";
-  } else if (bytes < (1024 * 1024 * 1024)) {
-    res = String((float)(bytes / 1024.0 / 1024.0), 2) + " MB";
-  } else {
-    res = String((float)(bytes / 1024.0 / 1024.0 / 1024.0), 2) + " GB";
-  }
-  return res;
-}
-
 bool ESP_FileSystem::accessFS(uint8_t FS) {
   (void)FS;
   if (!_started) {
