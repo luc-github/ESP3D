@@ -128,6 +128,8 @@ const char* help[] = {
     "[ESP450]display ESP3D list on network",
 #endif  // MDNS_FEATURE
 #if defined(AUTHENTICATION_FEATURE)
+    "[ESP500]display authentication level",
+    "[ESP510](timeout) - set/display session time out",
     "[ESP550](password) - change admin password",
     "[ESP555](password) - change user password",
 #endif  // AUTHENTICATION_FEATURE
@@ -257,7 +259,7 @@ const uint cmdlist[] = {
     450,
 #endif  // MDNS_FEATURE
 #if defined(AUTHENTICATION_FEATURE)
-    550, 555,
+    500, 510, 550, 555,
 #endif  // AUTHENTICATION_FEATURE
 #if defined(NOTIFICATION_FEATURE)
     600, 610, 620,

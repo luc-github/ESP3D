@@ -1,5 +1,5 @@
 /*
- ESP555.cpp - ESP3D command class
+ ESP550.cpp - ESP3D command class
 
  Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -24,10 +24,10 @@
 #include "../esp3d_message.h"
 #include "../esp3d_settings.h"
 
-// Change user password
-//[ESP555]<password> json=<no> pwd=<admin/user password>
-#define COMMAND_ID 555
-void ESP3DCommands::ESP555(int cmd_params_pos, ESP3DMessage* msg) {
+#define COMMAND_ID 550
+// Change admin password
+//[ESP550]<password> json=<no> pwd=<admin password>
+void ESP3DCommands::ESP550(int cmd_params_pos, ESP3DMessage* msg) {
   ESP3DClientType target = msg->origin;
   ESP3DRequest requestId = msg->request_id;
   (void)requestId;
@@ -39,7 +39,7 @@ void ESP3DCommands::ESP555(int cmd_params_pos, ESP3DMessage* msg) {
   bool json = hasTag(msg, cmd_params_pos, "json");
   String tmpstr;
 #if defined(AUTHENTICATION_FEATURE)
-  if (msg->authentication_level == ESP3DAuthenticationLevel::guest) {
+  if (msg->authentication_level != ESP3DAuthenticationLevel::admin) {
     msg->authentication_level = ESP3DAuthenticationLevel::not_authenticated;
     dispatchAuthenticationError(msg, COMMAND_ID, json);
     return;
@@ -48,21 +48,19 @@ void ESP3DCommands::ESP555(int cmd_params_pos, ESP3DMessage* msg) {
   tmpstr = get_clean_param(msg, cmd_params_pos);
   if (tmpstr.length() == 0) {
     const ESP3DSettingDescription* settingPtr =
-        ESP3DSettings::getSettingPtr(ESP_USER_PWD);
+        ESP3DSettings::getSettingPtr(ESP_SESSION_TIMEOUT);
     if (settingPtr) {
-      ok_msg = ESP3DSettings::readString(ESP_USER_PWD);
+      ok_msg = String(ESP3DSettings::readByte(ESP_SESSION_TIMEOUT));
     } else {
       hasError = true;
       error_msg = "This setting is unknown";
     }
   } else {
-    esp3d_log(
-        "got %s param for a value of %s, is valid %d", tmpstr.c_str(),
-        tmpstr.c_str(),
-        ESP3DSettings::isValidStringSetting(tmpstr.c_str(), ESP_USER_PWD));
-    if (ESP3DSettings::isValidStringSetting(tmpstr.c_str(), ESP_USER_PWD)) {
+    if (ESP3DSettings::isValidByteSetting((uint8_t)tmpstr.toInt(),
+                                          ESP_SESSION_TIMEOUT)) {
       esp3d_log("Value %s is valid", tmpstr.c_str());
-      if (!ESP3DSettings::writeString(ESP_USER_PWD, tmpstr.c_str())) {
+      if (!ESP3DSettings::writeByte(ESP_SESSION_TIMEOUT,
+                                    (uint8_t)tmpstr.toInt())) {
         hasError = true;
         error_msg = "Set value failed";
       }

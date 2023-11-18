@@ -1,5 +1,5 @@
 /*
- ESP555.cpp - ESP3D command class
+ ESP550.cpp - ESP3D command class
 
  Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -24,10 +24,10 @@
 #include "../esp3d_message.h"
 #include "../esp3d_settings.h"
 
-// Change user password
-//[ESP555]<password> json=<no> pwd=<admin/user password>
-#define COMMAND_ID 555
-void ESP3DCommands::ESP555(int cmd_params_pos, ESP3DMessage* msg) {
+#define COMMAND_ID 500
+// Get/Set connection status
+//[ESP500] json=<no> pwd=<admin password>
+void ESP3DCommands::ESP500(int cmd_params_pos, ESP3DMessage* msg) {
   ESP3DClientType target = msg->origin;
   ESP3DRequest requestId = msg->request_id;
   (void)requestId;
@@ -37,40 +37,27 @@ void ESP3DCommands::ESP555(int cmd_params_pos, ESP3DMessage* msg) {
   String error_msg = "Invalid parameters";
   String ok_msg = "ok";
   bool json = hasTag(msg, cmd_params_pos, "json");
-  String tmpstr;
-#if defined(AUTHENTICATION_FEATURE)
-  if (msg->authentication_level == ESP3DAuthenticationLevel::guest) {
-    msg->authentication_level = ESP3DAuthenticationLevel::not_authenticated;
-    dispatchAuthenticationError(msg, COMMAND_ID, json);
-    return;
-  }
-#endif  // AUTHENTICATION_FEATURE
-  tmpstr = get_clean_param(msg, cmd_params_pos);
+
+  String tmpstr = get_clean_param(msg, cmd_params_pos);
   if (tmpstr.length() == 0) {
-    const ESP3DSettingDescription* settingPtr =
-        ESP3DSettings::getSettingPtr(ESP_USER_PWD);
-    if (settingPtr) {
-      ok_msg = ESP3DSettings::readString(ESP_USER_PWD);
-    } else {
-      hasError = true;
-      error_msg = "This setting is unknown";
+    switch (msg->authentication_level) {
+      case ESP3DAuthenticationLevel::admin:
+        ok_msg = "admin";
+        break;
+      case ESP3DAuthenticationLevel::user:
+        ok_msg = "user";
+        break;
+      case ESP3DAuthenticationLevel::not_authenticated:
+        ok_msg = "Not authenticated";
+        break;
+      default:
+        ok_msg = "guest";
+        break;
     }
   } else {
-    esp3d_log(
-        "got %s param for a value of %s, is valid %d", tmpstr.c_str(),
-        tmpstr.c_str(),
-        ESP3DSettings::isValidStringSetting(tmpstr.c_str(), ESP_USER_PWD));
-    if (ESP3DSettings::isValidStringSetting(tmpstr.c_str(), ESP_USER_PWD)) {
-      esp3d_log("Value %s is valid", tmpstr.c_str());
-      if (!ESP3DSettings::writeString(ESP_USER_PWD, tmpstr.c_str())) {
-        hasError = true;
-        error_msg = "Set value failed";
-      }
-    } else {
-      hasError = true;
-      error_msg = "Invalid parameter";
-    }
+    hasError = true;
   }
+
   if (!dispatchAnswer(msg, COMMAND_ID, json, hasError,
                       hasError ? error_msg.c_str() : ok_msg.c_str())) {
     esp3d_log_e("Error sending response to clients");

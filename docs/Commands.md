@@ -238,6 +238,12 @@ label can be: light/framesize/quality/contrast/brightness/saturation/gainceiling
     output is JSON or plain text according parameter   
     `[ESP450]json=<no> <pwd=admin/user>`
 
+* Get authentication level
+    `[ESP500] json=<no>`
+
+* Get/Set session timeout   
+    `[ESP510]<timeout in minutes> json=<no> pwd=<admin password>`
+
 * Change admin password    
     `[ESP550]<password> json=<no> pwd=<admin password>` 
 

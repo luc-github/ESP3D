@@ -28,126 +28,117 @@
 // Get available ESP3D list
 // output is JSON or plain text according parameter
 //[ESP4\50]json=<no>
-#define COMMANDID 450
+#define COMMAND_ID 450
 void ESP3DCommands::ESP450(int cmd_params_pos, ESP3DMessage* msg) {
-  /*
-  bool noError = true;
-  bool json = has_tag(cmd_params, "json");
-  String response;
-  String parameter;
-  int errorCode = 200;  // unless it is a server error use 200 as default and
-                        // set error in json instead
+  ESP3DClientType target = msg->origin;
+  ESP3DRequest requestId = msg->request_id;
+  msg->target = target;
+  msg->origin = ESP3DClientType::command;
+  bool json = hasTag(msg, cmd_params_pos, "json");
+  String tmpstr;
 
-#ifdef AUTHENTICATION_FEATURE
-  if (auth_type == guest) {
-    response = format_response(COMMANDID, json, false,
-                               "Guest user can't use this command");
-    noError = false;
-    errorCode = 401;
+#if ESP3D_AUTHENTICATION_FEATURE
+  if (msg->authentication_level == ESP3DAuthenticationLevel::guest) {
+    dispatchAuthenticationError(msg, COMMAND_ID, json);
+    return;
   }
-#else
-  (void)auth_type;
-#endif  // AUTHENTICATION_FEATURE
-  if (noError) {
-    parameter = clean_param(get_param(cmd_params, ""));
-    if (parameter.length() == 0) {
-      uint16_t n = 0;
-      if (!json) {
-        esp3dmsg->printMSGLine("Start Scan");
+#endif  // ESP3D_AUTHENTICATION_FEATURE
+
+  if (!(WiFi.getMode() == WIFI_STA || WiFi.getMode() == WIFI_AP)) {
+    tmpstr = "Network not enabled";
+    dispatchAnswer(msg, COMMAND_ID, json, true, tmpstr.c_str());
+    return;
+  }
+
+  if (json) {
+    tmpstr = "{\"cmd\":\"450\",\"status\":\"ok\",\"data\":[";
+
+  } else {
+    tmpstr = "Start Scan\n";
+  }
+  msg->type = ESP3DMessageType::head;
+  if (!dispatch(msg, tmpstr.c_str())) {
+    esp3d_log_e("Error sending response to clients");
+    return;
+  }
+
+  uint16_t count = esp3d_mDNS.servicesCount();
+  uint16_t nbListed = 0;
+  esp3d_log("Total : %d", count);
+  for (uint16_t i = 0; i < count; i++) {
+    if (strlen(esp3d_mDNS.answerHostname(i)) == 0) {
+      continue;
+    }
+    // Currently esp3d support only IPV4 and only one address per device
+
+    tmpstr = "";
+
+    if (json) {
+      if (nbListed > 0) {
+        tmpstr += ",";
       }
 
-      n = esp3d_mDNS.servicesCount();
+      tmpstr += "{\"Hostname\":\"";
+    }
+    tmpstr += esp3d_mDNS.answerHostname(i);
+    if (json) {
+      tmpstr += "\",\"IP\":\"";
+    } else {
+      tmpstr += " (";
+    }
+    tmpstr += esp3d_mDNS.answerIP(i);
+    if (json) {
+      tmpstr += "\",\"port\":\"";
+      tmpstr += String(esp3d_mDNS.answerPort(i));
+      tmpstr += "\",\"TxT\":[";
+
+    } else {
+      tmpstr += ":";
+      tmpstr += String(esp3d_mDNS.answerPort(i));
+      tmpstr += ") ";
+    }
+    uint16_t nbtxt = esp3d_mDNS.answerTxtCount(i);
+    for (uint8_t t = 0; t < nbtxt; t++) {
+      if (t != 0) {
+        tmpstr += ",";
+      }
       if (json) {
-        esp3dmsg->print("{\"cmd\":\"450\",\"status\":\"ok\",\"data\":[");
+        tmpstr += "{\"key\":\"";
       }
-      String line;
-
-      for (uint16_t i = 0; i < n; i++) {
-        line = "";
-        if (strlen(esp3d_mDNS.answerHostname(i)) == 0) {
-          continue;
-        }
-        if (i > 0) {
-          if (json) {
-            line += ",";
-          }
-        }
-        if (json) {
-          line += "{\"Hostname\":\"";
-          line += ESP3D_Message::encodeString(esp3d_mDNS.answerHostname(i));
-        } else {
-          line += esp3d_mDNS.answerHostname(i);
-        }
-        if (json) {
-          line += "\",\"IP\":\"";
-        } else {
-          line += " (";
-        }
-        line += esp3d_mDNS.answerIP(i);
-        if (!json) {
-          line += ":";
-        }
-        if (json) {
-          line += "\",\"port\":\"";
-        }
-        line += String(esp3d_mDNS.answerPort(i));
-        if (json) {
-          line += "\",\"TxT\":[";
-        } else {
-          line += ") ";
-        }
-        uint16_t nbtxt = esp3d_mDNS.answerTxtCount(i);
-        for (uint16_t j = 0; j < nbtxt; ++j) {
-          if (j > 0) {
-            line += ",";
-          }
-          if (json) {
-            line += "{\"key\":\"";
-          }
-          line += esp3d_mDNS.answerTxtKey(i, j);
-          if (json) {
-            line += "\",\"value\":\"";
-          } else {
-            line += "=";
-          }
-          line += esp3d_mDNS.answerTxt(i, j);
-          if (json) {
-            line += "\"}";
-          }
-        }
-        if (json) {
-          line += "]}";
-        }
-        if (json) {
-          esp3dmsg->print(line.c_str());
-        } else {
-          esp3dmsg->printMSGLine(line.c_str());
-        }
+      tmpstr += esp3d_mDNS.answerTxtKey(i, t);
+      if (json) {
+        tmpstr += "\",\"value\":\"";
+      } else {
+        tmpstr += "=";
+      }
+      tmpstr += esp3d_mDNS.answerTxt(i, t);
+      if (json) {
+        tmpstr += "\"}";
       }
     }
 
     if (json) {
-      esp3dmsg->printLN("]}");
+      tmpstr += "]}";
     } else {
-      esp3dmsg->printMSGLine("End Scan");
+      tmpstr += "\n";
     }
-    return true;
-  } else {
-    response = format_response(COMMANDID, json, false,
-                               "This command doesn't take parameters");
-    noError = false;
+    if (!dispatch(tmpstr.c_str(), target, requestId, ESP3DMessageType::core)) {
+      esp3d_log_e("Error sending answer to clients");
+    }
+
+    nbListed++;
   }
 
+  // end of list
   if (json) {
-    esp3dmsg->printLN(response.c_str());
+    tmpstr = "]}";
   } else {
-    if (noError) {
-      esp3dmsg->printMSG(response.c_str());
-    } else {
-      esp3dmsg->printERROR(response.c_str(), errorCode);
-    }
+    tmpstr = "End Scan\n";
   }
-  return noError;*/
+  if (!dispatch(tmpstr.c_str(), target, requestId, ESP3DMessageType::tail)) {
+    esp3d_log_e("Error sending answer to clients");
+  }
+
 }
 
 #endif  // MDNS_FEATURE
