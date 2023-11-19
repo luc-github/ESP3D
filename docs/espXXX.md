@@ -2429,5 +2429,59 @@ the admin password if authentication is enabled
 
 
 
++++
+archetype = "section"
+title = "[ESP710]"
+weight = 800
++++
+Format ESP Filesystem
+
+## Input
+`[ESP710]FORMATFS json=<no> pwd=<admin password>`
+
+* json=no
+the output format can be in JSON or plain text
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+* FORMATFS
+   * if FORMATFS is present, it will format the local filesystem
 
 
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"710",
+   "status":"ok",
+   "data":"Starting formating..."
+}
+```
+
+* `cmd` Id of requested command, should be `710`
+* `status` status of command, should be `ok`
+* `data` content of response, here `Starting formating...` when filesystem is starting
+
+
+an new message is sent when formating is done
+
+```json
+{
+   "cmd":"710",
+   "status":"ok",
+   "data":"Formating done"
+}
+```
+
+* `cmd` Id of requested command, should be `710`
+* `status` status of command, should be `ok`
+* `data` content of response, here `Formating done` when filesystem is done
+
++++
+archetype = "section"
+title = "[ESP715]"
+weight = 800
++++
