@@ -25,7 +25,7 @@
 #include "../esp3d_settings.h"
 
 #define COMMAND_ID 500
-// Get/Set connection status
+// Get connection status
 //[ESP500] json=<no> pwd=<admin password>
 void ESP3DCommands::ESP500(int cmd_params_pos, ESP3DMessage* msg) {
   ESP3DClientType target = msg->origin;

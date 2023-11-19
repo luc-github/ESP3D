@@ -1775,3 +1775,283 @@ the admin password if authentication is enabled
 * `cmd` Id of requested command, should be `401`
 * `status` status of command, should be `ok`
 * `data` content of response, here the id/position of the setting changed
+
+
++++
+archetype = "section"
+title = "[ESP402]"
+weight = 800
++++
+ Get/Set SD updater check at boot time
+
+## Input
+`[ESP402]<state> json=<no> pwd=<admin password>`   
+
+* json=no
+the output format
+can be in JSON or plain text
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+* state
+  * if state is empty, it will display current state
+  * if state is not empty, it will set the state  ON, OFF
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"402",
+   "status":"ok",
+   "data":"OFF"
+}
+```
+
+* `cmd` Id of requested command, should be `402`
+* `status` status of command, should be `ok`
+* `data` content of response, here the state
+
+
++++
+archetype = "section"
+title = "[ESP410]"
+weight = 800
++++
+List all AP detected around, if signal is too low, AP is not listed to avoid connection problems.
+
+## Input
+`[ESP410] json=<no> pwd=<admin password>`
+* json=no
+the output format
+can be in JSON or plain text
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"410",
+   "status":"ok",
+   "data":[
+      {"SSID":"Luc-Lab","SIGNAL":"100","IS_PROTECTED":"1"},
+      {"SSID":"CHT0573(Mesh)","SIGNAL":"100","IS_PROTECTED":"1"},
+      {"SSID":"[LG_AirPurifier]","SIGNAL":"48","IS_PROTECTED":"1"},
+   ]
+}
+```
+
+* `cmd` Id of requested command, should be `410`
+* `status` status of command, should be `ok`
+* `data` content of response, here the list of AP detected with signal strength and if protected or not
+
+ - plain text format
+
+```text
+Start Scan
+Luc-Lab 100%    Secure
+CHT0573(Mesh)   100%    Secure
+[LG_AirPurifier]    46%     Secure
+End Scan
+```
+
++++
+archetype = "section"
+title = "[ESP420]"
+weight = 800
++++
+Get ESP3D current status
+
+## Input
+`[ESP420] json=<no> pwd=<admin password>`
+
+* json=no
+the output format
+can be in JSON or plain text
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+
+## Output
+
+```json
+{
+   "cmd":"420",
+   "status":"ok",
+   "data":[
+      {"id":"chip id","value":"11111"},
+      {"id":"CPU Freq","value":"240Mhz"},
+      {"id":"CPU Temp","value":"72.8C"},
+      {"id":"free mem","value":"232.43 KB"},
+      {"id":"SDK","value":"v4.4.4"},
+      {"id":"flash size","value":"4.00 MB"},
+      {"id":"FS type","value":"LittleFS"},
+      {"id":"FS usage","value":"112.00 KB/128.00 KB"},
+      {"id":"baud","value":"115200"},
+      {"id":"sleep mode","value":"none"},
+      {"id":"wifi","value":"ON"},
+      {"id":"hostname","value":"esp3d"},
+      {"id":"wifi mode","value":"ap"},
+      {"id":"mac","value":"D4:D4:D4:D4:D4:D4"},
+      {"id":"SSID","value":"ESP3D"},
+      {"id":"visible","value":"yes"},
+      {"id":"authentication","value":"WPA2"},
+      {"id":"DHCP Server","value":"ON"},
+      {"id":"ip","value":"192.168.0.1"},
+      {"id":"gw","value":"192.168.0.1"},
+      {"id":"msk","value":"255.255.255.0"},
+      {"id":"clients","value":"0"},{"id":"sta","value":"OFF"},
+      {"id":"mac","value":"D4:D4:D4:D4:D4:D4"},
+      {"id":"ntp","value":"OFF"},
+      {"id":"serial","value":"ON"},
+      {"id":"notification","value":"ON (none)"},
+      {"id":"targetfw","value":"unknown"},
+      {"id":"FW ver","value":"3.0.0.a225"},
+      {"id":"FW arch","value":"ESP32"}]}
+
+```
+
+* `cmd` Id of requested command, should be `420`
+* `status` status of command, should be `ok`
+* `data` content of response, where each status is a key/value pair of id/value
+
+ - plain text format
+
+```Text
+Configuration:
+chip id: 1010100
+CPU Freq: 240Mhz
+CPU Temp: 72.8C
+free mem: 232.47 KB
+SDK: v4.4.4
+flash size: 4.00 MB
+FS type: LittleFS
+FS usage: 112.00 KB/128.00 KB
+baud: 115200
+sleep mode: none
+wifi: ON
+hostname: esp3d
+wifi mode: ap
+mac: D4:D4:D4:D4:D4:D4
+SSID: ESP3D
+visible: yes
+authentication: WPA2
+DHCP Server: ON
+ip: 192.168.0.1
+gw: 192.168.0.1
+msk: 255.255.255.0
+clients: 0
+sta: OFF
+mac: D4:D4:D4:D4:D4:D4
+ntp: OFF
+serial: ON
+notification: ON (none)
+targetfw: unknown
+FW ver: 3.0.0.a225
+FW arch: ESP32
+ok
+```
+
++++
+archetype = "section"
+title = "[ESP444]"
+weight = 800
++++
+Set ESP3D state
+
+## Input
+`[ESP444]<state> json=<no> pwd=<admin password>`
+
+* json=no
+the output format
+can be in JSON or plain text
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+* state
+  * RESET to reset all settings to default
+  * RESTART to restart ESP3D
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"444",
+   "status":"ok",
+   "data":"ok"
+}
+```
+
+* `cmd` Id of requested command, should be `444`
+* `status` status of command, should be `ok`
+* `data` content of response, here `ok`
+
++++
+archetype = "section"
+title = "[ESP450]"
+weight = 800
++++
+List available ESP3D modules/ ESP3D related devices around
+
+## Input
+`[ESP450] json=<no> pwd=<admin password>`
+
+* json=no
+the output format
+can be in JSON or plain text
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"450",
+   "status":"ok",
+   "data":[
+      {
+         "Hostname":"esp3d-tft",
+         "IP":"192.168.1.108",
+         "port":"80",
+         "TxT":[
+            {"key":"version","value":"1.0.0.a18"},
+            {"key":"firmware","value":"ESP3D-TFT"}
+         ]
+      }
+   ]
+}
+```
+
+* `cmd` Id of requested command, should be `450`
+* `status` status of command, should be `ok`
+* `data` content of response, here the list of modules detected with hostname, IP, port and TXT record
+
+ - plain text format
+
+```Text
+Start Scan
+esp3d-tft (192.168.1.108:80) version=1.0.0.a18,firmware=ESP3D-TFT
+End Scan
+```
+
+
++++
+archetype = "section"
+title = "[ESP500]"
+weight = 800
++++
+Get authentication status
