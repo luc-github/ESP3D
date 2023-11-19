@@ -21,7 +21,6 @@
 #if defined(AUTHENTICATION_FEATURE)
 #include "../../modules/authentication/authentication_service.h"
 #include "../esp3d_commands.h"
-#include "../esp3d_message.h"
 #include "../esp3d_settings.h"
 
 #define COMMAND_ID 510

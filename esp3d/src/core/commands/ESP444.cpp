@@ -21,7 +21,6 @@
 #include "../../modules/authentication/authentication_service.h"
 #include "../esp3d.h"
 #include "../esp3d_commands.h"
-#include "../esp3d_message.h"
 
 // Set ESP State
 // cmd are RESTART / RESET

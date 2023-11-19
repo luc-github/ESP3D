@@ -22,7 +22,6 @@
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/mDNS/mDNS.h"
 #include "../esp3d_commands.h"
-#include "../esp3d_message.h"
 #include "../esp3d_settings.h"
 
 // Get available ESP3D list
@@ -138,7 +137,6 @@ void ESP3DCommands::ESP450(int cmd_params_pos, ESP3DMessage* msg) {
   if (!dispatch(tmpstr.c_str(), target, requestId, ESP3DMessageType::tail)) {
     esp3d_log_e("Error sending answer to clients");
   }
-
 }
 
 #endif  // MDNS_FEATURE

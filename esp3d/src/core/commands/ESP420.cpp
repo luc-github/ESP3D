@@ -20,7 +20,6 @@
 #include "../../include/esp3d_config.h"
 #include "../../modules/authentication/authentication_service.h"
 #include "../esp3d_commands.h"
-#include "../esp3d_message.h"
 #include "../esp3d_settings.h"
 #include "../esp3d_string.h"
 
@@ -563,7 +562,7 @@ void ESP3DCommands::ESP420(int cmd_params_pos, ESP3DMessage* msg) {
         return;
       }
     }
-  } 
+  }
 #endif  // WIFI_FEATURE
 
 #if defined(TIMESTAMP_FEATURE)

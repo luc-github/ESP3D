@@ -2346,6 +2346,87 @@ archetype = "section"
 title = "[ESP700]"
 weight = 800
 +++
+Process local file on /FS or /SD
+
+## Input
+`[ESP700]<filename> json=<no> pwd=<admin password>`
+
+* json=no
+the output format can be in JSON or plain text
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+* filename
+  the filename to process, must be a valid file on /FS or /SD
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"700",
+   "status":"ok",
+   "data":"Processing <filename>"
+}
+```
+
+* `cmd` Id of requested command, should be `700`
+* `status` status of command, should be `ok`
+* `data` content of response, here `Processing <filename>` when file is processing
+
++++
+archetype = "section"
+title = "[ESP701]"
+weight = 800
++++
+Query and Control ESP700 stream
+
+## Input
+`[ESP701]action=<action> <CLEAR_ERROR>json=<no> pwd=<admin password>`
+
+* json=no
+the output format can be in JSON or plain text
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+* action
+  * if action is empty, it will display current state
+  * if action is not empty, it will set the action
+  currently only these actions are supported:
+    - ABORT
+    - PAUSE
+    - RESUME
+
+* CLEAR_ERROR
+   * if CLEAR_ERROR is present, it will clear the current error state
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"701",
+   "status":"ok",
+   "data":{
+      "status":"processing",
+      "total":"1000",
+      "processed":"500",
+      "type":"1",
+      "name":"/SD/myfile.gco"
+   }
+}
+```
+
+* `cmd` Id of requested command, should be `701`
+* `status` status of command, should be `ok`
+* `data` content of response, here the current state of stream
+
 
 
 

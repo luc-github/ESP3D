@@ -23,133 +23,124 @@
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/gcode_host/gcode_host.h"
 #include "../esp3d_commands.h"
-#include "../esp3d_message.h"
 #include "../esp3d_settings.h"
 
 #define COMMANDID 701
 
 // Query and Control ESP700 stream
-//[ESP701]action=<PAUSE/RESUME/ABORT>
+//[ESP701]action=<PAUSE/RESUME/ABORT> CLEAR_ERROR
 void ESP3DCommands::ESP701(int cmd_params_pos, ESP3DMessage* msg) {
-  /*
-  bool noError = true;
-  bool json = has_tag(cmd_params, "json");
-  String response;
-  String parameter;
-  int errorCode = 200;  // unless it is a server error use 200 as default and
-                        // set error in json instead
-#ifdef AUTHENTICATION_FEATURE
-  if (auth_type != admin) {
-    response =
-        format_response(COMMANDID, json, false, "Wrong authentication level");
-    noError = false;
-    errorCode = 401;
+  ESP3DClientType target = msg->origin;
+  ESP3DRequest requestId = msg->request_id;
+  (void)requestId;
+  msg->target = target;
+  msg->origin = ESP3DClientType::command;
+  bool hasError = false;
+  String error_msg = "Invalid parameters";
+  String ok_msg = "ok";
+  bool json = hasTag(msg, cmd_params_pos, "json");
+  bool hasClearError = hasTag(msg, cmd_params_pos, "CLEAR_ERROR");
+  String tmpstr;
+#if defined(AUTHENTICATION_FEATURE)
+  if (msg->authentication_level == ESP3DAuthenticationLevel::guest) {
+    msg->authentication_level = ESP3DAuthenticationLevel::not_authenticated;
+    dispatchAuthenticationError(msg, COMMAND_ID, json);
+    return;
   }
-#else
-  (void)auth_type;
 #endif  // AUTHENTICATION_FEATURE
-  if (noError) {
-    parameter = (get_param(cmd_params, "action="));
-    if (parameter.length() != 0) {
-      if (parameter.equalsIgnoreCase("PAUSE")) {
-        if (esp3d_gcode_host.pause()) {
-          response = format_response(COMMANDID, json, true, "Stream paused");
-        } else {
-          response =
-              format_response(COMMANDID, json, false, "No stream to pause");
-          noError = false;
-        }
-      } else if (parameter.equalsIgnoreCase("RESUME")) {
-        if (esp3d_gcode_host.resume()) {
-          response = format_response(COMMANDID, json, true, "Stream resumed");
-        } else {
-          response =
-              format_response(COMMANDID, json, false, "No stream to resume");
-          noError = false;
-        }
-      } else if (parameter.equalsIgnoreCase("ABORT")) {
-        if (esp3d_gcode_host.abort()) {
-          response = format_response(COMMANDID, json, true, "Stream aborted");
-        } else {
-          response =
-              format_response(COMMANDID, json, false, "No stream to abort");
-          noError = false;
-        }
-      }
-      if (parameter.equalsIgnoreCase("CLEAR_ERROR")) {
-        esp3d_gcode_host.setErrorNum(ERROR_NO_ERROR);
-        response = format_response(COMMANDID, json, true, "Error cleared");
-      } else {
-        response = format_response(COMMANDID, json, false, "Unknown action");
-        noError = false;
-      }
-
-    } else {
-      String resp;
-      bool noError = true;
-      switch (esp3d_gcode_host.getStatus()) {
-        case HOST_START_STREAM:
-        case HOST_READ_LINE:
-        case HOST_PROCESS_LINE:
-        case HOST_WAIT4_ACK:
-          // TODO add % of progress and filename if any
-          // totalSize / processedSize / fileName
-          if (json) {
-            resp = "{\"status\":\"processing\",\"total\":\"" +
+  tmpstr = get_clean_param(msg, cmd_params_pos);
+  if (tmpstr.length() == 0) {
+    // give status
+    switch (esp3d_gcode_host.getStatus()) {
+      case HOST_START_STREAM:
+      case HOST_READ_LINE:
+      case HOST_PROCESS_LINE:
+      case HOST_WAIT4_ACK:
+        // TODO add % of progress and filename if any
+        // totalSize / processedSize / fileName
+        if (json) {
+          ok_msg = "{\"status\":\"processing\",\"total\":\"" +
                    String(esp3d_gcode_host.totalSize()) +
                    "\",\"processed\":\"" +
                    String(esp3d_gcode_host.processedSize()) + "\",\"type\":\"" +
                    String(esp3d_gcode_host.getFSType());
-            if (esp3d_gcode_host.getFSType() != TYPE_SCRIPT_STREAM) {
-              resp += "\",\"name\":\"" + String(esp3d_gcode_host.fileName());
-            }
-            resp += "\"}";
-          } else {
-            resp = "processing";
+          if (esp3d_gcode_host.getFSType() != TYPE_SCRIPT_STREAM) {
+            ok_msg += "\",\"name\":\"" + String(esp3d_gcode_host.fileName());
           }
-          response = format_response(COMMANDID, json, true, resp.c_str());
-          break;
-        case HOST_PAUSE_STREAM:
-          response = format_response(COMMANDID, json, true, "pause");
-          break;
-        case HOST_RESUME_STREAM:
-          response = format_response(COMMANDID, json, true, "resume stream");
-          break;
-        case HOST_NO_STREAM:
-          esp3d_log("No stream %d", esp3d_gcode_host.getErrorNum());
-          if (esp3d_gcode_host.getErrorNum() != ERROR_NO_ERROR) {
-            noError = false;
-            if (json) {
-              resp = "{\"status\":\"no stream\",\"code\":\"" +
-                     String(esp3d_gcode_host.getErrorNum()) + "\"}";
-            } else {
-              resp = "no stream, last error " +
-                     String(esp3d_gcode_host.getErrorNum());
-            }
+          ok_msg += "\"}";
+        } else {
+          ok_msg = "processing";
+        }
+        break;
+      case HOST_PAUSE_STREAM:
+        ok_msg = "pause";
+        break;
+      case HOST_NO_STREAM:
+        esp3d_log("No stream %d", esp3d_gcode_host.getErrorNum());
+        if (esp3d_gcode_host.getErrorNum() != ERROR_NO_ERROR) {
+          hasError = true;
+          if (json) {
+            error_msg = "{\"status\":\"no stream\",\"code\":\"" +
+                        String(esp3d_gcode_host.getErrorNum()) + "\"}";
           } else {
-            resp = "no stream";
+            error_msg = "no stream, last error " +
+                        String(esp3d_gcode_host.getErrorNum());
           }
-          response = format_response(COMMANDID, json, noError, resp.c_str());
-          break;
-        default:
-          response =
-              format_response(COMMANDID, json, false,
-                              String(esp3d_gcode_host.getStatus()).c_str());
-          noError = false;
-          break;
+        } else {
+          ok_msg = "no stream";
+        }
+        break;
+      default:
+        error_msg = String(esp3d_gcode_host.getStatus());
+        hasError = true;
+        break;
+    }
+
+  } else {
+    tmpstr = get_param(msg, cmd_params_pos, "action=");
+    if (tmpstr.length() == 0) {
+      hasError = true;
+      error_msg = "Missing parameter";
+      esp3d_log_e("%s", error_msg.c_str());
+    } else {
+      tmpstr.toUpperCase();
+      if (tmpstr != "PAUSE" && tmpstr != "ABORT" && tmpstr != "RESUME") {
+        hasError = true;
+        error_msg = "Unknown action";
+        esp3d_log_e("%s", error_msg.c_str());
+      } else {
+        if (tmpstr == "PAUSE") {
+          if (esp3d_gcode_host.pause()) {
+            ok_msg = "Stream paused";
+          } else {
+            hasError = true;
+            error_msg = "No stream to pause";
+          }
+        } else if (tmpstr == "RESUME") {
+          if (esp3d_gcode_host.resume()) {
+            ok_msg = "Stream resumed";
+          } else {
+            error_msg = "No stream to resume";
+            hasError = true;
+          }
+        } else if (tmpstr == "ABORT") {
+          if (esp3d_gcode_host.abort()) {
+            ok_msg = "Stream aborted";
+          } else {
+            error_msg = "No stream to abort";
+            hasError = true;
+          }
+        }
+      }
+      if (hasClearError) {
+        esp3d_gcode_host.setErrorNum(ERROR_NO_ERROR);
       }
     }
   }
-  if (json) {
-    esp3dmsg->printLN(response.c_str());
-  } else {
-    if (noError) {
-      esp3dmsg->printMSG(response.c_str());
-    } else {
-      esp3dmsg->printERROR(response.c_str(), errorCode);
-    }
+  if (!dispatchAnswer(msg, COMMAND_ID, json, hasError,
+                      hasError ? error_msg.c_str() : ok_msg.c_str())) {
+    esp3d_log_e("Error sending response to clients");
   }
-  return noError;*/
 }
 
 #endif  // GCODE_HOST_FEATURE
