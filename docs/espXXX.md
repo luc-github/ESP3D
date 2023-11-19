@@ -1691,9 +1691,87 @@ Note2 : the 2.1 Flag type is no more used, several entries are used instead grou
 If no json the list is limited to a list of `<help>: <value>`  
 
 ```text
-
 Settings:
 network/network/hostname: esp3d
-network/network/mdns: 1
+network/network/radio mode: 5
+network/network/radio_boot: 1
+network/sta/SSID: NETWORK_SSID
+network/sta/pwd: ********
+network/sta/ip mode: 1
+network/sta/ip: 192.168.0.254
+network/sta/gw: 192.168.0.254
+network/sta/msk: 255.255.255.0
+network/sta/DNS: 192.168.0.254
+network/sta/sta fallback mode: 5
+network/ap/SSID: ESP3D
+network/ap/pwd: ********
+network/ap/ip: 192.168.0.1
+network/ap/channel: 11
+service/time/i-time: 0
+service/time/tzone: +00:00
+service/time/t-server: time.windows.com
+service/time/t-server: time.google.com
+service/time/t-server: 0.pool.ntp.org
+service/notification/auto notif: 1
+service/notification/notification: 0
+service/notification/t1: 
+service/notification/t2:
+service/notification/ts: 
+system/system/targetfw: 0
+system/system/baud: 115200
+system/boot/bootdelay: 10000
+system/boot/verbose: 0
+ok
 ```
 
++++
+archetype = "section"
+title = "[ESP401]"
+weight = 800
++++
+Set ESP3D settings
+
+## Input
+`[ESP401]<P=id> <T=type> <V=value> json=<no> pwd=<admin password>`
+
+* json=no
+the output format
+can be in JSON or plain text
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+* P
+    * P is the id or position in EEPROM of the setting to change
+
+* T
+      * T is the type of the setting to change
+      * T can be:
+        -   S: for string
+        -   I: for integer
+        -   B: for Byte
+        -   A: for IP address / Mask
+        -   F: for float (only grblHAL)
+        -   M: for bits mask (only grblHAL)
+        -   X: for exclusive bitsfield (only grblHAL)
+
+* V
+      * V is the value to set
+      if value has space add `\`` in front of space to not be seen as separator
+      e.g: `[ESP401]P=1 T=S V=My\ SSID json`
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"401",
+   "status":"ok",
+   "data":"1"
+}
+```
+
+* `cmd` Id of requested command, should be `401`
+* `status` status of command, should be `ok`
+* `data` content of response, here the id/position of the setting changed
