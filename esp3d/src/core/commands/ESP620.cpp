@@ -26,7 +26,7 @@
 #include "../esp3d_settings.h"
 
 #define COMMAND_ID 620
-// Send Notification using URL
+// Send Notification using encoded URL
 //[ESP620]URL=<encoded url> json=<no>[pwd=<admin/user password>]
 void ESP3DCommands::ESP620(int cmd_params_pos, ESP3DMessage* msg) {
   ESP3DClientType target = msg->origin;

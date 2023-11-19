@@ -569,10 +569,15 @@ void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
       break;
 #endif  // MDNS_FEATURE
 #ifdef AUTHENTICATION_FEATURE
-    case 500:
-      // Get/Set connection status
+      // Get current authentication  level
       //[ESP500] json=<no> pwd=<admin password>
+    case 500:
       ESP500(cmd_params_pos, msg);
+      break;
+      // set/display session time out
+      //[ESP510]<password> json=<no> pwd=<admin password>
+    case 510:
+      ESP510(cmd_params_pos, msg);
       break;
     // Change admin password
     //[ESP550]<password>pwd=<admin password>

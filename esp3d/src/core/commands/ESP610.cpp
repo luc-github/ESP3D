@@ -27,10 +27,9 @@
 
 #define COMMAND_ID 610
 // Set/Get Notification settings
-//[ESP610]type=<NONE/PUSHOVER/EMAIL/LINE/IFTTT> T1=<token1> T2=<token2>
-// TS=<Settings> json=<no> [pwd=<admin password>] Get will give type and
-// settings
-// only not the protected T1/T2
+//[ESP610]
+// Get will give type and settings
+// but not T1/T2 chich are protected
 void ESP3DCommands::ESP610(int cmd_params_pos, ESP3DMessage* msg) {
   ESP3DClientType target = msg->origin;
   ESP3DRequest requestId = msg->request_id;

@@ -2055,3 +2055,298 @@ title = "[ESP500]"
 weight = 800
 +++
 Get authentication status
+
+## Input
+`[ESP500] json=<no> pwd=<admin password>`
+
+* json=no
+the output format
+can be in JSON or plain text
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"500",
+   "status":"ok",
+   "data":"admin"
+}
+```
+
+* `cmd` Id of requested command, should be `500`
+* `status` status of command, should be `ok`
+* `data` content of response, here the current user authenticated
+
+ - plain text format
+
+```Text  
+admin
+```
+
++++
+archetype = "section"
+title = "[ESP510]"
+weight = 800
++++
+Set/display session time out
+
+## Input
+`[ESP510]<timeout> json=<no> pwd=<admin password>`
+
+* json=no
+the output format
+can be in JSON or plain text
+
+* timeout
+  * if timeout is empty, it will display current timeout (0~255 minutes), 0 means disable timeout
+  * if timeout is not empty, it will set the timeout
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"510",
+   "status":"ok",
+   "data":"10"
+}
+```
+
+* `cmd` Id of requested command, should be `510`
+* `status` status of command, should be `ok`
+* `data` content of response, here the current timeout
+
+ - plain text format
+
+```Text
+10
+```
+
++++
+archetype = "section"
+title = "[ESP550]"
+weight = 800
++++
+Set/Change admin password, only authenticated admin can change the password
+
+## Input
+`[ESP550]<password> json=<no> pwd=<admin password>`
+
+* json=no
+the output format
+can be in JSON or plain text
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+* password
+  for the  admin limited to 20 characters
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"550",
+   "status":"ok",
+   "data":"ok"
+}
+```
+
+* `cmd` Id of requested command, should be `550`
+* `status` status of command, should be `ok`
+* `data` content of response, here `ok` when password is changed
+
+
++++
+archetype = "section"
+title = "[ESP555]"
+weight = 800
++++
+Set/Change user password, only authenticated admin/user can change the password
+
+## Input
+`[ESP555]<password> json=<no> pwd=<admin password>`
+
+* json=no
+the output format
+can be in JSON or plain text
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+* password
+  for the  user limited to 20 characters
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"555",
+   "status":"ok",
+   "data":"ok"
+}
+```
+
+* `cmd` Id of requested command, should be `555`
+* `status` status of command, should be `ok`
+* `data` content of response, here `ok` when password is changed
+
+
+
+
++++
+archetype = "section"
+title = "[ESP600]"
+weight = 800
++++
+Send Notification using defined method, will also send notification to webui and eventually to any connected screen
+
+## Input
+`[ESP600]<message> json=<no> pwd=<admin password>`
+
+* json=no
+the output format
+can be in JSON or plain text
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+* message
+  the message to send, limited to 128 characters. 
+  Message can contain some variables:
+   - %ESP_NAME% : ESP3D hostname
+   - %ESP_IP% : ESP3D local IP address 
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"600",
+   "status":"ok",
+   "data":"ok"
+}
+```
+
+* `cmd` Id of requested command, should be `600`
+* `status` status of command, should be `ok`
+* `data` content of response, here `ok` when notification is sent
+
++++
+archetype = "section"
+title = "[ESP610]"
+weight = 800
++++
+ Set/Get Notification settings
+
+## Input
+`[ESP610]type=<NONE/PUSHOVER/EMAIL/LINE/IFTTT> T1=<token1> T2=<token2> TS=<Settings> json=<no> pwd=<admin password>`
+
+* json=no
+the output format
+can be in JSON or plain text
+
+* type
+  * if type is empty, it will display current type
+  * if type is not empty, it will set the type
+  currently only these types are supported:
+    - NONE
+    - PUSHOVER
+    - EMAIL
+    - LINE
+    - TELEGRAM
+    - IFTTT (by webhook)
+
+* T1
+   * if T1 is not empty, it will set the token1 which depend on [type of notification](https://esp3d.io/esp3d/v3.x/documentation/notifications/index.html) 
+
+* T2
+   * if T2 is not empty, it will set the token2 which depend on [type of notification](https://esp3d.io/esp3d/v3.x/documentation/notifications/index.html) 
+
+* TS
+ if TS is not empty, it will set the setting token which depend on [type of notification](https://esp3d.io/esp3d/v3.x/documentation/notifications/index.html) 
+
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"610",
+   "status":"ok",
+   "data":"ok"
+}
+```
+
+* `cmd` Id of requested command, should be `610`
+* `status` status of command, should be `ok`
+* `data` content of response, here `ok` when notification is sent
+
++++
+archetype = "section"
+title = "[ESP620]"
+weight = 800
++++
+Send Notification using encodded URL
+
+## Input
+`[ESP620]<url> json=<no> pwd=<admin password>`
+* json=no
+the output format can be in JSON or plain text
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+* url
+  the url to send, limited to 128 characters, must be encoded
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"620",
+   "status":"ok",
+   "data":"ok"
+}
+```
+
+* `cmd` Id of requested command, should be `620`
+* `status` status of command, should be `ok`
+* `data` content of response, here `ok` when notification is sent
+
++++
+archetype = "section"
+title = "[ESP700]"
+weight = 800
++++
+
+
+
+

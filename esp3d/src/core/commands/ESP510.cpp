@@ -24,10 +24,10 @@
 #include "../esp3d_message.h"
 #include "../esp3d_settings.h"
 
-#define COMMAND_ID 550
-// Change admin password
-//[ESP550]<password> json=<no> pwd=<admin password>
-void ESP3DCommands::ESP550(int cmd_params_pos, ESP3DMessage* msg) {
+#define COMMAND_ID 510
+// set/display session time out
+//[ESP510]<timeout> json=<no> pwd=<admin password>
+void ESP3DCommands::ESP510(int cmd_params_pos, ESP3DMessage* msg) {
   ESP3DClientType target = msg->origin;
   ESP3DRequest requestId = msg->request_id;
   (void)requestId;
