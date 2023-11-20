@@ -564,7 +564,7 @@
 /* Gcode Host Feature
  * This feature allows to process Gcode files like macros.
  */
-#define GCODE_HOST_FEATURE
+// #define GCODE_HOST_FEATURE
 
 /* Settings location
  * SETTINGS_IN_EEPROM //ESP8266/ESP32
