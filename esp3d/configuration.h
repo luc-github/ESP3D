@@ -149,12 +149,12 @@
 /* Use Web server
  * Enable http server
  */
-// #define HTTP_FEATURE
+#define HTTP_FEATURE
 
 /* Use telnet server
  * Enable telnet light (raw tcp) communications
  */
-// #define TELNET_FEATURE
+#define TELNET_FEATURE
 
 /* Use Websocket server
  * Enable websocket communications
@@ -186,7 +186,7 @@
 /* Use captive portal
  * Enable captive portal in AP mode
  */
-// #define CAPTIVE_PORTAL_FEATURE
+#define CAPTIVE_PORTAL_FEATURE
 
 /* Use mDNS discovery
  * This method need `bonjour` protocol on windows, or `avahi` on linux
@@ -266,17 +266,16 @@
  * ESP_SHARED_SD //Printer SD Card is also connected to ESP3D
  * Does your system has SD card and how it is connected to your ESP3D
  */
-#define SD_DEVICE_CONNECTION ESP_SHARED_SD
+// #define SD_DEVICE_CONNECTION ESP_SHARED_SD
 
 /* SD card library
  * ESP_SD_NATIVE //esp32 / esp8266
  * ESP_SDIO      //esp32 only
  * ESP_SDFAT2    //esp8266  / esp32
  */
+// #define SD_DEVICE ESP_SD_NATIVE
 
-#define SD_DEVICE ESP_SD_NATIVE
-
-#define SD_CARD_TYPE ESP_FYSETC_WIFI_PRO_SDCARD
+// #define SD_CARD_TYPE ESP_FYSETC_WIFI_PRO_SDCARD
 
 /* Sdio bit mode
  * Mode used by SDIO library 1 bit / 4bits
@@ -348,7 +347,7 @@
  * FS_FLASH       //mount Flash FS
  * FS_SD          //mount SD FS
  */
-#define FTP_FEATURE FS_ROOT
+// #define FTP_FEATURE FS_ROOT
 
 /************************************
  *
@@ -367,7 +366,7 @@
  * The pin used to reset ESP3D setting if set to low for more than 1 second at
  * start
  */
-// #define ESP3D_RESET_PIN 0
+#define ESP3D_RESET_PIN 0
 
 /************************************
  *
@@ -385,12 +384,12 @@
 /* Enable Web Update
  * Update firmware using WebUI, need 4MB of flash
  */
-// #define WEB_UPDATE_FEATURE
+#define WEB_UPDATE_FEATURE
 
 /* Enable SD card Update
  * Update firmware and settings using file on SDCard
  */
-#define SD_UPDATE_FEATURE
+// #define SD_UPDATE_FEATURE
 
 /************************************
  *
@@ -459,16 +458,6 @@
  * Sensor feature
  *
  ************************************/
-// ESP3D connected sensor
-// NO_SENSOR_DEVICE
-// DHT11_DEVICE
-// DHT22_DEVICE
-// ANALOG_DEVICE
-// BMP280_DEVICE
-// BME280_DEVICE
-// Sensor connected to ESP board
-// #define SENSOR_DEVICE DHT11_DEVICE
-
 /* Sensor pin
  * The pin used for the sensor
  */
@@ -509,9 +498,9 @@
 // #define CAMERA_DEVICE_FLIP_VERTICALY
 
 /* Flip horizontally
-* Flip camera horizontally
-*/
-//#define CAMERA_DEVICE_FLIP_HORIZONTALY
+ * Flip camera horizontally
+ */
+// #define CAMERA_DEVICE_FLIP_HORIZONTALY
 
 /************************************
  *
@@ -575,7 +564,7 @@
 /* Gcode Host Feature
  * This feature allows to process Gcode files like macros.
  */
-// #define GCODE_HOST_FEATURE
+#define GCODE_HOST_FEATURE
 
 /* Settings location
  * SETTINGS_IN_EEPROM //ESP8266/ESP32
@@ -587,7 +576,7 @@
 /* Add serial task
  * ESP32 need to add a task to handle serial communication
  */
-// #define SERIAL_INDEPENDANT_TASK
+#define SERIAL_INDEPENDANT_TASK
 
 /************************************
  *
@@ -603,11 +592,11 @@
 // LOG_OUTPUT_SERIAL2
 // LOG_OUTPUT_TELNET
 // LOG_OUTPUT_WEBSOCKET
-#define ESP_LOG_FEATURE LOG_OUTPUT_SERIAL0
+// #define ESP_LOG_FEATURE LOG_OUTPUT_SERIAL0
 
-#define ESP3D_DEBUG_LEVEL LOG_LEVEL_DEBUG
+#define ESP3D_DEBUG_LEVEL LOG_LEVEL_ERROR
 
-#define ESP_NO_SANITY_CHECK
+// #define ESP_NO_SANITY_CHECK
 
 #ifdef ESP_LOG_FEATURE
 #define LOG_ESP3D_BAUDRATE 115200

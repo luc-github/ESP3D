@@ -22,7 +22,6 @@
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/filesystem/esp_sd.h"
 #include "../esp3d_commands.h"
-#include "../esp3d_message.h"
 #include "../esp3d_settings.h"
 
 #define COMMAND_ID 750
@@ -118,111 +117,6 @@ void ESP3DCommands::ESP750(int cmd_params_pos, ESP3DMessage* msg) {
                       hasError ? error_msg.c_str() : ok_msg.c_str())) {
     esp3d_log_e("Error sending response to clients");
   }
-  /*
-  bool noError = true;
-  bool json = has_tag(cmd_params, "json");
-  String response;
-  String parameter;
-  bool hasParam = false;
-  int errorCode = 200;  // unless it is a server error use 200 as default and
-                        // set error in json instead;
-#ifdef AUTHENTICATION_FEATURE
-  if (auth_type != admin) {
-    response =
-        format_response(COMMANDID, json, false, "Wrong authentication level");
-    noError = false;
-    errorCode = 401;
-  }
-#else
-  (void)auth_type;
-#endif  // AUTHENTICATION_FEATURE
-  if (noError) {
-    if (!ESP_SD::accessFS()) {
-      response = format_response(COMMANDID, json, false, "Not available");
-      noError = false;
-    } else {
-      if (ESP_SD::getState(true) == ESP_SDCARD_NOT_PRESENT) {
-        response = format_response(COMMANDID, json, false, "No SD card");
-        noError = false;
-      } else {
-        ESP_SD::setState(ESP_SDCARD_BUSY);
-        parameter = get_param(cmd_params, "mkdir=");
-        if (parameter.length() != 0) {
-          hasParam = true;
-          if (!ESP_SD::mkdir(parameter.c_str())) {
-            response = format_response(COMMANDID, json, false, "mkdir failed");
-            noError = false;
-          }
-        }
-        if (noError && !hasParam) {
-          parameter = get_param(cmd_params, "rmdir=");
-          if (parameter.length() != 0) {
-            hasParam = true;
-            if (!ESP_SD::rmdir(parameter.c_str())) {
-              response =
-                  format_response(COMMANDID, json, false, "rmdir failed");
-              noError = false;
-            }
-          }
-        }
-        if (noError && !hasParam) {
-          parameter = get_param(cmd_params, "remove=");
-          if (parameter.length() != 0) {
-            hasParam = true;
-            if (ESP_SD::remove(parameter.c_str())) {
-              response =
-                  format_response(COMMANDID, json, false, "remove failed");
-              noError = false;
-            }
-          }
-        }
-        if (noError && !hasParam) {
-          parameter = get_param(cmd_params, "exists=");
-          if (parameter.length() != 0) {
-            hasParam = true;
-            if (ESP_SD::exists(parameter.c_str())) {
-              response = format_response(COMMANDID, json, true, "yes");
-            } else {
-              response = format_response(COMMANDID, json, false, "no");
-            }
-          }
-        }
-        if (noError && !hasParam) {
-          parameter = get_param(cmd_params, "create=");
-          if (parameter.length() != 0) {
-            hasParam = true;
-            ESP_SDFile f = ESP_SD::open(parameter.c_str(), ESP_FILE_WRITE);
-            if (!f.isOpen()) {
-              response =
-                  format_response(COMMANDID, json, false, "create failed");
-              noError = false;
-            } else {
-              f.close();
-            }
-          }
-        }
-        if (hasParam && noError && response.length() == 0) {
-          response = format_response(COMMANDID, json, true, "ok");
-        }
-        if (!hasParam) {
-          response =
-              format_response(COMMANDID, json, false, "Missing parameter");
-          noError = false;
-        }
-      }
-      ESP_SD::releaseFS();
-    }
-  }
-  if (json) {
-    esp3dmsg->printLN(response.c_str());
-  } else {
-    if (noError) {
-      esp3dmsg->printMSG(response.c_str());
-    } else {
-      esp3dmsg->printERROR(response.c_str(), errorCode);
-    }
-  }
-  return noError;*/
 }
 
 #endif  // SD_DEVICE
