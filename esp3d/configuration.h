@@ -149,12 +149,12 @@
 /* Use Web server
  * Enable http server
  */
-#define HTTP_FEATURE
+// #define HTTP_FEATURE
 
 /* Use telnet server
  * Enable telnet light (raw tcp) communications
  */
-#define TELNET_FEATURE
+// #define TELNET_FEATURE
 
 /* Use Websocket server
  * Enable websocket communications
@@ -186,7 +186,7 @@
 /* Use captive portal
  * Enable captive portal in AP mode
  */
-#define CAPTIVE_PORTAL_FEATURE
+// #define CAPTIVE_PORTAL_FEATURE
 
 /* Use mDNS discovery
  * This method need `bonjour` protocol on windows, or `avahi` on linux
@@ -384,7 +384,7 @@
 /* Enable Web Update
  * Update firmware using WebUI, need 4MB of flash
  */
-#define WEB_UPDATE_FEATURE
+// #define WEB_UPDATE_FEATURE
 
 /* Enable SD card Update
  * Update firmware and settings using file on SDCard
@@ -576,7 +576,7 @@
 /* Add serial task
  * ESP32 need to add a task to handle serial communication
  */
-#define SERIAL_INDEPENDANT_TASK
+// #define SERIAL_INDEPENDANT_TASK
 
 /************************************
  *
