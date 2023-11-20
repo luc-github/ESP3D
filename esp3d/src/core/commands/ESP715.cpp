@@ -22,63 +22,81 @@
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/filesystem/esp_sd.h"
 #include "../esp3d_commands.h"
-#include "../esp3d_message.h"
 #include "../esp3d_settings.h"
 
-#define COMMANDID 715
+#define COMMAND_ID 715
 // Format SD Filesystem
 //[ESP715]FORMATSD json=<no> pwd=<admin password>
 void ESP3DCommands::ESP715(int cmd_params_pos, ESP3DMessage* msg) {
-  /*
-  bool noError = true;
-  bool json = has_tag(cmd_params, "json");
-  String response;
-  String parameter;
-  int errorCode = 200;  // unless it is a server error use 200 as default and
-                        // set error in json instead
-#ifdef AUTHENTICATION_FEATURE
-  if (auth_type != admin) {
-    response =
-        format_response(COMMANDID, json, false, "Wrong authentication level");
-    noError = false;
-    errorCode = 401;
+  ESP3DClientType target = msg->origin;
+  ESP3DRequest requestId = msg->request_id;
+  (void)requestId;
+  msg->target = target;
+  msg->origin = ESP3DClientType::command;
+  bool hasError = false;
+  String error_msg = "Invalid parameters";
+  String ok_msg = "ok";
+  bool json = hasTag(msg, cmd_params_pos, "json");
+  bool formatsd = hasTag(msg, cmd_params_pos, "FORMATSD");
+  String tmpstr;
+#if defined(AUTHENTICATION_FEATURE)
+  if (msg->authentication_level == ESP3DAuthenticationLevel::guest) {
+    msg->authentication_level = ESP3DAuthenticationLevel::not_authenticated;
+    dispatchAuthenticationError(msg, COMMAND_ID, json);
+    return;
   }
-#else
-  (void)auth_type;
 #endif  // AUTHENTICATION_FEATURE
-  if (noError) {
-    if (has_tag(cmd_params, "FORMATSD")) {
-      if (!ESP_SD::accessFS()) {
-        response = format_response(COMMANDID, json, false, "Not available");
-        noError = false;
+  tmpstr = get_clean_param(msg, cmd_params_pos);
+  ESP3DMessage* endMsg = nullptr;
+  if (tmpstr.length() == 0) {
+    hasError = true;
+    error_msg = "Missing parameter";
+    esp3d_log_e("%s", error_msg.c_str());
+
+  } else {
+    if (formatsd) {
+      if (ESP_SD::getState() != ESP_SDCARD_BUSY) {
+        ok_msg = "Starting formating...";
+        endMsg = ESP3DMessageManager::copyMsgInfos(*msg);
       } else {
-        ESP_SD::setState(ESP_SDCARD_BUSY);
-        if (!json) {
-          esp3dmsg->printMSGLine("Start Formating");
-        }
-        if (ESP_SD::format(esp3dmsg)) {
-          response = format_response(COMMANDID, json, true, "ok");
-        } else {
-          response = format_response(COMMANDID, json, false, "Format failed");
-          noError = false;
-        }
-        ESP_SD::releaseFS();
+        hasError = true;
+        error_msg = "SD card busy";
+        esp3d_log_e("%s", error_msg.c_str());
       }
     } else {
-      response = format_response(COMMANDID, json, false, "Invalid parameter");
-      noError = false;
+      hasError = true;
+      error_msg = "Invalid parameter";
+      esp3d_log_e("%s", error_msg.c_str());
     }
   }
-  if (json) {
-    esp3dmsg->printLN(response.c_str());
-  } else {
-    if (noError) {
-      esp3dmsg->printMSG(response.c_str());
+  if (!dispatchAnswer(msg, COMMAND_ID, json, hasError,
+                      hasError ? error_msg.c_str() : ok_msg.c_str())) {
+    esp3d_log_e("Error sending response to clients");
+  }
+  if (!hasError && formatsd) {
+    if (ESP_SD::accessFS()) {
+      ESP_SD::setState(ESP_SDCARD_BUSY);
+      bool success = ESP_SD::format();
+      if (success) {
+        ok_msg = "Formating done";
+      } else {
+        hasError = true;
+        error_msg = "Formating failed";
+        esp3d_log_e("%s", error_msg.c_str());
+      }
+
+      ESP_SD::releaseFS();
     } else {
-      esp3dmsg->printERROR(response.c_str(), errorCode);
+      hasError = true;
+      error_msg = "SD not available";
+      esp3d_log_e("%s", error_msg.c_str());
+    }
+
+    if (!dispatchAnswer(endMsg, COMMAND_ID, json, hasError,
+                        hasError ? error_msg.c_str() : ok_msg.c_str())) {
+      esp3d_log_e("Error sending response to clients");
     }
   }
-  return noError;*/
 }
 
 #endif  // SD_DEVICE

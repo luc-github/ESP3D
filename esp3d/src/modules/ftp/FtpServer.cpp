@@ -1022,7 +1022,7 @@ bool FtpServer::processCommand() {
         free = FTPFS::freeBytes();
 #endif
         client << F("200 ") << esp3d_string::formatBytes(free) << F(" free of ")
-               << FTPFS::formatBytes(capacity) << F(" capacity") << eol;
+               << esp3d_string::formatBytes(capacity) << F(" capacity") << eol;
         esp3d_log("FTP: releaseFS");
         releaseFS();
       } else {

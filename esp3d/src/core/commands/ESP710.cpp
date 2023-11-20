@@ -68,6 +68,7 @@ void ESP3DCommands::ESP710(int cmd_params_pos, ESP3DMessage* msg) {
     esp3d_log_e("Error sending response to clients");
   }
   if (!hasError && formatfs) {
+    ESP_FileSystem::accessFS();
     bool success = ESP_FileSystem::format();
     if (success) {
       ok_msg = "Formating done";
@@ -80,6 +81,7 @@ void ESP3DCommands::ESP710(int cmd_params_pos, ESP3DMessage* msg) {
                         hasError ? error_msg.c_str() : ok_msg.c_str())) {
       esp3d_log_e("Error sending response to clients");
     }
+    ESP_FileSystem::releaseFS();
   }
 }
 

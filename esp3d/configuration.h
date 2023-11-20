@@ -266,16 +266,17 @@
  * ESP_SHARED_SD //Printer SD Card is also connected to ESP3D
  * Does your system has SD card and how it is connected to your ESP3D
  */
-// #define SD_DEVICE_CONNECTION ESP_SHARED_SD
+#define SD_DEVICE_CONNECTION ESP_SHARED_SD
 
 /* SD card library
  * ESP_SD_NATIVE //esp32 / esp8266
  * ESP_SDIO      //esp32 only
  * ESP_SDFAT2    //esp8266  / esp32
  */
-// #define SD_DEVICE ESP_SD_NATIVE
 
-// #define SD_CARD_TYPE ESP_FYSETC_WIFI_PRO_SDCARD
+#define SD_DEVICE ESP_SD_NATIVE
+
+#define SD_CARD_TYPE ESP_FYSETC_WIFI_PRO_SDCARD
 
 /* Sdio bit mode
  * Mode used by SDIO library 1 bit / 4bits
@@ -331,7 +332,7 @@
 /* Enable global filesystem
  * Allows to access to all filesystems from same location
  */
-// #define GLOBAL_FILESYSTEM_FEATURE
+#define GLOBAL_FILESYSTEM_FEATURE
 
 /* WebDav access
  * Use WebDav to access to your filesystem
@@ -339,7 +340,7 @@
  * FS_FLASH       //mount Flash FS
  * FS_SD          mount SD FS
  */
-// #define WEBDAV_FEATURE FS_ROOT
+#define WEBDAV_FEATURE FS_ROOT
 
 /* FTP access
  * Use FTP to access to your filesystem (1 connection only)
@@ -347,7 +348,7 @@
  * FS_FLASH       //mount Flash FS
  * FS_SD          //mount SD FS
  */
-// #define FTP_FEATURE FS_ROOT
+#define FTP_FEATURE FS_ROOT
 
 /************************************
  *
@@ -389,7 +390,7 @@
 /* Enable SD card Update
  * Update firmware and settings using file on SDCard
  */
-// #define SD_UPDATE_FEATURE
+#define SD_UPDATE_FEATURE
 
 /************************************
  *
@@ -550,7 +551,7 @@
 /* Enable direct control pin
  * Controls pins using [ESP201]
  */
-// #define DIRECT_PIN_FEATURE
+#define DIRECT_PIN_FEATURE
 
 /************************************
  *

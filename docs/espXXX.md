@@ -2485,3 +2485,53 @@ archetype = "section"
 title = "[ESP715]"
 weight = 800
 +++
+Format SD Card
+
+## Input
+`[ESP715]FORMATSD json=<no> pwd=<admin password>`
+
+* json=no
+the output format can be in JSON or plain text
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+* FORMATSD
+   * if FORMATSD is present, it will format the SD card
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"715",
+   "status":"ok",
+   "data":"Starting formating..."
+}
+```
+
+* `cmd` Id of requested command, should be `715`
+* `status` status of command, should be `ok`
+* `data` content of response, here `Starting formating...` when SD card is starting
+
+an new message is sent when formating is done
+
+```json
+{
+   "cmd":"715",
+   "status":"ok",
+   "data":"Formating done"
+}
+```
+
+* `cmd` Id of requested command, should be `715`
+* `status` status of command, should be `ok`
+* `data` content of response, here `Formating done` when SD card is done
+
++++
+archetype = "section"
+title = "[ESP720]"
+weight = 800
++++

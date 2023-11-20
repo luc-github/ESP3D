@@ -46,7 +46,7 @@ void ESP3DCommands::ESP402(int cmd_params_pos, ESP3DMessage* msg) {
 #endif  // AUTHENTICATION_FEATURE
   tmpstr = get_clean_param(msg, cmd_params_pos);
   ESP3DState setting_http_mode =
-      (ESP3DState)ESP3DSettings::.readByte(ESP_SD_CHECK_UPDATE_AT_BOOT);
+      (ESP3DState)ESP3DSettings::readByte(ESP_SD_CHECK_UPDATE_AT_BOOT);
   if (tmpstr.length() == 0) {
     if (setting_http_mode == ESP3DState::off) {
       ok_msg = "OFF";
@@ -55,8 +55,8 @@ void ESP3DCommands::ESP402(int cmd_params_pos, ESP3DMessage* msg) {
     }
   } else {
     if (tmpstr == "OFF" || tmpstr == "ON") {
-      if (!ESP3DSettings::.writeByte(ESP_SD_CHECK_UPDATE_AT_BOOT,
-                                     tmpstr == "OFF" ? 0 : 1)) {
+      if (!ESP3DSettings::writeByte(ESP_SD_CHECK_UPDATE_AT_BOOT,
+                                    tmpstr == "OFF" ? 0 : 1)) {
         hasError = true;
         error_msg = "Set value failed";
       }

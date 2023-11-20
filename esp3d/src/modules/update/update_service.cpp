@@ -376,7 +376,7 @@ bool processingFileFunction(const char* section, const char* key,
     switch (T) {
       case 'S':
         esp3d_log("Saving setting to ESP3D");
-        res = ESP3DSettings::writeStringP, value);
+        res = ESP3DSettings::writeString(P, value);
         break;
       case 'B':
       case 'F':
