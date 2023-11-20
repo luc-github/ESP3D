@@ -47,16 +47,16 @@ void ESP3DCommands::ESP121(int cmd_params_pos, ESP3DMessage* msg) {
 #endif  // AUTHENTICATION_FEATURE
   tmpstr = get_clean_param(msg, cmd_params_pos);
   if (tmpstr.length() == 0) {
-    intValue = ESP3DSettings::.readUint32(ESP_HTTP_PORT);
+    intValue = ESP3DSettings::readUint32(ESP_HTTP_PORT);
     ok_msg = String(intValue);
   } else {
     intValue = atoi(tmpstr.c_str());
     esp3d_log("got %s param for a value of %ld, is valid %d", tmpstr.c_str(),
               intValue,
-              ESP3DSettings::.isValidIntegerSetting(intValue, ESP_HTTP_PORT));
-    if (ESP3DSettings::.isValidIntegerSetting(intValue, ESP_HTTP_PORT)) {
+              ESP3DSettings::isValidIntegerSetting(intValue, ESP_HTTP_PORT));
+    if (ESP3DSettings::isValidIntegerSetting(intValue, ESP_HTTP_PORT)) {
       esp3d_log("Value %ld is valid", intValue);
-      if (!ESP3DSettings::.writeUint32(ESP_HTTP_PORT, intValue)) {
+      if (!ESP3DSettings::writeUint32(ESP_HTTP_PORT, intValue)) {
         hasError = true;
         error_msg = "Set value failed";
       }
