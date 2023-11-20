@@ -2535,3 +2535,224 @@ archetype = "section"
 title = "[ESP720]"
 weight = 800
 +++
+List files on /FS or defined repository
+
+## Input
+`[ESP720]<Root> json=<no> pwd=<admin password>`
+
+* json=no
+the output format can be in JSON or plain text
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+* Root
+  * if Root is empty, it will list files on /FS
+  * if Root is not empty, it will list files on defined repository
+
+
+## Output
+
+* json
+
+```json
+{
+   "cmd":"720",
+   "status":"ok",
+   "data":{
+      "path":"/",
+      "files":[
+         {"name":"index.html.gz","size":"88.67 KB","time":"2023-11-05 11:57:57"}
+      ], 
+      "total":"128.00 KB",
+      "used":"100.00 KB",
+      "occupation":"78"
+   }
+}
+```
+
+* `cmd` Id of requested command, should be `720`
+* `status` status of command, should be `ok`
+* `data` content of response, here the list of files on /FS or defined repository
+
+
+* txt
+
+```text
+Directory on Flash : /
+         index.html.gz  88.67 KB        2023-11-05 11:57:57
+Files: 1, Dirs :0
+Total: 128.00 KB, Used: 100.00 KB, Available: 28.00 KB
+```
+
++++
+archetype = "section"
+title = "[ESP730]"
+weight = 800
++++
+Do some actions on ESP Filesystem:  rmdir / remove / mkdir / exists / create
+
+## Input
+`[ESP730]<action>=<path> json=<no> pwd=<admin password>`
+
+* json=no
+the output format can be in JSON or plain text
+
+* action
+  * if action is not empty, it will set the action
+  currently only these actions are supported:
+    - RMDIR (dir)
+    - REMOVE (file)
+    - MKDIR (dir)
+    - EXISTS (file/dir)
+    - CREATE (file)
+   
+
+* path
+   the path to process, must be a valid file or directory on /FS
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"730",
+   "status":"ok",
+   "data":"ok"
+}
+```
+
+* `cmd` Id of requested command, should be `730`
+* `status` status of command, should be `ok`
+* `data` content of response, here `ok` when action is done
+
++++
+archetype = "section"
+title = "[ESP740]"
+weight = 800
++++
+List files on /SD or defined repository
+
+## Input
+`[ESP740]<Root> json=<no> pwd=<admin password>`
+
+* json=no
+the output format can be in JSON or plain text
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+* Root
+  * if Root is empty, it will list files on /SD
+  * if Root is not empty, it will list files on defined repository
+
+
+## Output
+
+* json
+
+```json 
+{
+   "cmd":"720",
+   "status":"ok",
+   "data":{
+      "path":"/",
+      "files":[
+         {"name":"System Volume Information","size":"-1"},
+         {"name":"src","size":"-1"},
+         {"name":"testdir","size":"-1"},
+         {"name":"Newfolder2","size":"-1"},
+         {"name":"conventions","size":"-1"},
+         {"name":"extensions","size":"-1"},
+         {"name":"fileupload","size":"-1"},
+         {"name":"realtimecmd","size":"-1"},
+         {"name":"variableslist","size":"-1"},
+         {"name":"webhandlers","size":"-1"},
+         {"name":"websockets","size":"-1"},
+         {"name":"main","size":"-1"},
+         {"name":"mks_pft70.sys","size":"5 B"},
+         {"name":"index.html","size":"57.47 KB"},
+         {"name":"index.xml","size":"7.53 KB"},
+         {"name":"index.print.html","size":"77.74 KB"}
+      ], 
+      "total":"7.20 GB",
+      "used":"52.06 MB",
+      "occupation":"1"
+   }
+}
+```
+
+* `cmd` Id of requested command, should be `740`
+* `status` status of command, should be `ok`
+* `data` content of response, here the list of files on /SD or defined repository
+
+* text
+   
+   ```text
+   Directory on SD : /
+[DIR]   System Volume Information
+[DIR]   src
+[DIR]   testdir
+[DIR]   New%20folder2
+[DIR]   conventions
+[DIR]   extensions
+[DIR]   fileupload
+[DIR]   realtimecmd
+[DIR]   variableslist
+[DIR]   webhandlers
+[DIR]   websockets
+[DIR]   main
+         mks_pft70.sys  5 B 
+         index.html     57.47 KB 
+         index.xml      7.53 KB
+         index.print.html       77.74 KB 
+Files: 4, Dirs :12
+Total: 7.20 GB, Used: 52.06 MB, Available: 7.15 GB
+```
+
+
++++
+archetype = "section"
+title = "[ESP750]"
+weight = 800
++++
+Do some actions on SD Card:  rmdir / remove / mkdir / exists / create
+
+## Input
+`[ESP750]<action>=<path> json=<no> pwd=<admin password>`
+
+* json=no
+the output format can be in JSON or plain text
+
+* action
+  * if action is not empty, it will set the action
+  currently only these actions are supported:
+    - RMDIR (dir)
+    - REMOVE (file)
+    - MKDIR (dir)
+    - EXISTS (file/dir)
+    - CREATE (file)
+   
+
+* path
+   the path to process, must be a valid file or directory on /SD
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"750",
+   "status":"ok",
+   "data":"ok"
+}
+```
+
+* `cmd` Id of requested command, should be `750`
+* `status` status of command, should be `ok`
+* `data` content of response, here `ok` when action is done
+
+ 
