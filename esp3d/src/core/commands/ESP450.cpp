@@ -36,12 +36,12 @@ void ESP3DCommands::ESP450(int cmd_params_pos, ESP3DMessage* msg) {
   bool json = hasTag(msg, cmd_params_pos, "json");
   String tmpstr;
 
-#if ESP3D_AUTHENTICATION_FEATURE
+#if defined(AUTHENTICATION_FEATURE)
   if (msg->authentication_level == ESP3DAuthenticationLevel::guest) {
     dispatchAuthenticationError(msg, COMMAND_ID, json);
     return;
   }
-#endif  // ESP3D_AUTHENTICATION_FEATURE
+#endif  // AUTHENTICATION_FEATURE
 
   if (!(WiFi.getMode() == WIFI_STA || WiFi.getMode() == WIFI_AP)) {
     tmpstr = "Network not enabled";

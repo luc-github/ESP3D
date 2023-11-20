@@ -21,7 +21,6 @@
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/network/netconfig.h"
 #include "../esp3d_commands.h"
-#include "../esp3d_message.h"
 #include "../esp3d_settings.h"
 
 #ifdef FILESYSTEM_FEATURE
@@ -43,406 +42,258 @@
 #ifdef CAMERA_DEVICE
 #include "../../modules/camera/camera.h"
 #endif  // CAMERA_DEVICE
-#define COMMANDID 800
+#define COMMAND_ID 800
 // get fw capabilities
 // eventually set time with pc time
 // output is JSON or plain text according parameter
-//[ESP800]json=<no><time=YYYY-MM-DDTHH:mm:ss> <version=3.0.0-a11> <setup=0/1>
+//[ESP800]json=<no><time=YYYY-MM-DDTHH:mm:ss> <tz=+HH:ss> <version=3.0.0-a11>
+//<setup=0/1>
 void ESP3DCommands::ESP800(int cmd_params_pos, ESP3DMessage* msg) {
-  /*
-  bool noError = true;
-  bool json = has_tag(cmd_params, "json");
-  String response;
-  String parameter;
-  int errorCode = 200;  // unless it is a server error use 200 as default and
-                        // set error in json instead
-#ifdef AUTHENTICATION_FEATURE
-  if (auth_type == guest) {
-    response = format_response(COMMANDID, json, false,
-                               "Guest user can't use this command");
-    noError = false;
-    errorCode = 401;
+  ESP3DClientType target = msg->origin;
+  ESP3DRequest requestId = msg->request_id;
+  msg->target = target;
+  msg->origin = ESP3DClientType::command;
+  String timestr = "none";
+#if defined(TIMESTAMP_FEATURE)
+  String timeparam = get_param(msg, cmd_params_pos, "time=");
+  String tzparam = get_param(msg, cmd_params_pos, "tz=");
+#endif  // TIMESTAMP_FEATURE
+  String setupparam = get_param(msg, cmd_params_pos, "setup=");
+  bool json = hasTag(msg, cmd_params_pos, "json");
+  String tmpstr;
+#if defined(AUTHENTICATION_FEATURE)
+  if (msg->authentication_level == ESP3DAuthenticationLevel::guest) {
+    dispatchAuthenticationError(msg, COMMAND_ID, json);
+    return;
+  }
+#endif  // AUTHENTICATION_FEATURE
+#if defined(TIMESTAMP_FEATURE)
+  // set time if internet time is not enabled
+  if (!timeService.isInternetTime()) {
+    if (tzparam.length() > 0) {
+      if (!timeService.setTimeZone(tzparam.c_str())) {
+        // not blocking error
+        esp3d_log_e("Error setting timezone");
+        timestr = "Failed to set timezone";
+      } else {
+        timestr = "Manual";
+      }
+    } else {
+      timestr = "Not set";
+    }
+    if (timeparam.length() > 0) {
+      if (!timeService.setTime(timeparam.c_str())) {
+        // not blocking error
+        esp3d_log_e("Error setting time");
+        timestr = "Failed to set time";
+      }
+    }
+  } else {
+    if (timeService.started()) {
+      timestr = "Auto";
+    } else {
+      timestr = "Failed to set";
+    }
   }
 #else
-  (void)auth_type;
-#endif  // AUTHENTICATION_FEATURE
-  if (noError) {
-    parameter = get_param(cmd_params, "setup=");
-    if (parameter.length() > 0) {
-      if (!ESP3DSettings::writeByte(ESP_SETUP, parameter == "0" ? 0 : 1)) {
-        response =
-            format_response(COMMANDID, json, false, "Save setup flag failed");
-        noError = false;
-      }
+  timestr = "none";
+#endif  // ESP3D_TIMESTAMP_FEATURE
+  if (setupparam.length() > 0) {
+    if (!ESP3DSettings::writeByte(ESP_SETUP, setupparam == "1" ? 1 : 0)) {
+      // not blocking error
+      esp3d_log_e("Error writing setup state");
     }
-  }
-  if (noError) {
-#ifdef TIMESTAMP_FEATURE
-    String newtime = get_param(cmd_params, "time=");
-    String timezone = get_param(cmd_params, "tz=");
-    String tparm = (timeService.is_internet_time()) ? "Auto" : "Manual";
-    if (!timeService.is_internet_time()) {
-      if (newtime.length() > 0) {
-        if (!timeService.setTime(newtime.c_str())) {
-          tparm = "Failed to set time";
-          esp3d_log_e("Failed to set time");
-        } else {
-          tparm = "Manual";
-        }
-      } else {
-        tparm = "Not set";
-      }
-      if (timezone.length() > 0) {
-        if (!timeService.setTimeZone(timezone.c_str())) {
-          tparm = "Failed to set timezone";
-          esp3d_log_e("Failed to set timezone");
-        }
-      }
-    } else {
-      if (timeService.started()) {
-        tparm = "Auto";
-      } else {
-        tparm = "Not set";
-      }
-    }
-#else
-    String tparm = "none";
-#endif  // TIMESTAMP_FEATURE
-
-    String line = "";
-    if (json) {
-      line = "{\"cmd\":\"800\",\"status\":\"ok\",\"data\":{";
-    }
-    // FW version
-    if (json) {
-      line += "\"FWVersion\":\"";
-    } else {
-      line += "FW version:";
-    }
-#if defined(SHORT_BUILD_VERSION)
-    line += SHORT_BUILD_VERSION;
-    line += "-";
-#endif  // SHORT_BUILD_VERSION
-    line += FW_VERSION;
-    if (json) {
-      line += "\"";
-      esp3dmsg->print(line.c_str());
-    } else {
-      esp3dmsg->printMSGLine(line.c_str());
-    }
-    line = "";
-    // FW target
-    if (json) {
-      line += ",\"FWTarget\":\"";
-    } else {
-      line += "FW target:";
-    }
-    line += ESP3DSettings::GetFirmwareTargetShortName();
-    if (json) {
-      line += "\"";
-      esp3dmsg->print(line.c_str());
-    } else {
-      esp3dmsg->printMSGLine(line.c_str());
-    }
-    line = "";
-    // FW ID
-    if (json) {
-      line += ",\"FWTargetID\":\"";
-    } else {
-      line += "FW ID:";
-    }
-    line += ESP3DSettings::GetFirmwareTarget();
-    if (json) {
-      line += "\"";
-      esp3dmsg->print(line.c_str());
-    } else {
-      esp3dmsg->printMSGLine(line.c_str());
-    }
-    line = "";
-    // Setup done
-    if (json) {
-      line += ",\"Setup\":\"";
-    } else {
-      line += "Setup:";
-    }
-    line +=
-        ESP3DSettings::readByte(ESP_SETUP) == 0 ? F("Enabled") : F("Disabled");
-    if (json) {
-      line += "\"";
-      esp3dmsg->print(line.c_str());
-    } else {
-      esp3dmsg->printMSGLine(line.c_str());
-    }
-    line = "";
-
-    // SD connection
-    if (json) {
-      line += ",\"SDConnection\":\"";
-    } else {
-      line += "SD connection:";
-    }
-    if (ESP3DSettings::GetSDDevice() == ESP_DIRECT_SD) {
-      line += "direct";
-    } else if (ESP3DSettings::GetSDDevice() == ESP_SHARED_SD) {
-      line += "shared";
-    } else {
-      line += "none";
-    }
-    if (json) {
-      line += "\"";
-      esp3dmsg->print(line.c_str());
-    } else {
-      esp3dmsg->printMSGLine(line.c_str());
-    }
-    line = "";
-    // Serial protocol
-    if (json) {
-      line += ",\"SerialProtocol\":\"";
-    } else {
-      line += "Serial protocol:";
-    }
-
-#if COMMUNICATION_PROTOCOL == MKS_SERIAL
-    line += "MKS";
-#endif  // COMMUNICATION_PROTOCOL ==  MKS_SERIAL
-#if COMMUNICATION_PROTOCOL == RAW_SERIAL
-    line += "Raw";
-#endif  // COMMUNICATION_PROTOCOL ==  RAW_SERIAL
-#if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
-    line += "Socket";
-#endif  // COMMUNICATION_PROTOCOL ==  SOCKET_SERIAL
-    if (json) {
-      line += "\"";
-      esp3dmsg->print(line.c_str());
-    } else {
-      esp3dmsg->printMSGLine(line.c_str());
-    }
-    line = "";
-    // Authentication
-    if (json) {
-      line += ",\"Authentication\":\"";
-    } else {
-      line += "Authentication:";
-    }
-
-#ifdef AUTHENTICATION_FEATURE
-    line += "Enabled";
-#else
-    line += "Disabled";
-#endif  // AUTHENTICATION_FEATURE
-    if (json) {
-      line += "\"";
-      esp3dmsg->print(line.c_str());
-    } else {
-      esp3dmsg->printMSGLine(line.c_str());
-    }
-    line = "";
-#if (defined(WIFI_FEATURE) || defined(ETH_FEATURE)) && defined(HTTP_FEATURE)
-    // Web Communication
-    if (json) {
-      line += ",\"WebCommunication\":\"";
-    } else {
-      line += "Web Communication:";
-    }
-#if defined(ASYNCWEBSERVER_FEATURE)
-    line += "Asynchronous";
-#else
-    line += "Synchronous";
-#endif  // ASYNCWEBSERVER_FEATURE
-    if (json) {
-      line += "\"";
-      esp3dmsg->print(line.c_str());
-    } else {
-      esp3dmsg->printMSGLine(line.c_str());
-    }
-    line = "";
-    // WebSocket IP
-    if (json) {
-      line += ",\"WebSocketIP\":\"";
-    } else {
-      line += "Web Socket IP:";
-    }
-    line += NetConfig::localIP().c_str();
-    if (json) {
-      line += "\"";
-      esp3dmsg->print(line.c_str());
-    } else {
-      esp3dmsg->printMSGLine(line.c_str());
-    }
-    line = "";
-    // WebSocket Port
-    if (json) {
-      line += ",\"WebSocketPort\":\"";
-    } else {
-      line += "Web Socket Port:";
-    }
-#if defined(ASYNCWEBSERVER_FEATURE)
-    line += HTTP_Server::port();
-#else
-    line += websocket_terminal_server.getPort();
-#endif
-    if (json) {
-      line += "\"";
-      esp3dmsg->print(line.c_str());
-    } else {
-      esp3dmsg->printMSGLine(line.c_str());
-    }
-    line = "";
-
-#endif  // (WIFI_FEATURE) || ETH_FEATURE) && HTTP_FEATURE)
-#if defined(WIFI_FEATURE) || defined(ETH_FEATURE) || defined(BT_FEATURE)
-    // Hostname
-    if (json) {
-      line += ",\"Hostname\":\"";
-    } else {
-      line += "Hostname:";
-    }
-    line += NetConfig::hostname();
-    if (json) {
-      line += "\"";
-      esp3dmsg->print(line.c_str());
-    } else {
-      esp3dmsg->printMSGLine(line.c_str());
-    }
-    line = "";
-#endif  // WIFI_FEATURE|| ETH_FEATURE || BT_FEATURE
-#if defined(WIFI_FEATURE)
-    if (WiFiConfig::started()) {
-      // WiFi mode
-      if (json) {
-        line += ",\"WiFiMode\":\"";
-      } else {
-        line += "WiFi mode:";
-      }
-      line += (WiFi.getMode() == WIFI_AP) ? "AP" : "STA";
-      if (json) {
-        line += "\"";
-        esp3dmsg->print(line.c_str());
-      } else {
-        esp3dmsg->printMSGLine(line.c_str());
-      }
-      line = "";
-    }
-#endif  // WIFI_FEATURE
-#if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
-    // Update
-    if (json) {
-      line += ",\"WebUpdate\":\"";
-    } else {
-      line += "Web update:";
-    }
-#ifdef WEB_UPDATE_FEATURE
-    if (ESP_FileSystem::max_update_size() != 0) {
-      line += "Enabled";
-    } else {
-      line += "Disabled";
-    }
-#else
-    line += "Disabled";
-#endif  // WEB_UPDATE_FEATURE
-    if (json) {
-      line += "\"";
-      esp3dmsg->print(line.c_str());
-    } else {
-      esp3dmsg->printMSGLine(line.c_str());
-    }
-    line = "";
-#endif  // WIFI_FEATURE|| ETH_FEATURE
-        // FS
-    if (json) {
-      line += ",\"FlashFileSystem\":\"";
-    } else {
-      line += "Flash File System:";
-    }
-#if defined(FILESYSTEM_FEATURE)
-    line += ESP_FileSystem::FilesystemName();
-#else
-    line += "none";
-#endif  // FILESYSTEM_FEATURE
-    if (json) {
-      line += "\"";
-      esp3dmsg->print(line.c_str());
-    } else {
-      esp3dmsg->printMSGLine(line.c_str());
-    }
-    line = "";
-    //      Host path
-    if (json) {
-      line += ",\"HostPath\":\"";
-    } else {
-      line += "Host Path:";
-    }
-
-    line += ESP3D_HOST_PATH;
-    if (json) {
-      line += "\"";
-      esp3dmsg->print(line.c_str());
-    } else {
-      esp3dmsg->printMSGLine(line.c_str());
-    }
-    line = "";
-    // time server
-    if (json) {
-      line += ",\"Time\":\"";
-    } else {
-      line += "Time:";
-    }
-#ifdef TIMESTAMP_FEATURE
-    line += tparm;
-#else
-    line += "none";
-#endif  // TIMESTAMP_FEATURE
-    if (json) {
-      line += "\"";
-      esp3dmsg->print(line.c_str());
-    } else {
-      esp3dmsg->printMSGLine(line.c_str());
-    }
-    line = "";
-#ifdef CAMERA_DEVICE
-    // camera ID
-    if (json) {
-      line += ",\"CameraID\":\"";
-    } else {
-      line += "Camera ID:";
-    }
-    line += esp3d_camera.GetModel();
-    if (json) {
-      line += "\"";
-      esp3dmsg->print(line.c_str());
-    } else {
-      esp3dmsg->printMSGLine(line.c_str());
-    }
-    line = "";
-    // camera Name
-    if (json) {
-      line += ",\"CameraName\":\"";
-    } else {
-      line += "Camera name:";
-    }
-    line += esp3d_camera.GetModelString();
-    if (json) {
-      line += "\"";
-      esp3dmsg->print(line.c_str());
-    } else {
-      esp3dmsg->printMSGLine(line.c_str());
-    }
-    line = "";
-#endif  // CAMERA_DEVICE
-
-    if (json) {
-      esp3dmsg->printLN("}}");
-    }
-    return true;
   }
   if (json) {
-    esp3dmsg->printLN(response.c_str());
+    tmpstr = "{\"cmd\":\"800\",\"status\":\"ok\",\"data\":{";
+
   } else {
-    if (noError) {
-      esp3dmsg->printMSG(response.c_str());
-    } else {
-      esp3dmsg->printERROR(response.c_str(), errorCode);
+    tmpstr = "Capabilities:\n";
+  }
+  msg->type = ESP3DMessageType::head;
+  if (!dispatch(msg, tmpstr.c_str())) {
+    esp3d_log_e("Error sending response to clients");
+    return;
+  }
+  // list capabilities
+  tmpstr = "";
+#if defined(SHORT_BUILD_VERSION)
+  tmpstr += SHORT_BUILD_VERSION;
+  tmpstr += "-";
+#endif  // SHORT_BUILD_VERSION
+  tmpstr += FW_VERSION;
+  // FW version
+  if (!dispatchKeyValue(json, "FWVersion", tmpstr.c_str(), target, requestId,
+                        false, true)) {
+    return;
+  }
+  // FW Target
+  tmpstr = ESP3DSettings::GetFirmwareTargetShortName();
+  if (!dispatchKeyValue(json, "FWTarget", tmpstr.c_str(), target, requestId)) {
+    return;
+  }
+
+  // FW ID
+  tmpstr = ESP3DSettings::GetFirmwareTarget();
+  if (!dispatchKeyValue(json, "FWTargetID", tmpstr.c_str(), target,
+                        requestId)) {
+    return;
+  }
+
+  // Setup done
+  tmpstr = ESP3DSettings::readByte(ESP_SETUP) == 0 ? "Enabled" : "Disabled";
+  if (!dispatchKeyValue(json, "Setup", tmpstr.c_str(), target, requestId)) {
+    return;
+  }
+
+  // SD connection
+  if (ESP3DSettings::GetSDDevice() == ESP_DIRECT_SD) {
+    tmpstr = "direct";
+  } else if (ESP3DSettings::GetSDDevice() == ESP_SHARED_SD) {
+    tmpstr = "shared";
+  } else {
+    tmpstr = "none";
+  }
+  if (!dispatchKeyValue(json, "SDConnection", tmpstr.c_str(), target,
+                        requestId)) {
+    return;
+  }
+
+  // Serial protocol
+#if COMMUNICATION_PROTOCOL == MKS_SERIAL
+  tmpstr = "MKS";
+#endif  // COMMUNICATION_PROTOCOL ==  MKS_SERIAL
+#if COMMUNICATION_PROTOCOL == RAW_SERIAL
+  tmpstr = "Raw";
+#endif  // COMMUNICATION_PROTOCOL ==  RAW_SERIAL
+#if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
+  tmpstr = "Socket";
+#endif  // COMMUNICATION_PROTOCOL ==  SOCKET_SERIAL
+  if (!dispatchKeyValue(json, "SerialProtocol", tmpstr.c_str(), target,
+                        requestId)) {
+    return;
+  }
+
+  // Authentication
+#if defined(AUTHENTICATION_FEATURE)
+  tmpstr = "Enabled";
+#else
+  tmpstr = "Disabled";
+#endif  // AUTHENTICATION_FEATURE
+  if (!dispatchKeyValue(json, "Authentication", tmpstr.c_str(), target,
+                        requestId)) {
+    return;
+  }
+
+  // Web Communication
+#if (defined(WIFI_FEATURE) || defined(ETH_FEATURE)) && defined(HTTP_FEATURE)
+#if defined(ASYNCWEBSERVER_FEATURE)
+  tmpstr = "Asynchronous";
+#else
+  tmpstr = "Synchronous";
+#endif  // ASYNCWEBSERVER_FEATURE
+  if (!dispatchKeyValue(json, "WebCommunication", tmpstr.c_str(), target,
+                        requestId)) {
+    return;
+  }
+  // WebSocket IP
+  tmpstr = NetConfig::localIP().c_str();
+  if (!dispatchKeyValue(json, "WebSocketIP", tmpstr.c_str(), target,
+                        requestId)) {
+    return;
+  }
+  // WebSocket Port
+#if defined(ASYNCWEBSERVER_FEATURE)
+  tmpstr = HTTP_Server::port();
+#else
+  tmpstr = websocket_terminal_server.getPort();
+#endif  // ASYNCWEBSERVER_FEATURE
+  if (!dispatchKeyValue(json, "WebSocketPort", tmpstr.c_str(), target,
+                        requestId)) {
+    return;
+  }
+#endif  // (WIFI_FEATURE) || ETH_FEATURE) && HTTP_FEATURE)
+#if defined(WIFI_FEATURE) || defined(ETH_FEATURE) || defined(BT_FEATURE)
+  // Hostname
+  tmpstr = NetConfig::hostname();
+  if (!dispatchKeyValue(json, "Hostname", tmpstr.c_str(), target, requestId)) {
+    return;
+  }
+#endif  // WIFI_FEATURE|| ETH_FEATURE || BT_FEATURE
+#if defined(WIFI_FEATURE)
+  if (WiFiConfig::started()) {
+    // WiFi mode
+    tmpstr = (WiFi.getMode() == WIFI_AP) ? "AP" : "STA";
+    if (!dispatchKeyValue(json, "WiFiMode", tmpstr.c_str(), target,
+                          requestId)) {
+      return;
     }
   }
-  return noError;*/
+#endif  // WIFI_FEATURE
+#if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
+// Update
+#if defined(WEB_UPDATE_FEATURE)
+  if (ESP_FileSystem::max_update_size() != 0) {
+    tmpstr = "Enabled";
+  } else {
+    tmpstr = "Disabled";
+  }
+#else
+  tmpstr = "Disabled";
+#endif  // WEB_UPDATE_FEATURE
+  if (!dispatchKeyValue(json, "WebUpdate", tmpstr.c_str(), target, requestId)) {
+    return;
+  }
+#endif  // WIFI_FEATURE|| ETH_FEATURE
+        // FS
+#if defined(FILESYSTEM_FEATURE)
+  tmpstr = ESP_FileSystem::FilesystemName();
+#else
+  tmpstr = "none";
+#endif  // FILESYSTEM_FEATURE
+  if (!dispatchKeyValue(json, "FlashFileSystem", tmpstr.c_str(), target,
+                        requestId)) {
+    return;
+  }
+  // Host path
+  tmpstr = ESP3D_HOST_PATH;
+  if (!dispatchKeyValue(json, "HostPath", tmpstr.c_str(), target, requestId)) {
+    return;
+  }
+  // time server
+#if defined(TIMESTAMP_FEATURE)
+  tmpstr = timestr;
+#else
+  tmpstr = "none";
+#endif  // TIMESTAMP_FEATURE
+  if (!dispatchKeyValue(json, "Time", tmpstr.c_str(), target, requestId)) {
+    return;
+  }
+
+#ifdef CAMERA_DEVICE
+  // camera ID
+  tmpstr = esp3d_camera.GetModel();
+  if (!dispatchKeyValue(json, "CameraID", tmpstr.c_str(), target, requestId)) {
+    return;
+  }
+  // camera Name
+  tmpstr = esp3d_camera.GetModelString();
+  if (!dispatchKeyValue(json, "CameraName", tmpstr.c_str(), target,
+                        requestId)) {
+    return;
+  }
+#endif  // CAMERA_DEVICE
+
+  // end of list
+  if (json) {
+    if (!dispatch("}}", target, requestId, ESP3DMessageType::tail)) {
+      esp3d_log_e("Error sending answer to clients");
+    }
+  } else {
+    {
+      if (!dispatch("ok\n", target, requestId, ESP3DMessageType::tail)) {
+        esp3d_log_e("Error sending answer to clients");
+      }
+    }
+  }
 }

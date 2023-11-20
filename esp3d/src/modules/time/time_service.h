@@ -21,8 +21,9 @@
 #ifndef _TIME_SERVICE_H
 #define _TIME_SERVICE_H
 
-#include <time.h>
 #include <Arduino.h>
+#include <time.h>
+
 
 class TimeService {
  public:
@@ -38,12 +39,12 @@ class TimeService {
   bool setTimeZone(const char* stime);
   bool setTime(const char* stime);
   bool started();
-  bool is_internet_time(bool readfromsettings = false);
+  bool isInternetTime(bool readfromsettings = false);
 
  private:
   int _get_time_zone_offset_min();
   bool _started;
-  bool _is_internet_time;
+  bool _isInternetTime;
   String _time_zone;
 };
 

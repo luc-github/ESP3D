@@ -50,7 +50,7 @@ const uint8_t SupportedTimeZonesSize =
 
 TimeService::TimeService() {
   _started = false;
-  _is_internet_time = false;
+  _isInternetTime = false;
   _time_zone = "+00:00";
 }
 TimeService::~TimeService() { end(); }
@@ -63,14 +63,12 @@ const char* TimeService::getDateTime(time_t t) {
   return buff;
 }
 
-bool TimeService::is_internet_time(bool readfromsettings) {
+bool TimeService::isInternetTime(bool readfromsettings) {
   if (readfromsettings) {
-    _is_internet_time =
-        ESP3DSettings::readByte(ESP_INTERNET_TIME) ? true : false;
-    esp3d_log("Internet time is %s",
-              _is_internet_time ? "enabled" : "disabled");
+    _isInternetTime = ESP3DSettings::readByte(ESP_INTERNET_TIME) ? true : false;
+    esp3d_log("Internet time is %s", _isInternetTime ? "enabled" : "disabled");
   }
-  return _is_internet_time;
+  return _isInternetTime;
 }
 
 bool TimeService::begin() {
@@ -106,7 +104,7 @@ bool TimeService::begin() {
 #endif  // WIFI_FEATURE
   }
 #endif  // ETH_FEATURE
-  if (!is_internet_time(true)) {
+  if (!isInternetTime(true)) {
     return true;
   }
   s1 = ESP3DSettings::readString(ESP_TIME_SERVER1);
@@ -231,7 +229,7 @@ bool TimeService::started() { return _started; }
 // currently not used
 void TimeService::end() {
   _started = false;
-  _is_internet_time = false;
+  _isInternetTime = false;
   _time_zone = "+00:00";
 }
 

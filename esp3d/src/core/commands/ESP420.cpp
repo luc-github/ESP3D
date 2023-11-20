@@ -90,12 +90,12 @@ void ESP3DCommands::ESP420(int cmd_params_pos, ESP3DMessage* msg) {
   bool json = hasTag(msg, cmd_params_pos, "json");
   bool addPreTag = hasTag(msg, cmd_params_pos, "addPreTag");
   String tmpstr;
-#if ESP3D_AUTHENTICATION_FEATURE
+#if defined(AUTHENTICATION_FEATURE)
   if (msg->authentication_level == ESP3DAuthenticationLevel::guest) {
     dispatchAuthenticationError(msg, COMMAND_ID, json);
     return;
   }
-#endif  // ESP3D_AUTHENTICATION_FEATURE
+#endif  // AUTHENTICATION_FEATURE
   if (json) {
     tmpstr = "{\"cmd\":\"420\",\"status\":\"ok\",\"data\":[";
 

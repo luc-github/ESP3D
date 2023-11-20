@@ -39,13 +39,13 @@ void ESP3DCommands::ESP444(int cmd_params_pos, ESP3DMessage* msg) {
   bool hasError = false;
   String error_msg = "Invalid parameters";
   String ok_msg = "";
-#if ESP3D_AUTHENTICATION_FEATURE
+#if defined(AUTHENTICATION_FEATURE)
   if (msg->authentication_level != ESP3DAuthenticationLevel::admin) {
     msg->authentication_level = ESP3DAuthenticationLevel::not_authenticated;
     dispatchAuthenticationError(msg, COMMAND_ID, json);
     return;
   }
-#endif  // ESP3D_AUTHENTICATION_FEATURE
+#endif  // AUTHENTICATION_FEATURE
   if (isReset) {
     Esp3D::reset();
     esp3d_log("Resetting settings");

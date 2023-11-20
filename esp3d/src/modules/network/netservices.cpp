@@ -88,7 +88,7 @@ bool NetServices::begin() {
 #ifdef TIMESTAMP_FEATURE
   if (WiFi.getMode() != WIFI_AP) {
     if (!timeService.begin()) {
-      if (timeService.is_internet_time()) {
+      if (timeService.isInternetTime()) {
         esp3d_commands.dispatch(
             "Failed contact time servers!", ESP3DClientType::all_clients, no_id,
             ESP3DMessageType::unique, ESP3DClientType::system,

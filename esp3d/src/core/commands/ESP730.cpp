@@ -41,13 +41,13 @@ void ESP3DCommands::ESP730(int cmd_params_pos, ESP3DMessage* msg) {
   String tmpstr;
   const char* cmdList[] = {"rmdir=", "remove=", "mkdir=", "exists=", "create="};
   uint8_t cmdListSize = sizeof(cmdList) / sizeof(char*);
-#if ESP3D_AUTHENTICATION_FEATURE
+#if defined(AUTHENTICATION_FEATURE)
   if (msg->authentication_level == ESP3DAuthenticationLevel::guest) {
     msg->authentication_level = ESP3DAuthenticationLevel::not_authenticated;
     dispatchAuthenticationError(msg, COMMAND_ID, json);
     return;
   }
-#endif  // ESP3D_AUTHENTICATION_FEATURE
+#endif  // AUTHENTICATION_FEATURE
   uint8_t i;
   for (i = 0; i < cmdListSize && !hasError; i++) {
     tmpstr = get_param(msg, cmd_params_pos, cmdList[i]);
