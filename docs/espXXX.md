@@ -3157,3 +3157,128 @@ the output format
     - ENABLE
     - DISABLE
     - CLOSE
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"930",
+   "status":"ok",
+   "data":"ENABLED"
+}
+```
+
+* `cmd` Id of requested command, should be `930`
+* `status` status of command, should be `ok`
+* `data` content of response, here the current state
+
+ - plain text format
+
+```Text
+ENABLED
+```
+
++++
+archetype = "section"
+title = "[ESP931]"
+weight = 800
++++
+Set Bridge Serial baudrate
+
+## Input
+`[ESP931]<baudrate> json=<no> pwd=<admin password>`
+
+* json=no
+the output format
+
+* baudrate
+  * if baudrate is empty, it will display current baudrate
+  * if baudrate is not empty, it will set the baudrate
+  currently only these baudrates are supported:
+    - 9600
+    - 19200
+    - 38400
+    - 57600
+    - 74880
+    - 115200
+    - 230400
+    - 250000
+    - 500000
+    - 921600
+    - 1958400
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"931",
+   "status":"ok",
+   "data":"115200"
+}
+```
+
+* `cmd` Id of requested command, should be `931`
+* `status` status of command, should be `ok`
+* `data` content of response, here the current baudrate
+
+ - plain text format
+
+```Text
+115200
+```
+
++++
+archetype = "section"
+title = "[ESP999]"
+weight = 800
++++
+Set quiet boot if strapping pin is High, can only e done o6nce and cannot be reverted
+
+## Input
+`[ESP999]QUIETBOOT json=<no> pwd=<admin password>`
+
+* json=no
+the output format
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+* QUIETBOOT
+  * if QUIETBOOT is present, it will set the quiet boot flag
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"999",
+   "status":"ok",
+   "data":"ok"
+}
+```
+
+* `cmd` Id of requested command, should be `999`
+* `status` status of command, should be `ok`
+* `data` content of response, here `ok` when quiet boot is set
+
+ - plain text format
+
+```Text
+ok
+```
+
+
