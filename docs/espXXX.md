@@ -2986,3 +2986,160 @@ eventually set time with pc time and set setup state
 
 
  
+
++++
+archetype = "section"
+title = "[ESP900]"
+weight = 800
++++
+Get state / Set Serial Communication
+
+## Input
+`[ESP900]<state> json=<no> pwd=<admin password>`
+
+* json=no
+the output format
+can be in JSON or plain text
+
+* state
+  * if state is empty, it will display current state
+  * if state is not empty, it will set the state
+  currently only these states are supported:
+    - ENABLE
+    - DISABLE
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"900",
+   "status":"ok",
+   "data":"ENABLED"
+}
+```
+
+* `cmd` Id of requested command, should be `900`
+* `status` status of command, should be `ok`
+* `data` content of response, here the current state
+
+ - plain text format
+
+```Text
+ENABLED
+```
+
++++
+archetype = "section"
+title = "[ESP901]"
+weight = 800
++++
+ Set Serial baudrate for main serial communication
+
+## Input
+`[ESP901]<baudrate> json=<no> pwd=<admin password>`
+
+* json=no
+the output format
+can be in JSON or plain text
+
+* baudrate
+  * if baudrate is empty, it will display current baudrate
+  * if baudrate is not empty, it will set the baudrate
+  currently only these baudrates are supported:
+    - 9600
+    - 19200
+    - 38400
+    - 57600
+    - 74880
+    - 115200
+    - 230400
+    - 250000
+    - 500000
+    - 921600
+    - 1958400
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"901",
+   "status":"ok",
+   "data":"115200"
+}
+```
+
+* `cmd` Id of requested command, should be `901`
+* `status` status of command, should be `ok`
+* `data` content of response, here the current baudrate
+
+ - plain text format
+
+```Text
+115200
+```
+
++++
+archetype = "section"
+title = "[ESP910]"
+weight = 800
++++
+Get state / Set Enable / Disable buzzer
+
+## Input
+`[ESP910]<state> json=<no> pwd=<admin password>`
+
+* json=no
+the output format
+can be in JSON or plain text
+
+* state
+  * if state is empty, it will display current state
+  * if state is not empty, it will set the state
+  currently only these states are supported:
+    - ENABLE
+    - DISABLE
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"910",
+   "status":"ok",
+   "data":"ENABLED"
+}
+```
+
+* `cmd` Id of requested command, should be `910`
+* `status` status of command, should be `ok`
+* `data` content of response, here the current state
+
+ - plain text format
+
+```Text
+ENABLED
+```
+
++++
+archetype = "section"
+title = "[ESP930]"
+weight = 800
++++
+Set Bridge Serial state which can be ON, OFF, CLOSE

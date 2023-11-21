@@ -25,7 +25,7 @@
 #include "../esp3d_message.h"
 #include "../esp3d_settings.h"
 
-#define COMMANDID 930
+#define COMMAND_ID 930
 // Set Bridge Serial state which can be ON, OFF, CLOSE
 //[ESP930]<state> json=<no> pwd=<admin password>
 void ESP3DCommands::ESP930(int cmd_params_pos, ESP3DMessage* msg) {
