@@ -22,85 +22,68 @@
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/serial/serial_service.h"
 #include "../esp3d_commands.h"
-#include "../esp3d_message.h"
 #include "../esp3d_settings.h"
 
 #define COMMAND_ID 930
 // Set Bridge Serial state which can be ON, OFF, CLOSE
 //[ESP930]<state> json=<no> pwd=<admin password>
 void ESP3DCommands::ESP930(int cmd_params_pos, ESP3DMessage* msg) {
-  /*
-  bool noError = true;
-  bool json = has_tag(cmd_params, "json");
-  String response;
-  String parameter;
-  int errorCode = 200;  // unless it is a server error use 200 as default and
-                        // set error in json instead
-#ifdef AUTHENTICATION_FEATURE
-  if (auth_type == guest) {
-    response = format_response(COMMANDID, json, false,
-                               "Guest user can't use this command");
-    noError = false;
-    errorCode = 401;
+  ESP3DClientType target = msg->origin;
+  ESP3DRequest requestId = msg->request_id;
+  (void)requestId;
+  msg->target = target;
+  msg->origin = ESP3DClientType::command;
+  bool hasError = false;
+  String error_msg = "Invalid parameters";
+  String ok_msg = "ok";
+  bool json = hasTag(msg, cmd_params_pos, "json");
+  bool enabled = hasTag(msg, cmd_params_pos, "ENABLE");
+  bool disabled = hasTag(msg, cmd_params_pos, "DISABLE");
+  bool close = hasTag(msg, cmd_params_pos, "CLOSE");
+  String tmpstr;
+#if defined(AUTHENTICATION_FEATURE)
+  if (msg->authentication_level == ESP3DAuthenticationLevel::guest) {
+    msg->authentication_level = ESP3DAuthenticationLevel::not_authenticated;
+    dispatchAuthenticationError(msg, COMMAND_ID, json);
+    return;
   }
-#else
-  (void)auth_type;
 #endif  // AUTHENTICATION_FEATURE
-  if (noError) {
-    parameter = clean_param(get_param(cmd_params, ""));
-    // get
-    if (parameter.length() == 0) {
-      String r =
-          (ESP3DSettings::readByte(ESP_SERIAL_BRIDGE_ON) == 0) ? "OFF" : "ON";
-      r += " - Serial" + String(serial_bridge_service.serialIndex());
-      response = format_response(COMMANDID, json, true, r.c_str());
-    } else {  // set
-#ifdef AUTHENTICATION_FEATURE
-      if (auth_type != admin) {
-        response = format_response(COMMANDID, json, false,
-                                   "Wrong authentication level");
-        noError = false;
-        errorCode = 401;
-      }
-#endif  // AUTHENTICATION_FEATURE
-      if (noError) {
-        parameter.toUpperCase();
-        if (!((parameter == "ON") || (parameter == "OFF") ||
-              (parameter == "CLOSE"))) {
-          response = format_response(COMMANDID, json, false,
-                                     "Only ON or OFF or CLOSE mode supported!");
-          noError = false;
-        } else {
-          if (parameter == "CLOSE") {
-            serial_bridge_service.end();
-          } else {
-            if (!ESP3DSettings::writeByte(ESP_SERIAL_BRIDGE_ON,
-                                           (parameter == "ON") ? 1 : 0)) {
-              response = format_response(COMMANDID, json, false, "Set failed");
-              noError = false;
-            }
-            if (noError && parameter == "ON" &&
-                !serial_bridge_service.started()) {
-              serial_bridge_service.begin(ESP_SERIAL_BRIDGE_OUTPUT);
-            }
-          }
-          if (noError) {
-            response = format_response(COMMANDID, json, true, "ok");
-          }
+  tmpstr = get_clean_param(msg, cmd_params_pos);
+  if (tmpstr.length() == 0) {
+    if (ESP3DSettings::readByte(ESP_SERIAL_BRIDGE_ON) == 1) {
+      ok_msg = "ENABLED";
+    } else {
+      ok_msg = "DISABLED";
+    }
+    ok_msg += " - Serial" + String(serial_bridge_service.serialIndex());
+  } else {
+    if (enabled || disabled || close) {
+      if (disabled || enabled) {
+        if (!ESP3DSettings::writeByte(ESP_SERIAL_BRIDGE_ON,
+                                      (enabled) ? 1 : 0)) {
+          hasError = true;
+          error_msg = "Set failed";
         }
       }
-    }
-  }
-  if (json) {
-    esp3dmsg->printLN(response.c_str());
-  } else {
-    if (noError) {
-      esp3dmsg->printMSG(response.c_str());
+      if (enabled && !serial_bridge_service.started()) {
+        if (!esp3d_serial_service.begin()) {
+          hasError = true;
+          error_msg = "Cannot enable serial bridge communication";
+        }
+      }
+      if (close) {
+        serial_bridge_service.end();
+      }
     } else {
-      esp3dmsg->printERROR(response.c_str(), errorCode);
+      hasError = true;
+      error_msg = "Invalid parameters";
+      esp3d_log_e("%s", error_msg.c_str());
     }
   }
-  return noError;*/
+  if (!dispatchAnswer(msg, COMMAND_ID, json, hasError,
+                      hasError ? error_msg.c_str() : ok_msg.c_str())) {
+    esp3d_log_e("Error sending response to clients");
+  }
 }
 
 #endif  // TELNET_FEATURE

@@ -75,66 +75,6 @@ void ESP3DCommands::ESP901(int cmd_params_pos, ESP3DMessage* msg) {
                       hasError ? error_msg.c_str() : ok_msg.c_str())) {
     esp3d_log_e("Error sending response to clients");
   }
-
-  /*
-  bool noError = true;
-  bool json = has_tag(cmd_params, "json");
-  String response;
-  String parameter;
-  int errorCode = 200;  // unless it is a server error use 200 as default and
-                        // set error in json instead
-#ifdef AUTHENTICATION_FEATURE
-  if (auth_type == guest) {
-    response = format_response(COMMANDID, json, false,
-                               "Guest user can't use this command");
-    noError = false;
-    errorCode = 401;
-  }
-#else
-  (void)auth_type;
-#endif  // AUTHENTICATION_FEATURE
-  if (noError) {
-    parameter = clean_param(get_param(cmd_params, ""));
-    // get
-    if (parameter.length() == 0) {
-      response = format_response(
-          COMMANDID, json, true,
-          String(ESP3DSettings::readUint32(ESP_BAUD_RATE)).c_str());
-    } else {  // set
-#ifdef AUTHENTICATION_FEATURE
-      if (auth_type != admin) {
-        response = format_response(COMMANDID, json, false,
-                                   "Wrong authentication level");
-        noError = false;
-        errorCode = 401;
-      }
-#endif  // AUTHENTICATION_FEATURE
-      if (noError) {
-        uint ibuf = parameter.toInt();
-        if (ESP3DSettings::isValidIntegerSetting(ibuf, ESP_BAUD_RATE)) {
-          response = format_response(COMMANDID, json, false, "Incorrect port");
-          noError = false;
-        } else {
-          if (!ESP3DSettings::writeUint32(ESP_BAUD_RATE, ibuf)) {
-            response = format_response(COMMANDID, json, false, "Set failed");
-            noError = false;
-          } else {
-            response = format_response(COMMANDID, json, true, "ok");
-          }
-        }
-      }
-    }
-  }
-  if (json) {
-    esp3dmsg->printLN(response.c_str());
-  } else {
-    if (noError) {
-      esp3dmsg->printMSG(response.c_str());
-    } else {
-      esp3dmsg->printERROR(response.c_str(), errorCode);
-    }
-  }
-  return noError;*/
 }
 
 #endif  // COMMUNICATION_PROTOCOL != SOCKET_SERIAL

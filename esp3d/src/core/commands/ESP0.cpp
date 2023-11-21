@@ -174,7 +174,7 @@ const char* help[] = {
     "[ESP910](ENABLE/DISABLE) - display/set buzzer state",
 #endif  // BUZZER_DEVICE
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
-    "[ESP930](ON/OFF/CLOSE) - display/set serial bridge state",
+    "[ESP930](ENABLE/DISABLE/CLOSE) - display/set serial bridge state",
     "[ESP931]<BAUD RATE> - display/set serial bridge baud rate",
 #endif  // defined(ESP_SERIAL_BRIDGE_OUTPUT)
 #if defined(ARDUINO_ARCH_ESP32) &&                             \

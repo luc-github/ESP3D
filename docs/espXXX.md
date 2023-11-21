@@ -3143,3 +3143,17 @@ title = "[ESP930]"
 weight = 800
 +++
 Set Bridge Serial state which can be ON, OFF, CLOSE
+
+## Input
+`[ESP930]<state> json=<no> pwd=<admin password>`
+
+* json=no
+the output format
+
+* state
+  * if state is empty, it will display current state
+  * if state is not empty, it will set the state
+  currently only these states are supported:
+    - ENABLE
+    - DISABLE
+    - CLOSE
