@@ -56,30 +56,39 @@ bool Commands::ESP200(const char* cmd_params, level_authenticate_type auth_type,
     }
 
     if (!ESP_SD::accessFS()) {
+      log_esp3d_d("No Access to SD card");
       if (ESP_SD::getState() == ESP_SDCARD_BUSY) {
         response = format_response(COMMANDID, json, true, "Busy");
+        log_esp3d_d("Busy");
       } else {
         response = format_response(COMMANDID, json, true, "Not available");
+        log_esp3d_d("Not available");
       }
     } else {
+      log_esp3d_d("Accessing SD card ok");
       int8_t state = ESP_SD::getState(true);
-      if (state == ESP_SDCARD_IDLE) {
+      if (state != ESP_SDCARD_NOT_PRESENT) {
         response = format_response(COMMANDID, json, true, "SD card ok");
+        log_esp3d_d("SD card ok");
         if (refreshSD) {
           ESP_SD::refreshStats(true);
         }
+      } else {
+        log_esp3d_d("SD card state %d", state);
       }
       ESP_SD::releaseFS();
       parameter = clean_param(get_param(cmd_params, ""));
       if (parameter.length() != 0 && parameter.indexOf("REFRESH") == -1 &&
           parameter.indexOf("RELEASE") == -1) {
         response = format_response(COMMANDID, json, false, "Unknown parameter");
+        log_esp3d_e("Unknown parameter");
         noError = false;
       }
     }
   }
   if (noError) {
     if (response.length() == 0) {
+      log_esp3d_d("No SD card");
       response = format_response(COMMANDID, json, true, "No SD card");
     }
     if (json) {
