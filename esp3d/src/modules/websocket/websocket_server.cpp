@@ -30,15 +30,17 @@
 #include "../authentication/authentication_service.h"
 #include "websocket_server.h"
 
-WebSocket_Server websocket_terminal_server("webui-v3");
+WebSocket_Server websocket_terminal_server("webui-v3",
+                                           ESP3DClientType::webui_websocket);
 #if defined(WS_DATA_FEATURE)
-WebSocket_Server websocket_data_server("arduino");
+WebSocket_Server websocket_data_server("arduino", ESP3DClientType::websocket);
 #endif  // WS_DATA_FEATURE
-void WebSocket_Server::pushMSG(const char *data) {
+bool WebSocket_Server::pushMSG(const char *data) {
   if (_websocket_server) {
-    _websocket_server->broadcastTXT(data);
     esp3d_log("[%u]Broadcast %s", _current_id, data);
+    return _websocket_server->broadcastTXT(data);
   }
+  return false;
 }
 
 void WebSocket_Server::enableOnly(uint num) {
@@ -51,11 +53,27 @@ void WebSocket_Server::enableOnly(uint num) {
   }
 }
 
-void WebSocket_Server::pushMSG(uint num, const char *data) {
-  if (_websocket_server) {
-    _websocket_server->sendTXT(num, data);
-    esp3d_log("[%u]Send %s", num, data);
+bool WebSocket_Server::dispatch(ESP3DMessage *message) {
+  if (!message || !_started) {
+    return false;
   }
+  if (message->size > 0 && message->data) {
+    size_t sentcnt = writeBytes(message->data, message->size);
+    if (sentcnt != message->size) {
+      return false;
+    }
+    ESP3DMessageManager::deleteMsg(message);
+    return true;
+  }
+  return false;
+}
+
+bool WebSocket_Server::pushMSG(uint num, const char *data) {
+  if (_websocket_server) {
+    esp3d_log("[%u]Send %s", num, data);
+    return _websocket_server->sendTXT(num, data);
+  }
+  return false;
 }
 
 void WebSocket_Server::closeClients() {
@@ -137,8 +155,8 @@ void handle_Websocket_Terminal_Event(uint8_t num, uint8_t type,
       break;
     case WStype_BIN:
       // we do not expect any input
-      // esp3d_log("[IGNORED][%u] get binary length: %u  port %d", num, length,
-      // websocket_terminal_server.port());
+      // esp3d_log("[IGNORED][%u] get binary length: %u  port %d", num,
+      // length, websocket_terminal_server.port());
       break;
     default:
       break;
@@ -150,7 +168,7 @@ int WebSocket_Server::available() { return _RXbufferSize; }
 int WebSocket_Server::availableForWrite() {
   return TXBUFFERSIZE - _TXbufferSize;
 }
-WebSocket_Server::WebSocket_Server(const char *protocol) {
+WebSocket_Server::WebSocket_Server(const char *protocol, ESP3DClientType type) {
   _websocket_server = nullptr;
   _started = false;
   _port = 0;
@@ -158,6 +176,12 @@ WebSocket_Server::WebSocket_Server(const char *protocol) {
   _RXbuffer = nullptr;
   _RXbufferSize = 0;
   _protocol = protocol;
+  _type = type;
+#if defined(AUTHENTICATION_FEATURE)
+  _auth = ESP3DAuthenticationLevel::guest;
+#else
+  _auth = ESP3DAuthenticationLevel::admin;
+#endif  // AUTHENTICATION_FEATURE
 }
 WebSocket_Server::~WebSocket_Server() { end(); }
 bool WebSocket_Server::begin(uint16_t port) {
@@ -218,9 +242,9 @@ void WebSocket_Server::set_currentID(uint8_t current_id) {
 }
 uint8_t WebSocket_Server::get_currentID() { return _current_id; }
 
-size_t WebSocket_Server::write(uint8_t c) { return write(&c, 1); }
+// size_t WebSocket_Server::write(uint8_t c) { return write(&c, 1); }
 
-size_t WebSocket_Server::write(const uint8_t *buffer, size_t size) {
+size_t WebSocket_Server::writeBytes(const uint8_t *buffer, size_t size) {
   if (_started) {
     if ((buffer == nullptr) || (!_websocket_server) || (size == 0)) {
       return 0;
@@ -285,10 +309,15 @@ void WebSocket_Server::flushRXbuffer() {
     _RXbufferSize = 0;
     return;
   }
-  ESP3D_Message esp3dmsg(ESP_WEBSOCKET_CLIENT);
   _RXbuffer[_RXbufferSize] = 0x0;
-  // dispatch command
-  esp3d_commands.process(_RXbuffer, _RXbufferSize, &esp3dmsg);
+  ESP3DMessage *msg = ESP3DMessageManager::newMsg(
+      _type, esp3d_commands.getOutputClient(), _RXbuffer, _RXbufferSize, _auth);
+  if (msg) {
+    // process command
+    esp3d_commands.process(msg);
+  } else {
+    esp3d_log_e("Cannot create message");
+  }
   _lastRXflush = millis();
   _RXbufferSize = 0;
 }

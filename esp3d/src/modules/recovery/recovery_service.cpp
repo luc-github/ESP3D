@@ -84,7 +84,6 @@ void RecoveryService::handle() {
                                 no_id, ESP3DMessageType::unique,
                                 ESP3DClientType::system,
                                 ESP3DAuthenticationLevel::admin);
-
         Esp3D::reset();
         ESP3DHal::wait(100);
         Esp3D::restart_esp();

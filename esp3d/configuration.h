@@ -159,7 +159,7 @@
 /* Use Websocket server
  * Enable websocket communications
  */
-// #define WS_DATA_FEATURE
+#define WS_DATA_FEATURE
 
 // Enable notifications
 // Allows to send notifications to the user

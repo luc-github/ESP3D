@@ -36,6 +36,10 @@
 #include "../modules/telnet/telnet_server.h"
 #endif  // TELNET_FEATURE
 
+#if defined(HTTP_FEATURE) || defined(WS_DATA_FEATURE)
+#include "../modules/websocket/websocket_server.h"
+#endif  // HTTP_FEATURE || WS_DATA_FEATURE
+
 ESP3DCommands esp3d_commands;
 
 ESP3DCommands::ESP3DCommands() {
@@ -1147,8 +1151,17 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
       break;
 #endif  // COMMUNICATION_PROTOCOL == MKS_SERIAL || COMMUNICATION_PROTOCOL ==
         // RAW_SERIAL || defined(ESP_SERIAL_BRIDGE_OUTPUT)
-#ifdef TELNET_FEATURE
 
+#ifdef WS_DATA_FEATURE
+    case ESP3DClientType::websocket:
+      if (!websocket_data_server.dispatch(msg)) {
+        sendOk = false;
+        esp3d_log_e("Telnet dispatch failed");
+      }
+      break;
+#endif  // WS_DATA_FEATURE
+
+#ifdef TELNET_FEATURE
     case ESP3DClientType::telnet:
       if (!telnet_server.dispatch(msg)) {
         sendOk = false;
@@ -1156,6 +1169,15 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
       }
       break;
 #endif  // TELNET_FEATURE
+
+#ifdef HTTP_FEATURE
+    case ESP3DClientType::webui_websocket:
+      if (!websocket_terminal_server.dispatch(msg)) {
+        sendOk = false;
+        esp3d_log_e("Webui websocket dispatch failed");
+      }
+      break;
+#endif  // HTTP_FEATURE
 
 #ifdef PRINTER_HAS_DISPLAY
     case ESP3DClientType::remote_screen:
@@ -1216,12 +1238,56 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
               copy_msg->target = ESP3DClientType::telnet;
               dispatch(copy_msg);
             } else {
-              esp3d_log_e("Cannot duplicate message for remote screen");
+              esp3d_log_e("Cannot duplicate message for telnet");
             }
           }
         }
       }
 #endif  // TELNET_FEATURE
+
+#ifdef HTTP_FEATURE
+      if (msg->origin != ESP3DClientType::webui_websocket) {
+        String msgstr = (const char *)msg->data;
+        msgstr.trim();
+        if (msgstr.length() > 0) {
+          if (msg->target == ESP3DClientType::all_clients) {
+            // become the reference message
+            msg->target = ESP3DClientType::webui_websocket;
+          } else {
+            // duplicate message because current is  already pending
+            ESP3DMessage *copy_msg = ESP3DMessageManager::copyMsg(*msg);
+            if (copy_msg) {
+              copy_msg->target = ESP3DClientType::webui_websocket;
+              dispatch(copy_msg);
+            } else {
+              esp3d_log_e("Cannot duplicate message for webui_websocket");
+            }
+          }
+        }
+      }
+#endif  // HTTP_FEATURE
+
+#ifdef WS_DATA_FEATURE
+      if (msg->origin != ESP3DClientType::websocket) {
+        String msgstr = (const char *)msg->data;
+        msgstr.trim();
+        if (msgstr.length() > 0) {
+          if (msg->target == ESP3DClientType::all_clients) {
+            // become the reference message
+            msg->target = ESP3DClientType::websocket;
+          } else {
+            // duplicate message because current is  already pending
+            ESP3DMessage *copy_msg = ESP3DMessageManager::copyMsg(*msg);
+            if (copy_msg) {
+              copy_msg->target = ESP3DClientType::websocket;
+              dispatch(copy_msg);
+            } else {
+              esp3d_log_e("Cannot duplicate message for websocket");
+            }
+          }
+        }
+      }
+#endif  // WS_DATA_FEATURE
 
       //...
 
