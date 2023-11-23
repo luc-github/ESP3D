@@ -20,7 +20,7 @@
 
 #include "../../include/esp3d_config.h"
 #if defined(RECOVERY_FEATURE)
-#include "../../core/esp3d_message.h"
+#include "../../core/esp3d_commands.h"
 #include "../../core/esp3d_settings.h"
 #include "recovery_service.h"
 
@@ -80,10 +80,12 @@ void RecoveryService::handle() {
       interruptswitch = false;
       if ((millis() - lastreset) > 1000) {
         lastreset = millis();
-        ESP3D_Message esp3dmsg(ESP_ALL_CLIENTS);
-        esp3dmsg.printMSG("Reset requested");
+        esp3d_commands.dispatch("Reset requested", ESP3DClientType::all_clients,
+                                no_id, ESP3DMessageType::unique,
+                                ESP3DClientType::system,
+                                ESP3DAuthenticationLevel::admin);
+
         Esp3D::reset();
-        esp3dmsg.flush();
         ESP3DHal::wait(100);
         Esp3D::restart_esp();
       }

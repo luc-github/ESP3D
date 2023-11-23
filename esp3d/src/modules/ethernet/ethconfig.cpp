@@ -27,7 +27,7 @@
 #endif  // ARDUINO_ARCH_ESP32
 #ifdef ARDUINO_ARCH_ESP8266
 #endif  // ARDUINO_ARCH_ESP8266
-#include "../../core/esp3d_message.h"
+#include "../../core/esp3d_commands.h"
 #include "../../core/esp3d_settings.h"
 #include "../network/netconfig.h"
 #include "ethconfig.h"
@@ -92,16 +92,22 @@ bool EthConfig::linkUp() {
  */
 bool EthConfig::begin(int8_t& espMode) {
   bool res = false;
-  ESP3D_Message esp3dmsg(ESP_ALL_CLIENTS);
+
   end();
   _started = ETH.begin();
   if (_started) {
     if (ESP3DSettings::isVerboseBoot()) {
-      esp3dmsg.printMSG("Starting Ethernet");
+      esp3d_commands.dispatch("Starting ethernet", ESP3DClientType::all_clients,
+                              no_id, ESP3DMessageType::unique,
+                              ESP3DClientType::system,
+                              ESP3DAuthenticationLevel::admin);
     }
     res = true;
   } else {
-    esp3dmsg.printERROR("Failed Starting Ethernet");
+    esp3d_commands.dispatch("Failed starting ethernet write failed",
+                            ESP3DClientType::all_clients, no_id,
+                            ESP3DMessageType::unique, ESP3DClientType::system,
+                            ESP3DAuthenticationLevel::admin);
   }
   ETH.setHostname(NetConfig::hostname(true));
 
@@ -109,22 +115,28 @@ bool EthConfig::begin(int8_t& espMode) {
   if (espMode == ESP_ETH_STA) {
     if (!StartSTA()) {
       if (ESP3DSettings::isVerboseBoot()) {
-        esp3dmsg.printMSG("Starting fallback mode");
+        esp3d_commands.dispatch(
+            "Starting fallback mode", ESP3DClientType::all_clients, no_id,
+            ESP3DMessageType::unique, ESP3DClientType::system,
+            ESP3DAuthenticationLevel::admin);
       }
       espMode = ESP3DSettings::readByte(ESP_STA_FALLBACK_MODE);
       res = true;
     } else {
       if (ESP3DSettings::isVerboseBoot()) {
-        esp3dmsg.printMSG("Client started");
+        esp3d_commands.dispatch("Client started", ESP3DClientType::all_clients,
+                                no_id, ESP3DMessageType::unique,
+                                ESP3DClientType::system,
+                                ESP3DAuthenticationLevel::admin);
       }
     }
 
   } else {
     // if(!StartSRV()){
     //    res = false;
-    //   esp3dmsg.printMSG ("Failed Starting Server");
+    //
     // } else {
-    //    esp3dmsg.printMSG ("Server started");
+    //
     // }
   }
 
@@ -132,7 +144,10 @@ bool EthConfig::begin(int8_t& espMode) {
   // == ESP_ETH_SRV)){
   if ((ESP3DSettings::readByte(ESP_STA_IP_MODE) != DHCP_MODE)) {
     // as no event to display static IP
-    esp3dmsg.printMSG(ETH.localIP().toString().c_str());
+    esp3d_commands.dispatch(ETH.localIP().toString().c_str(),
+                            ESP3DClientType::all_clients, no_id,
+                            ESP3DMessageType::unique, ESP3DClientType::system,
+                            ESP3DAuthenticationLevel::admin);
   }
 
   return res;
