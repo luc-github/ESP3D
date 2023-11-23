@@ -27,11 +27,20 @@
 #include "../../core/esp3d_commands.h"
 #include "../../core/esp3d_message.h"
 #include "../../core/esp3d_settings.h"
+#include "../../include/esp3d_version.h"
 #include "telnet_server.h"
 
 Telnet_Server telnet_server;
 
 #define TIMEOUT_TELNET_FLUSH 1500
+
+#if defined(AUTHENTICATION_FEATURE)
+#define TELNET_WELCOME_MESSAGE         \
+  ";Welcome to ESP3D-TFT V" FW_VERSION \
+  ", please enter a command with credentials.\r\n"
+#else
+#define TELNET_WELCOME_MESSAGE ";Welcome to ESP3D-TFT V" FW_VERSION ".\r\n"
+#endif  // AUTHENTICATION_FEATURE
 
 void Telnet_Server::closeClient() {
   if (_telnetClients) {
@@ -52,6 +61,8 @@ bool Telnet_Server::isConnected() {
       }
       _telnetClients = _telnetserver->accept();
       // new client
+      writeBytes((uint8_t *)TELNET_WELCOME_MESSAGE,
+                 strlen(TELNET_WELCOME_MESSAGE));
     }
   }
   if (_telnetserver->hasClient()) {
@@ -77,6 +88,11 @@ Telnet_Server::Telnet_Server() {
   _port = 0;
   _buffer = nullptr;
   _telnetserver = nullptr;
+#if defined(AUTHENTICATION_FEATURE)
+  _auth = ESP3DAuthenticationLevel::guest;
+#else
+  _auth = ESP3DAuthenticationLevel::admin;
+#endif  // AUTHENTICATION_FEATURE
 }
 Telnet_Server::~Telnet_Server() { end(); }
 
@@ -169,15 +185,37 @@ void Telnet_Server::handle() {
   }
 }
 
+bool Telnet_Server::dispatch(ESP3DMessage *message) {
+  if (!message || !_started) {
+    return false;
+  }
+  if (message->size > 0 && message->data) {
+    size_t sentcnt = writeBytes(message->data, message->size);
+    if (sentcnt != message->size) {
+      return false;
+    }
+    ESP3DMessageManager::deleteMsg(message);
+    return true;
+  }
+  return false;
+}
+
 void Telnet_Server::flushbuffer() {
   if (!_buffer || !_started) {
     _buffer_size = 0;
     return;
   }
-  ESP3D_Message esp3dmsg(ESP_TELNET_CLIENT);
   _buffer[_buffer_size] = 0x0;
-  // dispatch command
-  esp3d_commands.process(_buffer, _buffer_size, &esp3dmsg);
+  ESP3DMessage *msg = ESP3DMessageManager::newMsg(
+      ESP3DClientType::telnet, esp3d_commands.getOutputClient(), _buffer,
+      _buffer_size, _auth);
+  if (msg) {
+    // process command
+    esp3d_commands.process(msg);
+  } else {
+    esp3d_log_e("Cannot create message");
+  }
+
   _lastflush = millis();
   _buffer_size = 0;
 }
@@ -217,9 +255,7 @@ void Telnet_Server::push2buffer(uint8_t *sbuf, size_t len) {
   }
 }
 
-size_t Telnet_Server::write(uint8_t c) { return write(&c, 1); }
-
-size_t Telnet_Server::write(const uint8_t *buffer, size_t size) {
+size_t Telnet_Server::writeBytes(const uint8_t *buffer, size_t size) {
   if (isConnected() && (size > 0) && _started) {
     if ((size_t)availableForWrite() >= size) {
       // push data to connected telnet client
@@ -267,15 +303,6 @@ int Telnet_Server::available() {
     return _telnetClients.available();
   }
   return 0;
-}
-
-int Telnet_Server::read(void) {
-  if (isConnected()) {
-    if (_telnetClients.available() > 0) {
-      return _telnetClients.read();
-    }
-  }
-  return -1;
 }
 
 size_t Telnet_Server::readBytes(uint8_t *sbuf, size_t len) {

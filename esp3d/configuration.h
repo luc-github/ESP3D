@@ -154,7 +154,7 @@
 /* Use telnet server
  * Enable telnet light (raw tcp) communications
  */
-// #define TELNET_FEATURE
+#define TELNET_FEATURE
 
 /* Use Websocket server
  * Enable websocket communications

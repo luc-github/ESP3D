@@ -23,6 +23,7 @@
 #include "../include/esp3d_config.h"
 
 ESP3DRequest no_id{.id = 0};
+
 #if defined(ESP_LOG_FEATURE)
 int msg_counting = 0;
 #endif  // ESP_LOG_FEATURE

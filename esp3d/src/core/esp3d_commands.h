@@ -202,6 +202,10 @@ class ESP3DCommands {
   bool dispatchKeyValue(bool json, const char* key, const char* value,
                         ESP3DClientType target, ESP3DRequest requestId,
                         bool nested = false, bool isFirst = false);
+  bool dispatch(uint8_t* sbuf, size_t size, ESP3DClientType target,
+                ESP3DRequest requestId, ESP3DMessageType type,
+                ESP3DClientType origin,
+                ESP3DAuthenticationLevel authentication_level);
   bool dispatchSetting(bool json, const char* filter, ESP3DSettingIndex index,
                        const char* help, const char** optionValues,
                        const char** optionLabels, uint32_t maxsize,

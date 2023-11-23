@@ -22,7 +22,6 @@
 
 #include "../include/esp3d_config.h"
 #include "esp3d.h"
-#include "esp3d_message.h"
 #include "esp3d_settings.h"
 
 #if COMMUNICATION_PROTOCOL == MKS_SERIAL
@@ -32,6 +31,10 @@
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL
 #include "../modules/serial/serial_service.h"
 #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL
+
+#if defined(TELNET_FEATURE)
+#include "../modules/telnet/telnet_server.h"
+#endif  // TELNET_FEATURE
 
 ESP3DCommands esp3d_commands;
 
@@ -1085,6 +1088,20 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg, uint8_t *sbuf, size_t len) {
   return dispatch(msg);
 }
 
+bool ESP3DCommands::dispatch(uint8_t *sbuf, size_t size, ESP3DClientType target,
+                             ESP3DRequest requestId, ESP3DMessageType type,
+                             ESP3DClientType origin,
+                             ESP3DAuthenticationLevel authentication_level) {
+  ESP3DMessage *newMsgPtr = ESP3DMessageManager::newMsg(origin, target);
+  if (newMsgPtr) {
+    newMsgPtr->request_id = requestId;
+    newMsgPtr->type = type;
+    newMsgPtr->authentication_level = authentication_level;
+    return dispatch(newMsgPtr, sbuf, size);
+  }
+  esp3d_log_e("no newMsgPtr");
+  return false;
+}
 bool ESP3DCommands::dispatch(const char *sbuf, ESP3DClientType target,
                              ESP3DRequest requestId, ESP3DMessageType type,
                              ESP3DClientType origin,
@@ -1130,6 +1147,16 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
       break;
 #endif  // COMMUNICATION_PROTOCOL == MKS_SERIAL || COMMUNICATION_PROTOCOL ==
         // RAW_SERIAL || defined(ESP_SERIAL_BRIDGE_OUTPUT)
+#ifdef TELNET_FEATURE
+
+    case ESP3DClientType::telnet:
+      if (!telnet_server.dispatch(msg)) {
+        sendOk = false;
+        esp3d_log_e("Telnet dispatch failed");
+      }
+      break;
+#endif  // TELNET_FEATURE
+
 #ifdef PRINTER_HAS_DISPLAY
     case ESP3DClientType::remote_screen:
       // change target to output client
@@ -1173,6 +1200,29 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
         }
       }
 #endif  // PRINTER_HAS_DISPLAY
+
+#ifdef TELNET_FEATURE
+      if (msg->origin != ESP3DClientType::telnet) {
+        String msgstr = (const char *)msg->data;
+        msgstr.trim();
+        if (msgstr.length() > 0) {
+          if (msg->target == ESP3DClientType::all_clients) {
+            // become the reference message
+            msg->target = ESP3DClientType::telnet;
+          } else {
+            // duplicate message because current is  already pending
+            ESP3DMessage *copy_msg = ESP3DMessageManager::copyMsg(*msg);
+            if (copy_msg) {
+              copy_msg->target = ESP3DClientType::telnet;
+              dispatch(copy_msg);
+            } else {
+              esp3d_log_e("Cannot duplicate message for remote screen");
+            }
+          }
+        }
+      }
+#endif  // TELNET_FEATURE
+
       //...
 
       // Send pending if any or cancel message is no client did handle it

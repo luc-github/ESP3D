@@ -261,6 +261,17 @@ void ESP3DCommands::ESP420(int cmd_params_pos, ESP3DMessage* msg) {
       return;
     }
   }
+
+  if (telnet_server.isConnected()) {
+    // telnet client IP
+    tmpstr = telnet_server.clientIPAddress();
+    if (!dispatchIdValue(json, "Telnet Client", tmpstr.c_str(), target,
+                         requestId, false)) {
+      return;
+    }
+  
+  }
+
 #endif  // TELNET_FEATURE
 #if defined(WEBDAV_FEATURE)
   if (webdav_server.started()) {
