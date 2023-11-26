@@ -33,6 +33,8 @@
 #include "../../time/time_service.h"
 #endif  // FILESYSTEM_TIMESTAMP_FEATURE
 
+#include "../../../core/esp3d_string.h"
+
 // Filesystem
 // Filesystem files list and file commands
 void HTTP_Server::handleFSFileList() {
@@ -211,11 +213,14 @@ void HTTP_Server::handleFSFileList() {
     buffer2send += "\"occupation\":\"0\",";
   }
   buffer2send += "\"status\":\"" + status + "\",";
-  buffer2send += "\"total\":\"" +
-                 esp3d_string::formatBytes(ESP_FileSystem::totalBytes()) +
-                 "\",";
-  buffer2send += "\"used\":\"" +
-                 esp3d_string::formatBytes(ESP_FileSystem::usedBytes()) + "\"}";
+  buffer2send += "\"total\":\"";
+  buffer2send += esp3d_string::formatBytes(ESP_FileSystem::totalBytes());
+  buffer2send += "\",";
+
+  buffer2send += "\"used\":\"";
+  buffer2send += esp3d_string::formatBytes(ESP_FileSystem::usedBytes());
+
+  buffer2send += +"\"}";
   path = "";
   _webserver->sendContent_P(buffer2send.c_str(), buffer2send.length());
   _webserver->sendContent("");

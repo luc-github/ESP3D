@@ -48,6 +48,7 @@ enum class ESP3DMessageType : uint8_t { head, core, tail, unique };
 
 union ESP3DRequest {
   uint id;
+  uint code;
 #ifdef HTTP_FEATURE
   WEBSERVER *http_request;
 #endif  // HTTP_FEATURE

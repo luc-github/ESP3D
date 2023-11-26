@@ -35,15 +35,21 @@
 void HTTP_Server::handle_config() {
   ESP3DAuthenticationLevel auth_level =
       AuthenticationService::authenticated_level();
-  String cmd = "[ESP420]";
+  String cmd = "[ESP420]addPreTag";
   if (_webserver->hasArg("json")) {
-    cmd = "[ESP420]json=" + _webserver->arg("json");
+    cmd += " json=" + _webserver->arg("json");
   }
-  ESP3D_Message esp3dmsg(_webserver);
-  esp3dmsg.printMSGLine("<pre>");
-  esp3d_commands.process((uint8_t*)cmd.c_str(), cmd.length(), &output,
-                         auth_level);
-  esp3dmsg.printMSGLine("</pre>");
+  ESP3DMessage *msg = ESP3DMessageManager::newMsg(
+      ESP3DClientType::http, ESP3DClientType::http, (uint8_t *)cmd.c_str(),
+      cmd.length(), auth_level);
+  if (msg) {
+    msg->type = ESP3DMessageType::unique;
+    msg->request_id.code = 200;
+    // process command
+    esp3d_commands.process(msg);
+  } else {
+    esp3d_log_e("Cannot create message");
+  }
   return;
 }
 #endif  // HTTP_FEATURE

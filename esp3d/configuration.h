@@ -149,7 +149,7 @@
 /* Use Web server
  * Enable http server
  */
-// #define HTTP_FEATURE
+#define HTTP_FEATURE
 
 /* Use telnet server
  * Enable telnet light (raw tcp) communications
@@ -186,7 +186,7 @@
 /* Use captive portal
  * Enable captive portal in AP mode
  */
-// #define CAPTIVE_PORTAL_FEATURE
+#define CAPTIVE_PORTAL_FEATURE
 
 /* Use mDNS discovery
  * This method need `bonjour` protocol on windows, or `avahi` on linux

@@ -40,6 +40,10 @@
 #include "../modules/websocket/websocket_server.h"
 #endif  // HTTP_FEATURE || WS_DATA_FEATURE
 
+#if defined(HTTP_FEATURE)
+#include "../modules/http/http_server.h"
+#endif  // HTTP_FEATURE
+
 ESP3DCommands esp3d_commands;
 
 ESP3DCommands::ESP3DCommands() {
@@ -1177,6 +1181,12 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
         esp3d_log_e("Webui websocket dispatch failed");
       }
       break;
+    case ESP3DClientType::http:
+      if (!HTTP_Server::dispatch(msg)) {
+        sendOk = false;
+        esp3d_log_e("Webui websocket dispatch failed");
+      }
+      break;
 #endif  // HTTP_FEATURE
 
 #ifdef PRINTER_HAS_DISPLAY
@@ -1245,7 +1255,7 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
       }
 #endif  // TELNET_FEATURE
 
-#ifdef HTTP_FEATURE
+#ifdef HTTP_FEATURE //http cannot be in all client because it depend of any connection of the server
       if (msg->origin != ESP3DClientType::webui_websocket) {
         String msgstr = (const char *)msg->data;
         msgstr.trim();

@@ -44,6 +44,11 @@
 #include "../../core/esp3d_benchmark.h"
 #endif  // ESP_BENCHMARK_FEATURE
 
+ESP3DRequest code_200{.code = 200};
+ESP3DRequest code_500{.code = 500};
+ESP3DRequest code_404{.code = 404};
+ESP3DRequest code_401{.code = 401};
+
 bool HTTP_Server::_started = false;
 uint16_t HTTP_Server::_port = 0;
 WEBSERVER* HTTP_Server::_webserver = nullptr;
@@ -246,6 +251,39 @@ bool HTTP_Server::begin() {
   return no_error;
 }
 
+bool HTTP_Server::dispatch(ESP3DMessage* msg) {
+  if (!msg || !_started || !_webserver) {
+    return false;
+  }
+  if ((msg->size > 0 && msg->data) || (msg->type == ESP3DMessageType::tail)) {
+    if (msg->type == ESP3DMessageType::head ||
+        msg->type == ESP3DMessageType::unique) {
+      set_http_headers();
+      if (msg->type == ESP3DMessageType::head) {
+        _webserver->setContentLength(CONTENT_LENGTH_UNKNOWN);
+        // in case of no request id set
+        _webserver->send(msg->request_id.code == 0 ? 200
+                                                   : msg->request_id.code);
+        _webserver->sendContent((const char*)msg->data, msg->size);
+      } else {  // unique
+        _webserver->send(msg->request_id.code, "text/plain", (char*)msg->data);
+      }
+    } else {
+      // core or tail
+      if (msg->data && msg->size > 0) {
+        _webserver->sendContent((const char*)msg->data, msg->size);
+      }
+      // this is tail so we send end of data
+      if (msg->type == ESP3DMessageType::tail) {
+        _webserver->sendContent("");
+      }
+    }
+    ESP3DMessageManager::deleteMsg(msg);
+    return true;
+  }
+  return false;
+}
+
 void HTTP_Server::set_http_headers() {
   /*
   User-Agent: ESP3D-WebServer/1.0 (ESP8266; Firmware/3.0.0; Platform/arduino;
@@ -274,6 +312,10 @@ Embedded; http://www.esp3d.io) Host: http://192.168.0.1:8181
   if (_webserver) {
     _webserver->sendHeader("User-Agent", ua.c_str());
     _webserver->sendHeader("Host", host.c_str());
+    _webserver->sendHeader("Cache-Control", "no-cache");
+#ifdef ESP_ACCESS_CONTROL_ALLOW_ORIGIN
+    _webserver->sendHeader("Access-Control-Allow-Origin", "*");
+#endif  // ESP_ACCESS_CONTROL_ALLOw_ORIGIN
   }
 }
 

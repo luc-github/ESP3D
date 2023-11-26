@@ -55,7 +55,6 @@ void HTTP_Server::handle_web_command() {
   String cmd = "";
   if (_webserver->hasArg("cmd")) {
     cmd = _webserver->arg("cmd");
-    ESP3D_Message esp3dmsg(_webserver);
     if (!cmd.endsWith("\n")) {
       if (ESP3DSettings::GetFirmwareTarget() == GRBL) {
         uint len = cmd.length();
@@ -75,25 +74,25 @@ void HTTP_Server::handle_web_command() {
     }
     esp3d_log("Web Command: %s", cmd.c_str());
     if (esp3d_commands.is_esp_command((uint8_t *)cmd.c_str(), cmd.length())) {
-      esp3d_commands.process((uint8_t *)cmd.c_str(), cmd.length(), &output,
-                             auth_level);
+      ESP3DMessage *msg = ESP3DMessageManager::newMsg(
+          ESP3DClientType::http, esp3d_commands.getOutputClient(),
+          (uint8_t *)cmd.c_str(), cmd.length(), auth_level);
+      if (msg) {
+        msg->type = ESP3DMessageType::unique;
+        msg->request_id.code = 200;
+        // process command
+        esp3d_commands.process(msg);
+      } else {
+        esp3d_log_e("Cannot create message");
+      }
     } else {
-#if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
-      ESP3D_Message esp3dmsgOnly(ESP_SOCKET_SERIAL_CLIENT);
-#endif  // COMMUNICATION_PROTOCOL
-#if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
-      ESP3D_Message esp3dmsgOnly(ESP_SERIAL_CLIENT);
-#endif  // COMMUNICATION_PROTOCOL == SOCKET_SERIAL
-      _webserver->sendHeader("Cache-Control", "no-cache");
       HTTP_Server::set_http_headers();
-#ifdef ESP_ACCESS_CONTROL_ALLOW_ORIGIN
-      _webserver->sendHeader("Access-Control-Allow-Origin", "*");
-#endif  // ESP_ACCESS_CONTROL_ALLOw_ORIGIN
-        // the command is not ESP3D so it will be forwarded to the serial port
-        // no need to wait to answer then
+      // the command is not ESP3D so it will be forwarded to the output client
+      // no need to wait to answer then
       _webserver->send(200, "text/plain", "ESP3D says: command forwarded");
-      esp3d_commands.process((uint8_t *)cmd.c_str(), cmd.length(), &output,
-                             auth_level, &outputOnly);
+      esp3d_commands.dispatch(cmd.c_str(), esp3d_commands.getOutputClient(),
+                              no_id, ESP3DMessageType::unique,
+                              ESP3DClientType::http, auth_level);
     }
   } else if (_webserver->hasArg("ping")) {
     _webserver->send(200);
