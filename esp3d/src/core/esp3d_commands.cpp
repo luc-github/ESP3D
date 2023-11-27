@@ -1153,16 +1153,30 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
   // currently only echo back no test done on success
   // TODO check add is successful
   switch (msg->target) {
-#if COMMUNICATION_PROTOCOL == MKS_SERIAL || \
-    COMMUNICATION_PROTOCOL == RAW_SERIAL || defined(ESP_SERIAL_BRIDGE_OUTPUT)
+#if COMMUNICATION_PROTOCOL == RAW_SERIAL
     case ESP3DClientType::serial:
       if (!esp3d_serial_service.dispatch(msg)) {
         sendOk = false;
         esp3d_log_e("Serial dispatch failed");
       }
       break;
-#endif  // COMMUNICATION_PROTOCOL == MKS_SERIAL || COMMUNICATION_PROTOCOL ==
-        // RAW_SERIAL || defined(ESP_SERIAL_BRIDGE_OUTPUT)
+#endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL
+
+#if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
+    case ESP3DClientType::echo_serial:
+      MYSERIAL1.write(msg->data, msg->size);
+      ESP3DMessageManager::deleteMsg(msg);
+      break;
+#endif  // COMMUNICATION_PROTOCOL == SOCKET_SERIAL
+
+#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
+    case ESP3DClientType::serial_bridge:
+      if (!serial_bridge_service.dispatch(msg)) {
+        sendOk = false;
+        esp3d_log_e("Serial bridge dispatch failed");
+      }
+      break;
+#endif  // ESP_SERIAL_BRIDGE_OUTPUT
 
 #ifdef WS_DATA_FEATURE
     case ESP3DClientType::websocket:
@@ -1235,7 +1249,7 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
       break;
 #endif  // PRINTER_HAS_DISPLAY
     case ESP3DClientType::all_clients:
-      // TODO:Add each client one by one
+      // Add each client one by one
 #ifdef PRINTER_HAS_DISPLAY
       if (msg->origin != ESP3DClientType::remote_screen &&
           msg->origin != getOutputClient()) {
@@ -1258,6 +1272,76 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
         }
       }
 #endif  // PRINTER_HAS_DISPLAY
+
+#if defined(DISPLAY_DEVICE)
+      if (msg->origin != ESP3DClientType::rendering &&
+          msg->origin != getOutputClient()) {
+        String msgstr = (const char *)msg->data;
+        msgstr.trim();
+        if (msgstr.length() > 0) {
+          if (msg->target == ESP3DClientType::all_clients) {
+            // become the reference message
+            msg->target = ESP3DClientType::rendering;
+            msg->request_id.id = ESP_OUTPUT_STATUS;
+          } else {
+            // duplicate message because current is  already pending
+            ESP3DMessage *copy_msg = ESP3DMessageManager::copyMsg(*msg);
+            if (copy_msg) {
+              copy_msg->target = ESP3DClientType::rendering;
+              copy_msg->request_id.id = ESP_OUTPUT_STATUS;
+              dispatch(copy_msg);
+            } else {
+              esp3d_log_e("Cannot duplicate message for display");
+            }
+          }
+        }
+      }
+#endif  // defined(DISPLAY_DEVICE)
+
+#if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
+      if (msg->origin != ESP3DClientType::echo_serial &&
+          msg->origin != ESP3DClientType::socket_serial) {
+        String msgstr = (const char *)msg->data;
+        msgstr.trim();
+        if (msgstr.length() > 0) {
+          if (msg->target == ESP3DClientType::all_clients) {
+            // become the reference message
+            msg->target = ESP3DClientType::echo_serial;
+          } else {
+            // duplicate message because current is  already pending
+            ESP3DMessage *copy_msg = ESP3DMessageManager::copyMsg(*msg);
+            if (copy_msg) {
+              copy_msg->target = ESP3DClientType::echo_serial;
+              dispatch(copy_msg);
+            } else {
+              esp3d_log_e("Cannot duplicate message for echo serial");
+            }
+          }
+        }
+      }
+#endif  // COMMUNICATION_PROTOCOL == SOCKET_SERIAL
+
+#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
+      if (msg->origin != ESP3DClientType::serial_bridge) {
+        String msgstr = (const char *)msg->data;
+        msgstr.trim();
+        if (msgstr.length() > 0) {
+          if (msg->target == ESP3DClientType::all_clients) {
+            // become the reference message
+            msg->target = ESP3DClientType::serial_bridge;
+          } else {
+            // duplicate message because current is  already pending
+            ESP3DMessage *copy_msg = ESP3DMessageManager::copyMsg(*msg);
+            if (copy_msg) {
+              copy_msg->target = ESP3DClientType::serial_bridge;
+              dispatch(copy_msg);
+            } else {
+              esp3d_log_e("Cannot duplicate message for serial bridge");
+            }
+          }
+        }
+      }
+#endif  // ESP_SERIAL_BRIDGE_OUTPUT
 
 #ifdef BLUETOOTH_FEATURE
       if (msg->origin != ESP3DClientType::bluetooth) {

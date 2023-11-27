@@ -50,7 +50,8 @@ bool BootDelay::begin() {
       .id = ESP_OUTPUT_PROGRESS,
   };
   esp3d_commands.dispatch("0", ESP3DClientType::rendering, reqId,
-#endif  //                                ESP3DMessageType::unique);
+                          ESP3DMessageType::unique);
+#endif  //
 
   if (_totalduration > 0) {
     _startdelay = millis();
@@ -58,7 +59,7 @@ bool BootDelay::begin() {
   }
 #if defined(DISPLAY_DEVICE)
   esp3d_commands.dispatch("100", ESP3DClientType::rendering, reqId,
-                                  ESP3DMessageType::unique);
+                          ESP3DMessageType::unique);
 #endif  // DISPLAY_DEVICE
   esp3d_log("Boot delay done");
   return _started;

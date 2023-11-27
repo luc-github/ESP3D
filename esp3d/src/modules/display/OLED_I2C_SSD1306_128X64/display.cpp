@@ -543,7 +543,7 @@ bool Display::displaySignal(bool force) {
     }
     // display connection speed
     if (EthConfig::linkUp()) {
-      String tmp = ETH.linkSpeed();
+      String tmp = String(ETH.linkSpeed());
       tmp += "Mbps";
       if (label != tmp) {
         label = tmp;

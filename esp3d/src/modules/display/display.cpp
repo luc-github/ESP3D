@@ -19,6 +19,42 @@
 */
 
 #include "../../include/esp3d_config.h"
-#if defined (DISPLAY_DEVICE)
-//TBD
-#endif //DISPLAY_DEVICE
+
+#if defined(DISPLAY_DEVICE)
+#include "display.h"
+bool Display::dispatch(ESP3DMessage* message) {
+  if (!message || !_started) {
+    return false;
+  }
+  if (message->size > 0 && message->data) {
+    switch (message->request_id.id) {
+      case ESP_OUTPUT_IP_ADDRESS:
+        updateIP();
+        break;
+      case ESP_OUTPUT_STATUS:
+        setStatus((const char*)message->data);
+        break;
+      case ESP_OUTPUT_PROGRESS:
+        progress((uint8_t)atoi((const char*)message->data));
+        break;
+      case ESP_OUTPUT_STATE:
+        switch (atoi((const char*)message->data)) {
+          case ESP_STATE_DISCONNECTED:
+            setStatus("Disconnected");
+            break;
+          default:
+            return false;
+            break;
+        }
+        break;
+      default:
+        return false;
+        break;
+    }
+
+    ESP3DMessageManager::deleteMsg(message);
+    return true;
+  }
+  return false;
+}
+#endif  // DISPLAY_DEVICE
