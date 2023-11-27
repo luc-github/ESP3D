@@ -25,7 +25,7 @@
 #include "../esp3d_commands.h"
 #include "../esp3d_settings.h"
 
-#define COMMANDID 701
+#define COMMAND_ID 701
 
 // Query and Control ESP700 stream
 //[ESP701]action=<PAUSE/RESUME/ABORT> CLEAR_ERROR

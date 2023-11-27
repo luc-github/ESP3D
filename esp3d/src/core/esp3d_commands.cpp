@@ -568,14 +568,14 @@ void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
       break;
 #if defined(WIFI_FEATURE)
     // Get available AP list (limited to 30)
-    // esp3dmsg is JSON or plain text according parameter
+    // msg is JSON or plain text according parameter
     //[ESP410]<plain>
     case 410:
       ESP410(cmd_params_pos, msg);
       break;
 #endif  // WIFI_FEATURE
     // Get ESP current status
-    // esp3dmsg is JSON or plain text according parameter
+    // msg is JSON or plain text according parameter
     //[ESP420]<plain>
     case 420:
       ESP420(cmd_params_pos, msg);

@@ -25,8 +25,6 @@
 
 #include "../authentication/authentication_service.h"
 
-class ESP3D_Message;
-
 #define ERROR_NO_ERROR 0
 #define ERROR_TIME_OUT 1
 #define ERROR_CANNOT_SEND_DATA 2
@@ -97,11 +95,9 @@ class GcodeHost {
     return _fileName.c_str();
   }
   bool processScript(const char* line,
-                     ESP3DAuthenticationLevel auth_type = admin,
-                     ESP3D_Message* esp3dmsg = nullptr);
+                     ESP3DAuthenticationLevel auth_type = admin);
   bool processFile(const char* filename,
-                   ESP3DAuthenticationLevel auth_type = admin,
-                   ESP3D_Message* esp3dmsg = nullptr);
+                   ESP3DAuthenticationLevel auth_type = admin);
   bool abort();
   bool pause();
   bool resume();
@@ -114,6 +110,7 @@ class GcodeHost {
   bool isAck(String& line);
 
  private:
+  ESP3DAuthenticationLevel _auth;
   uint8_t _buffer[ESP_HOST_BUFFER_SIZE + 1];
   size_t _bufferSize;
   size_t _totalSize;
@@ -129,7 +126,6 @@ class GcodeHost {
   uint8_t _fsType;
   String _currentCommand;
   String _response;
-  ESP3D_Message _outputStream(0);
   ESP3DAuthenticationLevel _auth_type;
   uint64_t _startTimeOut;
   bool _needRelease;

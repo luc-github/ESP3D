@@ -55,7 +55,6 @@ TimeService::TimeService() {
 }
 TimeService::~TimeService() { end(); }
 
-// FIXME: this is a WIP
 const char* TimeService::getDateTime(time_t t) {
   static char buff[20];
   strftime(buff, sizeof(buff), "%Y-%m-%d %H:%M:%S", localtime(&t));

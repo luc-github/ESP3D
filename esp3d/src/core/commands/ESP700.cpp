@@ -59,8 +59,8 @@ void ESP3DCommands::ESP700(int cmd_params_pos, ESP3DMessage* msg) {
     esp3d_log_e("%s", error_msg.c_str());
   } else {
     if (esp3d_gcode_host.getStatus() == HOST_NO_STREAM) {
-      if (esp3d_gcode_host.processFile(parameter.c_str(),
-                                       msg->authentication_level, )) {
+      if (esp3d_gcode_host.processFile(tmpstr.c_str(),
+                                       msg->authentication_level)) {
         esp3d_log("Processing %s", parameter.c_str());
       } else {
         hasError = true;

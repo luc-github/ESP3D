@@ -260,13 +260,13 @@ void ESP3DSerialService::handle() {
 
 void ESP3DSerialService::flushbuffer() {
   _buffer[_buffer_size] = 0x0;
-  ESP3DMessage *esp3dmsg = ESP3DMessageManager::newMsg(
+  ESP3DMessage *message = ESP3DMessageManager::newMsg(
       _origin, ESP3DClientType::all_clients, (uint8_t *)_buffer, _buffer_size,
       _needauthentication ? ESP3DAuthenticationLevel::guest
                           : ESP3DAuthenticationLevel::admin);
   // dispatch command
   if (_started) {
-    esp3d_commands.process(esp3dmsg);
+    esp3d_commands.process(message);
   }
   _lastflush = millis();
   _buffer_size = 0;

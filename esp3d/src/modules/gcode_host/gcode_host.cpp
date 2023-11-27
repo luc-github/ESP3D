@@ -21,7 +21,6 @@
 #include "../../include/esp3d_config.h"
 #if defined(GCODE_HOST_FEATURE)
 #include "../../core/esp3d_commands.h"
-#include "../../core/esp3d_message.h"
 #include "../../core/esp3d_settings.h"
 #include "gcode_host.h"
 
@@ -54,9 +53,13 @@ void GcodeHost::end() {
   _step = HOST_NO_STREAM;
   _currentPosition = 0;
   _bufferSize = 0;
-  _outputStream.target(ESP_STREAM_HOST_CLIENT);
   _totalSize = 0;
   _processedSize = 0;
+#if defined(AUTHENTICATION_FEATURE)
+  _auth = ESP3DAuthenticationLevel::guest;
+#else
+  _auth = ESP3DAuthenticationLevel::admin;
+#endif  // AUTHENTICATION_FEATURE
 }
 
 bool GcodeHost::push(const uint8_t *sbuf, size_t len) {
@@ -313,42 +316,38 @@ void GcodeHost::processCommand() {
     String cmd = _currentCommand + "\n";
     bool isESPcmd = esp3d_commands.is_esp_command(
         (uint8_t *)_currentCommand.c_str(), _currentCommand.length());
-    // TODO need to change if ESP3D
-#if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
-    ESP3D_Message esp3dmsg(ESP_SOCKET_SERIAL_CLIENT);
-#endif  // COMMUNICATION_PROTOCOL
-#if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
-    ESP3D_Message esp3dmsg(ESP_SERIAL_CLIENT);
-#endif  // COMMUNICATION_PROTOCOL == SOCKET_SERIAL
-    ESP3D_Message esp3dmsghost(ESP_STREAM_HOST_CLIENT);
     if (isESPcmd) {
-      esp3d_commands.process((uint8_t *)cmd.c_str(), cmd.length(),
-                             &esp3dmsghost, _auth_type);
-      // we display error in output but it is not a blocking error
-      esp3d_log("Command is ESP command: %s", cmd.c_str());
-      _step = HOST_READ_LINE;
-    } else {
-#if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
-      esp3d_commands.process((uint8_t *)cmd.c_str(), cmd.length(),
-                             &_outputStream, _auth_type, &output,
-                             _outputStream.getTarget() == ESP_ECHO_SERIAL_CLIENT
-                                 ? ESP_SOCKET_SERIAL_CLIENT
-                                 : 0);
-#endif  // COMMUNICATION_PROTOCOL == SOCKET_SERIAL
-#if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
-      esp3d_log("Command is not ESP command:%s, client is %d and only is %d",
-                cmd.c_str(), (&_outputStream ? _outputStream.getTarget() : 0),
-                (&esp3dmsg ? esp3dmsg.getTarget() : 0));
-      esp3d_commands.process((uint8_t *)cmd.c_str(), cmd.length(),
-                             &_outputStream, _auth_type, &esp3dmsg);
-#endif  // COMMUNICATION_PROTOCOL == SOCKET_SERIAL
-      _startTimeOut = millis();
-      esp3d_log("Command is GCODE command");
-      if (isAckNeeded()) {
-        _step = HOST_WAIT4_ACK;
-        esp3d_log("Command wait for ack");
-      } else {
+      ESP3DMessage *msg = ESP3DMessageManager::newMsg(
+          ESP3DClientType::stream, esp3d_commands.getOutputClient(),
+          (uint8_t *)_currentCommand.c_str(), _currentCommand.length(), _auth);
+      if (msg) {
+        // process command
+        esp3d_commands.process(msg);
+        esp3d_log("Command is ESP command: %s", cmd.c_str());
         _step = HOST_READ_LINE;
+      } else {
+        esp3d_log_e("Cannot create message");
+        _step = HOST_ERROR_STREAM;
+      }
+
+    } else {
+      ESP3DMessage *msg = ESP3DMessageManager::newMsg(
+          ESP3DClientType::stream, esp3d_commands.getOutputClient(),
+          (uint8_t *)_currentCommand.c_str(), _currentCommand.length(), _auth);
+      if (msg) {
+        // process command
+        esp3d_commands.process(msg);
+        esp3d_log("Command is GCODE command: %s", cmd.c_str());
+        _startTimeOut = millis();
+        if (isAckNeeded()) {
+          _step = HOST_WAIT4_ACK;
+          esp3d_log("Command wait for ack");
+        } else {
+          _step = HOST_READ_LINE;
+        }
+      } else {
+        esp3d_log_e("Cannot create message");
+        _step = HOST_ERROR_STREAM;
       }
     }
   }
@@ -398,13 +397,10 @@ void GcodeHost::handle() {
       }
       esp3d_log_e("Error %d", _error);
       Error = "error: stream failed: " + String(_error) + "\n";
-#if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
-      ESP3D_Message esp3dmsg(ESP_SOCKET_SERIAL_CLIENT);
-#endif  // COMMUNICATION_PROTOCOL
-#if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
-      ESP3D_Message esp3dmsg(ESP_SERIAL_CLIENT);
-#endif  // COMMUNICATION_PROTOCOL
-      esp3dmsg.dispatch((const uint8_t *)Error.c_str(), Error.length());
+      esp3d_commands.dispatch(Error.c_str(), ESP3DClientType::all_clients,
+                              no_id, ESP3DMessageType::unique,
+                              ESP3DClientType::system,
+                              ESP3DAuthenticationLevel::admin);
       _step = HOST_STOP_STREAM;
     } break;
     default:  // Not handled step
@@ -462,13 +458,16 @@ String GcodeHost::CheckSumCommand(const char *command, uint32_t commandnb) {
 bool GcodeHost::resetCommandNumbering() {
   String resetcmd = "M110 N0";
   if (ESP3DSettings::GetFirmwareTarget() == SMOOTHIEWARE) {
-    resetcmd = "N0 M110";
+    resetcmd = "N0 M110\n";
   } else {
-    resetcmd = "M110 N0";
+    resetcmd = "M110 N0\n";
   }
   _commandNumber = 1;
-  // need to use process to send command
-  return _outputStream.printLN(resetcmd.c_str());
+
+  return esp3d_commands.dispatch(
+      resetcmd.c_str(), esp3d_commands.getOutputClient(), no_id,
+      ESP3DMessageType::unique, ESP3DClientType::stream,
+      ESP3DAuthenticationLevel::admin);
 }
 
 uint32_t GcodeHost::getCommandNumber(String &response) {
@@ -493,8 +492,7 @@ uint32_t GcodeHost::getCommandNumber(String &response) {
 }
 
 bool GcodeHost::processScript(const char *line,
-                              ESP3DAuthenticationLevel auth_type,
-                              ESP3D_Message *esp3dmsg) {
+                              ESP3DAuthenticationLevel auth_type) {
   _script = line;
   _script.trim();
   esp3d_log("Processing script: %s", _script.c_str());
@@ -513,20 +511,8 @@ bool GcodeHost::processScript(const char *line,
 }
 
 bool GcodeHost::processFile(const char *filename,
-                            ESP3DAuthenticationLevel auth_type,
-                            ESP3D_Message *esp3dmsg) {
+                            ESP3DAuthenticationLevel auth_type) {
   bool target_found = false;
-#if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
-  esp3d_log("Processing file client is  %d",
-            output ? esp3dmsg->getTarget() : ESP_SOCKET_SERIAL_CLIENT);
-  _outputStream.client(output ? esp3dmsg->getTarget()
-                              : ESP_SOCKET_SERIAL_CLIENT);
-#endif  // COMMUNICATION_PROTOCOL
-#if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
-  esp3d_log("Processing file client is  %d",
-            output ? esp3dmsg->getTarget() : ESP_SERIAL_CLIENT);
-  _outputStream.target(esp3dmsg ? esp3dmsg->getTarget() : ESP_SERIAL_CLIENT);
-#endif  // COMMUNICATION_PROTOCOL
   // sanity check
   _fileName = filename[0] != '/' ? "/" : "";
   _fileName += filename;
