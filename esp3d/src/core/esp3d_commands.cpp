@@ -57,9 +57,13 @@
 ESP3DCommands esp3d_commands;
 
 ESP3DCommands::ESP3DCommands() {
-#if COMMUNICATION_PROTOCOL != SOCKET_SERIAL
+#if COMMUNICATION_PROTOCOL == RAW_SERIAL
   _output_client = ESP3DClientType::serial;
-#else
+#endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL
+#if COMMUNICATION_PROTOCOL == MKS_SERIAL
+  _output_client = ESP3DClientType::mks_serial;
+#endif  // COMMUNICATION_PROTOCOL == MKS_SERIAL
+#if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
   _output_client = ESP3DClientType::socket_serial;
 #endif  //
 }
@@ -1238,6 +1242,15 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
       }
       break;
 #endif  // defined(DISPLAY_DEVICE)
+
+#if COMMUNICATION_PROTOCOL == MKS_SERIAL
+    case ESP3DClientType::mks_serial:
+      if (!MKSService::dispatch(msg)) {
+        sendOk = false;
+        esp3d_log_e("MKS Serial dispatch failed");
+      }
+      break;
+#endif  // COMMUNICATION_PROTOCOL == MKS_SERIAL
 
 #ifdef PRINTER_HAS_DISPLAY
     case ESP3DClientType::remote_screen:

@@ -113,6 +113,20 @@ bool MKSService::isFrame(const char c) {
   }
   return false;
 }
+
+bool MKSService::dispatch(ESP3DMessage *message) {
+  if (!message || !_started) {
+    return false;
+  }
+  if (message->size > 0 && message->data) {
+    if (sendGcodeFrame((const char *)message->data)) {
+      ESP3DMessageManager::deleteMsg(message);
+      return true;
+    }
+  }
+  return false;
+}
+
 bool MKSService::begin() {
   // setup the pins
   pinMode(BOARD_FLAG_PIN, INPUT);
@@ -179,9 +193,8 @@ bool MKSService::sendFirstFragment(const char *filename, size_t filesize) {
   }
   _uploadStatus = UNKNOW_STATE;
   if (canSendFrame()) {
-    ESP3D_Message esp3dmsg(ESP_SERIAL_CLIENT);
     _uploadStatus = UNKNOW_STATE;
-    if (output.write(_frame, dataLen + 5) == (dataLen + 5)) {
+    if (esp3d_serial_service.writeBytes(_frame, dataLen + 5) == (dataLen + 5)) {
       esp3d_log("First fragment Ok");
       sendFrameDone();
       return true;
@@ -221,9 +234,9 @@ bool MKSService::sendFragment(const uint8_t *dataFrame, const size_t dataSize,
            esp3d_log("%c %x",_frame[i],_frame[i]);
        }*/
   if (canSendFrame()) {
-    ESP3D_Message esp3dmsg(ESP_SERIAL_CLIENT);
     _uploadStatus = UNKNOW_STATE;
-    if (output.write(_frame, MKS_FRAME_SIZE) == MKS_FRAME_SIZE) {
+    if (esp3d_serial_service.writeBytes(_frame, MKS_FRAME_SIZE) ==
+        MKS_FRAME_SIZE) {
       esp3d_log("Ok");
       sendFrameDone();
       return true;
@@ -291,8 +304,8 @@ void MKSService::sendWifiHotspots() {
       esp3d_log("%c %x", _frame[i], _frame[i]);
     }
     if (canSendFrame()) {
-      ESP3D_Message esp3dmsg(ESP_SERIAL_CLIENT);
-      if (output.write(_frame, dataOffset + 5) == (dataOffset + 5)) {
+      if (esp3d_serial_service.writeBytes(_frame, dataOffset + 5) ==
+          (dataOffset + 5)) {
         esp3d_log("Ok");
         sendFrameDone();
       } else {
@@ -534,15 +547,14 @@ bool MKSService::sendGcodeFrame(const char *cmd) {
   // }
 
   if (canSendFrame()) {
-    ESP3D_Message esp3dmsg(ESP_SERIAL_CLIENT);
-    if (output.write(_frame, strlen(tmp.c_str()) + 7) ==
+    if (esp3d_serial_service.writeBytes(_frame, strlen(tmp.c_str()) + 7) ==
         (strlen(tmp.c_str()) + 7)) {
       esp3d_log("Ok");
       sendFrameDone();
       return true;
     }
   }
-  _e("Failed");
+  esp3d_log_e("Failed");
   sendFrameDone();
   return false;
 }
@@ -709,8 +721,8 @@ bool MKSService::sendNetworkFrame() {
     _frame[MKS_FRAME_DATALEN_OFFSET + 1] = ((dataOffset - 4) >> 8) & 0xff;
     esp3d_log("Size of data in frame %d ", dataOffset - 4);
     if (canSendFrame()) {
-      ESP3D_Message esp3dmsg(ESP_SERIAL_CLIENT);
-      if (output.write(_frame, dataOffset + 1) == (dataOffset + 1)) {
+      if (esp3d_serial_service.writeBytes(_frame, dataOffset + 1) ==
+          (dataOffset + 1)) {
         esp3d_log("Ok");
         sendFrameDone();
         return true;

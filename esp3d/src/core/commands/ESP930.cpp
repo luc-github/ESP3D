@@ -66,7 +66,7 @@ void ESP3DCommands::ESP930(int cmd_params_pos, ESP3DMessage* msg) {
         }
       }
       if (enabled && !serial_bridge_service.started()) {
-        if (!esp3d_serial_service.begin()) {
+        if (!serial_bridge_service.begin(ESP_SERIAL_BRIDGE_OUTPUT)) {
           hasError = true;
           error_msg = "Cannot enable serial bridge communication";
         }

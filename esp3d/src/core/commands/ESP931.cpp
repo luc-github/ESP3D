@@ -24,7 +24,7 @@
 #include "../esp3d_commands.h"
 #include "../esp3d_settings.h"
 
-#define COMMANDID 931
+#define COMMAND_ID 931
 // Set Serial bridge baudrate
 //[ESP931]<baude rate> json=<no> pwd=<admin password>
 void ESP3DCommands::ESP931(int cmd_params_pos, ESP3DMessage* msg) {
