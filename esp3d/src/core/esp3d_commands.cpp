@@ -28,9 +28,7 @@
 #include "../modules/mks/mks_service.h"
 #endif  // COMMUNICATION_PROTOCOL == MKS_SERIAL
 
-#if COMMUNICATION_PROTOCOL == RAW_SERIAL
 #include "../modules/serial/serial_service.h"
-#endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL
 
 #if defined(TELNET_FEATURE)
 #include "../modules/telnet/telnet_server.h"
@@ -51,6 +49,10 @@
 #if defined(ESP3DLIB_ENV) && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
 #include "../modules/serial2socket/serial2socket.h"
 #endif  // defined(ESP3DLIB_ENV) && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
+
+#if defined(DISPLAY_DEVICE)
+#include "../modules/display/display.h"
+#endif  // DISPLAY_DEVICE
 
 ESP3DCommands esp3d_commands;
 
@@ -1228,6 +1230,14 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
       }
       break;
 #endif  // HTTP_FEATURE
+#if defined(DISPLAY_DEVICE)
+    case ESP3DClientType::rendering:
+      if (!esp3d_display.dispatch(msg)) {
+        sendOk = false;
+        esp3d_log_e("Display dispatch failed");
+      }
+      break;
+#endif  // defined(DISPLAY_DEVICE)
 
 #ifdef PRINTER_HAS_DISPLAY
     case ESP3DClientType::remote_screen:
