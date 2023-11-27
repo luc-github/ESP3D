@@ -18,68 +18,56 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-
 #ifndef _SERIAL_2_SOCKET_H_
 #define _SERIAL_2_SOCKET_H_
 
 #include <Print.h>
+
+#include "../../core/esp3d_message.h"
+
 #define S2S_TXBUFFERSIZE 1200
 #define S2S_RXBUFFERSIZE 128
 #define S2S_FLUSHTIMEOUT 500
-class Serial_2_Socket: public Stream
-{
-public:
-    Serial_2_Socket();
-    ~Serial_2_Socket();
-    size_t write(uint8_t c);
-    size_t write(const uint8_t *buffer, size_t size);
+class Serial_2_Socket : public Stream {
+ public:
+  Serial_2_Socket();
+  ~Serial_2_Socket();
+  size_t write(uint8_t c);
+  size_t write(const uint8_t *buffer, size_t size);
+  bool dispatch(ESP3DMessage *message);
 
-    inline size_t write(const char * s)
-    {
-        return write((uint8_t*) s, strlen(s));
-    }
-    inline size_t write(unsigned long n)
-    {
-        return write((uint8_t) n);
-    }
-    inline size_t write(long n)
-    {
-        return write((uint8_t) n);
-    }
-    inline size_t write(unsigned int n)
-    {
-        return write((uint8_t) n);
-    }
-    inline size_t write(int n)
-    {
-        return write((uint8_t) n);
-    }
-    long baudRate();
-    void begin(long speed);
-    void end();
-    void enable(bool enable=true);
-    bool started();
-    int available();
-    int peek(void);
-    int read(void);
-    bool push (const uint8_t *buffer, size_t size);
-    void flush(void);
-    void handle_flush();
-    void handle();
-    operator bool() const;
-    void pause(bool state=true);
-    bool isPaused();
-private:
-    bool _started;
-    bool _paused;
-    uint32_t _lastflush;
-    uint8_t _TXbuffer[S2S_TXBUFFERSIZE];
-    uint16_t _TXbufferSize;
-    uint8_t _RXbuffer[S2S_RXBUFFERSIZE];
-    uint16_t _RXbufferSize;
-    uint16_t _RXbufferpos;
+  inline size_t write(const char *s) { return write((uint8_t *)s, strlen(s)); }
+  inline size_t write(unsigned long n) { return write((uint8_t)n); }
+  inline size_t write(long n) { return write((uint8_t)n); }
+  inline size_t write(unsigned int n) { return write((uint8_t)n); }
+  inline size_t write(int n) { return write((uint8_t)n); }
+  long baudRate();
+  void begin(long speed);
+  void end();
+  void enable(bool enable = true);
+  bool started();
+  int available();
+  int peek(void);
+  int read(void);
+  bool push(const uint8_t *buffer, size_t size);
+  void flush(void);
+  void handle_flush();
+  void handle();
+  operator bool() const;
+  void pause(bool state = true);
+  bool isPaused();
+
+ private:
+  bool _started;
+  bool _paused;
+  ESP3DAuthenticationLevel _auth;
+  uint32_t _lastflush;
+  uint8_t _TXbuffer[S2S_TXBUFFERSIZE];
+  uint16_t _TXbufferSize;
+  uint8_t _RXbuffer[S2S_RXBUFFERSIZE];
+  uint16_t _RXbufferSize;
+  uint16_t _RXbufferpos;
 };
-
 
 extern Serial_2_Socket Serial2Socket;
 

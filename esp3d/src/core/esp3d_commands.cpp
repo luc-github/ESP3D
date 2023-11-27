@@ -44,6 +44,14 @@
 #include "../modules/http/http_server.h"
 #endif  // HTTP_FEATURE
 
+#ifdef BLUETOOTH_FEATURE
+#include "../modules/bluetooth/BT_service.h"
+#endif  // BLUETOOTH_FEATURE
+
+#if defined(ESP3DLIB_ENV) && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
+#include "../modules/serial2socket/serial2socket.h"
+#endif  // defined(ESP3DLIB_ENV) && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
+
 ESP3DCommands esp3d_commands;
 
 ESP3DCommands::ESP3DCommands() {
@@ -1174,6 +1182,24 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
       break;
 #endif  // TELNET_FEATURE
 
+#ifdef BLUETOOTH_FEATURE
+    case ESP3DClientType::bluetooth:
+      if (!bt_service.dispatch(msg)) {
+        sendOk = false;
+        esp3d_log_e("Bluetooth dispatch failed");
+      }
+      break;
+#endif  // BLUETOOTH_FEATURE
+
+#if defined(ESP3DLIB_ENV) && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
+    case ESP3DClientType::socket_serial:
+      if (!Serial2Socket.dispatch(msg)) {
+        sendOk = false;
+        esp3d_log_e("Socket dispatch failed");
+      }
+      break;
+#endif  // defined(ESP3DLIB_ENV) && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
+
 #ifdef HTTP_FEATURE
     case ESP3DClientType::webui_websocket:
       if (!websocket_terminal_server.dispatch(msg)) {
@@ -1233,6 +1259,28 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
       }
 #endif  // PRINTER_HAS_DISPLAY
 
+#ifdef BLUETOOTH_FEATURE
+      if (msg->origin != ESP3DClientType::bluetooth) {
+        String msgstr = (const char *)msg->data;
+        msgstr.trim();
+        if (msgstr.length() > 0) {
+          if (msg->target == ESP3DClientType::all_clients) {
+            // become the reference message
+            msg->target = ESP3DClientType::bluetooth;
+          } else {
+            // duplicate message because current is  already pending
+            ESP3DMessage *copy_msg = ESP3DMessageManager::copyMsg(*msg);
+            if (copy_msg) {
+              copy_msg->target = ESP3DClientType::bluetooth;
+              dispatch(copy_msg);
+            } else {
+              esp3d_log_e("Cannot duplicate message for bluetooth");
+            }
+          }
+        }
+      }
+#endif  // BLUETOOTH_FEATURE
+
 #ifdef TELNET_FEATURE
       if (msg->origin != ESP3DClientType::telnet) {
         String msgstr = (const char *)msg->data;
@@ -1255,7 +1303,8 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
       }
 #endif  // TELNET_FEATURE
 
-#ifdef HTTP_FEATURE //http cannot be in all client because it depend of any connection of the server
+#ifdef HTTP_FEATURE  // http cannot be in all client because it depend of any
+                     // connection of the server
       if (msg->origin != ESP3DClientType::webui_websocket) {
         String msgstr = (const char *)msg->data;
         msgstr.trim();

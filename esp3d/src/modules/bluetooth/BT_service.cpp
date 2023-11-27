@@ -24,7 +24,6 @@
 
 #ifdef BLUETOOTH_FEATURE
 #include "../../core/esp3d_commands.h"
-#include "../../core/esp3d_message.h"
 #include "../../core/esp3d_settings.h"
 #include "../network/netconfig.h"
 #include "BT_service.h"
@@ -60,7 +59,6 @@ bool BTService::isConnected() {
 void BTService::setClientAddress(const char *saddress) { _btclient = saddress; }
 
 static void my_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param) {
-  ESP3D_Message esp3dmsg(ESP3D_Message::getCurrentOuputClient(), ESP_BT_CLIENT);
   switch (event) {
     case ESP_SPP_SRV_OPEN_EVT: {
       // Server connection open
@@ -72,20 +70,17 @@ static void my_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param) {
       BTService::setClientAddress(str);
       String stmp = "BT Connected with ";
       stmp += str;
-      esp3dmsg.printMSG(stmp.c_str());
-#if defined(DISPLAY_DEVICE)
-      ESP3D_Message esp3dmsgscr(ESP_SCREEN_CLIENT, ESP_BT_CLIENT);
-      outputscr.printMSG(stmp.c_str());
-#endif  // DISPLAY_DEVICE
+      esp3d_commands.dispatch(stmp.c_str(), ESP3DClientType::all_clients, no_id,
+                              ESP3DMessageType::unique, ESP3DClientType::system,
+                              ESP3DAuthenticationLevel::admin);
     } break;
 
     case ESP_SPP_CLOSE_EVT: {
       // Client connection closed
-      esp3dmsg.printMSG("BT Disconnected");
-#if defined(DISPLAY_DEVICE)
-      ESP3D_Message esp3dmsgscr(ESP_SCREEN_CLIENT, ESP_BT_CLIENT);
-      outputscr.printMSG("BT Disconnected");
-#endif  // DISPLAY_DEVICE
+      esp3d_commands.dispatch("BT Disconnected", ESP3DClientType::all_clients,
+                              no_id, ESP3DMessageType::unique,
+                              ESP3DClientType::system,
+                              ESP3DAuthenticationLevel::admin);
       BTService::setClientAddress("");
     } break;
     default:
@@ -108,7 +103,6 @@ const char *BTService::clientmacAddress() { return _btclient.c_str(); }
  * begin BT setup
  */
 bool BTService::begin() {
-  ESP3D_Message esp3dmsg(ESP3D_Message::getCurrentOuputClient(), ESP_BT_CLIENT);
   bool res = true;
   _buffer_size = 0;
   _lastflush = millis();
@@ -117,15 +111,22 @@ bool BTService::begin() {
   // Get hostname
   // this allow to adjust if necessary
   _btname = ESP3DSettings::readString(ESP_HOSTNAME);
-
+  String stmp;
   if (!SerialBT.begin(_btname)) {
-    esp3dmsg.printERROR("BT failed start");
+    stmp = "BT failed start";
     res = false;
   } else {
     SerialBT.register_callback(&my_spp_cb);
-    String stmp = "Bluetooth Started with: '" + _btname + "'";
-    esp3dmsg.printMSG(stmp.c_str());
+    stmp = "Bluetooth Started with: '" + _btname + "'";
   }
+  esp3d_commands.dispatch(stmp.c_str(), ESP3DClientType::all_clients, no_id,
+                          ESP3DMessageType::unique, ESP3DClientType::bluetooth,
+                          ESP3DAuthenticationLevel::admin);
+#if defined(AUTHENTICATION_FEATURE)
+  _auth = ESP3DAuthenticationLevel::guest;
+#else
+  _auth = ESP3DAuthenticationLevel::admin;
+#endif  // AUTHENTICATION_FEATURE
 
   return res;
 }
@@ -183,10 +184,17 @@ void BTService::handle() {
 }
 
 void BTService::flushbuffer() {
-  ESP3D_Message esp3dmsg(ESP_BT_CLIENT, );
   _buffer[_buffer_size] = 0x0;
   // dispatch command
-  esp3d_commands.process(_buffer, _buffer_size, &esp3dmsg);
+  ESP3DMessage *msg = ESP3DMessageManager::newMsg(
+      ESP3DClientType::bluetooth, esp3d_commands.getOutputClient(), _buffer,
+      _buffer_size, _auth);
+  if (msg) {
+    // process command
+    esp3d_commands.process(msg);
+  } else {
+    esp3d_log_e("Cannot create message");
+  }
   _lastflush = millis();
   _buffer_size = 0;
 }
@@ -224,9 +232,7 @@ void BTService::push2buffer(uint8_t *sbuf, size_t len) {
   }
 }
 
-size_t BTService::write(uint8_t c) { return SerialBT.write(c); }
-
-size_t BTService::write(const uint8_t *buffer, size_t size) {
+size_t BTService::writeBytes(const uint8_t *buffer, size_t size) {
   if (availableForWrite() >= size) {
     return SerialBT.write(buffer, size);
   } else {
@@ -259,8 +265,6 @@ int BTService::availableForWrite() {
 
 int BTService::available() { return SerialBT.available(); }
 
-int BTService::read() { return SerialBT.read(); }
-
 size_t BTService::readBytes(uint8_t *sbuf, size_t len) {
   return SerialBT.readBytes(sbuf, len);
 }
@@ -268,6 +272,22 @@ size_t BTService::readBytes(uint8_t *sbuf, size_t len) {
 void BTService::flush() { SerialBT.flush(); }
 
 const char *BTService::hostname() { return _btname.c_str(); }
+
+bool BTService::dispatch(ESP3DMessage *message) {
+  if (!message || !_started) {
+    return false;
+  }
+  if (message->size > 0 && message->data) {
+    size_t sentcnt = writeBytes(message->data, message->size);
+    if (sentcnt != message->size) {
+      return false;
+    }
+    ESP3DMessageManager::deleteMsg(message);
+    return true;
+  }
+
+  return false;
+}
 
 #endif  // BLUETOOTH_FEATURE
 

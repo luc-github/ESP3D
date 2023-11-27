@@ -147,6 +147,11 @@ void Telnet_Server::end() {
     free(_buffer);
     _buffer = nullptr;
   }
+#if defined(AUTHENTICATION_FEATURE)
+  _auth = ESP3DAuthenticationLevel::guest;
+#else
+  _auth = ESP3DAuthenticationLevel::admin;
+#endif  // AUTHENTICATION_FEATURE
 }
 
 /**

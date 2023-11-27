@@ -25,7 +25,6 @@
 #include <Arduino.h>
 
 #include "../../core/esp3d_commands.h"
-#include "../../core/esp3d_message.h"
 #include "serial2socket.h"
 
 Serial_2_Socket Serial2Socket;
@@ -56,6 +55,11 @@ void Serial_2_Socket::end() {
   _started = false;
   _paused = false;
   _lastflush = millis();
+#if defined(AUTHENTICATION_FEATURE)
+  _auth = ESP3DAuthenticationLevel::guest;
+#else
+  _auth = ESP3DAuthenticationLevel::admin;
+#endif  // AUTHENTICATION_FEATURE
 }
 
 long Serial_2_Socket::baudRate() { return 0; }
@@ -162,14 +166,37 @@ void Serial_2_Socket::handle_flush() {
 }
 void Serial_2_Socket::flush(void) {
   if (_TXbufferSize > 0 && _started && !_paused) {
-    ESP3D_Message esp3dmsg(ESP_SOCKET_SERIAL_CLIENT);
+    ESP3DMessage *msg = ESP3DMessageManager::newMsg(
+        ESP3DClientType::socket_serial, esp3d_commands.getOutputClient(),
+        _TXbuffer, _TXbufferSize, _auth);
     // dispatch command
-    esp3d_commands.process(_TXbuffer, _TXbufferSize, &esp3dmsg);
+    if (msg) {
+      // process command
+      esp3d_commands.process(msg);
+    } else {
+      esp3d_log_e("Cannot create message");
+    }
     // refresh timout
     _lastflush = millis();
     // reset buffer
     _TXbufferSize = 0;
   }
+}
+
+bool Serial_2_Socket::dispatch(ESP3DMessage *message) {
+  if (!message || !_started) {
+    return false;
+  }
+  if (message->size > 0 && message->data) {
+    size_t sentcnt = write(message->data, message->size);
+    if (sentcnt != message->size) {
+      return false;
+    }
+    ESP3DMessageManager::deleteMsg(message);
+    return true;
+  }
+
+  return false;
 }
 
 #endif  // ESP3DLIB_ENV

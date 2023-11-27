@@ -944,7 +944,7 @@ bool ESP3DSettings::isValidByteSetting(uint8_t value,
           value == ESP_AP_SETUP
 #endif  // WIFI_FEATURE
 #if defined(ETH_FEATURE)
-          || value == ESP_ETH
+          || value == ESP_ETH_STA
 #endif  // ETH_FEATURE
 #if defined(BLUETOOTH_FEATURE)
           || value == ESP_BT
