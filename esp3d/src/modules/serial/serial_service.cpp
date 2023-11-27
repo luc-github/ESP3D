@@ -267,7 +267,7 @@ void ESP3DSerialService::flushbuffer() {
         _origin, ESP3DClientType::all_clients, (uint8_t *)_buffer, _buffer_size,
         _needauthentication ? ESP3DAuthenticationLevel::guest
                             : ESP3DAuthenticationLevel::admin);
-    if (messagemsg) {
+    if (message) {
       // process command
       esp3d_commands.process(message);
     } else {
