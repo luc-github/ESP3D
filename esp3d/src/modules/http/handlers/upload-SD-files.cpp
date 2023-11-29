@@ -47,11 +47,11 @@ void HTTP_Server::SDFileupload() {
   static uint64_t last_WS_update;
   // get authentication status
   ESP3DAuthenticationLevel auth_level =
-      AuthenticationService::authenticated_level();
+      AuthenticationService::getAuthenticatedLevel();
   static String filename;
   static ESP_SDFile fsUploadFile;
   // Guest cannot upload - only admin
-  if (auth_level == guest) {
+  if (auth_level == ESP3DAuthenticationLevel::guest) {
     pushError(ESP_ERROR_AUTHENTICATION, "Upload rejected", 401);
     _upload_status = UPLOAD_STATUS_FAILED;
   } else {

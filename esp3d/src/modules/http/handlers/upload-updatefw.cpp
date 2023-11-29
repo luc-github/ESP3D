@@ -42,7 +42,7 @@ void HTTP_Server::WebUpdateUpload() {
   static uint32_t downloadsize = 0;
 
   // only admin can update FW
-  if (AuthenticationService::authenticated_level() != admin) {
+  if (AuthenticationService::getAuthenticatedLevel() != admin) {
     _upload_status = UPLOAD_STATUS_FAILED;
     pushError(ESP_ERROR_AUTHENTICATION, "Upload rejected", 401);
     esp3d_commands.dispatch("Update rejected!", ESP3DClientType::remote_screen,

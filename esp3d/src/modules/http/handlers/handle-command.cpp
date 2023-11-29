@@ -46,8 +46,8 @@ bool isRealTimeCommand(unsigned char c) {
 // Handle web command query and send answer//////////////////////////////
 void HTTP_Server::handle_web_command() {
   ESP3DAuthenticationLevel auth_level =
-      AuthenticationService::authenticated_level();
-  if (auth_level == guest) {
+      AuthenticationService::getAuthenticatedLevel();
+  if (auth_level == ESP3DAuthenticationLevel::guest) {
     _webserver->send(401, "text/plain", "Wrong authentication!");
     return;
   }

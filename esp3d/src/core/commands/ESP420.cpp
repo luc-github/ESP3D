@@ -78,6 +78,9 @@
 #include "../../modules/display/display.h"
 #endif  // DISPLAY_DEVICE
 #define COMMAND_ID 420
+#if defined(AUTHENTICATION_FEATURE)
+#include "../../modules/authentication/authentication_service.h"
+#endif  // AUTHENTICATION_FEATURE
 
 // Get ESP current status
 // output is JSON or plain text according parameter
@@ -269,7 +272,6 @@ void ESP3DCommands::ESP420(int cmd_params_pos, ESP3DMessage* msg) {
                          requestId, false)) {
       return;
     }
-  
   }
 
 #endif  // TELNET_FEATURE
@@ -595,12 +597,15 @@ void ESP3DCommands::ESP420(int cmd_params_pos, ESP3DMessage* msg) {
         // MKS_SERIAL
 #if defined(AUTHENTICATION_FEATURE)
   // authentication enabled
-  tmpstr = (authentication_service.started()) ? "ON" : "OFF";
+  tmpstr = "ON";
+#else
+  tmpstr = "OFF";
+#endif  // AUTHENTICATION_FEATURE
   if (!dispatchIdValue(json, "authentication", tmpstr.c_str(), target,
                        requestId, false)) {
     return;
   }
-#endif  // AUTHENTICATION_FEATURE
+
 #if defined(NOTIFICATION_FEATURE)
   // notification enabled
   tmpstr = (notificationsservice.started()) ? "ON" : "OFF";

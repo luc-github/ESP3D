@@ -36,9 +36,9 @@ void HTTP_Server::MKSFileupload() {
   static size_t buf2sendlen = 0;
   // get authentication status
   ESP3DAuthenticationLevel auth_level =
-      AuthenticationService::authenticated_level();
+      AuthenticationService::getAuthenticatedLevel();
   // Guest cannot upload - only admin
-  if (auth_level == guest) {
+  if (auth_level == ESP3DAuthenticationLevel::guest) {
     pushError(ESP_ERROR_AUTHENTICATION, "Upload rejected", 401);
     _upload_status = UPLOAD_STATUS_FAILED;
   } else {

@@ -49,7 +49,7 @@ void HTTP_Server::handle_login() {
     return;
   }
   ESP3DAuthenticationLevel auth_level =
-      AuthenticationService::authenticated_level();
+      AuthenticationService::getAuthenticatedLevel();
   // check is it is a submission or a query
   if (_webserver->hasArg("SUBMIT")) {
     // is there a correct list of query?
@@ -87,8 +87,10 @@ void HTTP_Server::handle_login() {
             AuthenticationService::setSessionTimeout(timeout.toInt());
           }
           // it is a change or same level
-          if (((auth_level == user) && (sUser == DEFAULT_USER_LOGIN)) ||
-              ((auth_level == admin) && (sUser == DEFAULT_ADMIN_LOGIN))) {
+          if (((auth_level == ESP3DAuthenticationLevel::user) &&
+               (sUser == DEFAULT_USER_LOGIN)) ||
+              ((auth_level == ESP3DAuthenticationLevel::admin) &&
+               (sUser == DEFAULT_ADMIN_LOGIN))) {
             code = 200;
             status = "ok";
           } else {  // new authentication
@@ -108,7 +110,8 @@ void HTTP_Server::handle_login() {
       }
     }
   } else {
-    if (auth_level == user || auth_level == admin) {
+    if (auth_level == ESP3DAuthenticationLevel::user ||
+        auth_level == ESP3DAuthenticationLevel::admin) {
       status = "Identified";
       code = 200;
     }
@@ -117,9 +120,9 @@ void HTTP_Server::handle_login() {
   String smsg = "{\"status\":\"";
   smsg += status;
   smsg += "\",\"authentication_lvl\":\"";
-  if (auth_level == user) {
+  if (auth_level == ESP3DAuthenticationLevel::user) {
     smsg += "user";
-  } else if (auth_level == admin) {
+  } else if (auth_level == ESP3DAuthenticationLevel::admin) {
     smsg += "admin";
   } else {
     smsg += "guest";

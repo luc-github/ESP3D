@@ -527,7 +527,7 @@
 /* Enable authentication
  * Force usage of authentication for commands
  */
-// #define AUTHENTICATION_FEATURE
+#define AUTHENTICATION_FEATURE
 
 /************************************
  *

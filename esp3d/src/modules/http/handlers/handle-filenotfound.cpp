@@ -43,7 +43,8 @@
 void HTTP_Server::handle_not_found() {
   HTTP_Server::set_http_headers();
 
-  if (AuthenticationService::authenticated_level() == guest) {
+  if (AuthenticationService::getAuthenticatedLevel() ==
+      ESP3DAuthenticationLevel::guest) {
     _webserver->send(401, "text/plain", "Wrong authentication!");
     return;
   }

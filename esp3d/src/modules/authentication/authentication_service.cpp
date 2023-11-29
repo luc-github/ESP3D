@@ -49,21 +49,21 @@ uint8_t AuthenticationService::_current_nb_ip = 0;
 // #define ALLOW_MULTIPLE_SESSIONS
 
 // check authentification
-ESP3DAuthenticationLevel AuthenticationService::authenticated_level(
+ESP3DAuthenticationLevel AuthenticationService::getAuthenticatedLevel(
     const char *pwd, ESP3DMessage *esp3dmsg) {
 #ifdef AUTHENTICATION_FEATURE
-  ESP3DAuthenticationLevel auth_type = guest;
+  ESP3DAuthenticationLevel auth_type = ESP3DAuthenticationLevel::guest;
   if (pwd != nullptr) {
     if (isadmin(pwd)) {
-      auth_type = admin;
+      auth_type = ESP3DAuthenticationLevel::admin;
     }
-    if (isuser(pwd) && (auth_type != admin)) {
-      auth_type = user;
+    if (isuser(pwd) && (auth_type != ESP3DAuthenticationLevel::admin)) {
+      auth_type = ESP3DAuthenticationLevel::user;
     }
     return auth_type;
   } else {
     if (esp3dmsg) {
-      if (esp3dmsg->getTarget() != ESP_HTTP_CLIENT) {
+      if (esp3dmsg->origin != ESP3DClientType::http) {
         return auth_type;
       }
     }
@@ -72,10 +72,10 @@ ESP3DAuthenticationLevel AuthenticationService::authenticated_level(
       if (_webserver->hasHeader("Authorization")) {
         // esp3d_log("Check authorization %",(_webserver->uri()).c_str());
         if (_webserver->authenticate(DEFAULT_ADMIN_LOGIN, _adminpwd.c_str())) {
-          auth_type = admin;
+          auth_type = ESP3DAuthenticationLevel::admin;
         } else {
           if (_webserver->authenticate(DEFAULT_USER_LOGIN, _userpwd.c_str())) {
-            auth_type = user;
+            auth_type = ESP3DAuthenticationLevel::user;
           }
         }
       }
@@ -87,7 +87,7 @@ ESP3DAuthenticationLevel AuthenticationService::authenticated_level(
           int pos2 = cookie.indexOf(";", pos);
           String sessionID =
               cookie.substring(pos + strlen("ESPSESSIONID="), pos2);
-          IPAddress ip = _webserver->getTarget().remoteIP();
+          IPAddress ip = _webserver->client().remoteIP();
           // check if cookie can be reset and clean table in same time
           auth_type = ResetAuthIP(ip, sessionID.c_str());
           // esp3d_log("Authentication = %d", auth_type);
@@ -197,7 +197,7 @@ bool AuthenticationService::ClearAllSessions() {
   while (_head) {
     auth_ip *current = _head;
     _head = _head->_next;
-    delete current;
+    free(current);
   }
   _current_nb_ip = 0;
   _head = nullptr;
@@ -219,7 +219,11 @@ bool AuthenticationService::ClearCurrentSession() {
 bool AuthenticationService::CreateSession(ESP3DAuthenticationLevel auth_level,
                                           const char *username,
                                           const char *session_ID) {
-  auth_ip *current_auth = new auth_ip;
+  auth_ip *current_auth = (auth_ip *)malloc(sizeof(auth_ip));
+  if (!current_auth) {
+    esp3d_log_e("Error allocating memory for session");
+    return false;
+  }
   current_auth->level = auth_level;
   current_auth->ip = _webserver->client().remoteIP();
   strcpy(current_auth->sessionID, session_ID);
@@ -232,7 +236,7 @@ bool AuthenticationService::CreateSession(ESP3DAuthenticationLevel auth_level,
   if (AddAuthIP(current_auth)) {
     return true;
   } else {
-    delete current_auth;
+    free(current_auth);
     return false;
   }
 }
@@ -248,12 +252,12 @@ bool AuthenticationService::ClearAuthIP(IPAddress ip, const char *sessionID) {
       if (current == _head) {
         _head = current->_next;
         _current_nb_ip--;
-        delete current;
+        free(current);
         current = _head;
       } else {
         previous->_next = current->_next;
         _current_nb_ip--;
-        delete current;
+        free(current);
         current = previous->_next;
       }
     } else {
@@ -318,12 +322,12 @@ ESP3DAuthenticationLevel AuthenticationService::ResetAuthIP(
       if (current == _head) {
         _head = current->_next;
         _current_nb_ip--;
-        delete current;
+        free(current);
         current = _head;
       } else {
         previous->_next = current->_next;
         _current_nb_ip--;
-        delete current;
+        free(current);
         current = previous->_next;
       }
     } else {

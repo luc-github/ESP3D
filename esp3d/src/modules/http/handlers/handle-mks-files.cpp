@@ -31,8 +31,8 @@
 
 void HTTP_Server::handleMKSUpload() {
   ESP3DAuthenticationLevel auth_level =
-      AuthenticationService::authenticated_level();
-  if (auth_level == guest) {
+      AuthenticationService::getAuthenticatedLevel();
+  if (auth_level == ESP3DAuthenticationLevel::guest) {
     _upload_status = UPLOAD_STATUS_NONE;
     _webserver->send(401, "text/plain", "Wrong authentication!");
     return;

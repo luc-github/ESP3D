@@ -34,7 +34,7 @@
 // answer//////////////////////////////
 void HTTP_Server::handle_config() {
   ESP3DAuthenticationLevel auth_level =
-      AuthenticationService::authenticated_level();
+      AuthenticationService::getAuthenticatedLevel();
   String cmd = "[ESP420]addPreTag";
   if (_webserver->hasArg("json")) {
     cmd += " json=" + _webserver->arg("json");

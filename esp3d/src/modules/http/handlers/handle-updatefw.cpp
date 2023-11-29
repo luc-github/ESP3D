@@ -31,7 +31,7 @@
 // Web Update handler
 void HTTP_Server::handleUpdate() {
   ESP3DAuthenticationLevel auth_level =
-      AuthenticationService::authenticated_level();
+      AuthenticationService::getAuthenticatedLevel();
   HTTP_Server::set_http_headers();
 
   if (auth_level != admin) {

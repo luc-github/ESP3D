@@ -34,10 +34,10 @@
 // SD files list and file commands
 void HTTP_Server::handleSDFileList() {
   ESP3DAuthenticationLevel auth_level =
-      AuthenticationService::authenticated_level();
+      AuthenticationService::getAuthenticatedLevel();
   HTTP_Server::set_http_headers();
 
-  if (auth_level == guest) {
+  if (auth_level == ESP3DAuthenticationLevel::guest) {
     _upload_status = UPLOAD_STATUS_NONE;
     _webserver->send(401, "text/plain", "Wrong authentication!");
     return;

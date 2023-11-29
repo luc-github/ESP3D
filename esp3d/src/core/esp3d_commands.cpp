@@ -295,10 +295,10 @@ void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
 #ifdef AUTHENTICATION_FEATURE
 
   // do not overwrite previous authetic <time=YYYY-MM-DD#H24:MM:SS>ation level
-  if (auth_type == guest) {
-    String pwd = get_param(cmd_params, "pwd=");
-    auth_type =
-        AuthenticationService::authenticated_level(pwd.c_str(), esp3dmsg);
+  if (msg->authentication_level == ESP3DAuthenticationLevel::guest) {
+    String pwd = get_param(msg, cmd_params_pos, "pwd=");
+    msg->authentication_level =
+        AuthenticationService::getAuthenticatedLevel(pwd.c_str(), msg);
   }
 #endif  // AUTHENTICATION_FEATURE
   switch (cmd) {
