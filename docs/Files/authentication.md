@@ -59,6 +59,18 @@ In web interface the passwords are replaced by `*******` so any modification mus
 
 All passwords and sensitive informations are sent using plain text. So if you want to use ESP3D in a public network or outside of your local network (which is not recommended), you must use a VPN.
 
+# Scope
+
+Here the scope of right for each authentication level:
+|Feature | not authenticated | guest  | user | admin |
+|-|:-------------------:|:--------:|:------:|:-------:|
+| Web Interface | No | No | Yes | Yes |
+| Telnet | No | No | Yes | Yes |
+| WebSocket | No | No | Yes | Yes |
+| ESP0 | Yes | Yes | Yes | Yes |
+
+TODO: List all authentication levels and corresponding access rights.
+
 # API Description
 
 ## Global
