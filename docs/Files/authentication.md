@@ -67,9 +67,77 @@ Here the scope of right for each authentication level:
 | Web Interface | No | No | Yes | Yes |
 | Telnet | No | No | Yes | Yes |
 | WebSocket | No | No | Yes | Yes |
+| WebDav | No | No | Yes | Yes |
+| Bluetooth | No | No | Yes | Yes |
 | ESP0 | Yes | Yes | Yes | Yes |
-
-TODO: List all authentication levels and corresponding access rights.
+| ESP100 | No | No | Get/Set | Get/Set |
+| ESP101 | No | No | Set | Set |
+| ESP102 | No | No | Get/Set | Get/Set |
+| ESP103 | No | No | Get/Set | Get/Set |
+| ESP104 | No | No | Get/Set | Get/Set |
+| ESP105 | No | No | Get/Set | Get/Set |
+| ESP106 | No | No | Set | Set |
+| ESP107 | No | No | Get/Set | Get/Set |
+| ESP108 | No | No | Get/Set | Get/Set |
+| ESP110 | No | No | Get/Set | Get/Set |
+| ESP111 | No | No | Get | Get |
+| ESP112 | No | No | Get/Set | Get/Set |
+| ESP114 | No | No | Get/Set | Get/Set |
+| ESP115 | No | No | Get/Set | Get/Set |
+| ESP120 | No | No | Get/Set | Get/Set |
+| ESP121 | No | No | Get/Set | Get/Set |
+| ESP130 | No | No | Get/Set | Get/Set |
+| ESP131 | No | No | Get/Set | Get/Set |
+| ESP140 | No | No | Get/Set | Get/Set |
+| ESP150 | No | No | Get/Set | Get/Set |
+| ESP160 | No | No | Get/Set | Get/Set |
+| ESP161 | No | No | Get/Set | Get/Set |
+| ESP170 | No | No | Get/Set | Get/Set |
+| ESP171 | No | No | Get | Get|
+| ESP180 | No | No | Get/Set | Get/Set |
+| ESP181 | No | No | Get/Set | Get/Set |
+| ESP190 | No | No | Get/Set | Get/Set |
+| ESP191 | No | No | Get/Set | Get/Set |
+| ESP200 | No | No | Get/Set | Get/Set |
+| ESP201 | No | No | Get/Set | Get/Set |
+| ESP202 | No | No | Get/Set | Get/Set |
+| ESP210 | No | No | Get/Set | Get/Set |
+| ESP214 | No | No | Set | Set |
+| ESP215 | No | No | Set | Set |
+| ESP220 | No | No | Get | Get |
+| ESP250 | No | No | Set | Set |
+| ESP290 | No | No | Set | Set |
+| ESP400 | No | No | Get | Get |
+| ESP401 | No | No | Set | Set |
+| ESP402 | No | No | Get/Set | Get/Set |
+| ESP410 | No | No | Get | Get |
+| ESP420 | No | No | Get | Get |
+| ESP444 | No | No | Set | Set |
+| ESP450 | No | No | Get | Get |
+| ESP500 | Get/Set | Get/Set | Get/Set | Get/Set |
+| ESP510 | No | No | Get/Set | Get/Set |
+| ESP550 | No | No | No | Get/Set |
+| ESP555 | No | No | Get/Set | Get/Set |
+| ESP600 | No | No | Set | Set |
+| ESP610 | No | No | Get/Set | Get/Set |
+| ESP620 | No | No | Set | Set |
+| ESP700 | No | No | Set | Set |
+| ESP701 | No | No | Get/Set | Get/Set |
+| ESP710 | No | No | Set | Set |
+| ESP715 | No | No | Set | Set |
+| ESP720 | No | No | Get | Get |
+| ESP730 | No | No | Get/Set | Get/Set |
+| ESP740 | No | No | Get | Get |
+| ESP750 | No | No | Get/Set | Get/Set |
+| ESP780 | No | No | Get | Get |
+| ESP790 | No | No | Get/Set | Get/Set |
+| ESP800 | No | No | Get/Set | Get/Set |
+| ESP900 | No | No | Get/Set | Get/Set |
+| ESP901 | No | No | Get/Set | Get/Set |
+| ESP910 | No | No | Get/Set | Get/Set |
+| ESP930 | No | No | Get/Set | Get/Set |
+| ESP931 | No | No | Get/Set | Get/Set |
+| ESP999 | No | No | Set | Set |
 
 # API Description
 
