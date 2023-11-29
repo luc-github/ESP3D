@@ -105,8 +105,9 @@ ESP3DMessage* ESP3DMessageManager::newMsg(
     if (!setDataContent(newMsgPtr, data, length)) {
       deleteMsg(newMsgPtr);
       newMsgPtr = nullptr;
-      esp3d_log_e("newMsg failed for origin %d, target %d, data %s", origin,
-                  target, data ? (char*)data : "null");
+      esp3d_log_e("newMsg failed for origin %d, target %d, data %s",
+                  (uint8_t)origin, (uint8_t)target,
+                  data ? (char*)data : "null");
     }
   }
   return newMsgPtr;

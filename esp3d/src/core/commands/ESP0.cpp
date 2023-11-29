@@ -304,7 +304,6 @@ const uint cmdlist[] = {
 // ESP3D Help
 //[ESP0] or [ESP]<command>
 void ESP3DCommands::ESP0(int cmd_params_pos, ESP3DMessage* msg) {
-  bool noError = true;
   ESP3DClientType target = msg->origin;
   ESP3DRequest requestId = msg->request_id;
   msg->target = target;

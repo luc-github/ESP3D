@@ -26,7 +26,7 @@
 
 #define ESP3D_SERIAL_BUFFER_SIZE 1024
 
-extern const long SupportedBaudList[];
+extern const uint32_t SupportedBaudList[];
 extern const size_t SupportedBaudListSize;
 
 class ESP3DSerialService final {
@@ -42,7 +42,7 @@ class ESP3DSerialService final {
   bool reset();
   long baudRate();
   uint8_t serialIndex() { return _serialIndex; }
-  const long *get_baudratelist(uint8_t *count);
+  const uint32_t *get_baudratelist(uint8_t *count);
   void flush();
   void swap();
   size_t writeBytes(const uint8_t *buffer, size_t size);

@@ -60,7 +60,7 @@ void update_hash(uint8_t* data, size_t len, uint8_t* hash_buffer,
   static bool reverse = false;
   reverse = !reverse;
   int start_index = reverse ? hash_size : 0;
-  for (int i = 0; i < hash_size; i++) {
+  for (uint8_t i = 0; i < hash_size; i++) {
     int idx =
         reverse ? (start_index - i) % hash_size : (start_index + i) % hash_size;
     if (i >= len) {

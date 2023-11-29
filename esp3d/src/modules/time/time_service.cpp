@@ -74,7 +74,6 @@ bool TimeService::begin() {
   esp3d_log("Starting TimeService");
   end();
   String s1, s2, s3, t1;
-  byte d1;
   updateTimeZone(true);
 #if defined(WIFI_FEATURE)
   // no time server in AP mode
@@ -146,7 +145,6 @@ bool TimeService::setTimeZone(const char* stime) {
 }
 
 bool TimeService::updateTimeZone(bool fromsettings) {
-  char out_str[7] = {0};
   _time_zone = ESP3DSettings::readString(ESP_TIME_ZONE);
 
   bool valid = false;

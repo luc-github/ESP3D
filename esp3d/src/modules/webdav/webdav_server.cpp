@@ -173,8 +173,8 @@ void WebdavServer::parseRequest() {
     }
 
     esp3d_log("Request: %s", line.c_str());
-    size_t pos1 = line.indexOf(' ');
-    size_t pos2 = line.indexOf(' ', pos1 + 1);
+    int pos1 = line.indexOf(' ');
+    int pos2 = line.indexOf(' ', pos1 + 1);
     if (pos1 == -1 || pos2 == -1) {
       send_response_code(400);
       esp3d_log_e("Bad request line: %s", line.c_str());

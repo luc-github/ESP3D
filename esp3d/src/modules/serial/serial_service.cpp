@@ -62,9 +62,9 @@ ESP3DSerialService serial_bridge_service = ESP3DSerialService(BRIDGE_SERIAL);
 TaskHandle_t _hserialtask = nullptr;
 #endif  // ARDUINO_ARCH_ESP32
 
-const long SupportedBaudList[] = {9600,   19200,  38400,  57600,
-                                  74880,  115200, 230400, 250000,
-                                  500000, 921600, 1958400};
+const uint32_t SupportedBaudList[] = {9600,   19200,  38400,  57600,
+                                      74880,  115200, 230400, 250000,
+                                      500000, 921600, 1958400};
 const size_t SupportedBaudListSize = sizeof(SupportedBaudList) / sizeof(long);
 
 #define TIMEOUT_SERIAL_FLUSH 1500
@@ -228,8 +228,8 @@ bool ESP3DSerialService::end() {
   return true;
 }
 
-// return the array of long and array size
-const long *ESP3DSerialService::get_baudratelist(uint8_t *count) {
+// return the array of uint32_t and array size
+const uint32_t *ESP3DSerialService::get_baudratelist(uint8_t *count) {
   if (count) {
     *count = sizeof(SupportedBaudList) / sizeof(long);
   }

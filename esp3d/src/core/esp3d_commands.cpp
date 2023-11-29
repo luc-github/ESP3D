@@ -184,6 +184,7 @@ bool ESP3DCommands::hasTag(ESP3DMessage *msg, uint start, const char *label) {
 const char *ESP3DCommands::get_param(ESP3DMessage *msg, uint start,
                                      const char *label, bool *found) {
   if (!msg) {
+    esp3d_log_e("no message");
     return "";
   }
   return get_param((const char *)msg->data, msg->size, start, label, found);
@@ -191,12 +192,13 @@ const char *ESP3DCommands::get_param(ESP3DMessage *msg, uint start,
 
 const char *ESP3DCommands::get_param(const char *data, uint size, uint start,
                                      const char *label, bool *found) {
+  esp3d_log("get_param %s", label);
   int startPos = -1;
   uint lenLabel = strlen(label);
   static String value;
   bool prevCharIsEscaped = false;
   bool prevCharIsspace = true;
-  value.clear();
+  value = "";
   uint startp = start;
   if (found) {
     *found = false;
@@ -239,11 +241,13 @@ const char *ESP3DCommands::get_param(const char *data, uint size, uint start,
       }
     }
   }
+  esp3d_log("found *%s*", value.c_str());
   return value.c_str();
 }
 
 const char *ESP3DCommands::get_clean_param(ESP3DMessage *msg, uint start) {
   if (!msg) {
+    esp3d_log_e("no message");
     return "";
   }
   static String value;
@@ -252,18 +256,20 @@ const char *ESP3DCommands::get_clean_param(ESP3DMessage *msg, uint start) {
   while (char(msg->data[startp]) == ' ' && startp < msg->size) {
     startp++;
   }
-  value.clear();
+  value = "";
   for (uint i = startp; i < msg->size; i++) {
     char c = char(msg->data[i]);
     if (c == '\\') {
       prevCharIsEscaped = true;
     }
     if (std::isspace(c) && !prevCharIsEscaped) {
-      // esp3d_log("testing *%s*", value.c_str());
+      esp3d_log("testing *%s*", value.c_str());
       if (value == "json" || value.startsWith("json=") ||
           value.startsWith("pwd=")) {
-        value.clear();
+        esp3d_log("clearing *%s*", value.c_str());
+        value = "";
       } else {
+        esp3d_log("returning *%s*", value.c_str());
         return value.c_str();
       }
     }
@@ -274,11 +280,14 @@ const char *ESP3DCommands::get_clean_param(ESP3DMessage *msg, uint start) {
       prevCharIsEscaped = false;
     }
   }
+  esp3d_log("testing *%s*", value.c_str());
   // for empty value
   if (value == "json" || value.startsWith("json=") ||
       value.startsWith("pwd=")) {
-    value.clear();
+    esp3d_log("clearing *%s*", value.c_str());
+    value = "";
   }
+  esp3d_log("returning *%s*", value.c_str());
   return value.c_str();
 }
 
@@ -809,7 +818,6 @@ bool ESP3DCommands::dispatchSetting(bool json, const char *filter,
                                     ESP3DRequest requestId, bool isFirst) {
   String tmpstr;
   String value;
-  char out_str[255];
   tmpstr.reserve(
       350);  // to save time and avoid several memories allocation delay
   const ESP3DSettingDescription *elementSetting =

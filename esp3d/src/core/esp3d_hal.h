@@ -65,7 +65,7 @@ class Esp3dTimout {
   uint64_t getTimeout() { return _timeout; };
 
  private:
-  uint64_t _start;
-  uint64_t _timeout;
+  uint64_t _start = 0;
+  uint64_t _timeout = 0;
 };
 #endif  //_ESP3D_HAL_H

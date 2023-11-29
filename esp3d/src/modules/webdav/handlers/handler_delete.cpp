@@ -28,6 +28,7 @@ void WebdavServer::handler_delete(const char* url) {
   int code = 204;
   size_t sp = clearPayload();
   esp3d_log("Payload size: %d", sp);
+  (void)sp;
   uint8_t fsType = WebDavFS::getFSType(url);
   esp3d_log("FS type of %s : %d", url, fsType);
   // url cannot be root

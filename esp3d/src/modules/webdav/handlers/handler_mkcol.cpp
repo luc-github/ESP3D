@@ -27,6 +27,7 @@ void WebdavServer::handler_mkcol(const char* url) {
   esp3d_log("Processing MKCOL");
   int code = 201;
   size_t sp = clearPayload();
+  (void)sp;
   esp3d_log("Payload size: %d", sp);
   uint8_t fsType = WebDavFS::getFSType(url);
   esp3d_log("FS type of %s : %d", url, fsType);

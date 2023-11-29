@@ -54,6 +54,7 @@ void ESP3DCommands::ESP500(int cmd_params_pos, ESP3DMessage* msg) {
         break;
     }
   } else {
+    esp3d_log_e("Got %s", tmpstr.c_str());
     hasError = true;
   }
 

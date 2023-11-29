@@ -49,12 +49,13 @@ void WebdavServer::handler_propfind(const char* url) {
   }
 
   size_t sp = clearPayload();
+  (void)sp;
   esp3d_log("Payload size: %d", sp);
 
   uint8_t fsType = WebDavFS::getFSType(url);
   esp3d_log("FS type of %s : %d", url, fsType);
   if (WebDavFS::accessFS(fsType)) {
-    if (WebDavFS::exists(url) || url == "/") {
+    if (WebDavFS::exists(url) || strcmp(url, "/") == 0) {
       WebDavFile root = WebDavFS::open(url);
       if (root) {
         send_response_code(code);

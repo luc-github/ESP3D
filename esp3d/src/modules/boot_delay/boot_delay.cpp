@@ -69,10 +69,11 @@ void BootDelay::end() {}
 void BootDelay::handle() {
   uint8_t lastpercent = 0;
   uint32_t lastSent = millis();
+#if defined(DISPLAY_DEVICE)
   ESP3DRequest reqId = {
       .id = ESP_OUTPUT_PROGRESS,
   };
-
+#endif // DISPLAY_DEVICE
   while ((millis() - _startdelay) < _totalduration) {
 #if defined(RECOVERY_FEATURE)
     recovery_service.handle();

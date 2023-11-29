@@ -62,7 +62,7 @@ void ESP3DCommands::ESP140(int cmd_params_pos, ESP3DMessage* msg) {
       ok_msg = "";
     }
     // no need to show time right now
-    for (uint i = 0; i < cmdListSize - 2; i++) {
+    for (uint8_t i = 0; i < cmdListSize - 2; i++) {
       if (json) {
         if (i > 0) {
           ok_msg += ",";
@@ -135,7 +135,7 @@ void ESP3DCommands::ESP140(int cmd_params_pos, ESP3DMessage* msg) {
         } else {
           if (ESP3DSettings::isValidStringSetting(tmpstr.c_str(),
                                                   settingIndex[i])) {
-            esp3d_log_d("Value %s is valid", tmpstr.c_str());
+            esp3d_log("Value %s is valid", tmpstr.c_str());
             if (!ESP3DSettings::writeString(settingIndex[i], tmpstr.c_str())) {
               hasError = true;
               error_msg = "Set value failed";

@@ -28,6 +28,7 @@ void WebdavServer::handler_move(const char* url) {
   esp3d_log("Processing MOVE");
   int code = 201;
   size_t sp = clearPayload();
+  (void)sp;
   esp3d_log("Payload size: %d", sp);
   uint8_t fsTypeOrigin = WebDavFS::getFSType(url);
   esp3d_log("FS type of %s : %d", url, fsTypeOrigin);

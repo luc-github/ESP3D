@@ -35,6 +35,7 @@ void WebdavServer::handler_lock(const char* url) {
   int code = 200;
 
   size_t sp = clearPayload();
+  (void)sp;
   esp3d_log("Payload size: %d", sp);
 
   uint8_t fsType = WebDavFS::getFSType(url);

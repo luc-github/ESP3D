@@ -48,12 +48,12 @@ void ESP3DCommands::ESP202(int cmd_params_pos, ESP3DMessage* msg) {
 #endif  // AUTHENTICATION_FEATURE
 
   if (speed.length() == 0) {  // Get
-    esp3d_log_d("Reading SD speed divider");
+    esp3d_log("Reading SD speed divider");
     uint8_t s = ESP3DSettings::readByte(ESP_SD_SPEED_DIV);
-    esp3d_log_d("SD speed divider is %d", s);
+    esp3d_log("SD speed divider is %d", s);
     ok_msg = String(s);
   } else {  // Set
-    esp3d_log_d("Setting SD speed divider");
+    esp3d_log("Setting SD speed divider");
     uint8_t s = speed.toInt();
     if (ESP3DSettings::isValidByteSetting(s, ESP_SD_SPEED_DIV)) {
       if (!ESP3DSettings::writeByte(ESP_SD_SPEED_DIV, s)) {

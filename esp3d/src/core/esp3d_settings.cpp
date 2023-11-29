@@ -1035,7 +1035,8 @@ uint32_t ESP3DSettings::getDefaultIntegerSetting(
     if (query->type == ESP3DSettingType::integer_t)
       return (uint32_t)strtoul(query->default_val, NULL, 0);
     else {
-      esp3d_log_e("Error invalid type %d for %d", query->type, settingElement);
+      esp3d_log_e("Error invalid type %d for %d", (uint)query->type,
+                  (uint)settingElement);
     }
   }
   return 0;
@@ -1049,14 +1050,15 @@ const char *ESP3DSettings::getDefaultStringSetting(
         query->type == ESP3DSettingType::ip_t)
       return query->default_val;
     else {
-      esp3d_log_e("Error invalid type %d for %d", query->type, settingElement);
+      esp3d_log_e("Error invalid type %d for %d", (uint)query->type,
+                  (uint)settingElement);
     }
   }
   return NULL;
 }
 
 uint8_t ESP3DSettings::getDefaultByteSetting(ESP3DSettingIndex settingElement) {
-  esp3d_log("getDefaultByteSetting %d", settingElement);
+  esp3d_log("getDefaultByteSetting %d", (uint)settingElement);
   const ESP3DSettingDescription *query = getSettingPtr(settingElement);
 
   if (query) {
@@ -1065,10 +1067,11 @@ uint8_t ESP3DSettings::getDefaultByteSetting(ESP3DSettingIndex settingElement) {
       esp3d_log("getDefaultByteSetting is %s", query->default_val);
       return (uint8_t)strtoul(query->default_val, NULL, 0);
     } else {
-      esp3d_log_e("Error invalid type %d for %d", query->type, settingElement);
+      esp3d_log_e("Error invalid type %d for %d", (uint)query->type,
+                  (uint)settingElement);
     }
   } else {
-    esp3d_log_e("Error unknow entry %d", settingElement);
+    esp3d_log_e("Error unknow entry %d", (uint)settingElement);
   }
   return 0;
 }
