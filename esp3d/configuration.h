@@ -384,7 +384,7 @@
 /* Enable Web Update
  * Update firmware using WebUI, need 4MB of flash
  */
-// #define WEB_UPDATE_FEATURE
+#define WEB_UPDATE_FEATURE
 
 /* Enable SD card Update
  * Update firmware and settings using file on SDCard
