@@ -293,13 +293,44 @@ void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
     return;
   }
 #ifdef AUTHENTICATION_FEATURE
-
-  // do not overwrite previous authetic <time=YYYY-MM-DD#H24:MM:SS>ation level
-  if (msg->authentication_level == ESP3DAuthenticationLevel::guest) {
-    String pwd = get_param(msg, cmd_params_pos, "pwd=");
+  String pwd = get_param(msg, cmd_params_pos, "pwd=");
+  if (pwd.length() != 0 && (msg->origin == ESP3DClientType::serial ||
+                            msg->origin == ESP3DClientType::serial_bridge ||
+                            msg->origin == ESP3DClientType::telnet ||
+                            msg->origin == ESP3DClientType::websocket ||
+                            msg->origin == ESP3DClientType::bluetooth)) {
     msg->authentication_level =
         AuthenticationService::getAuthenticatedLevel(pwd.c_str(), msg);
+    // update authentication level for current client
+    switch (msg->origin) {
+      case ESP3DClientType::serial:
+        esp3d_serial_service.setAuthentication(msg->authentication_level);
+        break;
+#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
+      case ESP3DClientType::serial_bridge:
+        serial_bridge_service.setAuthentication(msg->authentication_level);
+        break;
+#endif  // ESP_SERIAL_BRIDGE_OUTPUT
+#if defined(TELNET_FEATURE)
+      case ESP3DClientType::telnet:
+        telnet_server.setAuthentication(msg->authentication_level);
+        break;
+#endif  // TELNET_FEATURE
+#if defined(WS_DATA_FEATURE)
+      case ESP3DClientType::websocket:
+        websocket_data_server.setAuthentication(msg->authentication_level);
+        break;
+#endif  // WS_DATA_FEATURE
+#ifdef BLUETOOTH_FEATURE
+      case ESP3DClientType::bluetooth:
+        bt_service.setAuthentication(msg->authentication_level);
+        break;
+#endif  // BLUETOOTH_FEATURE
+      default:
+        break;
+    }
   }
+
 #endif  // AUTHENTICATION_FEATURE
   switch (cmd) {
       // ESP3D Help

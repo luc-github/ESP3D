@@ -40,7 +40,7 @@ void HTTP_Server::handle_login() {
   // Disconnect can be done anytime no need to check credential
   if (_webserver->hasArg("DISCONNECT") &&
       _webserver->arg("DISCONNECT") == "YES") {
-    AuthenticationService::ClearCurrentSession();
+    AuthenticationService::ClearCurrentHttpSession();
     _webserver->sendHeader("Set-Cookie", "ESPSESSIONID=0");
     _webserver->sendHeader("Cache-Control", "no-cache");
     _webserver->send(
@@ -97,8 +97,8 @@ void HTTP_Server::handle_login() {
             String session = AuthenticationService::create_session_ID();
             if (AuthenticationService::CreateSession(
                     (sUser == DEFAULT_ADMIN_LOGIN) ? admin : user,
-                    sUser.c_str(), session.c_str())) {
-              AuthenticationService::ClearCurrentSession();
+                    ESP3DClientType::http, session.c_str())) {
+              AuthenticationService::ClearCurrentHttpSession();
               code = 200;
               status = "ok";
               String tmps = "ESPSESSIONID=";

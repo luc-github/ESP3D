@@ -92,6 +92,7 @@ void handle_Websocket_Server_Event(uint8_t num, uint8_t type, uint8_t *payload,
                 websocket_data_server.port());
       break;
     case WStype_CONNECTED: {
+      websocket_data_server.initAuthentication();
       esp3d_log("[%u] Connected! port %d, %s", num,
                 websocket_data_server.port(), payload);
     } break;
@@ -177,11 +178,7 @@ WebSocket_Server::WebSocket_Server(const char *protocol, ESP3DClientType type) {
   _RXbufferSize = 0;
   _protocol = protocol;
   _type = type;
-#if defined(AUTHENTICATION_FEATURE)
-  _auth = ESP3DAuthenticationLevel::guest;
-#else
-  _auth = ESP3DAuthenticationLevel::admin;
-#endif  // AUTHENTICATION_FEATURE
+  initAuthentication();
 }
 WebSocket_Server::~WebSocket_Server() { end(); }
 bool WebSocket_Server::begin(uint16_t port) {
@@ -233,6 +230,7 @@ void WebSocket_Server::end() {
     _port = 0;
   }
   _started = false;
+  initAuthentication();
 }
 
 WebSocket_Server::operator bool() const { return _started; }
@@ -303,6 +301,15 @@ void WebSocket_Server::push2RXbuffer(uint8_t *sbuf, size_t len) {
     }
   }
 }
+
+void WebSocket_Server::initAuthentication() {
+#if defined(AUTHENTICATION_FEATURE)
+  _auth = ESP3DAuthenticationLevel::guest;
+#else
+  _auth = ESP3DAuthenticationLevel::admin;
+#endif  // AUTHENTICATION_FEATURE
+}
+ESP3DAuthenticationLevel WebSocket_Server::getAuthentication() { return _auth; }
 
 void WebSocket_Server::flushRXbuffer() {
   if (!_RXbuffer || !_started) {

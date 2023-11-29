@@ -122,11 +122,7 @@ bool BTService::begin() {
   esp3d_commands.dispatch(stmp.c_str(), ESP3DClientType::all_clients, no_id,
                           ESP3DMessageType::unique, ESP3DClientType::bluetooth,
                           ESP3DAuthenticationLevel::admin);
-#if defined(AUTHENTICATION_FEATURE)
-  _auth = ESP3DAuthenticationLevel::guest;
-#else
-  _auth = ESP3DAuthenticationLevel::admin;
-#endif  // AUTHENTICATION_FEATURE
+  initAuthentication();
 
   return res;
 }
@@ -182,6 +178,15 @@ void BTService::handle() {
     flushbuffer();
   }
 }
+
+void BTService::initAuthentication() {
+#if defined(AUTHENTICATION_FEATURE)
+  _auth = ESP3DAuthenticationLevel::guest;
+#else
+  _auth = ESP3DAuthenticationLevel::admin;
+#endif  // AUTHENTICATION_FEATURE
+}
+ESP3DAuthenticationLevel BTService::getAuthentication() { return _auth; }
 
 void BTService::flushbuffer() {
   _buffer[_buffer_size] = 0x0;

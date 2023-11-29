@@ -51,6 +51,9 @@ class WebSocket_Server {
   void push2RXbuffer(uint8_t *sbuf, size_t len);
   const char *getProtocol() { return _protocol.c_str(); }
   uint16_t getPort() { return _port; }
+  void initAuthentication();
+  void setAuthentication(ESP3DAuthenticationLevel auth) { _auth = auth; }
+  ESP3DAuthenticationLevel getAuthentication();
 
  private:
   ESP3DClientType _type;

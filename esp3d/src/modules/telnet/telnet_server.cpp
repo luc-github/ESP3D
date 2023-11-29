@@ -63,6 +63,7 @@ bool Telnet_Server::isConnected() {
       // new client
       writeBytes((uint8_t *)TELNET_WELCOME_MESSAGE,
                  strlen(TELNET_WELCOME_MESSAGE));
+      initAuthentication();
     }
   }
   if (_telnetserver->hasClient()) {
@@ -88,11 +89,7 @@ Telnet_Server::Telnet_Server() {
   _port = 0;
   _buffer = nullptr;
   _telnetserver = nullptr;
-#if defined(AUTHENTICATION_FEATURE)
-  _auth = ESP3DAuthenticationLevel::guest;
-#else
-  _auth = ESP3DAuthenticationLevel::admin;
-#endif  // AUTHENTICATION_FEATURE
+  initAuthentication();
 }
 Telnet_Server::~Telnet_Server() { end(); }
 
@@ -204,6 +201,15 @@ bool Telnet_Server::dispatch(ESP3DMessage *message) {
   }
   return false;
 }
+
+void Telnet_Server::initAuthentication() {
+#if defined(AUTHENTICATION_FEATURE)
+  _auth = ESP3DAuthenticationLevel::guest;
+#else
+  _auth = ESP3DAuthenticationLevel::admin;
+#endif  // AUTHENTICATION_FEATURE
+}
+ESP3DAuthenticationLevel Telnet_Server::getAuthentication() { return _auth; }
 
 void Telnet_Server::flushbuffer() {
   if (!_buffer || !_started) {

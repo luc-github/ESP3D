@@ -21,8 +21,8 @@
 #ifndef _SERIAL_SERVICES_H
 #define _SERIAL_SERVICES_H
 
-#include "../../core/esp3d_message.h"
 #include "../../core/esp3d_client_types.h"
+#include "../../core/esp3d_message.h"
 
 #define ESP3D_SERIAL_BUFFER_SIZE 1024
 
@@ -49,8 +49,12 @@ class ESP3DSerialService final {
   size_t readBytes(uint8_t *sbuf, size_t len);
   inline bool started() { return _started; }
   bool dispatch(ESP3DMessage *message);
+  void initAuthentication();
+  void setAuthentication(ESP3DAuthenticationLevel auth) { _auth = auth; }
+  ESP3DAuthenticationLevel getAuthentication();
 
  private:
+  ESP3DAuthenticationLevel _auth;
   uint8_t _serialIndex;
   ESP3DClientType _origin;
   uint8_t _id;

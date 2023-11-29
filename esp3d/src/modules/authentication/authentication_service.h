@@ -34,7 +34,7 @@ const char DEFAULT_USER_LOGIN[] = "user";
 struct auth_ip {
   IPAddress ip;
   ESP3DAuthenticationLevel level;
-  char userID[17];
+  ESP3DClientType client_type;
   char sessionID[17];
   uint32_t last_time;
   auth_ip *_next;
@@ -67,10 +67,10 @@ class AuthenticationService {
   static uint32_t getSessionTimeout();
   static uint32_t getSessionRemaining(const char *sessionID);
   static char *create_session_ID();
-  static bool ClearCurrentSession();
+  static bool ClearCurrentHttpSession();
   static bool ClearAllSessions();
   static bool CreateSession(ESP3DAuthenticationLevel auth_level,
-                            const char *username, const char *session_ID);
+                            ESP3DClientType client_type, const char *session_ID);
 #endif  // HTTP_FEATURE
  private:
   static String _adminpwd;

@@ -72,7 +72,11 @@ const size_t SupportedBaudListSize = sizeof(SupportedBaudList) / sizeof(long);
 ESP3DSerialService::ESP3DSerialService(uint8_t id) {
   _buffer_size = 0;
   _started = false;
+#if defined(AUTHENTICATION_FEATURE)
   _needauthentication = true;
+#else
+  _needauthentication = false;
+#endif  // AUTHENTICATION_FEATURE
   _id = id;
   switch (_id) {
     case MAIN_SERIAL:
@@ -117,6 +121,20 @@ void ESP3DSerialService::setParameters() {
 #else
   _needauthentication = false;
 #endif  // AUTHENTICATION_FEATURE
+}
+
+void ESP3DSerialService::initAuthentication() {
+#if defined(AUTHENTICATION_FEATURE)
+  _auth = ESP3DAuthenticationLevel::guest;
+#else
+  _auth = ESP3DAuthenticationLevel::admin;
+#endif  // AUTHENTICATION_FEATURE
+}
+ESP3DAuthenticationLevel ESP3DSerialService::getAuthentication() {
+  if (_needauthentication) {
+    return _auth;
+  }
+  return ESP3DAuthenticationLevel::admin;
 }
 
 // Setup Serial
@@ -206,6 +224,7 @@ bool ESP3DSerialService::end() {
   Serials[_serialIndex]->end();
   _buffer_size = 0;
   _started = false;
+  initAuthentication();
   return true;
 }
 
@@ -265,8 +284,7 @@ void ESP3DSerialService::flushbuffer() {
   if (_started) {
     ESP3DMessage *message = ESP3DMessageManager::newMsg(
         _origin, ESP3DClientType::all_clients, (uint8_t *)_buffer, _buffer_size,
-        _needauthentication ? ESP3DAuthenticationLevel::guest
-                            : ESP3DAuthenticationLevel::admin);
+        getAuthentication());
     if (message) {
       // process command
       esp3d_commands.process(message);

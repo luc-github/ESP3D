@@ -205,7 +205,7 @@ bool AuthenticationService::ClearAllSessions() {
   return true;
 }
 
-bool AuthenticationService::ClearCurrentSession() {
+bool AuthenticationService::ClearCurrentHttpSession() {
   String cookie = _webserver->header("Cookie");
   int pos = cookie.indexOf("ESPSESSIONID=");
   String sessionID;
@@ -217,7 +217,7 @@ bool AuthenticationService::ClearCurrentSession() {
 }
 
 bool AuthenticationService::CreateSession(ESP3DAuthenticationLevel auth_level,
-                                          const char *username,
+                                          ESP3DClientType client_type,
                                           const char *session_ID) {
   auth_ip *current_auth = (auth_ip *)malloc(sizeof(auth_ip));
   if (!current_auth) {
@@ -226,8 +226,8 @@ bool AuthenticationService::CreateSession(ESP3DAuthenticationLevel auth_level,
   }
   current_auth->level = auth_level;
   current_auth->ip = _webserver->client().remoteIP();
+  current_auth->client_type = client_type;
   strcpy(current_auth->sessionID, session_ID);
-  strcpy(current_auth->userID, username);
   current_auth->last_time = millis();
 #ifndef ALLOW_MULTIPLE_SESSIONS
   // if not multiple session no need to keep all session, current one is enough

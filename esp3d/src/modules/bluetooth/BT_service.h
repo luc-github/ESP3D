@@ -45,6 +45,9 @@ class BTService {
   size_t writeBytes(const uint8_t* buffer, size_t size);
   size_t readBytes(uint8_t* sbuf, size_t len);
   bool dispatch(ESP3DMessage* message);
+  void initAuthentication();
+  void setAuthentication(ESP3DAuthenticationLevel auth) { _auth = auth; }
+  ESP3DAuthenticationLevel getAuthentication();
 
  private:
   ESP3DAuthenticationLevel _auth;

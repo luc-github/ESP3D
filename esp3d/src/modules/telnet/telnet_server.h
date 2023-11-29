@@ -46,6 +46,9 @@ class Telnet_Server {
   size_t readBytes(uint8_t* sbuf, size_t len);
   uint16_t port() { return _port; }
   void closeClient();
+  void initAuthentication();
+  void setAuthentication(ESP3DAuthenticationLevel auth) { _auth = auth; }
+  ESP3DAuthenticationLevel getAuthentication();
 
  private:
   bool _started;
