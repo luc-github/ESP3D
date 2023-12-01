@@ -1,0 +1,21 @@
+name: 'PR Notifications'
+
+on:
+  # Trigger the workflow on push or pull request
+  pull_request:
+    branches:
+      - 2.1.x
+
+jobs:
+  comment:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'This branch does not take new feature, only bugfix, if your PR is a new feature please push it to 3.0 instead, thank you'
+            })
