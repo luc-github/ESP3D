@@ -150,6 +150,17 @@
 //For FW which has issue with checksum or not handling M110 properly///////
 //#define DISABLE_SERIAL_CHECKSUM
 
+/* *** Home Assistant notification ***
+ * Home Assistant tokens are too long to pass via serial.
+ * Create a long-lived access token here: http://homeassistant.local:8123/profile
+ * And replace "YOUR-TOKEN" below.
+ * Usage: In a Marlin custom menu or at the end of your gcode add:
+     M118 [ESP610]type=POST TS=/api/services/switch/toggle#homeassistant.local:8123
+     M118 [ESP600]{"entity_id": "switch.3d_printer_switch"}
+*/
+
+#define HOME_ASSISTANT_TOKEN "Bearer YOUR-TOKEN"
+
 //Do not Edit after this line //////////////////////////////////////////////
 
 //DEBUG Flag do not do this when connected to printer !!!
@@ -421,6 +432,7 @@ const int DEFAULT_DHT_INTERVAL = 30;
 #define ESP_EMAIL_NOTIFICATION      2
 #define ESP_LINE_NOTIFICATION       3
 #define ESP_IFTTT_NOTIFICATION      4
+#define ESP_POST_NOTIFICATION       5
 
 #ifdef SDCARD_FEATURE
 #define DEFAULT_IS_DIRECT_SD 1

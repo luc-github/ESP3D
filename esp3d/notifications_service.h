@@ -51,6 +51,7 @@ private:
     bool sendEmailMSG(const char * title, const char * message);
     bool sendLineMSG(const char * title, const char * message);
     bool sendIFTTTMSG(const char * title, const char * message);
+    bool sendPostRequestMSG(const char * title, const char * message);
     bool getPortFromSettings();
     bool getServerAddressFromSettings();
     bool getEmailFromSettings();

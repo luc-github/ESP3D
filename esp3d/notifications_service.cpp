@@ -138,6 +138,8 @@ const char * NotificationsService::getTypeString()
         return "Line";
     case ESP_IFTTT_NOTIFICATION:
         return "IFTTT";
+    case ESP_POST_NOTIFICATION:
+        return "POST";
     default:
         break;
     }
@@ -162,6 +164,9 @@ bool NotificationsService::sendMSG(const char * title, const char * message)
             break;
         case ESP_IFTTT_NOTIFICATION :
             return sendIFTTTMSG(title,message);
+            break;
+        case ESP_POST_NOTIFICATION :
+            return sendPostRequestMSG(title,message);
             break;
         default:
             break;
@@ -339,6 +344,24 @@ bool NotificationsService::sendLineMSG(const char * title, const char * message)
     Notificationclient.stop();
     return res;
 }
+
+#if defined(ESP8266)
+    #include <ESP8266HTTPClient.h>
+#elif defined(ESP32)
+    #include <HTTPClient.h>
+#endif
+
+bool NotificationsService::sendPostRequestMSG(const char * title, const char * message)
+{
+    HTTPClient http;
+    http.begin(_serveraddress.c_str(), _port, _settings);
+    http.addHeader("Content-Type", "application/json");
+    http.addHeader("Authorization", HOME_ASSISTANT_TOKEN);
+    int httpCode = http.POST(message);
+    bool result = (httpCode > 0) && (httpCode == HTTP_CODE_OK); // Example of basic success check
+    http.end();
+    return result;
+}
 //IFTTT
 bool NotificationsService::sendIFTTTMSG(const char * title, const char * message)
 {
@@ -476,7 +499,19 @@ bool NotificationsService::begin()
         _port = IFTTTPORT;
         _serveraddress = IFTTTSERVER;
         break;
-
+    case ESP_POST_NOTIFICATION:
+        if (CONFIG::read_string (ESP_NOTIFICATION_TOKEN1, sbuf, MAX_NOTIFICATION_TOKEN_LENGTH) ) {
+            _token1 = base64::encode(sbuf);
+        }
+        if (CONFIG::read_string (ESP_NOTIFICATION_TOKEN2, sbuf, MAX_NOTIFICATION_TOKEN_LENGTH) ) {
+            _token2 = base64::encode(sbuf);
+        }
+        //log_esp3d("%s",Settings_ESP3D::read_string(ESP_NOTIFICATION_TOKEN1));
+        //log_esp3d("%s",Settings_ESP3D::read_string(ESP_NOTIFICATION_TOKEN2));
+        if(!getEmailFromSettings() || !getPortFromSettings()|| !getServerAddressFromSettings()) {
+            return false;
+        }
+        break;
     case ESP_EMAIL_NOTIFICATION:
         if (CONFIG::read_string (ESP_NOTIFICATION_TOKEN1, sbuf, MAX_NOTIFICATION_TOKEN_LENGTH) ) {
             _token1 = base64::encode(sbuf);
