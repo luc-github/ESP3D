@@ -155,8 +155,8 @@
  * Create a long-lived access token here: http://homeassistant.local:8123/profile
  * And replace "YOUR-TOKEN" below.
  * Usage: In a Marlin custom menu or at the end of your gcode add:
-     M118 [ESP610]type=POST TS=/api/services/switch/toggle#homeassistant.local:8123
-     M118 [ESP600]{"entity_id": "switch.3d_printer_switch"}
+     M118 [ESP610] type=POST TS=#homeassistant.local:8123
+     M118 [ESP600] /api/services/switch/toggle#{"entity_id": "switch.3d_printer_tuya_plug_5_switch"}
 */
 
 #define HOME_ASSISTANT_TOKEN "Bearer YOUR-TOKEN"

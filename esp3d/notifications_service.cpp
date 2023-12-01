@@ -354,14 +354,27 @@ bool NotificationsService::sendLineMSG(const char * title, const char * message)
 bool NotificationsService::sendPostRequestMSG(const char * title, const char * message)
 {
     HTTPClient http;
-    http.begin(_serveraddress.c_str(), _port, _settings);
+
+    // Split the message into path and JSON parts
+    // e.g message = "/api/services/light/toggle#{"entity_id": "light.wintergarten_spots"}"
+    String msgStr = String(message);
+    int hashIndex = msgStr.indexOf('#');
+    if (hashIndex == -1) return false;
+
+    String path = msgStr.substring(0, hashIndex);
+    String json = msgStr.substring(hashIndex + 1);
+    http.begin(_serveraddress.c_str(), _port, path);
+
     http.addHeader("Content-Type", "application/json");
     http.addHeader("Authorization", HOME_ASSISTANT_TOKEN);
-    int httpCode = http.POST(message);
-    bool result = (httpCode > 0) && (httpCode == HTTP_CODE_OK); // Example of basic success check
+
+    int httpCode = http.POST(json);
+    bool ok = (httpCode > 0) && (httpCode == HTTP_CODE_OK);
+
     http.end();
-    return result;
+    return ok;
 }
+
 //IFTTT
 bool NotificationsService::sendIFTTTMSG(const char * title, const char * message)
 {
