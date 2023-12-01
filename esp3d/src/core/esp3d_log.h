@@ -17,6 +17,43 @@
   License along with This code; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+/*
+void esp3d_logf(uint8_t level, const char* format, ...);
+
+
+void esp3d_logf(uint8_t level, const char* format, ...) {
+    #if ESP_LOG_FEATURE == ESP_LOG_FEATURE
+   //TODO: if not started => return
+    #endif // ESP_LOG_FEATURE == ESP_LOG_FEATURE
+
+    char    default_buffer[64];
+    char*   buffer_ptr = default_buffer;
+    va_list arg;
+    va_list copy;
+    va_start(arg, format);
+    va_copy(copy, arg);
+
+    //add before format [ESP3D] / [ESP3D-DEBUG] / [ESP3D-ERROR] according level
+
+size_t len = vsnprintf(NULL, 0, format, arg);
+va_end(copy);
+if (len >= sizeof(default_buffer)) {
+  buffer_ptr = (char *)malloc((len + 1)sizeof(char));
+  if (buffer_ptr == NULL) {
+    return;
+  }
+    }
+    len = vsnprintf(buffer_ptr, len + 1, format, arg);
+    #if ESP_LOG_FEATURE == ESP_LOG_FEATURE
+   //TODO: log buffer_ptr
+    #endif // ESP_LOG_FEATURE == ESP_LOG_FEATURE
+    va_end(arg);
+    if (buffer_ptr != default_buffer) {
+       free(buffer_ptr);
+    }
+}
+
+*/
 
 #ifndef _LOG_ESP3D_H
 #define _LOG_ESP3D_H
@@ -38,8 +75,6 @@
 #define pathToFileName(p) p
 #endif  // ARDUINO_ARCH_ESP8266
 
-#undef log_esp3d
-#undef log_esp3ds
 #undef log_esp3d_e
 #undef log_esp3d_d
 // Serial
@@ -70,10 +105,8 @@ extern void initEsp3dLog();
   LOG_OUTPUT_SERIAL.printf("[ESP3D][%s:%u] %s(): " format "\r\n",            \
                            pathToFileName(__FILE__), __LINE__, __FUNCTION__, \
                            ##__VA_ARGS__)
-#define log_esp3ds(format, ...) LOG_OUTPUT_SERIAL.printf(format, ##__VA_ARGS__)
 #else
 #define esp3d_log(format, ...)
-#define log_esp3ds(format, ...)
 #endif  // ESP3D_DEBUG_LEVEL>= LOG_LEVEL_VERBOSE
 
 #if ESP3D_DEBUG_LEVEL >= LOG_LEVEL_DEBUG
@@ -110,11 +143,8 @@ extern Telnet_Server telnet_log;
   telnet_log.printf("[ESP3D][%s:%u] %s(): " format "\r\n",            \
                     pathToFileName(__FILE__), __LINE__, __FUNCTION__, \
                     ##__VA_ARGS__)
-#define log_esp3ds(format, ...) \
-  if (telnet_log.isConnected()) telnet_log.printf(format, ##__VA_ARGS__)
 #else
 #define esp3d_log(format, ...)
-#define log_esp3ds(format, ...)
 #endif  // ESP3D_DEBUG_LEVEL >= LOG_LEVEL_VERBOSE
 
 #if ESP3D_DEBUG_LEVEL >= LOG_LEVEL_DEBUG
@@ -151,10 +181,8 @@ extern WebSocket_Server websocket_log;
   websocket_log.printf("[ESP3D][%s:%u] %s(): " format "\r\n",            \
                        pathToFileName(__FILE__), __LINE__, __FUNCTION__, \
                        ##__VA_ARGS__)
-#define log_esp3ds(format, ...) websocket_log.printf(format, ##__VA_ARGS__)
 #else
 #define esp3d_log(format, ...)
-#define log_esp3ds(format, ...)
 #endif  // ESP3D_DEBUG_LEVEL >= LOG_LEVEL_VERBOSE
 
 #if ESP3D_DEBUG_LEVEL >= LOG_LEVEL_DEBUG
@@ -175,7 +203,6 @@ extern WebSocket_Server websocket_log;
 #endif  // LOG_OUTPUT_WEBSOCKET
 #else
 #define esp3d_log(format, ...)
-#define log_esp3ds(format, ...)
 #define esp3d_log_e(format, ...)
 #define esp3d_log_d(format, ...)
 #endif  // ESP_LOG_FEATURE

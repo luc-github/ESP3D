@@ -69,6 +69,8 @@ Here the scope of right for each authentication level:
 | WebSocket | No | No | Yes | Yes |
 | WebDav | No | No | Yes | Yes |
 | Bluetooth | No | No | Yes | Yes |
+| Upload | No | No | Yes | Yes |
+| Update | No | No | No | Yes |
 | ESP0 | Yes | Yes | Yes | Yes |
 | ESP100 | No | No | Get/Set | Get/Set |
 | ESP101 | No | No | Set | Set |
