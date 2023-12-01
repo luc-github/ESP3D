@@ -21,6 +21,8 @@ I currently use it with my personnal flavor of [repetier for Due based boards](h
 The web interface files are present in data directory but UI has it's own repository [ESP3D-WEBUI](https://github.com/luc-github/ESP3D-WEBUI).
 * Be aware  ESP3D-WEBUI is for firmware 0.9.99 minimum - previous released version use tpl files which are no more used.
 * Note for ESP8266 1MB flash : FW is now too big will all features you need to chose strip the FW and select only some features, also WebUI is now also too big for full multilanguage support to fit the 128K SPIFFS so please use pack with limited language (en +another) https://github.com/luc-github/ESP3D-WEBUI/tree/2.1/languages
+
+This branch does not take any new features, only bug fix, for new feature please use https://github.com/luc-github/ESP3D/tree/3.0, thank you.    
     
 
 ## Sponsors 
