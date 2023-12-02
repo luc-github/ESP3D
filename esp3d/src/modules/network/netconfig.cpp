@@ -417,7 +417,7 @@ bool NetConfig::begin() {
   }
 #endif  // WIFI_FEATURE
 #endif  // ARDUINO_ARCH_ESP32
-  LOG_ESP3D_NETWORK_INIT
+  ESP3D_LOG_NETWORK_INIT_FN
   if (res) {
     esp3d_log("Network config started");
 
@@ -441,7 +441,7 @@ bool NetConfig::begin() {
 
 void NetConfig::end() {
   NetServices::end();
-  LOG_ESP3D_NETWORK_END
+  ESP3D_LOG_NETWORK_END_FN
   _mode = ESP_NO_NETWORK;
 #if defined(WIFI_FEATURE)
   WiFiConfig::end();
@@ -506,7 +506,7 @@ void NetConfig::handle() {
 #endif  // BLUETOOTH_FEATURE
     NetServices::handle();
     // Debug
-    LOG_ESP3D_NETWORK_HANDLE
+    ESP3D_LOG_NETWORK_HANDLE_FN
   }
 }
 
