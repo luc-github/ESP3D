@@ -53,7 +53,7 @@
 #include "../modules/serial/serial_service.h"
 
 // Current Settings Version
-#define CURRENT_SETTINGS_VERSION "ESP3D04"
+#define CURRENT_SETTINGS_VERSION "ESP3D05"
 
 // boundaries
 #define MAX_SENSOR_INTERVAL 60000
