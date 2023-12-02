@@ -40,102 +40,76 @@ typedef uint ESP3DSettingIndex;
 
 // position in EEPROM / preferences will use `P_` + <position> to make a string
 // : P_0 for 0
-#define ESP_RADIO_MODE 0  // 1 byte = flag
-#define ESP_STA_SSID \
-  1  // 33 bytes 32+1 = string  ; warning does not support multibyte char like
-     // chinese
-#define ESP_STA_PASSWORD \
-  34  // 65 bytes 64 +1 = string ;warning does not support multibyte char like
-      // chinese
-#define ESP_STA_IP_MODE 99         // 1 byte = flag
-#define ESP_STA_IP_VALUE 100       // 4  bytes xxx.xxx.xxx.xxx
-#define ESP_STA_MASK_VALUE 104     // 4  bytes xxx.xxx.xxx.xxx
-#define ESP_STA_GATEWAY_VALUE 108  // 4  bytes xxx.xxx.xxx.xxx
-#define ESP_BAUD_RATE 112          // 4  bytes = int
-#define ESP_NOTIFICATION_TYPE 116  // 1 byte = flag
-#define ESP_CALIBRATION 117        // 1 byte = flag
-#define ESP_AP_CHANNEL 118         // 1 byte = flag
-#define ESP_BUZZER 119             // 1 byte = flag
-#define ESP_INTERNET_TIME 120      // 1  byte = flag
-#define ESP_HTTP_PORT 121          // 4  bytes = int
-#define ESP_TELNET_PORT 125        // 4  bytes = int
-// #define  129        // 1  bytes = flag
-#define ESP_HOSTNAME \
-  130  // 33 bytes 32+1 = string  ; warning does not support multibyte char like
-       // chinese
-#define ESP_SENSOR_INTERVAL 164   // 4  bytes = int
-#define ESP_SETTINGS_VERSION 168  // 8  bytes = 7+1 = string ESP3D + 2 digits
-#define ESP_ADMIN_PWD \
-  176  // 21  bytes 20+1 = string  ; warning does not support multibyte char
-       // like chinese
-#define ESP_USER_PWD \
-  197  // 21  bytes 20+1 = string  ; warning does not support multibyte char
-       // like chinese
-#define ESP_AP_SSID \
-  218  // 33 bytes 32+1 = string  ; warning does not support multibyte char like
-       // chinese
-#define ESP_AP_PASSWORD \
-  251  // 65 bytes 64 +1 = string ;warning does not support multibyte char like
-       // chinese
-#define ESP_AP_IP_VALUE 316     // 4  bytes xxx.xxx.xxx.xxx
-#define ESP_BOOT_DELAY 320      // 4  bytes = int
-#define ESP_WEBSOCKET_PORT 324  // 4  bytes= int
-#define ESP_HTTP_ON 328         // 1 byte = flag
-#define ESP_TELNET_ON 329       // 1 byte = flag
-#define ESP_WEBSOCKET_ON 330    // 1 byte = flag
-#define ESP_SD_SPEED_DIV 331    // 1 byte = flag
-#define ESP_NOTIFICATION_TOKEN1 \
-  332  // 64 bytes 63+1 = string  ; warning does not support multibyte char like
-       // chinese
-#define ESP_NOTIFICATION_TOKEN2 \
-  396  // 64 bytes 63+1 = string  ; warning does not support multibyte char like
-       // chinese
-#define ESP_SENSOR_TYPE 460  // 1  bytes = flag
-#define ESP_TARGET_FW 461    // 1  bytes = flag
-#define ESP_FREE 462         // 1  bytes = flag
-// #define  463  // 1  bytes = flag
-#define ESP_TIME_SERVER1 \
-  464  // 129 bytes 128+1 = string  ; warning does not support multibyte char
-       // like chinese
-#define ESP_TIME_SERVER2 \
-  593  // 129 bytes 128+1 = string  ; warning does not support multibyte char
-       // like chinese
-#define ESP_TIME_SERVER3 \
-  722  // 129 bytes 128+1 = string  ; warning does not support multibyte char
-       // like chinese
-// #define  851  // 1  bytes = flag
-#define ESP_SD_MOUNT 852         // 1  bytes = flag
-#define ESP_SESSION_TIMEOUT 853  // 1  bytes = flag
-// #define  854           // 1  bytes = flag
-#define ESP_SD_CHECK_UPDATE_AT_BOOT 855  // 1  bytes = flag
-#define ESP_NOTIFICATION_SETTINGS \
-  856  // 129 bytes 128+1 = string  ; warning does not support multibyte char
-       // like chinese
-#define ESP_CALIBRATION_1 985   // 4  bytes = int
-#define ESP_CALIBRATION_2 989   // 4  bytes = int
-#define ESP_CALIBRATION_3 993   // 4  bytes = int
-#define ESP_CALIBRATION_4 997   // 4  bytes = int
-#define ESP_CALIBRATION_5 1001  // 4  bytes = int
-#define ESP_SETUP 1005          // 1 byte = flag
-// #define  1006            // 1 byte = flag
-// #define  1007                // 1 byte = flag
-// #define  1008            // 1 byte = flag
-#define ESP_FTP_CTRL_PORT 1009          // 4  bytes = int
-#define ESP_FTP_DATA_ACTIVE_PORT 1013   // 4  bytes = int
-#define ESP_FTP_DATA_PASSIVE_PORT 1017  // 4  bytes = int
-#define ESP_FTP_ON 1021                 // 1 byte = flag
-#define ESP_AUTO_NOTIFICATION 1022      // 1 byte = flag
-#define ESP_VERBOSE_BOOT 1023           // 1 byte = flag
-#define ESP_WEBDAV_ON 1024              // 1 byte = flag
-#define ESP_WEBDAV_PORT 1025            // 4  bytes= int
-#define ESP_STA_DNS_VALUE 1029          // 4  bytes= int
-#define ESP_SECURE_SERIAL 1033          // 1 byte = flag
-#define ESP_BOOT_RADIO_STATE 1034       // 1 byte = flag
-#define ESP_STA_FALLBACK_MODE 1035      // 1 byte = flag
-#define ESP_SERIAL_BRIDGE_ON 1036       // 1 byte = flag
-// #define  1037     // 1 byte = flag
-#define ESP_SERIAL_BRIDGE_BAUD 1038  // 4  bytes= int
-#define ESP_TIME_ZONE 1042           // 7 bytes 6+1 = string
+#define ESP_RADIO_MODE 0                 // 1 byte = flag
+#define ESP_STA_SSID 1                   // 33 bytes 32+1 = string  ; warning does not support multibyte char like chinese
+#define ESP_STA_PASSWORD 34              // 65 bytes 64 +1 = string ;warning does not support multibyte char like chinese
+#define ESP_STA_IP_MODE 99               // 1 byte = flag
+#define ESP_STA_IP_VALUE 100             // 4  bytes xxx.xxx.xxx.xxx
+#define ESP_STA_MASK_VALUE 104           // 4  bytes xxx.xxx.xxx.xxx
+#define ESP_STA_GATEWAY_VALUE 108        // 4  bytes xxx.xxx.xxx.xxx
+#define ESP_BAUD_RATE 112                // 4  bytes = int
+#define ESP_NOTIFICATION_TYPE 116        // 1 byte = flag
+#define ESP_CALIBRATION 117              // 1 byte = flag
+#define ESP_AP_CHANNEL 118               // 1 byte = flag
+#define ESP_BUZZER 119                   // 1 byte = flag
+#define ESP_INTERNET_TIME 120            // 1  byte = flag
+#define ESP_HTTP_PORT 121                // 4  bytes = int
+#define ESP_TELNET_PORT 125              // 4  bytes = int
+// #define FREE 129                      // 1  bytes = flag
+#define ESP_HOSTNAME 130                 // 33 bytes 32+1 = string  ; warning does not support multibyte char like chinese
+#define ESP_SENSOR_INTERVAL 164          // 4  bytes = int
+#define ESP_SETTINGS_VERSION 168         // 8  bytes = 7+1 = string ESP3D + 2 digits
+#define ESP_ADMIN_PWD 176                // 21  bytes 20+1 = string  ; warning does not support multibyte char like chinese
+#define ESP_USER_PWD 197                 // 21  bytes 20+1 = string  ; warning does not support multibyte char like chinese
+#define ESP_AP_SSID 218                  // 33 bytes 32+1 = string  ; warning does not support multibyte char like chinese
+#define ESP_AP_PASSWORD 251              // 65 bytes 64 +1 = string ;warning does not support multibyte char like chinese
+#define ESP_AP_IP_VALUE 316              // 4  bytes xxx.xxx.xxx.xxx
+#define ESP_BOOT_DELAY 320               // 4  bytes = int
+#define ESP_WEBSOCKET_PORT 324           // 4  bytes= int
+#define ESP_HTTP_ON 328                  // 1 byte = flag
+#define ESP_TELNET_ON 329                // 1 byte = flag
+#define ESP_WEBSOCKET_ON 330             // 1 byte = flag
+#define ESP_SD_SPEED_DIV 331             // 1 byte = flag
+#define ESP_NOTIFICATION_TOKEN1 332      // 256 bytes 255+1 = string  ; warning does not support multibyte char like chinese
+#define ESP_NOTIFICATION_TOKEN2 588      // 64 bytes 63+1 = string  ; warning does not support multibyte char like chinese
+#define ESP_SENSOR_TYPE 652              // 1  bytes = flag
+#define ESP_TARGET_FW 653                // 1  bytes = flag
+#define ESP_FREE 654                     // 1  bytes = flag
+// #define FREE 655                      // 1  bytes = flag
+#define ESP_TIME_SERVER1 656             // 129 bytes 128+1 = string  ; warning does not support multibyte char like chinese
+#define ESP_TIME_SERVER2 785             // 129 bytes 128+1 = string  ; warning does not support multibyte char like chinese
+#define ESP_TIME_SERVER3 914             // 129 bytes 128+1 = string  ; warning does not support multibyte char like chinese
+// #define FREE 1043                     // 1  bytes = flag
+#define ESP_SD_MOUNT 1044                // 1  bytes = flag
+#define ESP_SESSION_TIMEOUT 1045         // 1  bytes = flag
+// #define FREE 1046                     // 1  bytes = flag
+#define ESP_SD_CHECK_UPDATE_AT_BOOT 1047 // 1  bytes = flag
+#define ESP_NOTIFICATION_SETTINGS 1048   // 129 bytes 128+1 = string  ; warning does not support multibyte char like chinese
+#define ESP_CALIBRATION_1 1177           // 4  bytes = int
+#define ESP_CALIBRATION_2 1181           // 4  bytes = int
+#define ESP_CALIBRATION_3 1185           // 4  bytes = int
+#define ESP_CALIBRATION_4 1189           // 4  bytes = int
+#define ESP_CALIBRATION_5 1193           // 4  bytes = int
+#define ESP_SETUP 1197                   // 1 byte = flag
+// #define FREE 1198                     // 1 byte = flag
+// #define FREE 1199                     // 1 byte = flag
+// #define FREE 1200                     // 1 byte = flag
+#define ESP_FTP_CTRL_PORT 1201           // 4  bytes = int
+#define ESP_FTP_DATA_ACTIVE_PORT 1205    // 4  bytes = int
+#define ESP_FTP_DATA_PASSIVE_PORT 1209   // 4  bytes = int
+#define ESP_FTP_ON 1213                  // 1 byte = flag
+#define ESP_AUTO_NOTIFICATION 1214       // 1 byte = flag
+#define ESP_VERBOSE_BOOT 1215            // 1 byte = flag
+#define ESP_WEBDAV_ON 1216               // 1 byte = flag
+#define ESP_WEBDAV_PORT 1217             // 4  bytes= int
+#define ESP_STA_DNS_VALUE 1221           // 4  bytes= int
+#define ESP_SECURE_SERIAL 1225           // 1 byte = flag
+#define ESP_BOOT_RADIO_STATE 1226        // 1 byte = flag
+#define ESP_STA_FALLBACK_MODE 1227       // 1 byte = flag
+#define ESP_SERIAL_BRIDGE_ON 1228        // 1 byte = flag
+// #define FREE 1229                     // 1 byte = flag
+#define ESP_SERIAL_BRIDGE_BAUD 1230      // 4  bytes= int
+#define ESP_TIME_ZONE 1234               // 7 bytes 6+1 = string
 
 // Hidden password
 #define HIDDEN_PASSWORD "********"
@@ -247,6 +221,7 @@ typedef uint ESP3DSettingIndex;
 #define ESP_LINE_NOTIFICATION 3
 #define ESP_TELEGRAM_NOTIFICATION 4
 #define ESP_IFTTT_NOTIFICATION 5
+#define ESP_HOMEASSISTANT_NOTIFICATION 6
 
 // SENSOR
 #define NO_SENSOR_DEVICE 0

@@ -662,7 +662,7 @@ void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
       ESP600(cmd_params_pos, msg);
       break;
       // Set/Get Notification settings
-      //[ESP610]type=<NONE/PUSHOVER/EMAIL/LINE> T1=<token1> T2=<token2>
+      //[ESP610]type=<NONE/PUSHOVER/EMAIL/LINE/HOMEASSISTANT> T1=<token1> T2=<token2>
       // TS=<Settings> pwd=<admin password> Get will give type and settings only
       // not the protected T1/T2
     case 610:

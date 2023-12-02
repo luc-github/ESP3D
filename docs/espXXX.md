@@ -1631,6 +1631,7 @@ Passwords are not displayed and replaced by `********`
 {"line":"3"},
 {"telegram":"4"},
 {"IFTTT":"5"}]},
+{"HomeAssistant":"6"}]},
 {"F":"service/notification","P":"332","T":"S","R":"1","V":"********","S":"63","H":"t1","M":"0"},
 {"F":"service/notification","P":"396","T":"S","R":"1","V":"********","S":"63","H":"t2","M":"0"},
 {"F":"service/notification","P":"856","T":"S","R":"1","V":" ","S":"128","H":"ts","M":"0"},
@@ -2275,6 +2276,7 @@ can be in JSON or plain text
     - LINE
     - TELEGRAM
     - IFTTT (by webhook)
+    - HomeAssistant (via webhook)
 
 * T1
    * if T1 is not empty, it will set the token1 which depend on [type of notification](https://esp3d.io/esp3d/v3.x/documentation/notifications/index.html) 

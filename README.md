@@ -53,6 +53,7 @@ Please use discord : [![discord](https://img.shields.io/discord/7528221487955969
 - Pushover support come from https://github.com/ArduinoHannover/Pushover
 - Email support come from https://github.com/CosmicBoris/ESP8266SMTP and https://www.electronicshub.org/send-an-email-using-esp8266/
 - Telegram support come from https://medium.com/@xabaras/sending-a-message-to-a-telegram-channel-the-easy-way-eb0a0b32968
+- HomeAssistant support come from https://developers.home-assistant.io/docs/api/rest/
 
 # Credits: libraries
 

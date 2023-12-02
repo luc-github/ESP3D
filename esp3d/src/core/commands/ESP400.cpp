@@ -97,9 +97,9 @@ const char* FirmwareLabels[] = {"Unknown", "Grbl", "Marlin", "Smoothieware",
 const char* FirmwareValues[] = {"0", "10", "20", "40", "50"};
 #ifdef NOTIFICATION_FEATURE
 const char* NotificationsLabels[] = {"none", "pushover", "email",
-                                     "line", "telegram", "ifttt"};
+                                     "line", "telegram", "ifttt", "home-assistant"};
 
-const char* NotificationsValues[] = {"0", "1", "2", "3", "4", "5"};
+const char* NotificationsValues[] = {"0", "1", "2", "3", "4", "5", "6"};
 #endif  // NOTIFICATION_FEATURE
 
 const char* IpModeLabels[] = {"static", "dhcp"};

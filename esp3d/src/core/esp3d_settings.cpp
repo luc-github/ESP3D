@@ -931,7 +931,8 @@ bool ESP3DSettings::isValidByteSetting(uint8_t value,
       if (value == ESP_NO_NOTIFICATION || value == ESP_PUSHOVER_NOTIFICATION ||
           value == ESP_EMAIL_NOTIFICATION || value == ESP_LINE_NOTIFICATION ||
           value == ESP_TELEGRAM_NOTIFICATION ||
-          value == ESP_IFTTT_NOTIFICATION) {
+          value == ESP_IFTTT_NOTIFICATION ||
+          value == ESP_HOMEASSISTANT_NOTIFICATION) {
         return true;
       }
 
@@ -1248,6 +1249,8 @@ const ESP3DSettingDescription *ESP3DSettings::getSettingPtr(
                           // like chinese chars
       break;
     case ESP_NOTIFICATION_TOKEN1:
+      setting.size = 255;  // 255 bytes
+      break;
     case ESP_NOTIFICATION_TOKEN2:
       setting.size = 63;  // 63 bytes
       break;
