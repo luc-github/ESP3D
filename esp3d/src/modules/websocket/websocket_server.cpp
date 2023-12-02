@@ -20,7 +20,8 @@
 
 #include "../../include/esp3d_config.h"
 
-#if defined(HTTP_FEATURE) || defined(WS_DATA_FEATURE)
+#if defined(HTTP_FEATURE) || defined(WS_DATA_FEATURE) || \
+    (defined(ESP_LOG_FEATURE) && ESP_LOG_FEATURE == LOG_OUTPUT_WEBSOCKET)
 
 #include <WebSocketsServer.h>
 

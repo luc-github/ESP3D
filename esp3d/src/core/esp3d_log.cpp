@@ -69,7 +69,7 @@ void esp3d_logf(uint8_t level, const char* format, ...) {
   if (!LOG_OUTPUT_SERIAL.availableForWrite()) return;
 #endif  // ((ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL0) || (ESP_...
 #if ESP_LOG_FEATURE == LOG_OUTPUT_TELNET
-  if (!telnet_log.started() || telnet_log.connected()) {
+  if (!telnet_log.started() || !telnet_log.isConnected()) {
     return;
   }
 #endif  // ESP_LOG_FEATURE == LOG_OUTPUT_TELNET
@@ -133,10 +133,8 @@ void esp3d_log_init() {
 #endif  // ESP_LOG_RX_PIN != -1
 #endif  // ARDUINO_ARCH_ESP8266
 #if defined(ARDUINO_ARCH_ESP32)
-
           LOG_OUTPUT_SERIAL.begin(LOG_ESP3D_BAUDRATE, SERIAL_8N1,
                                   ESP_LOG_RX_PIN, ESP_LOG_TX_PIN);
-
 #endif  // ARDUINO_ARCH_ESP32
 
 #endif  // (ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL0) || (ESP_LOG_FEATURE ==
@@ -148,7 +146,7 @@ void esp3d_network_log_init() {
   telnet_log.begin(LOG_ESP3D_OUTPUT_PORT, true);
 #endif  // ESP_LOG_FEATURE == LOG_OUTPUT_TELNET
 #if ESP_LOG_FEATURE == LOG_OUTPUT_WEBSOCKET
-  websocket_log.begin(LOG_ESP3D_OUTPUT_PORT, true);
+  websocket_log.begin(LOG_ESP3D_OUTPUT_PORT);
 #endif  // ESP_LOG_FEATURE == LOG_OUTPUT_WEBSOCKET
 }
 void esp3d_network_log_handle() {

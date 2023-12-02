@@ -20,7 +20,8 @@
 
 #include "../../include/esp3d_config.h"
 
-#if defined(TELNET_FEATURE)
+#if defined(TELNET_FEATURE) || \
+    (defined(ESP_LOG_FEATURE) && ESP_LOG_FEATURE == LOG_OUTPUT_TELNET)
 #include <WiFiClient.h>
 #include <WiFiServer.h>
 
