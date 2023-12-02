@@ -1249,7 +1249,7 @@ const ESP3DSettingDescription *ESP3DSettings::getSettingPtr(
                           // like chinese chars
       break;
     case ESP_NOTIFICATION_TOKEN1:
-      setting.size = 255;  // 255 bytes
+      setting.size = 250;  // 250 bytes
       break;
     case ESP_NOTIFICATION_TOKEN2:
       setting.size = 63;  // 63 bytes
