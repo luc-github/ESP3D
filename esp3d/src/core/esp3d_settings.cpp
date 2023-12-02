@@ -160,7 +160,7 @@
 #define DEFAULT_TIME_SERVER2 "time.google.com"
 #define DEFAULT_TIME_SERVER3 "0.pool.ntp.org"
 
-#define DEFAULT_SETTINGS_VERSION "ESP3D30"
+#define DEFAULT_SETTINGS_VERSION "ESP3D31"
 
 // default IP values
 #define DEFAULT_STA_IP_VALUE "192.168.0.254"
