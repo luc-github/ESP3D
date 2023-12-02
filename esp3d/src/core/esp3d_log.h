@@ -23,8 +23,7 @@
 #include "../include/esp3d_config.h"
 #include "../include/esp3d_defines.h"
 
-extern void esp3d_logf(uint8_t level, const char* file_name, uint line_number,
-                       const char* function_name, const char* format, ...);
+extern void esp3d_logf(uint8_t level, const char* format, ...);
 extern void esp3d_network_log_init();
 extern void esp3d_network_log_handle();
 extern void esp3d_network_log_end();
@@ -36,25 +35,30 @@ extern void esp3d_log_init();
 #endif  // ESP3D_DEBUG_LEVEL
 
 #if ESP3D_DEBUG_LEVEL >= LOG_LEVEL_VERBOSE
-#define esp3d_log(format, ...)                                    \
-  esp3d_logf(LOG_LEVEL_VERBOSE, __FILE__, __LINE__, __FUNCTION__, \
-             "[ESP3D-VERBOSE][%s:%u] %s(): " format "\r\n", ##__VA_ARGS__)
+#if defined(ARDUINO_ARCH_ESP8266)
+// no need with latest esp8266 core
+#define pathToFileName(p) p
+#endif  // ARDUINO_ARCH_ESP8266
+
+#define esp3d_log(format, ...)                                                 \
+  esp3d_logf(LOG_LEVEL_VERBOSE, "[ESP3D-VERBOSE][%s:%u] %s(): " format "\r\n", \
+             pathToFileName(__FILE__), __LINE__, __FUNCTION__, ##__VA_ARGS__)
 #else
 #define esp3d_log(format, ...)
 #endif  // ESP3D_DEBUG_LEVEL>= LOG_LEVEL_VERBOSE
 
 #if ESP3D_DEBUG_LEVEL >= LOG_LEVEL_DEBUG
-#define esp3d_log_d(format, ...)                                \
-  esp3d_logf(LOG_LEVEL_DEBUG, __FILE__, __LINE__, __FUNCTION__, \
-             "[ESP3D-DEBUG][%s:%u] %s(): " format "\r\n", ##__VA_ARGS__)
+#define esp3d_log_d(format, ...)                                           \
+  esp3d_logf(LOG_LEVEL_DEBUG, "[ESP3D-DEBUG][%s:%u] %s(): " format "\r\n", \
+             pathToFileName(__FILE__), __LINE__, __FUNCTION__, ##__VA_ARGS__)
 #else
 #define esp3d_log_d(format, ...)
 #endif  // ESP3D_DEBUG_LEVEL>= LOG_LEVEL_DEBUG
 
 #if ESP3D_DEBUG_LEVEL >= LOG_LEVEL_ERROR
-#define esp3d_log_e(format, ...)                                \
-  esp3d_logf(LOG_LEVEL_ERROR, __FILE__, __LINE__, __FUNCTION__, \
-             "[ESP3D-ERROR][%s:%u] %s(): " format "\r\n", ##__VA_ARGS__)
+#define esp3d_log_e(format, ...)                                           \
+  esp3d_logf(LOG_LEVEL_ERROR, "[ESP3D-ERROR][%s:%u] %s(): " format "\r\n", \
+             pathToFileName(__FILE__), __LINE__, __FUNCTION__, ##__VA_ARGS__)
 #define ESP3D_LOG_INIT_FN esp3d_log_init();
 #define ESP3D_LOG_NETWORK_INIT_FN esp3d_network_log_init();
 #define ESP3D_LOG_NETWORK_HANDLE_FN esp3d_network_log_handle();

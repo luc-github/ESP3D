@@ -61,8 +61,7 @@ WebSocket_Server websocket_log("log");
 #endif  // ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL0 || ESP_LOG_FEATURE ==
         // LOG_OUTPUT_SERIAL1 || ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL2
 
-void esp3d_logf(uint8_t level, const char* file_name, uint line_number,
-                const char* function_name, const char* format, ...) {
+void esp3d_logf(uint8_t level, const char* format, ...) {
 #if (((ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL0) ||  \
       (ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL1) ||  \
       (ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL2)) && \
@@ -88,8 +87,7 @@ void esp3d_logf(uint8_t level, const char* file_name, uint line_number,
   va_start(arg, format);
   va_copy(copy, arg);
 
-  len = vsnprintf(NULL, 0, format, pathToFileName(file_name), line_number,
-                  function_name, arg);
+  len = vsnprintf(NULL, 0, format, arg);
 
   va_end(copy);
   if (len >= sizeof(default_buffer)) {
@@ -99,8 +97,7 @@ void esp3d_logf(uint8_t level, const char* file_name, uint line_number,
     }
   }
 
-  len = vsnprintf(buffer_ptr, len + 1, format, pathToFileName(file_name),
-                  line_number, function_name, arg);
+  len = vsnprintf(buffer_ptr, len + 1, format, arg);
 
 #if (((ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL0) ||  \
       (ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL1) ||  \
