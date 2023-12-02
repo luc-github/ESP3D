@@ -545,7 +545,7 @@ bool NotificationsService::sendHomeAssistantMSG(const char* title,
             "Content-Length: " + json.length() + "\r\n"
             "\r\n" + json;
 
-  esp3d_log_e("Query: %s", postcmd.c_str());
+  // esp3d_log("Query: %s", postcmd.c_str());
   // send query
   Notificationclient.print(postcmd);
   res = Wait4Answer(Notificationclient, "200 OK", "200 OK",
