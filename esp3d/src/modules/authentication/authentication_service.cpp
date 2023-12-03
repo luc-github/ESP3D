@@ -100,7 +100,7 @@ ESP3DAuthenticationLevel AuthenticationService::getAuthenticatedLevel(
 #else
   (void)pwd;
   (void)esp3dmsg;
-  return admin;
+  return ESP3DAuthenticationLevel::admin;
 #endif  // AUTHENTICATION_FEATURE
 }
 #ifdef AUTHENTICATION_FEATURE
@@ -342,7 +342,7 @@ ESP3DAuthenticationLevel AuthenticationService::ResetAuthIP(
       current = current->_next;
     }
   }
-  return guest;
+  return ESP3DAuthenticationLevel::guest;
 }
 #endif  // HTTP_FEATURE
 

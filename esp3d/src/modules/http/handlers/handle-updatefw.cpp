@@ -34,7 +34,7 @@ void HTTP_Server::handleUpdate() {
       AuthenticationService::getAuthenticatedLevel();
   HTTP_Server::set_http_headers();
 
-  if (auth_level != admin) {
+  if (auth_level != ESP3DAuthenticationLevel::admin) {
     _upload_status = UPLOAD_STATUS_NONE;
     _webserver->send(401, "text/plain", "Wrong authentication!");
     return;

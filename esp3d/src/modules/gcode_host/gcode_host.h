@@ -94,10 +94,10 @@ class GcodeHost {
     }
     return _fileName.c_str();
   }
-  bool processScript(const char* line,
-                     ESP3DAuthenticationLevel auth_type = admin);
-  bool processFile(const char* filename,
-                   ESP3DAuthenticationLevel auth_type = admin);
+  bool processScript(const char* line, ESP3DAuthenticationLevel auth_type =
+                                           ESP3DAuthenticationLevel::admin);
+  bool processFile(const char* filename, ESP3DAuthenticationLevel auth_type =
+                                             ESP3DAuthenticationLevel::admin);
   bool abort();
   bool pause();
   bool resume();

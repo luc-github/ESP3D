@@ -244,7 +244,7 @@ void HTTP_Server::SDFileupload() {
     if (fsUploadFile) {
       fsUploadFile.close();
     }
-    if (auth_level != guest) {
+    if (auth_level != ESP3DAuthenticationLevel::guest) {
       if (ESP_SD::exists(filename.c_str())) {
         ESP_SD::remove(filename.c_str());
       }

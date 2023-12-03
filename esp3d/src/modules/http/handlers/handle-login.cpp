@@ -96,7 +96,9 @@ void HTTP_Server::handle_login() {
           } else {  // new authentication
             String session = AuthenticationService::create_session_ID();
             if (AuthenticationService::CreateSession(
-                    (sUser == DEFAULT_ADMIN_LOGIN) ? admin : user,
+                    (sUser == DEFAULT_ADMIN_LOGIN)
+                        ? ESP3DAuthenticationLevel::admin
+                        : ESP3DAuthenticationLevel::user,
                     ESP3DClientType::http, session.c_str())) {
               AuthenticationService::ClearCurrentHttpSession();
               code = 200;
