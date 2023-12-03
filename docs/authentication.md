@@ -114,7 +114,7 @@ Here the scope of right for each authentication level:
 | ESP402 | No | No | Get | Get/Set |
 | ESP410 | No | No | Get | Get |
 | ESP420 | No | No | Get | Get |
-| ESP444 | No | No |  Set(only 444) | Set |
+| ESP444 | No | No |  Set(only RESTART) | Set |
 | ESP450 | No | No | Get | Get |
 | ESP500 | Get/Set | Get/Set | Get/Set | Get/Set |
 | ESP510 | No | No | Get | Get/Set |
