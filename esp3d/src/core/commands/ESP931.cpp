@@ -56,6 +56,12 @@ void ESP3DCommands::ESP931(int cmd_params_pos, ESP3DMessage* msg) {
       error_msg = "This setting is unknown";
     }
   } else {
+#if defined(AUTHENTICATION_FEATURE)
+    if (msg->authentication_level != ESP3DAuthenticationLevel::admin) {
+      dispatchAuthenticationError(msg, COMMAND_ID, json);
+      return;
+    }
+#endif  // AUTHENTICATION_FEATURE
     esp3d_log("got %s param for a value of %s, is valid %d", tmpstr.c_str(),
               tmpstr.c_str(),
               ESP3DSettings::isValidIntegerSetting(tmpstr.toInt(),

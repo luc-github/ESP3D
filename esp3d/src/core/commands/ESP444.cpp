@@ -56,6 +56,12 @@ void ESP3DCommands::ESP444(int cmd_params_pos, ESP3DMessage* msg) {
     esp3d_log_e("%s", error_msg.c_str());
   } else {
     if (isReset) {
+#if defined(AUTHENTICATION_FEATURE)
+      if (msg->authentication_level != ESP3DAuthenticationLevel::admin) {
+        dispatchAuthenticationError(msg, COMMAND_ID, json);
+        return;
+      }
+#endif  // AUTHENTICATION_FEATURE
       ok_msg += "Reset done";
     }
     if (isRestart) {

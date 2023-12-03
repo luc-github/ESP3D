@@ -62,6 +62,12 @@ void ESP3DCommands::ESP150(int cmd_params_pos, ESP3DMessage* msg) {
       ok_msg += "\"}";
     }
   } else {
+#if defined(AUTHENTICATION_FEATURE)
+    if (msg->authentication_level != ESP3DAuthenticationLevel::admin) {
+      dispatchAuthenticationError(msg, COMMAND_ID, json);
+      return;
+    }
+#endif  // AUTHENTICATION_FEATURE
     tmpstr = get_param(msg, cmd_params_pos, "delay=");
     if (tmpstr.length() != 0) {
       hasParam = true;

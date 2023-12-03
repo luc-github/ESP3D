@@ -54,6 +54,12 @@ void ESP3DCommands::ESP402(int cmd_params_pos, ESP3DMessage* msg) {
       ok_msg = "ON";
     }
   } else {
+#if defined(AUTHENTICATION_FEATURE)
+    if (msg->authentication_level != ESP3DAuthenticationLevel::admin) {
+      dispatchAuthenticationError(msg, COMMAND_ID, json);
+      return;
+    }
+#endif  // AUTHENTICATION_FEATURE
     if (tmpstr == "OFF" || tmpstr == "ON") {
       if (!ESP3DSettings::writeByte(ESP_SD_CHECK_UPDATE_AT_BOOT,
                                     tmpstr == "OFF" ? 0 : 1)) {

@@ -51,6 +51,12 @@ void ESP3DCommands::ESP106(int cmd_params_pos, ESP3DMessage* msg) {
     hasError = true;
     error_msg = "Password not displayable";
   } else {
+#if defined(AUTHENTICATION_FEATURE)
+    if (msg->authentication_level != ESP3DAuthenticationLevel::admin) {
+      dispatchAuthenticationError(msg, COMMAND_ID, json);
+      return;
+    }
+#endif  // AUTHENTICATION_FEATURE
     if (clearSetting) {
       esp3d_log("NOPASSWORD flag detected, set string to empty string");
       tmpstr = "";

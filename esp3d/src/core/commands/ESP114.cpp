@@ -56,6 +56,12 @@ void ESP3DCommands::ESP114(int cmd_params_pos, ESP3DMessage* msg) {
       ok_msg = "Unknown";
     }
   } else {
+#if defined(AUTHENTICATION_FEATURE)
+    if (msg->authentication_level != ESP3DAuthenticationLevel::admin) {
+      dispatchAuthenticationError(msg, COMMAND_ID, json);
+      return;
+    }
+#endif  // AUTHENTICATION_FEATURE
     if (tmpstr == "OFF") {
       byteValue = (uint8_t)ESP3DState::off;
     } else if (tmpstr == "ON") {

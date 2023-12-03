@@ -259,14 +259,25 @@ bool HTTP_Server::dispatch(ESP3DMessage* msg) {
     if (msg->type == ESP3DMessageType::head ||
         msg->type == ESP3DMessageType::unique) {
       set_http_headers();
+      int code = 200;
+      if (msg->request_id.code != 0) {
+        code = msg->request_id.code;
+      }
+#if defined(AUTHENTICATION_FEATURE)
+      if (msg->authentication_level ==
+          ESP3DAuthenticationLevel::not_authenticated) {
+        code = 401;
+      }
+#endif  // AUTHENTICATION_FEATURE
+      esp3d_log("Code is %d", code);
       if (msg->type == ESP3DMessageType::head) {
         _webserver->setContentLength(CONTENT_LENGTH_UNKNOWN);
         // in case of no request id set
-        _webserver->send(msg->request_id.code == 0 ? 200
-                                                   : msg->request_id.code);
+
+        _webserver->send(code);
         _webserver->sendContent((const char*)msg->data, msg->size);
       } else {  // unique
-        _webserver->send(msg->request_id.code, "text/plain", (char*)msg->data);
+        _webserver->send(code, "text/plain", (char*)msg->data);
       }
     } else {
       // core or tail

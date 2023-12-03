@@ -49,6 +49,12 @@ void ESP3DCommands::ESP115(int cmd_params_pos, ESP3DMessage* msg) {
 
   uint8_t current_radio_mode = NetConfig::getMode();
   if (tmpstr.length() == 0) {
+#if defined(AUTHENTICATION_FEATURE)
+    if (msg->authentication_level != ESP3DAuthenticationLevel::admin) {
+      dispatchAuthenticationError(msg, COMMAND_ID, json);
+      return;
+    }
+#endif  // AUTHENTICATION_FEATURE
     if (current_radio_mode == ESP_NO_NETWORK) {
       ok_msg = "OFF";
     } else {

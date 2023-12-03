@@ -52,7 +52,14 @@ void ESP3DCommands::ESP202(int cmd_params_pos, ESP3DMessage* msg) {
     uint8_t s = ESP3DSettings::readByte(ESP_SD_SPEED_DIV);
     esp3d_log("SD speed divider is %d", s);
     ok_msg = String(s);
-  } else {  // Set
+  } else {
+#if defined(AUTHENTICATION_FEATURE)
+    if (msg->authentication_level != ESP3DAuthenticationLevel::admin) {
+      dispatchAuthenticationError(msg, COMMAND_ID, json);
+      return;
+    }
+#endif  // AUTHENTICATION_FEATURE
+        // Set
     esp3d_log("Setting SD speed divider");
     uint8_t s = speed.toInt();
     if (ESP3DSettings::isValidByteSetting(s, ESP_SD_SPEED_DIV)) {

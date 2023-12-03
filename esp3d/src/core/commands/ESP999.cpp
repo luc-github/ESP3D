@@ -42,7 +42,7 @@ void ESP3DCommands::ESP999(int cmd_params_pos, ESP3DMessage* msg) {
   bool quietboot = hasTag(msg, cmd_params_pos, "QUIETBOOT");
   String tmpstr;
 #if defined(AUTHENTICATION_FEATURE)
-  if (msg->authentication_level == ESP3DAuthenticationLevel::guest) {
+  if (msg->authentication_level != ESP3DAuthenticationLevel::admin) {
     msg->authentication_level = ESP3DAuthenticationLevel::not_authenticated;
     dispatchAuthenticationError(msg, COMMAND_ID, json);
     return;

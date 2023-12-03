@@ -84,8 +84,14 @@ void ESP3DCommands::ESP103(int cmd_params_pos, ESP3DMessage* msg) {
     ok_msg += ESP3DSettings::readIPString(ESP_STA_DNS_VALUE);
     if (json) {
       ok_msg += "\"}";
-    } 
+    }
   } else {
+#if defined(AUTHENTICATION_FEATURE)
+    if (msg->authentication_level != ESP3DAuthenticationLevel::admin) {
+      dispatchAuthenticationError(msg, COMMAND_ID, json);
+      return;
+    }
+#endif  // AUTHENTICATION_FEATURE
     bool hasParam = false;
     for (uint8_t i = 0; i < cmdListSize; i++) {
       tmpstr = get_param(msg, cmd_params_pos, cmdList[i]);

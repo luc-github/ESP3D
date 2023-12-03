@@ -75,6 +75,12 @@ void ESP3DCommands::ESP181(int cmd_params_pos, ESP3DMessage* msg) {
     }
 
   } else {
+#if defined(AUTHENTICATION_FEATURE)
+    if (msg->authentication_level != ESP3DAuthenticationLevel::admin) {
+      dispatchAuthenticationError(msg, COMMAND_ID, json);
+      return;
+    }
+#endif  // AUTHENTICATION_FEATURE
     tmpstr = get_param(msg, cmd_params_pos, "ctrl=");
     if (tmpstr.length() > 0) {
       has_param = true;

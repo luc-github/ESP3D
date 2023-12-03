@@ -50,6 +50,12 @@ void ESP3DCommands::ESP107(int cmd_params_pos, ESP3DMessage* msg) {
   if (tmpstr.length() == 0) {
     ok_msg = ESP3DSettings::readIPString(ESP_AP_IP_VALUE);
   } else {
+#if defined(AUTHENTICATION_FEATURE)
+    if (msg->authentication_level != ESP3DAuthenticationLevel::admin) {
+      dispatchAuthenticationError(msg, COMMAND_ID, json);
+      return;
+    }
+#endif  // AUTHENTICATION_FEATURE
     if (ESP3DSettings::isValidIPStringSetting(tmpstr.c_str(),
                                               ESP_AP_IP_VALUE)) {
       esp3d_log("Value %s is valid", tmpstr.c_str());

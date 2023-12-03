@@ -50,6 +50,12 @@ void ESP3DCommands::ESP131(int cmd_params_pos, ESP3DMessage* msg) {
     intValue = ESP3DSettings::readUint32(ESP_TELNET_PORT);
     ok_msg = String(intValue);
   } else {
+#if defined(AUTHENTICATION_FEATURE)
+    if (msg->authentication_level != ESP3DAuthenticationLevel::admin) {
+      dispatchAuthenticationError(msg, COMMAND_ID, json);
+      return;
+    }
+#endif  // AUTHENTICATION_FEATURE
     intValue = atoi(tmpstr.c_str());
     esp3d_log("got %s param for a value of %ld, is valid %d", tmpstr.c_str(),
               intValue,

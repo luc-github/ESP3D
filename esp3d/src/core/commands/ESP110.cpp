@@ -69,6 +69,12 @@ void ESP3DCommands::ESP110(int cmd_params_pos, ESP3DMessage* msg) {
         ok_msg = "Unknown";
       }
   } else {
+#if defined(AUTHENTICATION_FEATURE)
+    if (msg->authentication_level != ESP3DAuthenticationLevel::admin) {
+      dispatchAuthenticationError(msg, COMMAND_ID, json);
+      return;
+    }
+#endif  // AUTHENTICATION_FEATURE
     tmpstr.toUpperCase();
     if (tmpstr == "BT") {
       byteValue = ESP_BT;

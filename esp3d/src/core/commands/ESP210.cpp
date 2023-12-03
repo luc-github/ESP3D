@@ -76,7 +76,14 @@ void ESP3DCommands::ESP210(int cmd_params_pos, ESP3DMessage* msg) {
       s += "}";
     }
     ok_msg = s;
-  } else {  // Set
+  } else {
+#if defined(AUTHENTICATION_FEATURE)
+    if (msg->authentication_level != ESP3DAuthenticationLevel::admin) {
+      dispatchAuthenticationError(msg, COMMAND_ID, json);
+      return;
+    }
+#endif  // AUTHENTICATION_FEATURE
+    // Set
     if (stype.length() != 0) {
       stype.toUpperCase();
       int8_t v = -1;

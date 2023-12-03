@@ -76,6 +76,12 @@ void ESP3DCommands::ESP610(int cmd_params_pos, ESP3DMessage* msg) {
       ok_msg += "\"}";
     }
   } else {
+#if defined(AUTHENTICATION_FEATURE)
+    if (msg->authentication_level != ESP3DAuthenticationLevel::admin) {
+      dispatchAuthenticationError(msg, COMMAND_ID, json);
+      return;
+    }
+#endif  // AUTHENTICATION_FEATURE
     bool hasParam = false;
     for (uint8_t i = 0; i < cmdListSize; i++) {
       bool isPresent = false;

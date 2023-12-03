@@ -51,6 +51,12 @@ void ESP3DCommands::ESP108(int cmd_params_pos, ESP3DMessage* msg) {
     byteValue = ESP3DSettings::readByte(ESP_AP_CHANNEL);
     ok_msg = String(byteValue);
   } else {
+#if defined(AUTHENTICATION_FEATURE)
+    if (msg->authentication_level != ESP3DAuthenticationLevel::admin) {
+      dispatchAuthenticationError(msg, COMMAND_ID, json);
+      return;
+    }
+#endif  // AUTHENTICATION_FEATURE
     byteValue = atoi(tmpstr.c_str());
     esp3d_log("got %s param for a value of %d, is valid %d", tmpstr.c_str(),
               byteValue,

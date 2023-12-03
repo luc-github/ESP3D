@@ -958,12 +958,11 @@ bool ESP3DCommands::dispatchAuthenticationError(ESP3DMessage *msg, uint cmdid,
   if (!msg) {
     return false;
   }
-  msg->authentication_level = ESP3DAuthenticationLevel::not_authenticated;
-#if ESP3D_HTTP_FEATURE
-  if (msg->target == ESP3DClientType::webui && msg->request_id.http_request) {
-    httpd_resp_set_status(msg->request_id.http_request, "401 UNAUTHORIZED");
+#if defined(HTTP_FEATURE) && defined(AUTHENTICATION_FEATURE)
+  if (msg->target == ESP3DClientType::http ) {
+     msg->authentication_level = ESP3DAuthenticationLevel::not_authenticated;
   }
-#endif  // ESP3D_HTTP_FEATURE
+#endif  // HTTP_FEATURE
   // answer is one message, override for safety
   msg->type = ESP3DMessageType::unique;
   if (json) {

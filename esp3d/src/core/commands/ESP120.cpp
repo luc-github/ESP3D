@@ -54,6 +54,12 @@ void ESP3DCommands::ESP120(int cmd_params_pos, ESP3DMessage* msg) {
       ok_msg = "ON";
     }
   } else {
+#if defined(AUTHENTICATION_FEATURE)
+    if (msg->authentication_level != ESP3DAuthenticationLevel::admin) {
+      dispatchAuthenticationError(msg, COMMAND_ID, json);
+      return;
+    }
+#endif  // AUTHENTICATION_FEATURE
     if (tmpstr == "OFF" || tmpstr == "ON") {
       if (!ESP3DSettings::writeByte(ESP_HTTP_ON, tmpstr == "OFF" ? 0 : 1)) {
         hasError = true;

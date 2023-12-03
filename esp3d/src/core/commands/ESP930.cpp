@@ -57,6 +57,12 @@ void ESP3DCommands::ESP930(int cmd_params_pos, ESP3DMessage* msg) {
     }
     ok_msg += " - Serial" + String(serial_bridge_service.serialIndex());
   } else {
+#if defined(AUTHENTICATION_FEATURE)
+    if (msg->authentication_level != ESP3DAuthenticationLevel::admin) {
+      dispatchAuthenticationError(msg, COMMAND_ID, json);
+      return;
+    }
+#endif  // AUTHENTICATION_FEATURE
     if (enabled || disabled || close) {
       if (disabled || enabled) {
         if (!ESP3DSettings::writeByte(ESP_SERIAL_BRIDGE_ON,
