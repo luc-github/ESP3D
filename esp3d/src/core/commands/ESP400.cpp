@@ -403,7 +403,7 @@ void ESP3DCommands::ESP400(int cmd_params_pos, ESP3DMessage* msg) {
 
   // Token 1
   dispatchSetting(json, "service/notification", ESP_NOTIFICATION_TOKEN1, "t1",
-                  nullptr, nullptr, 63, 0, -1, -1, nullptr, true, target,
+                  nullptr, nullptr, 250, 0, -1, -1, nullptr, true, target,
                   requestId);
 
   // Token 2
