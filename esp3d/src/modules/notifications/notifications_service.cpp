@@ -512,17 +512,7 @@ bool NotificationsService::sendIFTTTMSG(const char* title,
 // Home Assistant
 bool NotificationsService::sendHomeAssistantMSG(const char* title,
                                         const char* message) {
-  String data;
-  String postcmd;
-  bool res;
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
   WiFiClient Notificationclient;
-#pragma GCC diagnostic pop
-  // Notificationclient.setInsecure();
-#if defined(ARDUINO_ARCH_ESP8266)
-  // BearSSLSetup(Notificationclient);
-#endif  // ARDUINO_ARCH_ESP8266
   (void)title;
   if (!Notificationclient.connect(_serveraddress.c_str(), _port)) {
     esp3d_log_e("Error connecting  server %s:%d", _serveraddress.c_str(),
@@ -535,7 +525,7 @@ bool NotificationsService::sendHomeAssistantMSG(const char* title,
   String path = tmp.substring(0, pos);
   String json = tmp.substring(pos + 1);
   // build post query
-  postcmd = "POST " + path + "  HTTP/1.1\r\n"
+  String postcmd = "POST " + path + "  HTTP/1.1\r\n"
             "Host: " + _serveraddress.c_str() + "\r\n"
             "Connection: close\r\n"
             "Cache-Control: no-cache\r\n"
@@ -549,8 +539,7 @@ bool NotificationsService::sendHomeAssistantMSG(const char* title,
   // esp3d_log("Query: %s", postcmd.c_str());
   // send query
   Notificationclient.print(postcmd);
-  res = Wait4Answer(Notificationclient, "200 OK", "200 OK",
-                    HOMEASSISTANTTIMEOUT);
+  bool res = Wait4Answer(Notificationclient, "200 OK", "200 OK", HOMEASSISTANTTIMEOUT);
   Notificationclient.stop();
   return res;
 }
