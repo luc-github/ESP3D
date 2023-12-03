@@ -60,7 +60,8 @@ class NotificationsService {
   bool getPortFromSettings();
   bool getServerAddressFromSettings();
   bool getEmailFromSettings();
-  bool Wait4Answer(WiFiClient& client, const char* linetrigger,
+  template<typename T>
+  bool Wait4Answer(T& client, const char* linetrigger,
                    const char* expected_answer, uint32_t timeout);
 };
 

@@ -101,7 +101,8 @@ void NotificationsService::BearSSLSetup(WiFiClientSecure& Notificationclient) {
 #endif  // ARDUINO_ARCH_ESP8266
 
 // TODO: put error in variable to allow better error handling
-bool NotificationsService::Wait4Answer(WiFiClient& client,
+template<typename T>
+bool NotificationsService::Wait4Answer(T& client,
                                        const char* linetrigger,
                                        const char* expected_answer,
                                        uint32_t timeout) {
