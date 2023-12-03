@@ -53,7 +53,7 @@
 #include "../modules/serial/serial_service.h"
 
 // Current Settings Version
-#define CURRENT_SETTINGS_VERSION "ESP3D04"
+#define CURRENT_SETTINGS_VERSION "ESP3D05"
 
 // boundaries
 #define MAX_SENSOR_INTERVAL 60000
@@ -65,7 +65,7 @@
 #define MIN_BOOT_DELAY 0
 #define MIN_NOTIFICATION_TOKEN_LENGTH 0
 #define MIN_NOTIFICATION_SETTINGS_LENGTH 0
-#define MAX_NOTIFICATION_TOKEN_LENGTH 63
+#define MAX_NOTIFICATION_TOKEN_LENGTH 250
 #define MAX_NOTIFICATION_SETTINGS_LENGTH 128
 #define MAX_SERVER_ADDRESS_LENGTH 128
 #define MAX_TIME_ZONE_LENGTH 6
@@ -160,7 +160,7 @@
 #define DEFAULT_TIME_SERVER2 "time.google.com"
 #define DEFAULT_TIME_SERVER3 "0.pool.ntp.org"
 
-#define DEFAULT_SETTINGS_VERSION "ESP3D30"
+#define DEFAULT_SETTINGS_VERSION "ESP3D31"
 
 // default IP values
 #define DEFAULT_STA_IP_VALUE "192.168.0.254"
@@ -403,7 +403,7 @@ const char *ESP3DSettings::readString(int pos, bool *haserror) {
     esp3d_log_e("Error unknow entry %d", pos);
     return "";
   }
-  uint8_t size_max = query->size;
+  size_t size_max = query->size;
 
 #if ESP_SAVE_SETTINGS == SETTINGS_IN_EEPROM
   static char *byte_buffer = NULL;
@@ -476,13 +476,13 @@ const char *ESP3DSettings::readString(int pos, bool *haserror) {
 
 // write a string (array of byte with a 0x00  at the end)
 bool ESP3DSettings::writeString(int pos, const char *byte_buffer) {
-  int size_buffer = strlen(byte_buffer);
+  size_t size_buffer = strlen(byte_buffer);
   const ESP3DSettingDescription *query = getSettingPtr(pos);
   if (!query) {
     esp3d_log_e("Error unknow entry %d", pos);
     return false;
   }
-  uint8_t size_max = query->size;
+  size_t size_max = query->size;
 
   // check if parameters are acceptable
   if (size_max == 0) {
@@ -775,7 +775,7 @@ bool ESP3DSettings::isValidStringSetting(const char *value,
     return false;
   }
   // only printable char allowed
-  for (uint i = 0; i < strlen(value); i++) {
+  for (size_t i = 0; i < strlen(value); i++) {
     if (!isPrintable(value[i])) {
       return false;
     }
@@ -786,7 +786,7 @@ bool ESP3DSettings::isValidStringSetting(const char *value,
       break;
     case ESP_HOSTNAME:
       // only letter and digit
-      for (uint i = 0; i < strlen(value); i++) {
+      for (size_t i = 0; i < strlen(value); i++) {
         char c = value[i];
         if (!(isdigit(c) || isalpha(c) || c == '-')) {
           return false;
@@ -803,7 +803,7 @@ bool ESP3DSettings::isValidStringSetting(const char *value,
       break;
     case ESP_ADMIN_PWD:
     case ESP_USER_PWD:
-      for (uint i = 0; i < strlen(value); i++) {
+      for (size_t i = 0; i < strlen(value); i++) {
         if (value[i] == ' ') {  // no space allowed
           return false;
         }
@@ -931,7 +931,8 @@ bool ESP3DSettings::isValidByteSetting(uint8_t value,
       if (value == ESP_NO_NOTIFICATION || value == ESP_PUSHOVER_NOTIFICATION ||
           value == ESP_EMAIL_NOTIFICATION || value == ESP_LINE_NOTIFICATION ||
           value == ESP_TELEGRAM_NOTIFICATION ||
-          value == ESP_IFTTT_NOTIFICATION) {
+          value == ESP_IFTTT_NOTIFICATION ||
+          value == ESP_HOMEASSISTANT_NOTIFICATION) {
         return true;
       }
 
@@ -1248,6 +1249,8 @@ const ESP3DSettingDescription *ESP3DSettings::getSettingPtr(
                           // like chinese chars
       break;
     case ESP_NOTIFICATION_TOKEN1:
+      setting.size = 250;  // 250 bytes
+      break;
     case ESP_NOTIFICATION_TOKEN2:
       setting.size = 63;  // 63 bytes
       break;

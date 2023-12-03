@@ -56,10 +56,12 @@ class NotificationsService {
   bool sendLineMSG(const char* title, const char* message);
   bool sendTelegramMSG(const char* title, const char* message);
   bool sendIFTTTMSG(const char* title, const char* message);
+  bool sendHomeAssistantMSG(const char* title, const char* message);
   bool getPortFromSettings();
   bool getServerAddressFromSettings();
   bool getEmailFromSettings();
-  bool Wait4Answer(WiFiClientSecure& client, const char* linetrigger,
+  template<typename T>
+  bool Wait4Answer(T& client, const char* linetrigger,
                    const char* expected_answer, uint32_t timeout);
 };
 
