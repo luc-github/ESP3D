@@ -191,16 +191,17 @@ bool NotificationsService::sendMSG(const char* title, const char* message) {
     return false;
   }
   if (!((strlen(title) == 0) && (strlen(message) == 0))) {
-    // push to webui by default
-#if defined(HTTP_FEATURE) || defined(WS_DATA_FEATURE)
-    String msg = "NOTIFICATION:";
-
-    msg += message;
-    websocket_terminal_server.pushMSG(msg.c_str());
-#endif  // HTTP_FEATURE || WS_DATA_FEATURE
-#ifdef DISPLAY_DEVICE
-    esp3d_display.setStatus(message);
-#endif  // DISPLAY_DEVICE
+    if (_notificationType != ESP_HOMEASSISTANT_NOTIFICATION) {
+      // push to webui by default
+      #if defined(HTTP_FEATURE) || defined(WS_DATA_FEATURE)
+          String msg = "NOTIFICATION:";
+          msg += message;
+          websocket_terminal_server.pushMSG(msg.c_str());
+      #endif  // HTTP_FEATURE || WS_DATA_FEATURE
+      #ifdef DISPLAY_DEVICE
+          esp3d_display.setStatus(message);
+      #endif  // DISPLAY_DEVICE
+    }
     switch (_notificationType) {
       case ESP_PUSHOVER_NOTIFICATION:
         return sendPushoverMSG(title, message);
