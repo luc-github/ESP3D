@@ -403,7 +403,7 @@ const char *ESP3DSettings::readString(int pos, bool *haserror) {
     esp3d_log_e("Error unknow entry %d", pos);
     return "";
   }
-  uint8_t size_max = query->size;
+  size_t size_max = query->size;
 
 #if ESP_SAVE_SETTINGS == SETTINGS_IN_EEPROM
   static char *byte_buffer = NULL;
@@ -476,13 +476,13 @@ const char *ESP3DSettings::readString(int pos, bool *haserror) {
 
 // write a string (array of byte with a 0x00  at the end)
 bool ESP3DSettings::writeString(int pos, const char *byte_buffer) {
-  int size_buffer = strlen(byte_buffer);
+  size_t size_buffer = strlen(byte_buffer);
   const ESP3DSettingDescription *query = getSettingPtr(pos);
   if (!query) {
     esp3d_log_e("Error unknow entry %d", pos);
     return false;
   }
-  uint8_t size_max = query->size;
+  size_t size_max = query->size;
 
   // check if parameters are acceptable
   if (size_max == 0) {
@@ -775,7 +775,7 @@ bool ESP3DSettings::isValidStringSetting(const char *value,
     return false;
   }
   // only printable char allowed
-  for (uint i = 0; i < strlen(value); i++) {
+  for (size_t i = 0; i < strlen(value); i++) {
     if (!isPrintable(value[i])) {
       return false;
     }
@@ -786,7 +786,7 @@ bool ESP3DSettings::isValidStringSetting(const char *value,
       break;
     case ESP_HOSTNAME:
       // only letter and digit
-      for (uint i = 0; i < strlen(value); i++) {
+      for (size_t i = 0; i < strlen(value); i++) {
         char c = value[i];
         if (!(isdigit(c) || isalpha(c) || c == '-')) {
           return false;
@@ -803,7 +803,7 @@ bool ESP3DSettings::isValidStringSetting(const char *value,
       break;
     case ESP_ADMIN_PWD:
     case ESP_USER_PWD:
-      for (uint i = 0; i < strlen(value); i++) {
+      for (size_t i = 0; i < strlen(value); i++) {
         if (value[i] == ' ') {  // no space allowed
           return false;
         }
