@@ -92,15 +92,23 @@ void ESP3DCommands::ESP401(int cmd_params_pos, ESP3DMessage* msg) {
             hasError = true;
             esp3d_log_e("Set failed");
           }
+        } else {
+          error_msg = "Invalid value for T";
+          hasError = true;
+          esp3d_log_e("Invalid value for T");
         }
         break;
       case 'I':  // Integer value
-        if (ESP3DSettings::isValidByteSetting(sval.toInt(), spos.toInt())) {
+        if (ESP3DSettings::isValidIntegerSetting(sval.toInt(), spos.toInt())) {
           if (!ESP3DSettings::writeUint32(spos.toInt(), sval.toInt())) {
             error_msg = "Set failed";
             hasError = true;
             esp3d_log_e("Set failed");
           }
+        } else {
+          error_msg = "Invalid value for T";
+          hasError = true;
+          esp3d_log_e("Invalid value for T");
         }
         break;
       case 'S':  // String value
@@ -110,6 +118,10 @@ void ESP3DCommands::ESP401(int cmd_params_pos, ESP3DMessage* msg) {
             hasError = true;
             esp3d_log_e("Set failed");
           }
+        } else {
+          error_msg = "Invalid value for T";
+          hasError = true;
+          esp3d_log_e("Invalid value for T");
         }
         break;
       case 'A':  // IP address
@@ -118,6 +130,10 @@ void ESP3DCommands::ESP401(int cmd_params_pos, ESP3DMessage* msg) {
             error_msg = "Set failed";
             hasError = true;
           }
+        } else {
+          error_msg = "Invalid value for T";
+          hasError = true;
+          esp3d_log_e("Invalid value for T");
         }
         break;
       default:
