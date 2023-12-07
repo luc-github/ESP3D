@@ -35,16 +35,20 @@ bool ESP3DMessageManager::deleteMsg(ESP3DMessage* message) {
   }
   free(message);
   message = NULL;
+#if defined(ESP_LOG_FEATURE)
   esp3d_log("Deletion : Now we have %ld msg", --msg_counting);
+#endif  // ESP_LOG_FEATURE
   return true;
 }
 
 ESP3DMessage* ESP3DMessageManager::newMsg() {
   ESP3DMessage* newMsgPtr = (ESP3DMessage*)malloc(sizeof(ESP3DMessage));
   if (newMsgPtr) {
+#if defined(ESP_LOG_FEATURE)
     esp3d_log("Creation : Now we have %ld msg", ++msg_counting);
-    // esp3d_log("Creation : Now we have %ld msg", ++msg_counting);
-    newMsgPtr->data = nullptr;
+    /
+#endif  // ESP_LOG_FEATURE
+        newMsgPtr->data = nullptr;
     newMsgPtr->size = 0;
     newMsgPtr->origin = ESP3DClientType::no_client;
     newMsgPtr->target = ESP3DClientType::all_clients;

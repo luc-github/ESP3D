@@ -22,7 +22,7 @@
 
 #include "../include/esp3d_config.h"
 #include "../include/esp3d_defines.h"
-
+#if defined(ESP_LOG_FEATURE)
 extern void esp3d_logf(uint8_t level, const char* format, ...);
 extern void esp3d_network_log_init();
 extern void esp3d_network_log_handle();
@@ -30,7 +30,7 @@ extern void esp3d_network_log_end();
 
 extern void esp3d_log_init();
 
-#ifndef ESP3D_DEBUG_LEVEL
+#if !defined(ESP3D_DEBUG_LEVEL)
 #define ESP3D_DEBUG_LEVEL LOG_LEVEL_NONE
 #endif  // ESP3D_DEBUG_LEVEL
 
@@ -65,8 +65,14 @@ extern void esp3d_log_init();
 #define ESP3D_LOG_NETWORK_END_FN esp3d_network_log_end();
 #else
 #define esp3d_log_e(format, ...)
+#endif  // ESP3D_DEBUG_LEVEL >= LOG_LEVEL_ERROR
+
+#else
+#define esp3d_log_e(format, ...)
+#define esp3d_log_d(format, ...)
+#define esp3d_log(format, ...)
 #define ESP3D_LOG_INIT_FN
 #define ESP3D_LOG_NETWORK_INIT_FN
 #define ESP3D_LOG_NETWORK_HANDLE_FN
 #define ESP3D_LOG_NETWORK_END_FN
-#endif  // ESP3D_DEBUG_LEVEL >= LOG_LEVEL_ERROR
+#endif  // ESP_LOG_FEATURE

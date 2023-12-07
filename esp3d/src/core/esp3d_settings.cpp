@@ -424,7 +424,7 @@ const char *ESP3DSettings::readString(int pos, bool *haserror) {
   }
   EEPROM.begin(EEPROM_SIZE);
   byte b = 1;  // non zero for the while loop below
-  int i = 0;
+  size_t i = 0;
 
   // read until max size is reached or \0 is found
   while (i < size_max && b != 0) {
@@ -500,7 +500,7 @@ bool ESP3DSettings::writeString(int pos, const char *byte_buffer) {
   }
   // copy the value(s)
   EEPROM.begin(EEPROM_SIZE);
-  for (int i = 0; i < size_buffer; i++) {
+  for (size_t i = 0; i < size_buffer; i++) {
     EEPROM.write(pos + i, byte_buffer[i]);
   }
   // 0 terminal
