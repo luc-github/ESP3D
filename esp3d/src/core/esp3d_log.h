@@ -33,13 +33,12 @@ extern void esp3d_log_init();
 #if !defined(ESP3D_DEBUG_LEVEL)
 #define ESP3D_DEBUG_LEVEL LOG_LEVEL_NONE
 #endif  // ESP3D_DEBUG_LEVEL
-
-#if ESP3D_DEBUG_LEVEL >= LOG_LEVEL_VERBOSE
 #if defined(ARDUINO_ARCH_ESP8266)
 // no need with latest esp8266 core
 #define pathToFileName(p) p
 #endif  // ARDUINO_ARCH_ESP8266
 
+#if ESP3D_DEBUG_LEVEL >= LOG_LEVEL_VERBOSE
 #define esp3d_log(format, ...)                                                 \
   esp3d_logf(LOG_LEVEL_VERBOSE, "[ESP3D-VERBOSE][%s:%u] %s(): " format "\r\n", \
              pathToFileName(__FILE__), __LINE__, __FUNCTION__, ##__VA_ARGS__)
@@ -71,6 +70,7 @@ extern void esp3d_log_init();
 #define esp3d_log_e(format, ...)
 #define esp3d_log_d(format, ...)
 #define esp3d_log(format, ...)
+#undef ESP3D_DEBUG_LEVEL
 #define ESP3D_LOG_INIT_FN
 #define ESP3D_LOG_NETWORK_INIT_FN
 #define ESP3D_LOG_NETWORK_HANDLE_FN
