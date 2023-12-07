@@ -64,6 +64,15 @@
 #error Serial 2 is not available in ESP8266
 #endif  // ESP_SERIAL_OUTPUT == USE_SERIAL_2 ) && ARDUINO_ARCH_ESP8266
 
+#if COMMUNICATION_PROTOCOL == MKS_SERIAL
+#if defined(PRINTER_HAS_DISPLAY)
+#error MKS serial protocol is not compatible with display output
+#endif  // defined(PRINTER_HAS_DISPLAY)
+#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
+#error MKS serial protocol is not compatible with serial bridge output
+#endif  // defined(ESP_SERIAL_BRIDGE_OUTPUT)
+#endif  // COMMUNICATION_PROTOCOL == MKS_SERIAL
+
 /**************************
  * Bluetooth
  * ***********************/
