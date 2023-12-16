@@ -167,7 +167,7 @@ void Serial_2_Socket::handle_flush() {
 void Serial_2_Socket::flush(void) {
   if (_TXbufferSize > 0 && _started && !_paused) {
     ESP3DMessage *msg = ESP3DMessageManager::newMsg(
-        ESP3DClientType::socket_serial, esp3d_commands.getOutputClient(),
+        ESP3DClientType::socket_serial,  ESP3DClientType::all_clients,
         _TXbuffer, _TXbufferSize, _auth);
     // dispatch command
     if (msg) {

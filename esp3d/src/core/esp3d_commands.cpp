@@ -1209,6 +1209,11 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
 #if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
     case ESP3DClientType::echo_serial:
       MYSERIAL1.write(msg->data, msg->size);
+      if (msg->type == ESP3DMessageType::unique || msg->type == ESP3DMessageType::tail) {
+       if (msg->data[msg->size-1]!='\n'){
+        MYSERIAL1.write('\n');
+       }
+      }
       ESP3DMessageManager::deleteMsg(msg);
       break;
 #endif  // COMMUNICATION_PROTOCOL == SOCKET_SERIAL
