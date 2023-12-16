@@ -230,15 +230,15 @@ bool ESP_SD::rename(const char* oldpath, const char* newpath) {
   return SD.rename(oldpath, newpath);
 }
 
-bool ESP_SD::format() {
+bool ESP_SD::format() { 
+  uint32_t const ERASE_SIZE = 262144L;
+  uint32_t cardSectorCount = 0;
+  uint8_t sectorBuffer[512];
+  // SdCardFactory constructs and initializes the appropriate card.
+  SdCardFactory cardFactory;
+  // Pointer to generic SD card.
+  SdCard* m_card = nullptr;
   if (ESP_SD::getState(true) == ESP_SDCARD_IDLE) {
-    uint32_t const ERASE_SIZE = 262144L;
-    uint32_t cardSectorCount = 0;
-    uint8_t sectorBuffer[512];
-    // SdCardFactory constructs and initializes the appropriate card.
-    SdCardFactory cardFactory;
-    // Pointer to generic SD card.
-    SdCard* m_card = nullptr;
     // prepare
     m_card = cardFactory.newCard(SD_CONFIG);
     if (!m_card || m_card->errorCode()) {
@@ -253,6 +253,9 @@ bool ESP_SD::format() {
     }
 
     esp3d_log("Capacity detected :%d GB", cardSectorCount * 5.12e-7);
+  } else {
+    esp3d_log_e("SD not ready");
+    return false;
   }
 
   uint32_t firstBlock = 0;
@@ -287,14 +290,11 @@ bool ESP_SD::format() {
                  : fatFormatter.format(m_card, sectorBuffer, nullptr);
 
   if (!rtn) {
-     esp3d_log_e(("erase failed");
+     esp3d_log_e("erase failed");
     return false;
   }
 
   return true;
-}
- esp3d_log_e(("cannot erase");
-return false;
 }
 
 ESP_SDFile ESP_SD::open(const char* path, uint8_t mode) {

@@ -19,7 +19,9 @@
 */
 
 #include "../include/esp3d_config.h"
+#ifndef STRINGIFY
 #define STRINGIFY(x) #x
+#endif  // STRINGIFY
 #define STRING(x) STRINGIFY(x)
 #if defined(ESP_SAVE_SETTINGS)
 #include "esp3d_message.h"
@@ -853,6 +855,7 @@ bool ESP3DSettings::isValidIntegerSetting(uint32_t value,
     return false;
   }
   switch (settingElement) {
+#if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
     case ESP_SERIAL_BRIDGE_BAUD:
     case ESP_BAUD_RATE:
       for (uint8_t i = 0; i < SupportedBaudListSize; i++) {
@@ -861,6 +864,7 @@ bool ESP3DSettings::isValidIntegerSetting(uint32_t value,
         }
       }
       break;
+#endif //#if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
     case ESP_WEBDAV_PORT:
     case ESP_HTTP_PORT:
     case ESP_TELNET_PORT:

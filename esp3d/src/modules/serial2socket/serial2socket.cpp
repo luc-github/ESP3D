@@ -23,7 +23,7 @@
 
 #if defined(ESP3DLIB_ENV) && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
 #include <Arduino.h>
-
+#include "../../core/esp3d_message.h"
 #include "../../core/esp3d_commands.h"
 #include "serial2socket.h"
 
