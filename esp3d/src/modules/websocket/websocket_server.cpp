@@ -77,6 +77,13 @@ bool WebSocket_Server::pushMSG(uint num, const char *data) {
   return false;
 }
 
+bool WebSocket_Server::isConnected(){
+  if (_websocket_server) {
+    return _websocket_server->connectedClients(true) > 0;
+  }
+  return false;
+}
+
 void WebSocket_Server::closeClients() {
   if (_websocket_server) {
     _websocket_server->disconnect();

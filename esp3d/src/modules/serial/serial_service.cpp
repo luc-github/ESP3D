@@ -287,6 +287,7 @@ void ESP3DSerialService::flushbuffer() {
         getAuthentication());
     if (message) {
       // process command
+      message->type = ESP3DMessageType::unique;
       esp3d_commands.process(message);
     } else {
       esp3d_log_e("Cannot create message");

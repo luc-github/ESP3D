@@ -527,7 +527,7 @@
 /* Enable authentication
  * Force usage of authentication for commands
  */
-#define AUTHENTICATION_FEATURE
+//#define AUTHENTICATION_FEATURE
 
 /************************************
  *
@@ -594,7 +594,7 @@
 // LOG_OUTPUT_WEBSOCKET
 #define ESP_LOG_FEATURE LOG_OUTPUT_SERIAL0
 
-#define ESP3D_DEBUG_LEVEL LOG_LEVEL_VERBOSE
+#define ESP3D_DEBUG_LEVEL LOG_LEVEL_DEBUG
 
 #define ESP_NO_SANITY_CHECK
 

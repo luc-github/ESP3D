@@ -54,6 +54,7 @@ class WebSocket_Server {
   void initAuthentication();
   void setAuthentication(ESP3DAuthenticationLevel auth) { _auth = auth; }
   ESP3DAuthenticationLevel getAuthentication();
+  bool isConnected();
 
  private:
   ESP3DClientType _type;
