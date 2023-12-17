@@ -44,7 +44,7 @@ enum class ESP3DClientType : uint8_t {
   mks_serial = 14,
   command,             // origin only
   system,              // origin only
-  all_clients = 255
+  all_clients
 };
 
 #ifdef __cplusplus

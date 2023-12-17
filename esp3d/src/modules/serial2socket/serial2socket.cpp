@@ -172,6 +172,7 @@ void Serial_2_Socket::flush(void) {
     // dispatch command
     if (msg) {
       // process command
+      msg->type = ESP3DMessageType::unique;
       esp3d_commands.process(msg);
     } else {
       esp3d_log_e("Cannot create message");
@@ -185,17 +186,18 @@ void Serial_2_Socket::flush(void) {
 
 bool Serial_2_Socket::dispatch(ESP3DMessage *message) {
   if (!message || !_started) {
+    esp3d_log_e("Serial2Socket: no message or not started"); 
     return false;
   }
   if (message->size > 0 && message->data) {
-    size_t sentcnt = write(message->data, message->size);
-    if (sentcnt != message->size) {
+    if (!push(message->data, message->size)) {
+      esp3d_log_e("Serial2Socket: cannot push all data");
       return false;
     }
     ESP3DMessageManager::deleteMsg(message);
     return true;
   }
-
+  esp3d_log_e("Serial2Socket: no data in message");
   return false;
 }
 

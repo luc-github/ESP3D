@@ -24,6 +24,37 @@
 #include "esp3d.h"
 #include "esp3d_settings.h"
 
+#if defined(ESP_LOG_FEATURE) 
+const char * esp3dclientstr[]={
+  "no_client",
+  "serial",
+  "usb_serial",
+  "stream",
+  "telnet",
+  "http",
+  "webui_websocket",
+  "websocket",
+  "rendering",
+  "bluetooth",
+  "socket_serial",
+  "echo_serial",
+  "serial_bridge",
+  "remote_screen",
+  "mks_serial",
+  "command",
+  "system",
+  "all_clients"
+};
+#define GETCLIENTSTR(id) static_cast<uint8_t>(id)>=0 && static_cast<uint8_t>(id)<=static_cast<uint8_t>(ESP3DClientType::all_clients)?esp3dclientstr[static_cast<uint8_t>(id)] :"Out of index"
+
+const char * esp3dmsgstr[] = {
+  "head", "core", "tail", "unique"
+};
+#define GETMSGTYPESTR(id) static_cast<uint8_t>(id)>=0 && static_cast<uint8_t>(id)<=static_cast<uint8_t>(ESP3DMessageType::unique)?esp3dmsgstr[static_cast<uint8_t>(id)] :"Out of index"
+
+#endif // defined(ESP_LOG_FEATURE)
+
+
 #if COMMUNICATION_PROTOCOL == MKS_SERIAL
 #include "../modules/mks/mks_service.h"
 #endif  // COMMUNICATION_PROTOCOL == MKS_SERIAL
@@ -1180,16 +1211,19 @@ bool ESP3DCommands::dispatch(const char *sbuf, ESP3DClientType target,
 ESP3DClientType ESP3DCommands::getOutputClient(bool fromSettings) {
   // TODO: add setting for it when necessary
   (void)fromSettings;
+  esp3d_log("OutputClient: %d %s", static_cast<uint8_t>(_output_client), GETCLIENTSTR(_output_client));
   return _output_client;
 }
 
 bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
   bool sendOk = true;
   String tmp;
-  esp3d_log("Dispatch message origin %d to client %d , size: %d,  type: %d",
+  esp3d_log("Dispatch message origin %d(%s) to client %d(%s) , size: %d,  type: %d(%s)",
             static_cast<uint8_t>(msg->origin),
-            static_cast<uint8_t>(msg->target), msg->size,
-            static_cast<uint8_t>(msg->type));
+            esp3dclientstr[static_cast<uint8_t>(msg->origin)],
+            static_cast<uint8_t>(msg->target), GETCLIENTSTR(msg->target),
+            msg->size, static_cast<uint8_t>(msg->type),GETMSGTYPESTR(msg->type));
+  esp3d_log("Dispatch message data: %s", (const char *)msg->data);
   if (!msg) {
     esp3d_log_e("no msg");
     return false;
@@ -1199,6 +1233,7 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
   switch (msg->target) {
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL
     case ESP3DClientType::serial:
+    esp3d_log("Serial message");
       if (!esp3d_serial_service.dispatch(msg)) {
         sendOk = false;
         esp3d_log_e("Serial dispatch failed");
@@ -1208,6 +1243,7 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
 
 #if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
     case ESP3DClientType::echo_serial:
+    esp3d_log("Echo serial message");
       MYSERIAL1.write(msg->data, msg->size);
       if (msg->type == ESP3DMessageType::unique || msg->type == ESP3DMessageType::tail) {
        if (msg->data[msg->size-1]!='\n'){
@@ -1216,10 +1252,19 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
       }
       ESP3DMessageManager::deleteMsg(msg);
       break;
+
+    case ESP3DClientType::socket_serial:
+    esp3d_log("Socket serial message");
+      if (!Serial2Socket.dispatch(msg)) {
+        sendOk = false;
+        esp3d_log_e("Socket dispatch failed");
+      }
+      break;
 #endif  // COMMUNICATION_PROTOCOL == SOCKET_SERIAL
 
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
     case ESP3DClientType::serial_bridge:
+    esp3d_log("Serial bridge message");
       if (!serial_bridge_service.dispatch(msg)) {
         sendOk = false;
         esp3d_log_e("Serial bridge dispatch failed");
@@ -1229,6 +1274,7 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
 
 #ifdef WS_DATA_FEATURE
     case ESP3DClientType::websocket:
+    esp3d_log("Websocket message");
       if (!websocket_data_server.dispatch(msg)) {
         sendOk = false;
         esp3d_log_e("Telnet dispatch failed");
@@ -1238,6 +1284,7 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
 
 #ifdef TELNET_FEATURE
     case ESP3DClientType::telnet:
+    esp3d_log("Telnet message");
       if (!telnet_server.dispatch(msg)) {
         sendOk = false;
         esp3d_log_e("Telnet dispatch failed");
@@ -1247,6 +1294,7 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
 
 #ifdef BLUETOOTH_FEATURE
     case ESP3DClientType::bluetooth:
+    esp3d_log("Bluetooth message");
       if (!bt_service.dispatch(msg)) {
         sendOk = false;
         esp3d_log_e("Bluetooth dispatch failed");
@@ -1254,23 +1302,16 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
       break;
 #endif  // BLUETOOTH_FEATURE
 
-#if defined(ESP3DLIB_ENV) && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
-    case ESP3DClientType::socket_serial:
-      if (!Serial2Socket.dispatch(msg)) {
-        sendOk = false;
-        esp3d_log_e("Socket dispatch failed");
-      }
-      break;
-#endif  // defined(ESP3DLIB_ENV) && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
-
 #ifdef HTTP_FEATURE
     case ESP3DClientType::webui_websocket:
+    esp3d_log("Webui websocket message");
       if (!websocket_terminal_server.dispatch(msg)) {
         sendOk = false;
         esp3d_log_e("Webui websocket dispatch failed");
       }
       break;
     case ESP3DClientType::http:
+    esp3d_log("Http message");
       if (!HTTP_Server::dispatch(msg)) {
         sendOk = false;
         esp3d_log_e("Webui websocket dispatch failed");
@@ -1279,6 +1320,7 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
 #endif  // HTTP_FEATURE
 #if defined(DISPLAY_DEVICE)
     case ESP3DClientType::rendering:
+    esp3d_log("Rendering message");
       if (!esp3d_display.dispatch(msg)) {
         sendOk = false;
         esp3d_log_e("Display dispatch failed");
@@ -1288,6 +1330,7 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
 
 #if COMMUNICATION_PROTOCOL == MKS_SERIAL
     case ESP3DClientType::mks_serial:
+    esp3d_log("MKS Serial message");
       if (!MKSService::dispatch(msg)) {
         sendOk = false;
         esp3d_log_e("MKS Serial dispatch failed");
@@ -1297,6 +1340,7 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
 
 #ifdef PRINTER_HAS_DISPLAY
     case ESP3DClientType::remote_screen:
+    esp3d_log("Remote screen message");
       // change target to output client
       msg->target = getOutputClient();
       // change text to GCODE M117
@@ -1315,6 +1359,7 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
       break;
 #endif  // PRINTER_HAS_DISPLAY
     case ESP3DClientType::all_clients:
+    esp3d_log("All clients message");
       // Add each client one by one
 #ifdef PRINTER_HAS_DISPLAY
       if (msg->origin != ESP3DClientType::remote_screen &&
@@ -1410,6 +1455,7 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
 
 #ifdef BLUETOOTH_FEATURE
+      //FIXME: add test if connected to avoid unnecessary copy
       if (msg->origin != ESP3DClientType::bluetooth) {
         String msgstr = (const char *)msg->data;
         msgstr.trim();
@@ -1432,7 +1478,7 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
 #endif  // BLUETOOTH_FEATURE
 
 #ifdef TELNET_FEATURE
-      if (msg->origin != ESP3DClientType::telnet) {
+      if (msg->origin != ESP3DClientType::telnet && telnet_server.isConnected()) {
         String msgstr = (const char *)msg->data;
         msgstr.trim();
         if (msgstr.length() > 0) {
@@ -1455,6 +1501,7 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
 
 #ifdef HTTP_FEATURE  // http cannot be in all client because it depend of any
                      // connection of the server
+      //FIXME: add test if connected to avoid unnecessary copy
       if (msg->origin != ESP3DClientType::webui_websocket) {
         String msgstr = (const char *)msg->data;
         msgstr.trim();
@@ -1477,6 +1524,7 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
 #endif  // HTTP_FEATURE
 
 #ifdef WS_DATA_FEATURE
+      //FIXME: add test if connected to avoid unnecessary copy
       if (msg->origin != ESP3DClientType::websocket) {
         String msgstr = (const char *)msg->data;
         msgstr.trim();
@@ -1514,7 +1562,7 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
   }
   // clear message
   if (!sendOk) {
-    esp3d_log("Send msg failed");
+    esp3d_log_e("Send msg failed");
     ESP3DMessageManager::deleteMsg(msg);
   }
   return sendOk;
