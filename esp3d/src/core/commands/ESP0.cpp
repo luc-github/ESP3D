@@ -251,6 +251,9 @@ const uint cmdlist[] = {
     250,
 #endif  // BUZZER_DEVICE
     290, 400, 401,
+#ifdef SD_UPDATE_FEATURE
+    402,
+#endif  // SD_UPDATE_FEATURE
 #if defined(WIFI_FEATURE)
     410,
 #endif  // WIFI_FEATURE
@@ -291,7 +294,7 @@ const uint cmdlist[] = {
 
 #endif  // BUZZER_DEVICE
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
-    930, 935,
+    930, 931,
 #endif  // defined(ESP_SERIAL_BRIDGE_OUTPUT)
 #if defined(ARDUINO_ARCH_ESP32) &&                             \
     (CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32S2 || \
