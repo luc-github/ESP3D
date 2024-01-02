@@ -216,6 +216,11 @@ void Esp3D::begin(uint16_t startdelayms, uint16_t recoverydelayms)
     if (!wifi_config.Enable_servers() ) {
         ESPCOM::println (F ("Error enabling servers"), PRINTER_PIPE);
     }
+    if (WiFi.getMode() == WIFI_STA) {
+       String  currentIP = WiFi.localIP().toString();
+        ESPCOM::println (currentIP.c_str(), PRINTER_PIPE);
+    }
+
     /*#ifdef ARDUINO_ARCH_ESP8266
         if	(rtc_info->reason	==	REASON_WDT_RST	||
 
