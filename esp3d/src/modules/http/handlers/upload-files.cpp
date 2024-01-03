@@ -35,7 +35,7 @@
 #endif  // ESP3DLIB_ENV && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
 
 #ifdef ESP_BENCHMARK_FEATURE
-#include "../../../core/benchmark.h"
+#include "../../../core/esp3d_benchmark.h"
 #endif  // ESP_BENCHMARK_FEATURE
 
 // FS files uploader handle
@@ -45,12 +45,12 @@ void HTTP_Server::FSFileupload() {
   static size_t bench_transfered;
 #endif  // ESP_BENCHMARK_FEATURE
   // get authentication status
-  level_authenticate_type auth_level =
-      AuthenticationService::authenticated_level();
+  ESP3DAuthenticationLevel auth_level =
+      AuthenticationService::getAuthenticatedLevel();
   static String filename;
   static ESP_File fsUploadFile;
   // Guest cannot upload - only admin
-  if (auth_level == LEVEL_GUEST) {
+  if (auth_level == ESP3DAuthenticationLevel::guest) {
     pushError(ESP_ERROR_AUTHENTICATION, "Upload rejected", 401);
     _upload_status = UPLOAD_STATUS_FAILED;
   } else {
@@ -161,7 +161,7 @@ void HTTP_Server::FSFileupload() {
         }
         // Upload end
       } else if (upload.status == UPLOAD_FILE_END) {
-        log_esp3d("upload end");
+        esp3d_log("upload end");
         // check if file is still open
         if (fsUploadFile) {
           // close it
@@ -175,11 +175,11 @@ void HTTP_Server::FSFileupload() {
           uint32_t filesize = fsUploadFile.size();
           _upload_status = UPLOAD_STATUS_SUCCESSFUL;
           if (_webserver->hasArg(sizeargname.c_str())) {
-            log_esp3d("Size check: %s vs %s",
+            esp3d_log("Size check: %s vs %s",
                       _webserver->arg(sizeargname.c_str()).c_str(),
                       String(filesize).c_str());
             if (_webserver->arg(sizeargname.c_str()) != String(filesize)) {
-              log_esp3d_e("Size Error");
+              esp3d_log_e("Size Error");
               _upload_status = UPLOAD_STATUS_FAILED;
               pushError(ESP_ERROR_SIZE, "File upload failed");
             }
@@ -189,7 +189,7 @@ void HTTP_Server::FSFileupload() {
           }
         } else {
           // we have a problem set flag UPLOAD_STATUS_FAILED
-          log_esp3d_e("Close Error");
+          esp3d_log_e("Close Error");
           _upload_status = UPLOAD_STATUS_FAILED;
           pushError(ESP_ERROR_FILE_CLOSE, "File close failed");
         }
@@ -210,7 +210,7 @@ void HTTP_Server::FSFileupload() {
     if (fsUploadFile) {
       fsUploadFile.close();
     }
-    if (auth_level != LEVEL_GUEST) {
+    if (auth_level != ESP3DAuthenticationLevel::guest) {
       if (ESP_FileSystem::exists(filename.c_str())) {
         ESP_FileSystem::remove(filename.c_str());
       }

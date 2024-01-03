@@ -26,8 +26,8 @@
 #if defined(ARDUINO_ARCH_ESP8266)
 #include <ESP8266WebServer.h>
 #endif  // ARDUINO_ARCH_ESP8266
-#include "../../../core/esp3doutput.h"
-#include "../../../core/settings_esp3d.h"
+#include "../../../core/esp3d_message.h"
+#include "../../../core/esp3d_settings.h"
 #include "../../authentication/authentication_service.h"
 
 // login status check
@@ -40,7 +40,7 @@ void HTTP_Server::handle_login() {
   // Disconnect can be done anytime no need to check credential
   if (_webserver->hasArg("DISCONNECT") &&
       _webserver->arg("DISCONNECT") == "YES") {
-    AuthenticationService::ClearCurrentSession();
+    AuthenticationService::ClearCurrentHttpSession();
     _webserver->sendHeader("Set-Cookie", "ESPSESSIONID=0");
     _webserver->sendHeader("Cache-Control", "no-cache");
     _webserver->send(
@@ -48,8 +48,8 @@ void HTTP_Server::handle_login() {
         "{\"status\":\"disconnected\",\"authentication_lvl\":\"guest\"}");
     return;
   }
-  level_authenticate_type auth_level =
-      AuthenticationService::authenticated_level();
+  ESP3DAuthenticationLevel auth_level =
+      AuthenticationService::getAuthenticatedLevel();
   // check is it is a submission or a query
   if (_webserver->hasArg("SUBMIT")) {
     // is there a correct list of query?
@@ -66,10 +66,10 @@ void HTTP_Server::handle_login() {
         if (_webserver->hasArg("NEWPASSWORD")) {
           String newpassword = _webserver->arg("NEWPASSWORD");
           // check new password
-          if (Settings_ESP3D::isValidStringSetting(newpassword.c_str(),
-                                                   ESP_ADMIN_PWD)) {
-            if (!Settings_ESP3D::write_string(ESP_ADMIN_PWD,
-                                              newpassword.c_str())) {
+          if (ESP3DSettings::isValidStringSetting(newpassword.c_str(),
+                                                  ESP_ADMIN_PWD)) {
+            if (!ESP3DSettings::writeString(ESP_ADMIN_PWD,
+                                            newpassword.c_str())) {
               code = 500;
               status = "Set failed!";
             } else {
@@ -87,16 +87,20 @@ void HTTP_Server::handle_login() {
             AuthenticationService::setSessionTimeout(timeout.toInt());
           }
           // it is a change or same level
-          if (((auth_level == LEVEL_USER) && (sUser == DEFAULT_USER_LOGIN)) ||
-              ((auth_level == LEVEL_ADMIN) && (sUser == DEFAULT_ADMIN_LOGIN))) {
+          if (((auth_level == ESP3DAuthenticationLevel::user) &&
+               (sUser == DEFAULT_USER_LOGIN)) ||
+              ((auth_level == ESP3DAuthenticationLevel::admin) &&
+               (sUser == DEFAULT_ADMIN_LOGIN))) {
             code = 200;
             status = "ok";
           } else {  // new authentication
             String session = AuthenticationService::create_session_ID();
             if (AuthenticationService::CreateSession(
-                    (sUser == DEFAULT_ADMIN_LOGIN) ? LEVEL_ADMIN : LEVEL_USER,
-                    sUser.c_str(), session.c_str())) {
-              AuthenticationService::ClearCurrentSession();
+                    (sUser == DEFAULT_ADMIN_LOGIN)
+                        ? ESP3DAuthenticationLevel::admin
+                        : ESP3DAuthenticationLevel::user,
+                    ESP3DClientType::http, session.c_str())) {
+              AuthenticationService::ClearCurrentHttpSession();
               code = 200;
               status = "ok";
               String tmps = "ESPSESSIONID=";
@@ -108,7 +112,8 @@ void HTTP_Server::handle_login() {
       }
     }
   } else {
-    if (auth_level == LEVEL_USER || auth_level == LEVEL_ADMIN) {
+    if (auth_level == ESP3DAuthenticationLevel::user ||
+        auth_level == ESP3DAuthenticationLevel::admin) {
       status = "Identified";
       code = 200;
     }
@@ -117,9 +122,9 @@ void HTTP_Server::handle_login() {
   String smsg = "{\"status\":\"";
   smsg += status;
   smsg += "\",\"authentication_lvl\":\"";
-  if (auth_level == LEVEL_USER) {
+  if (auth_level == ESP3DAuthenticationLevel::user) {
     smsg += "user";
-  } else if (auth_level == LEVEL_ADMIN) {
+  } else if (auth_level == ESP3DAuthenticationLevel::admin) {
     smsg += "admin";
   } else {
     smsg += "guest";

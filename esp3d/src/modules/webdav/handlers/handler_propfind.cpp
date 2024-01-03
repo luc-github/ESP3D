@@ -32,29 +32,30 @@
 #define PROPFIND_RESPONSE_BODY_FOOTER "</D:multistatus>"
 
 void WebdavServer::handler_propfind(const char* url) {
-  log_esp3d("Processing PROPFIND");
+  esp3d_log("Processing PROPFIND");
   int code = 207;
   String depth = "0";
   String requestedDepth = "0";
   if (hasHeader("Depth")) {
     depth = getHeader("Depth");
-    log_esp3d("Depth: %s", depth.c_str());
+    esp3d_log("Depth: %s", depth.c_str());
     requestedDepth = depth;
     if (depth == "infinity") {
       depth = "1";
-      log_esp3d("Depth set to 1");
+      esp3d_log("Depth set to 1");
     }
   } else {
-    log_esp3d("Depth not set");
+    esp3d_log("Depth not set");
   }
 
   size_t sp = clearPayload();
-  log_esp3d("Payload size: %d", sp);
+  (void)sp;
+  esp3d_log("Payload size: %d", sp);
 
   uint8_t fsType = WebDavFS::getFSType(url);
-  log_esp3d("FS type of %s : %d", url, fsType);
+  esp3d_log("FS type of %s : %d", url, fsType);
   if (WebDavFS::accessFS(fsType)) {
-    if (WebDavFS::exists(url) || url == "/") {
+    if (WebDavFS::exists(url) || strcmp(url, "/") == 0) {
       WebDavFile root = WebDavFS::open(url);
       if (root) {
         send_response_code(code);
@@ -97,22 +98,22 @@ void WebdavServer::handler_propfind(const char* url) {
         if (depth == "0") {
           body += PROPFIND_RESPONSE_BODY_FOOTER;
           send_response(body.c_str());
-          log_esp3d("%s", body.c_str());
+          esp3d_log("%s", body.c_str());
         } else {
           send_chunk_content(body.c_str());
-          log_esp3d("%s", body.c_str());
+          esp3d_log("%s", body.c_str());
           if (depth == "1" && root.isDirectory()) {
-            log_esp3d("Depth 1, parsing directory");
+            esp3d_log("Depth 1, parsing directory");
             WebDavFile entry = root.openNextFile();
             while (entry) {
               yield();
-              log_esp3d("Processing %s from %s", entry.name(), url);
+              esp3d_log("Processing %s from %s", entry.name(), url);
               body = "<D:response xmlns:esp3d=\"DAV:\">";
               body += "<D:href>";
               body += url;
               if (strcmp(url, "/") != 0) {
                 body += "/";
-                log_esp3d("Adding / to *%s*", url);
+                esp3d_log("Adding / to *%s*", url);
               }
               body += entry.name()[0] == '/' ? entry.name() + 1 : entry.name();
               body += "</D:href>";
@@ -139,12 +140,12 @@ void WebdavServer::handler_propfind(const char* url) {
               body += "<D:status>HTTP/1.1 200 OK</D:status>";
               body += "</D:propstat>";
               body += "</D:response>";
-              log_esp3d("%s", body.c_str());
+              esp3d_log("%s", body.c_str());
               send_chunk_content(body.c_str());
               entry.close();
               entry = root.openNextFile();
             }
-            log_esp3d("%s", PROPFIND_RESPONSE_BODY_FOOTER);
+            esp3d_log("%s", PROPFIND_RESPONSE_BODY_FOOTER);
             send_chunk_content(PROPFIND_RESPONSE_BODY_FOOTER);
             // End of chunk
             send_chunk_content("");
@@ -153,20 +154,20 @@ void WebdavServer::handler_propfind(const char* url) {
         root.close();
       } else {
         code = 503;
-        log_esp3d_e("File not opened");
+        esp3d_log_e("File not opened");
       }
 
     } else {
       code = 404;
-      log_esp3d_e("File not found");
+      esp3d_log_e("File not found");
     }
     WebDavFS::releaseFS(fsType);
   } else {
     code = 503;
-    log_esp3d_e("FS not available");
+    esp3d_log_e("FS not available");
   }
   if (code != 207) {
-    log_esp3d_e("Sending response code %d", code);
+    esp3d_log_e("Sending response code %d", code);
     send_response_code(code);
     send_webdav_headers();
   }

@@ -24,31 +24,32 @@
 #include "../webdav_server.h"
 
 void WebdavServer::handler_unlock(const char* url) {
-  log_esp3d("Processing UNLOCK");
+  esp3d_log("Processing UNLOCK");
   int code = 204;
   size_t sp = clearPayload();
-  log_esp3d("Payload size: %d", sp);
+  (void)sp;
+  esp3d_log("Payload size: %d", sp);
   uint8_t fsType = WebDavFS::getFSType(url);
-  log_esp3d("FS type of %s : %d", url, fsType);
+  esp3d_log("FS type of %s : %d", url, fsType);
   // url cannot be root
   if (!isRoot(url)) {
     if (WebDavFS::accessFS(fsType)) {
       // check if file exists
       if (!WebDavFS::exists(url)) {
         code = 404;
-        log_esp3d_e("File not found");
+        esp3d_log_e("File not found");
       }
       WebDavFS::releaseFS(fsType);
     } else {
       code = 503;
-      log_esp3d_e("FS not available");
+      esp3d_log_e("FS not available");
     }
   } else {
     code = 400;
-    log_esp3d_e("Root cannot be unlocked");
+    esp3d_log_e("Root cannot be unlocked");
   }
 
-  log_esp3d_e("Sending response code %d", code);
+  esp3d_log_e("Sending response code %d", code);
   send_response_code(code);
   send_webdav_headers();
 }

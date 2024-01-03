@@ -20,7 +20,9 @@
 
 #ifndef _HTTP_SERVER_H
 #define _HTTP_SERVER_H
+#include "../../core/esp3d_commands.h"
 #include "../../include/esp3d_config.h"
+
 // class WebSocketsServer;
 #if defined(ARDUINO_ARCH_ESP32)
 class WebServer;
@@ -48,6 +50,7 @@ class HTTP_Server {
   static bool started() { return _started; }
   static uint16_t port() { return _port; }
   static void set_http_headers();
+  static bool dispatch(ESP3DMessage* msg);
 
  private:
   static void pushError(int code, const char* st, uint16_t web_error = 500,
@@ -93,5 +96,10 @@ class HTTP_Server {
   static void handleMKSUpload();
 #endif  // COMMUNICATION_PROTOCOL == MKS_SERIAL
 };
+
+extern ESP3DRequest code_200;
+extern ESP3DRequest code_500;
+extern ESP3DRequest code_404;
+extern ESP3DRequest code_401;
 
 #endif  //_HTTP_SERVER_H

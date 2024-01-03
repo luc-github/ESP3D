@@ -33,14 +33,16 @@
 #include "../../time/time_service.h"
 #endif  // FILESYSTEM_TIMESTAMP_FEATURE
 
+#include "../../../core/esp3d_string.h"
+
 // Filesystem
 // Filesystem files list and file commands
 void HTTP_Server::handleFSFileList() {
   HTTP_Server::set_http_headers();
 
-  level_authenticate_type auth_level =
-      AuthenticationService::authenticated_level();
-  if (auth_level == LEVEL_GUEST) {
+  ESP3DAuthenticationLevel auth_level =
+      AuthenticationService::getAuthenticatedLevel();
+  if (auth_level == ESP3DAuthenticationLevel::guest) {
     _upload_status = UPLOAD_STATUS_NONE;
     _webserver->send(401, "text/plain", "Wrong authentication!");
     return;
@@ -109,7 +111,7 @@ void HTTP_Server::handleFSFileList() {
       filename.replace("//", "/");
       if (filename != "/") {
         if (ESP_FileSystem::rmdir(filename.c_str())) {
-          log_esp3d("Deleting %s", filename.c_str());
+          esp3d_log("Deleting %s", filename.c_str());
           status = shortname;
           status += " deleted";
         } else {
@@ -168,7 +170,7 @@ void HTTP_Server::handleFSFileList() {
         if (sub.isDirectory()) {
           buffer2send += "-1";
         } else {
-          buffer2send += ESP_FileSystem::formatBytes(sub.size());
+          buffer2send += esp3d_string::formatBytes(sub.size());
         }
 #ifdef FILESYSTEM_TIMESTAMP_FEATURE
         buffer2send += "\",\"time\":\"";
@@ -211,12 +213,14 @@ void HTTP_Server::handleFSFileList() {
     buffer2send += "\"occupation\":\"0\",";
   }
   buffer2send += "\"status\":\"" + status + "\",";
-  buffer2send += "\"total\":\"" +
-                 ESP_FileSystem::formatBytes(ESP_FileSystem::totalBytes()) +
-                 "\",";
-  buffer2send += "\"used\":\"" +
-                 ESP_FileSystem::formatBytes(ESP_FileSystem::usedBytes()) +
-                 "\"}";
+  buffer2send += "\"total\":\"";
+  buffer2send += esp3d_string::formatBytes(ESP_FileSystem::totalBytes());
+  buffer2send += "\",";
+
+  buffer2send += "\"used\":\"";
+  buffer2send += esp3d_string::formatBytes(ESP_FileSystem::usedBytes());
+
+  buffer2send += +"\"}";
   path = "";
   _webserver->sendContent_P(buffer2send.c_str(), buffer2send.length());
   _webserver->sendContent("");

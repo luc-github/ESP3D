@@ -18,30 +18,38 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "../../../include/esp3d_config.h"
-#if defined (HTTP_FEATURE)
+#if defined(HTTP_FEATURE)
 #include "../http_server.h"
-#if defined (ARDUINO_ARCH_ESP32)
+#if defined(ARDUINO_ARCH_ESP32)
 #include <WebServer.h>
-#endif //ARDUINO_ARCH_ESP32
-#if defined (ARDUINO_ARCH_ESP8266)
+#endif  // ARDUINO_ARCH_ESP32
+#if defined(ARDUINO_ARCH_ESP8266)
 #include <ESP8266WebServer.h>
-#endif //ARDUINO_ARCH_ESP8266
+#endif  // ARDUINO_ARCH_ESP8266
+#include "../../../core/esp3d_commands.h"
+#include "../../../core/esp3d_message.h"
 #include "../../authentication/authentication_service.h"
-#include "../../../core/commands.h"
-#include "../../../core/esp3doutput.h"
 
-//Handle web command query [ESP420]plain and send answer//////////////////////////////
-void HTTP_Server::handle_config ()
-{
-    level_authenticate_type auth_level = AuthenticationService::authenticated_level();
-    String cmd = "[ESP420]";
-    if (_webserver->hasArg("json")) {
-        cmd = "[ESP420]json="+_webserver->arg("json");
-    }
-    ESP3DOutput  output(_webserver);
-    output.printMSGLine("<pre>");
-    esp3d_commands.process((uint8_t*)cmd.c_str(), cmd.length(), &output, auth_level);
-    output.printMSGLine("</pre>");
-    return;
+// Handle web command query [ESP420]plain and send
+// answer//////////////////////////////
+void HTTP_Server::handle_config() {
+  ESP3DAuthenticationLevel auth_level =
+      AuthenticationService::getAuthenticatedLevel();
+  String cmd = "[ESP420]addPreTag";
+  if (_webserver->hasArg("json")) {
+    cmd += " json=" + _webserver->arg("json");
+  }
+  ESP3DMessage *msg = ESP3DMessageManager::newMsg(
+      ESP3DClientType::http, ESP3DClientType::http, (uint8_t *)cmd.c_str(),
+      cmd.length(), auth_level);
+  if (msg) {
+    msg->type = ESP3DMessageType::unique;
+    msg->request_id.code = 200;
+    // process command
+    esp3d_commands.process(msg);
+  } else {
+    esp3d_log_e("Cannot create message");
+  }
+  return;
 }
-#endif //HTTP_FEATURE
+#endif  // HTTP_FEATURE

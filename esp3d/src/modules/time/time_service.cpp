@@ -21,8 +21,8 @@
 #ifdef TIMESTAMP_FEATURE
 #include <time.h>
 
-#include "../../core/esp3doutput.h"
-#include "../../core/settings_esp3d.h"
+#include "../../core/esp3d_message.h"
+#include "../../core/esp3d_settings.h"
 #include "time_service.h"
 
 #if defined(WIFI_FEATURE)
@@ -50,12 +50,11 @@ const uint8_t SupportedTimeZonesSize =
 
 TimeService::TimeService() {
   _started = false;
-  _is_internet_time = false;
+  _isInternetTime = false;
   _time_zone = "+00:00";
 }
 TimeService::~TimeService() { end(); }
 
-// FIXME: this is a WIP
 const char* TimeService::getDateTime(time_t t) {
   static char buff[20];
   strftime(buff, sizeof(buff), "%Y-%m-%d %H:%M:%S", localtime(&t));
@@ -63,25 +62,23 @@ const char* TimeService::getDateTime(time_t t) {
   return buff;
 }
 
-bool TimeService::is_internet_time(bool readfromsettings) {
+bool TimeService::isInternetTime(bool readfromsettings) {
   if (readfromsettings) {
-    _is_internet_time =
-        Settings_ESP3D::read_byte(ESP_INTERNET_TIME) ? true : false;
-    log_esp3d("Internet time is %s",
-              _is_internet_time ? "enabled" : "disabled");
+    _isInternetTime = ESP3DSettings::readByte(ESP_INTERNET_TIME) ? true : false;
+    esp3d_log("Internet time is %s", _isInternetTime ? "enabled" : "disabled");
   }
-  return _is_internet_time;
+  return _isInternetTime;
 }
 
 bool TimeService::begin() {
+  esp3d_log("Starting TimeService");
   end();
   String s1, s2, s3, t1;
-  byte d1;
   updateTimeZone(true);
 #if defined(WIFI_FEATURE)
   // no time server in AP mode
   if (WiFi.getMode() == WIFI_AP) {
-    log_esp3d("No Internet time in AP mode");
+    esp3d_log("No Internet time in AP mode");
     return false;
   }
 #endif  // WIFI_FEATURE
@@ -105,13 +102,12 @@ bool TimeService::begin() {
 #endif  // WIFI_FEATURE
   }
 #endif  // ETH_FEATURE
-  if (!is_internet_time(true)) {
+  if (!isInternetTime(true)) {
     return true;
   }
-  s1 = Settings_ESP3D::read_string(ESP_TIME_SERVER1);
-  s2 = Settings_ESP3D::read_string(ESP_TIME_SERVER2);
-  s3 = Settings_ESP3D::read_string(ESP_TIME_SERVER3);
-  // d1 = Settings_ESP3D::read_byte(ESP_TIME_IS_DST);
+  s1 = ESP3DSettings::readString(ESP_TIME_SERVER1);
+  s2 = ESP3DSettings::readString(ESP_TIME_SERVER2);
+  s3 = ESP3DSettings::readString(ESP_TIME_SERVER3);
 #if defined(ARDUINO_ARCH_ESP32)
   configTzTime(_time_zone.c_str(), s1.c_str(), s2.c_str(), s3.c_str());
 #endif  // ARDUINO_ARCH_ESP32
@@ -143,14 +139,13 @@ bool TimeService::setTimeZone(const char* stime) {
   }
   if (valid) {
     _time_zone = stime;
-    return Settings_ESP3D::write_string(ESP_TIME_ZONE, _time_zone.c_str());
+    return ESP3DSettings::writeString(ESP_TIME_ZONE, _time_zone.c_str());
   }
   return false;
 }
 
 bool TimeService::updateTimeZone(bool fromsettings) {
-  char out_str[7] = {0};
-  _time_zone = Settings_ESP3D::read_string(ESP_TIME_ZONE);
+  _time_zone = ESP3DSettings::readString(ESP_TIME_ZONE);
 
   bool valid = false;
   for (uint8_t i = 0; i < SupportedTimeZonesSize; i++) {
@@ -161,7 +156,7 @@ bool TimeService::updateTimeZone(bool fromsettings) {
   }
 
   if (!valid) {
-    log_esp3d_e("Invalid time zone %s", _time_zone.c_str());
+    esp3d_log_e("Invalid time zone %s", _time_zone.c_str());
     _time_zone = "+00:00";
   }
   String stmp = _time_zone;
@@ -192,23 +187,23 @@ const char* TimeService::getCurrentTime() {
   localtime_r(&now, &tmstruct);
   static char buf[20];
   strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", &tmstruct);
-  log_esp3d("Time string is %s", buf);
+  esp3d_log("Time string is %s", buf);
   return buf;
 }
 
 // the string date time  need to be iso-8601
 // the time zone part will be ignored
 bool TimeService::setTime(const char* stime) {
-  log_esp3d("Set time to %s", stime);
+  esp3d_log("Set time to %s", stime);
   String stmp = stime;
   struct tm tmstruct;
   struct timeval time_val = {0, 0};
   memset(&tmstruct, 0, sizeof(struct tm));
   if (strptime(stime, "%Y-%m-%dT%H:%M:%S", &tmstruct) == nullptr) {
-    log_esp3d("Invalid time format, try without seconds");
+    esp3d_log("Invalid time format, try without seconds");
     // allow not to set seconds for lazy guys typing command line
     if (strptime(stime, "%Y-%m-%dT%H:%M", &tmstruct) == nullptr) {
-      log_esp3d("Invalid time format");
+      esp3d_log("Invalid time format");
       return false;
     }
   }
@@ -231,7 +226,7 @@ bool TimeService::started() { return _started; }
 // currently not used
 void TimeService::end() {
   _started = false;
-  _is_internet_time = false;
+  _isInternetTime = false;
   _time_zone = "+00:00";
 }
 

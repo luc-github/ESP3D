@@ -29,7 +29,7 @@
 #include <ESP8266WebServer.h>
 #define DOWNLOAD_PACKET_SIZE 1024
 #endif  // ARDUINO_ARCH_ESP8266
-#include "../../core/settings_esp3d.h"
+#include "../../core/esp3d_settings.h"
 #include "../authentication/authentication_service.h"
 #include "../filesystem/esp_filesystem.h"
 #include "../network/netconfig.h"
@@ -41,8 +41,13 @@
 
 #endif  // SD_DEVICE
 #ifdef ESP_BENCHMARK_FEATURE
-#include "../../core/benchmark.h"
+#include "../../core/esp3d_benchmark.h"
 #endif  // ESP_BENCHMARK_FEATURE
+
+ESP3DRequest code_200{.code = 200};
+ESP3DRequest code_500{.code = 500};
+ESP3DRequest code_404{.code = 404};
+ESP3DRequest code_401{.code = 401};
 
 bool HTTP_Server::_started = false;
 uint16_t HTTP_Server::_port = 0;
@@ -105,7 +110,7 @@ bool HTTP_Server::StreamFSFile(const char* filename, const char* contentType) {
   _webserver->send(200, contentType, "");
   uint8_t buf[DOWNLOAD_PACKET_SIZE];
   while (!done && _webserver->client().connected()) {
-    Hal::wait(0);
+    ESP3DHal::wait(0);
     int v = datafile.read(buf, DOWNLOAD_PACKET_SIZE);
     if ((v == -1) || (v == 0)) {
       done = true;
@@ -147,7 +152,7 @@ bool HTTP_Server::StreamSDFile(const char* filename, const char* contentType) {
   _webserver->send(200, contentType, "");
   uint8_t buf[DOWNLOAD_PACKET_SIZE];
   while (!done && _webserver->client().connected()) {
-    Hal::wait(0);
+    ESP3DHal::wait(0);
     int v = datafile.read(buf, DOWNLOAD_PACKET_SIZE);
     if ((v == -1) || (v == 0)) {
       done = true;
@@ -181,7 +186,7 @@ bool HTTP_Server::StreamSDFile(const char* filename, const char* contentType) {
 
 void HTTP_Server::pushError(int code, const char* st, uint16_t web_error,
                             uint16_t timeout) {
-  log_esp3d("%s:%d", st, web_error);
+  esp3d_log("%s:%d", st, web_error);
   if (websocket_terminal_server.started() && st) {
     String s = "ERROR:" + String(code) + ":";
     s += st;
@@ -197,7 +202,7 @@ void HTTP_Server::pushError(int code, const char* st, uint16_t web_error,
     uint32_t t = millis();
     while (millis() - t < timeout) {
       websocket_terminal_server.handle();
-      Hal::wait(10);
+      ESP3DHal::wait(10);
     }
   }
 }
@@ -211,16 +216,16 @@ void HTTP_Server::cancelUpload() {
   errno = ECONNABORTED;
   _webserver->client().stop();
 #endif
-  Hal::wait(100);
+  ESP3DHal::wait(100);
 }
 
 bool HTTP_Server::begin() {
   bool no_error = true;
   end();
-  if (Settings_ESP3D::read_byte(ESP_HTTP_ON) != 1) {
+  if (ESP3DSettings::readByte(ESP_HTTP_ON) != 1) {
     return no_error;
   }
-  _port = Settings_ESP3D::read_uint32(ESP_HTTP_PORT);
+  _port = ESP3DSettings::readUint32(ESP_HTTP_PORT);
   _webserver = new WEBSERVER(_port);
   if (!_webserver) {
     return false;
@@ -246,6 +251,50 @@ bool HTTP_Server::begin() {
   return no_error;
 }
 
+bool HTTP_Server::dispatch(ESP3DMessage* msg) {
+  if (!msg || !_started || !_webserver) {
+    return false;
+  }
+  if ((msg->size > 0 && msg->data) || (msg->type == ESP3DMessageType::tail)) {
+    if (msg->type == ESP3DMessageType::head ||
+        msg->type == ESP3DMessageType::unique) {
+      set_http_headers();
+      int code = 200;
+      if (msg->request_id.code != 0) {
+        code = msg->request_id.code;
+      }
+#if defined(AUTHENTICATION_FEATURE)
+      if (msg->authentication_level ==
+          ESP3DAuthenticationLevel::not_authenticated) {
+        code = 401;
+      }
+#endif  // AUTHENTICATION_FEATURE
+      esp3d_log("Code is %d", code);
+      if (msg->type == ESP3DMessageType::head) {
+        _webserver->setContentLength(CONTENT_LENGTH_UNKNOWN);
+        // in case of no request id set
+
+        _webserver->send(code);
+        _webserver->sendContent((const char*)msg->data, msg->size);
+      } else {  // unique
+        _webserver->send(code, "text/plain", (char*)msg->data);
+      }
+    } else {
+      // core or tail
+      if (msg->data && msg->size > 0) {
+        _webserver->sendContent((const char*)msg->data, msg->size);
+      }
+      // this is tail so we send end of data
+      if (msg->type == ESP3DMessageType::tail) {
+        _webserver->sendContent("");
+      }
+    }
+    ESP3DMessageManager::deleteMsg(msg);
+    return true;
+  }
+  return false;
+}
+
 void HTTP_Server::set_http_headers() {
   /*
   User-Agent: ESP3D-WebServer/1.0 (ESP8266; Firmware/3.0.0; Platform/arduino;
@@ -258,7 +307,7 @@ Embedded; http://www.esp3d.io) Host: http://192.168.0.1:8181
   static String host = "";
   if (ua.length() == 0) {
     ua = "ESP3D-WebServer/1.0 (";
-    ua += Settings_ESP3D::TargetBoard();
+    ua += ESP3DSettings::TargetBoard();
     ua += "; Firmware/";
     ua += FW_VERSION;
     ua += "; Platform/arduino; Embedded; http://www.esp3d.io)";
@@ -274,6 +323,10 @@ Embedded; http://www.esp3d.io) Host: http://192.168.0.1:8181
   if (_webserver) {
     _webserver->sendHeader("User-Agent", ua.c_str());
     _webserver->sendHeader("Host", host.c_str());
+    _webserver->sendHeader("Cache-Control", "no-cache");
+#ifdef ESP_ACCESS_CONTROL_ALLOW_ORIGIN
+    _webserver->sendHeader("Access-Control-Allow-Origin", "*");
+#endif  // ESP_ACCESS_CONTROL_ALLOw_ORIGIN
   }
 }
 

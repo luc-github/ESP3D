@@ -21,46 +21,35 @@
 #include "../../include/esp3d_config.h"
 
 #ifdef ESP_LUA_INTERPRETER_FEATURE
-#include "lua_interpreter_service.h"
-#include "../../core/settings_esp3d.h"
-#include "../../core/hal.h"
 #include <LuaWrapper.h>
+
+#include "../../core/esp3d_hal.h"
+#include "../../core/esp3d_settings.h"
+#include "lua_interpreter_service.h"
 
 LuaWrapper luawrapper;
 LuaInterpreter esp3d_lua_interpreter;
 
-LuaInterpreter::LuaInterpreter()
-{
-    _started = false;
-}
+LuaInterpreter::LuaInterpreter() { _started = false; }
 
-bool LuaInterpreter::begin()
-{
-    if(_started) {
-        end();
-    }
-    _started = true;
-    return _started;
-}
-void LuaInterpreter::end()
-{
-    if(!_started) {
-        return;
-    }
-    _started = false;
-}
-
-
-void LuaInterpreter::handle()
-{
-    //Nothing to do as handled by ticker / task
-}
-
-
-LuaInterpreter::~LuaInterpreter()
-{
+bool LuaInterpreter::begin() {
+  if (_started) {
     end();
+  }
+  _started = true;
+  return _started;
+}
+void LuaInterpreter::end() {
+  if (!_started) {
+    return;
+  }
+  _started = false;
 }
 
+void LuaInterpreter::handle() {
+  // Nothing to do as handled by ticker / task
+}
 
-#endif //ESP_LUA_INTERPRETER_FEATURE
+LuaInterpreter::~LuaInterpreter() { end(); }
+
+#endif  // ESP_LUA_INTERPRETER_FEATURE

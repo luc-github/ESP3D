@@ -18,92 +18,65 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-
 #ifndef _WEBSOCKET_SERVER_H_
 #define _WEBSOCKET_SERVER_H_
 
-#include "Print.h"
+#include "../../core/esp3d_message.h"
 #define TXBUFFERSIZE 1200
 #define RXBUFFERSIZE 256
 #define FLUSHTIMEOUT 500
 class WebSocketsServer;
-class WebSocket_Server: public Print
-{
-public:
-    WebSocket_Server(const char* protocol="arduino");
-    ~WebSocket_Server();
-    size_t write(uint8_t c);
-    size_t write(const uint8_t *buffer, size_t size);
+class WebSocket_Server {
+ public:
+  WebSocket_Server(const char *protocol = "arduino",
+                   ESP3DClientType type = ESP3DClientType::websocket);
+  ~WebSocket_Server();
+  size_t writeBytes(const uint8_t *buffer, size_t size);
+  bool begin(uint16_t port = 0);
+  uint16_t port() { return _port; }
+  void end();
+  int available();
+  int availableForWrite();
+  bool pushMSG(const char *data);
+  bool pushMSG(uint num, const char *data);
+  bool dispatch(ESP3DMessage *message);
+  void flush(void);
+  void handle();
+  operator bool() const;
+  void set_currentID(uint8_t current_id);
+  uint8_t get_currentID();
+  void closeClients();
+  void enableOnly(uint num);
+  bool started() { return _started; }
+  void push2RXbuffer(uint8_t *sbuf, size_t len);
+  const char *getProtocol() { return _protocol.c_str(); }
+  uint16_t getPort() { return _port; }
+  void initAuthentication();
+  void setAuthentication(ESP3DAuthenticationLevel auth) { _auth = auth; }
+  ESP3DAuthenticationLevel getAuthentication();
+  bool isConnected();
 
-    inline size_t write(const char * s)
-    {
-        return write((uint8_t*) s, strlen(s));
-    }
-    inline size_t write(unsigned long n)
-    {
-        return write((uint8_t) n);
-    }
-    inline size_t write(long n)
-    {
-        return write((uint8_t) n);
-    }
-    inline size_t write(unsigned int n)
-    {
-        return write((uint8_t) n);
-    }
-    inline size_t write(int n)
-    {
-        return write((uint8_t) n);
-    }
-    bool begin(uint16_t port=0);
-    uint16_t port()
-    {
-        return _port;
-    }
-    void end();
-    int available();
-    int availableForWrite();
-    void pushMSG (const char * data);
-    void pushMSG (uint num, const char * data);
-    void flush(void);
-    void handle();
-    operator bool() const;
-    void set_currentID(uint8_t current_id);
-    uint8_t get_currentID();
-    void closeClients();
-    void enableOnly (uint num);
-    bool started()
-    {
-        return _started;
-    }
-    void push2RXbuffer(uint8_t * sbuf, size_t len);
-    const char * getProtocol()
-    {
-        return _protocol.c_str();
-    }
-    uint16_t getPort()
-    {
-        return _port;
-    }
-private:
-    bool _started;
-    uint16_t _port;
-    uint32_t _lastTXflush;
-    uint32_t _lastRXflush;
-    WebSocketsServer * _websocket_server;
-    String _protocol;
-    uint8_t _TXbuffer[TXBUFFERSIZE];
-    uint16_t _TXbufferSize;
-    uint8_t _current_id;
-    void flushTXbuffer();
-    void flushRXbuffer();
-    uint8_t  *_RXbuffer;
-    uint16_t _RXbufferSize;
+ private:
+  ESP3DClientType _type;
+  ESP3DAuthenticationLevel _auth;
+  bool _started;
+  uint16_t _port;
+  uint32_t _lastTXflush;
+  uint32_t _lastRXflush;
+  WebSocketsServer *_websocket_server;
+  String _protocol;
+  uint8_t _TXbuffer[TXBUFFERSIZE];
+  uint16_t _TXbufferSize;
+  uint8_t _current_id;
+  void flushTXbuffer();
+  void flushRXbuffer();
+  uint8_t *_RXbuffer;
+  uint16_t _RXbufferSize;
 };
 
 extern WebSocket_Server websocket_terminal_server;
 
 #if defined(WS_DATA_FEATURE)
-extern  WebSocket_Server websocket_data_server;
-#endif //WS_DATA_FEATURE
-#endif //_WEBSOCKET_SERVER_H_
+extern WebSocket_Server websocket_data_server;
+#endif  // WS_DATA_FEATURE
+#endif  //_WEBSOCKET_SERVER_H_

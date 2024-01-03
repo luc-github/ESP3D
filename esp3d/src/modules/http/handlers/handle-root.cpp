@@ -50,14 +50,14 @@ void HTTP_Server::handle_root() {
        ESP_FileSystem::exists(path.c_str())) &&
       !_webserver->hasArg("forcefallback") &&
       _webserver->arg("forcefallback") != "yes") {
-    log_esp3d("Path found `%s`", path.c_str());
+    esp3d_log("Path found `%s`", path.c_str());
     if (ESP_FileSystem::exists(pathWithGz.c_str())) {
       _webserver->sendHeader("Content-Encoding", "gzip");
       path = pathWithGz;
-      log_esp3d("Path is gz `%s`", path.c_str());
+      esp3d_log("Path is gz `%s`", path.c_str());
     }
     if (!StreamFSFile(path.c_str(), contentType.c_str())) {
-      log_esp3d_e("Stream `%s` failed", path.c_str());
+      esp3d_log_e("Stream `%s` failed", path.c_str());
     }
     return;
   }

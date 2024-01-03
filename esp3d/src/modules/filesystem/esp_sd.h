@@ -22,9 +22,8 @@
 #define _ESP_SD_H
 #include <time.h>
 
-#include "../../core/esp3doutput.h"
+#include "../../core/esp3d_message.h"
 #include "../../include/esp3d_config.h"
-
 
 #define ESP_SD_FS_HEADER "/SD"
 
@@ -69,7 +68,6 @@ class ESP_SDFile {
 
 class ESP_SD {
  public:
-  static String& formatBytes(uint64_t bytes);
   static bool begin();
   static bool accessFS(uint8_t FS = FS_SD);
   static void releaseFS(uint8_t FS = FS_SD);
@@ -84,7 +82,7 @@ class ESP_SD {
   static uint64_t freeBytes(bool refresh = false);
   static uint maxPathLength();
   static const char* FilesystemName();
-  static bool format(ESP3DOutput* output = nullptr);
+  static bool format();
   static ESP_SDFile open(const char* path, uint8_t mode = ESP_FILE_READ);
   static bool exists(const char* path);
   static bool remove(const char* path);

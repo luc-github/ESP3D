@@ -31,7 +31,7 @@
 #include "../../filesystem/esp_sd.h"
 
 #ifdef ESP_BENCHMARK_FEATURE
-#include "../../../core/benchmark.h"
+#include "../../../core/esp3d_benchmark.h"
 #endif  // ESP_BENCHMARK_FEATURE
 #if defined(ESP3DLIB_ENV) && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
 #include "../../serial2socket/serial2socket.h"
@@ -46,12 +46,12 @@ void HTTP_Server::SDFileupload() {
 #endif  // ESP_BENCHMARK_FEATURE
   static uint64_t last_WS_update;
   // get authentication status
-  level_authenticate_type auth_level =
-      AuthenticationService::authenticated_level();
+  ESP3DAuthenticationLevel auth_level =
+      AuthenticationService::getAuthenticatedLevel();
   static String filename;
   static ESP_SDFile fsUploadFile;
   // Guest cannot upload - only admin
-  if (auth_level == LEVEL_GUEST) {
+  if (auth_level == ESP3DAuthenticationLevel::guest) {
     pushError(ESP_ERROR_AUTHENTICATION, "Upload rejected", 401);
     _upload_status = UPLOAD_STATUS_FAILED;
   } else {
@@ -76,7 +76,7 @@ void HTTP_Server::SDFileupload() {
           return;
         }
         if (ESP_SD::getState(true) == ESP_SDCARD_NOT_PRESENT) {
-          log_esp3d("Release Sd called");
+          esp3d_log("Release Sd called");
           ESP_SD::releaseFS();
           _upload_status = UPLOAD_STATUS_FAILED;
           pushError(ESP_ERROR_NO_SD, "Upload rejected");
@@ -137,7 +137,7 @@ void HTTP_Server::SDFileupload() {
           fsUploadFile.close();
         }
         String sizeargname = upload.filename + "S";
-        log_esp3d("Uploading file %s", filename.c_str());
+        esp3d_log("Uploading file %s", filename.c_str());
         if (_upload_status != UPLOAD_STATUS_FAILED) {
           if (_webserver->hasArg(sizeargname.c_str())) {
             size_t freespace = ESP_SD::totalBytes() - ESP_SD::usedBytes();
@@ -149,19 +149,19 @@ void HTTP_Server::SDFileupload() {
           }
         }
         if (_upload_status != UPLOAD_STATUS_FAILED) {
-          log_esp3d("Try file creation");
+          esp3d_log("Try file creation");
           // create file
           fsUploadFile = ESP_SD::open(filename.c_str(), ESP_FILE_WRITE);
           // check If creation succeed
           if (fsUploadFile) {
             // if yes upload is started
             _upload_status = UPLOAD_STATUS_ONGOING;
-            log_esp3d("Try file creation");
+            esp3d_log("Try file creation");
           } else {
             // if no set cancel flag
             _upload_status = UPLOAD_STATUS_FAILED;
             pushError(ESP_ERROR_FILE_CREATION, "File creation failed");
-            log_esp3d_e("File creation failed");
+            esp3d_log_e("File creation failed");
           }
         }
         // Upload write
@@ -180,7 +180,7 @@ void HTTP_Server::SDFileupload() {
           int writeddatanb = fsUploadFile.write(upload.buf, upload.currentSize);
           if (upload.currentSize != (size_t)writeddatanb) {
             // we have a problem set flag UPLOAD_STATUS_FAILED
-            log_esp3d_e("File write failed du to mismatch size %d vs %d",
+            esp3d_log_e("File write failed du to mismatch size %d vs %d",
                         writeddatanb, upload.currentSize);
             _upload_status = UPLOAD_STATUS_FAILED;
             pushError(ESP_ERROR_FILE_WRITE, "File write failed");
@@ -188,7 +188,7 @@ void HTTP_Server::SDFileupload() {
         } else {
           // we have a problem set flag UPLOAD_STATUS_FAILED
           _upload_status = UPLOAD_STATUS_FAILED;
-          log_esp3d_e("Error detected");
+          esp3d_log_e("Error detected");
           pushError(ESP_ERROR_FILE_WRITE, "File write failed");
         }
         // Upload end
@@ -220,7 +220,7 @@ void HTTP_Server::SDFileupload() {
           _upload_status = UPLOAD_STATUS_FAILED;
           pushError(ESP_ERROR_FILE_CLOSE, "File close failed");
         }
-        log_esp3d("Release Sd called");
+        esp3d_log("Release Sd called");
         ESP_SD::releaseFS();
 #if defined(ESP3DLIB_ENV) && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
         Serial2Socket.pause(false);
@@ -229,7 +229,7 @@ void HTTP_Server::SDFileupload() {
       } else {
         if (_upload_status == UPLOAD_STATUS_ONGOING) {
           _upload_status = UPLOAD_STATUS_FAILED;
-          log_esp3d("Release Sd called");
+          esp3d_log("Release Sd called");
           ESP_SD::releaseFS();
 #if defined(ESP3DLIB_ENV) && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
           Serial2Socket.pause(false);
@@ -244,17 +244,17 @@ void HTTP_Server::SDFileupload() {
     if (fsUploadFile) {
       fsUploadFile.close();
     }
-    if (auth_level != LEVEL_GUEST) {
+    if (auth_level != ESP3DAuthenticationLevel::guest) {
       if (ESP_SD::exists(filename.c_str())) {
         ESP_SD::remove(filename.c_str());
       }
     }
-    log_esp3d("Release Sd called");
+    esp3d_log("Release Sd called");
     ESP_SD::releaseFS();
 #if defined(ESP3DLIB_ENV) && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
     Serial2Socket.pause(false);
 #endif  // ESP3DLIB_ENV && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
   }
-  Hal::wait(5);
+  ESP3DHal::wait(5);
 }
 #endif  // HTTP_FEATURE && SD_DEVICE

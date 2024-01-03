@@ -2,7 +2,7 @@
  * GENERATED FILE, DO NOT EDIT IT!
  * @file lv_conf_internal.h
  * Make sure all the defines of lv_conf.h have a default value
-**/
+ **/
 
 #ifndef LV_CONF_INTERNAL_H
 #define LV_CONF_INTERNAL_H
@@ -473,7 +473,7 @@
     *LV_LOG_LEVEL_INFO        Log important events
     *LV_LOG_LEVEL_WARN        Log if something unwanted happened but didn't cause a problem
     *LV_LOG_LEVEL_ERROR       Only critical issue, when the system may fail
-    *LV_LOG_LEVEL_USER        Only logs added by the user
+    *LV_LOG_user        Only logs added by the user
     *LV_LOG_LEVEL_NONE        Do not log anything*/
     #ifndef LV_LOG_LEVEL
         #ifdef CONFIG_LV_LOG_LEVEL

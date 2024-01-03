@@ -30,11 +30,11 @@
 #include "../../authentication/authentication_service.h"
 // Web Update handler
 void HTTP_Server::handleUpdate() {
-  level_authenticate_type auth_level =
-      AuthenticationService::authenticated_level();
+  ESP3DAuthenticationLevel auth_level =
+      AuthenticationService::getAuthenticatedLevel();
   HTTP_Server::set_http_headers();
 
-  if (auth_level != LEVEL_ADMIN) {
+  if (auth_level != ESP3DAuthenticationLevel::admin) {
     _upload_status = UPLOAD_STATUS_NONE;
     _webserver->send(401, "text/plain", "Wrong authentication!");
     return;
@@ -59,7 +59,7 @@ void HTTP_Server::handleUpdate() {
   _webserver->send(200, "application/json", jsonfile);
   // if success restart
   if (_upload_status == UPLOAD_STATUS_SUCCESSFUL) {
-    Hal::wait(1000);
+    ESP3DHal::wait(1000);
     Esp3D::restart_esp();
   } else {
     _upload_status = UPLOAD_STATUS_NONE;

@@ -164,7 +164,7 @@ label can be: light/framesize/quality/contrast/brightness/saturation/gainceiling
         ESP_INTERNET_TIME       120     //1  byte = flag   
         ESP_HTTP_PORT           121     //4  bytes = int   
         ESP_TELNET_PORT         125     //4  bytes = int   
-        ESP_SERIAL_FLAG         129     //1  bytes = flag   
+        FREE                    129     //1  bytes = flag   
         ESP_HOSTNAME            130     //33 bytes 32+1 = string  ; warning does not support multibyte char like chinese   
         ESP_SENSOR_INTERVAL     164     //4  bytes = int   
         ESP_SETTINGS_VERSION    168     //8  bytes = 7+1 = string ESP3D + 2 digits   
@@ -179,44 +179,44 @@ label can be: light/framesize/quality/contrast/brightness/saturation/gainceiling
         ESP_TELNET_ON           329     //1 byte = flag   
         ESP_WEBSOCKET_ON        330     //1 byte = flag   
         ESP_SD_SPEED_DIV        331     //1 byte = flag   
-        ESP_NOTIFICATION_TOKEN1 332     //64 bytes 63+1 = string  ; warning does not support multibyte char like chinese   
-        ESP_NOTIFICATION_TOKEN2 396     //64 bytes 63+1 = string  ; warning does not support multibyte char like chinese    
-        ESP_SENSOR_TYPE         460     //1  bytes = flag   
-        ESP_TARGET_FW           461     //1  bytes = flag   
-        ESP_FREE            462     //1  bytes = flag   
-        ESP_TIME_IS_DST         463     //1  bytes = flag   
-        ESP_TIME_SERVER1        464     //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese   
-        ESP_TIME_SERVER2        593     //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese   
-        ESP_TIME_SERVER3        722     //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese   
-        ESP_REMOTE_SCREEN       851     //1  bytes = flag   
-        ESP_SD_MOUNT            852     //1  bytes = flag   
-        ESP_SESSION_TIMEOUT     853     //1  bytes = flag   
-        ESP_WEBSOCKET_FLAG      854     //1  bytes = flag   
-        ESP_SD_CHECK_UPDATE_AT_BOOT 855//1  bytes = flag   
-        ESP_NOTIFICATION_SETTINGS 856   //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese    
-        ESP_CALIBRATION_1       985     //4  bytes = int   
-        ESP_CALIBRATION_2       989     //4  bytes = int   
-        ESP_CALIBRATION_3       993     //4  bytes = int    
-        ESP_CALIBRATION_4       997     //4  bytes = int   
-        ESP_CALIBRATION_5       1001     //4  bytes = int   
-        ESP_SETUP               1005    //1 byte = flag    
-        ESP_TELNET_FLAG         1006    //1 byte = flag   
-        ESP_BT_FLAG             1007    //1 byte = flag   
-        ESP_SCREEEN_FLAG        1008    //1 byte = flag   
-        ESP_FTP_CTRL_PORT       1009    //4  bytes = int   
-        ESP_FTP_DATA_ACTIVE_PORT  1013    //4  bytes = int   
-        ESP_FTP_DATA_PASSIVE_PORT 1017    //4  bytes = int   
-        ESP_FTP_ON              1021     //1 byte = flag   
-        ESP_AUTO_NOTIFICATION   1022    //1 byte = flag   
-        ESP_VERBOSE_BOOT	    1023	//1 byte = flag   
-        ESP_WEBDAV_ON           1024    //1 byte = flag   
-        ESP_WEBDAV_PORT  	    1025	//4  bytes = int   
-        ESP_STA_DNS_VALUE       1029    //4  bytes= int    
-        ESP_SECURE_SERIAL       1033    //1 byte = flag   
-        ESP_SERIAL_BRIDGE_ON    1036    //1 byte = flag
-        ESP_SERIAL_BRIDGE_FLAG  1037    //1 byte = flag
-        ESP_SERIAL_BRIDGE_BAUD  1038    //4  bytes= int
-        ESP_TIME_ZONE           1042    //7  bytes= string    
+        ESP_NOTIFICATION_TOKEN1 332     //251 bytes 250+1 = string  ; warning does not support multibyte char like chinese   
+        ESP_NOTIFICATION_TOKEN2 583     //64 bytes 63+1 = string  ; warning does not support multibyte char like chinese    
+        ESP_SENSOR_TYPE         647     //1  bytes = flag   
+        ESP_TARGET_FW           648     //1  bytes = flag   
+        FREE                    649     //1  bytes = flag   
+        FREE                    650     //1  bytes = flag   
+        ESP_TIME_SERVER1        651     //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese   
+        ESP_TIME_SERVER2        780     //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese   
+        ESP_TIME_SERVER3        909     //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese   
+        ESP_REMOTE_SCREEN       1038     //1  bytes = flag   
+        ESP_SD_MOUNT            1039     //1  bytes = flag   
+        ESP_SESSION_TIMEOUT     1040     //1  bytes = flag   
+        FREE          FLAG      1041     //1  bytes = flag   
+        ESP_SD_CHECK_UPDATE_AT_BOOT 1042//1  bytes = flag   
+        ESP_NOTIFICATION_SETTINGS 1043   //129 bytes 128+1 = string  ; warning does not support multibyte char like chinese    
+        ESP_CALIBRATION_1       1172     //4  bytes = int   
+        ESP_CALIBRATION_2       1176     //4  bytes = int   
+        ESP_CALIBRATION_3       1180     //4  bytes = int    
+        ESP_CALIBRATION_4       1184     //4  bytes = int   
+        ESP_CALIBRATION_5       1188     //4  bytes = int   
+        ESP_SETUP               1192    //1 byte = flag    
+        FREE                    1193    //1 byte = flag   
+        FREE                    1194    //1 byte = flag   
+        FREE                    1195    //1 byte = flag   
+        ESP_FTP_CTRL_PORT       1196    //4  bytes = int   
+        ESP_FTP_DATA_ACTIVE_PORT  1200    //4  bytes = int   
+        ESP_FTP_DATA_PASSIVE_PORT 1204    //4  bytes = int   
+        ESP_FTP_ON              1208     //1 byte = flag   
+        ESP_AUTO_NOTIFICATION   1209    //1 byte = flag   
+        ESP_VERBOSE_BOOT	    1210	//1 byte = flag   
+        ESP_WEBDAV_ON           1211    //1 byte = flag   
+        ESP_WEBDAV_PORT  	    1212	//4  bytes = int   
+        ESP_STA_DNS_VALUE       1216    //4  bytes= int    
+        ESP_SECURE_SERIAL       1220    //1 byte = flag   
+        ESP_SERIAL_BRIDGE_ON    1223    //1 byte = flag
+        FREE                    1224    //1 byte = flag
+        ESP_SERIAL_BRIDGE_BAUD  1225    //4  bytes= int
+        ESP_TIME_ZONE           1229    //7  bytes= string    
 ```
 
 * Get/Set Check update at boot state which can be ON, OFF   
@@ -237,6 +237,12 @@ label can be: light/framesize/quality/contrast/brightness/saturation/gainceiling
 * Get available ESP3D list   
     output is JSON or plain text according parameter   
     `[ESP450]json=<no> <pwd=admin/user>`
+
+* Get authentication level
+    `[ESP500] json=<no>`
+
+* Get/Set session timeout   
+    `[ESP510]<timeout in minutes> json=<no> pwd=<admin password>`
 
 * Change admin password    
     `[ESP550]<password> json=<no> pwd=<admin password>` 
@@ -299,8 +305,6 @@ label can be: light/framesize/quality/contrast/brightness/saturation/gainceiling
 * Get state / Set Enable / Disable buzzer   
     `[ESP910]<ENABLE/DISABLE> json=<no> pwd=<admin/user password>`
 
-* Get state / Set state of  output message clients   
-    `[ESP920]<SERIAL / SCREEN / REMOTE_SCREEN/ WEBSOCKET / TELNET /BT / ALL>=<ON/OFF> json=<no> pwd=<admin/user password>`  
 
 * Get state / Set Enable / Disable Serial Bridge Communication   
     `[ESP930]<ENABLE/DISABLE> json=<no> pwd=<admin/user password>`    

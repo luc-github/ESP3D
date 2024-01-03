@@ -187,44 +187,6 @@ archetype = "section"
 title = "[ESP104]"
 weight = 800
 +++
-Set station fallback mode state at boot which can be BT, WIFI-AP,  OFF
-
-## Input
-`[ESP104]<mode> json=<no> pwd=<admin/user password>`
-
-* json=no
-the output format   
-can be in JSON or plain text
-
-* pwd=<admin password>
-
-the admin password if authentication is enabled
-
-* mode
-  * if mode is empty, it will display current mode
-  * if mode is not empty, it will set the setting mode: `BT`, `WIFI-AP` or `OFF`
-
-## Output
-
-- In json format
-
-```json
-{
-   "cmd":"104",
-   "status":"ok",
-   "data":"OFF"
-}
-```
-
-* `cmd` Id of requested command, should be `104`
-* `status` status of command, should be `ok`
-* `data` content of response, here the mode
-
-+++
-archetype = "section"
-title = "[ESP104]"
-weight = 800
-+++
 Set station fallback mode state at boot which can be BT, WIFI-SETUP,  OFF
 
 ## Input
@@ -252,6 +214,10 @@ the admin password if authentication is enabled
    "data":"OFF"
 }
 ```
+* `cmd` Id of requested command, should be `104`
+* `status` status of command, should be `ok`
+* `data` content of response, here the mode
+
 
 +++
 archetype = "section"
@@ -455,7 +421,7 @@ weight = 800
 Display current IP
 
 ## Input
-`[ESP111]<OUTPUT=PRINTER> json=<no> pwd=<admin/user password>`
+`[ESP111]<OUTPUT=PRINTER> <ALL> json=<no> pwd=<admin/user password>`
 
 * json=no
 the output format
@@ -467,6 +433,9 @@ the admin password if authentication is enabled
 * OUTPUT
   * if OUTPUT is empty, it will display current IP as text `192.168.0.1`
   * if OUTPUT is `PRINTER`, it will display current IP in printer format `M117 192.168.0.1`
+
+* ALL
+  * it is set it will display IP, GW, MSK, DNS ip
 
 ## Output
 
@@ -1215,12 +1184,11 @@ the admin password if authentication is enabled
       * if V is empty, it will display current pin value
       * if V is not empty, it will set the pin value
  * RAW
-      * if RAW is present, it will not set the pin mode
+      * if RAW is present, it will set the pin mode
 
   * PULLUP
-      * if PULLUP is present, it will set the pin mode to pullup
+      * if PULLUP is present, it will set the pullup pin mode
 
- 
   * ANALOG
       * if ANALOG is present, it will set the pin ANALOG
 
@@ -1663,6 +1631,7 @@ Passwords are not displayed and replaced by `********`
 {"line":"3"},
 {"telegram":"4"},
 {"IFTTT":"5"}]},
+{"HomeAssistant":"6"}]},
 {"F":"service/notification","P":"332","T":"S","R":"1","V":"********","S":"63","H":"t1","M":"0"},
 {"F":"service/notification","P":"396","T":"S","R":"1","V":"********","S":"63","H":"t2","M":"0"},
 {"F":"service/notification","P":"856","T":"S","R":"1","V":" ","S":"128","H":"ts","M":"0"},
@@ -1723,9 +1692,1595 @@ Note2 : the 2.1 Flag type is no more used, several entries are used instead grou
 If no json the list is limited to a list of `<help>: <value>`  
 
 ```text
-
 Settings:
 network/network/hostname: esp3d
-network/network/mdns: 1
+network/network/radio mode: 5
+network/network/radio_boot: 1
+network/sta/SSID: NETWORK_SSID
+network/sta/pwd: ********
+network/sta/ip mode: 1
+network/sta/ip: 192.168.0.254
+network/sta/gw: 192.168.0.254
+network/sta/msk: 255.255.255.0
+network/sta/DNS: 192.168.0.254
+network/sta/sta fallback mode: 5
+network/ap/SSID: ESP3D
+network/ap/pwd: ********
+network/ap/ip: 192.168.0.1
+network/ap/channel: 11
+service/time/i-time: 0
+service/time/tzone: +00:00
+service/time/t-server: time.windows.com
+service/time/t-server: time.google.com
+service/time/t-server: 0.pool.ntp.org
+service/notification/auto notif: 1
+service/notification/notification: 0
+service/notification/t1: 
+service/notification/t2:
+service/notification/ts: 
+system/system/targetfw: 0
+system/system/baud: 115200
+system/boot/bootdelay: 10000
+system/boot/verbose: 0
+ok
 ```
+
++++
+archetype = "section"
+title = "[ESP401]"
+weight = 800
++++
+Set ESP3D settings
+
+## Input
+`[ESP401]<P=id> <T=type> <V=value> json=<no> pwd=<admin password>`
+
+* json=no
+the output format
+can be in JSON or plain text
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+* P
+    * P is the id or position in EEPROM of the setting to change
+
+* T
+      * T is the type of the setting to change
+      * T can be:
+        -   S: for string
+        -   I: for integer
+        -   B: for Byte
+        -   A: for IP address / Mask
+        -   F: for float (only grblHAL)
+        -   M: for bits mask (only grblHAL)
+        -   X: for exclusive bitsfield (only grblHAL)
+
+* V
+      * V is the value to set
+      if value has space add `\`` in front of space to not be seen as separator
+      e.g: `[ESP401]P=1 T=S V=My\ SSID json`
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"401",
+   "status":"ok",
+   "data":"1"
+}
+```
+
+* `cmd` Id of requested command, should be `401`
+* `status` status of command, should be `ok`
+* `data` content of response, here the id/position of the setting changed
+
+
++++
+archetype = "section"
+title = "[ESP402]"
+weight = 800
++++
+ Get/Set SD updater check at boot time
+
+## Input
+`[ESP402]<state> json=<no> pwd=<admin password>`   
+
+* json=no
+the output format
+can be in JSON or plain text
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+* state
+  * if state is empty, it will display current state
+  * if state is not empty, it will set the state  ON, OFF
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"402",
+   "status":"ok",
+   "data":"OFF"
+}
+```
+
+* `cmd` Id of requested command, should be `402`
+* `status` status of command, should be `ok`
+* `data` content of response, here the state
+
+
++++
+archetype = "section"
+title = "[ESP410]"
+weight = 800
++++
+List all AP detected around, if signal is too low, AP is not listed to avoid connection problems.
+
+## Input
+`[ESP410] json=<no> pwd=<admin password>`
+* json=no
+the output format
+can be in JSON or plain text
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"410",
+   "status":"ok",
+   "data":[
+      {"SSID":"Luc-Lab","SIGNAL":"100","IS_PROTECTED":"1"},
+      {"SSID":"CHT0573(Mesh)","SIGNAL":"100","IS_PROTECTED":"1"},
+      {"SSID":"[LG_AirPurifier]","SIGNAL":"48","IS_PROTECTED":"1"},
+   ]
+}
+```
+
+* `cmd` Id of requested command, should be `410`
+* `status` status of command, should be `ok`
+* `data` content of response, here the list of AP detected with signal strength and if protected or not
+
+ - plain text format
+
+```text
+Start Scan
+Luc-Lab 100%    Secure
+CHT0573(Mesh)   100%    Secure
+[LG_AirPurifier]    46%     Secure
+End Scan
+```
+
++++
+archetype = "section"
+title = "[ESP420]"
+weight = 800
++++
+Get ESP3D current status
+
+## Input
+`[ESP420] json=<no> pwd=<admin password>`
+
+* json=no
+the output format
+can be in JSON or plain text
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+
+## Output
+
+```json
+{
+   "cmd":"420",
+   "status":"ok",
+   "data":[
+      {"id":"chip id","value":"11111"},
+      {"id":"CPU Freq","value":"240Mhz"},
+      {"id":"CPU Temp","value":"72.8C"},
+      {"id":"free mem","value":"232.43 KB"},
+      {"id":"SDK","value":"v4.4.4"},
+      {"id":"flash size","value":"4.00 MB"},
+      {"id":"FS type","value":"LittleFS"},
+      {"id":"FS usage","value":"112.00 KB/128.00 KB"},
+      {"id":"baud","value":"115200"},
+      {"id":"sleep mode","value":"none"},
+      {"id":"wifi","value":"ON"},
+      {"id":"hostname","value":"esp3d"},
+      {"id":"wifi mode","value":"ap"},
+      {"id":"mac","value":"D4:D4:D4:D4:D4:D4"},
+      {"id":"SSID","value":"ESP3D"},
+      {"id":"visible","value":"yes"},
+      {"id":"authentication","value":"WPA2"},
+      {"id":"DHCP Server","value":"ON"},
+      {"id":"ip","value":"192.168.0.1"},
+      {"id":"gw","value":"192.168.0.1"},
+      {"id":"msk","value":"255.255.255.0"},
+      {"id":"clients","value":"0"},{"id":"sta","value":"OFF"},
+      {"id":"mac","value":"D4:D4:D4:D4:D4:D4"},
+      {"id":"ntp","value":"OFF"},
+      {"id":"serial","value":"ON"},
+      {"id":"notification","value":"ON (none)"},
+      {"id":"targetfw","value":"unknown"},
+      {"id":"FW ver","value":"3.0.0.a225"},
+      {"id":"FW arch","value":"ESP32"}]}
+
+```
+
+* `cmd` Id of requested command, should be `420`
+* `status` status of command, should be `ok`
+* `data` content of response, where each status is a key/value pair of id/value
+
+ - plain text format
+
+```Text
+Configuration:
+chip id: 1010100
+CPU Freq: 240Mhz
+CPU Temp: 72.8C
+free mem: 232.47 KB
+SDK: v4.4.4
+flash size: 4.00 MB
+FS type: LittleFS
+FS usage: 112.00 KB/128.00 KB
+baud: 115200
+sleep mode: none
+wifi: ON
+hostname: esp3d
+wifi mode: ap
+mac: D4:D4:D4:D4:D4:D4
+SSID: ESP3D
+visible: yes
+authentication: WPA2
+DHCP Server: ON
+ip: 192.168.0.1
+gw: 192.168.0.1
+msk: 255.255.255.0
+clients: 0
+sta: OFF
+mac: D4:D4:D4:D4:D4:D4
+ntp: OFF
+serial: ON
+notification: ON (none)
+targetfw: unknown
+FW ver: 3.0.0.a225
+FW arch: ESP32
+ok
+```
+
++++
+archetype = "section"
+title = "[ESP444]"
+weight = 800
++++
+Set ESP3D state
+
+## Input
+`[ESP444]<state> json=<no> pwd=<admin password>`
+
+* json=no
+the output format
+can be in JSON or plain text
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+* state
+  * RESET to reset all settings to default
+  * RESTART to restart ESP3D
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"444",
+   "status":"ok",
+   "data":"ok"
+}
+```
+
+* `cmd` Id of requested command, should be `444`
+* `status` status of command, should be `ok`
+* `data` content of response, here `ok`
+
++++
+archetype = "section"
+title = "[ESP450]"
+weight = 800
++++
+List available ESP3D modules/ ESP3D related devices around
+
+## Input
+`[ESP450] json=<no> pwd=<admin password>`
+
+* json=no
+the output format
+can be in JSON or plain text
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"450",
+   "status":"ok",
+   "data":[
+      {
+         "Hostname":"esp3d-tft",
+         "IP":"192.168.1.108",
+         "port":"80",
+         "TxT":[
+            {"key":"version","value":"1.0.0.a18"},
+            {"key":"firmware","value":"ESP3D-TFT"}
+         ]
+      }
+   ]
+}
+```
+
+* `cmd` Id of requested command, should be `450`
+* `status` status of command, should be `ok`
+* `data` content of response, here the list of modules detected with hostname, IP, port and TXT record
+
+ - plain text format
+
+```Text
+Start Scan
+esp3d-tft (192.168.1.108:80) version=1.0.0.a18,firmware=ESP3D-TFT
+End Scan
+```
+
+
++++
+archetype = "section"
+title = "[ESP500]"
+weight = 800
++++
+Get authentication status
+
+## Input
+`[ESP500] json=<no> pwd=<admin password>`
+
+* json=no
+the output format
+can be in JSON or plain text
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"500",
+   "status":"ok",
+   "data":"admin"
+}
+```
+
+* `cmd` Id of requested command, should be `500`
+* `status` status of command, should be `ok`
+* `data` content of response, here the current user authenticated
+
+ - plain text format
+
+```Text  
+admin
+```
+
++++
+archetype = "section"
+title = "[ESP510]"
+weight = 800
++++
+Set/display session time out
+
+## Input
+`[ESP510]<timeout> json=<no> pwd=<admin password>`
+
+* json=no
+the output format
+can be in JSON or plain text
+
+* timeout
+  * if timeout is empty, it will display current timeout (0~255 minutes), 0 means disable timeout
+  * if timeout is not empty, it will set the timeout
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"510",
+   "status":"ok",
+   "data":"10"
+}
+```
+
+* `cmd` Id of requested command, should be `510`
+* `status` status of command, should be `ok`
+* `data` content of response, here the current timeout
+
+ - plain text format
+
+```Text
+10
+```
+
++++
+archetype = "section"
+title = "[ESP550]"
+weight = 800
++++
+Set/Change admin password, only authenticated admin can change the password
+
+## Input
+`[ESP550]<password> json=<no> pwd=<admin password>`
+
+* json=no
+the output format
+can be in JSON or plain text
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+* password
+  for the  admin limited to 20 characters
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"550",
+   "status":"ok",
+   "data":"ok"
+}
+```
+
+* `cmd` Id of requested command, should be `550`
+* `status` status of command, should be `ok`
+* `data` content of response, here `ok` when password is changed
+
+
++++
+archetype = "section"
+title = "[ESP555]"
+weight = 800
++++
+Set/Change user password, only authenticated admin/user can change the password
+
+## Input
+`[ESP555]<password> json=<no> pwd=<admin password>`
+
+* json=no
+the output format
+can be in JSON or plain text
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+* password
+  for the  user limited to 20 characters
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"555",
+   "status":"ok",
+   "data":"ok"
+}
+```
+
+* `cmd` Id of requested command, should be `555`
+* `status` status of command, should be `ok`
+* `data` content of response, here `ok` when password is changed
+
+
+
+
++++
+archetype = "section"
+title = "[ESP600]"
+weight = 800
++++
+Send Notification using defined method, will also send notification to webui and eventually to any connected screen
+
+## Input
+`[ESP600]<message> json=<no> pwd=<admin password>`
+
+* json=no
+the output format
+can be in JSON or plain text
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+* message
+  the message to send, limited to 128 characters. 
+  Message can contain some variables:
+   - %ESP_NAME% : ESP3D hostname
+   - %ESP_IP% : ESP3D local IP address 
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"600",
+   "status":"ok",
+   "data":"ok"
+}
+```
+
+* `cmd` Id of requested command, should be `600`
+* `status` status of command, should be `ok`
+* `data` content of response, here `ok` when notification is sent
+
++++
+archetype = "section"
+title = "[ESP610]"
+weight = 800
++++
+ Set/Get Notification settings
+
+## Input
+`[ESP610]type=<NONE/PUSHOVER/EMAIL/LINE/IFTTT> T1=<token1> T2=<token2> TS=<Settings> json=<no> pwd=<admin password>`
+
+* json=no
+the output format
+can be in JSON or plain text
+
+* type
+  * if type is empty, it will display current type
+  * if type is not empty, it will set the type
+  currently only these types are supported:
+    - NONE
+    - PUSHOVER
+    - EMAIL
+    - LINE
+    - TELEGRAM
+    - IFTTT (by webhook)
+    - HomeAssistant (via webhook)
+
+* T1
+   * if T1 is not empty, it will set the token1 which depend on [type of notification](https://esp3d.io/esp3d/v3.x/documentation/notifications/index.html) 
+
+* T2
+   * if T2 is not empty, it will set the token2 which depend on [type of notification](https://esp3d.io/esp3d/v3.x/documentation/notifications/index.html) 
+
+* TS
+ if TS is not empty, it will set the setting token which depend on [type of notification](https://esp3d.io/esp3d/v3.x/documentation/notifications/index.html) 
+
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"610",
+   "status":"ok",
+   "data":"ok"
+}
+```
+
+* `cmd` Id of requested command, should be `610`
+* `status` status of command, should be `ok`
+* `data` content of response, here `ok` when notification is sent
+
++++
+archetype = "section"
+title = "[ESP620]"
+weight = 800
++++
+Send Notification using encodded URL
+
+## Input
+`[ESP620]<url> json=<no> pwd=<admin password>`
+* json=no
+the output format can be in JSON or plain text
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+* url
+  the url to send, limited to 128 characters, must be encoded
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"620",
+   "status":"ok",
+   "data":"ok"
+}
+```
+
+* `cmd` Id of requested command, should be `620`
+* `status` status of command, should be `ok`
+* `data` content of response, here `ok` when notification is sent
+
++++
+archetype = "section"
+title = "[ESP700]"
+weight = 800
++++
+Process local file on /FS or /SD
+
+## Input
+`[ESP700]<filename> json=<no> pwd=<admin password>`
+
+* json=no
+the output format can be in JSON or plain text
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+* filename
+  the filename to process, must be a valid file on /FS or /SD
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"700",
+   "status":"ok",
+   "data":"Processing <filename>"
+}
+```
+
+* `cmd` Id of requested command, should be `700`
+* `status` status of command, should be `ok`
+* `data` content of response, here `Processing <filename>` when file is processing
+
++++
+archetype = "section"
+title = "[ESP701]"
+weight = 800
++++
+Query and Control ESP700 stream
+
+## Input
+`[ESP701]action=<action> <CLEAR_ERROR>json=<no> pwd=<admin password>`
+
+* json=no
+the output format can be in JSON or plain text
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+* action
+  * if action is empty, it will display current state
+  * if action is not empty, it will set the action
+  currently only these actions are supported:
+    - ABORT
+    - PAUSE
+    - RESUME
+
+* CLEAR_ERROR
+   * if CLEAR_ERROR is present, it will clear the current error state
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"701",
+   "status":"ok",
+   "data":{
+      "status":"processing",
+      "total":"1000",
+      "processed":"500",
+      "type":"1",
+      "name":"/SD/myfile.gco"
+   }
+}
+```
+
+* `cmd` Id of requested command, should be `701`
+* `status` status of command, should be `ok`
+* `data` content of response, here the current state of stream
+
+
+
++++
+archetype = "section"
+title = "[ESP710]"
+weight = 800
++++
+Format ESP Filesystem
+
+## Input
+`[ESP710]FORMATFS json=<no> pwd=<admin password>`
+
+* json=no
+the output format can be in JSON or plain text
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+* FORMATFS
+   * if FORMATFS is present, it will format the local filesystem
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"710",
+   "status":"ok",
+   "data":"Starting formating..."
+}
+```
+
+* `cmd` Id of requested command, should be `710`
+* `status` status of command, should be `ok`
+* `data` content of response, here `Starting formating...` when filesystem is starting
+
+
+an new message is sent when formating is done
+
+```json
+{
+   "cmd":"710",
+   "status":"ok",
+   "data":"Formating done"
+}
+```
+
+* `cmd` Id of requested command, should be `710`
+* `status` status of command, should be `ok`
+* `data` content of response, here `Formating done` when filesystem is done
+
++++
+archetype = "section"
+title = "[ESP715]"
+weight = 800
++++
+Format SD Card
+
+## Input
+`[ESP715]FORMATSD json=<no> pwd=<admin password>`
+
+* json=no
+the output format can be in JSON or plain text
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+* FORMATSD
+   * if FORMATSD is present, it will format the SD card
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"715",
+   "status":"ok",
+   "data":"Starting formating..."
+}
+```
+
+* `cmd` Id of requested command, should be `715`
+* `status` status of command, should be `ok`
+* `data` content of response, here `Starting formating...` when SD card is starting
+
+an new message is sent when formating is done
+
+```json
+{
+   "cmd":"715",
+   "status":"ok",
+   "data":"Formating done"
+}
+```
+
+* `cmd` Id of requested command, should be `715`
+* `status` status of command, should be `ok`
+* `data` content of response, here `Formating done` when SD card is done
+
++++
+archetype = "section"
+title = "[ESP720]"
+weight = 800
++++
+List files on /FS or defined repository
+
+## Input
+`[ESP720]<Root> json=<no> pwd=<admin password>`
+
+* json=no
+the output format can be in JSON or plain text
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+* Root
+  * if Root is empty, it will list files on /FS
+  * if Root is not empty, it will list files on defined repository
+
+
+## Output
+
+* json
+
+```json
+{
+   "cmd":"720",
+   "status":"ok",
+   "data":{
+      "path":"/",
+      "files":[
+         {"name":"index.html.gz","size":"88.67 KB","time":"2023-11-05 11:57:57"}
+      ], 
+      "total":"128.00 KB",
+      "used":"100.00 KB",
+      "occupation":"78"
+   }
+}
+```
+
+* `cmd` Id of requested command, should be `720`
+* `status` status of command, should be `ok`
+* `data` content of response, here the list of files on /FS or defined repository
+
+
+* txt
+
+```text
+Directory on Flash : /
+         index.html.gz  88.67 KB        2023-11-05 11:57:57
+Files: 1, Dirs :0
+Total: 128.00 KB, Used: 100.00 KB, Available: 28.00 KB
+```
+
++++
+archetype = "section"
+title = "[ESP730]"
+weight = 800
++++
+Do some actions on ESP Filesystem:  rmdir / remove / mkdir / exists / create
+
+## Input
+`[ESP730]<action>=<path> json=<no> pwd=<admin password>`
+
+* json=no
+the output format can be in JSON or plain text
+
+* action
+  * if action is not empty, it will set the action
+  currently only these actions are supported:
+    - RMDIR (dir)
+    - REMOVE (file)
+    - MKDIR (dir)
+    - EXISTS (file/dir)
+    - CREATE (file)
+   
+
+* path
+   the path to process, must be a valid file or directory on /FS
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"730",
+   "status":"ok",
+   "data":"ok"
+}
+```
+
+* `cmd` Id of requested command, should be `730`
+* `status` status of command, should be `ok`
+* `data` content of response, here `ok` when action is done
+
++++
+archetype = "section"
+title = "[ESP740]"
+weight = 800
++++
+List files on /SD or defined repository
+
+## Input
+`[ESP740]<Root> json=<no> pwd=<admin password>`
+
+* json=no
+the output format can be in JSON or plain text
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+* Root
+  * if Root is empty, it will list files on /SD
+  * if Root is not empty, it will list files on defined repository
+
+
+## Output
+
+* json
+
+```json 
+{
+   "cmd":"720",
+   "status":"ok",
+   "data":{
+      "path":"/",
+      "files":[
+         {"name":"System Volume Information","size":"-1"},
+         {"name":"src","size":"-1"},
+         {"name":"testdir","size":"-1"},
+         {"name":"Newfolder2","size":"-1"},
+         {"name":"conventions","size":"-1"},
+         {"name":"extensions","size":"-1"},
+         {"name":"fileupload","size":"-1"},
+         {"name":"realtimecmd","size":"-1"},
+         {"name":"variableslist","size":"-1"},
+         {"name":"webhandlers","size":"-1"},
+         {"name":"websockets","size":"-1"},
+         {"name":"main","size":"-1"},
+         {"name":"mks_pft70.sys","size":"5 B"},
+         {"name":"index.html","size":"57.47 KB"},
+         {"name":"index.xml","size":"7.53 KB"},
+         {"name":"index.print.html","size":"77.74 KB"}
+      ], 
+      "total":"7.20 GB",
+      "used":"52.06 MB",
+      "occupation":"1"
+   }
+}
+```
+
+* `cmd` Id of requested command, should be `740`
+* `status` status of command, should be `ok`
+* `data` content of response, here the list of files on /SD or defined repository
+
+* text
+   
+   ```text
+   Directory on SD : /
+[DIR]   System Volume Information
+[DIR]   src
+[DIR]   testdir
+[DIR]   New%20folder2
+[DIR]   conventions
+[DIR]   extensions
+[DIR]   fileupload
+[DIR]   realtimecmd
+[DIR]   variableslist
+[DIR]   webhandlers
+[DIR]   websockets
+[DIR]   main
+         mks_pft70.sys  5 B 
+         index.html     57.47 KB 
+         index.xml      7.53 KB
+         index.print.html       77.74 KB 
+Files: 4, Dirs :12
+Total: 7.20 GB, Used: 52.06 MB, Available: 7.15 GB
+```
+
+
++++
+archetype = "section"
+title = "[ESP750]"
+weight = 800
++++
+Do some actions on SD Card:  rmdir / remove / mkdir / exists / create
+
+## Input
+`[ESP750]<action>=<path> json=<no> pwd=<admin password>`
+
+* json=no
+the output format can be in JSON or plain text
+
+* action
+  * if action is not empty, it will set the action
+  currently only these actions are supported:
+    - RMDIR (dir)
+    - REMOVE (file)
+    - MKDIR (dir)
+    - EXISTS (file/dir)
+    - CREATE (file)
+   
+
+* path
+   the path to process, must be a valid file or directory on /SD
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"750",
+   "status":"ok",
+   "data":"ok"
+}
+```
+
+* `cmd` Id of requested command, should be `750`
+* `status` status of command, should be `ok`
+* `data` content of response, here `ok` when action is done
+
++++
+archetype = "section"
+title = "[ESP780]"
+weight = 800
++++
+List Global Filesystem
+
+## Input
+`[ESP780]<Root> json=<no> pwd=<admin password>`
+
+* json=no
+the output format can be in JSON or plain text
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+* Root
+  * if Root is empty, it will list files on /FS
+  * if Root is not empty, it will list files on defined repository
+
+
+## Output
+
+* json
+
+```json
+{
+   "cmd":"780",
+   "status":"ok",
+   "data":{
+      "path":"/",
+      "files":[
+         {"name":"FS","size":"-1"},
+         {"name":"SD","size":"-1"}
+      ], 
+      "total":"0 B",
+      "used":"0 B",
+      "occupation":"0"
+   }
+}
+```
+
+* `cmd` Id of requested command, should be `780`
+* `status` status of command, should be `ok`
+* `data` content of response, here the list of files on /FS or defined repository
+
+* text
+   
+   ```text
+Directory on Global FS : /
+[DIR]   FS
+[DIR]   SD
+Files: 0, Dirs :2
+Total: 0 B, Used: 0 B, Available: 0 B
+```
+
++++
+archetype = "section"
+title = "[ESP790]"
+weight = 800
++++
+Do some actions on Global Filesystem:  rmdir / remove / mkdir / exists / create
+
+## Input
+`[ESP790]<action>=<path> json=<no> pwd=<admin password>`
+
+* json=no
+the output format can be in JSON or plain text
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+* action
+  * if action is not empty, it will set the action
+  currently only these actions are supported:
+    - RMDIR (dir)
+    - REMOVE (file)
+    - MKDIR (dir)
+    - EXISTS (file/dir)
+    - CREATE (file)
+
+
+* path
+   the path to process, must be a valid file or directory on /FS or /SD
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"790",
+   "status":"ok",
+   "data":"ok"
+}
+```
+
+* `cmd` Id of requested command, should be `790`
+* `status` status of command, should be `ok`
+* `data` content of response, here `ok` when action is done
+
++++
+archetype = "section"
+title = "[ESP800]"
+weight = 800
++++
+Get fw capabilities
+eventually set time with pc time and set setup state
+
+
+## Input
+
+`[ESP800]<time=YYYY-MM-DDTHH:mm:ss> <version=3.0.0-a11> <setup=0/1> json=<no> pwd=<admin password>`
+
+    * json=yes
+    the output format
+    * time=
+    to set ESP3D time using ISO 8601 format : `YYYY`-`MM`-`DD`T`HH`:`minutes`:`seconds`
+    * tz=+08:00 (optional)
+    to set ESP3D time zone using ISO 8601 format : `+`/`-` `HH`-`minutes`
+    * version
+    version of webUI
+    * setup flag
+    Enable / Disable the setup flag
+
+## Output
+
+-   In json format
+
+```
+{
+   "cmd":"800",
+   "status":"ok",
+   "data":{
+           "FWVersion":"bugfix-2.0.x-3.0.0.a200",
+           "FWTarget":"marlin",
+           "FWTargetID":"30",
+           "Setup":"Enabled",
+           "SDConnection":"shared",
+           "SerialProtocol":"Socket",
+           "Authentication":"Disabled",
+           "WebCommunication":"Synchronous",
+           "WebSocketIP":"192.168.2.117",
+           "WebSocketPort":"81",
+           "Hostname":"esp3d",
+           "WiFiMode":"STA",
+           "WebUpdate":"Enabled",
+           "FlashFileSystem":"LittleFS",
+           "HostPath":"www",
+           "Time":"none"
+           }
+}
+```
+
+    * `cmd`
+    Id of requested command, should be `800`
+
+    * `status`
+    status of command, should be `ok`
+
+    * `data`
+    content of response:
+        * `FWVersion`
+        Version  of ESP3D firmware or targeted FW (Marlin with ESP3DLib / grblHal)
+        * `FWTarget`
+        name of targeted  Firmware
+        * `FWTargetID`
+        numerical ID of targeted FW as same name can have several Ids
+        * `Setup`
+        Should be `Enabled` or `Disabled` according flag in EEPROM/Preferences, this allows to WedUI to start wizard automaticaly (or not)
+
+        * `SDConnection`
+        This is SD capability, SD can be
+            * `shared`
+            ESP does share access to SD card reader with main board or Firmware (Marlin with ESP3Dlib, ESP3D with hardware SD share solution)
+            * `direct`
+            ESP does have direct access to SD card reader (e.g: ESP3D, grblHal)
+            * `none`
+            ESP does not have direct access to SD card reader, (e.g: ESP3D with only serial connection)
+        * `SerialProtocol`
+        It define how ESP3D FW communicate with main FW
+          * `Socket`
+            ESP and main FW use same FW (e.g: Marlin with ESP3DLib, grblHal)
+          * `Raw`
+            Classic serial connection
+          * `MKS`
+            Serial connection using MKS protocol
+        * `Authentication`
+        Can be `Enabled` or `Disabled`
+        * `WebCommunication`
+          currently only `Synchronous`, because `Asychronous` has been put in hold
+        * `WebSocketIP`
+        Ip address for the websocket terminal `192.168.2.117`
+        * `WebSocketPort`
+        Port for the web socket terminal `81`
+        * `Hostname`
+         Hostname of ESP3D or main Baord `esp3d`
+        * `WiFiMode`
+        Current wiFi mode in use can be `AP` or `STA`
+        * `WebUpdate`
+        Inform webUI the feature is available or not, can be `Enabled` or `Disabled`
+        * `FlashFileSystem` (currently `FileSystem`, to be updated soon )
+        The file system used by ESP board can be `LittleFS`, `SPIFFS`, `Fat`, `none`
+        * `HostPath`
+        Path where the preferences.json and index.html.gz are stored and can be updated (e.g: `www`)
+        * `Time`
+        Type of time support
+           * `none`
+            Time is not supported
+           * `Auto`
+           Board use internet to sync time and it is successful
+           * `Failed to set`
+           Board use internet to sync time and it is failed
+           * `Manual`
+           Board use time of ESP800 to set the time and it is successful
+            * `Not set`
+           Board use time of ESP800 to set the time and command did not sent it (time may have been set by previous command)
+        * `CameraID`
+        if ESP has camera it contain the camera ID
+        * `CameraName`
+        if  ESP has camera it contain the camera name
+        * `Axisletters`
+        Currently only used for grbHAL
+        can be :
+          - XYZABC
+          - XYZUVZ (supported soon)
+          - XYZABCUVZ (supported soon)
+
+
+
+ 
+
++++
+archetype = "section"
+title = "[ESP900]"
+weight = 800
++++
+Get state / Set Serial Communication
+
+## Input
+`[ESP900]<state> json=<no> pwd=<admin password>`
+
+* json=no
+the output format
+can be in JSON or plain text
+
+* state
+  * if state is empty, it will display current state
+  * if state is not empty, it will set the state
+  currently only these states are supported:
+    - ENABLE
+    - DISABLE
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"900",
+   "status":"ok",
+   "data":"ENABLED"
+}
+```
+
+* `cmd` Id of requested command, should be `900`
+* `status` status of command, should be `ok`
+* `data` content of response, here the current state
+
+ - plain text format
+
+```Text
+ENABLED
+```
+
++++
+archetype = "section"
+title = "[ESP901]"
+weight = 800
++++
+ Set Serial baudrate for main serial communication
+
+## Input
+`[ESP901]<baudrate> json=<no> pwd=<admin password>`
+
+* json=no
+the output format
+can be in JSON or plain text
+
+* baudrate
+  * if baudrate is empty, it will display current baudrate
+  * if baudrate is not empty, it will set the baudrate
+  currently only these baudrates are supported:
+    - 9600
+    - 19200
+    - 38400
+    - 57600
+    - 74880
+    - 115200
+    - 230400
+    - 250000
+    - 500000
+    - 921600
+    - 1958400
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"901",
+   "status":"ok",
+   "data":"115200"
+}
+```
+
+* `cmd` Id of requested command, should be `901`
+* `status` status of command, should be `ok`
+* `data` content of response, here the current baudrate
+
+ - plain text format
+
+```Text
+115200
+```
+
++++
+archetype = "section"
+title = "[ESP910]"
+weight = 800
++++
+Get state / Set Enable / Disable buzzer
+
+## Input
+`[ESP910]<state> json=<no> pwd=<admin password>`
+
+* json=no
+the output format
+can be in JSON or plain text
+
+* state
+  * if state is empty, it will display current state
+  * if state is not empty, it will set the state
+  currently only these states are supported:
+    - ENABLE
+    - DISABLE
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"910",
+   "status":"ok",
+   "data":"ENABLED"
+}
+```
+
+* `cmd` Id of requested command, should be `910`
+* `status` status of command, should be `ok`
+* `data` content of response, here the current state
+
+ - plain text format
+
+```Text
+ENABLED
+```
+
++++
+archetype = "section"
+title = "[ESP930]"
+weight = 800
++++
+Set Bridge Serial state which can be ON, OFF, CLOSE
+
+## Input
+`[ESP930]<state> json=<no> pwd=<admin password>`
+
+* json=no
+the output format
+
+* state
+  * if state is empty, it will display current state
+  * if state is not empty, it will set the state
+  currently only these states are supported:
+    - ENABLE
+    - DISABLE
+    - CLOSE
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"930",
+   "status":"ok",
+   "data":"ENABLED"
+}
+```
+
+* `cmd` Id of requested command, should be `930`
+* `status` status of command, should be `ok`
+* `data` content of response, here the current state
+
+ - plain text format
+
+```Text
+ENABLED
+```
+
++++
+archetype = "section"
+title = "[ESP931]"
+weight = 800
++++
+Set Bridge Serial baudrate
+
+## Input
+`[ESP931]<baudrate> json=<no> pwd=<admin password>`
+
+* json=no
+the output format
+
+* baudrate
+  * if baudrate is empty, it will display current baudrate
+  * if baudrate is not empty, it will set the baudrate
+  currently only these baudrates are supported:
+    - 9600
+    - 19200
+    - 38400
+    - 57600
+    - 74880
+    - 115200
+    - 230400
+    - 250000
+    - 500000
+    - 921600
+    - 1958400
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"931",
+   "status":"ok",
+   "data":"115200"
+}
+```
+
+* `cmd` Id of requested command, should be `931`
+* `status` status of command, should be `ok`
+* `data` content of response, here the current baudrate
+
+ - plain text format
+
+```Text
+115200
+```
+
++++
+archetype = "section"
+title = "[ESP999]"
+weight = 800
++++
+Set quiet boot if strapping pin is High, can only e done o6nce and cannot be reverted
+
+## Input
+`[ESP999]QUIETBOOT json=<no> pwd=<admin password>`
+
+* json=no
+the output format
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+* QUIETBOOT
+  * if QUIETBOOT is present, it will set the quiet boot flag
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"999",
+   "status":"ok",
+   "data":"ok"
+}
+```
+
+* `cmd` Id of requested command, should be `999`
+* `status` status of command, should be `ok`
+* `data` content of response, here `ok` when quiet boot is set
+
+ - plain text format
+
+```Text
+ok
+```
+
 

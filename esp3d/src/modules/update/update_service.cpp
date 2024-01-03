@@ -20,9 +20,9 @@
 
 #include "../../include/esp3d_config.h"
 #ifdef SD_UPDATE_FEATURE
-#include "../../core/commands.h"
-#include "../../core/esp3doutput.h"
-#include "../../core/settings_esp3d.h"
+#include "../../core/esp3d_commands.h"
+#include "../../core/esp3d_message.h"
+#include "../../core/esp3d_settings.h"
 #include "../filesystem/esp_filesystem.h"
 #include "../filesystem/esp_sd.h"
 #include "esp_config_file.h"
@@ -91,45 +91,26 @@ const char* SysintKeysVal[] = {"Baud_rate", "Boot_delay"};
 
 const uint16_t SysintKeysPos[] = {ESP_BAUD_RATE, ESP_BOOT_DELAY};
 
-const char* ServboolKeysVal[] = {"Serial_Bridge_active",
-                                 "AUTONOTIFICATION",
-                                 "HTTP_active",
-                                 "TELNET_active",
-                                 "WebSocket_active",
-                                 "WebDav_active",
-                                 "Time_DST",
-                                 "CHECK_FOR_UPDATE",
-                                 "Active_buzzer",
-                                 "Active_Internet_time",
-                                 "Radio_enabled"};
+const char* ServboolKeysVal[] = {"Serial_Bridge_active", "AUTONOTIFICATION",
+                                 "HTTP_active",          "TELNET_active",
+                                 "WebSocket_active",     "WebDav_active",
+                                 "CHECK_FOR_UPDATE",     "Active_buzzer",
+                                 "Active_Internet_time", "Radio_enabled"};
 
-const uint16_t ServboolKeysPos[] = {
-    ESP_SERIAL_BRIDGE_ON, ESP_AUTO_NOTIFICATION,
-    ESP_HTTP_ON,          ESP_TELNET_ON,
-    ESP_WEBSOCKET_ON,     ESP_WEBDAV_ON,
-    ESP_TIME_IS_DST,      ESP_SD_CHECK_UPDATE_AT_BOOT,
-    ESP_BUZZER,           ESP_INTERNET_TIME,
-    ESP_BOOT_RADIO_STATE};
+const uint16_t ServboolKeysPos[] = {ESP_SERIAL_BRIDGE_ON,
+                                    ESP_AUTO_NOTIFICATION,
+                                    ESP_HTTP_ON,
+                                    ESP_TELNET_ON,
+                                    ESP_WEBSOCKET_ON,
+                                    ESP_WEBDAV_ON,
+                                    ESP_SD_CHECK_UPDATE_AT_BOOT,
+                                    ESP_BUZZER,
+                                    ESP_INTERNET_TIME,
+                                    ESP_BOOT_RADIO_STATE};
 
-const char* SysboolKeysVal[] = {"Active_Serial_Bridge",
-                                "Active_Remote_Screen",
-                                "Active_ESP3D_Screen",
-                                "Active_Serial ",
-                                "Active_WebSocket",
-                                "Active_Telnet",
-                                "Active_BT",
-                                "Boot_verbose",
-                                "Secure_serial"};
+const char* SysboolKeysVal[] = {"Boot_verbose", "Secure_serial"};
 
-const uint16_t SysboolKeysPos[] = {ESP_SERIAL_BRIDGE_FLAG,
-                                   ESP_REMOTE_SCREEN_FLAG,
-                                   ESP_SCREEN_FLAG,
-                                   ESP_SERIAL_FLAG,
-                                   ESP_WEBSOCKET_FLAG,
-                                   ESP_TELNET_FLAG,
-                                   ESP_BT_FLAG,
-                                   ESP_VERBOSE_BOOT,
-                                   ESP_SECURE_SERIAL};
+const uint16_t SysboolKeysPos[] = {ESP_VERBOSE_BOOT, ESP_SECURE_SERIAL};
 
 const char* NetbyteKeysVal[] = {"AP_channel"};
 
@@ -202,7 +183,7 @@ bool processingFileFunction(const char* section, const char* key,
   uint32_t v = 0;
   byte b = 0;
   bool done = false;
-  log_esp3d("[%s]%s=%s", section, key, value);
+  esp3d_log("[%s]%s=%s", section, key, value);
   // network / services / system sections
   if (strcasecmp("network", section) == 0) {
     if (!done) {
@@ -307,7 +288,7 @@ bool processingFileFunction(const char* section, const char* key,
         b = v;
       }
     }
-    // Notification type None / PushOver / Line / Email / Telegram / IFTTT
+    // Notification type None / PushOver / Line / Email / Telegram / IFTTT / HomeAssistant
     if (!done) {
       if (strcasecmp("NOTIF_TYPE", key) == 0) {
         T = 'B';
@@ -325,6 +306,8 @@ bool processingFileFunction(const char* section, const char* key,
           b = ESP_TELEGRAM_NOTIFICATION;
         } else if (strcasecmp("IFTTT", value) == 0) {
           b = ESP_IFTTT_NOTIFICATION;
+        } else if (strcasecmp("HOMEASSISTANT", value) == 0) {
+          b = ESP_HOMEASSISTANT_NOTIFICATION;
         } else {
           P = -1;  // invalide value
         }
@@ -394,21 +377,21 @@ bool processingFileFunction(const char* section, const char* key,
   if (P != -1) {
     switch (T) {
       case 'S':
-        log_esp3d("Saving setting to ESP3D");
-        res = Settings_ESP3D::write_string(P, value);
+        esp3d_log("Saving setting to ESP3D");
+        res = ESP3DSettings::writeString(P, value);
         break;
       case 'B':
       case 'F':
-        res = Settings_ESP3D::write_byte(P, b);
+        res = ESP3DSettings::writeByte(P, b);
         break;
       case 'I':
-        res = Settings_ESP3D::write_uint32(P, v);
+        res = ESP3DSettings::writeUint32(P, v);
         break;
       case 'A':
-        res = Settings_ESP3D::write_IP_String(P, value);
+        res = ESP3DSettings::writeIPString(P, value);
         break;
       default:
-        log_esp3d("Unknown flag");
+        esp3d_log("Unknown flag");
     }
   }
   return res;
@@ -420,7 +403,7 @@ UpdateService::~UpdateService() {}
 bool UpdateService::flash(const char* filename, int type) {
   bool res = false;
   if (ESP_SD::exists(filename)) {
-    log_esp3d("Update found");
+    esp3d_log("Update found");
     bool issucess = false;
     ESP_SDFile sdfile;
     String finalName = filename;
@@ -430,27 +413,27 @@ bool UpdateService::flash(const char* filename, int type) {
       size_t rs = 0;
       uint8_t v[1];
       if (Update.begin(s, type)) {
-        log_esp3d("Update started");
+        esp3d_log("Update started");
         while (sdfile.available() && (rs <= (s + 1))) {
           rs++;
           v[0] = sdfile.read();
           Update.write(v, 1);
-          Hal::wait(0);
+          ESP3DHal::wait(0);
         }
         if (rs == s) {
-          log_esp3d("Update done");
+          esp3d_log("Update done");
           if (Update.end(true)) {
-            log_esp3d("Update success");
+            esp3d_log("Update success");
             issucess = true;
           }
         } else {
           Update.end();
-          log_esp3d_e("Wrong size");
+          esp3d_log_e("Wrong size");
         }
       }
       sdfile.close();
     } else {
-      log_esp3d_e("Cannot open file");
+      esp3d_log_e("Cannot open file");
     }
     if (issucess) {
       res = true;
@@ -461,7 +444,7 @@ bool UpdateService::flash(const char* filename, int type) {
     if (ESP_SD::exists(finalName.c_str())) {
       String name = filename;
       uint8_t n = 1;
-      log_esp3d("Final name already exists, backup existing");
+      esp3d_log("Final name already exists, backup existing");
       name.replace("bin", String(n).c_str());
       while (ESP_SD::exists(name.c_str())) {
         n++;
@@ -476,22 +459,22 @@ bool UpdateService::flash(const char* filename, int type) {
 
 bool UpdateService::begin() {
   bool res = false;
-  if (Settings_ESP3D::read_byte(ESP_SD_CHECK_UPDATE_AT_BOOT) != 0) {
+  if (ESP3DSettings::readByte(ESP_SD_CHECK_UPDATE_AT_BOOT) != 0) {
     if (ESP_SD::accessFS()) {
-      log_esp3d("Update SD for update requestest");
+      esp3d_log("Update SD for update requestest");
       if (ESP_SD::getState(true) != ESP_SDCARD_NOT_PRESENT) {
         ESP_SD::setState(ESP_SDCARD_BUSY);
         ESP_ConfigFile updateConfig(CONFIG_FILE, processingFileFunction);
         if (updateConfig.processFile()) {
-          log_esp3d("Processing ini file done");
+          esp3d_log("Processing ini file done");
           if (updateConfig.revokeFile()) {
-            log_esp3d("Revoking ini file done");
+            esp3d_log("Revoking ini file done");
             res = true;
           } else {
-            log_esp3d_e("Revoking ini file failed");
+            esp3d_log_e("Revoking ini file failed");
           }
         } else {
-          log_esp3d_e("Processing ini file failed");
+          esp3d_log_e("Processing ini file failed");
         }
         if (flash(FW_FILE, U_FLASH)) {
           res = true;
@@ -504,7 +487,7 @@ bool UpdateService::begin() {
       ESP_SD::releaseFS();
     }
   } else {
-    log_esp3d("No need to check for update");
+    esp3d_log("No need to check for update");
   }
 
   return res;

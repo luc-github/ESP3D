@@ -22,8 +22,8 @@
 
 #ifdef MDNS_FEATURE
 
-#include "../../core/esp3doutput.h"
-#include "../../core/settings_esp3d.h"
+#include "../../core/esp3d_commands.h"
+#include "../../core/esp3d_settings.h"
 #include "mDNS.h"
 
 #if defined(ARDUINO_ARCH_ESP8266)
@@ -70,15 +70,20 @@ bool mDNS_Service::begin(const char* hostname) {
   if (WiFi.getMode() != WIFI_AP) {
     _hostname = hostname;
     _hostname.toLowerCase();
-    ESP3DOutput output(ESP_ALL_CLIENTS);
-    log_esp3d("Start mdsn for %s", _hostname.c_str());
+    esp3d_log("Start mdsn for %s", _hostname.c_str());
     if (!MDNS.begin(_hostname.c_str())) {
-      output.printERROR("mDNS failed to start");
+      esp3d_commands.dispatch("mDNS failed to start",
+                              ESP3DClientType::all_clients, no_id,
+                              ESP3DMessageType::unique, ESP3DClientType::system,
+                              ESP3DAuthenticationLevel::admin);
       _started = false;
     } else {
       String stmp = "mDNS started with '" + _hostname + ".local'";
-      if (Settings_ESP3D::isVerboseBoot()) {
-        output.printMSG(stmp.c_str());
+      if (ESP3DSettings::isVerboseBoot()) {
+        esp3d_commands.dispatch(stmp.c_str(), ESP3DClientType::all_clients,
+                                no_id, ESP3DMessageType::unique,
+                                ESP3DClientType::system,
+                                ESP3DAuthenticationLevel::admin);
       }
       _started = true;
     }
@@ -95,40 +100,40 @@ void mDNS_Service::end() {
 #if defined(ARDUINO_ARCH_ESP8266)
 
   if (_hMDNSServiceQuery) {
-    log_esp3d("Remove mdns service for %s", _hostname.c_str());
+    esp3d_log("Remove mdns service for %s", _hostname.c_str());
     if (!MDNS.removeServiceQuery(_hMDNSServiceQuery)) {
-      log_esp3d_e("failed");
+      esp3d_log_e("failed");
     }
   }
   _hMDNSServiceQuery = 0;
-  log_esp3d("Remove mdns for %s", _hostname.c_str());
+  esp3d_log("Remove mdns for %s", _hostname.c_str());
   if (!MDNS.removeService(_hostname.c_str(), MDNS_SERVICE_NAME,
                           MDNS_SERVICE_TYPE)) {
-    log_esp3d_e("failed");
+    esp3d_log_e("failed");
   }
 #if defined(HTTP_FEATURE)
   if (!MDNS.removeService(_hostname.c_str(), "http", "tcp")) {
-    log_esp3d_e("failed");
+    esp3d_log_e("failed");
   }
 #endif  // HTTP_FEATURE
 #if defined(FTP_FEATURE)
   if (!MDNS.removeService(_hostname.c_str(), "ftp", "tcp")) {
-    log_esp3d_e("failed");
+    esp3d_log_e("failed");
   }
 #endif  // FTP_FEATURE
 #if defined(TELNET_FEATURE)
   if (!MDNS.removeService(_hostname.c_str(), "telnet", "tcp")) {
-    log_esp3d_e("failed");
+    esp3d_log_e("failed");
   }
 #endif  // TELNET_FEATURE
 #if defined(WEBDAV_FEATURE)
   if (!MDNS.removeService(_hostname.c_str(), "webdav", "tcp")) {
-    log_esp3d_e("failed");
+    esp3d_log_e("failed");
   }
 #endif  // WEBDAV_FEATURE
 #if defined(WS_DATA_FEATURE)
   if (!MDNS.removeService(_hostname.c_str(), "websocket", "tcp")) {
-    log_esp3d_e("failed");
+    esp3d_log_e("failed");
   }
 #endif  // WS_DATA_FEATURE
 #endif  // ARDUINO_ARCH_ESP8266
@@ -192,9 +197,9 @@ void mDNS_Service::addESP3DServices(uint16_t port) {
   _hMDNSServiceQuery = MDNS.installServiceQuery(
       MDNS_SERVICE_NAME, MDNS_SERVICE_TYPE, MDNSServiceQueryCallback);
   if (_hMDNSServiceQuery) {
-    log_esp3d("MDNS Service query services installed.");
+    esp3d_log("MDNS Service query services installed.");
   } else {
-    log_esp3d_e("MDNS Service query services installation failed.");
+    esp3d_log_e("MDNS Service query services installation failed.");
   }
 #endif  // ARDUINO_ARCH_ESP8266
 }
@@ -308,7 +313,7 @@ const char* mDNS_Service::answerTxtKey(uint16_t index, uint16_t txtIndex) {
 #endif  // ARDUINO_ARCH_ESP32
 #if defined(ARDUINO_ARCH_ESP8266)
   String txt = MDNS.answerTxts(_hMDNSServiceQuery, index);
-  log_esp3d("txt: %s", txt.c_str());
+  esp3d_log("txt: %s", txt.c_str());
   String keyValue = "";
   bool found = false;
   if (txt.indexOf(";") == -1) {
@@ -352,7 +357,7 @@ const char* mDNS_Service::answerTxt(uint16_t index, uint16_t txtIndex) {
 #endif  // ARDUINO_ARCH_ESP32
 #if defined(ARDUINO_ARCH_ESP8266)
   String txt = MDNS.answerTxts(_hMDNSServiceQuery, index);
-  log_esp3d("txt: %s", txt.c_str());
+  esp3d_log("txt: %s", txt.c_str());
   String keyValue = "";
   bool found = false;
   if (txt.indexOf(";") == -1) {

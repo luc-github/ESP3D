@@ -56,6 +56,7 @@
     * Telegram
     * PushOver
     * IFTTT
+    * HomeAssistant
 * Sensors support
     * DHT 11/22
     * Analog

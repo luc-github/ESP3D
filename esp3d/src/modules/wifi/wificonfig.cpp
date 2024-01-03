@@ -25,12 +25,15 @@
 #endif  // ARDUINO_ARCH_ESP32
 #ifdef ARDUINO_ARCH_ESP8266
 #endif  // ARDUINO_ARCH_ESP8266
-#include "../../core/esp3doutput.h"
-#include "../../core/settings_esp3d.h"
+#include "../../core/esp3d_commands.h"
+#include "../../core/esp3d_settings.h"
 #include "../network/netconfig.h"
 #include "../wifi/wificonfig.h"
 
 const uint8_t DEFAULT_AP_MASK_VALUE[] = {255, 255, 255, 0};
+
+IPAddress WiFiConfig::_ap_gateway;
+IPAddress WiFiConfig::_ap_subnet;
 
 const char* WiFiConfig::hostname() {
   static String tmp;
@@ -80,12 +83,12 @@ bool WiFiConfig::ConnectSTA2AP() {
   uint8_t count = 0;
   uint8_t dot = 0;
   wl_status_t status = WiFi.status();
-  ESP3DOutput output(ESP_ALL_CLIENTS);
-  log_esp3d("Connecting");
+  esp3d_log("Connecting");
 #if COMMUNICATION_PROTOCOL != MKS_SERIAL
-  if (!Settings_ESP3D::isVerboseBoot()) {
-    output.printMSG("Connecting");
-    output.flush();
+  if (!ESP3DSettings::isVerboseBoot()) {
+    esp3d_commands.dispatch("Connecting", ESP3DClientType::all_clients, no_id,
+                            ESP3DMessageType::unique, ESP3DClientType::system,
+                            ESP3DAuthenticationLevel::admin);
   }
 #endif  // #if COMMUNICATION_PROTOCOL == MKS_SERIAL
   while (status != WL_CONNECTED && count < 40) {
@@ -105,15 +108,16 @@ bool WiFiConfig::ConnectSTA2AP() {
         }
         msg_out += ".";
         msg = msg_out;
-        log_esp3d("...");
+        esp3d_log("...");
         dot++;
         break;
     }
-    if (Settings_ESP3D::isVerboseBoot()) {
-      output.printMSG(msg.c_str());
-      output.flush();
+    if (ESP3DSettings::isVerboseBoot()) {
+      esp3d_commands.dispatch(msg.c_str(), ESP3DClientType::all_clients, no_id,
+                              ESP3DMessageType::unique, ESP3DClientType::system,
+                              ESP3DAuthenticationLevel::admin);
     }
-    Hal::wait(500);
+    ESP3DHal::wait(500);
     count++;
     status = WiFi.status();
   }
@@ -124,7 +128,7 @@ bool WiFiConfig::ConnectSTA2AP() {
  * Start client mode (Station)
  */
 bool WiFiConfig::StartSTA() {
-  log_esp3d("StartSTA");
+  esp3d_log("StartSTA");
   if ((WiFi.getMode() == WIFI_AP) || (WiFi.getMode() == WIFI_AP_STA)) {
     WiFi.softAPdisconnect();
   }
@@ -138,23 +142,24 @@ bool WiFiConfig::StartSTA() {
   WiFi.setSortMethod(WIFI_CONNECT_AP_BY_SIGNAL);
 #endif  // ARDUINO_ARCH_ESP32
   // Get parameters for STA
-  String SSID = Settings_ESP3D::read_string(ESP_STA_SSID);
-  String password = Settings_ESP3D::read_string(ESP_STA_PASSWORD);
+  String SSID = ESP3DSettings::readString(ESP_STA_SSID);
+  String password = ESP3DSettings::readString(ESP_STA_PASSWORD);
 
-  if (Settings_ESP3D::read_byte(ESP_STA_IP_MODE) != DHCP_MODE) {
-    int32_t IP = Settings_ESP3D::read_IP(ESP_STA_IP_VALUE);
-    int32_t GW = Settings_ESP3D::read_IP(ESP_STA_GATEWAY_VALUE);
-    int32_t MK = Settings_ESP3D::read_IP(ESP_STA_MASK_VALUE);
-    int32_t DNS = Settings_ESP3D::read_IP(ESP_STA_DNS_VALUE);
+  if (ESP3DSettings::readByte(ESP_STA_IP_MODE) != DHCP_MODE) {
+    int32_t IP = ESP3DSettings::read_IP(ESP_STA_IP_VALUE);
+    int32_t GW = ESP3DSettings::read_IP(ESP_STA_GATEWAY_VALUE);
+    int32_t MK = ESP3DSettings::read_IP(ESP_STA_MASK_VALUE);
+    int32_t DNS = ESP3DSettings::read_IP(ESP_STA_DNS_VALUE);
     IPAddress ip(IP), mask(MK), gateway(GW), dns(DNS);
     WiFi.config(ip, gateway, mask, dns);
   }
-  ESP3DOutput output(ESP_ALL_CLIENTS);
-  if (Settings_ESP3D::isVerboseBoot()) {
+
+  if (ESP3DSettings::isVerboseBoot()) {
     String stmp;
     stmp = "Connecting to '" + SSID + "'";
-    ;
-    output.printMSG(stmp.c_str());
+    esp3d_commands.dispatch(stmp.c_str(), ESP3DClientType::all_clients, no_id,
+                            ESP3DMessageType::unique, ESP3DClientType::system,
+                            ESP3DAuthenticationLevel::admin);
   }
   if (WiFi.begin(SSID.c_str(),
                  (password.length() > 0) ? password.c_str() : nullptr)) {
@@ -168,7 +173,7 @@ bool WiFiConfig::StartSTA() {
 #endif  // ARDUINO_ARCH_ESP32
     return ConnectSTA2AP();
   } else {
-    output.printERROR("Starting client failed");
+    esp3d_log_e("Starting client failed");
     return false;
   }
 }
@@ -178,7 +183,6 @@ bool WiFiConfig::StartSTA() {
  */
 
 bool WiFiConfig::StartAP(bool setupMode) {
-  ESP3DOutput output(ESP_ALL_CLIENTS);
   // Sanity check
   if ((WiFi.getMode() == WIFI_STA) || (WiFi.getMode() == WIFI_AP_STA)) {
     if (WiFi.isConnected()) {
@@ -196,25 +200,35 @@ bool WiFiConfig::StartAP(bool setupMode) {
   WiFi.setSleepMode(WIFI_NONE_SLEEP);
 #endif  // ARDUINO_ARCH_ESP8266
 
-  String SSID = Settings_ESP3D::read_string(ESP_AP_SSID);
-  String password = Settings_ESP3D::read_string(ESP_AP_PASSWORD);
+  String SSID = ESP3DSettings::readString(ESP_AP_SSID);
+  String password = ESP3DSettings::readString(ESP_AP_PASSWORD);
   // channel
-  int8_t channel = Settings_ESP3D::read_byte(ESP_AP_CHANNEL);
+  int8_t channel = ESP3DSettings::readByte(ESP_AP_CHANNEL);
   // IP
-  int32_t IP = Settings_ESP3D::read_IP(ESP_AP_IP_VALUE);
+  int32_t IP = ESP3DSettings::read_IP(ESP_AP_IP_VALUE);
 
   IPAddress ip(IP);
   IPAddress gw(0, 0, 0, 0);
   IPAddress mask(DEFAULT_AP_MASK_VALUE);
 #if defined(ARDUINO_ARCH_ESP8266)
-  log_esp3d("Use: %s / %s / %s", ip.toString().c_str(), ip.toString().c_str(),
+  esp3d_log("Use: %s / %s / %s", ip.toString().c_str(), ip.toString().c_str(),
             mask.toString().c_str());
   if (!WiFi.softAPConfig(ip, setupMode ? ip : gw, mask)) {
-    output.printERROR("Set IP to AP failed");
+    esp3d_log_e("Set IP to AP failed");
+    esp3d_commands.dispatch("Set IP to AP failed", ESP3DClientType::all_clients,
+                            no_id, ESP3DMessageType::unique,
+                            ESP3DClientType::system,
+                            ESP3DAuthenticationLevel::admin);
   } else {
-    output.printMSG(ip.toString().c_str());
+    esp3d_commands.dispatch(ip.toString().c_str(), ESP3DClientType::all_clients,
+                            no_id, ESP3DMessageType::unique,
+                            ESP3DClientType::system,
+                            ESP3DAuthenticationLevel::admin);
   }
+  _ap_gateway = setupMode ? ip : gw;
+  _ap_subnet = mask;
 #endif  // ARDUINO_ARCH_ESP8266
+
   // Start AP
   if (WiFi.softAP(SSID.c_str(),
                   (password.length() > 0) ? password.c_str() : nullptr,
@@ -228,28 +242,42 @@ bool WiFiConfig::StartAP(bool setupMode) {
     if (setupMode) {
       stmp += " (setup mode)";
     }
-    output.printMSG(stmp.c_str());
-    log_esp3d("%s", stmp.c_str());
+    esp3d_commands.dispatch(stmp.c_str(), ESP3DClientType::all_clients, no_id,
+                            ESP3DMessageType::unique, ESP3DClientType::system,
+                            ESP3DAuthenticationLevel::admin);
+    esp3d_log("%s", stmp.c_str());
 #if defined(ARDUINO_ARCH_ESP32)
     // must be done after starting AP not before
     // https://github.com/espressif/arduino-esp32/issues/4222
     // on some phone 100 is ok but on some other it is not enough so 2000 is ok
-    Hal::wait(2000);
+    ESP3DHal::wait(2000);
     // Set static IP
-    log_esp3d("Use: %s / %s / %s", ip.toString().c_str(), ip.toString().c_str(),
+    esp3d_log("Use: %s / %s / %s", ip.toString().c_str(), ip.toString().c_str(),
               mask.toString().c_str());
     if (!WiFi.softAPConfig(ip, setupMode ? ip : gw, mask)) {
-      output.printERROR("Set IP to AP failed");
+      esp3d_log_e("Set IP to AP failed");
+      esp3d_commands.dispatch("Set IP to AP failed",
+                              ESP3DClientType::all_clients, no_id,
+                              ESP3DMessageType::unique, ESP3DClientType::system,
+                              ESP3DAuthenticationLevel::admin);
     } else {
-      output.printMSG(ip.toString().c_str());
+      esp3d_commands.dispatch(ip.toString().c_str(),
+                              ESP3DClientType::all_clients, no_id,
+                              ESP3DMessageType::unique, ESP3DClientType::system,
+                              ESP3DAuthenticationLevel::admin);
     }
     WiFi.setSleep(false);
     WiFi.softAPsetHostname(NetConfig::hostname(true));
+    _ap_gateway = setupMode ? ip : gw;
+    _ap_subnet = mask;
 #endif  // ARDUINO_ARCH_ESP32
     return true;
   } else {
-    output.printERROR("Starting AP failed");
-    log_esp3d_e("Starting AP failed");
+    esp3d_commands.dispatch("Starting AP failed", ESP3DClientType::all_clients,
+                            no_id, ESP3DMessageType::unique,
+                            ESP3DClientType::system,
+                            ESP3DAuthenticationLevel::admin);
+    esp3d_log_e("Starting AP failed");
     return false;
   }
 }
@@ -262,27 +290,32 @@ bool WiFiConfig::started() { return (WiFi.getMode() != WIFI_OFF); }
 bool WiFiConfig::begin(int8_t& espMode) {
   bool res = false;
   end();
-  log_esp3d("Starting Wifi Config");
-  ESP3DOutput output(ESP_ALL_CLIENTS);
-  if (Settings_ESP3D::isVerboseBoot()) {
-    output.printMSG("Starting WiFi");
+  esp3d_log("Starting Wifi Config");
+  if (ESP3DSettings::isVerboseBoot()) {
+    esp3d_commands.dispatch("Starting WiFi", ESP3DClientType::all_clients,
+                            no_id, ESP3DMessageType::unique,
+                            ESP3DClientType::system,
+                            ESP3DAuthenticationLevel::admin);
   }
   int8_t wifiMode = espMode;
   if (wifiMode == ESP_WIFI_AP || wifiMode == ESP_AP_SETUP) {
-    log_esp3d("Starting AP mode");
+    esp3d_log("Starting AP mode");
     res = StartAP(wifiMode == ESP_AP_SETUP);
   } else if (wifiMode == ESP_WIFI_STA) {
-    log_esp3d("Starting STA");
+    esp3d_log("Starting STA");
     res = StartSTA();
     // AP is backup mode
     if (!res) {
-      if (Settings_ESP3D::isVerboseBoot()) {
-        output.printMSG("Starting fallback mode");
+      if (ESP3DSettings::isVerboseBoot()) {
+        esp3d_commands.dispatch(
+            "Starting fallback mode", ESP3DClientType::all_clients, no_id,
+            ESP3DMessageType::unique, ESP3DClientType::system,
+            ESP3DAuthenticationLevel::admin);
       }
-      espMode = Settings_ESP3D::read_byte(ESP_STA_FALLBACK_MODE);
+      espMode = ESP3DSettings::readByte(ESP_STA_FALLBACK_MODE);
       NetConfig::setMode(espMode);
       if (espMode == ESP_AP_SETUP) {
-        log_esp3d("Starting AP mode in setup mode");
+        esp3d_log("Starting AP mode in setup mode");
         res = StartAP(true);
       } else {
         // let setup to handle the change
@@ -434,7 +467,7 @@ const char* WiFiConfig::AP_Gateway_String() {
 #ifdef ARDUINO_ARCH_ESP8266
   struct ip_info ip_AP;
   if (!wifi_get_ip_info(SOFTAP_IF, &ip_AP)) {
-    log_esp3d_e("Error getting gateway ip");
+    esp3d_log_e("Error getting gateway ip");
   }
   tmp = IPAddress(ip_AP.gw).toString();
 #endif  // ARDUINO_ARCH_ESP8266
@@ -451,7 +484,7 @@ const char* WiFiConfig::AP_Mask_String() {
 #ifdef ARDUINO_ARCH_ESP8266
   struct ip_info ip_AP;
   if (!wifi_get_ip_info(SOFTAP_IF, &ip_AP)) {
-    log_esp3d_e("Error getting mask ip");
+    esp3d_log_e("Error getting mask ip");
   }
   tmp = IPAddress(ip_AP.netmask).toString();
 #endif  // ARDUINO_ARCH_ESP8266

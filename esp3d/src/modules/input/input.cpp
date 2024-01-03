@@ -19,55 +19,39 @@
 */
 
 #include "../../include/esp3d_config.h"
-#if defined (INPUT_DEVICE)
+#if defined(INPUT_DEVICE)
+#include "../../core/esp3d_message.h"
+#include "../../core/esp3d_settings.h"
 #include "input.h"
-#include "../../core/settings_esp3d.h"
-#include "../../core/esp3doutput.h"
-
 
 Input esp3d_input;
 
+Input::Input() { _started = false; }
 
-Input::Input()
-{
-    _started = false;
-}
+Input::~Input() { end(); }
 
-Input::~Input()
-{
+bool Input::begin() {
+  bool res = true;
+  _started = false;
+  if (!res) {
     end();
+  }
+  _started = res;
+  return _started;
 }
 
-bool Input::begin()
-{
-    bool res = true;
-    _started = false;
-    if (!res) {
-        end();
-    }
-    _started = res;
-    return _started;
+void Input::end() {
+  if (!_started) {
+    return;
+  }
+  _started = false;
 }
 
-void Input::end()
-{
-    if(!_started) {
-        return;
-    }
-    _started = false;
+bool Input::started() { return _started; }
+
+void Input::handle() {
+  if (_started) {
+  }
 }
 
-bool Input::started()
-{
-    return _started;
-}
-
-
-void Input::handle()
-{
-    if (_started) {
-
-    }
-}
-
-#endif //INPUT_DEVICE
+#endif  // INPUT_DEVICE

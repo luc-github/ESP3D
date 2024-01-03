@@ -20,8 +20,8 @@
 
 #include "../../include/esp3d_config.h"
 #ifdef SENSOR_DEVICE
-#include "../../core/esp3doutput.h"
-#include "../../core/settings_esp3d.h"
+#include "../../core/esp3d_commands.h"
+#include "../../core/esp3d_settings.h"
 #include "sensor.h"
 
 // Include file according sensor
@@ -35,10 +35,6 @@
 #include "bmx280.h"
 #endif  // BMP280_DEVICE || BME280_DEVICE
 
-#if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
-#include "../websocket/websocket_server.h"
-#endif  // WIFI_FEATURE || ETH_FEATURE
-
 ESP3DSensor esp3d_sensor;
 
 ESP3DSensor::ESP3DSensor() {
@@ -50,7 +46,7 @@ ESP3DSensor::ESP3DSensor() {
 ESP3DSensor::~ESP3DSensor() { end(); }
 
 bool ESP3DSensor::begin() {
-  log_esp3d("Sensor Begin");
+  esp3d_log("Sensor Begin");
   bool res = true;
   end();
   // new _device
@@ -64,18 +60,18 @@ bool ESP3DSensor::begin() {
   _device = (ESP3DSensorDevice*)new BMX280SensorDevice();
 #endif  // DHT11_DEVICE || DHT22_DEVICE
   if (!_device) {
-    log_esp3d_e("No device created");
+    esp3d_log_e("No device created");
     return false;
   }
-  log_esp3d("Sensor Device created");
-  uint8_t sensortype = Settings_ESP3D::read_byte(ESP_SENSOR_TYPE);
-  log_esp3d("Sensor %d", sensortype);
+  esp3d_log("Sensor Device created");
+  uint8_t sensortype = ESP3DSettings::readByte(ESP_SENSOR_TYPE);
+  esp3d_log("Sensor %d", sensortype);
   // No Sensor defined - exit is not an error
   if (sensortype == 0) {
-    log_esp3d("Sensor Device is not active at start");
+    esp3d_log("Sensor Device is not active at start");
     return true;
   }
-  _interval = Settings_ESP3D::read_uint32(ESP_SENSOR_INTERVAL);
+  _interval = ESP3DSettings::readUint32(ESP_SENSOR_INTERVAL);
   if (!_device->begin()) {
     res = false;
   }
@@ -158,7 +154,9 @@ void ESP3DSensor::handle() {
       _lastReadTime = millis();
 #if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
       String s = "SENSOR:" + data;
-      websocket_terminal_server.pushMSG(s.c_str());
+      esp3d_commands.dispatch(s.c_str(), ESP3DClientType::webui_websocket,
+                              no_id, ESP3DMessageType::unique,
+                              ESP3DClientType::system);
 #endif  // WIFI_FEATURE || ETH_FEATURE
     }
   }

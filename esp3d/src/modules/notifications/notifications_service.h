@@ -18,60 +18,53 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-
-
 #ifndef _NOTIFICATIONS_SERVICE_H
 #define _NOTIFICATIONS_SERVICE_H
 
 #include <WiFiClientSecure.h>
 
+class NotificationsService {
+ public:
+  NotificationsService();
+  ~NotificationsService();
+  bool begin();
+  void end();
+  void handle();
+  bool sendMSG(const char* title, const char* message);
+  bool GET(const char* URL64);
+  const char* getTypeString();
+  bool started();
+  bool isAutonotification() { return _autonotification; };
+  void setAutonotification(bool value) { _autonotification = value; };
+  bool sendAutoNotification(const char* msg);
 
-class NotificationsService
-{
-public:
-    NotificationsService();
-    ~NotificationsService();
-    bool begin();
-    void end();
-    void handle();
-    bool sendMSG(const char * title, const char * message);
-    bool GET(const char * URL64);
-    const char * getTypeString();
-    bool started();
-    bool isAutonotification()
-    {
-        return _autonotification;
-    };
-    void setAutonotification(bool value)
-    {
-        _autonotification = value;
-    };
-    bool sendAutoNotification(const char * msg);
-private:
-    bool _started;
-    bool _autonotification;
-    uint8_t _notificationType;
-    String _token1;
-    String _token2;
-    String _settings;
-    String _serveraddress;
-    uint16_t _port;
+ private:
+  bool _started;
+  bool _autonotification;
+  uint8_t _notificationType;
+  String _token1;
+  String _token2;
+  String _settings;
+  String _serveraddress;
+  uint16_t _port;
 #if defined(ARDUINO_ARCH_ESP8266)
-    void BearSSLSetup(WiFiClientSecure & Notificationclient);
-#endif//ARDUINO_ARCH_ESP8266
-    bool decode64(const char* encodedURL, char *decodedURL);
-    bool sendPushoverMSG(const char * title, const char * message);
-    bool sendEmailMSG(const char * title, const char * message);
-    bool sendLineMSG(const char * title, const char * message);
-    bool sendTelegramMSG(const char * title, const char * message);
-    bool sendIFTTTMSG(const char * title, const char * message);
-    bool getPortFromSettings();
-    bool getServerAddressFromSettings();
-    bool getEmailFromSettings();
-    bool Wait4Answer(WiFiClientSecure & client, const char * linetrigger, const char * expected_answer,  uint32_t timeout);
+  void BearSSLSetup(WiFiClientSecure& Notificationclient);
+#endif  // ARDUINO_ARCH_ESP8266
+  bool decode64(const char* encodedURL, char* decodedURL);
+  bool sendPushoverMSG(const char* title, const char* message);
+  bool sendEmailMSG(const char* title, const char* message);
+  bool sendLineMSG(const char* title, const char* message);
+  bool sendTelegramMSG(const char* title, const char* message);
+  bool sendIFTTTMSG(const char* title, const char* message);
+  bool sendHomeAssistantMSG(const char* title, const char* message);
+  bool getPortFromSettings();
+  bool getServerAddressFromSettings();
+  bool getEmailFromSettings();
+  template<typename T>
+  bool Wait4Answer(T& client, const char* linetrigger,
+                   const char* expected_answer, uint32_t timeout);
 };
 
 extern NotificationsService notificationsservice;
 
-#endif //_NOTIFICATIONS_SERVICE_H
-
+#endif  //_NOTIFICATIONS_SERVICE_H

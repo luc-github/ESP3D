@@ -72,9 +72,13 @@ class WiFiConfig {
   static bool begin(int8_t& espMode);
   static void end();
   static void handle();
+  static IPAddress getAPGateway() { return _ap_gateway; }
+  static IPAddress getAPSubnet() { return _ap_subnet; }
 
  private:
   static bool ConnectSTA2AP();
+  static IPAddress _ap_gateway;
+  static IPAddress _ap_subnet;
 };
 
 #endif  //_WIFI_CONFIG_H

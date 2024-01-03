@@ -18,26 +18,26 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "../../../include/esp3d_config.h"
-#if defined (HTTP_FEATURE) && defined (CAMERA_DEVICE)
+#if defined(HTTP_FEATURE) && defined(CAMERA_DEVICE)
 #include "../../camera/camera.h"
 #include "../http_server.h"
-#if defined (ARDUINO_ARCH_ESP32)
+#if defined(ARDUINO_ARCH_ESP32)
 #include <WebServer.h>
-#endif //ARDUINO_ARCH_ESP32
-#if defined (ARDUINO_ARCH_ESP8266)
+#endif  // ARDUINO_ARCH_ESP32
+#if defined(ARDUINO_ARCH_ESP8266)
 #include <ESP8266WebServer.h>
-#endif //ARDUINO_ARCH_ESP8266
+#endif  // ARDUINO_ARCH_ESP8266
+#include "../../../core/esp3d_commands.h"
+#include "../../../core/esp3d_message.h"
 #include "../../authentication/authentication_service.h"
-#include "../../../core/commands.h"
-#include "../../../core/esp3doutput.h"
 
-void HTTP_Server::handle_snap()
-{
-    level_authenticate_type auth_level = AuthenticationService::authenticated_level();
-    if (auth_level == LEVEL_GUEST) {
-        _webserver->send (401, "text/plain", "Wrong authentication!");
-        return;
-    }
-    esp3d_camera.handle_snap(_webserver);
+void HTTP_Server::handle_snap() {
+  ESP3DAuthenticationLevel auth_level =
+      AuthenticationService::getAuthenticatedLevel();
+  if (auth_level == ESP3DAuthenticationLevel::guest) {
+    _webserver->send(401, "text/plain", "Wrong authentication!");
+    return;
+  }
+  esp3d_camera.handle_snap(_webserver);
 }
-#endif //HTTP_FEATURE && CAMERA_DEVICE
+#endif  // HTTP_FEATURE && CAMERA_DEVICE

@@ -22,7 +22,7 @@
 #define _ESP3D_CONFIG_H
 #include <Arduino.h>
 
-#include "../include/defines.h"
+#include "../include/esp3d_defines.h"
 
 #if defined __has_include
 #if __has_include("../../configuration.h")
@@ -40,12 +40,11 @@
 #endif
 #endif
 
-#include "../core/hal.h"
-#include "../core/log_esp3d.h"
-#include "../include/pins.h"
-#include "../include/sanity_esp3d.h"
-#include "../include/version.h"
-
+#include "../core/esp3d_hal.h"
+#include "../core/esp3d_log.h"
+#include "../include/esp3d_pins.h"
+#include "../include/esp3d_sanity.h"
+#include "../include/esp3d_version.h"
 
 #if defined(ARDUINO_ARCH_ESP8266)
 /************************************

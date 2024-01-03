@@ -28,12 +28,13 @@
 #include "../webdav_server.h"
 
 void WebdavServer::handler_get(const char* url) {
-  log_esp3d("Processing GET");
+  esp3d_log("Processing GET");
   int code = 200;
   size_t sp = clearPayload();
-  log_esp3d("Payload size: %d", sp);
+  (void)sp;
+  esp3d_log("Payload size: %d", sp);
   uint8_t fsType = WebDavFS::getFSType(url);
-  log_esp3d("FS type of %s : %d", url, fsType);
+  esp3d_log("FS type of %s : %d", url, fsType);
   // url cannot be root
   if (!isRoot(url)) {
     if (WebDavFS::accessFS(fsType)) {
@@ -63,12 +64,12 @@ void WebdavServer::handler_get(const char* url) {
           Esp3dTimout updateWS(2000);
 #endif  // HTTP_FEATURE
           while (sent < toSend && _client.connected()) {
-            Hal::wait(0);
+            ESP3DHal::wait(0);
             size_t read = file.read(buff, sizeof(buff));
             if (read > 0) {
               // always check if data is sent as expected for each write
               if (read != _client.write(buff, read)) {
-                log_esp3d_e("Failed to send data");
+                esp3d_log_e("Failed to send data");
                 break;
               }
               sent += read;
@@ -86,28 +87,28 @@ void WebdavServer::handler_get(const char* url) {
           }
           // always check if data is sent as expected in total
           if (sent != toSend) {
-            log_esp3d_e("Failed to send data, sent %d of %d", sent, toSend);
+            esp3d_log_e("Failed to send data, sent %d of %d", sent, toSend);
           }
           file.close();
         } else {
           code = 500;
-          log_esp3d_e("Failed to open %s", url);
+          esp3d_log_e("Failed to open %s", url);
         }
       } else {
         code = 404;
-        log_esp3d_e("File not found");
+        esp3d_log_e("File not found");
       }
       WebDavFS::releaseFS(fsType);
     } else {
       code = 503;
-      log_esp3d_e("FS not available");
+      esp3d_log_e("FS not available");
     }
   } else {
     code = 400;
-    log_esp3d_e("Root cannot be used as it is");
+    esp3d_log_e("Root cannot be used as it is");
   }
   if (code != 200) {
-    log_esp3d_e("Sending response code %d", code);
+    esp3d_log_e("Sending response code %d", code);
     send_response_code(code);
     send_webdav_headers();
   }

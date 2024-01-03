@@ -64,17 +64,17 @@ bool ESP_FileSystem::format() {
 }
 
 ESP_File ESP_FileSystem::open(const char *path, uint8_t mode) {
-  log_esp3d("open %s as %s", path, (mode == ESP_FILE_WRITE ? "write" : "read"));
+  esp3d_log("open %s as %s", path, (mode == ESP_FILE_WRITE ? "write" : "read"));
   // do some check
   if (((strcmp(path, "/") == 0) &&
        ((mode == ESP_FILE_WRITE) || (mode == ESP_FILE_APPEND))) ||
       (strlen(path) == 0)) {
-    log_esp3d_e("reject  %s", path);
+    esp3d_log_e("reject  %s", path);
     return ESP_File();
   }
   // path must start by '/'
   if (path[0] != '/') {
-    log_esp3d_e("%s is invalid path", path);
+    esp3d_log_e("%s is invalid path", path);
     return ESP_File();
   }
   File tmp = FFat.open(path, (mode == ESP_FILE_READ)    ? FILE_READ
@@ -83,11 +83,11 @@ ESP_File ESP_FileSystem::open(const char *path, uint8_t mode) {
   if (tmp) {
     ESP_File esptmp(&tmp, tmp.isDirectory(),
                     (mode == ESP_FILE_READ) ? false : true, path);
-    log_esp3d("%s is a %s", path, tmp.isDirectory() ? "Dir" : "File");
-    log_esp3d("path is %s and filename path is %s", path, tmp.path());
+    esp3d_log("%s is a %s", path, tmp.isDirectory() ? "Dir" : "File");
+    esp3d_log("path is %s and filename path is %s", path, tmp.path());
     return esptmp;
   } else {
-    log_esp3d_e("open %s failed", path);
+    esp3d_log_e("open %s failed", path);
     return ESP_File();
   }
 }
@@ -171,7 +171,7 @@ bool ESP_FileSystem::rmdir(const char *path) {
     dir.close();
   }
   p = String();
-  log_esp3d("count %d", pathlist.size());
+  esp3d_log("count %d", pathlist.size());
   return res;
 }
 
@@ -194,7 +194,7 @@ ESP_File::ESP_File(void *handle, bool isdir, bool iswritemode,
   _iswritemode = iswritemode;
   _size = 0;
   if (!handle) {
-    log_esp3d("No handle");
+    esp3d_log("No handle");
     return;
   }
   bool set = false;
@@ -221,15 +221,15 @@ ESP_File::ESP_File(void *handle, bool isdir, bool iswritemode,
       // time
       _lastwrite = tFile_handle[i].getLastWrite();
       _index = i;
-      log_esp3d("Opening File at index %d", _index);
-      log_esp3d("name: %s", _name.c_str());
-      log_esp3d("filename: %s", _filename.c_str());
-      log_esp3d("path: %s", tFile_handle[i].path());
+      esp3d_log("Opening File at index %d", _index);
+      esp3d_log("name: %s", _name.c_str());
+      esp3d_log("filename: %s", _filename.c_str());
+      esp3d_log("path: %s", tFile_handle[i].path());
       set = true;
     }
   }
   if (!set) {
-    log_esp3d("No handle available");
+    esp3d_log("No handle available");
   }
 }
 
@@ -239,17 +239,17 @@ bool ESP_File::seek(uint32_t pos, uint8_t mode) {
 
 void ESP_File::close() {
   if (_index != -1) {
-    log_esp3d("Closing File %s at index %d", _filename.c_str(), _index);
-    log_esp3d("name: %s", _name.c_str());
+    esp3d_log("Closing File %s at index %d", _filename.c_str(), _index);
+    esp3d_log("name: %s", _name.c_str());
     tFile_handle[_index].close();
     // reopen if mode = write
     // udate size + date
     if (_iswritemode && !_isdir) {
-      log_esp3d("Updating %s size", _filename.c_str());
+      esp3d_log("Updating %s size", _filename.c_str());
       File ftmp = FFat.open(_filename.c_str());
       if (ftmp) {
         _size = ftmp.size();
-        log_esp3d("Size is %d", _size);
+        esp3d_log("Size is %d", _size);
         _lastwrite = ftmp.getLastWrite();
         ftmp.close();
       }
@@ -261,12 +261,12 @@ void ESP_File::close() {
 
 ESP_File ESP_File::openNextFile() {
   if ((_index == -1) || !_isdir) {
-    log_esp3d("openNextFile %d failed", _index);
+    esp3d_log("openNextFile %d failed", _index);
     return ESP_File();
   }
   File tmp = tFile_handle[_index].openNextFile();
   while (tmp) {
-    log_esp3d("tmp name :%s %s", tmp.name(),
+    esp3d_log("tmp name :%s %s", tmp.name(),
               (tmp.isDirectory()) ? "isDir" : "isFile");
     ESP_File esptmp(&tmp, tmp.isDirectory());
     esptmp.close();

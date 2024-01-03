@@ -20,8 +20,8 @@
 
 #include "netservices.h"
 
-#include "../../core/esp3doutput.h"
-#include "../../core/settings_esp3d.h"
+#include "../../core/esp3d_commands.h"
+#include "../../core/esp3d_settings.h"
 #include "../../include/esp3d_config.h"
 #include "netconfig.h"
 
@@ -83,20 +83,26 @@ bool NetServices::_restart = false;
 bool NetServices::begin() {
   bool res = true;
   _started = false;
-  String hostname = Settings_ESP3D::read_string(ESP_HOSTNAME);
-  ESP3DOutput output(ESP_ALL_CLIENTS);
+  String hostname = ESP3DSettings::readString(ESP_HOSTNAME);
   end();
 #ifdef TIMESTAMP_FEATURE
   if (WiFi.getMode() != WIFI_AP) {
     if (!timeService.begin()) {
-      if (timeService.is_internet_time()) {
-        output.printERROR("Failed contact time servers!");
+      if (timeService.isInternetTime()) {
+        esp3d_commands.dispatch(
+            "Failed contact time servers!", ESP3DClientType::all_clients, no_id,
+            ESP3DMessageType::unique, ESP3DClientType::system,
+            ESP3DAuthenticationLevel::admin);
+        esp3d_log_e("Failed contact time servers!");
       }
     } else {
       String tmp = "Current time :";
       tmp += timeService.getCurrentTime();
-      if (Settings_ESP3D::isVerboseBoot()) {
-        output.printMSG(tmp.c_str());
+      if (ESP3DSettings::isVerboseBoot()) {
+        esp3d_commands.dispatch(tmp.c_str(), ESP3DClientType::all_clients,
+                                no_id, ESP3DMessageType::unique,
+                                ESP3DClientType::system,
+                                ESP3DAuthenticationLevel::admin);
       }
     }
   }
@@ -109,7 +115,6 @@ bool NetServices::begin() {
 #ifdef OTA_FEATURE
   if (WiFi.getMode() != WIFI_AP) {
     ArduinoOTA.onStart([]() {
-      ESP3DOutput output(ESP_ALL_CLIENTS);
       String type = "Start OTA updating ";
       if (ArduinoOTA.getCommand() == U_FLASH) {
         type += "sketch";
@@ -121,36 +126,64 @@ bool NetServices::begin() {
         ESP_FileSystem::end();
 #endif  // FILESYSTEM_FEATURE
       }
-      output.printMSG(type.c_str());
+      esp3d_commands.dispatch(type.c_str(), ESP3DClientType::all_clients, no_id,
+                              ESP3DMessageType::unique, ESP3DClientType::system,
+                              ESP3DAuthenticationLevel::admin);
     });
     ArduinoOTA.onEnd([]() {
-      ESP3DOutput output(ESP_ALL_CLIENTS);
-      output.printMSG("End OTA");
+      esp3d_commands.dispatch("End OTA", ESP3DClientType::all_clients, no_id,
+                              ESP3DMessageType::unique, ESP3DClientType::system,
+                              ESP3DAuthenticationLevel::admin);
     });
     ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
       String prg = "OTA Progress ";
-      ESP3DOutput output(ESP_ALL_CLIENTS);
       prg += String(progress / (total / 100)) + "%";
-      output.printMSG(prg.c_str());
+      esp3d_commands.dispatch(prg.c_str(), ESP3DClientType::all_clients, no_id,
+                              ESP3DMessageType::unique, ESP3DClientType::system,
+                              ESP3DAuthenticationLevel::admin);
     });
     ArduinoOTA.onError([](ota_error_t error) {
       String stmp = "OTA Error: " + String(error);
-      ESP3DOutput output(ESP_ALL_CLIENTS);
-      output.printERROR(stmp.c_str());
+      esp3d_commands.dispatch(stmp.c_str(), ESP3DClientType::all_clients, no_id,
+                              ESP3DMessageType::unique, ESP3DClientType::system,
+                              ESP3DAuthenticationLevel::admin);
       if (error == OTA_AUTH_ERROR) {
-        output.printERROR("Auth Failed");
+        esp3d_commands.dispatch("Auth Failed", ESP3DClientType::all_clients,
+                                no_id, ESP3DMessageType::unique,
+                                ESP3DClientType::system,
+                                ESP3DAuthenticationLevel::admin);
+        esp3d_log_e("Auth Failed");
       } else if (error == OTA_BEGIN_ERROR) {
-        output.printERROR("Begin Failed");
+        esp3d_log_e("Begin Failed");
+        esp3d_commands.dispatch("Begin Failed", ESP3DClientType::all_clients,
+                                no_id, ESP3DMessageType::unique,
+                                ESP3DClientType::system,
+                                ESP3DAuthenticationLevel::admin);
       } else if (error == OTA_CONNECT_ERROR) {
-        output.printERROR("Connect Failed");
+        esp3d_log_e("Connect Failed");
+        esp3d_commands.dispatch("Connect Failed", ESP3DClientType::all_clients,
+                                no_id, ESP3DMessageType::unique,
+                                ESP3DClientType::system,
+                                ESP3DAuthenticationLevel::admin);
       } else if (error == OTA_RECEIVE_ERROR) {
-        output.printERROR("Receive Failed");
+        esp3d_log_e("Receive Failed");
+        esp3d_commands.dispatch("Receive Failed", ESP3DClientType::all_clients,
+                                no_id, ESP3DMessageType::unique,
+                                ESP3DClientType::system,
+                                ESP3DAuthenticationLevel::admin);
       } else if (error == OTA_END_ERROR) {
-        output.printERROR("End Failed");
+        esp3d_log_e("End Failed");
+        esp3d_commands.dispatch("End Failed", ESP3DClientType::all_clients,
+                                no_id, ESP3DMessageType::unique,
+                                ESP3DClientType::system,
+                                ESP3DAuthenticationLevel::admin);
       }
     });
-    if (Settings_ESP3D::isVerboseBoot()) {
-      output.printMSG("OTA service started");
+    if (ESP3DSettings::isVerboseBoot()) {
+      esp3d_commands.dispatch("OTA service started",
+                              ESP3DClientType::all_clients, no_id,
+                              ESP3DMessageType::unique, ESP3DClientType::system,
+                              ESP3DAuthenticationLevel::admin);
     }
     String lhostname = hostname;
     lhostname.toLowerCase();
@@ -168,11 +201,18 @@ bool NetServices::begin() {
     // if DNSServer is started with "*" for domain name, it will reply with
     // provided IP to all DNS request
     if (dnsServer.start(DNS_PORT, "*", WiFi.softAPIP())) {
-      if (Settings_ESP3D::isVerboseBoot()) {
-        output.printMSG("Captive Portal started");
+      if (ESP3DSettings::isVerboseBoot()) {
+        esp3d_commands.dispatch(
+            "Captive Portal started", ESP3DClientType::all_clients, no_id,
+            ESP3DMessageType::unique, ESP3DClientType::system,
+            ESP3DAuthenticationLevel::admin);
       }
     } else {
-      output.printERROR("Failed start Captive Portal");
+      esp3d_log_e("Failed start Captive Portal");
+      esp3d_commands.dispatch("Failed start Captive Portal",
+                              ESP3DClientType::all_clients, no_id,
+                              ESP3DMessageType::unique, ESP3DClientType::system,
+                              ESP3DAuthenticationLevel::admin);
     }
   }
 #endif  // CAPTIVE_PORTAL_FEATURE
@@ -180,12 +220,19 @@ bool NetServices::begin() {
 #ifdef HTTP_FEATURE
   if (!HTTP_Server::begin()) {
     res = false;
-    output.printERROR("HTTP server failed");
+    esp3d_log_e("HTTP server failed");
+    esp3d_commands.dispatch("HTTP server failed", ESP3DClientType::all_clients,
+                            no_id, ESP3DMessageType::unique,
+                            ESP3DClientType::system,
+                            ESP3DAuthenticationLevel::admin);
   } else {
     if (HTTP_Server::started()) {
       String stmp = "HTTP server started port " + String(HTTP_Server::port());
-      if (Settings_ESP3D::isVerboseBoot()) {
-        output.printMSG(stmp.c_str());
+      if (ESP3DSettings::isVerboseBoot()) {
+        esp3d_commands.dispatch(stmp.c_str(), ESP3DClientType::all_clients,
+                                no_id, ESP3DMessageType::unique,
+                                ESP3DClientType::system,
+                                ESP3DAuthenticationLevel::admin);
       }
     }
   }
@@ -193,13 +240,20 @@ bool NetServices::begin() {
 #ifdef TELNET_FEATURE
   if (!telnet_server.begin()) {
     res = false;
-    output.printERROR("Telnet server failed");
+    esp3d_log_e("Telnet server failed");
+    esp3d_commands.dispatch("Telnet server failed",
+                            ESP3DClientType::all_clients, no_id,
+                            ESP3DMessageType::unique, ESP3DClientType::system,
+                            ESP3DAuthenticationLevel::admin);
   } else {
     if (telnet_server.started()) {
       String stmp =
           "Telnet server started port " + String(telnet_server.port());
-      if (Settings_ESP3D::isVerboseBoot()) {
-        output.printMSG(stmp.c_str());
+      if (ESP3DSettings::isVerboseBoot()) {
+        esp3d_commands.dispatch(stmp.c_str(), ESP3DClientType::all_clients,
+                                no_id, ESP3DMessageType::unique,
+                                ESP3DClientType::system,
+                                ESP3DAuthenticationLevel::admin);
       }
     }
   }
@@ -207,59 +261,85 @@ bool NetServices::begin() {
 #ifdef FTP_FEATURE
   if (!ftp_server.begin()) {
     res = false;
-    output.printERROR("Ftp server failed");
+    esp3d_log_e("Ftp server failed");
+    esp3d_commands.dispatch("Ftp server failed", ESP3DClientType::all_clients,
+                            no_id, ESP3DMessageType::unique,
+                            ESP3DClientType::system,
+                            ESP3DAuthenticationLevel::admin);
   } else {
     if (ftp_server.started()) {
       String stmp =
           "Ftp server started ports: " + String(ftp_server.ctrlport()) + "," +
           String(ftp_server.dataactiveport()) + "," +
           String(ftp_server.datapassiveport());
-      if (Settings_ESP3D::isVerboseBoot()) {
-        output.printMSG(stmp.c_str());
+      if (ESP3DSettings::isVerboseBoot()) {
+        esp3d_commands.dispatch(stmp.c_str(), ESP3DClientType::all_clients,
+                                no_id, ESP3DMessageType::unique,
+                                ESP3DClientType::system,
+                                ESP3DAuthenticationLevel::admin);
       }
     }
   }
 #endif  // FTP_FEATURE
 #ifdef WS_DATA_FEATURE
   if (!websocket_data_server.begin(
-          Settings_ESP3D::read_uint32(ESP_WEBSOCKET_PORT))) {
-    output.printMSG("Failed start Terminal Web Socket");
+          ESP3DSettings::readUint32(ESP_WEBSOCKET_PORT))) {
+    esp3d_log_e("Failed start Terminal Web Socket");
+    esp3d_commands.dispatch("Failed start Terminal Web Socket",
+                            ESP3DClientType::all_clients, no_id,
+                            ESP3DMessageType::unique, ESP3DClientType::system,
+                            ESP3DAuthenticationLevel::admin);
   } else {
     if (websocket_data_server.started()) {
       String stmp = "Websocket server started port " +
                     String(websocket_data_server.port());
-      if (Settings_ESP3D::isVerboseBoot()) {
-        output.printMSG(stmp.c_str());
+      if (ESP3DSettings::isVerboseBoot()) {
+        esp3d_commands.dispatch(stmp.c_str(), ESP3DClientType::all_clients,
+                                no_id, ESP3DMessageType::unique,
+                                ESP3DClientType::system,
+                                ESP3DAuthenticationLevel::admin);
       }
     }
   }
 #endif  // WS_DATA_FEATURE
 #ifdef WEBDAV_FEATURE
   if (!webdav_server.begin()) {
-    output.printMSG("Failed start Terminal Web Socket");
+    esp3d_log("Failed start Terminal Web Socket");
+    esp3d_commands.dispatch("Failed start Terminal Web Socket",
+                            ESP3DClientType::all_clients, no_id,
+                            ESP3DMessageType::unique, ESP3DClientType::system,
+                            ESP3DAuthenticationLevel::admin);
   } else {
     if (webdav_server.started()) {
       String stmp =
           "WebDav server started port " + String(webdav_server.port());
-      if (Settings_ESP3D::isVerboseBoot()) {
-        output.printMSG(stmp.c_str());
+      if (ESP3DSettings::isVerboseBoot()) {
+        esp3d_commands.dispatch(stmp.c_str(), ESP3DClientType::all_clients,
+                                no_id, ESP3DMessageType::unique,
+                                ESP3DClientType::system,
+                                ESP3DAuthenticationLevel::admin);
       }
     }
   }
 #endif  // WEBDAV_FEATURE
 #if defined(HTTP_FEATURE)
   if (!websocket_terminal_server.begin()) {
-    output.printMSG("Failed start Terminal Web Socket");
+    esp3d_log_e("Failed start Terminal Web Socket");
+    esp3d_commands.dispatch("Failed start Terminal Web Socket",
+                            ESP3DClientType::all_clients, no_id,
+                            ESP3DMessageType::unique, ESP3DClientType::system,
+                            ESP3DAuthenticationLevel::admin);
   }
 #endif  // HTTP_FEATURE
-#ifdef MDNS_FEATURE
+#if defined(MDNS_FEATURE) && defined(HTTP_FEATURE)
   esp3d_mDNS.addESP3DServices(HTTP_Server::port());
 #endif  // MDNS_FEATURE
+#if defined(MDNS_FEATURE) && defined(HTTP_FEATURE)
 #ifdef SSDP_FEATURE
   // SSDP service presentation
   if (WiFi.getMode() != WIFI_AP && HTTP_Server::started()) {
     // Add specific for SSDP
-    String stmp = String(Hal::getChipID());
+    String stmp = String(ESP3DHal::getChipID());
     SSDP.setSchemaURL("description.xml");
     SSDP.setHTTPPort(HTTP_Server::port());
     SSDP.setName(hostname.c_str());
@@ -278,18 +358,25 @@ bool NetServices::begin() {
     SSDP.setManufacturerURL(ESP_MANUFACTURER_URL);
     SSDP.begin();
     stmp = "SSDP started with '" + hostname + "'";
-    if (Settings_ESP3D::isVerboseBoot()) {
-      output.printMSG(stmp.c_str());
+    if (ESP3DSettings::isVerboseBoot()) {
+      esp3d_commands.dispatch(stmp.c_str(), ESP3DClientType::all_clients, no_id,
+                              ESP3DMessageType::unique, ESP3DClientType::system,
+                              ESP3DAuthenticationLevel::admin);
     }
   }
-#endif  // SSDP_FEATURE
+#endif  // defined(MDNS_FEATURE) && defined(HTTP_FEATURE)
+#endif  // MDNS_FEATURE
 #ifdef NOTIFICATION_FEATURE
   notificationsservice.begin();
   notificationsservice.sendAutoNotification(NOTIFICATION_ESP_ONLINE);
 #endif  // NOTIFICATION_FEATURE
 #ifdef CAMERA_DEVICE
   if (!esp3d_camera.begin()) {
-    output.printMSG("Failed start camera streaming server");
+    esp3d_log_e("Failed start camera streaming server");
+    esp3d_commands.dispatch("Failed start camera streaming server",
+                            ESP3DClientType::all_clients, no_id,
+                            ESP3DMessageType::unique, ESP3DClientType::system,
+                            ESP3DAuthenticationLevel::admin);
   }
 #endif  // CAMERA_DEVICE
 #if COMMUNICATION_PROTOCOL == MKS_SERIAL
@@ -298,9 +385,12 @@ bool NetServices::begin() {
   if (!res) {
     end();
   }
-  Hal::wait(1000);
+  ESP3DHal::wait(1000);
 #if COMMUNICATION_PROTOCOL != MKS_SERIAL
-  output.printMSG(NetConfig::localIP().c_str());
+  esp3d_commands.dispatch(NetConfig::localIP().c_str(),
+                          ESP3DClientType::all_clients, no_id,
+                          ESP3DMessageType::unique, ESP3DClientType::system,
+                          ESP3DAuthenticationLevel::admin);
 #endif  // #if COMMUNICATION_PROTOCOL == MKS_SERIAL
   _started = res;
   return _started;

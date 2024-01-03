@@ -20,25 +20,28 @@
 
 #include "../../include/esp3d_config.h"
 
-#if defined(HTTP_FEATURE) || defined(WS_DATA_FEATURE)
+#if defined(HTTP_FEATURE) || defined(WS_DATA_FEATURE) || \
+    (defined(ESP_LOG_FEATURE) && ESP_LOG_FEATURE == LOG_OUTPUT_WEBSOCKET)
 
 #include <WebSocketsServer.h>
 
-#include "../../core/commands.h"
-#include "../../core/esp3doutput.h"
-#include "../../core/settings_esp3d.h"
+#include "../../core/esp3d_commands.h"
+#include "../../core/esp3d_message.h"
+#include "../../core/esp3d_settings.h"
 #include "../authentication/authentication_service.h"
 #include "websocket_server.h"
 
-WebSocket_Server websocket_terminal_server("webui-v3");
+WebSocket_Server websocket_terminal_server("webui-v3",
+                                           ESP3DClientType::webui_websocket);
 #if defined(WS_DATA_FEATURE)
-WebSocket_Server websocket_data_server("arduino");
+WebSocket_Server websocket_data_server("arduino", ESP3DClientType::websocket);
 #endif  // WS_DATA_FEATURE
-void WebSocket_Server::pushMSG(const char *data) {
+bool WebSocket_Server::pushMSG(const char *data) {
   if (_websocket_server) {
-    _websocket_server->broadcastTXT(data);
-    log_esp3d("[%u]Broadcast %s", _current_id, data);
+    esp3d_log("[%u]Broadcast %s", _current_id, data);
+    return _websocket_server->broadcastTXT(data);
   }
+  return false;
 }
 
 void WebSocket_Server::enableOnly(uint num) {
@@ -51,11 +54,34 @@ void WebSocket_Server::enableOnly(uint num) {
   }
 }
 
-void WebSocket_Server::pushMSG(uint num, const char *data) {
-  if (_websocket_server) {
-    _websocket_server->sendTXT(num, data);
-    log_esp3d("[%u]Send %s", num, data);
+bool WebSocket_Server::dispatch(ESP3DMessage *message) {
+  if (!message || !_started) {
+    return false;
   }
+  if (message->size > 0 && message->data) {
+    size_t sentcnt = writeBytes(message->data, message->size);
+    if (sentcnt != message->size) {
+      return false;
+    }
+    ESP3DMessageManager::deleteMsg(message);
+    return true;
+  }
+  return false;
+}
+
+bool WebSocket_Server::pushMSG(uint num, const char *data) {
+  if (_websocket_server) {
+    esp3d_log("[%u]Send %s", num, data);
+    return _websocket_server->sendTXT(num, data);
+  }
+  return false;
+}
+
+bool WebSocket_Server::isConnected(){
+  if (_websocket_server) {
+    return _websocket_server->connectedClients(true) > 0;
+  }
+  return false;
 }
 
 void WebSocket_Server::closeClients() {
@@ -70,20 +96,21 @@ void handle_Websocket_Server_Event(uint8_t num, uint8_t type, uint8_t *payload,
   (void)num;
   switch (type) {
     case WStype_DISCONNECTED:
-      log_esp3d("[%u] Disconnected! port %d", num,
+      esp3d_log("[%u] Disconnected! port %d", num,
                 websocket_data_server.port());
       break;
     case WStype_CONNECTED: {
-      log_esp3d("[%u] Connected! port %d, %s", num,
+      websocket_data_server.initAuthentication();
+      esp3d_log("[%u] Connected! port %d, %s", num,
                 websocket_data_server.port(), payload);
     } break;
     case WStype_TEXT:
-      log_esp3d("[%u] get Text: %s port %d", num, payload,
+      esp3d_log("[%u] get Text: %s port %d", num, payload,
                 websocket_data_server.port());
       websocket_data_server.push2RXbuffer(payload, length);
       break;
     case WStype_BIN:
-      log_esp3d("[%u] get binary length: %u port %d", num, length,
+      esp3d_log("[%u] get binary length: %u port %d", num, length,
                 websocket_data_server.port());
       websocket_data_server.push2RXbuffer(payload, length);
       break;
@@ -101,11 +128,11 @@ void handle_Websocket_Terminal_Event(uint8_t num, uint8_t type,
   String msg;
   switch (type) {
     case WStype_DISCONNECTED:
-      log_esp3d("[%u] Socket Disconnected port %d!", num,
+      esp3d_log("[%u] Socket Disconnected port %d!", num,
                 websocket_terminal_server.port());
       break;
     case WStype_CONNECTED: {
-      log_esp3d("[%u] Connected! port %d, %s", num,
+      esp3d_log("[%u] Connected! port %d, %s", num,
                 websocket_terminal_server.port(), (const char *)payload);
       msg = "currentID:" + String(num);
       // send message to client
@@ -114,7 +141,7 @@ void handle_Websocket_Terminal_Event(uint8_t num, uint8_t type,
       msg = "activeID:" + String(num);
       websocket_terminal_server.pushMSG(msg.c_str());
       websocket_terminal_server.enableOnly(num);
-      log_esp3d("[%u] Socket connected port %d", num,
+      esp3d_log("[%u] Socket connected port %d", num,
                 websocket_terminal_server.port());
     } break;
     case WStype_TEXT:
@@ -132,13 +159,13 @@ void handle_Websocket_Terminal_Event(uint8_t num, uint8_t type,
         }
       }
 #endif  // AUTHENTICATION_FEATURE
-        // log_esp3d("[IGNORED][%u] get Text: %s  port %d", num, payload,
+        // esp3d_log("[IGNORED][%u] get Text: %s  port %d", num, payload,
         // websocket_terminal_server.port());
       break;
     case WStype_BIN:
       // we do not expect any input
-      // log_esp3d("[IGNORED][%u] get binary length: %u  port %d", num, length,
-      // websocket_terminal_server.port());
+      // esp3d_log("[IGNORED][%u] get binary length: %u  port %d", num,
+      // length, websocket_terminal_server.port());
       break;
     default:
       break;
@@ -150,7 +177,7 @@ int WebSocket_Server::available() { return _RXbufferSize; }
 int WebSocket_Server::availableForWrite() {
   return TXBUFFERSIZE - _TXbufferSize;
 }
-WebSocket_Server::WebSocket_Server(const char *protocol) {
+WebSocket_Server::WebSocket_Server(const char *protocol, ESP3DClientType type) {
   _websocket_server = nullptr;
   _started = false;
   _port = 0;
@@ -158,15 +185,17 @@ WebSocket_Server::WebSocket_Server(const char *protocol) {
   _RXbuffer = nullptr;
   _RXbufferSize = 0;
   _protocol = protocol;
+  _type = type;
+  initAuthentication();
 }
 WebSocket_Server::~WebSocket_Server() { end(); }
 bool WebSocket_Server::begin(uint16_t port) {
   end();
   if (port == 0) {
-    _port = Settings_ESP3D::read_uint32(ESP_HTTP_PORT) + 1;
+    _port = ESP3DSettings::readUint32(ESP_HTTP_PORT) + 1;
   } else {
     _port = port;
-    if (Settings_ESP3D::read_byte(ESP_WEBSOCKET_ON) == 0) {
+    if (ESP3DSettings::readByte(ESP_WEBSOCKET_ON) == 0) {
       return true;
     }
   }
@@ -209,6 +238,7 @@ void WebSocket_Server::end() {
     _port = 0;
   }
   _started = false;
+  initAuthentication();
 }
 
 WebSocket_Server::operator bool() const { return _started; }
@@ -218,9 +248,9 @@ void WebSocket_Server::set_currentID(uint8_t current_id) {
 }
 uint8_t WebSocket_Server::get_currentID() { return _current_id; }
 
-size_t WebSocket_Server::write(uint8_t c) { return write(&c, 1); }
+// size_t WebSocket_Server::write(uint8_t c) { return write(&c, 1); }
 
-size_t WebSocket_Server::write(const uint8_t *buffer, size_t size) {
+size_t WebSocket_Server::writeBytes(const uint8_t *buffer, size_t size) {
   if (_started) {
     if ((buffer == nullptr) || (!_websocket_server) || (size == 0)) {
       return 0;
@@ -280,21 +310,35 @@ void WebSocket_Server::push2RXbuffer(uint8_t *sbuf, size_t len) {
   }
 }
 
+void WebSocket_Server::initAuthentication() {
+#if defined(AUTHENTICATION_FEATURE)
+  _auth = ESP3DAuthenticationLevel::guest;
+#else
+  _auth = ESP3DAuthenticationLevel::admin;
+#endif  // AUTHENTICATION_FEATURE
+}
+ESP3DAuthenticationLevel WebSocket_Server::getAuthentication() { return _auth; }
+
 void WebSocket_Server::flushRXbuffer() {
   if (!_RXbuffer || !_started) {
     _RXbufferSize = 0;
     return;
   }
-  ESP3DOutput output(ESP_WEBSOCKET_CLIENT);
   _RXbuffer[_RXbufferSize] = 0x0;
-  // dispatch command
-  esp3d_commands.process(_RXbuffer, _RXbufferSize, &output);
+  ESP3DMessage *msg = ESP3DMessageManager::newMsg(
+      _type, esp3d_commands.getOutputClient(), _RXbuffer, _RXbufferSize, _auth);
+  if (msg) {
+    // process command
+    esp3d_commands.process(msg);
+  } else {
+    esp3d_log_e("Cannot create message");
+  }
   _lastRXflush = millis();
   _RXbufferSize = 0;
 }
 
 void WebSocket_Server::handle() {
-  Hal::wait(0);
+  ESP3DHal::wait(0);
   if (_started) {
     if (_TXbufferSize > 0) {
       if ((_TXbufferSize >= TXBUFFERSIZE) ||
@@ -324,7 +368,7 @@ void WebSocket_Server::flushTXbuffer(void) {
     if ((_TXbufferSize > 0) && (_websocket_server->connectedClients() > 0)) {
       if (_websocket_server) {
         _websocket_server->broadcastBIN(_TXbuffer, _TXbufferSize);
-        log_esp3d("WS Broadcast bin port %d: %d bytes", port(), _TXbufferSize);
+        esp3d_log("WS Broadcast bin port %d: %d bytes", port(), _TXbufferSize);
       }
       // refresh timout
       _lastTXflush = millis();

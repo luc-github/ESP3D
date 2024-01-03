@@ -60,7 +60,7 @@ void update_hash(uint8_t* data, size_t len, uint8_t* hash_buffer,
   static bool reverse = false;
   reverse = !reverse;
   int start_index = reverse ? hash_size : 0;
-  for (int i = 0; i < hash_size; i++) {
+  for (uint8_t i = 0; i < hash_size; i++) {
     int idx =
         reverse ? (start_index - i) % hash_size : (start_index + i) % hash_size;
     if (i >= len) {
@@ -147,4 +147,35 @@ const char* esp3d_string::getContentType(const char* filename) {
     return "text/plain";
   }
   return "application/octet-stream";
+}
+
+// tool function to avoid string corrupt JSON files
+const char* esp3d_string::encodeString(const char* s) {
+  static String tmp;
+  tmp = s;
+  while (tmp.indexOf("'") != -1) {
+    tmp.replace("'", "&#39;");
+  }
+  while (tmp.indexOf("\"") != -1) {
+    tmp.replace("\"", "&#34;");
+  }
+  if (tmp == "") {
+    tmp = " ";
+  }
+  return tmp.c_str();
+}
+
+// helper to format size to readable string
+const char* esp3d_string::formatBytes(uint64_t bytes) {
+  static String res;
+  if (bytes < 1024) {
+    res = String((uint16_t)bytes) + " B";
+  } else if (bytes < (1024 * 1024)) {
+    res = String((float)(bytes / 1024.0), 2) + " KB";
+  } else if (bytes < (1024 * 1024 * 1024)) {
+    res = String((float)(bytes / 1024.0 / 1024.0), 2) + " MB";
+  } else {
+    res = String((float)(bytes / 1024.0 / 1024.0 / 1024.0), 2) + " GB";
+  }
+  return res.c_str();
 }

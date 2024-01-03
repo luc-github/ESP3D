@@ -26,11 +26,10 @@
 #if defined(ARDUINO_ARCH_ESP8266)
 #include <ESP8266WebServer.h>
 #endif  // ARDUINO_ARCH_ESP8266
-#include "../../../core/commands.h"
-#include "../../../core/esp3doutput.h"
-#include "../../../core/settings_esp3d.h"
+#include "../../../core/esp3d_commands.h"
+#include "../../../core/esp3d_message.h"
+#include "../../../core/esp3d_settings.h"
 #include "../../authentication/authentication_service.h"
-
 
 const unsigned char realTimeCommands[] = {
     '!',  '~',  '?',  0x18, 0x84, 0x85, 0x90, 0x92, 0x93, 0x94, 0x95,
@@ -46,19 +45,18 @@ bool isRealTimeCommand(unsigned char c) {
 
 // Handle web command query and send answer//////////////////////////////
 void HTTP_Server::handle_web_command() {
-  level_authenticate_type auth_level =
-      AuthenticationService::authenticated_level();
-  if (auth_level == LEVEL_GUEST) {
+  ESP3DAuthenticationLevel auth_level =
+      AuthenticationService::getAuthenticatedLevel();
+  if (auth_level == ESP3DAuthenticationLevel::guest) {
     _webserver->send(401, "text/plain", "Wrong authentication!");
     return;
   }
-  // log_esp3d("Authentication = %d", auth_level);
+  // esp3d_log("Authentication = %d", auth_level);
   String cmd = "";
   if (_webserver->hasArg("cmd")) {
     cmd = _webserver->arg("cmd");
-    ESP3DOutput output(_webserver);
     if (!cmd.endsWith("\n")) {
-      if (Settings_ESP3D::GetFirmwareTarget() == GRBL) {
+      if (ESP3DSettings::GetFirmwareTarget() == GRBL) {
         uint len = cmd.length();
         if (!((len == 1 && isRealTimeCommand(cmd[0])) ||
               (len == 2 && isRealTimeCommand(cmd[1])))) {
@@ -74,27 +72,27 @@ void HTTP_Server::handle_web_command() {
         cmd += "\n";  // need to validate command
       }
     }
-    log_esp3d("Web Command: %s", cmd.c_str());
+    esp3d_log("Web Command: %s", cmd.c_str());
     if (esp3d_commands.is_esp_command((uint8_t *)cmd.c_str(), cmd.length())) {
-      esp3d_commands.process((uint8_t *)cmd.c_str(), cmd.length(), &output,
-                             auth_level);
+      ESP3DMessage *msg = ESP3DMessageManager::newMsg(
+          ESP3DClientType::http, esp3d_commands.getOutputClient(),
+          (uint8_t *)cmd.c_str(), cmd.length(), auth_level);
+      if (msg) {
+        msg->type = ESP3DMessageType::unique;
+        msg->request_id.code = 200;
+        // process command
+        esp3d_commands.process(msg);
+      } else {
+        esp3d_log_e("Cannot create message");
+      }
     } else {
-#if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
-      ESP3DOutput outputOnly(ESP_SOCKET_SERIAL_CLIENT);
-#endif  // COMMUNICATION_PROTOCOL
-#if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
-      ESP3DOutput outputOnly(ESP_SERIAL_CLIENT);
-#endif  // COMMUNICATION_PROTOCOL == SOCKET_SERIAL
-      _webserver->sendHeader("Cache-Control", "no-cache");
       HTTP_Server::set_http_headers();
-#ifdef ESP_ACCESS_CONTROL_ALLOW_ORIGIN
-      _webserver->sendHeader("Access-Control-Allow-Origin", "*");
-#endif  // ESP_ACCESS_CONTROL_ALLOw_ORIGIN
-        // the command is not ESP3D so it will be forwarded to the serial port
-        // no need to wait to answer then
+      // the command is not ESP3D so it will be forwarded to the output client
+      // no need to wait to answer then
       _webserver->send(200, "text/plain", "ESP3D says: command forwarded");
-      esp3d_commands.process((uint8_t *)cmd.c_str(), cmd.length(), &output,
-                             auth_level, &outputOnly);
+      esp3d_commands.dispatch(cmd.c_str(), esp3d_commands.getOutputClient(),
+                              no_id, ESP3DMessageType::unique,
+                              ESP3DClientType::http, auth_level);
     }
   } else if (_webserver->hasArg("ping")) {
     _webserver->send(200);

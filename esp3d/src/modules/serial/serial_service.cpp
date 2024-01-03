@@ -1,5 +1,5 @@
 /*
-  serial_service.cpp -  serial services functions class
+  esp3d_serial_service.cpp -  serial services functions class
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -21,9 +21,8 @@
 #include "../../include/esp3d_config.h"
 #if COMMUNICATION_PROTOCOL == MKS_SERIAL || \
     COMMUNICATION_PROTOCOL == RAW_SERIAL || defined(ESP_SERIAL_BRIDGE_OUTPUT)
-#include "../../core/commands.h"
-#include "../../core/esp3doutput.h"
-#include "../../core/settings_esp3d.h"
+#include "../../core/esp3d_commands.h"
+#include "../../core/esp3d_settings.h"
 #include "serial_service.h"
 
 #if COMMUNICATION_PROTOCOL == MKS_SERIAL
@@ -54,83 +53,101 @@ HardwareSerial *Serials[MAX_SERIAL] = {&Serial, &Serial1, &Serial2};
 #define ESP3DSERIAL_RUNNING_CORE 1
 #define SERIAL_YIELD 10
 
-SerialService serial_service = SerialService(MAIN_SERIAL);
+ESP3DSerialService esp3d_serial_service = ESP3DSerialService(MAIN_SERIAL);
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
-SerialService serial_bridge_service = SerialService(BRIDGE_SERIAL);
+ESP3DSerialService serial_bridge_service = ESP3DSerialService(BRIDGE_SERIAL);
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
 
 #if defined(ARDUINO_ARCH_ESP32) && defined(SERIAL_INDEPENDANT_TASK)
 TaskHandle_t _hserialtask = nullptr;
 #endif  // ARDUINO_ARCH_ESP32
 
-const long SupportedBaudList[] = {9600,   19200,  38400,  57600,
-                                  74880,  115200, 230400, 250000,
-                                  500000, 921600, 1958400};
+const uint32_t SupportedBaudList[] = {9600,   19200,  38400,  57600,
+                                      74880,  115200, 230400, 250000,
+                                      500000, 921600, 1958400};
 const size_t SupportedBaudListSize = sizeof(SupportedBaudList) / sizeof(long);
 
 #define TIMEOUT_SERIAL_FLUSH 1500
 // Constructor
-SerialService::SerialService(uint8_t id) {
+ESP3DSerialService::ESP3DSerialService(uint8_t id) {
   _buffer_size = 0;
   _started = false;
+#if defined(AUTHENTICATION_FEATURE)
   _needauthentication = true;
+#else
+  _needauthentication = false;
+#endif  // AUTHENTICATION_FEATURE
   _id = id;
   switch (_id) {
     case MAIN_SERIAL:
       _rxPin = ESP_RX_PIN;
       _txPin = ESP_TX_PIN;
-      _client = ESP_SERIAL_CLIENT;
+      _origin = ESP3DClientType::serial;
       break;
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
     case BRIDGE_SERIAL:
       _rxPin = ESP_BRIDGE_RX_PIN;
       _txPin = ESP_BRIDGE_TX_PIN;
-      _client = ESP_SERIAL_BRIDGE_CLIENT;
+      _origin = ESP3DClientType::serial_bridge;
       break;
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
     default:
       _rxPin = ESP_RX_PIN;
       _txPin = ESP_TX_PIN;
-      _client = ESP_SERIAL_CLIENT;
+      _origin = ESP3DClientType::serial;
       break;
   }
 }
 
 // Destructor
-SerialService::~SerialService() { end(); }
+ESP3DSerialService::~ESP3DSerialService() { end(); }
 
 // dedicated serial task
 #if defined(ARDUINO_ARCH_ESP32) && defined(SERIAL_INDEPENDANT_TASK)
 void ESP3DSerialTaskfn(void *parameter) {
   for (;;) {
-    serial_service.process();
-    Hal::wait(SERIAL_YIELD);  // Yield to other tasks
+    esp3d_serial_service.process();
+    ESP3DHal::wait(SERIAL_YIELD);  // Yield to other tasks
   }
   vTaskDelete(NULL);
 }
 #endif  // ARDUINO_ARCH_ESP32
 
 // extra parameters that do not need a begin
-void SerialService::setParameters() {
+void ESP3DSerialService::setParameters() {
 #if defined(AUTHENTICATION_FEATURE)
   _needauthentication =
-      (Settings_ESP3D::read_byte(ESP_SECURE_SERIAL) == 0) ? false : true;
+      (ESP3DSettings::readByte(ESP_SECURE_SERIAL) == 0) ? false : true;
 #else
   _needauthentication = false;
 #endif  // AUTHENTICATION_FEATURE
 }
 
+void ESP3DSerialService::initAuthentication() {
+#if defined(AUTHENTICATION_FEATURE)
+  _auth = ESP3DAuthenticationLevel::guest;
+#else
+  _auth = ESP3DAuthenticationLevel::admin;
+#endif  // AUTHENTICATION_FEATURE
+}
+ESP3DAuthenticationLevel ESP3DSerialService::getAuthentication() {
+  if (_needauthentication) {
+    return _auth;
+  }
+  return ESP3DAuthenticationLevel::admin;
+}
+
 // Setup Serial
-bool SerialService::begin(uint8_t serialIndex) {
+bool ESP3DSerialService::begin(uint8_t serialIndex) {
   _serialIndex = serialIndex - 1;
-  log_esp3d("Serial %d begin for %d", _serialIndex, _id);
+  esp3d_log("Serial %d begin for %d", _serialIndex, _id);
   if (_id == BRIDGE_SERIAL &&
-      Settings_ESP3D::read_byte(ESP_SERIAL_BRIDGE_ON) == 0) {
-    log_esp3d("Serial %d for %d is disabled", _serialIndex, _id);
+      ESP3DSettings::readByte(ESP_SERIAL_BRIDGE_ON) == 0) {
+    esp3d_log("Serial %d for %d is disabled", _serialIndex, _id);
     return true;
   }
   if (_serialIndex >= MAX_SERIAL) {
-    log_esp3d_e("Serial %d begin for %d failed, index out of range",
+    esp3d_log_e("Serial %d begin for %d failed, index out of range",
                 _serialIndex, _id);
     return false;
   }
@@ -140,27 +157,27 @@ bool SerialService::begin(uint8_t serialIndex) {
   long defaultBr = 0;
   switch (_id) {
     case MAIN_SERIAL:
-      br = Settings_ESP3D::read_uint32(ESP_BAUD_RATE);
-      defaultBr = Settings_ESP3D::getDefaultIntegerSetting(ESP_BAUD_RATE);
+      br = ESP3DSettings::readUint32(ESP_BAUD_RATE);
+      defaultBr = ESP3DSettings::getDefaultIntegerSetting(ESP_BAUD_RATE);
       break;
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
     case BRIDGE_SERIAL:
-      br = Settings_ESP3D::read_uint32(ESP_SERIAL_BRIDGE_BAUD);
+      br = ESP3DSettings::readUint32(ESP_SERIAL_BRIDGE_BAUD);
       defaultBr =
-          Settings_ESP3D::getDefaultIntegerSetting(ESP_SERIAL_BRIDGE_BAUD);
+          ESP3DSettings::getDefaultIntegerSetting(ESP_SERIAL_BRIDGE_BAUD);
       break;
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
     default:
-      log_esp3d_e("Serial %d begin for %d failed, unknown id", _serialIndex,
+      esp3d_log_e("Serial %d begin for %d failed, unknown id", _serialIndex,
                   _id);
       return false;
   }
   setParameters();
-  log_esp3d("Baud rate is %d , default is %d", br, defaultBr);
+  esp3d_log("Baud rate is %d , default is %d", br, defaultBr);
   _buffer_size = 0;
   // change only if different from current
   if (br != baudRate() || (_rxPin != -1) || (_txPin != -1)) {
-    if (!Settings_ESP3D::isValidIntegerSetting(br, ESP_BAUD_RATE)) {
+    if (!ESP3DSettings::isValidIntegerSetting(br, ESP_BAUD_RATE)) {
       br = defaultBr;
     }
     Serials[_serialIndex]->setRxBufferSize(SERIAL_RX_BUFFER_SIZE);
@@ -176,7 +193,7 @@ bool SerialService::begin(uint8_t serialIndex) {
     Serials[_serialIndex]->begin(br, ESP_SERIAL_PARAM, ESP_RX_PIN, ESP_TX_PIN);
 #if defined(SERIAL_INDEPENDANT_TASK)
     // create serial task once
-    log_esp3d("Serial %d for %d Task creation", _serialIndex, _id);
+    esp3d_log("Serial %d for %d Task creation", _serialIndex, _id);
     if (_hserialtask == nullptr && _id == MAIN_SERIAL) {
       xTaskCreatePinnedToCore(
           ESP3DSerialTaskfn,            /* Task function. */
@@ -189,29 +206,30 @@ bool SerialService::begin(uint8_t serialIndex) {
       );
     }
     if (_hserialtask == nullptr) {
-      log_esp3d_e("Serial %d for %d Task creation failed", _serialIndex, _id);
+      esp3d_log_e("Serial %d for %d Task creation failed", _serialIndex, _id);
       return false;
     }
 #endif  // SERIAL_INDEPENDANT_TASK
 #endif  // ARDUINO_ARCH_ESP32
   }
   _started = true;
-  log_esp3d("Serial %d for %d is started", _serialIndex, _id);
+  esp3d_log("Serial %d for %d is started", _serialIndex, _id);
   return true;
 }
 // End serial
-bool SerialService::end() {
+bool ESP3DSerialService::end() {
   flush();
   delay(100);
   swap();
   Serials[_serialIndex]->end();
   _buffer_size = 0;
   _started = false;
+  initAuthentication();
   return true;
 }
 
-// return the array of long and array size
-const long *SerialService::get_baudratelist(uint8_t *count) {
+// return the array of uint32_t and array size
+const uint32_t *ESP3DSerialService::get_baudratelist(uint8_t *count) {
   if (count) {
     *count = sizeof(SupportedBaudList) / sizeof(long);
   }
@@ -219,15 +237,15 @@ const long *SerialService::get_baudratelist(uint8_t *count) {
 }
 
 // Function which could be called in other loop
-void SerialService::process() {
+void ESP3DSerialService::process() {
   if (!_started) {
     return;
   }
   // Do we have some data waiting
-  size_t len = available();
+  size_t len = Serials[_serialIndex]->available();
   if (len > 0) {
     // if yes read them
-    log_esp3d("Got %d chars in serial", len);
+    esp3d_log("Got %d chars in serial", len);
     uint8_t *sbuf = (uint8_t *)malloc(len);
     if (sbuf) {
       size_t count = readBytes(sbuf, len);
@@ -247,7 +265,7 @@ void SerialService::process() {
 }
 
 // Function which could be called in other loop
-void SerialService::handle() {
+void ESP3DSerialService::handle() {
   // the serial bridge do not use independant task
   // not sure if it is sill necessary to do it for the main serial
   // TBC..
@@ -259,24 +277,32 @@ void SerialService::handle() {
   process();
 }
 
-void SerialService::flushbuffer() {
-  ESP3DOutput output(_client);
+void ESP3DSerialService::flushbuffer() {
   _buffer[_buffer_size] = 0x0;
+
   // dispatch command
   if (_started) {
-    esp3d_commands.process(_buffer, _buffer_size, &output,
-                           _needauthentication ? LEVEL_GUEST : LEVEL_ADMIN);
+    ESP3DMessage *message = ESP3DMessageManager::newMsg(
+        _origin, ESP3DClientType::all_clients, (uint8_t *)_buffer, _buffer_size,
+        getAuthentication());
+    if (message) {
+      // process command
+      message->type = ESP3DMessageType::unique;
+      esp3d_commands.process(message);
+    } else {
+      esp3d_log_e("Cannot create message");
+    }
   }
   _lastflush = millis();
   _buffer_size = 0;
 }
 
 // push collected data to buffer and proceed accordingly
-void SerialService::push2buffer(uint8_t *sbuf, size_t len) {
+void ESP3DSerialService::push2buffer(uint8_t *sbuf, size_t len) {
   if (!_started) {
     return;
   }
-  log_esp3d("buffer get %d data ", len);
+  esp3d_log("buffer get %d data ", len);
 #if COMMUNICATION_PROTOCOL == MKS_SERIAL
   static bool isFrameStarted = false;
   static bool isCommandFrame = false;
@@ -286,25 +312,25 @@ void SerialService::push2buffer(uint8_t *sbuf, size_t len) {
   // currently received
   static uint datalen = 0;
   for (size_t i = 0; i < len; i++) {
-    log_esp3d("Data : %c %x", sbuf[i], sbuf[i]);
+    esp3d_log("Data : %c %x", sbuf[i], sbuf[i]);
     framePos++;
     _lastflush = millis();
     // so frame head was detected
     if (isFrameStarted) {
       // checking it is a valid Frame header
       if (framePos == 1) {
-        log_esp3d("type = %x", sbuf[i]);
+        esp3d_log("type = %x", sbuf[i]);
         if (MKSService::isFrame(char(sbuf[i]))) {
           if (MKSService::isCommand(char(sbuf[i]))) {
             isCommandFrame = true;
-            log_esp3d("type: Command");
+            esp3d_log("type: Command");
           } else {
-            log_esp3d("type: other");
+            esp3d_log("type: other");
             type = sbuf[i];
             isCommandFrame = false;
           }
         } else {
-          log_esp3d_e("wrong frame type");
+          esp3d_log_e("wrong frame type");
           isFrameStarted = false;
           _buffer_size = 0;
         }
@@ -314,20 +340,20 @@ void SerialService::push2buffer(uint8_t *sbuf, size_t len) {
           datalen = sbuf[i];
         } else {
           datalen += (sbuf[i] << 8);
-          log_esp3d("Data len: %d", datalen);
+          esp3d_log("Data len: %d", datalen);
           if (datalen > (ESP3D_SERIAL_BUFFER_SIZE - 5)) {
-            log_esp3d_e("Overflow in data len");
+            esp3d_log_e("Overflow in data len");
             isFrameStarted = false;
             _buffer_size = 0;
           }
         }
       } else if (MKSService::isTail(char(sbuf[i]))) {
-        log_esp3d("got tail");
+        esp3d_log("got tail");
         _buffer[_buffer_size] = '\0';
-        log_esp3d("size is %d", _buffer_size);
+        esp3d_log("size is %d", _buffer_size);
         // let check integrity
         if (_buffer_size == datalen) {
-          log_esp3d("Flushing buffer");
+          esp3d_log("Flushing buffer");
           if (isCommandFrame) {
             flushbuffer();
           } else {
@@ -335,7 +361,7 @@ void SerialService::push2buffer(uint8_t *sbuf, size_t len) {
                                     _buffer_size);
           }
         } else {
-          log_esp3d_e("Error in data len");
+          esp3d_log_e("Error in data len");
         }
         // clear frame infos
         _buffer_size = 0;
@@ -347,7 +373,7 @@ void SerialService::push2buffer(uint8_t *sbuf, size_t len) {
           _buffer[_buffer_size] = sbuf[i];
           _buffer_size++;
         } else {
-          log_esp3d_e("Overflow in data len");
+          esp3d_log_e("Overflow in data len");
           isFrameStarted = false;
           _buffer_size = 0;
         }
@@ -355,7 +381,7 @@ void SerialService::push2buffer(uint8_t *sbuf, size_t len) {
     } else {
       // frame is not started let see if it is a head
       if (MKSService::isHead(char(sbuf[i]))) {
-        log_esp3d("got head");
+        esp3d_log("got head");
         // yes it is
         isFrameStarted = true;
         framePos = 0;
@@ -363,7 +389,7 @@ void SerialService::push2buffer(uint8_t *sbuf, size_t len) {
       } else {
         // no so let reset all and just ignore it
         // TODO should we handle these data ?
-        log_esp3d_e("Unidentified data : %c %x", sbuf[i], sbuf[i]);
+        esp3d_log_e("Unidentified data : %c %x", sbuf[i], sbuf[i]);
         isCommandFrame = false;
         framePos = -1;
         datalen = 0;
@@ -404,30 +430,30 @@ void SerialService::push2buffer(uint8_t *sbuf, size_t len) {
 }
 
 // Reset Serial Setting (baud rate)
-bool SerialService::reset() {
-  log_esp3d("Reset serial");
+bool ESP3DSerialService::reset() {
+  esp3d_log("Reset serial");
   bool res = false;
   switch (_id) {
     case MAIN_SERIAL:
-      return Settings_ESP3D::write_uint32(
+      return ESP3DSettings::writeUint32(
           ESP_BAUD_RATE,
-          Settings_ESP3D::getDefaultIntegerSetting(ESP_BAUD_RATE));
+          ESP3DSettings::getDefaultIntegerSetting(ESP_BAUD_RATE));
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
     case BRIDGE_SERIAL:
-      res = Settings_ESP3D::write_byte(
+      res = ESP3DSettings::writeByte(
           ESP_SERIAL_BRIDGE_ON,
-          Settings_ESP3D::getDefaultByteSetting(ESP_SERIAL_BRIDGE_ON));
-      return res && Settings_ESP3D::write_uint32(
-                        ESP_SERIAL_BRIDGE_BAUD,
-                        Settings_ESP3D::getDefaultIntegerSetting(
-                            ESP_SERIAL_BRIDGE_BAUD));
+          ESP3DSettings::getDefaultByteSetting(ESP_SERIAL_BRIDGE_ON));
+      return res &&
+             ESP3DSettings::writeUint32(ESP_SERIAL_BRIDGE_BAUD,
+                                        ESP3DSettings::getDefaultIntegerSetting(
+                                            ESP_SERIAL_BRIDGE_BAUD));
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
     default:
       return res;
   }
 }
 
-void SerialService::updateBaudRate(long br) {
+void ESP3DSerialService::updateBaudRate(long br) {
   if (br != baudRate()) {
     Serials[_serialIndex]->flush();
     Serials[_serialIndex]->updateBaudRate(br);
@@ -435,7 +461,7 @@ void SerialService::updateBaudRate(long br) {
 }
 
 // Get current baud rate
-long SerialService::baudRate() {
+long ESP3DSerialService::baudRate() {
   long br = 0;
   br = Serials[_serialIndex]->baudRate();
 #ifdef ARDUINO_ARCH_ESP32
@@ -450,14 +476,7 @@ long SerialService::baudRate() {
   return br;
 }
 
-size_t SerialService::write(uint8_t c) {
-  if (!_started) {
-    return 0;
-  }
-  return Serials[_serialIndex]->write(c);
-}
-
-size_t SerialService::write(const uint8_t *buffer, size_t size) {
+size_t ESP3DSerialService::writeBytes(const uint8_t *buffer, size_t size) {
   if (!_started) {
     return 0;
   }
@@ -480,52 +499,57 @@ size_t SerialService::write(const uint8_t *buffer, size_t size) {
         sizesent += available;
         starttime = millis();
       } else {
-        Hal::wait(5);
+        ESP3DHal::wait(5);
       }
     }
     return sizesent;
   }
 }
 
-int SerialService::availableForWrite() {
-  if (!_started) {
-    return 0;
-  }
-  return Serials[_serialIndex]->availableForWrite();
-}
-
-int SerialService::available() {
-  if (!_started) {
-    return 0;
-  }
-  return Serials[_serialIndex]->available();
-}
-
-int SerialService::read() {
-  if (!_started) {
-    return -1;
-  }
-  return Serials[_serialIndex]->read();
-}
-
-size_t SerialService::readBytes(uint8_t *sbuf, size_t len) {
+size_t ESP3DSerialService::readBytes(uint8_t *sbuf, size_t len) {
   if (!_started) {
     return -1;
   }
   return Serials[_serialIndex]->readBytes(sbuf, len);
 }
 
-void SerialService::flush() {
+void ESP3DSerialService::flush() {
   if (!_started) {
     return;
   }
   Serials[_serialIndex]->flush();
 }
 
-void SerialService::swap() {
+void ESP3DSerialService::swap() {
 #ifdef ARDUINO_ARCH_ESP8266
   Serials[_serialIndex]->swap();
 #endif  // ARDUINO_ARCH_ESP8266
+}
+
+bool ESP3DSerialService::dispatch(ESP3DMessage *message) {
+  bool done = false;
+  // Only is serial service is started
+  if (_started) {
+    // Only if message is not null
+    if (message) {
+      // if message is not null
+      if (message->data && message->size != 0) {
+        if (writeBytes(message->data, message->size) == message->size) {
+          flush();
+          // Delete message now
+          ESP3DMessageManager::deleteMsg(message);
+          done = true;
+        } else {
+          esp3d_log_e("Error while sending data");
+        }
+      } else {
+        esp3d_log_e("Error null data");
+      }
+    } else {
+      esp3d_log_e("Error null message");
+    }
+  }
+  return done;
 }
 
 #endif  // COMMUNICATION_PROTOCOL == MKS_SERIAL || COMMUNICATION_PROTOCOL ==

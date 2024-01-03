@@ -20,79 +20,55 @@
 
 #include "../../include/esp3d_config.h"
 #ifdef SENSOR_DEVICE
-#if SENSOR_DEVICE==ANALOG_DEVICE
+#if SENSOR_DEVICE == ANALOG_DEVICE
+#include "../../core/esp3d_message.h"
+#include "../../core/esp3d_settings.h"
 #include "analogsensor.h"
-#include "../../core/settings_esp3d.h"
-#include "../../core/esp3doutput.h"
 
-AnalogSensorDevice::AnalogSensorDevice()
-{
-}
+AnalogSensorDevice::AnalogSensorDevice() {}
 
-AnalogSensorDevice::~AnalogSensorDevice()
-{
-}
+AnalogSensorDevice::~AnalogSensorDevice() {}
 
-bool AnalogSensorDevice::begin()
-{
+bool AnalogSensorDevice::begin() { return true; }
 
+void AnalogSensorDevice::end() {}
+
+bool AnalogSensorDevice::isModelValid(uint8_t model) {
+  if (model == ANALOG_DEVICE) {
     return true;
+  }
+  return false;
 }
 
-void AnalogSensorDevice::end()
-{
-}
-
-bool AnalogSensorDevice::isModelValid(uint8_t model)
-{
-    if (model == ANALOG_DEVICE) {
-        return true;
-    }
-    return false;
-}
-
-uint8_t AnalogSensorDevice::getIDFromString(const char *s)
-{
-    if (strcmp(s, "ANALOG")== 0 ) {
-        return ANALOG_DEVICE;
-    } else {
-        return 0;
-    }
-}
-
-uint8_t  AnalogSensorDevice::nbType()
-{
-    return 1;
-}
-
-uint8_t AnalogSensorDevice::GetModel(uint8_t i)
-{
+uint8_t AnalogSensorDevice::getIDFromString(const char *s) {
+  if (strcmp(s, "ANALOG") == 0) {
     return ANALOG_DEVICE;
+  } else {
+    return 0;
+  }
 }
 
-const char *AnalogSensorDevice::GetCurrentModelString()
-{
-    uint8_t sensortype= Settings_ESP3D::read_byte(ESP_SENSOR_TYPE);
-    if (sensortype==ANALOG_DEVICE) {
-        return GetModelString();
-    }
-    return "NONE";
+uint8_t AnalogSensorDevice::nbType() { return 1; }
+
+uint8_t AnalogSensorDevice::GetModel(uint8_t i) { return ANALOG_DEVICE; }
+
+const char *AnalogSensorDevice::GetCurrentModelString() {
+  uint8_t sensortype = ESP3DSettings::readByte(ESP_SENSOR_TYPE);
+  if (sensortype == ANALOG_DEVICE) {
+    return GetModelString();
+  }
+  return "NONE";
 }
 
-const char * AnalogSensorDevice::GetModelString(uint8_t i)
-{
-    return "ANALOG";
+const char *AnalogSensorDevice::GetModelString(uint8_t i) { return "ANALOG"; }
+
+const char *AnalogSensorDevice::GetData() {
+  static String s;
+  s = String(SENSOR_CONVERTER(analogRead(ESP3D_SENSOR_PIN))) + "[";
+  s += SENSOR__UNIT;
+  s += "]";
+  return s.c_str();
 }
 
-const char * AnalogSensorDevice::GetData()
-{
-    static String s;
-    s = String(SENSOR_CONVERTER(analogRead(ESP3D_SENSOR_PIN))) + "[";
-    s +=  SENSOR__UNIT;
-    s +="]";
-    return s.c_str();
-}
-
-
-#endif //ANALOG_DEVICE
-#endif //SENSOR_DEVICE
+#endif  // ANALOG_DEVICE
+#endif  // SENSOR_DEVICE

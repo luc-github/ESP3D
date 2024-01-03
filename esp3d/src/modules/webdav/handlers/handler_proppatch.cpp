@@ -24,7 +24,7 @@
 #include "../webdav_server.h"
 
 void WebdavServer::handler_proppatch(const char* url) {
-  log_esp3d("Processing PROPPATCH");
+  esp3d_log("Processing PROPPATCH");
   // No support for the moment, so redirect to propfind
   handler_propfind(url);
 }

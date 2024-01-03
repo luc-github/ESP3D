@@ -42,7 +42,7 @@ ESP_ConfigFile::ESP_ConfigFile(const char *path, TProcessingFunction fn) {
 bool ESP_ConfigFile::processFile() {
   bool res = true;
   if (!ESP_SD::exists(_filename)) {
-    log_esp3d_e("No ini file");
+    esp3d_log_e("No ini file");
     return false;
   }
   ESP_SDFile rFile = ESP_SD::open(_filename);
@@ -95,7 +95,7 @@ bool ESP_ConfigFile::processFile() {
     rFile.close();
     return res;
   }
-  log_esp3d_e("Cannot open ini file");
+  esp3d_log_e("Cannot open ini file");
   return false;
 }
 
@@ -195,7 +195,7 @@ bool ESP_ConfigFile::isScrambleKey(const char *key, const char *str) {
 bool ESP_ConfigFile::revokeFile() {
   char *filename;
   if (!ESP_SD::exists(_filename)) {
-    log_esp3d("No ini file to revoke");
+    esp3d_log("No ini file to revoke");
     return false;
   }
   filename = (char *)malloc(strlen(_filename) + 1);
@@ -252,7 +252,7 @@ bool ESP_ConfigFile::revokeFile() {
     ESP_SD::remove(_filename);
     return true;
   }
-  log_esp3d_e("Cannot open / create revoked file");
+  esp3d_log_e("Cannot open / create revoked file");
   if (wFile) {
     wFile.close();
   }

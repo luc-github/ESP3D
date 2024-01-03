@@ -31,14 +31,15 @@
   "</D:href></D:locktoken></D:activelock></D:lockdiscovery></D:prop>"
 
 void WebdavServer::handler_lock(const char* url) {
-  log_esp3d("Processing LOCK");
+  esp3d_log("Processing LOCK");
   int code = 200;
 
   size_t sp = clearPayload();
-  log_esp3d("Payload size: %d", sp);
+  (void)sp;
+  esp3d_log("Payload size: %d", sp);
 
   uint8_t fsType = WebDavFS::getFSType(url);
-  log_esp3d("FS type of %s : %d", url, fsType);
+  esp3d_log("FS type of %s : %d", url, fsType);
   if (!isRoot(url)) {
     if (WebDavFS::accessFS(fsType)) {
       if (WebDavFS::exists(url)) {
@@ -56,22 +57,22 @@ void WebdavServer::handler_lock(const char* url) {
         body += LOCK_RESPONSE_BODY_PART_2;
         // send body
         send_response(body.c_str());
-        log_esp3d("%s", body.c_str());
+        esp3d_log("%s", body.c_str());
       } else {
         code = 404;
-        log_esp3d_e("File not found");
+        esp3d_log_e("File not found");
       }
       WebDavFS::releaseFS(fsType);
     } else {
       code = 503;
-      log_esp3d_e("FS not available");
+      esp3d_log_e("FS not available");
     }
   } else {
     code = 400;
-    log_esp3d_e("Root cannot be locked");
+    esp3d_log_e("Root cannot be locked");
   }
   if (code != 200) {
-    log_esp3d_e("Sending response code %d", code);
+    esp3d_log_e("Sending response code %d", code);
     send_response_code(code);
     send_webdav_headers();
   }

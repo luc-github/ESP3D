@@ -27,7 +27,7 @@
 #include "esp3d.h"
 
 #include "../include/esp3d_config.h"
-#include "settings_esp3d.h"
+#include "esp3d_settings.h"
 
 #if COMMUNICATION_PROTOCOL != SOCKET_SERIAL || ESP_SERIAL_BRIDGE_OUTPUT
 #include "../modules/serial/serial_service.h"
@@ -57,7 +57,7 @@
 #include "../modules/update/update_service.h"
 #endif  // SD_UPDATE_FEATURE
 #include "../modules/boot_delay/boot_delay.h"
-#include "esp3doutput.h"
+#include "esp3d_message.h"
 
 bool Esp3D::restart = false;
 
@@ -70,17 +70,16 @@ Esp3D::~Esp3D() { end(); }
 // Begin which setup everything
 bool Esp3D::begin() {
   BootDelay bd;
-  Hal::begin();
-  LOG_ESP3D_INIT
+  ESP3DHal::begin();
+  ESP3D_LOG_INIT_FN
 #if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
   Serial2Socket.enable();
 #endif  // COMMUNICATION_PROTOCOL == SOCKET_SERIAL
-  // init output
-  ESP3DOutput::isOutput(ESP_ALL_CLIENTS, true);
   bool res = true;
 #if defined(CONNECTED_DEVICES_FEATURE)
+  esp3d_log("Starting Devices feature");
   if (!DevicesServices::begin()) {
-    log_esp3d_e("Error setup connected devices");
+    esp3d_log_e("Error setup connected devices");
     res = false;
   }
 #endif  // CONNECTED_DEVICES_FEATURE
@@ -88,14 +87,14 @@ bool Esp3D::begin() {
   bd.begin();
 #ifdef SD_UPDATE_FEATURE
   if (update_service.begin()) {
-    log_esp3d("Need restart due to update");
+    esp3d_log("Need restart due to update");
     // no need to continue as there was an update
     restart_now();
   }
 #endif  // SD_UPDATE_FEATURE
-  log_esp3d("Mode %d", WiFi.getMode());
-  if (!Settings_ESP3D::begin()) {
-    log_esp3d("Need reset settings");
+  esp3d_log("Mode %d", WiFi.getMode());
+  if (!ESP3DSettings::begin()) {
+    esp3d_log("Need reset settings");
     reset();
     // Restart ESP3D
     restart_now();
@@ -103,8 +102,8 @@ bool Esp3D::begin() {
   // BT do not start automaticaly so should be OK
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
   // Serial service
-  if (!serial_service.begin(ESP_SERIAL_OUTPUT)) {
-    log_esp3d_e("Error with serial service");
+  if (!esp3d_serial_service.begin(ESP_SERIAL_OUTPUT)) {
+    esp3d_log_e("Error with serial service");
     res = false;
   }
 #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
@@ -112,26 +111,28 @@ bool Esp3D::begin() {
   // Serial bridge
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
   if (!serial_bridge_service.begin(ESP_SERIAL_BRIDGE_OUTPUT)) {
-    log_esp3d_e("Error with serial bridge service");
+    esp3d_log_e("Error with serial bridge service");
     res = false;
   }
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
   // Setup Filesystem
 #if defined(FILESYSTEM_FEATURE)
+  esp3d_log("Starting Filesystem feature");
   if (!ESP_FileSystem::begin()) {
-    log_esp3d_e("Error with filesystem service");
+    esp3d_log_e("Error with filesystem service");
     res = false;
   }
 #endif  // FILESYSTEM_FEATURE
 #ifdef DISPLAY_DEVICE
   esp3d_display.showScreenID(MAIN_SCREEN);
-  log_esp3d("Main screen");
+  esp3d_log("Main screen");
 #endif  // DISPLAY_DEVICE
   // Setup Network
 #if defined(WIFI_FEATURE) || defined(ETH_FEATURE) || defined(BLUETOOTH_FEATURE)
-  if (Settings_ESP3D::read_byte(ESP_BOOT_RADIO_STATE) == 1) {
+  esp3d_log("Starting Netconfig feature");
+  if (ESP3DSettings::readByte(ESP_BOOT_RADIO_STATE) == 1) {
     if (!NetConfig::begin()) {
-      log_esp3d_e("Error setup network");
+      esp3d_log_e("Error setup network");
       res = false;
     }
   }
@@ -145,6 +146,7 @@ bool Esp3D::begin() {
   esp3d_gcode_host.processFile(ESP_AUTOSTART_SCRIPT_FILE);
 #endif  // ESP_AUTOSTART_FEATURE
 #endif  // GCODE_HOST_FEATURE
+  esp3d_log("Esp3d Started");
   _started = true;
   return res;
 }
@@ -159,7 +161,7 @@ void Esp3D::handle() {
     restart_now();
   }
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
-  serial_service.handle();
+  esp3d_serial_service.handle();
 #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
         // MKS_SERIAL
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
@@ -197,7 +199,7 @@ bool Esp3D::end() {
   ESP_FileSystem::end();
 #endif  // FILESYSTEM_FEATURE
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
-  serial_service.end();
+  esp3d_serial_service.end();
 #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
         // MKS_SERIAL
   return true;
@@ -207,20 +209,20 @@ bool Esp3D::end() {
 bool Esp3D::reset() {
   bool resetOk = true;
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
-  if (!serial_service.reset()) {
+  if (!esp3d_serial_service.reset()) {
     resetOk = false;
-    log_esp3d_e("Reset serial error");
+    esp3d_log_e("Reset serial error");
   }
 #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
         // MKS_SERIAL
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
   if (!serial_bridge_service.reset()) {
     resetOk = false;
-    log_esp3d_e("Reset serial bridge error");
+    esp3d_log_e("Reset serial bridge error");
   }
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
-  if (!Settings_ESP3D::reset()) {
-    log_esp3d_e("Reset settings error");
+  if (!ESP3DSettings::reset()) {
+    esp3d_log_e("Reset settings error");
     resetOk = false;
   }
   return resetOk;
@@ -235,19 +237,19 @@ void Esp3D::restart_now() {
 #if defined(ETH_FEATURE) && defined(ESP3D_ETH_PHY_POWER_PIN)
   digitalWrite(ESP3D_ETH_PHY_POWER_PIN, LOW);
 #endif  // ESP3D_ETH_PHY_POWER_PIN
-  log_esp3d("Restarting");
+  esp3d_log("Restarting");
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
-  if (!serial_service.started()) {
-    serial_service.begin(ESP_SERIAL_OUTPUT);
+  if (!esp3d_serial_service.started()) {
+    esp3d_serial_service.begin(ESP_SERIAL_OUTPUT);
   }
-  serial_service.flush();
+  esp3d_serial_service.flush();
 #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
         // MKS_SERIAL
 #if defined(FILESYSTEM_FEATURE)
   ESP_FileSystem::end();
 #endif  // FILESYSTEM_FEATURE
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
-  serial_service.swap();
+  esp3d_serial_service.swap();
 #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
         // MKS_SERIAL
   ESP.restart();

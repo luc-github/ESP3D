@@ -78,10 +78,10 @@ ESP_File ESP_FileSystem::open(const char *path, uint8_t mode) {
   if (tmp) {
     ESP_File esptmp(&tmp, tmp.isDirectory(),
                     (mode == ESP_FILE_READ) ? false : true, path);
-    log_esp3d("%s is a %s", path, tmp.isDirectory() ? "Dir" : "File");
+    esp3d_log("%s is a %s", path, tmp.isDirectory() ? "Dir" : "File");
     return esptmp;
   } else {
-    log_esp3d("open %s failed", path);
+    esp3d_log("open %s failed", path);
     return ESP_File();
   }
 }
@@ -106,7 +106,7 @@ bool ESP_FileSystem::exists(const char *path) {
       newpath += "/";
     }
     newpath += ".";
-    log_esp3d("Check %s", newpath.c_str());
+    esp3d_log("Check %s", newpath.c_str());
     res = SPIFFS.exists(newpath);
     if (!res) {
       ESP_File f = ESP_FileSystem::open(path, ESP_FILE_READ);
@@ -139,7 +139,7 @@ bool ESP_FileSystem::mkdir(const char *path) {
     p += "/";
   }
   p += ".";
-  log_esp3d("Dir create : %s", p.c_str());
+  esp3d_log("Dir create : %s", p.c_str());
   ESP_File f = open(p.c_str(), ESP_FILE_WRITE);
   if (f) {
     f.close();
@@ -160,12 +160,12 @@ bool ESP_FileSystem::rmdir(const char *path) {
       spath.remove(spath.length() - 1);
     }
   }
-  log_esp3d("Deleting : %s", spath.c_str());
+  esp3d_log("Deleting : %s", spath.c_str());
   File ftmp = SPIFFS.open(spath.c_str());
   if (ftmp) {
     File pfile = ftmp.openNextFile();
     while (pfile) {
-      log_esp3d("File: %s", pfile.path());
+      esp3d_log("File: %s", pfile.path());
       if (!SPIFFS.remove(pfile.path())) {
         pfile.close();
         return false;
@@ -199,7 +199,7 @@ ESP_File::ESP_File(void *handle, bool isdir, bool iswritemode,
   _iswritemode = iswritemode;
   _size = 0;
   if (!handle) {
-    log_esp3d("No handle");
+    esp3d_log("No handle");
     return;
   }
   bool set = false;
@@ -244,9 +244,9 @@ ESP_File::ESP_File(void *handle, bool isdir, bool iswritemode,
       // time
       _lastwrite = tFile_handle[i].getLastWrite();
       _index = i;
-      log_esp3d("Opening File at index %d", _index);
-      log_esp3d("name: %s", _name.c_str());
-      log_esp3d("filename: %s", _filename.c_str());
+      esp3d_log("Opening File at index %d", _index);
+      esp3d_log("name: %s", _name.c_str());
+      esp3d_log("filename: %s", _filename.c_str());
       set = true;
     }
   }
@@ -258,7 +258,7 @@ bool ESP_File::seek(uint32_t pos, uint8_t mode) {
 
 void ESP_File::close() {
   if (_index != -1) {
-    log_esp3d("Closing File at index %d", _index);
+    esp3d_log("Closing File at index %d", _index);
     tFile_handle[_index].close();
     // reopen if mode = write
     // udate size + date
@@ -277,12 +277,12 @@ void ESP_File::close() {
 
 ESP_File ESP_File::openNextFile() {
   if ((_index == -1) || !_isdir) {
-    log_esp3d("openNextFile failed");
+    esp3d_log("openNextFile failed");
     return ESP_File();
   }
   File tmp = tFile_handle[_index].openNextFile();
   while (tmp) {
-    log_esp3d("tmp name :%s %s", tmp.name(),
+    esp3d_log("tmp name :%s %s", tmp.name(),
               (tmp.isDirectory()) ? "isDir" : "isFile");
     ESP_File esptmp(&tmp, tmp.isDirectory());
     esptmp.close();
@@ -292,7 +292,7 @@ ESP_File ESP_File::openNextFile() {
     if (pos != -1) {
       // is subdir
       sub = sub.substring(0, pos);
-      log_esp3d("file name:%s name: %s %s  sub:%s root:%s", esptmp.filename(),
+      esp3d_log("file name:%s name: %s %s  sub:%s root:%s", esptmp.filename(),
                 esptmp.name(), (esptmp.isDirectory()) ? "isDir" : "isFile",
                 sub.c_str(), _filename.c_str());
       String tag = "*" + sub + "*";
@@ -302,28 +302,28 @@ ESP_File ESP_File::openNextFile() {
         _dirlist += tag;
         String fname =
             _filename.substring(0, _filename.length() - 1) + sub + "/.";
-        log_esp3d("Found dir # name: %s filename:%s", sub.c_str(),
+        esp3d_log("Found dir # name: %s filename:%s", sub.c_str(),
                   fname.c_str());
         if (sub == ".") {
-          log_esp3d("Dir tag, ignore it");
+          esp3d_log("Dir tag, ignore it");
           tmp = tFile_handle[_index].openNextFile();
         } else {
           esptmp = ESP_File(sub.c_str(), fname.c_str());
           return esptmp;
         }
       } else {  // already in list so ignore it
-        log_esp3d("Dir name: %s already in list", sub.c_str());
+        esp3d_log("Dir name: %s already in list", sub.c_str());
         tmp = tFile_handle[_index].openNextFile();
       }
     } else {  // is file
-      log_esp3d("file name:%s name: %s %s  sub:%s root:%s", esptmp.filename(),
+      esp3d_log("file name:%s name: %s %s  sub:%s root:%s", esptmp.filename(),
                 esptmp.name(), (esptmp.isDirectory()) ? "isDir" : "isFile",
                 sub.c_str(), _filename.c_str());
       if (sub == ".") {
-        log_esp3d("Dir tag, ignore it");
+        esp3d_log("Dir tag, ignore it");
         tmp = tFile_handle[_index].openNextFile();
       } else {
-        log_esp3d("Found file #  name: %s filename:%s", esptmp.filename(),
+        esp3d_log("Found file #  name: %s filename:%s", esptmp.filename(),
                   esptmp.name());
         return esptmp;
       }

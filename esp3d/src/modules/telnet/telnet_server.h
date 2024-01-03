@@ -23,68 +23,47 @@
 
 class WiFiServer;
 class WiFiClient;
-#include "Print.h"
+#include "../../core/esp3d_message.h"
 
 #define ESP3D_TELNET_BUFFER_SIZE 1200
 
-class Telnet_Server : public Print
-{
-public:
-    Telnet_Server();
-    ~Telnet_Server();
-    bool begin(uint16_t port = 0, bool debug=false);
-    void end();
-    void handle();
-    bool reset();
-    bool started();
-    bool isConnected();
-    const char* clientIPAddress();
-    size_t write(uint8_t c);
-    size_t write(const uint8_t *buffer, size_t size);
-    inline size_t write(const char * s)
-    {
-        return write((uint8_t*) s, strlen(s));
-    }
-    inline size_t write(unsigned long n)
-    {
-        return write((uint8_t) n);
-    }
-    inline size_t write(long n)
-    {
-        return write((uint8_t) n);
-    }
-    inline size_t write(unsigned int n)
-    {
-        return write((uint8_t) n);
-    }
-    inline size_t write(int n)
-    {
-        return write((uint8_t) n);
-    }
-    int available();
-    int availableForWrite();
-    void flush();
-    int read(void);
-    size_t readBytes (uint8_t * sbuf, size_t len);
-    uint16_t port()
-    {
-        return _port;
-    }
-    void closeClient();
-private:
-    bool _started;
-    WiFiServer * _telnetserver;
-    WiFiClient  _telnetClients;
-    uint16_t _port;
-    bool _isdebug;
-    uint32_t _lastflush;
-    uint8_t *_buffer;
-    size_t _buffer_size;
-    void push2buffer(uint8_t * sbuf, size_t len);
-    void flushbuffer();
+class Telnet_Server {
+ public:
+  Telnet_Server();
+  ~Telnet_Server();
+  bool begin(uint16_t port = 0, bool debug = false);
+  void end();
+  void handle();
+  bool reset();
+  bool started();
+  bool isConnected();
+  const char* clientIPAddress();
+  size_t writeBytes(const uint8_t* buffer, size_t size);
+  bool dispatch(ESP3DMessage* message);
+  int available();
+  int availableForWrite();
+  void flush();
+  size_t readBytes(uint8_t* sbuf, size_t len);
+  uint16_t port() { return _port; }
+  void closeClient();
+  void initAuthentication();
+  void setAuthentication(ESP3DAuthenticationLevel auth) { _auth = auth; }
+  ESP3DAuthenticationLevel getAuthentication();
+
+ private:
+  bool _started;
+  WiFiServer* _telnetserver;
+  WiFiClient _telnetClients;
+  ESP3DAuthenticationLevel _auth;
+  uint16_t _port;
+  bool _isdebug;
+  uint32_t _lastflush;
+  uint8_t* _buffer;
+  size_t _buffer_size;
+  void push2buffer(uint8_t* sbuf, size_t len);
+  void flushbuffer();
 };
 
 extern Telnet_Server telnet_server;
 
 #endif
-
