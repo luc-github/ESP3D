@@ -223,6 +223,16 @@
         "code",
         "bug"
       ]
+    },
+    {
+      "login": "Engineer2Designer",
+      "name": "E2D",
+      "avatar_url": "https://avatars.githubusercontent.com/u/25747949?v=4",
+      "profile": "http://engineer2designer.blogspot.com",
+      "contributions": [
+        "code",
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
