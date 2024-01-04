@@ -33,7 +33,7 @@
 //              /awb/agc/aec/hmirror/vflip/awb_gain/agc_gain/aec_value/aec2/cw/bpc/wpc
 //              /raw_gma/lenc/special_effect/wb_mode/ae_level
 void ESP3DCommands::ESP170(int cmd_params_pos, ESP3DMessage* msg) {
-  const char* camcmd = [] = {
+  const char* camcmd[] = {
     "framesize",
     "quality",
     "contrast",
@@ -63,12 +63,16 @@ void ESP3DCommands::ESP170(int cmd_params_pos, ESP3DMessage* msg) {
     "light",
 #endif  // CAM_LED_PIN
   };
+  bool hasError = false; 
+  String ok_msg;
+  String error_msg;
   ESP3DClientType target = msg->origin;
   ESP3DRequest requestId = msg->request_id;
   msg->target = target;
   msg->origin = ESP3DClientType::command;
   bool json = hasTag(msg, cmd_params_pos, "json");
   String tmpstr;
+
 #if AUTHENTICATION_FEATURE
   if (msg->authentication_level == ESP3DAuthenticationLevel::guest) {
     dispatchAuthenticationError(msg, COMMAND_ID, json);
@@ -102,146 +106,146 @@ void ESP3DCommands::ESP170(int cmd_params_pos, ESP3DMessage* msg) {
         // now send all settings one by one
         //  framesize
         if (!dispatchIdValue(json, "framesize",
-                             String(status.framesize).c_str(), target,
+                             String(s->status.framesize).c_str(), target,
                              requestId, true)) {
           return;
         }
 
         // quality
-        if (!dispatchIdValue(json, "quality", String(status.quality).c_str(),
+        if (!dispatchIdValue(json, "quality", String(s->status.quality).c_str(),
                              target, requestId)) {
           return;
         }
 
         // brightness
         if (!dispatchIdValue(json, "brightness",
-                             String(status.brightness).c_str(), target,
+                             String(s->status.brightness).c_str(), target,
                              requestId)) {
           return;
         }
 
         // contrast
-        if (!dispatchIdValue(json, "contrast", String(status.contrast).c_str(),
+        if (!dispatchIdValue(json, "contrast", String(s->status.contrast).c_str(),
                              target, requestId)) {
           return;
         }
 
         // saturation
         if (!dispatchIdValue(json, "saturation",
-                             String(status.saturation).c_str(), target,
+                             String(s->status.saturation).c_str(), target,
                              requestId)) {
           return;
 
           // sharpness
           if (!dispatchIdValue(json, "sharpness",
-                               String(status.sharpness).c_str(), target,
+                               String(s->status.sharpness).c_str(), target,
                                requestId)) {
             return;
           }
 
           // special_effect
           if (!dispatchIdValue(json, "special_effect",
-                               String(status.special_effect).c_str(), target,
+                               String(s->status.special_effect).c_str(), target,
                                requestId)) {
             return;
           }
 
           // wb_mode
-          if (!dispatchIdValue(json, "wb_mode", String(status.wb_mode).c_str(),
+          if (!dispatchIdValue(json, "wb_mode", String(s->status.wb_mode).c_str(),
                                target, requestId)) {
             return;
           }
 
           // awb
-          if (!dispatchIdValue(json, "awb", String(status.awb).c_str(), target,
+          if (!dispatchIdValue(json, "awb", String(s->status.awb).c_str(), target,
                                requestId)) {
             return;
           }
 
           // awb_gain
           if (!dispatchIdValue(json, "awb_gain",
-                               String(status.awb_gain).c_str(), target,
+                               String(s->status.awb_gain).c_str(), target,
                                requestId)) {
             return;
           }
 
           // aec
-          if (!dispatchIdValue(json, "aec", String(status.aec).c_str(), target,
+          if (!dispatchIdValue(json, "aec", String(s->status.aec).c_str(), target,
                                requestId)) {
             return;
           }
           // aec2
-          if (!dispatchIdValue(json, "aec2", String(status.aec2).c_str(),
+          if (!dispatchIdValue(json, "aec2", String(s->status.aec2).c_str(),
                                target, requestId)) {
             return;
           }
           // ae_level
           if (!dispatchIdValue(json, "ae_level",
-                               String(status.ae_level).c_str(), target,
+                               String(s->status.ae_level).c_str(), target,
                                requestId)) {
             return;
           }
           // aec_value
           if (!dispatchIdValue(json, "aec_value",
-                               String(status.aec_value).c_str(), target,
+                               String(s->status.aec_value).c_str(), target,
                                requestId)) {
             return;
           }
           // agc
-          if (!dispatchIdValue(json, "agc", String(status.agc).c_str(), target,
+          if (!dispatchIdValue(json, "agc", String(s->status.agc).c_str(), target,
                                requestId)) {
             return;
           }
           // agc_gain
           if (!dispatchIdValue(json, "agc_gain",
-                               String(status.agc_gain).c_str(), target,
+                               String(s->status.agc_gain).c_str(), target,
                                requestId)) {
             return;
           }
           // gainceiling
           if (!dispatchIdValue(json, "gainceiling",
-                               String(status.gainceiling).c_str(), target,
+                               String(s->status.gainceiling).c_str(), target,
                                requestId)) {
             return;
           }
           // bpc
-          if (!dispatchIdValue(json, "bpc", String(status.bpc).c_str(), target,
+          if (!dispatchIdValue(json, "bpc", String(s->status.bpc).c_str(), target,
                                requestId)) {
             return;
           }
           // wpc
-          if (!dispatchIdValue(json, "wpc", String(status.wpc).c_str(), target,
+          if (!dispatchIdValue(json, "wpc", String(s->status.wpc).c_str(), target,
                                requestId)) {
             return;
           }
           // raw_gma
-          if (!dispatchIdValue(json, "raw_gma", String(status.raw_gma).c_str(),
+          if (!dispatchIdValue(json, "raw_gma", String(s->status.raw_gma).c_str(),
                                target, requestId)) {
             return;
           }
           // lenc
-          if (!dispatchIdValue(json, "lenc", String(status.lenc).c_str(),
+          if (!dispatchIdValue(json, "lenc", String(s->status.lenc).c_str(),
                                target, requestId)) {
             return;
           }
           // vflip
-          if (!dispatchIdValue(json, "vflip", String(status.vflip).c_str(),
+          if (!dispatchIdValue(json, "vflip", String(s->status.vflip).c_str(),
                                target, requestId)) {
             return;
           }
           // hmirror
-          if (!dispatchIdValue(json, "hmirror", String(status.hmirror).c_str(),
+          if (!dispatchIdValue(json, "hmirror", String(s->status.hmirror).c_str(),
                                target, requestId)) {
             return;
           }
           // dcw
-          if (!dispatchIdValue(json, "dcw", String(status.dcw).c_str(), target,
+          if (!dispatchIdValue(json, "dcw", String(s->status.dcw).c_str(), target,
                                requestId)) {
             return;
           }
           // colorbar
           if (!dispatchIdValue(json, "colorbar",
-                               String(status.colorbar).c_str(), target,
+                               String(s->status.colorbar).c_str(), target,
                                requestId)) {
             return;
           }
