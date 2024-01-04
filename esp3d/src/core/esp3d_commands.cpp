@@ -880,7 +880,7 @@ bool ESP3DCommands::dispatchSetting(bool json, const char *filter,
       break;
     default:  // String
       if (index == ESP_STA_PASSWORD || index == ESP_AP_PASSWORD ||
-#if ESP3D_NOTIFICATIONS_FEATURE
+#if defined (ESP3D_NOTIFICATIONS_FEATURE)
           index == ESP_NOTIFICATION_TOKEN1 ||
           index == ESP_NOTIFICATION_TOKEN2 ||
 #endif  // ESP3D_NOTIFICATIONS_FEATURE
