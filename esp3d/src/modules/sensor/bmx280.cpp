@@ -117,7 +117,7 @@ uint8_t BMX280SensorDevice::GetModel(uint8_t i) {
 const char *BMX280SensorDevice::GetCurrentModelString() {
   uint8_t sensortype = ESP3DSettings::readByte(ESP_SENSOR_TYPE);
   for (uint8_t i = 0; i < NB_TYPE_SENSOR; i++) {
-        if ((sensortype == SENSOR_TYPE[i]) {
+        if (sensortype == SENSOR_ID[i]) {
       return SENSOR_NAME[i];
         }
   }
@@ -173,7 +173,7 @@ const char *BMX280SensorDevice::GetData() {
             }
           } else {
             s = "DISCONNECTED";
-            log_esp3_ed("No valid data");
+            esp3d_log_e("No valid data");
           }
         }
   } else {
