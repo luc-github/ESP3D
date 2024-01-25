@@ -51,7 +51,7 @@ void ESP3DCommands::ESP999(int cmd_params_pos, ESP3DMessage* msg) {
   tmpstr = get_clean_param(msg, cmd_params_pos);
   if (tmpstr.length() == 0) {
     hasError = true;
-    error_msg = "Missing parameter"
+    error_msg = "Missing parameter";
   } else {
     if (quietboot) {
       if (esp_efuse_set_rom_log_scheme(ESP_EFUSE_ROM_LOG_ON_GPIO_HIGH) !=
