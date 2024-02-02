@@ -179,3 +179,11 @@ const char* esp3d_string::formatBytes(uint64_t bytes) {
   }
   return res.c_str();
 }
+
+bool esp3d_string::isPrintableChar(char ch){
+ int c = static_cast<int>(ch);
+if (c==9 || (c >= 32 && c <= 126) || c>=128) {
+    return true;
+  }
+  return false;
+}

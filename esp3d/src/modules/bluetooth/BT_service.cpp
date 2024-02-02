@@ -25,6 +25,7 @@
 #ifdef BLUETOOTH_FEATURE
 #include "../../core/esp3d_commands.h"
 #include "../../core/esp3d_settings.h"
+#include "../../esp3d_string.h"
 #include "../network/netconfig.h"
 #include "BT_service.h"
 #include "BluetoothSerial.h"
@@ -215,7 +216,7 @@ void BTService::push2buffer(uint8_t *sbuf, size_t len) {
         _buffer_size++;
       }
       flushbuffer();
-    } else if (isPrintable(char(sbuf[i]))) {
+    } else if (esp3d_string::isPrintableChar(char(sbuf[i]))) {
       if (_buffer_size < ESP3D_BT_BUFFER_SIZE) {
         _buffer[_buffer_size] = sbuf[i];
         _buffer_size++;

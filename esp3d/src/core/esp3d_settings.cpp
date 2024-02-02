@@ -26,6 +26,7 @@
 #if defined(ESP_SAVE_SETTINGS)
 #include "esp3d_message.h"
 #include "esp3d_settings.h"
+#include "esp3d_string.h"
 
 #if ESP_SAVE_SETTINGS == SETTINGS_IN_EEPROM
 #include <EEPROM.h>
@@ -386,7 +387,7 @@ bool ESP3DSettings::writeByte(int pos, const uint8_t value) {
 
 bool ESP3DSettings::is_string(const char *s, uint len) {
   for (uint p = 0; p < len; p++) {
-    if (!isPrintable(char(s[p]))) {
+    if (!esp3d_string::isPrintableChar(char(s[p]))) {
       return false;
     }
   }
@@ -431,7 +432,7 @@ const char *ESP3DSettings::readString(int pos, bool *haserror) {
   // read until max size is reached or \0 is found
   while (i < size_max && b != 0) {
     b = EEPROM.read(pos + i);
-    byte_buffer[i] = isPrintable(char(b)) ? b : 0;
+    byte_buffer[i] = esp3d_string::isPrintableChar(char(b)) ? b : 0;
     i++;
   }
 
@@ -778,7 +779,7 @@ bool ESP3DSettings::isValidStringSetting(const char *value,
   }
   // only printable char allowed
   for (size_t i = 0; i < strlen(value); i++) {
-    if (!isPrintable(value[i])) {
+    if (!esp3d_string::isPrintableChar(value[i])) {
       return false;
     }
   }

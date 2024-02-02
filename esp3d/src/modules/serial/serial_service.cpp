@@ -23,6 +23,8 @@
     COMMUNICATION_PROTOCOL == RAW_SERIAL || defined(ESP_SERIAL_BRIDGE_OUTPUT)
 #include "../../core/esp3d_commands.h"
 #include "../../core/esp3d_settings.h"
+#include "../../core/esp3d_string.h"
+
 #include "serial_service.h"
 
 #if COMMUNICATION_PROTOCOL == MKS_SERIAL
@@ -406,7 +408,7 @@ void ESP3DSerialService::push2buffer(uint8_t *sbuf, size_t len) {
         _buffer_size++;
       }
       flushbuffer();
-    } else if (isPrintable(char(sbuf[i]))) {
+    } else if (esp3d_string::isPrintableChar(char(sbuf[i]))) {
       if (_buffer_size < ESP3D_SERIAL_BUFFER_SIZE) {
         _buffer[_buffer_size] = sbuf[i];
         _buffer_size++;

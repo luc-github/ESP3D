@@ -28,6 +28,7 @@
 #include "../../core/esp3d_commands.h"
 #include "../../core/esp3d_message.h"
 #include "../../core/esp3d_settings.h"
+#include "../../core/esp3d_string.h"
 #include "../../include/esp3d_version.h"
 #include "telnet_server.h"
 
@@ -245,7 +246,7 @@ void Telnet_Server::push2buffer(uint8_t *sbuf, size_t len) {
         _buffer_size++;
       }
       flushbuffer();
-    } else if (isPrintable(char(sbuf[i]))) {
+    } else if (esp3d_string::isPrintableChar(char(sbuf[i]))) {
       if (_buffer_size < ESP3D_TELNET_BUFFER_SIZE) {
         _buffer[_buffer_size] = sbuf[i];
         _buffer_size++;

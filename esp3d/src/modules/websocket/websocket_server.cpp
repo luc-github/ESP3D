@@ -28,6 +28,7 @@
 #include "../../core/esp3d_commands.h"
 #include "../../core/esp3d_message.h"
 #include "../../core/esp3d_settings.h"
+#include "../../core/esp3d_string.h"
 #include "../authentication/authentication_service.h"
 #include "websocket_server.h"
 
@@ -288,7 +289,7 @@ void WebSocket_Server::push2RXbuffer(uint8_t *sbuf, size_t len) {
         _RXbufferSize++;
       }
       flushRXbuffer();
-    } else if (isPrintable(char(sbuf[i]))) {
+    } else if (esp3d_string::isPrintableChar(char(sbuf[i]))) {
       if (_RXbufferSize < RXBUFFERSIZE) {
         _RXbuffer[_RXbufferSize] = sbuf[i];
         _RXbufferSize++;
