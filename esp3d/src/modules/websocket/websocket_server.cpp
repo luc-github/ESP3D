@@ -80,7 +80,7 @@ bool WebSocket_Server::pushMSG(uint num, const char *data) {
 
 bool WebSocket_Server::isConnected(){
   if (_websocket_server) {
-    return _websocket_server->connectedClients(true) > 0;
+    return _websocket_server->connectedClients() > 0;
   }
   return false;
 }
