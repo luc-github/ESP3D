@@ -1,6 +1,6 @@
 <span align="left"><img src="https://github.com/luc-github/ESP3D/blob/2.1/images/ESP3D.png" width="200px"/></span><span align="left">Firmware for ESP8266/ESP8285  and ESP32 used with 3D printer</span>  
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-24-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-25-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 [<img src="https://img.shields.io/liberapay/patrons/ESP3D.svg?logo=liberapay">](https://liberapay.com/ESP3D)
 
@@ -193,6 +193,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="http://www.bigtree-tech.com"><img src="https://avatars.githubusercontent.com/u/38851044?v=4?s=100" width="100px;" alt="BIGTREETECH"/><br /><sub><b>BIGTREETECH</b></sub></a><br /><a href="#platform-bigtreetech" title="Packaging/porting to new platform">📦</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/dbuezas"><img src="https://avatars.githubusercontent.com/u/777196?v=4?s=100" width="100px;" alt="David Buezas"/><br /><sub><b>David Buezas</b></sub></a><br /><a href="https://github.com/luc-github/ESP3D/commits?author=dbuezas" title="Code">💻</a> <a href="https://github.com/luc-github/ESP3D/issues?q=author%3Adbuezas" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="14.28%"><a href="http://engineer2designer.blogspot.com"><img src="https://avatars.githubusercontent.com/u/25747949?v=4?s=100" width="100px;" alt="E2D"/><br /><sub><b>E2D</b></sub></a><br /><a href="https://github.com/luc-github/ESP3D/commits?author=Engineer2Designer" title="Code">💻</a> <a href="https://github.com/luc-github/ESP3D/issues?q=author%3AEngineer2Designer" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/rondlh"><img src="https://avatars.githubusercontent.com/u/77279634?v=4?s=100" width="100px;" alt="rondlh"/><br /><sub><b>rondlh</b></sub></a><br /><a href="https://github.com/luc-github/ESP3D/commits?author=rondlh" title="Code">💻</a> <a href="https://github.com/luc-github/ESP3D/issues?q=author%3Arondlh" title="Bug reports">🐛</a></td>
     </tr>
   </tbody>
 </table>
