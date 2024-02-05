@@ -268,6 +268,10 @@ size_t WebSocket_Server::writeBytes(const uint8_t *buffer, size_t size) {
     }
     // need periodic check to force to flush in case of no end
     for (uint i = 0; i < size; i++) {
+      //add a sanity check to avoid buffer overflow
+      if (_TXbufferSize >= TXBUFFERSIZE) {
+        flushTXbuffer();
+      }
       _TXbuffer[_TXbufferSize] = buffer[i];
       _TXbufferSize++;
     }
