@@ -39,6 +39,7 @@
 
 #include "../../core/esp3d_message.h"
 #include "../../core/esp3d_settings.h"
+#include "../../core/esp3d_string.h"
 #include "../network/netconfig.h"
 #include "notifications_service.h"
 
@@ -134,18 +135,7 @@ bool NotificationsService::Wait4Answer(T& client,
 }
 
 bool NotificationsService::sendAutoNotification(const char* msg) {
-  if (!(NetConfig::started()) || (NetConfig::getMode() != ESP_WIFI_STA) ||
-      (!_started) || (!_autonotification)) {
-    esp3d_log("Auto notification rejected");
-    return false;
-  }
-  String msgtpl = msg;
-  // check if has variable to change
-  if (msgtpl.indexOf("%") != -1) {
-    msgtpl.replace("%ESP_IP%", WiFi.localIP().toString().c_str());
-    msgtpl.replace("%ESP_NAME%", NetConfig::hostname());
-  }
-  if (!sendMSG(ESP_NOTIFICATION_TITLE, msgtpl.c_str())) {
+  if (!sendMSG(ESP_NOTIFICATION_TITLE, msg)) {
     esp3d_log_e("Auto notification failed");
     return false;
   } else {
@@ -185,12 +175,14 @@ const char* NotificationsService::getTypeString() {
   return "none";
 }
 
-bool NotificationsService::sendMSG(const char* title, const char* message) {
+bool NotificationsService::sendMSG(const char* title, const char* messagetxt) {
   if (!_started) {
     esp3d_log_e("Error notification not started");
     return false;
   }
-  if (!((strlen(title) == 0) && (strlen(message) == 0))) {
+
+  if (!((strlen(title) == 0) && (strlen(messagetxt) == 0))) {
+    String message = esp3d_string::expandString(messagetxt);
     if (_notificationType != ESP_HOMEASSISTANT_NOTIFICATION) {
       // push to webui by default
       #if defined(HTTP_FEATURE) || defined(WS_DATA_FEATURE)
@@ -204,22 +196,22 @@ bool NotificationsService::sendMSG(const char* title, const char* message) {
     }
     switch (_notificationType) {
       case ESP_PUSHOVER_NOTIFICATION:
-        return sendPushoverMSG(title, message);
+        return sendPushoverMSG(title, message.c_str());
         break;
       case ESP_EMAIL_NOTIFICATION:
-        return sendEmailMSG(title, message);
+        return sendEmailMSG(title, message.c_str());
         break;
       case ESP_LINE_NOTIFICATION:
-        return sendLineMSG(title, message);
+        return sendLineMSG(title, message.c_str());
         break;
       case ESP_TELEGRAM_NOTIFICATION:
-        return sendTelegramMSG(title, message);
+        return sendTelegramMSG(title, message.c_str());
         break;
       case ESP_IFTTT_NOTIFICATION:
-        return sendIFTTTMSG(title, message);
+        return sendIFTTTMSG(title, message.c_str());
         break;
       case ESP_HOMEASSISTANT_NOTIFICATION:
-        return sendHomeAssistantMSG(title, message);
+        return sendHomeAssistantMSG(title, message.c_str());
         break;
       default:
         break;

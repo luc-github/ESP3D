@@ -28,6 +28,7 @@ const char* getContentType(const char* filename);
 const char* encodeString(const char* s);
 const char* formatBytes(uint64_t bytes);
 bool isPrintableChar(char c);
+const char * expandString(const char *s);
 }  // namespace esp3d_string
 
 #endif  //_ESP3D_STRING_H
