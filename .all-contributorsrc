@@ -233,6 +233,16 @@
         "code",
         "bug"
       ]
+    },
+    {
+      "login": "rondlh",
+      "name": "rondlh",
+      "avatar_url": "https://avatars.githubusercontent.com/u/77279634?v=4",
+      "profile": "https://github.com/rondlh",
+      "contributions": [
+        "code",
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
