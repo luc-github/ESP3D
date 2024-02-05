@@ -48,8 +48,6 @@ void ESP3DCommands::ESP111(int cmd_params_pos, ESP3DMessage* msg) {
     return;
   }
 #endif  // AUTHENTICATION_FEATURE
-  tmpstr = get_clean_param(msg, cmd_params_pos);
-
   tmpstr = get_param(msg, cmd_params_pos, "OUTPUT=");
   if (tmpstr == "PRINTER") {
     msg->target = ESP3DClientType::remote_screen;

@@ -66,7 +66,7 @@ TaskHandle_t _hserialtask = nullptr;
 
 const uint32_t SupportedBaudList[] = {9600,   19200,  38400,  57600,
                                       74880,  115200, 230400, 250000,
-                                      500000, 921600, 1958400};
+                                      500000, 921600, 1000000, 1958400, 2000000};
 const size_t SupportedBaudListSize = sizeof(SupportedBaudList) / sizeof(long);
 
 #define TIMEOUT_SERIAL_FLUSH 1500

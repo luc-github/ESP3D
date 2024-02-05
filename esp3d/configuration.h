@@ -576,7 +576,7 @@
 /* Add serial task
  * ESP32 need to add a task to handle serial communication
  */
-// #define SERIAL_INDEPENDANT_TASK
+#define SERIAL_INDEPENDANT_TASK
 
 /************************************
  *

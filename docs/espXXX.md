@@ -1650,7 +1650,10 @@ Passwords are not displayed and replaced by `********`
 {"250000":"250000"},
 {"500000":"500000"},
 {"921600":"921600"},
-{"1958400":"1958400"}]},
+{"1000000":"1000000"},
+{"1958400":"1958400"},
+{"2000000":"2000000"},
+]},
 {"F":"system/boot","P":"320","T":"I","V":"100","H":"bootdelay","S":"40000","M":"0"},
 {"F":"system/boot","P":"1023","T":"B","V":"0","H":"verbose","O":[{"no":"0"},{"yes":"1"}]},
 {"F":"system/outputmsg","P":"129","T":"B","V":"1","H":"serial","O":[{"no":"0"},{"yes":"1"}]},
@@ -3064,7 +3067,9 @@ can be in JSON or plain text
     - 250000
     - 500000
     - 921600
+    - 1000000
     - 1958400
+    - 2000000
 
 * pwd=<admin password>
 the admin password if authentication is enabled
