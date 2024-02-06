@@ -117,6 +117,9 @@ class ESP3DCommands {
 #ifdef DIRECT_PIN_FEATURE
   void ESP201(int cmd_params_pos, ESP3DMessage* msg);
 #endif  // DIRECT_PIN_FEATURE
+#if defined(PRINTER_HAS_DISPLAY)
+  void ESP212(int cmd_params_pos, ESP3DMessage* msg);
+#endif  // PRINTER_HAS_DISPLAY
 #if defined(DISPLAY_DEVICE)
   void ESP214(int cmd_params_pos, ESP3DMessage* msg);
 #if defined(DISPLAY_TOUCH_DRIVER)

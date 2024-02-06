@@ -596,6 +596,13 @@ void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
       ESP210(cmd_params_pos, msg);
       break;
 #endif  // #ifdef SENSOR_DEVICE
+#if defined (PRINTER_HAS_DISPLAY)
+    // Output to printer screen status
+    //[ESP212]<Text>json=<no> pwd=<user/admin password>
+    case 212:
+      ESP212(cmd_params_pos, msg);
+      break;
+#endif  // PRINTER_HAS_DISPLAY
 #if defined(DISPLAY_DEVICE)
     // Output to esp screen status
     //[ESP214]<Text>pwd=<user password>

@@ -1294,6 +1294,43 @@ the admin password if authentication is enabled
 
 +++
 archetype = "section"
+title = "[ESP212]"
+weight = 800
++++
+Output to printer screen status
+
+## Input
+`[ESP212]<Text> json=<no> pwd=<admin password>`
+
+* json=no
+the output format
+can be in JSON or plain text
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+* Text
+  * if Text is not empty, it will set the Text
+  * if Text is empty, it will clear current Text
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"212",
+   "status":"ok",
+   "data":"ok"
+}
+```
+
+* `cmd` Id of requested command, should be `212`
+* `status` status of command, should be `ok`
+* `data` content of response, here `ok`
+
++++
+archetype = "section"
 title = "[ESP214]"
 weight = 800
 +++
@@ -1328,7 +1365,6 @@ the admin password if authentication is enabled
 * `cmd` Id of requested command, should be `214`
 * `status` status of command, should be `ok`
 * `data` content of response, here `ok`
-
 
 +++
 archetype = "section"
