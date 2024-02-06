@@ -42,7 +42,11 @@
 #endif  // BLUETOOTH_FEATURE
 #include "../../core/esp3d_commands.h"
 #include "../../core/esp3d_settings.h"
+#include "../../core/esp3d_string.h"
 #include "netservices.h"
+#if defined(GCODE_HOST_FEATURE)
+#include "../gcode_host/gcode_host.h"
+#endif  // GCODE_HOST_FEATURE 
 
 String NetConfig::_hostname = "";
 bool NetConfig::_needReconnect2AP = false;
@@ -210,10 +214,11 @@ void NetConfig::onWiFiEvent(WiFiEvent_t event) {
     } break;
     case WIFI_EVENT_STAMODE_GOT_IP: {
 #if COMMUNICATION_PROTOCOL != MKS_SERIAL
-      esp3d_commands.dispatch(WiFi.localIP().toString().c_str(),
-                              ESP3DClientType::all_clients, no_id,
-                              ESP3DMessageType::unique, ESP3DClientType::system,
-                              ESP3DAuthenticationLevel::admin);
+      #if defined (ESP_GOT_IP_HOOK) && defined (GCODE_HOST_FEATURE)
+      String ipMsg = esp3d_string::expandString(ESP_GOT_IP_HOOK);
+      esp3d_log("Got IP, sending hook: %s", ipMsg.c_str());
+      esp3d_gcode_host.processScript(ipMsg.c_str(), ESP3DAuthenticationLevel::admin);
+      #endif // #if defined (ESP_GOT_IP_HOOK) && defined (GCODE_HOST_FEATURE)
 #endif  // #if COMMUNICATION_PROTOCOL == MKS_SERIAL
     } break;
     case WIFI_EVENT_SOFTAPMODE_STACONNECTED: {
@@ -251,12 +256,16 @@ void NetConfig::onWiFiEvent(WiFiEvent_t event) {
                               ESP3DAuthenticationLevel::admin);
       EthConfig::setConnected(false);
     } break;
-    case ARDUINO_EVENT_ETH_GOT_IP:
-      esp3d_commands.dispatch(ETH.localIP().toString().c_str(),
-                              ESP3DClientType::all_clients, no_id,
-                              ESP3DMessageType::unique, ESP3DClientType::system,
-                              ESP3DAuthenticationLevel::admin);
+    case ARDUINO_EVENT_ETH_GOT_IP:{
+#if COMMUNICATION_PROTOCOL != MKS_SERIAL
+      #if defined (ESP_GOT_IP_HOOK) && defined (GCODE_HOST_FEATURE)
+      String ipMsg = esp3d_string::expandString(ESP_GOT_IP_HOOK);
+       esp3d_log("Got IP, sending hook: %s", ipMsg.c_str());
+      esp3d_gcode_host.processScript(ipMsg.c_str(), ESP3DAuthenticationLevel::admin);
+      #endif // #if defined (ESP_GOT_IP_HOOK) && defined (GCODE_HOST_FEATURE)
+#endif  // #if COMMUNICATION_PROTOCOL == MKS_SERIAL
       EthConfig::setConnected(true);
+    }
       break;
     case ARDUINO_EVENT_ETH_STOP:
       EthConfig::setConnected(false);

@@ -23,6 +23,7 @@
 
 #include "../../core/esp3d_message.h"
 #include "../../core/esp3d_settings.h"
+#include "../../core/esp3d_string.h"
 #include "time_service.h"
 
 #if defined(WIFI_FEATURE)
@@ -34,6 +35,10 @@
 #if defined(ETH_FEATURE)
 #include "../ethernet/ethconfig.h"
 #endif  // ETH_FEATURE
+
+#if defined(GCODE_HOST_FEATURE)
+#include "../gcode_host/gcode_host.h"
+#endif  // GCODE_HOST_FEATURE
 
 TimeService timeService;
 
@@ -232,7 +237,25 @@ void TimeService::end() {
 
 // currently not used
 void TimeService::handle() {
+  static bool isSet = false;
   if (_started) {
+    // check if time is set
+    time_t now = time(nullptr);
+    if (now < (8 * 3600 * 2)) {
+      esp3d_log("Time not set, retry");
+      isSet = false;
+    } else {
+      if (!isSet) {
+        esp3d_log("Time set");
+        isSet = true;
+#if COMMUNICATION_PROTOCOL != MKS_SERIAL
+#if defined(ESP_GOT_DATE_TIME_HOOK) && defined(GCODE_HOST_FEATURE)
+        String dateMsg = esp3d_string::expandString(ESP_GOT_DATE_TIME_HOOK, true);
+        esp3d_gcode_host.processScript(dateMsg.c_str());
+#endif  // #if defined (ESP_GOT_IP_HOOK) && defined (GCODE_HOST_FEATURE)
+#endif  // #if COMMUNICATION_PROTOCOL == MKS_SERIAL
+      }
+    }
   }
 }
 

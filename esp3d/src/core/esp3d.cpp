@@ -72,6 +72,9 @@ bool Esp3D::begin() {
   BootDelay bd;
   ESP3DHal::begin();
   ESP3D_LOG_INIT_FN
+#if defined(GCODE_HOST_FEATURE)
+  esp3d_gcode_host.begin();
+#endif  // GCODE_HOST_FEATURE
 #if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
   Serial2Socket.enable();
 #endif  // COMMUNICATION_PROTOCOL == SOCKET_SERIAL

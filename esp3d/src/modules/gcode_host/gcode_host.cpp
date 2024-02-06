@@ -318,7 +318,7 @@ void GcodeHost::processCommand() {
         (uint8_t *)_currentCommand.c_str(), _currentCommand.length());
     if (isESPcmd) {
       ESP3DMessage *msg = ESP3DMessageManager::newMsg(
-          ESP3DClientType::stream, esp3d_commands.getOutputClient(),
+          ESP3DClientType::no_client, esp3d_commands.getOutputClient(),
           (uint8_t *)_currentCommand.c_str(), _currentCommand.length(), _auth);
       if (msg) {
         // process command
@@ -493,17 +493,20 @@ uint32_t GcodeHost::getCommandNumber(String &response) {
 
 bool GcodeHost::processScript(const char *line,
                               ESP3DAuthenticationLevel auth_type) {
+  if (_step != HOST_NO_STREAM) {
+    esp3d_log("Streaming already in progress");
+    while(_step != HOST_NO_STREAM){
+      handle();
+    }
+  }
   _script = line;
   _script.trim();
   esp3d_log("Processing script: %s", _script.c_str());
   if (_script.length() == 0) {
-    esp3d_log("No script to process");
+    esp3d_log_e("No script to process");
     return false;
   }
-  if (_step != HOST_NO_STREAM) {
-    esp3d_log("Streaming already in progress");
-    return false;
-  }
+  
   _fsType = TYPE_SCRIPT_STREAM;
   _step = HOST_START_STREAM;
   _auth_type = auth_type;
@@ -519,11 +522,11 @@ bool GcodeHost::processFile(const char *filename,
   _fileName.trim();
   esp3d_log("Processing file: %s", filename);
   if (_fileName.length() == 0) {
-    esp3d_log("No file to process");
+    esp3d_log_e("No file to process");
     return false;
   }
   if (_step != HOST_NO_STREAM) {
-    esp3d_log("Streaming already in progress");
+    esp3d_log_e("Streaming already in progress");
     return false;
   }
   // TODO UD = USB DISK
