@@ -23,6 +23,7 @@
 #include "../../modules/display/display.h"
 #include "../esp3d_commands.h"
 #include "../esp3d_settings.h"
+#include "../esp3d_string.h"
 
 #define COMMAND_ID 214
 // Output to esp screen status
@@ -46,6 +47,7 @@ void ESP3DCommands::ESP214(int cmd_params_pos, ESP3DMessage* msg) {
   }
 #endif  // AUTHENTICATION_FEATURE
   tmpstr = get_clean_param(msg, cmd_params_pos);
+  tmpstr = esp3d_string::expandString(tmpstr.c_str());
   esp3d_display.setStatus(tmpstr.c_str());
   if (!dispatchAnswer(msg, COMMAND_ID, json, hasError,
                       hasError ? error_msg.c_str() : ok_msg.c_str())) {
