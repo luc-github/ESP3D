@@ -191,7 +191,7 @@ bool NotificationsService::sendMSG(const char* title, const char* messagetxt) {
           websocket_terminal_server.pushMSG(msg.c_str());
       #endif  // HTTP_FEATURE || WS_DATA_FEATURE
       #ifdef DISPLAY_DEVICE
-          esp3d_display.setStatus(message);
+          esp3d_display.setStatus(message.c_str());
       #endif  // DISPLAY_DEVICE
     }
     switch (_notificationType) {
