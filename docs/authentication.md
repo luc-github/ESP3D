@@ -104,6 +104,7 @@ Here the scope of right for each authentication level:
 | ESP201 | No | No | Get/Set | Get/Set |
 | ESP202 | No | No | Get | Get/Set |
 | ESP210 | No | No | Get | Get/Set |
+| ESP212 | No | No | Set | Set |
 | ESP214 | No | No | Set | Set |
 | ESP215 | No | No | No | Set |
 | ESP220 | No | No | Get | Get |

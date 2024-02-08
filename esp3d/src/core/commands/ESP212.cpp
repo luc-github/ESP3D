@@ -1,5 +1,5 @@
 /*
- ESP214.cpp - ESP3D command class
+ ESP212.cpp - ESP3D command class
 
  Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -18,17 +18,17 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "../../include/esp3d_config.h"
-#if defined(DISPLAY_DEVICE)
+#if defined(PRINTER_HAS_DISPLAY)
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/display/display.h"
 #include "../esp3d_commands.h"
 #include "../esp3d_settings.h"
 #include "../esp3d_string.h"
 
-#define COMMAND_ID 214
-// Output to esp screen status
-//[ESP214]<Text>json=<no> pwd=<user/admin password>
-void ESP3DCommands::ESP214(int cmd_params_pos, ESP3DMessage* msg) {
+#define COMMAND_ID 212
+// Output to printer screen status
+//[ESP212]<Text>json=<no> pwd=<user/admin password>
+void ESP3DCommands::ESP212(int cmd_params_pos, ESP3DMessage* msg) {
   ESP3DClientType target = msg->origin;
   ESP3DRequest requestId = msg->request_id;
   (void)requestId;
@@ -48,11 +48,14 @@ void ESP3DCommands::ESP214(int cmd_params_pos, ESP3DMessage* msg) {
 #endif  // AUTHENTICATION_FEATURE
   tmpstr = get_clean_param(msg, cmd_params_pos);
   tmpstr = esp3d_string::expandString(tmpstr.c_str());
-  esp3d_display.setStatus(tmpstr.c_str());
+  hasError =   !esp3d_commands.dispatch(tmpstr.c_str(), ESP3DClientType::remote_screen,
+                            no_id, ESP3DMessageType::unique,
+                            ESP3DClientType::system,
+                            ESP3DAuthenticationLevel::admin);
   if (!dispatchAnswer(msg, COMMAND_ID, json, hasError,
                       hasError ? error_msg.c_str() : ok_msg.c_str())) {
     esp3d_log_e("Error sending response to clients");
   }
 }
 
-#endif  // DISPLAY_DEVICE
+#endif  // PRINTER_HAS_DISPLAY

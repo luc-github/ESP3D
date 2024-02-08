@@ -596,6 +596,13 @@ void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
       ESP210(cmd_params_pos, msg);
       break;
 #endif  // #ifdef SENSOR_DEVICE
+#if defined (PRINTER_HAS_DISPLAY)
+    // Output to printer screen status
+    //[ESP212]<Text>json=<no> pwd=<user/admin password>
+    case 212:
+      ESP212(cmd_params_pos, msg);
+      break;
+#endif  // PRINTER_HAS_DISPLAY
 #if defined(DISPLAY_DEVICE)
     // Output to esp screen status
     //[ESP214]<Text>pwd=<user password>
@@ -1231,6 +1238,10 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
   // currently only echo back no test done on success
   // TODO check add is successful
   switch (msg->target) {
+case ESP3DClientType::no_client:
+    esp3d_log("No client message");
+    ESP3DMessageManager::deleteMsg(msg);
+    break;
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL
     case ESP3DClientType::serial:
     esp3d_log("Serial message");
@@ -1528,8 +1539,8 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
       }
       break;
     default:
-      esp3d_log_e("No valid target specified %d",
-                  static_cast<uint8_t>(msg->target));
+      esp3d_log_e("No valid target specified %d for %s",
+                  static_cast<uint8_t>(msg->target), (char *)msg->data);
       sendOk = false;
   }
   // clear message

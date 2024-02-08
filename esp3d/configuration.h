@@ -561,10 +561,22 @@
  */
 // #define ESP_LUA_INTERPRETER_FEATURE
 
+/* Hook when got IP
+ * Commands to run on event
+ * Separate commands with ';' 
+ */
+#define ESP_GOT_IP_HOOK "[ESP212]IP:%ESP_IP%"
+
+/* Hook when got date time
+ * Commands to run on event
+ * Separate commands with ';' 
+ */
+#define ESP_GOT_DATE_TIME_HOOK "[ESP212]DATE:%ESP_DATETIME%"
+
 /* Gcode Host Feature
  * This feature allows to process Gcode files like macros.
  */
-// #define GCODE_HOST_FEATURE
+#define GCODE_HOST_FEATURE
 
 /* Settings location
  * SETTINGS_IN_EEPROM //ESP8266/ESP32
@@ -614,7 +626,7 @@
  * Do not modify
  ************************************/
 
-#if defined(SD_TIMESTAMP_FEATURE) || defined(FILESYSTEM_TIMESTAMP_FEATURE)
+#if defined(ESP_GOT_DATE_TIME_HOOK) ||defined(SD_TIMESTAMP_FEATURE) || defined(FILESYSTEM_TIMESTAMP_FEATURE)
 #define TIMESTAMP_FEATURE
 #endif  // SD_TIMESTAMP_FEATURE || FILESYSTEM_TIMESTAMP_FEATURE
 

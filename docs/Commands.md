@@ -124,6 +124,9 @@ label can be: light/framesize/quality/contrast/brightness/saturation/gainceiling
 * Get Sensor Value / type/Set Sensor type   
     `[ESP210]<type=NONE/xxx> <interval=XXX in millisec> json=<no> pwd=<user/admin password>`
 
+* Output to printer screen status   
+    `[ESP212]<Text> json=<no> pwd=<user/admin password>`
+
 * Output to esp screen status   
     `[ESP214]<Text> json=<no> pwd=<user/admin password>`
 

@@ -102,6 +102,9 @@ const char* help[] = {
     "[ESP210](type=NONE/xxx) (interval=xxxx) - display and read/set SENSOR "
     "info",
 #endif  // SENSOR_DEVICE
+#if defined(PRINTER_HAS_DISPLAY)
+    "[ESP212](text) - display (text) to printer screen status",
+#endif  // PRINTER_HAS_DISPLAY
 #if defined(DISPLAY_DEVICE)
     "[ESP214](text) - display (text) to ESP screen status",
 #if defined(DISPLAY_TOUCH_DRIVER)
@@ -240,6 +243,9 @@ const uint cmdlist[] = {
 #ifdef SENSOR_DEVICE
     210,
 #endif  // SENSOR_DEVICE
+#if defined(PRINTER_HAS_DISPLAY)
+    212,
+#endif  // PRINTER_HAS_DISPLAY
 #if defined(DISPLAY_DEVICE)
     214,
 #if defined(DISPLAY_TOUCH_DRIVER)
