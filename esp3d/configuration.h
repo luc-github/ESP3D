@@ -626,7 +626,7 @@
  * Do not modify
  ************************************/
 
-#if defined(SD_TIMESTAMP_FEATURE) || defined(FILESYSTEM_TIMESTAMP_FEATURE)
+#if defined(ESP_GOT_DATE_TIME_HOOK) ||defined(SD_TIMESTAMP_FEATURE) || defined(FILESYSTEM_TIMESTAMP_FEATURE)
 #define TIMESTAMP_FEATURE
 #endif  // SD_TIMESTAMP_FEATURE || FILESYSTEM_TIMESTAMP_FEATURE
 
