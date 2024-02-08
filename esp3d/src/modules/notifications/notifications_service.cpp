@@ -670,7 +670,7 @@ void NotificationsService::end() {
   _started = false;
   _notificationType = 0;
   _token1 = "";
-  _token1 = "";
+  _token2 = "";
   _settings = "";
   _serveraddress = "";
   _port = 0;
