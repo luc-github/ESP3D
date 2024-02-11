@@ -194,5 +194,5 @@
 #error SD_UPDATE_FEATURE is not available because SD_DEVICE is not enabled
 #endif
 
-#endif  // ESP_NO_SANITY_CHECK
+#endif  // SANITY_CHECK
 

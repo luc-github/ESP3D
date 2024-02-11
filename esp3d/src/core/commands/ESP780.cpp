@@ -80,9 +80,9 @@ void ESP3DCommands::ESP780(int cmd_params_pos, ESP3DMessage* msg) {
       if (!hasError) {
         uint nbDirs = 0;
         uint nbFiles = 0;
-        size_t totalSpace = ESP_GBFS::totalBytes();
-        size_t usedSpace = ESP_GBFS::usedBytes();
-        size_t freeSpace = ESP_GBFS::freeBytes();
+        size_t totalSpace = ESP_GBFS::totalBytes(fsType);
+        size_t usedSpace = ESP_GBFS::usedBytes(fsType);
+        size_t freeSpace = ESP_GBFS::freeBytes(fsType);
 
         ESP_GBFile sub;
         sub = f.openNextFile();
