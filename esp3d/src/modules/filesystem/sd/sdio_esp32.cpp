@@ -104,7 +104,7 @@ bool ESP_SD::begin() {
     (ESP_SDIO_D0_PIN != -1) || (ESP_SDIO_D1_PIN != -1) ||   \
     (ESP_SDIO_D2_PIN != -1) || (ESP_SDIO_D3_PIN != -1)
   SD_MMC.setPins(ESP_SDIO_CLK_PIN, ESP_SDIO_CMD_PIN, ESP_SDIO_D0_PIN,
-                 ESP_SDIO_D1_PIN, ESP_SDIO_D2_PIN, ESP_SDIO_D3_PIN)
+                 ESP_SDIO_D1_PIN, ESP_SDIO_D2_PIN, ESP_SDIO_D3_PIN);
 #endif  //(ESP_SDIO_CLK_PIN != -1)
       esp3d_log("Begin SDIO");
   _started = true;
