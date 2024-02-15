@@ -58,7 +58,18 @@ void WebdavServer::handler_put(const char* url) {
           file.close();
           if (!hasError) {
             // check size available
-            if (WebDavFS::freeBytes(fsType) + file.size() < content_length) {
+#if WEBDAV_FEATURE == FS_ROOT
+                  uint64_t free_space = WebDavFS::freeBytes(fsType);
+#else
+#if WEBDAV_FEATURE == FS_FLASH
+                  size_t free_space;
+#endif
+#if WEBDAV_FEATURE == FS_SD
+                  uint64_t free_space;
+#endif
+                    free_space = WebDavFS::freeBytes();
+#endif
+            if (free_space + file.size() < content_length) {
               code = 507;
               esp3d_log_e("Not enough space");
               hasError = true;
@@ -78,7 +89,18 @@ void WebdavServer::handler_put(const char* url) {
         }
       } else {
         // check size available
-        if (WebDavFS::freeBytes(fsType) < content_length) {
+#if WEBDAV_FEATURE == FS_ROOT
+                  uint64_t free_space = WebDavFS::freeBytes(fsType);
+#else
+#if WEBDAV_FEATURE == FS_FLASH
+                  size_t free_space;
+#endif
+#if WEBDAV_FEATURE == FS_SD
+                  uint64_t free_space;
+#endif
+                    free_space = WebDavFS::freeBytes();
+#endif
+        if (free_space < content_length) {
           code = 507;
           esp3d_log_e("Not enough space");
           hasError = true;
