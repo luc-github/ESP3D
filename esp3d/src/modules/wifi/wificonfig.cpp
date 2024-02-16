@@ -507,6 +507,7 @@ const char* WiFiConfig::getConnectedSTA(uint8_t* totalcount, bool reset) {
   static wifi_sta_list_t station;
   //FIXME: API is not yet available in arduino
   //static wifi_sta_mac_ip_list_t tcpip_sta_list;
+  //https://github.com/espressif/esp-idf/blob/release/v5.1/components/esp_wifi/include/esp_wifi_ap_get_sta_list.h
   if (reset) {
     count = 0;
   }
