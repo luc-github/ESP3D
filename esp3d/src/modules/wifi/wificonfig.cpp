@@ -30,6 +30,9 @@
 #include "../network/netconfig.h"
 #include "../wifi/wificonfig.h"
 
+
+esp_netif_t* get_esp_interface_netif(esp_interface_t interface);
+
 const uint8_t DEFAULT_AP_MASK_VALUE[] = {255, 255, 255, 0};
 
 IPAddress WiFiConfig::_ap_gateway;
@@ -460,8 +463,8 @@ const char* WiFiConfig::AP_Auth_String() {
 const char* WiFiConfig::AP_Gateway_String() {
   static String tmp;
 #ifdef ARDUINO_ARCH_ESP32
-  tcpip_adapter_ip_info_t ip_AP;
-  tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_AP, &ip_AP);
+  esp_netif_ip_info_t ip_AP;
+  esp_netif_get_ip_info(get_esp_interface_netif(ESP_IF_WIFI_AP), &ip_AP);
   tmp = IPAddress(ip_AP.gw.addr).toString();
 #endif  // ARDUINO_ARCH_ESP32
 #ifdef ARDUINO_ARCH_ESP8266
@@ -477,8 +480,8 @@ const char* WiFiConfig::AP_Gateway_String() {
 const char* WiFiConfig::AP_Mask_String() {
   static String tmp;
 #ifdef ARDUINO_ARCH_ESP32
-  tcpip_adapter_ip_info_t ip_AP;
-  tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_AP, &ip_AP);
+  esp_netif_ip_info_t ip_AP;
+  esp_netif_get_ip_info(get_esp_interface_netif(ESP_IF_WIFI_AP), &ip_AP);
   tmp = IPAddress(ip_AP.netmask.addr).toString();
 #endif  // ARDUINO_ARCH_ESP32
 #ifdef ARDUINO_ARCH_ESP8266
@@ -502,21 +505,24 @@ const char* WiFiConfig::getConnectedSTA(uint8_t* totalcount, bool reset) {
     current = 0;
   }
   static wifi_sta_list_t station;
-  static tcpip_adapter_sta_list_t tcpip_sta_list;
+  //FIXME: API is not yet available in arduino
+  //static wifi_sta_mac_ip_list_t tcpip_sta_list;
   if (reset) {
     count = 0;
   }
   if (count == 0) {
     current = 0;
     esp_wifi_ap_get_sta_list(&station);
-    tcpip_adapter_get_sta_list(&station, &tcpip_sta_list);
+    //FIXME: API is not yet available arduino
+//    esp_wifi_ap_get_sta_list_with_ip(&station, &tcpip_sta_list);
     count = station.num;
   }
   if (count > 0) {
-    data = IPAddress(tcpip_sta_list.sta[current].ip.addr).toString();
-    data += "(";
-    data += NetConfig::mac2str(tcpip_sta_list.sta[current].mac);
-    data += ")";
+    //FIXME: API is not yet available to get STA IP arduino
+    //data = IPAddress(tcpip_sta_list.sta[current].ip.addr).toString();
+    // data += "(";
+    data += NetConfig::mac2str(station.sta[current].mac);
+    //data += ")"; 
     current++;
   }
 

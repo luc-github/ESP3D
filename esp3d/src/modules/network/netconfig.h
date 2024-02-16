@@ -46,7 +46,7 @@
 class NetConfig {
  public:
   static uint32_t IP_int_from_string(const char* s);
-  static String IP_string_from_int(uint32_t ip_int);
+  static String IP_string_from_int(uint32_t ip_int);  
   static bool isIPModeDHCP(uint8_t mode);
   static bool isDHCPServer(uint8_t mode);
   static const char* hostname(bool fromsettings = false);

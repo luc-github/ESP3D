@@ -63,14 +63,14 @@ bool EthConfig::StartSTA() {
         lease.enable = true;
         lease.start_ip.addr = static_cast<uint32_t>(IP) + (1 << 24);
         lease.end_ip.addr = static_cast<uint32_t>(IP) + (11 << 24);
-        tcpip_adapter_dhcps_stop(TCPIP_ADAPTER_IF_ETH);
+        tcpip_adapter_dhcps_stop(ESP_IF_ETH);
         tcpip_adapter_dhcps_option(
             (tcpip_adapter_option_mode_t)TCPIP_ADAPTER_OP_SET,
             (tcpip_adapter_option_id_t)REQUESTED_IP_ADDRESS,
             (void*)&lease, sizeof(dhcps_lease_t)
         );
 
-        if (tcpip_adapter_dhcps_start(TCPIP_ADAPTER_IF_ETH) != ESP_OK){
+        if (tcpip_adapter_dhcps_start(ESP_IF_ETH) != ESP_OK){
             res = false;
             esp3d_log_e("Start DHCP server failed");
         }

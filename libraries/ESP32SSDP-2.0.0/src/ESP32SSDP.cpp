@@ -42,6 +42,7 @@ License (MIT license):
 static const IPAddress SSDP_MULTICAST_ADDR(239, 255, 255, 250);
 #define SSDP_UUID_ROOT "38323636-4558-4dda-9188-cda0e6"
 
+esp_netif_t* get_esp_interface_netif(esp_interface_t interface);
 
 static const char _ssdp_response_template[] PROGMEM =
     "HTTP/1.1 200 OK\r\n"
@@ -54,7 +55,7 @@ static const char _ssdp_notify_template[] PROGMEM =
 
 static const char _ssdp_packet_template[] PROGMEM =
     "%s" // _ssdp_response_template / _ssdp_notify_template
-    "CACHE-CONTROL: max-age=%u\r\n" // _interval
+    "CACHE-CONTROL: max-age=%lu\r\n" // _interval
     "SERVER: %s UPNP/1.1 %s/%s\r\n" // _servername, _modelName, _modelNumber
     "USN: uuid:%s%s\r\n" // _uuid, _usn_suffix
     "%s: %s\r\n"  // "NT" or "ST", _deviceType
@@ -146,13 +147,13 @@ void SSDPClass::end()
 
 IPAddress SSDPClass::localIP()
 {
-    tcpip_adapter_ip_info_t ip;
+    esp_netif_ip_info_t ip;
     if (WiFi.getMode() == WIFI_STA) {
-        if (tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_STA, &ip)) {
+        if (esp_netif_get_ip_info(get_esp_interface_netif(ESP_IF_WIFI_STA), &ip)) {
             return IPAddress();
         }
     } else if (WiFi.getMode() == WIFI_OFF) {
-        if (tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_ETH, &ip)) {
+        if (esp_netif_get_ip_info(get_esp_interface_netif(ESP_IF_ETH), &ip)) {
             return IPAddress();
         }
     }
@@ -513,7 +514,7 @@ void SSDPClass::_onPacket(AsyncUDPPacket& packet)
         }
     }
     if(packetBuffer) {
-        delete packetBuffer;
+        delete[] packetBuffer;
     }
     // save reply in reply queue if one is pending
     if(_pending) {
@@ -642,7 +643,7 @@ void SSDPClass::setSerialNumber(const char *serialNumber)
 
 void SSDPClass::setSerialNumber(const uint32_t serialNumber)
 {
-    snprintf(_serialNumber, sizeof(uint32_t)*2+1, "%08X", serialNumber);
+    snprintf(_serialNumber, sizeof(uint32_t)*2+1, "%08X", (unsigned int)serialNumber);
 }
 
 void SSDPClass::setModelName(const char *name)

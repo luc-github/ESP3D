@@ -47,6 +47,16 @@
 #if defined(GCODE_HOST_FEATURE)
 #include "../gcode_host/gcode_host.h"
 #endif  // GCODE_HOST_FEATURE 
+#if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
+extern "C" {
+#include "lwip/netif.h"
+#include <esp_netif.h>
+#include "dhcpserver/dhcpserver.h"
+#include "dhcpserver/dhcpserver_options.h"
+} // extern "C"
+#endif  // WIFI_FEATURE || ETH_FEATURE
+
+esp_netif_t* get_esp_interface_netif(esp_interface_t interface);
 
 String NetConfig::_hostname = "";
 bool NetConfig::_needReconnect2AP = false;
@@ -521,35 +531,39 @@ void NetConfig::handle() {
 
 bool NetConfig::isIPModeDHCP(uint8_t mode) {
   bool started = false;
+#if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
 #ifdef ARDUINO_ARCH_ESP32
-  tcpip_adapter_dhcp_status_t dhcp_status;
-  tcpip_adapter_dhcpc_get_status((mode == ESP_WIFI_STA)  ? TCPIP_ADAPTER_IF_STA
-                                 : (mode == ESP_WIFI_AP) ? TCPIP_ADAPTER_IF_AP
-                                                         : TCPIP_ADAPTER_IF_ETH,
+  esp_netif_dhcp_status_t dhcp_status;
+  esp_netif_dhcpc_get_status(get_esp_interface_netif((mode == ESP_WIFI_STA)  ? ESP_IF_WIFI_STA
+                                 : (mode == ESP_WIFI_AP) ? ESP_IF_WIFI_AP
+                                                         : ESP_IF_ETH),
                                  &dhcp_status);
-  started = (dhcp_status == TCPIP_ADAPTER_DHCP_STARTED);
+  started = (dhcp_status == ESP_NETIF_DHCP_STARTED);
 #endif  // ARDUINO_ARCH_ESP32
 #ifdef ARDUINO_ARCH_ESP8266
   (void)mode;
   started = (wifi_station_dhcpc_status() == DHCP_STARTED);
 #endif  // ARDUINO_ARCH_ESP8266
+#endif // WIFI_FEATURE || ETH_FEATURE
   return started;
 }
 
 bool NetConfig::isDHCPServer(uint8_t mode) {
   bool itis = false;
+#if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
 #ifdef ARDUINO_ARCH_ESP32
-  tcpip_adapter_dhcp_status_t dhcp_status;
-  tcpip_adapter_dhcps_get_status((mode == ESP_WIFI_STA)  ? TCPIP_ADAPTER_IF_STA
-                                 : (mode == ESP_WIFI_AP) ? TCPIP_ADAPTER_IF_AP
-                                                         : TCPIP_ADAPTER_IF_ETH,
+  esp_netif_dhcp_status_t dhcp_status;
+  esp_netif_dhcps_get_status(get_esp_interface_netif((mode == ESP_WIFI_STA)  ? ESP_IF_WIFI_STA
+                                 : (mode == ESP_WIFI_AP) ? ESP_IF_WIFI_AP
+                                                         : ESP_IF_ETH),
                                  &dhcp_status);
-  itis = (dhcp_status == TCPIP_ADAPTER_DHCP_STARTED);
+  itis = (dhcp_status == ESP_NETIF_DHCP_STARTED);
 #endif  // ARDUINO_ARCH_ESP32
 #ifdef ARDUINO_ARCH_ESP8266
   (void)mode;
   itis = (wifi_softap_dhcps_status() == DHCP_STARTED);
 #endif  // ARDUINO_ARCH_ESP8266
+#endif  // WIFI_FEATURE || ETH_FEATURE
   return itis;
 }
 
