@@ -243,6 +243,16 @@
         "code",
         "bug"
       ]
+    },
+    {
+      "login": "Levak",
+      "name": "Levak",
+      "avatar_url": "https://avatars.githubusercontent.com/u/2292040?v=4",
+      "profile": "https://github.com/Levak",
+      "contributions": [
+        "code",
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
