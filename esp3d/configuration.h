@@ -35,6 +35,19 @@
 #include "myconfig.h"
 #endif
 #endif
+/************************************
+ *
+ * ESP32 C3 -patch 
+ * 
+ * Uncomment only if your ESP32 C3 board cannot start
+ *
+ ************************************/
+//Possible values
+//WIFI_POWER_5dBm
+//WIFI_POWER_8_5dBm
+//WIFI_POWER_15dBm
+
+//#define ESP32_WIFI_TX_POWER WIFI_POWER_15dBm 
 
 /************************************
  *
