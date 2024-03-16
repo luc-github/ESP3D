@@ -241,11 +241,6 @@ bool WiFiConfig::StartAP(bool setupMode) {
   if (WiFi.softAP(SSID.c_str(),
                   (password.length() > 0) ? password.c_str() : nullptr,
                   channel)) {
-  #if defined(ESP32_WIFI_TX_POWER) && defined(ARDUINO_ARCH_ESP32)
-  delay(100);
-  WiFi.setTxPower(ESP32_WIFI_TX_POWER);
-  delay(100);
-  #endif  // ESP32_WIFI_TX_POWER
     String stmp = "AP SSID: '" + SSID;
     if (password.length() > 0) {
       stmp += "' is started and protected by password";
