@@ -140,6 +140,10 @@ bool WiFiConfig::StartSTA() {
   WiFi.setMinSecurity(WIFI_AUTH_WEP);
   WiFi.setScanMethod(WIFI_ALL_CHANNEL_SCAN);
   WiFi.setSortMethod(WIFI_CONNECT_AP_BY_SIGNAL);
+#if defined(ESP32_WIFI_TX_POWER) 
+  WiFi.setTxPower(ESP32_WIFI_TX_POWER);
+  delay(100);
+#endif  // ESP32_WIFI_TX_POWER
 #endif  // ARDUINO_ARCH_ESP32
   // Get parameters for STA
   String SSID = ESP3DSettings::readString(ESP_STA_SSID);
@@ -228,6 +232,10 @@ bool WiFiConfig::StartAP(bool setupMode) {
   _ap_gateway = setupMode ? ip : gw;
   _ap_subnet = mask;
 #endif  // ARDUINO_ARCH_ESP8266
+  #if defined(ESP32_WIFI_TX_POWER) && defined(ARDUINO_ARCH_ESP32)
+  WiFi.setTxPower(ESP32_WIFI_TX_POWER);
+  delay(100);
+  #endif  // ESP32_WIFI_TX_POWER
 
   // Start AP
   if (WiFi.softAP(SSID.c_str(),
