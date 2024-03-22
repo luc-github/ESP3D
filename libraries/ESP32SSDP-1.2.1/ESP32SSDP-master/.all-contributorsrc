@@ -1,0 +1,43 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "commitConvention": "angular",
+  "contributors": [
+    {
+      "login": "f34rdotcom",
+      "name": "Sean Mathews",
+      "avatar_url": "https://avatars.githubusercontent.com/u/2042644?v=4",
+      "profile": "http://www.f34r.com",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "B4stl3r",
+      "name": "Bastler",
+      "avatar_url": "https://avatars.githubusercontent.com/u/73077761?v=4",
+      "profile": "https://github.com/B4stl3r",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "CriPstian",
+      "name": "Cristian Popescu",
+      "avatar_url": "https://avatars.githubusercontent.com/u/10658360?v=4",
+      "profile": "https://github.com/CriPstian",
+      "contributions": [
+        "bug"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "skipCi": true,
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "projectName": "ESP32SSDP",
+  "projectOwner": "luc-github"
+}

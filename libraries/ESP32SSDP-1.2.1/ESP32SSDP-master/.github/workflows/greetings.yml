@@ -1,0 +1,13 @@
+name: Greetings
+
+on: [issues]
+
+jobs:
+  greeting:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/first-interaction@v1
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        issue-message: 'Thank your for submiting, please be sure you followed template or your issue may be dismissed.'
+        pr-message: 'Thank you for your contribution, be patient, review can take a time.'

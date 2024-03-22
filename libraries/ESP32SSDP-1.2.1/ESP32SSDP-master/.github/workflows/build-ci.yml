@@ -1,0 +1,46 @@
+name: build-ci
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.x
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.x"
+          architecture: "x64"
+      - name: Install Arduino
+        run: bash ./.github/ci/install-arduino.sh
+      - name: Install platformIO
+        run: bash ./.github/ci/install-platformio.sh
+      - name: Install ESP32
+        run: bash ./.github/ci/install-esp32.sh
+      - name: Setup libraries
+        run: bash ./.github/ci/prepare-libs.sh
+      - name: Build ESP32 arduino
+        id: esp32_1
+        run: bash ./.github/ci/build-ssdp.sh arduino
+        continue-on-error: true
+      - name: Build platformIO
+        id: pio_1
+        run: bash ./.github/ci/build-ssdp.sh pio
+        continue-on-error: true
+      - name: Final check
+        env:
+          STEPS_CONTEXT: ${{ toJson(steps) }}
+        if: steps.pio_1.outcome == 'failure' || steps.esp32_1.outcome == 'failure'
+        run: bash ./.github/ci/final-check.sh "GLOBAL" "failure"
+      - name: Final confirmation
+        env:
+          STEPS_CONTEXT: ${{ toJson(steps) }}
+        if: steps.pio_1.outcome == 'success' && steps.esp32_1.outcome == 'success'
+        run: bash ./.github/ci/final-check.sh "GLOBAL" "success"
