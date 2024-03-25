@@ -159,7 +159,7 @@ uint64_t ESP_SD::totalBytes(bool refresh) {
 }
 
 uint64_t ESP_SD::usedBytes(bool refresh) {
-  FSInfo64 info;
+  fs::FSInfo64 info;
   static uint64_t _usedBytes = 0;
   if (refresh) {
     if (!SDFS.info64(info)) {

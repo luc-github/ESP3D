@@ -34,7 +34,16 @@ File tSDFile_handle[ESP_MAX_SD_OPENHANDLE];
 #define FS_NO_GLOBALS
 #define NO_GLOBAL_SD
 #include <SdFat.h>
-sdfat::File tSDFile_handle[ESP_MAX_SD_OPENHANDLE];
+#if SDFAT_FILE_TYPE == 1
+typedef File32 File;
+#elif SDFAT_FILE_TYPE == 2
+typedef ExFile File;
+#elif SDFAT_FILE_TYPE == 3
+typedef FsFile File;
+#else  // SDFAT_FILE_TYPE
+#error Invalid SDFAT_FILE_TYPE
+#endif  // SDFAT_FILE_TYPE
+File tSDFile_handle[ESP_MAX_SD_OPENHANDLE];
 #elif ((SD_DEVICE == ESP_SDFAT) || (SD_DEVICE == ESP_SDFAT2)) && \
     defined(ARDUINO_ARCH_ESP32)
 #include <SdFat.h>
