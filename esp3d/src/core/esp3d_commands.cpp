@@ -24,36 +24,29 @@
 #include "esp3d.h"
 #include "esp3d_settings.h"
 
-#if defined(ESP_LOG_FEATURE) 
-const char * esp3dclientstr[]={
-  "no_client",
-  "serial",
-  "usb_serial",
-  "stream",
-  "telnet",
-  "http",
-  "webui_websocket",
-  "websocket",
-  "rendering",
-  "bluetooth",
-  "socket_serial",
-  "echo_serial",
-  "serial_bridge",
-  "remote_screen",
-  "mks_serial",
-  "command",
-  "system",
-  "all_clients"
-};
-#define GETCLIENTSTR(id) static_cast<uint8_t>(id)>=0 && static_cast<uint8_t>(id)<=static_cast<uint8_t>(ESP3DClientType::all_clients)?esp3dclientstr[static_cast<uint8_t>(id)] :"Out of index"
+#if defined(ESP_LOG_FEATURE)
+const char *esp3dclientstr[] = {
+    "no_client",     "serial",        "usb_serial",      "stream",
+    "telnet",        "http",          "webui_websocket", "websocket",
+    "rendering",     "bluetooth",     "socket_serial",   "echo_serial",
+    "serial_bridge", "remote_screen", "mks_serial",      "command",
+    "system",        "all_clients"};
+#define GETCLIENTSTR(id)                                         \
+  static_cast<uint8_t>(id) >= 0 &&                               \
+          static_cast<uint8_t>(id) <=                            \
+              static_cast<uint8_t>(ESP3DClientType::all_clients) \
+      ? esp3dclientstr[static_cast<uint8_t>(id)]                 \
+      : "Out of index"
 
-const char * esp3dmsgstr[] = {
-  "head", "core", "tail", "unique"
-};
-#define GETMSGTYPESTR(id) static_cast<uint8_t>(id)>=0 && static_cast<uint8_t>(id)<=static_cast<uint8_t>(ESP3DMessageType::unique)?esp3dmsgstr[static_cast<uint8_t>(id)] :"Out of index"
+const char *esp3dmsgstr[] = {"head", "core", "tail", "unique"};
+#define GETMSGTYPESTR(id)                                    \
+  static_cast<uint8_t>(id) >= 0 &&                           \
+          static_cast<uint8_t>(id) <=                        \
+              static_cast<uint8_t>(ESP3DMessageType::unique) \
+      ? esp3dmsgstr[static_cast<uint8_t>(id)]                \
+      : "Out of index"
 
-#endif // defined(ESP_LOG_FEATURE)
-
+#endif  // defined(ESP_LOG_FEATURE)
 
 #if COMMUNICATION_PROTOCOL == MKS_SERIAL
 #include "../modules/mks/mks_service.h"
@@ -596,7 +589,7 @@ void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
       ESP210(cmd_params_pos, msg);
       break;
 #endif  // #ifdef SENSOR_DEVICE
-#if defined (PRINTER_HAS_DISPLAY)
+#if defined(PRINTER_HAS_DISPLAY)
     // Output to printer screen status
     //[ESP212]<Text>json=<no> pwd=<user/admin password>
     case 212:
@@ -616,7 +609,7 @@ void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
       ESP215(cmd_params_pos, msg);
       break;
 #endif  // DISPLAY_TOUCH_DRIVER
-#endif  // DISPLAY_DEVICE    
+#endif  // DISPLAY_DEVICE
 #ifdef BUZZER_DEVICE
     // Play sound
     //[ESP250]F=<frequency> D=<duration> [pwd=<user password>]
@@ -700,7 +693,8 @@ void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
       ESP600(cmd_params_pos, msg);
       break;
       // Set/Get Notification settings
-      //[ESP610]type=<NONE/PUSHOVER/EMAIL/LINE/HOMEASSISTANT> T1=<token1> T2=<token2>
+      //[ESP610]type=<NONE/PUSHOVER/EMAIL/LINE/HOMEASSISTANT> T1=<token1>
+      //T2=<token2>
       // TS=<Settings> pwd=<admin password> Get will give type and settings only
       // not the protected T1/T2
     case 610:
@@ -887,7 +881,7 @@ bool ESP3DCommands::dispatchSetting(bool json, const char *filter,
       break;
     default:  // String
       if (index == ESP_STA_PASSWORD || index == ESP_AP_PASSWORD ||
-#if defined (ESP3D_NOTIFICATIONS_FEATURE)
+#if defined(ESP3D_NOTIFICATIONS_FEATURE)
           index == ESP_NOTIFICATION_TOKEN1 ||
           index == ESP_NOTIFICATION_TOKEN2 ||
 #endif  // ESP3D_NOTIFICATIONS_FEATURE
@@ -997,8 +991,8 @@ bool ESP3DCommands::dispatchAuthenticationError(ESP3DMessage *msg, uint cmdid,
     return false;
   }
 #if defined(HTTP_FEATURE) && defined(AUTHENTICATION_FEATURE)
-  if (msg->target == ESP3DClientType::http ) {
-     msg->authentication_level = ESP3DAuthenticationLevel::not_authenticated;
+  if (msg->target == ESP3DClientType::http) {
+    msg->authentication_level = ESP3DAuthenticationLevel::not_authenticated;
   }
 #endif  // HTTP_FEATURE
   // answer is one message, override for safety
@@ -1115,6 +1109,9 @@ bool ESP3DCommands::formatCommand(char *cmd, size_t len) {
     cmd[sizestr + 1] = 0x0;
     return true;
   }
+  if (sizestr == len && cmd[sizestr-1] == '\n'){
+    return true;
+  }
   return false;
 }
 
@@ -1152,7 +1149,8 @@ void ESP3DCommands::process(ESP3DMessage *msg) {
     execute_internal_command(cmdId, espcmdpos, msg);
   } else {
     esp3d_log("Dispatch command, len %d, from %d(%s) to %d(%s)", msg->size,
-              static_cast<uint8_t>(msg->origin), GETCLIENTSTR(msg->origin), static_cast<uint8_t>(msg->target), GETCLIENTSTR(msg->target));
+              static_cast<uint8_t>(msg->origin), GETCLIENTSTR(msg->origin),
+              static_cast<uint8_t>(msg->target), GETCLIENTSTR(msg->target));
 
     // Work around to avoid to dispatch single \n or \r to everyone as it is
     // part of previous ESP3D command
@@ -1178,10 +1176,40 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg, uint8_t *sbuf, size_t len) {
     esp3d_log_e("no msg");
     return false;
   }
-  if (!ESP3DMessageManager::setDataContent(msg, sbuf, len)) {
-    esp3d_log_e("set data content failed");
-    ESP3DMessageManager::deleteMsg(msg);
-    return false;
+  //check is need \n at the end of the command
+  if (msg->type == ESP3DMessageType::unique ||
+      msg->type == ESP3DMessageType::tail) {
+    esp3d_log("unique or tail message :*%s*", (char *)sbuf);
+    if (!formatCommand((char *)sbuf, len)) {
+      esp3d_log("format command failed");
+      String tmpstr = "";
+      tmpstr.reserve(len + 2);
+      for (uint i = 0; i < len; i++) {
+        tmpstr += char(sbuf[i]);
+      }
+      tmpstr += '\n';
+      esp3d_log("update command success: *%s*", tmpstr.c_str());
+      if (!ESP3DMessageManager::setDataContent(msg, (uint8_t *)tmpstr.c_str(),
+                                               tmpstr.length())) {
+        esp3d_log_e("set data content failed");
+        ESP3DMessageManager::deleteMsg(msg);
+        return false;
+      }
+    } else {
+      esp3d_log("format command success, no need to update");
+      if (!ESP3DMessageManager::setDataContent(msg, sbuf, len)) {
+        esp3d_log_e("set data content failed");
+        ESP3DMessageManager::deleteMsg(msg);
+        return false;
+      }
+    }
+  } else {
+    esp3d_log("not unique or tail message");
+    if (!ESP3DMessageManager::setDataContent(msg, sbuf, len)) {
+      esp3d_log_e("set data content failed");
+      ESP3DMessageManager::deleteMsg(msg);
+      return false;
+    }
   }
   return dispatch(msg);
 }
@@ -1218,18 +1246,21 @@ bool ESP3DCommands::dispatch(const char *sbuf, ESP3DClientType target,
 ESP3DClientType ESP3DCommands::getOutputClient(bool fromSettings) {
   // TODO: add setting for it when necessary
   (void)fromSettings;
-  esp3d_log("OutputClient: %d %s", static_cast<uint8_t>(_output_client), GETCLIENTSTR(_output_client));
+  esp3d_log("OutputClient: %d %s", static_cast<uint8_t>(_output_client),
+            GETCLIENTSTR(_output_client));
   return _output_client;
 }
 
 bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
   bool sendOk = true;
   String tmp;
-  esp3d_log("Dispatch message origin %d(%s) to client %d(%s) , size: %d,  type: %d(%s)",
-            static_cast<uint8_t>(msg->origin),
-            esp3dclientstr[static_cast<uint8_t>(msg->origin)],
-            static_cast<uint8_t>(msg->target), GETCLIENTSTR(msg->target),
-            msg->size, static_cast<uint8_t>(msg->type),GETMSGTYPESTR(msg->type));
+  esp3d_log(
+      "Dispatch message origin %d(%s) to client %d(%s) , size: %d,  type: "
+      "%d(%s)",
+      static_cast<uint8_t>(msg->origin),
+      esp3dclientstr[static_cast<uint8_t>(msg->origin)],
+      static_cast<uint8_t>(msg->target), GETCLIENTSTR(msg->target), msg->size,
+      static_cast<uint8_t>(msg->type), GETMSGTYPESTR(msg->type));
   esp3d_log("Dispatch message data: %s", (const char *)msg->data);
   if (!msg) {
     esp3d_log_e("no msg");
@@ -1238,13 +1269,13 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
   // currently only echo back no test done on success
   // TODO check add is successful
   switch (msg->target) {
-case ESP3DClientType::no_client:
-    esp3d_log("No client message");
-    ESP3DMessageManager::deleteMsg(msg);
-    break;
+    case ESP3DClientType::no_client:
+      esp3d_log("No client message");
+      ESP3DMessageManager::deleteMsg(msg);
+      break;
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL
     case ESP3DClientType::serial:
-    esp3d_log("Serial message");
+      esp3d_log("Serial message");
       if (!esp3d_serial_service.dispatch(msg)) {
         sendOk = false;
         esp3d_log_e("Serial dispatch failed");
@@ -1254,18 +1285,19 @@ case ESP3DClientType::no_client:
 
 #if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
     case ESP3DClientType::echo_serial:
-    esp3d_log("Echo serial message");
+      esp3d_log("Echo serial message");
       MYSERIAL1.write(msg->data, msg->size);
-      if (msg->type == ESP3DMessageType::unique || msg->type == ESP3DMessageType::tail) {
-       if (msg->data[msg->size-1]!='\n'){
-        MYSERIAL1.write('\n');
-       }
+      if (msg->type == ESP3DMessageType::unique ||
+          msg->type == ESP3DMessageType::tail) {
+        if (msg->data[msg->size - 1] != '\n') {
+          MYSERIAL1.write('\n');
+        }
       }
       ESP3DMessageManager::deleteMsg(msg);
       break;
 
     case ESP3DClientType::socket_serial:
-    esp3d_log("Socket serial message");
+      esp3d_log("Socket serial message");
       if (!Serial2Socket.dispatch(msg)) {
         sendOk = false;
         esp3d_log_e("Socket dispatch failed");
@@ -1275,7 +1307,7 @@ case ESP3DClientType::no_client:
 
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
     case ESP3DClientType::serial_bridge:
-    esp3d_log("Serial bridge message");
+      esp3d_log("Serial bridge message");
       if (!serial_bridge_service.dispatch(msg)) {
         sendOk = false;
         esp3d_log_e("Serial bridge dispatch failed");
@@ -1285,7 +1317,7 @@ case ESP3DClientType::no_client:
 
 #ifdef WS_DATA_FEATURE
     case ESP3DClientType::websocket:
-    esp3d_log("Websocket message");
+      esp3d_log("Websocket message");
       if (!websocket_data_server.dispatch(msg)) {
         sendOk = false;
         esp3d_log_e("Telnet dispatch failed");
@@ -1295,7 +1327,7 @@ case ESP3DClientType::no_client:
 
 #ifdef TELNET_FEATURE
     case ESP3DClientType::telnet:
-    esp3d_log("Telnet message");
+      esp3d_log("Telnet message");
       if (!telnet_server.dispatch(msg)) {
         sendOk = false;
         esp3d_log_e("Telnet dispatch failed");
@@ -1305,7 +1337,7 @@ case ESP3DClientType::no_client:
 
 #ifdef BLUETOOTH_FEATURE
     case ESP3DClientType::bluetooth:
-    esp3d_log("Bluetooth message");
+      esp3d_log("Bluetooth message");
       if (!bt_service.dispatch(msg)) {
         sendOk = false;
         esp3d_log_e("Bluetooth dispatch failed");
@@ -1315,14 +1347,14 @@ case ESP3DClientType::no_client:
 
 #ifdef HTTP_FEATURE
     case ESP3DClientType::webui_websocket:
-    esp3d_log("Webui websocket message");
+      esp3d_log("Webui websocket message");
       if (!websocket_terminal_server.dispatch(msg)) {
         sendOk = false;
         esp3d_log_e("Webui websocket dispatch failed");
       }
       break;
     case ESP3DClientType::http:
-    esp3d_log("Http message");
+      esp3d_log("Http message");
       if (!HTTP_Server::dispatch(msg)) {
         sendOk = false;
         esp3d_log_e("Webui websocket dispatch failed");
@@ -1331,7 +1363,7 @@ case ESP3DClientType::no_client:
 #endif  // HTTP_FEATURE
 #if defined(DISPLAY_DEVICE)
     case ESP3DClientType::rendering:
-    esp3d_log("Rendering message");
+      esp3d_log("Rendering message");
       if (!esp3d_display.dispatch(msg)) {
         sendOk = false;
         esp3d_log_e("Display dispatch failed");
@@ -1341,7 +1373,7 @@ case ESP3DClientType::no_client:
 
 #if COMMUNICATION_PROTOCOL == MKS_SERIAL
     case ESP3DClientType::mks_serial:
-    esp3d_log("MKS Serial message");
+      esp3d_log("MKS Serial message");
       if (!MKSService::dispatch(msg)) {
         sendOk = false;
         esp3d_log_e("MKS Serial dispatch failed");
@@ -1351,7 +1383,7 @@ case ESP3DClientType::no_client:
 
 #ifdef PRINTER_HAS_DISPLAY
     case ESP3DClientType::remote_screen:
-    esp3d_log("Remote screen message");
+      esp3d_log("Remote screen message");
       // change target to output client
       msg->target = getOutputClient();
       // change text to GCODE M117
@@ -1375,156 +1407,163 @@ case ESP3DClientType::no_client:
 #ifdef PRINTER_HAS_DISPLAY
       if (msg->origin != ESP3DClientType::remote_screen &&
           msg->origin != getOutputClient()) {
-          if (msg->target == ESP3DClientType::all_clients) {
-            // become the reference message
-            msg->target = ESP3DClientType::remote_screen;
+        if (msg->target == ESP3DClientType::all_clients) {
+          // become the reference message
+          msg->target = ESP3DClientType::remote_screen;
+        } else {
+          // duplicate message because current is  already pending
+          ESP3DMessage *copy_msg = ESP3DMessageManager::copyMsg(*msg);
+          if (copy_msg) {
+            copy_msg->target = ESP3DClientType::remote_screen;
+            dispatch(copy_msg);
           } else {
-            // duplicate message because current is  already pending
-            ESP3DMessage *copy_msg = ESP3DMessageManager::copyMsg(*msg);
-            if (copy_msg) {
-              copy_msg->target = ESP3DClientType::remote_screen;
-              dispatch(copy_msg);
-            } else {
-              esp3d_log_e("Cannot duplicate message for remote screen");
-            }
+            esp3d_log_e("Cannot duplicate message for remote screen");
           }
+        }
       }
 #endif  // PRINTER_HAS_DISPLAY
 
 #if defined(DISPLAY_DEVICE)
       if (msg->origin != ESP3DClientType::rendering &&
           msg->origin != getOutputClient()) {
-          if (msg->target == ESP3DClientType::all_clients) {
-            // become the reference message
-            msg->target = ESP3DClientType::rendering;
-            msg->request_id.id = ESP_OUTPUT_STATUS;
+        if (msg->target == ESP3DClientType::all_clients) {
+          // become the reference message
+          msg->target = ESP3DClientType::rendering;
+          msg->request_id.id = ESP_OUTPUT_STATUS;
+        } else {
+          // duplicate message because current is  already pending
+          ESP3DMessage *copy_msg = ESP3DMessageManager::copyMsg(*msg);
+          if (copy_msg) {
+            copy_msg->target = ESP3DClientType::rendering;
+            copy_msg->request_id.id = ESP_OUTPUT_STATUS;
+            dispatch(copy_msg);
           } else {
-            // duplicate message because current is  already pending
-            ESP3DMessage *copy_msg = ESP3DMessageManager::copyMsg(*msg);
-            if (copy_msg) {
-              copy_msg->target = ESP3DClientType::rendering;
-              copy_msg->request_id.id = ESP_OUTPUT_STATUS;
-              dispatch(copy_msg);
-            } else {
-              esp3d_log_e("Cannot duplicate message for display");
-            }
+            esp3d_log_e("Cannot duplicate message for display");
           }
+        }
       }
 #endif  // defined(DISPLAY_DEVICE)
 
 #if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
       if (msg->origin != ESP3DClientType::echo_serial &&
           msg->origin != ESP3DClientType::socket_serial) {
-          if (msg->target == ESP3DClientType::all_clients) {
-            // become the reference message
-            msg->target = ESP3DClientType::echo_serial;
+        if (msg->target == ESP3DClientType::all_clients) {
+          // become the reference message
+          msg->target = ESP3DClientType::echo_serial;
+        } else {
+          // duplicate message because current is  already pending
+          ESP3DMessage *copy_msg = ESP3DMessageManager::copyMsg(*msg);
+          if (copy_msg) {
+            copy_msg->target = ESP3DClientType::echo_serial;
+            dispatch(copy_msg);
           } else {
-            // duplicate message because current is  already pending
-            ESP3DMessage *copy_msg = ESP3DMessageManager::copyMsg(*msg);
-            if (copy_msg) {
-              copy_msg->target = ESP3DClientType::echo_serial;
-              dispatch(copy_msg);
-            } else {
-              esp3d_log_e("Cannot duplicate message for echo serial");
-            }
+            esp3d_log_e("Cannot duplicate message for echo serial");
           }
+        }
       }
 #endif  // COMMUNICATION_PROTOCOL == SOCKET_SERIAL
 
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
       if (msg->origin != ESP3DClientType::serial_bridge) {
-          if (msg->target == ESP3DClientType::all_clients) {
-            // become the reference message
-            msg->target = ESP3DClientType::serial_bridge;
+        if (msg->target == ESP3DClientType::all_clients) {
+          // become the reference message
+          msg->target = ESP3DClientType::serial_bridge;
+        } else {
+          // duplicate message because current is  already pending
+          ESP3DMessage *copy_msg = ESP3DMessageManager::copyMsg(*msg);
+          if (copy_msg) {
+            copy_msg->target = ESP3DClientType::serial_bridge;
+            dispatch(copy_msg);
           } else {
-            // duplicate message because current is  already pending
-            ESP3DMessage *copy_msg = ESP3DMessageManager::copyMsg(*msg);
-            if (copy_msg) {
-              copy_msg->target = ESP3DClientType::serial_bridge;
-              dispatch(copy_msg);
-            } else {
-              esp3d_log_e("Cannot duplicate message for serial bridge");
-            }
+            esp3d_log_e("Cannot duplicate message for serial bridge");
           }
+        }
       }
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
 
 #ifdef BLUETOOTH_FEATURE
-      if (msg->origin != ESP3DClientType::bluetooth && bt_service.isConnected()) {
-          if (msg->target == ESP3DClientType::all_clients) {
-            // become the reference message
-            msg->target = ESP3DClientType::bluetooth;
+      if (msg->origin != ESP3DClientType::bluetooth &&
+          bt_service.isConnected()) {
+        if (msg->target == ESP3DClientType::all_clients) {
+          // become the reference message
+          msg->target = ESP3DClientType::bluetooth;
+        } else {
+          // duplicate message because current is  already pending
+          ESP3DMessage *copy_msg = ESP3DMessageManager::copyMsg(*msg);
+          if (copy_msg) {
+            copy_msg->target = ESP3DClientType::bluetooth;
+            dispatch(copy_msg);
           } else {
-            // duplicate message because current is  already pending
-            ESP3DMessage *copy_msg = ESP3DMessageManager::copyMsg(*msg);
-            if (copy_msg) {
-              copy_msg->target = ESP3DClientType::bluetooth;
-              dispatch(copy_msg);
-            } else {
-              esp3d_log_e("Cannot duplicate message for bluetooth");
-            }
+            esp3d_log_e("Cannot duplicate message for bluetooth");
           }
+        }
       }
 #endif  // BLUETOOTH_FEATURE
 
 #ifdef TELNET_FEATURE
-      if (msg->origin != ESP3DClientType::telnet && telnet_server.isConnected()) {
-          if (msg->target == ESP3DClientType::all_clients) {
-            // become the reference message
-            msg->target = ESP3DClientType::telnet;
+      if (msg->origin != ESP3DClientType::telnet &&
+          telnet_server.isConnected()) {
+        if (msg->target == ESP3DClientType::all_clients) {
+          // become the reference message
+          msg->target = ESP3DClientType::telnet;
+        } else {
+          // duplicate message because current is  already pending
+          ESP3DMessage *copy_msg = ESP3DMessageManager::copyMsg(*msg);
+          if (copy_msg) {
+            copy_msg->target = ESP3DClientType::telnet;
+            dispatch(copy_msg);
           } else {
-            // duplicate message because current is  already pending
-            ESP3DMessage *copy_msg = ESP3DMessageManager::copyMsg(*msg);
-            if (copy_msg) {
-              copy_msg->target = ESP3DClientType::telnet;
-              dispatch(copy_msg);
-            } else {
-              esp3d_log_e("Cannot duplicate message for telnet");
-            }
+            esp3d_log_e("Cannot duplicate message for telnet");
           }
-      } else{
-        if (msg->origin != ESP3DClientType::telnet)esp3d_log("Telnet not connected");
+        }
+      } else {
+        if (msg->origin != ESP3DClientType::telnet)
+          esp3d_log("Telnet not connected");
       }
 #endif  // TELNET_FEATURE
 
 #ifdef HTTP_FEATURE  // http cannot be in all client because it depend of any
                      // connection of the server
-      if (msg->origin != ESP3DClientType::webui_websocket && websocket_terminal_server.isConnected()) {
-          if (msg->target == ESP3DClientType::all_clients) {
-            // become the reference message
-            msg->target = ESP3DClientType::webui_websocket;
+      if (msg->origin != ESP3DClientType::webui_websocket &&
+          websocket_terminal_server.isConnected()) {
+        if (msg->target == ESP3DClientType::all_clients) {
+          // become the reference message
+          msg->target = ESP3DClientType::webui_websocket;
+        } else {
+          // duplicate message because current is  already pending
+          ESP3DMessage *copy_msg = ESP3DMessageManager::copyMsg(*msg);
+          if (copy_msg) {
+            copy_msg->target = ESP3DClientType::webui_websocket;
+            dispatch(copy_msg);
           } else {
-            // duplicate message because current is  already pending
-            ESP3DMessage *copy_msg = ESP3DMessageManager::copyMsg(*msg);
-            if (copy_msg) {
-              copy_msg->target = ESP3DClientType::webui_websocket;
-              dispatch(copy_msg);
-            } else {
-              esp3d_log_e("Cannot duplicate message for webui_websocket");
-            }
+            esp3d_log_e("Cannot duplicate message for webui_websocket");
           }
+        }
       } else {
-        if (msg->origin != ESP3DClientType::webui_websocket)esp3d_log("Webui websocket not connected");
+        if (msg->origin != ESP3DClientType::webui_websocket)
+          esp3d_log("Webui websocket not connected");
       }
 #endif  // HTTP_FEATURE
 
 #ifdef WS_DATA_FEATURE
-      if (msg->origin != ESP3DClientType::websocket && websocket_data_server.isConnected()) {
-          if (msg->target == ESP3DClientType::all_clients) {
-            // become the reference message
-            msg->target = ESP3DClientType::websocket;
+      if (msg->origin != ESP3DClientType::websocket &&
+          websocket_data_server.isConnected()) {
+        if (msg->target == ESP3DClientType::all_clients) {
+          // become the reference message
+          msg->target = ESP3DClientType::websocket;
+        } else {
+          // duplicate message because current is  already pending
+          ESP3DMessage *copy_msg = ESP3DMessageManager::copyMsg(*msg);
+          if (copy_msg) {
+            copy_msg->target = ESP3DClientType::websocket;
+            dispatch(copy_msg);
           } else {
-            // duplicate message because current is  already pending
-            ESP3DMessage *copy_msg = ESP3DMessageManager::copyMsg(*msg);
-            if (copy_msg) {
-              copy_msg->target = ESP3DClientType::websocket;
-              dispatch(copy_msg);
-            } else {
-              esp3d_log_e("Cannot duplicate message for websocket");
-            }
+            esp3d_log_e("Cannot duplicate message for websocket");
           }
+        }
       } else {
-        if (msg->origin != ESP3DClientType::websocket)esp3d_log("Websocket not connected");
+        if (msg->origin != ESP3DClientType::websocket)
+          esp3d_log("Websocket not connected");
       }
 #endif  // WS_DATA_FEATURE
 

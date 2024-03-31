@@ -24,7 +24,6 @@
 #include "../../core/esp3d_commands.h"
 #include "../../core/esp3d_settings.h"
 #include "../../core/esp3d_string.h"
-
 #include "serial_service.h"
 
 #if COMMUNICATION_PROTOCOL == MKS_SERIAL
@@ -64,9 +63,9 @@ ESP3DSerialService serial_bridge_service = ESP3DSerialService(BRIDGE_SERIAL);
 TaskHandle_t _hserialtask = nullptr;
 #endif  // ARDUINO_ARCH_ESP32
 
-const uint32_t SupportedBaudList[] = {9600,   19200,  38400,  57600,
-                                      74880,  115200, 230400, 250000,
-                                      500000, 921600, 1000000, 1958400, 2000000};
+const uint32_t SupportedBaudList[] = {9600,    19200,   38400,  57600,  74880,
+                                      115200,  230400,  250000, 500000, 921600,
+                                      1000000, 1958400, 2000000};
 const size_t SupportedBaudListSize = sizeof(SupportedBaudList) / sizeof(long);
 
 #define TIMEOUT_SERIAL_FLUSH 1500
@@ -107,8 +106,18 @@ ESP3DSerialService::~ESP3DSerialService() { end(); }
 // dedicated serial task
 #if defined(ARDUINO_ARCH_ESP32) && defined(SERIAL_INDEPENDANT_TASK)
 void ESP3DSerialTaskfn(void *parameter) {
+  uint8_t id = *((uint8_t *)parameter);
+  if (id == MAIN_SERIAL) {
+    esp3d_log("Serial Task for main serial");
+  } else {
+    esp3d_log("Serial Task for bridge serial");
+  }
   for (;;) {
     esp3d_serial_service.process();
+#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
+    esp3d_log("Serial Task for bridge serial");
+    serial_bridge_service.process();
+#endif                             // ESP_SERIAL_BRIDGE_OUTPUT
     ESP3DHal::wait(SERIAL_YIELD);  // Yield to other tasks
   }
   vTaskDelete(NULL);
@@ -192,16 +201,16 @@ bool ESP3DSerialService::begin(uint8_t serialIndex) {
 
 #endif  // ARDUINO_ARCH_ESP8266
 #if defined(ARDUINO_ARCH_ESP32)
-    Serials[_serialIndex]->begin(br, ESP_SERIAL_PARAM, ESP_RX_PIN, ESP_TX_PIN);
+    Serials[_serialIndex]->begin(br, ESP_SERIAL_PARAM, _rxPin, _txPin);
 #if defined(SERIAL_INDEPENDANT_TASK)
     // create serial task once
     esp3d_log("Serial %d for %d Task creation", _serialIndex, _id);
-    if (_hserialtask == nullptr && _id == MAIN_SERIAL) {
+    if (_hserialtask == nullptr && (_id == MAIN_SERIAL)) {
       xTaskCreatePinnedToCore(
-          ESP3DSerialTaskfn,            /* Task function. */
-          "ESP3D Serial Task",          /* name of task. */
-          8192,                         /* Stack size of task */
-          NULL,                         /* parameter of the task */
+          ESP3DSerialTaskfn,   /* Task function. */
+          "ESP3D Serial Task", /* name of task. */
+          8192,                /* Stack size of task */
+          &_id,                /* parameter of the task = is main or bridge*/
           ESP3DSERIAL_RUNNING_PRIORITY, /* priority of the task */
           &_hserialtask, /* Task handle to keep track of created task */
           ESP3DSERIAL_RUNNING_CORE /* Core to run the task */
@@ -285,7 +294,7 @@ void ESP3DSerialService::flushbuffer() {
   // dispatch command
   if (_started) {
     ESP3DMessage *message = ESP3DMessageManager::newMsg(
-        _origin, ESP3DClientType::all_clients, (uint8_t *)_buffer, _buffer_size,
+        _origin, _id== MAIN_SERIAL?ESP3DClientType::all_clients: esp3d_commands.getOutputClient(), (uint8_t *)_buffer, _buffer_size,
         getAuthentication());
     if (message) {
       // process command
