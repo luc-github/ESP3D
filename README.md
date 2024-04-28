@@ -80,10 +80,10 @@ if Authentication is enabled :
 
 
 ## Direct commands:    
-Check wiki : https://github.com/luc-github/ESP3D/wiki/Command-line-commands
+Check [Documentation](http://esp3d.io/esp3d/v2.x/documentation/commands/index.html)
 
 ## Installation instructions
-See [Wiki](https://github.com/luc-github/ESP3D/wiki/Install-Instructions)
+See [Documentation](http://esp3d.io/esp3d/v2.x/installation/index.html)
 
 ## Installation
 Feedback on 2.0 was : ESP3D being a library is not really useful and make setup more complex, so now we are back to simple application.   
@@ -101,8 +101,8 @@ If you want OLED support:
 
 If you want DHT11/22 support:  
 * DHT_sensor_library_for_ESPx from @beegee-tokyo   
-3. Compile project esp3d.ino according target: ESP8266 board or ESP32 board, please review config.h to enable disable a feature, by default authentication is disabled and most others are enabled.   
-* for ESP8266 set CPU freq to 160MHz for better (https://github.com/luc-github/ESP3D/wiki/Install-Instructions)
+3. Compile project esp3d.ino according target: ESP8266 board or ESP32 board, please review config.h to enable disable a feature, by default athentication is disabled and most others are enabled.   
+* for ESP8266 set CPU freq to 160MHz for better   
 4. Upload the data content on ESP3D file system
 * Using SPIFFS uploader, this plugin and install instructions is available on each ESP core - please refere to it
 or
@@ -120,17 +120,19 @@ if embedded uploader does not show up you can force it ti display using : http:/
 * To style the code before pushing PR please use [astyle --style=otbs *.h *.cpp *.ino](http://astyle.sourceforge.net/)   
 * The embedded page is created using nodejs then gulp to generate a compressed html page (tool.html.gz), all necessary modules will be installed using the build.bat, you also need bin2c tool (https://sourceforge.net/projects/bin2c/) to generate the h file from the binary,  installation and build is done using the build.bat.   
 * The corresponding UI is located [here](https://github.com/luc-github/ESP3D-WEBUI/tree/2.1)
-* An optional UI was development using old repetier UI - check [UI\repetier\testui.htm] (https://raw.githubusercontent.com/wiki/luc-github/ESP3D/UI/repetier/testui.htm) file   
+
 
  
 ## Need more information about supported boards or wiring ?
-[Check the wiki](https://github.com/luc-github/ESP3D/wiki)
+Check [Hardware support](http://esp3d.io/esp3d/v2.x/hardware/index.html) and [Wiring support](http://esp3d.io/esp3d/v2.x/installation/wiring/index.html)
 
 ## :question:Any question ?   
-Check [Wiki](https://github.com/luc-github/ESP3D/wiki/Install-Instructions) or Join the chat at [![Discord server](https://img.shields.io/discord/752822148795596940?color=blue&label=discord&logo=discord)](https://discord.gg/Z4ujTwE)   
+Check [Documentation](http://esp3d.io/esp3d/v2.x/index.html) or Join the chat at [![Discord server](https://img.shields.io/discord/752822148795596940?color=blue&label=discord&logo=discord)](https://discord.gg/Z4ujTwE)  
+
+The reference site: http://esp3d.io/
 
 ## :exclamation:Any issue/feedback ?    
-Check [Wiki](https://github.com/luc-github/ESP3D/wiki/Install-Instructions) and [FAQ](https://github.com/luc-github/ESP3D/discussions?discussions_q=category%3AF.A.Q) 
+Check [FAQ](https://github.com/luc-github/ESP3D/discussions?discussions_q=category%3AF.A.Q) 
 If you still have issue: [submit ticket](https://github.com/luc-github/ESP3D/issues)    
 If it is not an issue join discussion [here](https://github.com/luc-github/ESP3D/discussions)
 
