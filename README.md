@@ -102,7 +102,7 @@ If you want OLED support:
 If you want DHT11/22 support:  
 * DHT_sensor_library_for_ESPx from @beegee-tokyo   
 3. Compile project esp3d.ino according target: ESP8266 board or ESP32 board, please review config.h to enable disable a feature, by default athentication is disabled and most others are enabled.   
-* for ESP8266 set CPU freq to 160MHz for better 
+* for ESP8266 set CPU freq to 160MHz for better   
 4. Upload the data content on ESP3D file system
 * Using SPIFFS uploader, this plugin and install instructions is available on each ESP core - please refere to it
 or
