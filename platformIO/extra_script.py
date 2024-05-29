@@ -8,8 +8,10 @@ configuration_file = join(ROOT_DIR, "esp3d", "configuration.h")
 print("Check if need to add some library to path")
 if isfile(configuration_file):
     fh = open(configuration_file, 'r')
+    entry = None
     for line in fh:
-        entry = re.search('^#define(\s)*SD_DEVICE(\s)*ESP_SDFAT2', line)
+        pattern =r'^\s*#\s*define\s+SD_DEVICE\s+ESP_SDFAT2'
+        entry = re.search(pattern, line)
         if entry:
             print("Need to add some SD FAT library to path")
             if (env["PIOPLATFORM"] == "espressif8266"):
@@ -26,7 +28,10 @@ if isfile(configuration_file):
             else:
                 print("Add SDFat2 library to path")
                 env["LIBSOURCE_DIRS"].append("extra-libraries/ESP32")
+            break
     fh.close()
+    if entry is None:
+        print("No need to add any extra library")
 else:
     print("No configuration.h file found")
 print(env["LIBSOURCE_DIRS"])
