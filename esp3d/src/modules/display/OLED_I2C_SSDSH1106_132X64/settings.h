@@ -18,34 +18,34 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-//Screen size
-#define SCREEN_WIDTH    132
-#define SCREEN_HEIGHT   64
-//Colors
-#define COLOR_BLACK   BLACK
-#define COLOR_WHITE   WHITE
-#define SPLASH_FG   COLOR_BLACK
-#define SPLASH_BG   COLOR_WHITE
-#define SCREEN_BG   COLOR_BLACK
+// Screen size
+#define SCREEN_WIDTH 132
+#define SCREEN_HEIGHT 64
+// Colors
+#define COLOR_BLACK BLACK
+#define COLOR_WHITE WHITE
+#define SPLASH_FG COLOR_BLACK
+#define SPLASH_BG COLOR_WHITE
+#define SCREEN_BG COLOR_BLACK
 #define PROGRESS_FG COLOR_WHITE
-#define SIGNAL_FG   COLOR_WHITE
+#define SIGNAL_FG COLOR_WHITE
 #define SSID_FG COLOR_WHITE
-#define IP_FG   COLOR_WHITE
-#define STATUS_FG   COLOR_WHITE
+#define IP_FG COLOR_WHITE
+#define STATUS_FG COLOR_WHITE
 
-//Fonts
+// Fonts
 #define FONTSIGNAL 2
-#define FONTSSID     2
-#define FONTIP   3
-#define FONTSTATUS   2
+#define FONTSSID 2
+#define FONTIP 3
+#define FONTSTATUS 2
 
-//Positions
-#define SIGNAL_X 132-27
+// Positions
+#define SIGNAL_X 132 - 27
 #define SIGNAL_Y 0
 #define SIGNAL_W 46
 #define SIGNAL_H 10
 
-#define SIGNAL_ICON_X 132-43
+#define SIGNAL_ICON_X 132 - 43
 #define SIGNAL_ICON_Y 2
 #define SIGNAL_ICON_W 15
 #define SIGNAL_ICON_H 10

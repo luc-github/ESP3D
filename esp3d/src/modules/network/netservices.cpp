@@ -488,8 +488,9 @@ void NetServices::handle() {
 #ifdef NOTIFICATION_FEATURE
     notificationsservice.handle();
 #endif  // NOTIFICATION_FEATURE
-#if defined (TIMESTAMP_FEATURE) && (defined (ESP_GOT_IP_HOOK) || defined (ESP_GOT_DATE_TIME_HOOK))  
-  timeService.handle();
+#if defined(TIMESTAMP_FEATURE) && \
+    (defined(ESP_GOT_IP_HOOK) || defined(ESP_GOT_DATE_TIME_HOOK))
+    timeService.handle();
 #endif  // TIMESTAMP_FEATURE
   }
   if (_restart) {

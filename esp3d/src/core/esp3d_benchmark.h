@@ -20,6 +20,7 @@
 
 #ifndef _BENCHMARK_ESP3D_H
 #define _BENCHMARK_ESP3D_H
-extern void benchMark(const char* title, uint64_t bench_start,uint64_t bench_end, size_t bench_transfered);
-extern void report_esp3d(const char *format, ...);
-#endif //_BENCHMARK_ESP3D_H 
+extern void benchMark(const char* title, uint64_t bench_start,
+                      uint64_t bench_end, size_t bench_transfered);
+extern void report_esp3d(const char* format, ...);
+#endif  //_BENCHMARK_ESP3D_H

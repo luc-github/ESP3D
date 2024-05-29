@@ -18,29 +18,28 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "../../../include/esp3d_config.h"
-#if defined (HTTP_FEATURE) && defined (SSDP_FEATURE)
+#if defined(HTTP_FEATURE) && defined(SSDP_FEATURE)
 #include "../http_server.h"
-#if defined (ARDUINO_ARCH_ESP32)
+#if defined(ARDUINO_ARCH_ESP32)
 #include <WebServer.h>
 #ifdef SSDP_FEATURE
 #include <ESP32SSDP.h>
-#endif //SSDP_FEATURE
-#endif //ARDUINO_ARCH_ESP32
-#if defined (ARDUINO_ARCH_ESP8266)
+#endif  // SSDP_FEATURE
+#endif  // ARDUINO_ARCH_ESP32
+#if defined(ARDUINO_ARCH_ESP8266)
 #include <ESP8266WebServer.h>
 #ifdef SSDP_FEATURE
 #include <ESP8266SSDP.h>
-#endif //SSDP_FEATURE
-#endif //ARDUINO_ARCH_ESP8266
-void HTTP_Server::handle_SSDP()
-{
-    if (_webserver) {
-#if defined (ARDUINO_ARCH_ESP32)
-        _webserver->send(200, "text/xml", SSDP.getSchema());
-#endif //ARDUINO_ARCH_ESP32
-#if defined (ARDUINO_ARCH_ESP8266)
-        SSDP.schema(_webserver->client());
-#endif //ARDUINO_ARCH_ESP8266
-    }
+#endif  // SSDP_FEATURE
+#endif  // ARDUINO_ARCH_ESP8266
+void HTTP_Server::handle_SSDP() {
+  if (_webserver) {
+#if defined(ARDUINO_ARCH_ESP32)
+    _webserver->send(200, "text/xml", SSDP.getSchema());
+#endif  // ARDUINO_ARCH_ESP32
+#if defined(ARDUINO_ARCH_ESP8266)
+    SSDP.schema(_webserver->client());
+#endif  // ARDUINO_ARCH_ESP8266
+  }
 }
-#endif //HTTP_FEATURE && SSDP_FEATURE
+#endif  // HTTP_FEATURE && SSDP_FEATURE

@@ -18,28 +18,24 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-
-
 #ifndef _DHT_SENSOR_H
 #define _DHT_SENSOR_H
 
 #include "sensor.h"
 
-class DHTSensorDevice : ESP3DSensorDevice
-{
-public:
-    DHTSensorDevice();
-    ~DHTSensorDevice();
-    bool begin();
-    void end();
-    bool isModelValid(uint8_t model);
-    uint8_t getIDFromString(const char *);
-    uint8_t nbType();
-    uint8_t GetModel(uint8_t i=0);
-    const char *GetModelString(uint8_t i=0);
-    const char *GetCurrentModelString();
-    const char * GetData();
+class DHTSensorDevice : ESP3DSensorDevice {
+ public:
+  DHTSensorDevice();
+  ~DHTSensorDevice();
+  bool begin();
+  void end();
+  bool isModelValid(uint8_t model);
+  uint8_t getIDFromString(const char *);
+  uint8_t nbType();
+  uint8_t GetModel(uint8_t i = 0);
+  const char *GetModelString(uint8_t i = 0);
+  const char *GetCurrentModelString();
+  const char *GetData();
 };
 
-#endif //_DHT_SENSOR_H
-
+#endif  //_DHT_SENSOR_H

@@ -96,8 +96,8 @@ const char* FirmwareLabels[] = {"Unknown", "Grbl", "Marlin", "Smoothieware",
 
 const char* FirmwareValues[] = {"0", "10", "20", "40", "50"};
 #ifdef NOTIFICATION_FEATURE
-const char* NotificationsLabels[] = {"none", "pushover", "email",
-                                     "line", "telegram", "ifttt", "home-assistant"};
+const char* NotificationsLabels[] = {
+    "none", "pushover", "email", "line", "telegram", "ifttt", "home-assistant"};
 
 const char* NotificationsValues[] = {"0", "1", "2", "3", "4", "5", "6"};
 #endif  // NOTIFICATION_FEATURE
@@ -109,8 +109,8 @@ const char* SupportedApChannelsStr[] = {"1", "2", "3",  "4",  "5",  "6",  "7",
                                         "8", "9", "10", "11", "12", "13", "14"};
 
 const char* SupportedBaudListSizeStr[] = {
-    "9600",   "19200",  "38400",  "57600",  "74880",  "115200",
-    "230400", "250000", "500000", "921600", "1000000", "1958400","2000000"};
+    "9600",   "19200",  "38400",  "57600",   "74880",   "115200", "230400",
+    "250000", "500000", "921600", "1000000", "1958400", "2000000"};
 
 #ifdef SENSOR_DEVICE
 

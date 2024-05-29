@@ -18,21 +18,17 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-
-
 #ifndef _DEVICES_SERVICES_H
 #define _DEVICES_SERVICES_H
 
+class DevicesServices {
+ public:
+  static bool begin();
+  static void end();
+  static void handle();
 
-class DevicesServices
-{
-public:
-    static bool begin();
-    static void end();
-    static void handle();
-private:
-    static bool _started;
+ private:
+  static bool _started;
 };
 
-#endif //_DEVICES_SERVICES_H
-
+#endif  //_DEVICES_SERVICES_H

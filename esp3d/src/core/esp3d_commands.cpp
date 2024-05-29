@@ -694,7 +694,7 @@ void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
       break;
       // Set/Get Notification settings
       //[ESP610]type=<NONE/PUSHOVER/EMAIL/LINE/HOMEASSISTANT> T1=<token1>
-      //T2=<token2>
+      // T2=<token2>
       // TS=<Settings> pwd=<admin password> Get will give type and settings only
       // not the protected T1/T2
     case 610:
@@ -1109,7 +1109,7 @@ bool ESP3DCommands::formatCommand(char *cmd, size_t len) {
     cmd[sizestr + 1] = 0x0;
     return true;
   }
-  if (sizestr == len && cmd[sizestr-1] == '\n'){
+  if (sizestr == len && cmd[sizestr - 1] == '\n') {
     return true;
   }
   return false;
@@ -1176,7 +1176,7 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg, uint8_t *sbuf, size_t len) {
     esp3d_log_e("no msg");
     return false;
   }
-  //check is need \n at the end of the command
+  // check is need \n at the end of the command
   if (msg->type == ESP3DMessageType::unique ||
       msg->type == ESP3DMessageType::tail) {
     esp3d_log("unique or tail message :*%s*", (char *)sbuf);

@@ -18,26 +18,23 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-
-
 #ifndef _RECOVERY_SERVICE_H
 #define _RECOVERY_SERVICE_H
 
-class RecoveryService
-{
-public:
-    RecoveryService();
-    ~RecoveryService();
-    bool begin();
-    void end();
-    void handle();
-    bool started();
-private:
-    bool _started;
-    uint32_t _servicetimeout;
+class RecoveryService {
+ public:
+  RecoveryService();
+  ~RecoveryService();
+  bool begin();
+  void end();
+  void handle();
+  bool started();
+
+ private:
+  bool _started;
+  uint32_t _servicetimeout;
 };
 
 extern RecoveryService recovery_service;
 
-#endif //_RECOVERY_SERVICE_H
-
+#endif  //_RECOVERY_SERVICE_H

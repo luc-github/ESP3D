@@ -495,7 +495,7 @@ bool GcodeHost::processScript(const char *line,
                               ESP3DAuthenticationLevel auth_type) {
   if (_step != HOST_NO_STREAM) {
     esp3d_log("Streaming already in progress");
-    while(_step != HOST_NO_STREAM){
+    while (_step != HOST_NO_STREAM) {
       handle();
     }
   }
@@ -506,7 +506,7 @@ bool GcodeHost::processScript(const char *line,
     esp3d_log_e("No script to process");
     return false;
   }
-  
+
   _fsType = TYPE_SCRIPT_STREAM;
   _step = HOST_START_STREAM;
   _auth_type = auth_type;

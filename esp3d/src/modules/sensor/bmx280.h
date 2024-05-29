@@ -18,27 +18,23 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-
-
 #ifndef _BMX280_SENSOR_H
 #define _BMX280_SENSOR_H
 #include "sensor.h"
 
-class BMX280SensorDevice : ESP3DSensorDevice
-{
-public:
-    BMX280SensorDevice();
-    ~BMX280SensorDevice();
-    bool begin();
-    void end();
-    bool isModelValid(uint8_t model);
-    uint8_t getIDFromString(const char *);
-    uint8_t nbType();
-    uint8_t GetModel(uint8_t i=0);
-    const char *GetModelString(uint8_t i=0);
-    const char *GetCurrentModelString();
-    const char * GetData();
+class BMX280SensorDevice : ESP3DSensorDevice {
+ public:
+  BMX280SensorDevice();
+  ~BMX280SensorDevice();
+  bool begin();
+  void end();
+  bool isModelValid(uint8_t model);
+  uint8_t getIDFromString(const char *);
+  uint8_t nbType();
+  uint8_t GetModel(uint8_t i = 0);
+  const char *GetModelString(uint8_t i = 0);
+  const char *GetCurrentModelString();
+  const char *GetData();
 };
 
-#endif //_BMX280_SENSOR_H
-
+#endif  //_BMX280_SENSOR_H

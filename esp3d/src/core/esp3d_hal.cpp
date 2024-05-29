@@ -27,11 +27,11 @@
 #include <soc/soc.h>
 #if CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
 // FIXME : S3 not support it yet
-#  if __has_include ("rtc_wdt.h")
+#if __has_include("rtc_wdt.h")
 #include <rtc_wdt.h>
-#else 
+#else
 #include <soc/rtc_wdt.h>
-#endif // __has_include ("rtc_wdt.h")
+#endif  // __has_include ("rtc_wdt.h")
 #endif  // CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
 #include <WiFi.h>
 #include <driver/adc.h>

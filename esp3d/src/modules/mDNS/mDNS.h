@@ -20,35 +20,32 @@
 #ifndef _MDNS_H
 #define _MDNS_H
 #include <Arduino.h>
-class mDNS_Service
-{
-public:
-    mDNS_Service();
-    ~mDNS_Service();
-    bool started()
-    {
-        return _started;
-    }
-    bool begin(const char * hostname);
-    void end();
-    void handle();
-    void addESP3DServices(uint16_t port);
-    uint16_t servicesCount();
-    const char* answerHostname(uint16_t index);
-    const char* answerIP(uint16_t index);
-    uint16_t answerPort(uint16_t index);
-    uint16_t answerTxtCount(uint16_t index);
-    const char* answerTxtKey(uint16_t index, uint16_t txtIndex);
-    const char* answerTxt(uint16_t index, uint16_t txtIndex);
-private:
-    bool _started;
-    uint16_t _port;
-    uint16_t _currentQueryCount;
-    uint16_t _currentQueryTxtCount;
-    String _hostname;
+class mDNS_Service {
+ public:
+  mDNS_Service();
+  ~mDNS_Service();
+  bool started() { return _started; }
+  bool begin(const char* hostname);
+  void end();
+  void handle();
+  void addESP3DServices(uint16_t port);
+  uint16_t servicesCount();
+  const char* answerHostname(uint16_t index);
+  const char* answerIP(uint16_t index);
+  uint16_t answerPort(uint16_t index);
+  uint16_t answerTxtCount(uint16_t index);
+  const char* answerTxtKey(uint16_t index, uint16_t txtIndex);
+  const char* answerTxt(uint16_t index, uint16_t txtIndex);
+
+ private:
+  bool _started;
+  uint16_t _port;
+  uint16_t _currentQueryCount;
+  uint16_t _currentQueryTxtCount;
+  String _hostname;
 #if defined(ARDUINO_ARCH_ESP8266)
-    const void* _hMDNSServiceQuery;
-#endif //ARDUINO_ARCH_ESP8266
+  const void* _hMDNSServiceQuery;
+#endif  // ARDUINO_ARCH_ESP8266
 };
 extern mDNS_Service esp3d_mDNS;
-#endif //_MDNS_H
+#endif  //_MDNS_H

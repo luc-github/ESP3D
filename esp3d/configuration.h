@@ -37,17 +37,17 @@
 #endif
 /************************************
  *
- * ESP32 C3 -patch 
- * 
+ * ESP32 C3 -patch
+ *
  * Uncomment only if your ESP32 C3 board cannot start
  *
  ************************************/
-//Possible values
-//WIFI_POWER_5dBm
-//WIFI_POWER_8_5dBm
-//WIFI_POWER_15dBm
+// Possible values
+// WIFI_POWER_5dBm
+// WIFI_POWER_8_5dBm
+// WIFI_POWER_15dBm
 
-//#define ESP32_WIFI_TX_POWER WIFI_POWER_15dBm 
+// #define ESP32_WIFI_TX_POWER WIFI_POWER_15dBm
 
 /************************************
  *
@@ -540,7 +540,7 @@
 /* Enable authentication
  * Force usage of authentication for commands
  */
-//#define AUTHENTICATION_FEATURE
+// #define AUTHENTICATION_FEATURE
 
 /************************************
  *
@@ -576,13 +576,13 @@
 
 /* Hook when got IP
  * Commands to run on event
- * Separate commands with ';' 
+ * Separate commands with ';'
  */
 #define ESP_GOT_IP_HOOK "[ESP212]IP:%ESP_IP%"
 
 /* Hook when got date time
  * Commands to run on event
- * Separate commands with ';' 
+ * Separate commands with ';'
  */
 #define ESP_GOT_DATE_TIME_HOOK "[ESP212]DATE:%ESP_DATETIME%"
 
@@ -617,10 +617,9 @@
 // LOG_OUTPUT_SERIAL2
 // LOG_OUTPUT_TELNET
 // LOG_OUTPUT_WEBSOCKET
-//#define ESP_LOG_FEATURE LOG_OUTPUT_SERIAL0
+// #define ESP_LOG_FEATURE LOG_OUTPUT_SERIAL0
 
-//#define ESP3D_DEBUG_LEVEL LOG_LEVEL_DEBUG
-
+// #define ESP3D_DEBUG_LEVEL LOG_LEVEL_DEBUG
 
 #ifdef ESP_LOG_FEATURE
 #define LOG_ESP3D_BAUDRATE 115200
@@ -639,7 +638,8 @@
  * Do not modify
  ************************************/
 
-#if defined(ESP_GOT_DATE_TIME_HOOK) ||defined(SD_TIMESTAMP_FEATURE) || defined(FILESYSTEM_TIMESTAMP_FEATURE)
+#if defined(ESP_GOT_DATE_TIME_HOOK) || defined(SD_TIMESTAMP_FEATURE) || \
+    defined(FILESYSTEM_TIMESTAMP_FEATURE)
 #define TIMESTAMP_FEATURE
 #endif  // SD_TIMESTAMP_FEATURE || FILESYSTEM_TIMESTAMP_FEATURE
 

@@ -70,7 +70,8 @@ class AuthenticationService {
   static bool ClearCurrentHttpSession();
   static bool ClearAllSessions();
   static bool CreateSession(ESP3DAuthenticationLevel auth_level,
-                            ESP3DClientType client_type, const char *session_ID);
+                            ESP3DClientType client_type,
+                            const char *session_ID);
 #endif  // HTTP_FEATURE
  private:
   static String _adminpwd;

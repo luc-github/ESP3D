@@ -294,8 +294,10 @@ void ESP3DSerialService::flushbuffer() {
   // dispatch command
   if (_started) {
     ESP3DMessage *message = ESP3DMessageManager::newMsg(
-        _origin, _id== MAIN_SERIAL?ESP3DClientType::all_clients: esp3d_commands.getOutputClient(), (uint8_t *)_buffer, _buffer_size,
-        getAuthentication());
+        _origin,
+        _id == MAIN_SERIAL ? ESP3DClientType::all_clients
+                           : esp3d_commands.getOutputClient(),
+        (uint8_t *)_buffer, _buffer_size, getAuthentication());
     if (message) {
       // process command
       message->type = ESP3DMessageType::unique;

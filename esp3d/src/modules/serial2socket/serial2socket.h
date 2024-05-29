@@ -22,14 +22,13 @@
 #define _SERIAL_2_SOCKET_H_
 
 #include <Print.h>
+
 #include "../authentication/authentication_level_types.h"
 #define S2S_TXBUFFERSIZE 1200
 #define S2S_RXBUFFERSIZE 128
 #define S2S_FLUSHTIMEOUT 500
 
-
-class ESP3DMessage; // forward declaration
-
+class ESP3DMessage;  // forward declaration
 
 class Serial_2_Socket : public Stream {
  public:

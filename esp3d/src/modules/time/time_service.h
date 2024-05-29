@@ -24,7 +24,6 @@
 #include <Arduino.h>
 #include <time.h>
 
-
 class TimeService {
  public:
   TimeService();

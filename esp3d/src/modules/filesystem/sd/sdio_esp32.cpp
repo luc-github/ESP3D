@@ -101,7 +101,8 @@ uint8_t ESP_SD::getState(bool refresh) {
 
 bool ESP_SD::begin() {
 #if SDIO_BIT_MODE == SD_ONE_BIT_MODE
-#if (ESP_SDIO_CLK_PIN != -1) || (ESP_SDIO_CMD_PIN != -1) || (ESP_SDIO_D0_PIN != -1) 
+#if (ESP_SDIO_CLK_PIN != -1) || (ESP_SDIO_CMD_PIN != -1) || \
+    (ESP_SDIO_D0_PIN != -1)
   SD_MMC.setPins(ESP_SDIO_CLK_PIN, ESP_SDIO_CMD_PIN, ESP_SDIO_D0_PIN);
 #endif  //(ESP_SDIO_CLK_PIN != -1)
 #else
@@ -112,7 +113,7 @@ bool ESP_SD::begin() {
                  ESP_SDIO_D1_PIN, ESP_SDIO_D2_PIN, ESP_SDIO_D3_PIN);
 #endif  //(ESP_SDIO_CLK_PIN != -1)
 #endif  // SD_ONE_BIT_MODE
-      esp3d_log("Begin SDIO");
+  esp3d_log("Begin SDIO");
   _started = true;
 #ifdef SDMMC_FORCE_BEGIN
   _state = ESP_SDCARD_NOT_PRESENT;

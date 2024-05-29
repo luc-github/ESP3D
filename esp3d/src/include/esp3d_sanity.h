@@ -41,7 +41,7 @@
 #if ESP_LOG_FEATURE == ESP_SERIAL_OUTPUT
 #if not defined(ESP_NO_SANITY_CHECK)
 #warning You use same serial for output and log
-#endif  // SANITY_ESP3D_H 
+#endif  // SANITY_ESP3D_H
 #endif  // ESP_LOG_FEATURE == ESP_SERIAL_OUTPUT
 #if (ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL2) && defined(ARDUINO_ARCH_ESP8266)
 #error Serial 2 is not available in ESP8266 for log
@@ -92,17 +92,20 @@
 /**************************
  * Hooks
  * ***********************/
-#if defined(ESP_AUTOSTART_SCRIPT) || defined(ESP_AUTOSTART_SCRIPT_FILE) || defined(ESP_GOT_IP_HOOK) || defined(ESP_GOT_DATE_TIME_HOOK)
+#if defined(ESP_AUTOSTART_SCRIPT) || defined(ESP_AUTOSTART_SCRIPT_FILE) || \
+    defined(ESP_GOT_IP_HOOK) || defined(ESP_GOT_DATE_TIME_HOOK)
 #ifndef GCODE_HOST_FEATURE
 #error GCODE_HOST_FEATURE is necessary for ESP_AUTOSTART_SCRIPT/ESP_AUTOSTART_SCRIPT_FILE/ESP_GOT_IP_HOOK/ESP_GOT_DATE_TIME_HOOK
-#endif //ifndef GCODE_HOST_FEATURE
-#endif //#if defined(ESP_AUTOSTART_SCRIPT) || defined(ESP_AUTOSTART_SCRIPT_FILE) || defined(ESP_GOT_IP_HOOK) || defined(ESP_GOT_DATE_TIME_HOOK)
+#endif  // ifndef GCODE_HOST_FEATURE
+#endif  // #if defined(ESP_AUTOSTART_SCRIPT) ||
+        // defined(ESP_AUTOSTART_SCRIPT_FILE) || defined(ESP_GOT_IP_HOOK) ||
+        // defined(ESP_GOT_DATE_TIME_HOOK)
 
 #if defined(ESP_GOT_IP_HOOK) || defined(ESP_GOT_DATE_TIME_HOOK)
 #if !defined(WIFI_FEATURE) && !defined(ETH_FEATURE)
-#error Hooks need at least one network defined (WIFI_FEATURE or ETH_FEATURE) 
-#endif //!defined(WIFI_FEATURE) && !defined(ETH_FEATURE)
-#endif //#if defined(ESP_GOT_IP_HOOK) || defined(ESP_GOT_DATE_TIME_HOOK)
+#error Hooks need at least one network defined (WIFI_FEATURE or ETH_FEATURE)
+#endif  //! defined(WIFI_FEATURE) && !defined(ETH_FEATURE)
+#endif  // #if defined(ESP_GOT_IP_HOOK) || defined(ESP_GOT_DATE_TIME_HOOK)
 
 /**************************
  * Filesystem
@@ -195,4 +198,3 @@
 #endif
 
 #endif  // SANITY_CHECK
-

@@ -117,16 +117,16 @@ uint8_t BMX280SensorDevice::GetModel(uint8_t i) {
 const char *BMX280SensorDevice::GetCurrentModelString() {
   uint8_t sensortype = ESP3DSettings::readByte(ESP_SENSOR_TYPE);
   for (uint8_t i = 0; i < NB_TYPE_SENSOR; i++) {
-        if (sensortype == SENSOR_ID[i]) {
+    if (sensortype == SENSOR_ID[i]) {
       return SENSOR_NAME[i];
-        }
+    }
   }
   return "NONE";
 }
 
 const char *BMX280SensorDevice::GetModelString(uint8_t i) {
   if (i < NB_TYPE_SENSOR) {
-        return SENSOR_NAME[i];
+    return SENSOR_NAME[i];
   }
   return "NONE";
 }
@@ -137,48 +137,48 @@ float toFahrenheit(float fromCelcius) { return 1.8 * fromCelcius + 32.0; };
 const char *BMX280SensorDevice::GetData() {
   static String s;
   if (bmx280_device) {
-        if (!bmx280_device->measure()) {
-          s = "BUSY";
-          esp3d_log("sensor is busy");
-        } else {
-          uint8_t nbtry = 0;
-          do {
-            esp3d_log("try sensor %d", nbtry);
-            ESP3DHal::wait(100);
-            nbtry++;
-          } while (!bmx280_device->hasValue() && nbtry < 3);
-          if (bmx280_device->hasValue()) {
-            float temperature = bmx280_device->getTemperature();
-            float pressure = bmx280_device->getPressure();
-            float humidity = 0;
-            if (bmx280_device->isBME280()) {
-              humidity = bmx280_device->getHumidity();
-            }
-            esp3d_log("T %f P %f H %f", temperature, pressure, humidity);
-            if (String(temperature, 1) != "nan") {
-              if (strcmp(SENSOR__UNIT, "F") == 0) {
-                temperature = toFahrenheit(temperature);
-              }
-              s = String(temperature, 1);
-              s += "[";
-              s += SENSOR__UNIT;
-              s += "] " + String(pressure, 1);
-              s += "[Pa]";
-              if (bmx280_device->isBME280()) {
-                s += " " + String(humidity, 1) + "[%]";
-              }
-            } else {
-              s = "DISCONNECTED";
-              esp3d_log_e("No valid data");
-            }
-          } else {
-            s = "DISCONNECTED";
-            esp3d_log_e("No valid data");
-          }
+    if (!bmx280_device->measure()) {
+      s = "BUSY";
+      esp3d_log("sensor is busy");
+    } else {
+      uint8_t nbtry = 0;
+      do {
+        esp3d_log("try sensor %d", nbtry);
+        ESP3DHal::wait(100);
+        nbtry++;
+      } while (!bmx280_device->hasValue() && nbtry < 3);
+      if (bmx280_device->hasValue()) {
+        float temperature = bmx280_device->getTemperature();
+        float pressure = bmx280_device->getPressure();
+        float humidity = 0;
+        if (bmx280_device->isBME280()) {
+          humidity = bmx280_device->getHumidity();
         }
-  } else {
+        esp3d_log("T %f P %f H %f", temperature, pressure, humidity);
+        if (String(temperature, 1) != "nan") {
+          if (strcmp(SENSOR__UNIT, "F") == 0) {
+            temperature = toFahrenheit(temperature);
+          }
+          s = String(temperature, 1);
+          s += "[";
+          s += SENSOR__UNIT;
+          s += "] " + String(pressure, 1);
+          s += "[Pa]";
+          if (bmx280_device->isBME280()) {
+            s += " " + String(humidity, 1) + "[%]";
+          }
+        } else {
+          s = "DISCONNECTED";
+          esp3d_log_e("No valid data");
+        }
+      } else {
         s = "DISCONNECTED";
-        esp3d_log_e("No device");
+        esp3d_log_e("No valid data");
+      }
+    }
+  } else {
+    s = "DISCONNECTED";
+    esp3d_log_e("No device");
   }
   return s.c_str();
 }

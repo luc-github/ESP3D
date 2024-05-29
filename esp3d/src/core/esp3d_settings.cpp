@@ -865,7 +865,8 @@ bool ESP3DSettings::isValidIntegerSetting(uint32_t value,
         }
       }
       break;
-#endif //#if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
+#endif  // #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
+        // MKS_SERIAL
     case ESP_WEBDAV_PORT:
     case ESP_HTTP_PORT:
     case ESP_TELNET_PORT:

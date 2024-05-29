@@ -138,7 +138,8 @@ const char* help[] = {
 #endif  // AUTHENTICATION_FEATURE
 #if defined(NOTIFICATION_FEATURE)
     "[ESP600](message) - send notification",
-    "[ESP610]type=(NONE/PUSHOVER/EMAIL/LINE/TELEGRAM/IFTTT/HOMEASSISTANT) (T1=xxx) (T2=xxx) "
+    "[ESP610]type=(NONE/PUSHOVER/EMAIL/LINE/TELEGRAM/IFTTT/HOMEASSISTANT) "
+    "(T1=xxx) (T2=xxx) "
     "(TS=xxx) - display/set Notification settings",
     "[ESP620]URL=http://XXXXXX  - send GET notification",
 #endif  // NOTIFICATION_FEATURE

@@ -32,55 +32,50 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define STREAMING_LIBRARY_VERSION 5
 
 // Generic template
-template<class T>
-inline Print &operator <<(Print &stream, T arg)
-{
-    stream.print(arg);
-    return stream;
+template <class T>
+inline Print &operator<<(Print &stream, T arg) {
+  stream.print(arg);
+  return stream;
 }
 
 struct _BASED {
-    long val;
-    int base;
-    _BASED(long v, int b): val(v), base(b)
-    {}
+  long val;
+  int base;
+  _BASED(long v, int b) : val(v), base(b) {}
 };
 
 #if ARDUINO >= 100
 
 struct _BYTE_CODE {
-    byte val;
-    _BYTE_CODE(byte v) : val(v)
-    {}
+  byte val;
+  _BYTE_CODE(byte v) : val(v) {}
 };
-#define _BYTE(a)    _BYTE_CODE(a)
+#define _BYTE(a) _BYTE_CODE(a)
 
-inline Print &operator <<(Print &obj, const _BYTE_CODE &arg)
-{
-    obj.write(arg.val);
-    return obj;
+inline Print &operator<<(Print &obj, const _BYTE_CODE &arg) {
+  obj.write(arg.val);
+  return obj;
 }
 
 #else
 
-#define _BYTE(a)    _BASED(a, BYTE)
+#define _BYTE(a) _BASED(a, BYTE)
 
 #endif
 
-#define _HEX(a)     _BASED(a, HEX)
-#define _DEC(a)     _BASED(a, DEC)
-#define _OCT(a)     _BASED(a, OCT)
-#define _BIN(a)     _BASED(a, BIN)
+#define _HEX(a) _BASED(a, HEX)
+#define _DEC(a) _BASED(a, DEC)
+#define _OCT(a) _BASED(a, OCT)
+#define _BIN(a) _BASED(a, BIN)
 
 // Specialization for class _BASED
 // Thanks to Arduino forum user Ben Combee who suggested this
 // clever technique to allow for expressions like
 //   Serial << _HEX(a);
 
-inline Print &operator <<(Print &obj, const _BASED &arg)
-{
-    obj.print(arg.val, arg.base);
-    return obj;
+inline Print &operator<<(Print &obj, const _BASED &arg) {
+  obj.print(arg.val, arg.base);
+  return obj;
 }
 
 #if ARDUINO >= 18
@@ -91,16 +86,14 @@ inline Print &operator <<(Print &obj, const _BASED &arg)
 //   Serial << _FLOAT(gps_latitude, 6); // 6 digits of precision
 
 struct _FLOAT {
-    float val;
-    int digits;
-    _FLOAT(double v, int d): val(v), digits(d)
-    {}
+  float val;
+  int digits;
+  _FLOAT(double v, int d) : val(v), digits(d) {}
 };
 
-inline Print &operator <<(Print &obj, const _FLOAT &arg)
-{
-    obj.print(arg.val, arg.digits);
-    return obj;
+inline Print &operator<<(Print &obj, const _FLOAT &arg) {
+  obj.print(arg.val, arg.digits);
+  return obj;
 }
 #endif
 
@@ -118,11 +111,10 @@ inline Print &operator <<(Print &obj, _EndLineCode arg)
 
 enum _EndLineCode { eol };
 
-inline Print &operator <<(Print &obj, _EndLineCode arg)
-{
-    (void)arg;
-    obj.print( "\r\n" );
-    return obj;
+inline Print &operator<<(Print &obj, _EndLineCode arg) {
+  (void)arg;
+  obj.print("\r\n");
+  return obj;
 }
 
-#endif // EXT_STREAMING_H
+#endif  // EXT_STREAMING_H

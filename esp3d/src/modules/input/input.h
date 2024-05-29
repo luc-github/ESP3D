@@ -20,21 +20,19 @@
 #ifndef _INPUT_H
 #define _INPUT_H
 
+class Input {
+ public:
+  Input();
+  ~Input();
+  bool begin();
+  void end();
+  void handle();
+  bool started();
 
-class Input
-{
-public:
-    Input();
-    ~Input();
-    bool begin();
-    void end();
-    void handle();
-    bool started();
-private:
-    bool _started;
+ private:
+  bool _started;
 };
 
 extern Input esp3d_input;
 
-#endif //_INPUT_H
-
+#endif  //_INPUT_H

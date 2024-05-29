@@ -102,9 +102,8 @@ void NotificationsService::BearSSLSetup(WiFiClientSecure& Notificationclient) {
 #endif  // ARDUINO_ARCH_ESP8266
 
 // TODO: put error in variable to allow better error handling
-template<typename T>
-bool NotificationsService::Wait4Answer(T& client,
-                                       const char* linetrigger,
+template <typename T>
+bool NotificationsService::Wait4Answer(T& client, const char* linetrigger,
                                        const char* expected_answer,
                                        uint32_t timeout) {
   if (client.connected()) {
@@ -184,15 +183,15 @@ bool NotificationsService::sendMSG(const char* title, const char* messagetxt) {
   if (!((strlen(title) == 0) && (strlen(messagetxt) == 0))) {
     String message = esp3d_string::expandString(messagetxt);
     if (_notificationType != ESP_HOMEASSISTANT_NOTIFICATION) {
-      // push to webui by default
-      #if defined(HTTP_FEATURE) || defined(WS_DATA_FEATURE)
-          String msg = "NOTIFICATION:";
-          msg += message;
-          websocket_terminal_server.pushMSG(msg.c_str());
-      #endif  // HTTP_FEATURE || WS_DATA_FEATURE
-      #ifdef DISPLAY_DEVICE
-          esp3d_display.setStatus(message.c_str());
-      #endif  // DISPLAY_DEVICE
+// push to webui by default
+#if defined(HTTP_FEATURE) || defined(WS_DATA_FEATURE)
+      String msg = "NOTIFICATION:";
+      msg += message;
+      websocket_terminal_server.pushMSG(msg.c_str());
+#endif  // HTTP_FEATURE || WS_DATA_FEATURE
+#ifdef DISPLAY_DEVICE
+      esp3d_display.setStatus(message.c_str());
+#endif  // DISPLAY_DEVICE
     }
     switch (_notificationType) {
       case ESP_PUSHOVER_NOTIFICATION:
@@ -504,7 +503,7 @@ bool NotificationsService::sendIFTTTMSG(const char* title,
 
 // Home Assistant
 bool NotificationsService::sendHomeAssistantMSG(const char* title,
-                                        const char* message) {
+                                                const char* message) {
   WiFiClient Notificationclient;
   (void)title;
   if (!Notificationclient.connect(_serveraddress.c_str(), _port)) {
@@ -518,21 +517,32 @@ bool NotificationsService::sendHomeAssistantMSG(const char* title,
   String path = tmp.substring(0, pos);
   String json = tmp.substring(pos + 1);
   // build post query
-  String postcmd = "POST " + path + "  HTTP/1.1\r\n"
-            "Host: " + _serveraddress.c_str() + "\r\n"
-            "Connection: close\r\n"
-            "Cache-Control: no-cache\r\n"
-            "User-Agent: ESP3D\r\n"
-            "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\n"
-            "Authorization: Bearer " + _token1 + "\r\n"
-            "Content-Type: application/json\r\n"
-            "Content-Length: " + json.length() + "\r\n"
-            "\r\n" + json;
+  String postcmd =
+      "POST " + path +
+      "  HTTP/1.1\r\n"
+      "Host: " +
+      _serveraddress.c_str() +
+      "\r\n"
+      "Connection: close\r\n"
+      "Cache-Control: no-cache\r\n"
+      "User-Agent: ESP3D\r\n"
+      "Accept: "
+      "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\n"
+      "Authorization: Bearer " +
+      _token1 +
+      "\r\n"
+      "Content-Type: application/json\r\n"
+      "Content-Length: " +
+      json.length() +
+      "\r\n"
+      "\r\n" +
+      json;
 
   // esp3d_log("Query: %s", postcmd.c_str());
   // send query
   Notificationclient.print(postcmd);
-  bool res = Wait4Answer(Notificationclient, "200 OK", "200 OK", HOMEASSISTANTTIMEOUT);
+  bool res =
+      Wait4Answer(Notificationclient, "200 OK", "200 OK", HOMEASSISTANTTIMEOUT);
   Notificationclient.stop();
   return res;
 }
@@ -555,7 +565,7 @@ bool NotificationsService::getPortFromSettings() {
 // Email#serveraddress:port or serveraddress:port
 bool NotificationsService::getServerAddressFromSettings() {
   String tmp = ESP3DSettings::readString(ESP_NOTIFICATION_SETTINGS);
-  int pos1 = tmp.indexOf('#'); // The "#" is optional
+  int pos1 = tmp.indexOf('#');  // The "#" is optional
   int pos2 = tmp.lastIndexOf(':');
   if (pos2 == -1) return false;
   _serveraddress = tmp.substring(pos1 + 1, pos2);

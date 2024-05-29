@@ -78,7 +78,7 @@ bool WebSocket_Server::pushMSG(uint num, const char *data) {
   return false;
 }
 
-bool WebSocket_Server::isConnected(){
+bool WebSocket_Server::isConnected() {
   if (_websocket_server) {
     return _websocket_server->connectedClients() > 0;
   }
@@ -268,7 +268,7 @@ size_t WebSocket_Server::writeBytes(const uint8_t *buffer, size_t size) {
     }
     // need periodic check to force to flush in case of no end
     for (uint i = 0; i < size; i++) {
-      //add a sanity check to avoid buffer overflow
+      // add a sanity check to avoid buffer overflow
       if (_TXbufferSize >= TXBUFFERSIZE) {
         flushTXbuffer();
       }

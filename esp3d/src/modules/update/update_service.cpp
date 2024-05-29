@@ -288,7 +288,8 @@ bool processingFileFunction(const char* section, const char* key,
         b = v;
       }
     }
-    // Notification type None / PushOver / Line / Email / Telegram / IFTTT / HomeAssistant
+    // Notification type None / PushOver / Line / Email / Telegram / IFTTT /
+    // HomeAssistant
     if (!done) {
       if (strcasecmp("NOTIF_TYPE", key) == 0) {
         T = 'B';

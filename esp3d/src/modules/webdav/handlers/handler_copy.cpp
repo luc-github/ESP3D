@@ -87,15 +87,15 @@ void WebdavServer::handler_copy(const char* url) {
                 }
                 // check available space
 #if WEBDAV_FEATURE == FS_ROOT
-                  uint64_t free_space = WebDavFS::freeBytes(fsTypeDestination);
+                uint64_t free_space = WebDavFS::freeBytes(fsTypeDestination);
 #else
 #if WEBDAV_FEATURE == FS_FLASH
-                  size_t free_space;
+                size_t free_space;
 #endif
 #if WEBDAV_FEATURE == FS_SD
-                  uint64_t free_space;
+                uint64_t free_space;
 #endif
-                    free_space = WebDavFS::freeBytes();
+                free_space = WebDavFS::freeBytes();
 #endif
                 if (overwrite) {
                   if (WebDavFS::exists(destination.c_str())) {

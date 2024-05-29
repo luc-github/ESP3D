@@ -589,7 +589,7 @@ void ESP3DCommands::ESP420(int cmd_params_pos, ESP3DMessage* msg) {
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
   // serial enabled
   if (esp3d_serial_service.started()) {
- tmpstr = "ON (UART";
+    tmpstr = "ON (UART";
     tmpstr += esp3d_serial_service.serialIndex();
     tmpstr += ")";
   } else {
@@ -601,7 +601,7 @@ void ESP3DCommands::ESP420(int cmd_params_pos, ESP3DMessage* msg) {
   }
 #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
         // MKS_SERIAL
-#if defined (ESP_SERIAL_BRIDGE_OUTPUT)
+#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
   // serial bridge enabled
   if (serial_bridge_service.started()) {
     tmpstr = "ON (UART";
@@ -610,11 +610,11 @@ void ESP3DCommands::ESP420(int cmd_params_pos, ESP3DMessage* msg) {
   } else {
     tmpstr = "OFF";
   }
-    if (!dispatchIdValue(json, "serial_bridge", tmpstr.c_str(), target, requestId,
+  if (!dispatchIdValue(json, "serial_bridge", tmpstr.c_str(), target, requestId,
                        false)) {
     return;
-  } 
-#endif // ESP_SERIAL_BRIDGE_OUTPUT
+  }
+#endif  // ESP_SERIAL_BRIDGE_OUTPUT
 
 #if defined(AUTHENTICATION_FEATURE)
   // authentication enabled

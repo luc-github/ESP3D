@@ -20,41 +20,41 @@
 
 #include "../include/esp3d_config.h"
 #if defined(ESP_BENCHMARK_FEATURE)
-#include "esp3d_benchmark.h"
 #include "../modules/websocket/websocket_server.h"
-void report_esp3d(const char * format, ...)
-{
-    char    buffer[64];
-    char*   temp = buffer;
-    va_list arg;
-    va_list copy;
-    va_start(arg, format);
-    va_copy(copy, arg);
-    size_t len = vsnprintf(NULL, 0, format, arg);
-    va_end(copy);
-    if (len >= sizeof(buffer)) {
-        temp = new char[len + 1];
-        if (temp == NULL) {
-            return;
-        }
+#include "esp3d_benchmark.h"
+void report_esp3d(const char* format, ...) {
+  char buffer[64];
+  char* temp = buffer;
+  va_list arg;
+  va_list copy;
+  va_start(arg, format);
+  va_copy(copy, arg);
+  size_t len = vsnprintf(NULL, 0, format, arg);
+  va_end(copy);
+  if (len >= sizeof(buffer)) {
+    temp = new char[len + 1];
+    if (temp == NULL) {
+      return;
     }
-    len = vsnprintf(temp, len + 1, format, arg);
-    String str = String("REPORT:") + String(temp);
-    websocket_terminal_server.pushMSG(str.c_str());
-    va_end(arg);
-    if (temp != buffer) {
-        delete[] temp;
-    }
+  }
+  len = vsnprintf(temp, len + 1, format, arg);
+  String str = String("REPORT:") + String(temp);
+  websocket_terminal_server.pushMSG(str.c_str());
+  va_end(arg);
+  if (temp != buffer) {
+    delete[] temp;
+  }
 }
 
-void benchMark(const char* title, uint64_t bench_start,uint64_t bench_end, size_t bench_transfered)
-{
-    float rate = 1.F * bench_transfered / (bench_end - bench_start) * 1000;
-    if (rate <1024) {
-        report_esp3d("REPORT: %s %llu bytes in %llu ms, %.2f bytes/s", title, bench_transfered, bench_end - bench_start, rate);
-    } else {
-        report_esp3d("REPORT: %s %llu bytes in %llu ms, %.2f Kbytes/s", title, bench_transfered, bench_end - bench_start, rate/1024);
-    }
-
+void benchMark(const char* title, uint64_t bench_start, uint64_t bench_end,
+               size_t bench_transfered) {
+  float rate = 1.F * bench_transfered / (bench_end - bench_start) * 1000;
+  if (rate < 1024) {
+    report_esp3d("REPORT: %s %llu bytes in %llu ms, %.2f bytes/s", title,
+                 bench_transfered, bench_end - bench_start, rate);
+  } else {
+    report_esp3d("REPORT: %s %llu bytes in %llu ms, %.2f Kbytes/s", title,
+                 bench_transfered, bench_end - bench_start, rate / 1024);
+  }
 }
-#endif //ESP_BENCHMARK_FEATURE
+#endif  // ESP_BENCHMARK_FEATURE

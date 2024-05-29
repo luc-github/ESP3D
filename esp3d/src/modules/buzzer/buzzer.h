@@ -19,40 +19,36 @@
 */
 #ifndef _BUZZER_H
 #define _BUZZER_H
-#define BEEP_FREQUENCY   3000
+#define BEEP_FREQUENCY 3000
 
 struct tone_data {
-    int frequency;
-    int duration;
-    bool processing;
-    tone_data * _next;
+  int frequency;
+  int duration;
+  bool processing;
+  tone_data* _next;
 };
 
-class BuzzerDevice
-{
-public:
-    BuzzerDevice();
-    ~BuzzerDevice();
-    void playsound(int frequency, int duration);
-    bool started()
-    {
-        return _started;
-    }
-    bool begin();
-    void end();
-    void handle();
-    tone_data * getNextTone();
-    bool isPlaying();
-    void waitWhilePlaying();
-    void beep(int count=1, int delay = 0, int frequency = BEEP_FREQUENCY);
-private:
-    tone_data * _head;
-    tone_data * _tail;
-    bool _started;
-    void purgeData();
-    bool addToneToList(int frequency, int duration);
-    void no_tone();
+class BuzzerDevice {
+ public:
+  BuzzerDevice();
+  ~BuzzerDevice();
+  void playsound(int frequency, int duration);
+  bool started() { return _started; }
+  bool begin();
+  void end();
+  void handle();
+  tone_data* getNextTone();
+  bool isPlaying();
+  void waitWhilePlaying();
+  void beep(int count = 1, int delay = 0, int frequency = BEEP_FREQUENCY);
 
+ private:
+  tone_data* _head;
+  tone_data* _tail;
+  bool _started;
+  void purgeData();
+  bool addToneToList(int frequency, int duration);
+  void no_tone();
 };
 extern BuzzerDevice esp3d_buzzer;
-#endif //_BUZZER_H
+#endif  //_BUZZER_H

@@ -20,21 +20,17 @@
 #ifndef _LUA_INTERPRETER_H
 #define _LUA_INTERPRETER_H
 
+class LuaInterpreter {
+ public:
+  LuaInterpreter();
+  ~LuaInterpreter();
+  bool started() { return _started; }
+  bool begin();
+  void end();
+  void handle();
 
-class LuaInterpreter
-{
-public:
-    LuaInterpreter();
-    ~LuaInterpreter();
-    bool started()
-    {
-        return _started;
-    }
-    bool begin();
-    void end();
-    void handle();
-private:
-    bool _started;
+ private:
+  bool _started;
 };
 extern LuaInterpreter esp3d_lua_interpreter;
-#endif //_LUA_INTERPRETER_H
+#endif  //_LUA_INTERPRETER_H

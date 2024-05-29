@@ -18,40 +18,32 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-
-
 #ifndef _CAMERA_H
 #define _CAMERA_H
 #include <WebServer.h>
 
-class Camera
-{
-public:
-    Camera();
-    ~Camera();
-    bool begin();
-    void end();
-    bool initHardware();
-    bool stopHardware();
-    bool handle_snap(WebServer * webserver, const char *path=NULL, const char* filename=NULL);
-    void handle();
-    int command(const char * param, const char * value);
-    uint8_t GetModel();
-    const char *GetModelString();
-    bool started()
-    {
-        return _started;
-    }
-    bool isinitialised()
-    {
-        return _initialised;
-    }
-private:
-    bool _initialised;
-    bool _started;
+class Camera {
+ public:
+  Camera();
+  ~Camera();
+  bool begin();
+  void end();
+  bool initHardware();
+  bool stopHardware();
+  bool handle_snap(WebServer *webserver, const char *path = NULL,
+                   const char *filename = NULL);
+  void handle();
+  int command(const char *param, const char *value);
+  uint8_t GetModel();
+  const char *GetModelString();
+  bool started() { return _started; }
+  bool isinitialised() { return _initialised; }
+
+ private:
+  bool _initialised;
+  bool _started;
 };
 
 extern Camera esp3d_camera;
 
-#endif //_CAMERA_H
-
+#endif  //_CAMERA_H

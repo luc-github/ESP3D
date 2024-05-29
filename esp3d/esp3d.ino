@@ -19,17 +19,11 @@
 */
 
 #include "src/core/esp3d.h"
-//global variable
+// global variable
 Esp3D myesp3d;
 
-//Setup
-void setup()
-{
-    myesp3d.begin();
-}
+// Setup
+void setup() { myesp3d.begin(); }
 
-//main loop
-void loop()
-{
-    myesp3d.handle();
-}
+// main loop
+void loop() { myesp3d.handle(); }

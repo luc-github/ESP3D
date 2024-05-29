@@ -42,8 +42,9 @@ void ESP3DCommands::ESP610(int cmd_params_pos, ESP3DMessage* msg) {
   String tmpstr;
   const char* cmdList[] = {"type=", "T1=", "T2=", "TS="};
   uint8_t cmdListSize = sizeof(cmdList) / sizeof(char*);
-  const char* notificationStr[] = {"NONE", "PUSHOVER", "EMAIL",
-                                   "LINE", "TELEGRAM", "IFTTT", "HOMEASSISTANT"};
+  const char* notificationStr[] = {"NONE",         "PUSHOVER", "EMAIL",
+                                   "LINE",         "TELEGRAM", "IFTTT",
+                                   "HOMEASSISTANT"};
   uint8_t notificationStrSize = sizeof(notificationStr) / sizeof(char*);
   const ESP3DSettingIndex settingIndex[] = {
       ESP_NOTIFICATION_TYPE, ESP_NOTIFICATION_TOKEN1, ESP_NOTIFICATION_TOKEN2,

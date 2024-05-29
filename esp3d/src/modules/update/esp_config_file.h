@@ -21,26 +21,27 @@
 #ifndef _ESP_CONFIG_FILE_H
 #define _ESP_CONFIG_FILE_H
 #include <Arduino.h>
-typedef std::function<bool(const char*, const char*,const char*)> TProcessingFunction;
+typedef std::function<bool(const char *, const char *, const char *)>
+    TProcessingFunction;
 
-class ESP_ConfigFile
-{
-public:
-    ESP_ConfigFile(const char * path, TProcessingFunction fn);
-    ~ESP_ConfigFile();
-    char * trimSpaces(char * line, uint8_t maxsize=0);
-    bool isComment(char * line);
-    bool isSection(char * line);
-    bool isValue(char * line);
-    char * getSectionName(char * line);
-    char * getKeyName(char * line);
-    char * getValue(char * line);
-    bool processFile();
-    bool revokeFile();
-private:
-    bool isScrambleKey(const char *key, const char * str);
-    char * _filename;
-    TProcessingFunction _pfunction;
+class ESP_ConfigFile {
+ public:
+  ESP_ConfigFile(const char *path, TProcessingFunction fn);
+  ~ESP_ConfigFile();
+  char *trimSpaces(char *line, uint8_t maxsize = 0);
+  bool isComment(char *line);
+  bool isSection(char *line);
+  bool isValue(char *line);
+  char *getSectionName(char *line);
+  char *getKeyName(char *line);
+  char *getValue(char *line);
+  bool processFile();
+  bool revokeFile();
+
+ private:
+  bool isScrambleKey(const char *key, const char *str);
+  char *_filename;
+  TProcessingFunction _pfunction;
 };
 
-#endif //_ESP_CONFIG_FILE_H
+#endif  //_ESP_CONFIG_FILE_H

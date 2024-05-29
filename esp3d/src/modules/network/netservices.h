@@ -18,26 +18,19 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-
-
 #ifndef _NET_SERVICES_H
 #define _NET_SERVICES_H
 
+class NetServices {
+ public:
+  static bool begin();
+  static void end();
+  static void handle();
+  static bool started() { return _started; }
 
-class NetServices
-{
-public:
-    static bool begin();
-    static void end();
-    static void handle();
-    static bool started()
-    {
-        return _started;
-    }
-private:
-    static bool _started;
-    static bool _restart;
+ private:
+  static bool _started;
+  static bool _restart;
 };
 
-#endif //_NET_SERVICES_H
-
+#endif  //_NET_SERVICES_H

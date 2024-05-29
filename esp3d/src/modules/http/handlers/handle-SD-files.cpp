@@ -27,9 +27,9 @@
 #if defined(ARDUINO_ARCH_ESP8266)
 #include <ESP8266WebServer.h>
 #endif  // ARDUINO_ARCH_ESP8266
+#include "../../../core/esp3d_string.h"
 #include "../../authentication/authentication_service.h"
 #include "../../filesystem/esp_sd.h"
-#include "../../../core/esp3d_string.h"
 
 // SD
 // SD files list and file commands
@@ -239,9 +239,9 @@ void HTTP_Server::handleSDFileList() {
     buffer2send += "\"occupation\":\"0\",";
   }
   buffer2send += "\"status\":\"" + status + "\",";
-  buffer2send += "\"total\":\"" ;
-  buffer2send += esp3d_string::formatBytes(ESP_SD::totalBytes()) ;
-  buffer2send +=  "\",";
+  buffer2send += "\"total\":\"";
+  buffer2send += esp3d_string::formatBytes(ESP_SD::totalBytes());
+  buffer2send += "\",";
   buffer2send += "\"used\":\"";
   buffer2send += esp3d_string::formatBytes(ESP_SD::usedBytes());
   buffer2send += "\"}";

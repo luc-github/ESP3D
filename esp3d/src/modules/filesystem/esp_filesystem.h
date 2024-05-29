@@ -24,7 +24,6 @@
 
 #include "../../include/esp3d_config.h"
 
-
 #define ESP_FLASH_FS_HEADER "/FS"
 
 #define ESP_MAX_OPENHANDLE 4

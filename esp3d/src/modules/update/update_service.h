@@ -21,21 +21,18 @@
 #ifndef _UPDATE_SERVICES_H
 #define _UPDATE_SERVICES_H
 
+class UpdateService {
+ public:
+  UpdateService();
+  ~UpdateService();
+  void handle();
+  bool begin();
+  void end();
 
-class UpdateService
-{
-public:
-    UpdateService();
-    ~UpdateService();
-    void handle();
-    bool begin();
-    void end();
-
-private:
-    bool flash(const char * filename, int type);
+ private:
+  bool flash(const char* filename, int type);
 };
 
 extern UpdateService update_service;
 
-#endif //_UPDATE_SERVICES_H
-
+#endif  //_UPDATE_SERVICES_H

@@ -27,7 +27,6 @@ littlefs_esp8266_filesystem.cpp - ESP3D littlefs filesystem configuration class
 
 #include "../esp_filesystem.h"
 
-
 Dir tDir_handle[ESP_MAX_OPENHANDLE];
 extern File tFile_handle[ESP_MAX_OPENHANDLE];
 

@@ -250,7 +250,8 @@ void TimeService::handle() {
         isSet = true;
 #if COMMUNICATION_PROTOCOL != MKS_SERIAL
 #if defined(ESP_GOT_DATE_TIME_HOOK) && defined(GCODE_HOST_FEATURE)
-        String dateMsg = esp3d_string::expandString(ESP_GOT_DATE_TIME_HOOK, true);
+        String dateMsg =
+            esp3d_string::expandString(ESP_GOT_DATE_TIME_HOOK, true);
         esp3d_gcode_host.processScript(dateMsg.c_str());
 #endif  // #if defined (ESP_GOT_IP_HOOK) && defined (GCODE_HOST_FEATURE)
 #endif  // #if COMMUNICATION_PROTOCOL == MKS_SERIAL

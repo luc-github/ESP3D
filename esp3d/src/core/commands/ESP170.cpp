@@ -63,7 +63,7 @@ void ESP3DCommands::ESP170(int cmd_params_pos, ESP3DMessage* msg) {
     "light",
 #endif  // CAM_LED_PIN
   };
-  bool hasError = false; 
+  bool hasError = false;
   String ok_msg;
   String error_msg;
   ESP3DClientType target = msg->origin;
@@ -125,8 +125,9 @@ void ESP3DCommands::ESP170(int cmd_params_pos, ESP3DMessage* msg) {
         }
 
         // contrast
-        if (!dispatchIdValue(json, "contrast", String(s->status.contrast).c_str(),
-                             target, requestId)) {
+        if (!dispatchIdValue(json, "contrast",
+                             String(s->status.contrast).c_str(), target,
+                             requestId)) {
           return;
         }
 
@@ -151,14 +152,15 @@ void ESP3DCommands::ESP170(int cmd_params_pos, ESP3DMessage* msg) {
           }
 
           // wb_mode
-          if (!dispatchIdValue(json, "wb_mode", String(s->status.wb_mode).c_str(),
-                               target, requestId)) {
+          if (!dispatchIdValue(json, "wb_mode",
+                               String(s->status.wb_mode).c_str(), target,
+                               requestId)) {
             return;
           }
 
           // awb
-          if (!dispatchIdValue(json, "awb", String(s->status.awb).c_str(), target,
-                               requestId)) {
+          if (!dispatchIdValue(json, "awb", String(s->status.awb).c_str(),
+                               target, requestId)) {
             return;
           }
 
@@ -170,8 +172,8 @@ void ESP3DCommands::ESP170(int cmd_params_pos, ESP3DMessage* msg) {
           }
 
           // aec
-          if (!dispatchIdValue(json, "aec", String(s->status.aec).c_str(), target,
-                               requestId)) {
+          if (!dispatchIdValue(json, "aec", String(s->status.aec).c_str(),
+                               target, requestId)) {
             return;
           }
           // aec2
@@ -192,8 +194,8 @@ void ESP3DCommands::ESP170(int cmd_params_pos, ESP3DMessage* msg) {
             return;
           }
           // agc
-          if (!dispatchIdValue(json, "agc", String(s->status.agc).c_str(), target,
-                               requestId)) {
+          if (!dispatchIdValue(json, "agc", String(s->status.agc).c_str(),
+                               target, requestId)) {
             return;
           }
           // agc_gain
@@ -209,18 +211,19 @@ void ESP3DCommands::ESP170(int cmd_params_pos, ESP3DMessage* msg) {
             return;
           }
           // bpc
-          if (!dispatchIdValue(json, "bpc", String(s->status.bpc).c_str(), target,
-                               requestId)) {
+          if (!dispatchIdValue(json, "bpc", String(s->status.bpc).c_str(),
+                               target, requestId)) {
             return;
           }
           // wpc
-          if (!dispatchIdValue(json, "wpc", String(s->status.wpc).c_str(), target,
-                               requestId)) {
+          if (!dispatchIdValue(json, "wpc", String(s->status.wpc).c_str(),
+                               target, requestId)) {
             return;
           }
           // raw_gma
-          if (!dispatchIdValue(json, "raw_gma", String(s->status.raw_gma).c_str(),
-                               target, requestId)) {
+          if (!dispatchIdValue(json, "raw_gma",
+                               String(s->status.raw_gma).c_str(), target,
+                               requestId)) {
             return;
           }
           // lenc
@@ -234,13 +237,14 @@ void ESP3DCommands::ESP170(int cmd_params_pos, ESP3DMessage* msg) {
             return;
           }
           // hmirror
-          if (!dispatchIdValue(json, "hmirror", String(s->status.hmirror).c_str(),
-                               target, requestId)) {
+          if (!dispatchIdValue(json, "hmirror",
+                               String(s->status.hmirror).c_str(), target,
+                               requestId)) {
             return;
           }
           // dcw
-          if (!dispatchIdValue(json, "dcw", String(s->status.dcw).c_str(), target,
-                               requestId)) {
+          if (!dispatchIdValue(json, "dcw", String(s->status.dcw).c_str(),
+                               target, requestId)) {
             return;
           }
           // colorbar

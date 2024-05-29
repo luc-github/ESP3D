@@ -23,8 +23,9 @@
 
 #if defined(ESP3DLIB_ENV) && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
 #include <Arduino.h>
-#include "../../core/esp3d_message.h"
+
 #include "../../core/esp3d_commands.h"
+#include "../../core/esp3d_message.h"
 #include "serial2socket.h"
 
 Serial_2_Socket Serial2Socket;
@@ -167,8 +168,8 @@ void Serial_2_Socket::handle_flush() {
 void Serial_2_Socket::flush(void) {
   if (_TXbufferSize > 0 && _started && !_paused) {
     ESP3DMessage *msg = ESP3DMessageManager::newMsg(
-        ESP3DClientType::socket_serial,  ESP3DClientType::all_clients,
-        _TXbuffer, _TXbufferSize, _auth);
+        ESP3DClientType::socket_serial, ESP3DClientType::all_clients, _TXbuffer,
+        _TXbufferSize, _auth);
     // dispatch command
     if (msg) {
       // process command
@@ -186,7 +187,7 @@ void Serial_2_Socket::flush(void) {
 
 bool Serial_2_Socket::dispatch(ESP3DMessage *message) {
   if (!message || !_started) {
-    esp3d_log_e("Serial2Socket: no message or not started"); 
+    esp3d_log_e("Serial2Socket: no message or not started");
     return false;
   }
   if (message->size > 0 && message->data) {
