@@ -137,7 +137,7 @@ void ESP3DCommands::ESP220(int cmd_params_pos, ESP3DMessage* msg) {
     }
     hasPin = true;
 #endif  // PIN_RESET_FEATURE
-#ifdef SENSOR_DEVICE
+#if defined(SENSOR_DEVICE) && defined(ESP3D_SENSOR_PIN ) 
     //   SENSOR
     tmpstr = String(ESP3D_SENSOR_PIN);
     if (!dispatchIdValue(json, " SENSOR", tmpstr.c_str(), target, requestId,
