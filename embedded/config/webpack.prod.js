@@ -1,41 +1,41 @@
-const path = require('path');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const HtmlMinimizerPlugin = require('html-minimizer-webpack-plugin');
-const HtmlInlineScriptPlugin = require('html-inline-script-webpack-plugin');
+const path = require("path");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const HtmlMinimizerPlugin = require("html-minimizer-webpack-plugin");
+const HtmlInlineScriptPlugin = require("html-inline-script-webpack-plugin");
 const HTMLInlineCSSWebpackPlugin =
-    require('html-inline-css-webpack-plugin').default;
-const Compression = require('compression-webpack-plugin');
+    require("html-inline-css-webpack-plugin").default;
+const Compression = require("compression-webpack-plugin");
 
 module.exports = {
-    mode: 'production', // this trigger webpack out-of-box prod optimizations
-    entry: path.resolve(__dirname, '../src/index.js'),
+    mode: "production", // this trigger webpack out-of-box prod optimizations
+    entry: path.resolve(__dirname, "../src/index.js"),
     output: {
         filename: `[name].[hash].js`, // [hash] is useful for cache busting!
-        path: path.resolve(__dirname, '../dist'),
+        path: path.resolve(__dirname, "../dist"),
     },
     module: {
         rules: [
             {
                 test: /\.css$/,
-                use: [MiniCssExtractPlugin.loader, 'css-loader'],
+                use: [MiniCssExtractPlugin.loader, "css-loader"],
             },
             {
                 test: /\.js$/,
                 exclude: /node_modules/,
                 use: [
                     {
-                        loader: 'babel-loader',
+                        loader: "babel-loader",
                         options: {
                             presets: [
                                 [
-                                    '@babel/preset-env',
+                                    "@babel/preset-env",
                                     {
-                                        useBuiltIns: 'usage',
+                                        useBuiltIns: "usage",
                                         debug: false,
                                         corejs: 3,
-                                        targets: { chrome: '88' },
+                                        targets: { chrome: "88" },
                                     },
                                 ],
                             ],
@@ -49,13 +49,13 @@ module.exports = {
         // always deletes the dist folder first in each build run.
         new CleanWebpackPlugin(),
         new MiniCssExtractPlugin({
-            filename: '[name].css',
-            chunkFilename: '[id].css',
+            filename: "[name].css",
+            chunkFilename: "[id].css",
         }),
         new HtmlWebpackPlugin({
-            template: path.join(__dirname, '../src/index.html'),
-            inlineSource: '.(js|css)$',
-            inject: 'body',
+            template: path.join(__dirname, "../src/index.html"),
+            inlineSource: ".(js|css)$",
+            inject: "body",
         }),
 
         new HtmlInlineScriptPlugin({
@@ -65,10 +65,10 @@ module.exports = {
         new HTMLInlineCSSWebpackPlugin(),
         new Compression({
             test: /\.(html)$/,
-            filename: '[path][base].gz',
-            algorithm: 'gzip',
+            filename: "[path][base].gz",
+            algorithm: "gzip",
             exclude: /.map$/,
-            deleteOriginalAssets: 'keep-source-map',
+            deleteOriginalAssets: "keep-source-map",
         }),
     ],
     optimization: {
@@ -81,7 +81,7 @@ module.exports = {
                     minifyJS: true,
                 },
                 minify: (data, minimizerOptions) => {
-                    const htmlMinifier = require('html-minifier-terser');
+                    const htmlMinifier = require("html-minifier-terser");
                     const [[filename, input]] = Object.entries(data);
 
                     return htmlMinifier.minify(input, minimizerOptions);
@@ -89,5 +89,5 @@ module.exports = {
             }),
         ],
     },
-    devtool: 'source-map', // supposedly the ideal type without bloating bundle size
+    devtool: "source-map", // supposedly the ideal type without bloating bundle size
 };

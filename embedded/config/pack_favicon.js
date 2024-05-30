@@ -1,7 +1,7 @@
-const path = require('path');
-const { createReadStream, createWriteStream } = require('fs');
-const { createGzip } = require('zlib');
-const faviconPath = path.normalize(__dirname + '/../assets/favicon.ico');
+const path = require("path");
+const { createReadStream, createWriteStream } = require("fs");
+const { createGzip } = require("zlib");
+const faviconPath = path.normalize(__dirname + "/../assets/favicon.ico");
 
 // Create a gzip function for reusable purpose
 const compressFile = (filePath) => {
@@ -9,7 +9,7 @@ const compressFile = (filePath) => {
     stream
         .pipe(createGzip())
         .pipe(createWriteStream(`${filePath}.gz`))
-        .on('finish', () =>
+        .on("finish", () =>
             console.log(`Successfully compressed the file at ${filePath}`)
         );
 };
