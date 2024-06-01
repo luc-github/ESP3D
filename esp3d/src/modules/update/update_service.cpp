@@ -288,8 +288,7 @@ bool processingFileFunction(const char* section, const char* key,
         b = v;
       }
     }
-    // Notification type None / PushOver / Line / Email / Telegram / IFTTT /
-    // HomeAssistant
+    // Notification type None / PushOver / Line / Email / Telegram / IFTTT / HomeAssistant
     if (!done) {
       if (strcasecmp("NOTIF_TYPE", key) == 0) {
         T = 'B';
@@ -309,7 +308,9 @@ bool processingFileFunction(const char* section, const char* key,
           b = ESP_IFTTT_NOTIFICATION;
         } else if (strcasecmp("HOMEASSISTANT", value) == 0) {
           b = ESP_HOMEASSISTANT_NOTIFICATION;
-        } else {
+        } else if (strcasecmp("HOMEASSISTANT", value) == 0) {
+          b = ESP_WHATSAPP_NOTIFICATION;
+        } else {{
           P = -1;  // invalide value
         }
       }
