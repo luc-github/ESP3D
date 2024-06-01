@@ -173,7 +173,7 @@ const char* NotificationsService::getTypeString() {
     case ESP_HOMEASSISTANT_NOTIFICATION:
       return "HomeAssistant";
     case ESP_WHATSAPP_NOTIFICATION:
-      return "HomeAssistant";
+      return "WhatsApp";
     default:
       break;
   }
