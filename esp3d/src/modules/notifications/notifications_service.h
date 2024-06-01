@@ -57,6 +57,7 @@ class NotificationsService {
   bool sendTelegramMSG(const char* title, const char* message);
   bool sendIFTTTMSG(const char* title, const char* message);
   bool sendHomeAssistantMSG(const char* title, const char* message);
+  bool sendWhatsAppMSG(const char* title, const char* message);
   bool getPortFromSettings();
   bool getServerAddressFromSettings();
   bool getEmailFromSettings();

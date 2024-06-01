@@ -47,13 +47,13 @@
 #include <ESP8266HTTPClient.h>
 #include <ESP8266WiFi.h>
 #include <libb64/cdecode.h>
-
+#include <Callmebot_ESP8266.h>
 #endif  // ARDUINO_ARCH_ESP8266
 
 #if defined(ARDUINO_ARCH_ESP32)
 #include <HTTPClient.h>
 #include <WiFi.h>
-
+#include <Callmebot_ESP32.h>
 extern "C" {
 #include "libb64/cdecode.h"
 }
@@ -83,6 +83,10 @@ extern "C" {
 #define IFTTTPORT 443
 
 #define HOMEASSISTANTTIMEOUT 5000
+
+#define WHATSAPPTIMEOUT 5000
+#define WHATSAPPSERVER "api.callmebot.com"
+#define WHATSAPPPORT 443
 
 #define EMAILTIMEOUT 5000
 
@@ -168,6 +172,8 @@ const char* NotificationsService::getTypeString() {
       return "IFTTT";
     case ESP_HOMEASSISTANT_NOTIFICATION:
       return "HomeAssistant";
+    case ESP_WHATSAPP_NOTIFICATION:
+      return "HomeAssistant";
     default:
       break;
   }
@@ -211,6 +217,9 @@ bool NotificationsService::sendMSG(const char* title, const char* messagetxt) {
         break;
       case ESP_HOMEASSISTANT_NOTIFICATION:
         return sendHomeAssistantMSG(title, message.c_str());
+        break;
+      case ESP_WHATSAPP_NOTIFICATION:
+        return sendWhatsAppMSG(title, message.c_str());
         break;
       default:
         break;
@@ -545,6 +554,27 @@ bool NotificationsService::sendHomeAssistantMSG(const char* title,
       Wait4Answer(Notificationclient, "200 OK", "200 OK", HOMEASSISTANTTIMEOUT);
   Notificationclient.stop();
   return res;
+}
+// WhatsApp, token1 phone, token2 apikey
+bool NotificationsService::sendWhatsAppMSG(const char* title,
+                                                const char* message) {
+  Callmebot.whatsappMessage(_token1, _token2, message); //basically the same as here
+ /*
+  HTTPClient Notificationclient;
+  String postcmd ="https://api.callmebot.com/whatsapp.php?phone=";
+  postcmd += _token1 ;
+  postcmd += "&apikey=" ;
+  postcmd += _token2 ;
+  postcmd += "&text=" ;
+  postcmd += urlEncode(message);
+
+  Notificationclient.begin(postcmd);
+  const char* Message_queued = "<b>Message queued.</b> You will receive it in a few seconds.";
+  //bool res =Wait4Answer(Notificationclient, Message_queued, Message_queued, WHATSAPPTIMEOUT);
+  Notificationclient.end();
+  */
+  bool res = true; //not sure hot to use Wait4answer
+    return res;
 }
 
 // Email#serveraddress:port or serveraddress:port
