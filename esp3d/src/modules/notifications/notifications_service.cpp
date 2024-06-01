@@ -47,12 +47,14 @@
 #include <ESP8266HTTPClient.h>
 #include <ESP8266WiFi.h>
 #include <libb64/cdecode.h>
+#include <Callmebot_ESP8266.h>
 
 #endif  // ARDUINO_ARCH_ESP8266
 
 #if defined(ARDUINO_ARCH_ESP32)
 #include <HTTPClient.h>
 #include <WiFi.h>
+#include <Callmebot_ESP32.h>
 
 extern "C" {
 #include "libb64/cdecode.h"
@@ -84,6 +86,9 @@ extern "C" {
 
 #define HOMEASSISTANTTIMEOUT 5000
 
+#define WHATSAPPTIMEOUT 5000
+#define WHATSAPPSERVER "http://api.callmebot.com"
+
 #define EMAILTIMEOUT 5000
 
 NotificationsService notificationsservice;
@@ -102,8 +107,9 @@ void NotificationsService::BearSSLSetup(WiFiClientSecure& Notificationclient) {
 #endif  // ARDUINO_ARCH_ESP8266
 
 // TODO: put error in variable to allow better error handling
-template <typename T>
-bool NotificationsService::Wait4Answer(T& client, const char* linetrigger,
+template<typename T>
+bool NotificationsService::Wait4Answer(T& client,
+                                       const char* linetrigger,
                                        const char* expected_answer,
                                        uint32_t timeout) {
   if (client.connected()) {
@@ -168,6 +174,8 @@ const char* NotificationsService::getTypeString() {
       return "IFTTT";
     case ESP_HOMEASSISTANT_NOTIFICATION:
       return "HomeAssistant";
+    case ESP_WHATSAPP_NOTIFICATION:
+      return "WhatsApp";
     default:
       break;
   }
@@ -183,15 +191,15 @@ bool NotificationsService::sendMSG(const char* title, const char* messagetxt) {
   if (!((strlen(title) == 0) && (strlen(messagetxt) == 0))) {
     String message = esp3d_string::expandString(messagetxt);
     if (_notificationType != ESP_HOMEASSISTANT_NOTIFICATION) {
-// push to webui by default
-#if defined(HTTP_FEATURE) || defined(WS_DATA_FEATURE)
-      String msg = "NOTIFICATION:";
-      msg += message;
-      websocket_terminal_server.pushMSG(msg.c_str());
-#endif  // HTTP_FEATURE || WS_DATA_FEATURE
-#ifdef DISPLAY_DEVICE
-      esp3d_display.setStatus(message.c_str());
-#endif  // DISPLAY_DEVICE
+      // push to webui by default
+      #if defined(HTTP_FEATURE) || defined(WS_DATA_FEATURE)
+          String msg = "NOTIFICATION:";
+          msg += message;
+          websocket_terminal_server.pushMSG(msg.c_str());
+      #endif  // HTTP_FEATURE || WS_DATA_FEATURE
+      #ifdef DISPLAY_DEVICE
+          esp3d_display.setStatus(message.c_str());
+      #endif  // DISPLAY_DEVICE
     }
     switch (_notificationType) {
       case ESP_PUSHOVER_NOTIFICATION:
@@ -211,6 +219,9 @@ bool NotificationsService::sendMSG(const char* title, const char* messagetxt) {
         break;
       case ESP_HOMEASSISTANT_NOTIFICATION:
         return sendHomeAssistantMSG(title, message.c_str());
+        break;
+      case ESP_WHATSAPP_NOTIFICATION:
+        return sendWhatsAppMSG(title, message.c_str());
         break;
       default:
         break;
@@ -314,6 +325,8 @@ bool NotificationsService::sendTelegramMSG(const char* title,
   return res;
 }
 
+
+
 // TODO: put error in variable to allow better error handling
 bool NotificationsService::sendEmailMSG(const char* title,
                                         const char* message) {
@@ -410,6 +423,8 @@ bool NotificationsService::sendEmailMSG(const char* title,
   Notificationclient.stop();
   return true;
 }
+
+//LINE
 bool NotificationsService::sendLineMSG(const char* title, const char* message) {
   String data;
   String postcmd;
@@ -450,6 +465,26 @@ bool NotificationsService::sendLineMSG(const char* title, const char* message) {
   Notificationclient.stop();
   return res;
 }
+
+//Whatsapp adaptando el codigo de line _token1 phone, _token2 apikey
+bool NotificationsService::sendWhatsAppMSG(const char* title, const char* message) {
+  bool res ;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+  WiFiClientSecure Notificationclient;
+#pragma GCC diagnostic pop
+  Notificationclient.setInsecure();
+#if defined(ARDUINO_ARCH_ESP8266)
+  BearSSLSetup(Notificationclient);
+#endif  // ARDUINO_ARCH_ESP8266
+
+  Callmebot.whatsappMessage(_token1 , _token2, message);
+  const char* expected_answer = "<b>Message queued.</b> You will receive it in a few seconds.";
+  //res = Wait4Answer(Notificationclient, linetrigger, expected_answer, WHATSAPPTIMEOUT);
+  res =true;
+  return res;
+}
+//fin WhatsApp
 
 // IFTTT
 bool NotificationsService::sendIFTTTMSG(const char* title,
@@ -503,7 +538,7 @@ bool NotificationsService::sendIFTTTMSG(const char* title,
 
 // Home Assistant
 bool NotificationsService::sendHomeAssistantMSG(const char* title,
-                                                const char* message) {
+                                        const char* message) {
   WiFiClient Notificationclient;
   (void)title;
   if (!Notificationclient.connect(_serveraddress.c_str(), _port)) {
@@ -517,35 +552,25 @@ bool NotificationsService::sendHomeAssistantMSG(const char* title,
   String path = tmp.substring(0, pos);
   String json = tmp.substring(pos + 1);
   // build post query
-  String postcmd =
-      "POST " + path +
-      "  HTTP/1.1\r\n"
-      "Host: " +
-      _serveraddress.c_str() +
-      "\r\n"
-      "Connection: close\r\n"
-      "Cache-Control: no-cache\r\n"
-      "User-Agent: ESP3D\r\n"
-      "Accept: "
-      "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\n"
-      "Authorization: Bearer " +
-      _token1 +
-      "\r\n"
-      "Content-Type: application/json\r\n"
-      "Content-Length: " +
-      json.length() +
-      "\r\n"
-      "\r\n" +
-      json;
+  String postcmd = "POST " + path + "  HTTP/1.1\r\n"
+            "Host: " + _serveraddress.c_str() + "\r\n"
+            "Connection: close\r\n"
+            "Cache-Control: no-cache\r\n"
+            "User-Agent: ESP3D\r\n"
+            "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\n"
+            "Authorization: Bearer " + _token1 + "\r\n"
+            "Content-Type: application/json\r\n"
+            "Content-Length: " + json.length() + "\r\n"
+            "\r\n" + json;
 
   // esp3d_log("Query: %s", postcmd.c_str());
   // send query
   Notificationclient.print(postcmd);
-  bool res =
-      Wait4Answer(Notificationclient, "200 OK", "200 OK", HOMEASSISTANTTIMEOUT);
+  bool res = Wait4Answer(Notificationclient, "200 OK", "200 OK", HOMEASSISTANTTIMEOUT);
   Notificationclient.stop();
   return res;
 }
+
 
 // Email#serveraddress:port or serveraddress:port
 bool NotificationsService::getPortFromSettings() {
@@ -565,7 +590,7 @@ bool NotificationsService::getPortFromSettings() {
 // Email#serveraddress:port or serveraddress:port
 bool NotificationsService::getServerAddressFromSettings() {
   String tmp = ESP3DSettings::readString(ESP_NOTIFICATION_SETTINGS);
-  int pos1 = tmp.indexOf('#');  // The "#" is optional
+  int pos1 = tmp.indexOf('#'); // The "#" is optional
   int pos2 = tmp.lastIndexOf(':');
   if (pos2 == -1) return false;
   _serveraddress = tmp.substring(pos1 + 1, pos2);
@@ -660,6 +685,10 @@ bool NotificationsService::begin() {
           !getServerAddressFromSettings()) {
         return false;
       }
+      break;
+    case ESP_WHATSAPP_NOTIFICATION:
+      _token1 = ESP3DSettings::readString(ESP_NOTIFICATION_TOKEN1);
+      _token2 = ESP3DSettings::readString(ESP_NOTIFICATION_TOKEN2);
       break;
     default:
       return false;
