@@ -308,7 +308,7 @@ bool processingFileFunction(const char* section, const char* key,
           b = ESP_IFTTT_NOTIFICATION;
         } else if (strcasecmp("HOMEASSISTANT", value) == 0) {
           b = ESP_HOMEASSISTANT_NOTIFICATION;
-        } else if (strcasecmp("HOMEASSISTANT", value) == 0) {
+        } else if (strcasecmp("WhatsApp", value) == 0) {
           b = ESP_WHATSAPP_NOTIFICATION;
         } else {{
           P = -1;  // invalide value
