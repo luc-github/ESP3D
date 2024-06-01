@@ -57,10 +57,11 @@ class NotificationsService {
   bool sendTelegramMSG(const char* title, const char* message);
   bool sendIFTTTMSG(const char* title, const char* message);
   bool sendHomeAssistantMSG(const char* title, const char* message);
+  bool sendWhatsAppMSG(const char* title, const char* message);
   bool getPortFromSettings();
   bool getServerAddressFromSettings();
   bool getEmailFromSettings();
-  template <typename T>
+  template<typename T>
   bool Wait4Answer(T& client, const char* linetrigger,
                    const char* expected_answer, uint32_t timeout);
 };

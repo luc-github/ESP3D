@@ -865,8 +865,7 @@ bool ESP3DSettings::isValidIntegerSetting(uint32_t value,
         }
       }
       break;
-#endif  // #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
-        // MKS_SERIAL
+#endif //#if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
     case ESP_WEBDAV_PORT:
     case ESP_HTTP_PORT:
     case ESP_TELNET_PORT:
@@ -936,7 +935,7 @@ bool ESP3DSettings::isValidByteSetting(uint8_t value,
     case ESP_NOTIFICATION_TYPE:
       if (value == ESP_NO_NOTIFICATION || value == ESP_PUSHOVER_NOTIFICATION ||
           value == ESP_EMAIL_NOTIFICATION || value == ESP_LINE_NOTIFICATION ||
-          value == ESP_TELEGRAM_NOTIFICATION ||
+          value == ESP_TELEGRAM_NOTIFICATION || value == ESP_WHATSAPP_NOTIFICATION ||
           value == ESP_IFTTT_NOTIFICATION ||
           value == ESP_HOMEASSISTANT_NOTIFICATION) {
         return true;
