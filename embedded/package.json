@@ -5,7 +5,7 @@
     "del": "latest",
     "deprecated": "latest",
     "fs": "latest",
-    "gulp": "^4.0.0",
+    "gulp": "^5.0.0",
     "gulp-bytediff": "latest",
     "gulp-cdnizer": "latest",
     "gulp-clean-css": "latest",
