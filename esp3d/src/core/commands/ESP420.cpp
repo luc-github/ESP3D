@@ -155,9 +155,24 @@ void ESP3DCommands::ESP420(int cmd_params_pos, ESP3DMessage* msg) {
     return;
   }
 
+  // FW architecture
+  tmpstr = ESP3DSettings::TargetBoard();
+  if (!dispatchIdValue(json, "FW arch", tmpstr.c_str(), target, requestId,
+                       false)) {
+    return;
+  }
+
   // SDK Version
   tmpstr = ESP.getSdkVersion();
+
   if (!dispatchIdValue(json, "SDK", tmpstr.c_str(), target, requestId, false)) {
+    return;
+  }
+
+  // Arduino Version
+  tmpstr = ESP3DHal::arduinoVersion();
+  if (!dispatchIdValue(json, "Arduino", tmpstr.c_str(), target, requestId,
+                       false)) {
     return;
   }
 
@@ -724,13 +739,6 @@ void ESP3DCommands::ESP420(int cmd_params_pos, ESP3DMessage* msg) {
   tmpstr += FW_VERSION;
 
   if (!dispatchIdValue(json, "FW ver", tmpstr.c_str(), target, requestId,
-                       false)) {
-    return;
-  }
-
-  // FW architecture
-  tmpstr = ESP3DSettings::TargetBoard();
-  if (!dispatchIdValue(json, "FW arch", tmpstr.c_str(), target, requestId,
                        false)) {
     return;
   }

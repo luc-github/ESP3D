@@ -48,6 +48,7 @@ class ESP3DHal {
   static bool analogWrite(uint8_t pin, uint value);
   static void analogWriteFreq(uint32_t freq);
   static void analogRange(uint32_t range);
+  static const char * arduinoVersion();
 #if defined(ARDUINO_ARCH_ESP32)
   static TaskHandle_t xHandle;
 #endif  // ARDUINO_ARCH_ESP32

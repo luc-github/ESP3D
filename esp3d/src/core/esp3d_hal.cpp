@@ -65,6 +65,26 @@ int ESP3DHal::analogRead(uint8_t pin) {
 #endif
 }
 
+const char* ESP3DHal::arduinoVersion() {
+  static String version = "";
+#ifdef ARDUINO_ARCH_ESP32
+  version = ESP_ARDUINO_VERSION_MAJOR;
+  version += ".";
+  version += ESP_ARDUINO_VERSION_MINOR;
+  version += ".";
+  version += ESP_ARDUINO_VERSION_PATCH;
+#endif  // ARDUINO_ARCH_ESP32
+
+#ifdef ARDUINO_ARCH_ESP8266
+#ifdef ARDUINO_ESP8266_RELEASE
+  version = ARDUINO_ESP8266_RELEASE;
+#else
+  version = ESP.getCoreVersion();
+#endif  // ARDUINO_ESP8266_RELEASE
+#endif  // ARDUINO_ARCH_ESP8266
+  return version.c_str();
+}
+
 bool ESP3DHal::analogWrite(uint8_t pin, uint value) {
   if (value > (_analogRange - 1)) {
     return false;
