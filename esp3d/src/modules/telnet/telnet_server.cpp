@@ -38,10 +38,10 @@ Telnet_Server telnet_server;
 
 #if defined(AUTHENTICATION_FEATURE)
 #define TELNET_WELCOME_MESSAGE         \
-  ";Welcome to ESP3D-TFT V" FW_VERSION \
+  ";Welcome to ESP3D V" FW_VERSION \
   ", please enter a command with credentials.\r\n"
 #else
-#define TELNET_WELCOME_MESSAGE ";Welcome to ESP3D-TFT V" FW_VERSION ".\r\n"
+#define TELNET_WELCOME_MESSAGE ";Welcome to ESP3D V" FW_VERSION ".\r\n"
 #endif  // AUTHENTICATION_FEATURE
 
 void Telnet_Server::closeClient() {
@@ -62,9 +62,11 @@ bool Telnet_Server::isConnected() {
         _telnetClients.stop();
       }
       _telnetClients = _telnetserver->accept();
+  #ifndef DISABLE_TELNET_WELCOME_MESSAGE
       // new client
       writeBytes((uint8_t *)TELNET_WELCOME_MESSAGE,
                  strlen(TELNET_WELCOME_MESSAGE));
+  #endif  // DISABLE_TELNET_WELCOME_MESSAGE
       initAuthentication();
     }
   }

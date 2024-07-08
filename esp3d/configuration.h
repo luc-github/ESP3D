@@ -169,6 +169,10 @@
  */
 #define TELNET_FEATURE
 
+/* Disable telnet welcome message
+ */
+#define DISABLE_TELNET_WELCOME_MESSAGE
+
 /* Use Websocket server
  * Enable websocket communications
  */
