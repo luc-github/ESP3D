@@ -1,7 +1,8 @@
 # ESP3D 3.0 alpha stage
 
 <img src="https://github.com/luc-github/ESP3D/blob/3.0/images/Screen/logo2.png">
-<H3>Do not use it for production, in alpha stage for 3D printer/Sand-Table and CNC - breaking changes can happen anytime - just be aware of that, but feel free to test it and feedback</H3>
+<H3>Do not use it for production, in alpha stage - breaking changes can happen anytime - just be aware of that, but feel free to test it and feedback</H3>
+Firmware for ESP8266/ESP8285 and ESP32 (original, pico, S2, S3, C3) used with 3D printer/Sand-Table and CNC 
 
 To compile ESP3D you need to edit the configuration.h according your needs.   
 You can also generate it, using [![Development  Version](https://img.shields.io/badge/ESP3D-Configurator-red?style=for-the-badge&logo=preact)](https://luc-github.github.io/) which simplify a lot this step.   
