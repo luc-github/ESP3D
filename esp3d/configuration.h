@@ -576,7 +576,7 @@
 /* Enable lua interpreter
  * Allow to use lua interpreter on ESP3D
  */
-// #define ESP_LUA_INTERPRETER_FEATURE
+#define ESP_LUA_INTERPRETER_FEATURE
 
 /* Hook when got IP
  * Commands to run on event

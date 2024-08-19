@@ -50,9 +50,6 @@
 #ifdef GCODE_HOST_FEATURE
 #include "../modules/gcode_host/gcode_host.h"
 #endif  // GCODE_HOST_FEATURE
-#ifdef ESP_LUA_INTERPRETER_FEATURE
-#include "../modules/lua_interpreter/lua_interpreter_service.h"
-#endif  // #ifdef
 #ifdef SD_UPDATE_FEATURE
 #include "../modules/update/update_service.h"
 #endif  // SD_UPDATE_FEATURE
