@@ -24,6 +24,8 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
+#include "../../core/esp3d_message.h"
+#include "../../core/esp3d_messageFifo.h"
 
 class LuaInterpreter {
 public:
@@ -39,12 +41,14 @@ public:
     bool isScriptRunning() const;
     bool isScriptPaused() const;
     const char* getLastError() const;
+    bool dispatch(ESP3DMessage* message);
 
 private:
     EspLuaEngine _luaEngine;
     TaskHandle_t _scriptTask;
     QueueHandle_t _scriptQueue;
     SemaphoreHandle_t _pauseSemaphore;
+    ESP3DMessageFIFO _messageFIFO;
     
     char _currentScriptName[64];
     unsigned long _startTime;
@@ -68,6 +72,8 @@ private:
     static int l_digitalRead(lua_State* L);
     static int l_analogWrite(lua_State* L);
     static int l_analogRead(lua_State* L);
+    static int l_available(lua_State* L);
+    static int l_readData(lua_State* L);
 };
 
 extern LuaInterpreter esp3d_lua_interpreter;

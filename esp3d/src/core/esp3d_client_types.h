@@ -42,6 +42,7 @@ enum class ESP3DClientType : uint8_t {
   serial_bridge = 12,
   remote_screen = 13,  // target only = M117
   mks_serial = 14,
+  lua_script = 15,
   command,  // origin only
   system,   // origin only
   all_clients
