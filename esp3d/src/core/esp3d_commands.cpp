@@ -66,6 +66,10 @@ const char *esp3dmsgstr[] = {"head", "core", "tail", "unique"};
 #include "../modules/http/http_server.h"
 #endif  // HTTP_FEATURE
 
+#if defined(ESP_LUA_INTERPRETER_FEATURE)
+#include "../modules/lua_interpreter/lua_interpreter_service.h"
+#endif  // ESP_LUA_INTERPRETER_FEATURE
+
 #ifdef BLUETOOTH_FEATURE
 #include "../modules/bluetooth/BT_service.h"
 #endif  // BLUETOOTH_FEATURE
@@ -1304,6 +1308,16 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
       }
       break;
 #endif  // COMMUNICATION_PROTOCOL == SOCKET_SERIAL
+
+#if defined(ESP_LUA_INTERPRETER_FEATURE)
+    case ESP3DClientType::lua_script:
+      esp3d_log("Lua script message");
+      if (!esp3d_lua_interpreter.dispatch(msg)) {
+        sendOk = false;
+        esp3d_log_e("Lua script dispatch failed");
+      }
+      break;
+#endif  // ESP_LUA_INTERPRETER_FEATURE
 
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
     case ESP3DClientType::serial_bridge:

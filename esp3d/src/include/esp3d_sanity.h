@@ -18,8 +18,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _SANITY_ESP3D_H
-#define _SANITY_ESP3D_H
+#pragma once
 
 /**************************
  * Settings
@@ -197,4 +196,9 @@
 #error SD_UPDATE_FEATURE is not available because SD_DEVICE is not enabled
 #endif
 
+/**************************
+ * Lua
+ * ***********************/
+#if defined(ESP_LUA_INTERPRETER_FEATURE) && (defined(ARDUINO_ARCH_ESP8266) ||  defined(ARDUINO_ARCH_ESP8285))
+#error ESP_LUA_INTERPRETER_FEATURE is not available for  ESP8266 and ESP8285   
 #endif  // SANITY_CHECK
