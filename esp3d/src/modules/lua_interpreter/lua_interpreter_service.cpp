@@ -57,21 +57,15 @@ bool LuaInterpreter::dispatch(ESP3DMessage* message) {
 
 bool LuaInterpreter::executeScriptAsync(const char* script) {
   if (_isRunning) {
-    strncpy(_lastError, "A script is already running", sizeof(_lastError));
-    return false;
-  }
-
-  if (strlen(script) >= sizeof(_currentScriptName)) {
-    strncpy(_lastError, "Script name too long", sizeof(_lastError));
+    _lastError = "A script is already running";
     return false;
   }
 
   if (!createScriptTask()) {
-    strncpy(_lastError, "Failed to create script task", sizeof(_lastError));
+    _lastError ="Failed to create script task";
     return false;
   }
-
-  strncpy(_currentScriptName, script, sizeof(_currentScriptName));
+  _currentScriptName = script;
   _startTime = millis();
   _isRunning = true;
   _isPaused = false;
@@ -84,7 +78,7 @@ void LuaInterpreter::abortCurrentScript() {
     _scriptTask = NULL;
     _isRunning = false;
     _isPaused = false;
-    strncpy(_lastError, "Script aborted", sizeof(_lastError));
+    _lastError= "Script aborted";
   }
 }
 
@@ -125,14 +119,21 @@ void LuaInterpreter::checkPause() {
 void LuaInterpreter::scriptExecutionTask(void* parameter) {
   LuaInterpreter* self = static_cast<LuaInterpreter*>(parameter);
   char* script;
-
+  char * buffer = nullptr;
   if (xQueueReceive(self->_scriptQueue, &script, portMAX_DELAY) == pdPASS) {
+    //TODO:
+    //Check script name exists
+    //Check script file size is under 2048 bytes
+    // Create a buffer to hold the script
+    //Load the script from flash / SD into char * buffer
+   
     if (!self->_luaEngine.executeScript(script)) {
-      strncpy(self->_lastError, "Script execution failed",
-              sizeof(self->_lastError));
+      self->_lastError = "Script execution failed";
     }
   }
-
+  if (buffer) {
+    free(buffer);
+  }
   self->_isRunning = false;
   self->_isPaused = false;
   self->deleteScriptTask();

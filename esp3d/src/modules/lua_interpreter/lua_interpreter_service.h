@@ -36,7 +36,7 @@ public:
     void abortCurrentScript();
     bool pauseScript();
     bool resumeScript();
-    const char* getCurrentScriptName() const;
+    const char* getCurrentScriptName() { return _currentScriptName.c_str(); }
     unsigned long getExecutionTime() const;
     bool isScriptRunning() const;
     bool isScriptPaused() const;
@@ -50,12 +50,12 @@ private:
     SemaphoreHandle_t _pauseSemaphore;
     ESP3DMessageFIFO _messageFIFO;
     
-    char _currentScriptName[64];
+    String _currentScriptName;
     unsigned long _startTime;
     unsigned long _pauseTime;
     bool _isRunning;
     bool _isPaused;
-    char _lastError[128];
+    String _lastError;
 
 
     static void scriptExecutionTask(void* parameter);

@@ -631,6 +631,19 @@ void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
     case 290:
       ESP290(cmd_params_pos, msg);
       break;
+#if defined(ESP_LUA_INTERPRETER_FEATURE)
+    // Execute Lua script
+    //[ESP300]<filename>
+    case 300:
+      ESP300(cmd_params_pos, msg);
+      break;
+    // Query and Control ESP300 execution
+    //[ESP301]action=<PAUSE/RESUME/ABORT>
+    case 301:
+      ESP301(cmd_params_pos, msg);
+      break;
+#endif  // ESP_LUA_INTERPRETER_FEATURE
+
     // Get full ESP3D settings
     //[ESP400]<pwd=admin>
     case 400:

@@ -116,6 +116,10 @@ const char* help[] = {
     "[ESP250]F=(frequency) D=(duration) - play sound on buzzer",
 #endif  // BUZZER_DEVICE
     "[ESP290](delay in ms) - do a pause",
+#if defined(ESP_LUA_INTERPRETER_FEATURE)
+    "[ESP300]<filename> - execute Lua script",
+    "[ESP301]action=<PAUSE/RESUME/ABORT> - query and control ESP300 execution",
+#endif  // ESP_LUA_INTERPRETER_FEATURE
     "[ESP400] - display ESP3D settings in JSON",
     "[ESP401]P=(position) T=(type) V=(value) - Set specific setting",
 #ifdef SD_UPDATE_FEATURE
@@ -257,7 +261,11 @@ const uint cmdlist[] = {
 #ifdef BUZZER_DEVICE
     250,
 #endif  // BUZZER_DEVICE
-    290, 400, 401,
+    290,
+#if defined(ESP_LUA_INTERPRETER_FEATURE)
+    300, 301,
+#endif  // ESP_LUA_INTERPRETER_FEATURE
+     400, 401,
 #ifdef SD_UPDATE_FEATURE
     402,
 #endif  // SD_UPDATE_FEATURE

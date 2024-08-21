@@ -213,3 +213,33 @@ const char* esp3d_string::expandString(const char* s, bool formatspace) {
   }
   return tmp.c_str();
 }
+
+const char* esp3d_string::formatDuration(uint64_t duration) {
+  unsigned long seconds = duration / 1000;
+  unsigned long minutes = seconds / 60;
+  unsigned long hours = minutes / 60;
+  unsigned long days = hours / 24;
+
+  seconds %= 60;
+  minutes %= 60;
+  hours %= 24;
+
+  static String result = "";
+  bool display = false;
+
+  if (days > 0) {
+    result += String(days) + "j ";
+    display = true;
+  }
+  if (hours > 0 || display) {
+    result+= String(hours) + "h ";
+    display = true;
+  }
+  if (minutes > 0 || display) {
+    result += String(minutes) + "m ";
+    display = true;
+  }
+  result += String(seconds) + "s";
+
+  return result.c_str();
+}

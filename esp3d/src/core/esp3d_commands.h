@@ -131,6 +131,10 @@ class ESP3DCommands {
 #endif  // SENSOR_DEVICE
   void ESP220(int cmd_params_pos, ESP3DMessage* msg);
   void ESP290(int cmd_params_pos, ESP3DMessage* msg);
+#if defined(ESP_LUA_INTERPRETER_FEATURE)
+  void ESP300(int cmd_params_pos, ESP3DMessage* msg);
+  void ESP301(int cmd_params_pos, ESP3DMessage* msg);
+#endif  // ESP_LUA_INTERPRETER_FEATURE
   void ESP400(int cmd_params_pos, ESP3DMessage* msg);
   void ESP401(int cmd_params_pos, ESP3DMessage* msg);
 #if defined(WIFI_FEATURE)
