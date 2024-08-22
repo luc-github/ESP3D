@@ -19,62 +19,69 @@
 */
 #pragma once
 
-#include <EspLuaEngine.h>
 #include <Arduino.h>
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "freertos/queue.h"
+#include <EspLuaEngine.h>
+
 #include "../../core/esp3d_message.h"
 #include "../../core/esp3d_messageFifo.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+
+enum class Lua_Filesystem_Type : uint8_t {
+  none = 0,
+  fLash = 1,
+  sd = 2,
+};
 
 class LuaInterpreter {
-public:
-     LuaInterpreter();
-    ~LuaInterpreter();
+ public:
+  LuaInterpreter();
+  ~LuaInterpreter();
 
-    bool executeScriptAsync(const char* script);
-    void abortCurrentScript();
-    bool pauseScript();
-    bool resumeScript();
-    const char* getCurrentScriptName() { return _currentScriptName.c_str(); }
-    unsigned long getExecutionTime() const;
-    bool isScriptRunning() const;
-    bool isScriptPaused() const;
-    const char* getLastError() const;
-    bool dispatch(ESP3DMessage* message);
+  bool executeScriptAsync(const char* script);
+  void abortCurrentScript();
+  bool pauseScript();
+  bool resumeScript();
+  const char* getCurrentScriptName() { return _currentScriptName.c_str(); }
+  unsigned long getExecutionTime() const;
+  bool isScriptRunning() const;
+  bool isScriptPaused() const;
+  const char* getLastError() const;
+  bool dispatch(ESP3DMessage* message);
 
-private:
-    EspLuaEngine _luaEngine;
-    TaskHandle_t _scriptTask;
-    QueueHandle_t _scriptQueue;
-    SemaphoreHandle_t _pauseSemaphore;
-    ESP3DMessageFIFO _messageFIFO;
-    
-    String _currentScriptName;
-    unsigned long _startTime;
-    unsigned long _pauseTime;
-    bool _isRunning;
-    bool _isPaused;
-    String _lastError;
+ private:
+  EspLuaEngine _luaEngine;
+  TaskHandle_t _scriptTask;
+  char* _scriptBuffer;
+  SemaphoreHandle_t _pauseSemaphore;
+  ESP3DMessageFIFO _messageFIFO;
+  Lua_Filesystem_Type _luaFSType;
+  String _currentScriptName;
+  unsigned long _startTime;
+  unsigned long _pauseTime;
+  bool _isRunning;
+  bool _isPaused;
+  String _lastError;
 
+  static void scriptExecutionTask(void* parameter);
+  void setupFunctions();
+  void registerConstants();
+  bool createScriptTask();
+  void deleteScriptTask();
+  void checkPause();
 
-    static void scriptExecutionTask(void* parameter);
-    void setupFunctions();
-    void registerConstants();
-    bool createScriptTask();
-    void deleteScriptTask();
-    void checkPause();
-
-    // Wrappers
-    static int l_print(lua_State* L);
-    static int l_pinMode(lua_State* L);
-    static int l_digitalWrite(lua_State* L);
-    static int l_digitalRead(lua_State* L);
-    static int l_analogWrite(lua_State* L);
-    static int l_analogRead(lua_State* L);
-    static int l_available(lua_State* L);
-    static int l_readData(lua_State* L);
+  // Wrappers
+  static int l_print(lua_State* L);
+  static int l_pinMode(lua_State* L);
+  static int l_digitalWrite(lua_State* L);
+  static int l_digitalRead(lua_State* L);
+  static int l_analogWrite(lua_State* L);
+  static int l_analogRead(lua_State* L);
+  static int l_available(lua_State* L);
+  static int l_readData(lua_State* L);
+  static int l_delay(lua_State* L);
+  static int l_yield(lua_State* L);
+  static int l_millis(lua_State* L);
 };
 
 extern LuaInterpreter esp3d_lua_interpreter;
-
