@@ -37,8 +37,11 @@
 
 LuaInterpreter esp3d_lua_interpreter;
 
-LuaInterpreter::LuaInterpreter()
-    : _scriptTask(NULL), _isRunning(false), _isPaused(false), _pauseTime(0) {
+LuaInterpreter::LuaInterpreter() {
+  _scriptTask = NULL;
+  _isRunning = false;
+  _isPaused = false;
+  _pauseTime = 0;
   _pauseSemaphore = xSemaphoreCreateBinary();
   _luaFSType = Lua_Filesystem_Type::none;
   xSemaphoreGive(_pauseSemaphore);  // Initialize as available
