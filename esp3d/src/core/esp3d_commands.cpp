@@ -1450,6 +1450,25 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
       }
 #endif  // PRINTER_HAS_DISPLAY
 
+#if defined(ESP_LUA_INTERPRETER_FEATURE)
+      if (msg->origin != ESP3DClientType::lua_script &&
+          msg->origin == getOutputClient() && esp3d_lua_interpreter.isScriptRunning()) {
+        if (msg->target == ESP3DClientType::all_clients) {
+          // become the reference message
+          msg->target = ESP3DClientType::lua_script;
+        } else {
+          // duplicate message because current is  already pending
+          ESP3DMessage *copy_msg = ESP3DMessageManager::copyMsg(*msg);
+          if (copy_msg) {
+            copy_msg->target = ESP3DClientType::lua_script;
+            dispatch(copy_msg);
+          } else {
+            esp3d_log_e("Cannot duplicate message for lua script");
+          }
+        }
+      }
+#endif  // ESP_LUA_INTERPRETER_FEATURE
+
 #if defined(DISPLAY_DEVICE)
       if (msg->origin != ESP3DClientType::rendering &&
           msg->origin != getOutputClient()) {
