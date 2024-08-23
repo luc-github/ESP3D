@@ -52,20 +52,19 @@ void ESP3DCommands::ESP300(int cmd_params_pos, ESP3DMessage* msg) {
     hasError = true;
     error_msg = "Missing parameter";
     esp3d_log_e("%s", error_msg.c_str());
-  } else {/*
-    if (esp3d_gcode_host.getStatus() == HOST_NO_STREAM) {
-      if (esp3d_gcode_host.processFile(tmpstr.c_str(),
-                                       msg->authentication_level)) {
+  } else {
+    if (!esp3d_lua_interpreter.isScriptRunning()) {
+      if (esp3d_lua_interpreter.executeScriptAsync(tmpstr.c_str())) {
         esp3d_log("Processing %s", tmpstr.c_str());
       } else {
         hasError = true;
-        error_msg = "Error processing file";
+        error_msg = "Error processing script";
         esp3d_log_e("%s", error_msg.c_str());
       }
     } else {
       hasError = true;
-      error_msg = "Streaming already in progress";
-    }*/
+      error_msg = "Script already running";
+    }
   }
   if (!dispatchAnswer(msg, COMMAND_ID, json, hasError,
                       hasError ? error_msg.c_str() : ok_msg.c_str())) {

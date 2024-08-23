@@ -67,7 +67,7 @@ void ESP3DCommands::ESP301(int cmd_params_pos, ESP3DMessage* msg) {
         ok_msg = "{\"status\":\"" + status + "\",\"script\":\"" + scriptName +
                  "\",\"duration\":\"" + duration + "\"}";
       } else {
-        ok_msg = status + ", script " + scriptName + ", duration " + duration;
+        ok_msg = status + ", " + scriptName + ", duration " + duration;
       }
     }
   } else {

@@ -224,11 +224,11 @@ const char* esp3d_string::formatDuration(uint64_t duration) {
   minutes %= 60;
   hours %= 24;
 
-  static String result = "";
+  static String result;
   bool display = false;
-
+  result = "";
   if (days > 0) {
-    result += String(days) + "j ";
+    result += String(days) + "d ";
     display = true;
   }
   if (hours > 0 || display) {
