@@ -66,6 +66,10 @@ const char *esp3dmsgstr[] = {"head", "core", "tail", "unique"};
 #include "../modules/http/http_server.h"
 #endif  // HTTP_FEATURE
 
+#if defined(ESP_LUA_INTERPRETER_FEATURE)
+#include "../modules/lua_interpreter/lua_interpreter_service.h"
+#endif  // ESP_LUA_INTERPRETER_FEATURE
+
 #ifdef BLUETOOTH_FEATURE
 #include "../modules/bluetooth/BT_service.h"
 #endif  // BLUETOOTH_FEATURE
@@ -627,6 +631,19 @@ void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
     case 290:
       ESP290(cmd_params_pos, msg);
       break;
+#if defined(ESP_LUA_INTERPRETER_FEATURE)
+    // Execute Lua script
+    //[ESP300]<filename>
+    case 300:
+      ESP300(cmd_params_pos, msg);
+      break;
+    // Query and Control ESP300 execution
+    //[ESP301]action=<PAUSE/RESUME/ABORT>
+    case 301:
+      ESP301(cmd_params_pos, msg);
+      break;
+#endif  // ESP_LUA_INTERPRETER_FEATURE
+
     // Get full ESP3D settings
     //[ESP400]<pwd=admin>
     case 400:
@@ -1305,6 +1322,16 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
       break;
 #endif  // COMMUNICATION_PROTOCOL == SOCKET_SERIAL
 
+#if defined(ESP_LUA_INTERPRETER_FEATURE)
+    case ESP3DClientType::lua_script:
+      esp3d_log("Lua script message");
+      if (!esp3d_lua_interpreter.dispatch(msg)) {
+        sendOk = false;
+        esp3d_log_e("Lua script dispatch failed");
+      }
+      break;
+#endif  // ESP_LUA_INTERPRETER_FEATURE
+
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
     case ESP3DClientType::serial_bridge:
       esp3d_log("Serial bridge message");
@@ -1422,6 +1449,25 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
         }
       }
 #endif  // PRINTER_HAS_DISPLAY
+
+#if defined(ESP_LUA_INTERPRETER_FEATURE)
+      if (msg->origin != ESP3DClientType::lua_script &&
+          msg->origin == getOutputClient() && esp3d_lua_interpreter.isScriptRunning()) {
+        if (msg->target == ESP3DClientType::all_clients) {
+          // become the reference message
+          msg->target = ESP3DClientType::lua_script;
+        } else {
+          // duplicate message because current is  already pending
+          ESP3DMessage *copy_msg = ESP3DMessageManager::copyMsg(*msg);
+          if (copy_msg) {
+            copy_msg->target = ESP3DClientType::lua_script;
+            dispatch(copy_msg);
+          } else {
+            esp3d_log_e("Cannot duplicate message for lua script");
+          }
+        }
+      }
+#endif  // ESP_LUA_INTERPRETER_FEATURE
 
 #if defined(DISPLAY_DEVICE)
       if (msg->origin != ESP3DClientType::rendering &&

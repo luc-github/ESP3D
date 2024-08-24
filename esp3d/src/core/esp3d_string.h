@@ -22,6 +22,7 @@
 #define _ESP3D_STRING_H
 #include <time.h>
 namespace esp3d_string {
+const char* formatDuration(uint64_t duration);
 const char* getTimeString(time_t time, bool isGMT);
 const char* generateUUID(const char* seed);
 const char* getContentType(const char* filename);
