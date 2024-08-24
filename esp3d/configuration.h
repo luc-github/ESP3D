@@ -574,9 +574,9 @@
 // #define ESP_AUTOSTART_SCRIPT_FILE "autoscript.gco"
 
 /* Enable lua interpreter
- * Allow to use lua interpreter on ESP3D
+ * Allow to use lua interpreter on ESP3D on ESP32/S2/S3/C3 only
  */
-#define ESP_LUA_INTERPRETER_FEATURE
+//#define ESP_LUA_INTERPRETER_FEATURE
 
 /* Hook when got IP
  * Commands to run on event
