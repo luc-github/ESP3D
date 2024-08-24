@@ -22,8 +22,7 @@
 
 #if defined(TELNET_FEATURE) || \
     (defined(ESP_LOG_FEATURE) && ESP_LOG_FEATURE == LOG_OUTPUT_TELNET)
-#include <WiFiClient.h>
-#include <WiFiServer.h>
+
 
 #include "../../core/esp3d_commands.h"
 #include "../../core/esp3d_message.h"

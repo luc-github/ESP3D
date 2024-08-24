@@ -45,8 +45,8 @@ typedef ESP_SDFile WebDavFile;
 typedef ESP_SD WebDavFS;
 #endif  // WEBDAV_FEATURE == FS_SD
 
-class WiFiServer;
-class WiFiClient;
+#include <WiFiClient.h>
+#include <WiFiServer.h>
 
 class WebdavServer {
  public:

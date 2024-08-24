@@ -252,7 +252,7 @@ const char* mDNS_Service::answerIP(uint16_t index) {
     return "";
   }
 #if defined(ARDUINO_ARCH_ESP32)
-  tmp = MDNS.IP(index).toString();
+  tmp = MDNS.address(index).toString();
 
 #endif  // ARDUINO_ARCH_ESP32
 #if defined(ARDUINO_ARCH_ESP8266)

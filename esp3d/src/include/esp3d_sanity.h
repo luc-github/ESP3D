@@ -77,8 +77,8 @@
 /**************************
  * Bluetooth
  * ***********************/
-#if defined(BLUETOOTH_FEATURE) && defined(ARDUINO_ARCH_ESP8266)
-#error Bluetooth is not available in ESP8266
+#if (defined(BLUETOOTH_FEATURE) && !defined(ARDUINO_ARCH_ESP32)) || defined(CONFIG_IDF_TARGET_ESP32S2) || defined(CONFIG_IDF_TARGET_ESP32S3) || defined(CONFIG_IDF_TARGET_ESP32C3)
+#error Bluetooth is only available for ESP32
 #endif
 
 /**************************

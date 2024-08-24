@@ -119,7 +119,7 @@
 /* Use Ethernet
  * Enable ethernet communications
  */
-// #define ETH_FEATURE
+//#define ETH_FEATURE
 
 // Ethernet type (Check ETH.h eth_phy_type_t)
 // TYPE_ETH_PHY_LAN8720
@@ -149,7 +149,7 @@
 /* Use Bluetooth
  * Enable serial bluetooth communications
  */
-// #define BLUETOOTH_FEATURE
+//#define BLUETOOTH_FEATURE
 
 /************************************
  *

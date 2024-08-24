@@ -35,6 +35,7 @@
 
 #ifdef ARDUINO_ARCH_ESP32
 #include <WiFi.h>
+#include <esp_netif.h>
 #endif  // ARDUINO_ARCH_ESP32
 #ifdef ARDUINO_ARCH_ESP8266
 #include <ESP8266WiFi.h>

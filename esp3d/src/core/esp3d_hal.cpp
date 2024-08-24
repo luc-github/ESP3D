@@ -34,7 +34,8 @@
 #endif  // __has_include ("rtc_wdt.h")
 #endif  // CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
 #include <WiFi.h>
-#include <driver/adc.h>
+#include <esp_adc/adc_oneshot.h>
+#include <esp_adc/adc_continuous.h>
 #include <esp_task_wdt.h>
 #include <soc/rtc_cntl_reg.h>
 

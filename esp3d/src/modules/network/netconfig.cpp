@@ -48,6 +48,10 @@
 #include "../gcode_host/gcode_host.h"
 #endif  // GCODE_HOST_FEATURE
 
+#if defined(ARDUINO_ARCH_ESP32)
+esp_netif_t *get_esp_interface_netif(esp_interface_t interface);
+#endif  // ARDUINO_ARCH_ESP32
+
 String NetConfig::_hostname = "";
 bool NetConfig::_needReconnect2AP = false;
 bool NetConfig::_events_registered = false;
@@ -523,12 +527,12 @@ void NetConfig::handle() {
 bool NetConfig::isIPModeDHCP(uint8_t mode) {
   bool started = false;
 #ifdef ARDUINO_ARCH_ESP32
-  tcpip_adapter_dhcp_status_t dhcp_status;
-  tcpip_adapter_dhcpc_get_status((mode == ESP_WIFI_STA)  ? TCPIP_ADAPTER_IF_STA
-                                 : (mode == ESP_WIFI_AP) ? TCPIP_ADAPTER_IF_AP
-                                                         : TCPIP_ADAPTER_IF_ETH,
+  esp_netif_dhcp_status_t dhcp_status;
+  esp_netif_dhcpc_get_status((mode == ESP_WIFI_STA)  ? get_esp_interface_netif(ESP_IF_WIFI_STA)
+                                 : (mode == ESP_WIFI_AP) ? get_esp_interface_netif(ESP_IF_WIFI_AP)
+                                                         : get_esp_interface_netif(ESP_IF_ETH),
                                  &dhcp_status);
-  started = (dhcp_status == TCPIP_ADAPTER_DHCP_STARTED);
+  started = (dhcp_status == ESP_NETIF_DHCP_STARTED);
 #endif  // ARDUINO_ARCH_ESP32
 #ifdef ARDUINO_ARCH_ESP8266
   (void)mode;
@@ -540,12 +544,12 @@ bool NetConfig::isIPModeDHCP(uint8_t mode) {
 bool NetConfig::isDHCPServer(uint8_t mode) {
   bool itis = false;
 #ifdef ARDUINO_ARCH_ESP32
-  tcpip_adapter_dhcp_status_t dhcp_status;
-  tcpip_adapter_dhcps_get_status((mode == ESP_WIFI_STA)  ? TCPIP_ADAPTER_IF_STA
-                                 : (mode == ESP_WIFI_AP) ? TCPIP_ADAPTER_IF_AP
-                                                         : TCPIP_ADAPTER_IF_ETH,
+  esp_netif_dhcp_status_t dhcp_status;
+  esp_netif_dhcps_get_status((mode == ESP_WIFI_STA)  ? get_esp_interface_netif(ESP_IF_WIFI_STA)
+                                 : (mode == ESP_WIFI_AP) ? get_esp_interface_netif(ESP_IF_WIFI_AP)
+                                                         : get_esp_interface_netif(ESP_IF_ETH),
                                  &dhcp_status);
-  itis = (dhcp_status == TCPIP_ADAPTER_DHCP_STARTED);
+  itis = (dhcp_status == ESP_NETIF_DHCP_STARTED);
 #endif  // ARDUINO_ARCH_ESP32
 #ifdef ARDUINO_ARCH_ESP8266
   (void)mode;
