@@ -10,7 +10,7 @@ cp -r ./libraries/ESP32SSDP-2.0.2 $HOME/arduino_ide/libraries/
 cp -r ./libraries/arduinoWebSockets-2.5.2 $HOME/arduino_ide/libraries/
 cp -r ./libraries/DHT_sensor_library_for_ESPx-1.0.6 $HOME/arduino_ide/libraries/
 cp -r ./libraries/esp8266-oled-ssd1306-4.3.0 $HOME/arduino_ide/libraries/
-cp -r ./libraries/TFT_eSPI-2.4.72 $HOME/arduino_ide/libraries/
+cp -r ./libraries/TFT_eSPI-2.5.43 $HOME/arduino_ide/libraries/
 cp -r ./libraries/lvgl-8.2.0 $HOME/arduino_ide/libraries/
 cp -r ./libraries/EspLuaEngine-1.0.1 $HOME/arduino_ide/libraries/
 cp -r ./libraries/BMx280MI-1.2.0 $HOME/arduino_ide/libraries/
