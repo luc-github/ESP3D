@@ -1271,13 +1271,6 @@ ESP3DClientType ESP3DCommands::getOutputClient(bool fromSettings) {
 bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
   bool sendOk = true;
   String tmp;
-  esp3d_log(
-      "Dispatch message origin %d(%s) to client %d(%s) , size: %d,  type: "
-      "%d(%s)",
-      static_cast<uint8_t>(msg->origin),
-      esp3dclientstr[static_cast<uint8_t>(msg->origin)],
-      static_cast<uint8_t>(msg->target), GETCLIENTSTR(msg->target), msg->size,
-      static_cast<uint8_t>(msg->type), GETMSGTYPESTR(msg->type));
   esp3d_log("Dispatch message data: %s", (const char *)msg->data);
   if (!msg) {
     esp3d_log_e("no msg");
