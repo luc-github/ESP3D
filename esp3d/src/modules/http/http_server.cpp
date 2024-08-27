@@ -289,7 +289,7 @@ bool HTTP_Server::dispatch(ESP3DMessage* msg) {
         _webserver->sendContent("");
       }
     }
-    ESP3DMessageManager::deleteMsg(msg);
+    esp3d_message_manager.deleteMsg(msg);
     return true;
   }
   return false;

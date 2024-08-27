@@ -1,5 +1,5 @@
 /*
-  esp3d_messageFifo.h -  class for handeling message
+  esp3d_messageFifo.h -  class for managing messages list, thread safe
 
   Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -19,77 +19,128 @@
 */
 #if !defined(ARDUINO_ARCH_ESP8266) && !defined(ARDUINO_ARCH_ESP8285)
 
-#include "esp3d_message.h"
-#include "../include/esp3d_config.h"
 #include <Arduino.h>
 
 #include <queue>
+
+#include "../include/esp3d_config.h"
+#include "esp3d_message.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 
+
 class ESP3DMessageFIFO {
-public:
-    ESP3DMessageFIFO(size_t maxSize = 5) : maxSize(maxSize) {
-        mutex = xSemaphoreCreateMutex();
-    }
+ public:
+  ESP3DMessageFIFO(size_t maxSize = 5)  {
+    _mutex = xSemaphoreCreateMutex();
+    _maxSize = maxSize;
+  }
 
-    ~ESP3DMessageFIFO() {
-        clear();
-        vSemaphoreDelete(mutex);
-    }
+  ~ESP3DMessageFIFO() {
+    clear();
+    vSemaphoreDelete(_mutex);
+  }
+  void setId(String id) {
+    _id = id;
+  }
+  String getId() {
+    return _id;
+  }
 
-    void push(ESP3DMessage* message) {
-        xSemaphoreTake(mutex, portMAX_DELAY);
-        if (fifo.size() >= maxSize) {
-            ESP3DMessage* oldestMessage = fifo.front();
-            fifo.pop();
-            ESP3DMessageManager::deleteMsg(oldestMessage);
-        }
-        fifo.push(message);
-        xSemaphoreGive(mutex);
-    }
+  void setMaxSize(size_t maxSize) {_maxSize = maxSize; }
+  size_t getMaxSize() { return _maxSize; }
 
-    ESP3DMessage* pop() {
-        ESP3DMessage* message = nullptr;
-        xSemaphoreTake(mutex, portMAX_DELAY);
-        if (!fifo.empty()) {
-            message = fifo.front();
-            fifo.pop();
-        }
-        xSemaphoreGive(mutex);
-        return message;
+  void push(ESP3DMessage* message) {
+    if (xSemaphoreTake(_mutex, portMAX_DELAY) == pdTRUE) {
+      esp3d_log_d("push to list [%s] size: %d",_id.c_str(), fifo.size());
+      if (fifo.size() >= _maxSize && _maxSize != 0) {
+        esp3d_log_d("remove oldest message to make room for new one");
+        ESP3DMessage* oldestMessage = fifo.front();
+        fifo.pop();
+        esp3d_message_manager.deleteMsg(oldestMessage);
+        esp3d_log_d("oldest message removed, list [%s] size: %d",_id.c_str(), fifo.size());
+      }
+      fifo.push(message);
+      esp3d_log_d("push to list [%s] size: %d",_id.c_str(), fifo.size());
+      xSemaphoreGive(_mutex);
+    } else {
+      esp3d_log_e("push to list [%s] failed, list size: %d",_id.c_str(), fifo.size());
+      esp3d_log_e("Delete message");
+      esp3d_message_manager.deleteMsg(message);
     }
+  }
 
-    bool isEmpty() {
-        bool empty;
-        xSemaphoreTake(mutex, portMAX_DELAY);
-        empty = fifo.empty();
-        xSemaphoreGive(mutex);
-        return empty;
+  ESP3DMessage* pop() {
+    ESP3DMessage* message = nullptr;
+    if (xSemaphoreTake(_mutex, portMAX_DELAY) == pdTRUE) {
+      esp3d_log("pop from list [%s] size: %d",_id.c_str(), fifo.size());
+      if (!fifo.empty()) {
+        message = fifo.front();
+        fifo.pop();
+        esp3d_log_d("Now list [%s] size: %d",_id.c_str(), fifo.size());
+        esp3d_log_d("Message: %s", (const char *)message->data);
+      }
+      xSemaphoreGive(_mutex);
+    } else {
+      esp3d_log_e("pop from list [%s] failed, list size: %d",_id.c_str(), fifo.size());
     }
+    return message;
+  }
 
-    size_t size() {
-        size_t s;
-        xSemaphoreTake(mutex, portMAX_DELAY);
-        s = fifo.size();
-        xSemaphoreGive(mutex);
-        return s;
+  bool isEmpty() {
+    bool empty = true;
+    if (xSemaphoreTake(_mutex, portMAX_DELAY) == pdTRUE) {
+      empty = fifo.empty();
+      xSemaphoreGive(_mutex);
     }
+    return empty;
+  }
 
-    void clear() {
-        xSemaphoreTake(mutex, portMAX_DELAY);
-        while (!fifo.empty()) {
+  size_t size() {
+    size_t s = 0;
+    if (xSemaphoreTake(_mutex, portMAX_DELAY) == pdTRUE) {
+      s = fifo.size();
+      xSemaphoreGive(_mutex);
+    }
+    return s;
+  }
+
+  void clear() {
+    if (xSemaphoreTake(_mutex, portMAX_DELAY) == pdTRUE) {
+      while (!fifo.empty()) {
+        ESP3DMessage* message = fifo.front();
+        fifo.pop();
+        esp3d_message_manager.deleteMsg(message);
+      }
+      xSemaphoreGive(_mutex);
+    }
+  }
+
+  bool applyToEach(std::function<bool(ESP3DMessage*)> fn, bool stopOnFalse = true)  {
+    bool result = false;
+        if (xSemaphoreTake(_mutex, portMAX_DELAY) == pdTRUE) {
+        result = true;
+        size_t size = fifo.size();
+        for (size_t i = 0; i < size; ++i) {
             ESP3DMessage* message = fifo.front();
+            bool result = fn(message);  
             fifo.pop();
-            ESP3DMessageManager::deleteMsg(message);
+            if (!result && stopOnFalse) {
+                result = false;
+                break;
+            }
         }
-        xSemaphoreGive(mutex);
+        xSemaphoreGive(_mutex);
+        }
+    return result;
     }
 
-private:
-    std::queue<ESP3DMessage*> fifo;
-    SemaphoreHandle_t mutex;
-    const size_t maxSize;
+
+ private:
+  std::queue<ESP3DMessage*> fifo;
+  SemaphoreHandle_t _mutex;
+  size_t _maxSize;
+  String _id;
 };
 
-#endif // !defined(ARDUINO_ARCH_ESP8266) && !defined(ARDUINO_ARCH_ESP8285)
+#endif  // !defined(ARDUINO_ARCH_ESP8266) && !defined(ARDUINO_ARCH_ESP8285)

@@ -317,7 +317,7 @@ void GcodeHost::processCommand() {
     bool isESPcmd = esp3d_commands.is_esp_command(
         (uint8_t *)_currentCommand.c_str(), _currentCommand.length());
     if (isESPcmd) {
-      ESP3DMessage *msg = ESP3DMessageManager::newMsg(
+      ESP3DMessage *msg = esp3d_message_manager.newMsg(
           ESP3DClientType::no_client, esp3d_commands.getOutputClient(),
           (uint8_t *)_currentCommand.c_str(), _currentCommand.length(), _auth);
       if (msg) {
@@ -331,7 +331,7 @@ void GcodeHost::processCommand() {
       }
 
     } else {
-      ESP3DMessage *msg = ESP3DMessageManager::newMsg(
+      ESP3DMessage *msg = esp3d_message_manager.newMsg(
           ESP3DClientType::stream, esp3d_commands.getOutputClient(),
           (uint8_t *)_currentCommand.c_str(), _currentCommand.length(), _auth);
       if (msg) {

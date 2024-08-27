@@ -43,18 +43,23 @@ class LuaInterpreter {
   bool pauseScript();
   bool resumeScript();
   const char* getCurrentScriptName() { return _currentScriptName.c_str(); }
-  unsigned long getExecutionTime() const;
-  bool isScriptRunning() const;
-  bool isScriptPaused() const;
-  const char* getLastError() const;
+  uint64_t getExecutionTime() ;
+  bool isScriptRunning() ;
+  bool isScriptPaused() ;
+  const char* getLastError()  { return _lastError.c_str(); }
   bool dispatch(ESP3DMessage* message);
+  bool begin();
+  void end();
+  void handle();
 
  private:
   EspLuaEngine _luaEngine;
   TaskHandle_t _scriptTask;
   char* _scriptBuffer;
   SemaphoreHandle_t _pauseSemaphore;
-  ESP3DMessageFIFO _messageFIFO;
+  SemaphoreHandle_t _stateMutex;
+  ESP3DMessageFIFO _messageInFIFO;
+  ESP3DMessageFIFO _messageOutFIFO;
   Lua_Filesystem_Type _luaFSType;
   String _currentScriptName;
   unsigned long _startTime;
@@ -68,6 +73,7 @@ class LuaInterpreter {
   void registerConstants();
   bool createScriptTask();
   void deleteScriptTask();
+  void resetLuaEnvironment();
   void checkPause();
 
   // Wrappers

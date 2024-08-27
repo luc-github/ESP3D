@@ -52,7 +52,7 @@ bool Display::dispatch(ESP3DMessage* message) {
         break;
     }
 
-    ESP3DMessageManager::deleteMsg(message);
+    esp3d_message_manager.deleteMsg(message);
     return true;
   }
   return false;

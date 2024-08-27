@@ -56,7 +56,7 @@ void ESP3DCommands::ESP710(int cmd_params_pos, ESP3DMessage* msg) {
   } else {
     if (formatfs) {
       ok_msg = "Starting formating...";
-      endMsg = ESP3DMessageManager::copyMsgInfos(*msg);
+      endMsg = esp3d_message_manager.copyMsgInfos(*msg);
     } else {
       hasError = true;
       error_msg = "Invalid parameter";

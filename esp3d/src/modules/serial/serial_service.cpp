@@ -293,7 +293,7 @@ void ESP3DSerialService::flushbuffer() {
 
   // dispatch command
   if (_started) {
-    ESP3DMessage *message = ESP3DMessageManager::newMsg(
+    ESP3DMessage *message = esp3d_message_manager.newMsg(
         _origin,
         _id == MAIN_SERIAL ? ESP3DClientType::all_clients
                            : esp3d_commands.getOutputClient(),
@@ -550,7 +550,7 @@ bool ESP3DSerialService::dispatch(ESP3DMessage *message) {
         if (writeBytes(message->data, message->size) == message->size) {
           flush();
           // Delete message now
-          ESP3DMessageManager::deleteMsg(message);
+          esp3d_message_manager.deleteMsg(message);
           done = true;
         } else {
           esp3d_log_e("Error while sending data");

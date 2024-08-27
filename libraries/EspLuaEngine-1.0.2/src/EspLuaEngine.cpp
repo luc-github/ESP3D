@@ -22,7 +22,6 @@
 
 #include <Arduino.h>
 
-
 /*Public methods*/
 
 EspLuaEngine::EspLuaEngine() : _lua_state(nullptr) {
@@ -40,9 +39,40 @@ EspLuaEngine::~EspLuaEngine() {
   }
 }
 
+bool EspLuaEngine::isInErrorState() {
+  if (!_lua_state) return false;
+
+  // Check if there is an error on the stack
+  if (lua_type(_lua_state, -1) == LUA_TSTRING) {
+    const char* error_msg = lua_tostring(_lua_state, -1);
+    if (error_msg) {
+      _lastError = "execution error" ;  // Store the error message
+      log_e("Lua error: %s", _lastError.c_str());
+      lua_pop(_lua_state, 1);  // Clean up the error from the stack
+      return true;
+    }
+  }
+  return false;
+}
+
+void EspLuaEngine::resetState() {
+  if (_lua_state) {
+    lua_close(_lua_state);
+    _lua_state = luaL_newstate();
+    if (_lua_state) {
+      _loadLibraries();
+    } else {
+      log_e("Error: Impossible to create a new Lua state");
+    }
+  }
+}
+
 bool EspLuaEngine::executeScript(const char* script) {
+  _lastError.clear();  // Clear the error message
+  // execute the script and check for errors
   if (luaL_dostring(_lua_state, script) != LUA_OK) {
-    log_e("%s", lua_tostring(_lua_state, -1));
+    _lastError = lua_tostring(_lua_state, -1);
+    log_e("%s", _lastError.c_str());
     lua_pop(_lua_state, 1);
     return false;
   }

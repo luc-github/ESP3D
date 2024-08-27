@@ -199,7 +199,7 @@ bool Telnet_Server::dispatch(ESP3DMessage *message) {
     if (sentcnt != message->size) {
       return false;
     }
-    ESP3DMessageManager::deleteMsg(message);
+    esp3d_message_manager.deleteMsg(message);
     return true;
   }
   return false;
@@ -220,7 +220,7 @@ void Telnet_Server::flushbuffer() {
     return;
   }
   _buffer[_buffer_size] = 0x0;
-  ESP3DMessage *msg = ESP3DMessageManager::newMsg(
+  ESP3DMessage *msg = esp3d_message_manager.newMsg(
       ESP3DClientType::telnet, esp3d_commands.getOutputClient(), _buffer,
       _buffer_size, _auth);
   if (msg) {

@@ -74,7 +74,7 @@ void HTTP_Server::handle_web_command() {
     }
     esp3d_log("Web Command: %s", cmd.c_str());
     if (esp3d_commands.is_esp_command((uint8_t *)cmd.c_str(), cmd.length())) {
-      ESP3DMessage *msg = ESP3DMessageManager::newMsg(
+      ESP3DMessage *msg = esp3d_message_manager.newMsg(
           ESP3DClientType::http, esp3d_commands.getOutputClient(),
           (uint8_t *)cmd.c_str(), cmd.length(), auth_level);
       if (msg) {

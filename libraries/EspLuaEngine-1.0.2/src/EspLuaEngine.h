@@ -21,6 +21,7 @@
 #pragma once
 #define LUA_USE_C89
 #include "lua-5.4.7/src/lua.hpp"
+#include <Arduino.h>
 
 class EspLuaEngine {
  public:
@@ -33,9 +34,13 @@ class EspLuaEngine {
   template <typename T>
   bool registerConstant(const char* name, T value);
   lua_State* getLuaState() { return _lua_state; }
+  bool isInErrorState();
+  const char* getLastError() const { return _lastError.c_str(); }
+  void resetState();
 
  private:
   lua_State* _lua_state;
+  String _lastError;
   void _loadLibraries();
   bool _checkPreconditions(const char* name);
   bool _verifyGlobal(const char* name, int type);

@@ -39,7 +39,7 @@ void HTTP_Server::handle_config() {
   if (_webserver->hasArg("json")) {
     cmd += " json=" + _webserver->arg("json");
   }
-  ESP3DMessage *msg = ESP3DMessageManager::newMsg(
+  ESP3DMessage *msg = esp3d_message_manager.newMsg(
       ESP3DClientType::http, ESP3DClientType::http, (uint8_t *)cmd.c_str(),
       cmd.length(), auth_level);
   if (msg) {
