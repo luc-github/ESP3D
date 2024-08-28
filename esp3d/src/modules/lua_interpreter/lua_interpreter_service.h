@@ -18,7 +18,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #pragma once
-
+#if defined(ARDUINO_ARCH_ESP32)
 #include <Arduino.h>
 #include <EspLuaEngine.h>
 
@@ -39,14 +39,14 @@ class LuaInterpreter {
   ~LuaInterpreter();
 
   bool executeScriptAsync(const char* script);
-  void abortCurrentScript();
+  void abortScript();
   bool pauseScript();
   bool resumeScript();
   const char* getCurrentScriptName() { return _currentScriptName.c_str(); }
-  uint64_t getExecutionTime() ;
-  bool isScriptRunning() ;
-  bool isScriptPaused() ;
-  const char* getLastError()  { return _lastError.c_str(); }
+  uint64_t getExecutionTime();
+  bool isScriptRunning();
+  bool isScriptPaused();
+  const char* getLastError(); 
   bool dispatch(ESP3DMessage* message);
   bool begin();
   void end();
@@ -56,7 +56,6 @@ class LuaInterpreter {
   EspLuaEngine _luaEngine;
   TaskHandle_t _scriptTask;
   char* _scriptBuffer;
-  SemaphoreHandle_t _pauseSemaphore;
   SemaphoreHandle_t _stateMutex;
   ESP3DMessageFIFO _messageInFIFO;
   ESP3DMessageFIFO _messageOutFIFO;
@@ -64,8 +63,6 @@ class LuaInterpreter {
   String _currentScriptName;
   unsigned long _startTime;
   unsigned long _pauseTime;
-  bool _isRunning;
-  bool _isPaused;
   String _lastError;
 
   static void scriptExecutionTask(void* parameter);
@@ -74,7 +71,6 @@ class LuaInterpreter {
   bool createScriptTask();
   void deleteScriptTask();
   void resetLuaEnvironment();
-  void checkPause();
 
   // Wrappers
   static int l_print(lua_State* L);
@@ -91,3 +87,5 @@ class LuaInterpreter {
 };
 
 extern LuaInterpreter esp3d_lua_interpreter;
+
+#endif  // defined(ARDUINO_ARCH_ESP32)

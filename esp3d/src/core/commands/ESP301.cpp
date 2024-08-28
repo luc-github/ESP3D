@@ -130,7 +130,7 @@ void ESP3DCommands::ESP301(int cmd_params_pos, ESP3DMessage* msg) {
               }
             }
           } else if (tmpstr == "ABORT") {
-            esp3d_lua_interpreter.abortCurrentScript();
+            esp3d_lua_interpreter.abortScript();
             ok_msg = "Script aborted";
           }
         } else {

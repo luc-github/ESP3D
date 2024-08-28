@@ -19,8 +19,28 @@
 */
 
 #include "EspLuaEngine.h"
+#define ESP_LUA_NB_LINES_BEFORE_HOOK 1000
 
-#include <Arduino.h>
+#if defined(ARDUINO_ARCH_ESP32)
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#endif  // defined(ARDUINO_ARCH_ESP32)
+
+#if defined(ARDUINO_ARCH_ESP8266)
+// #define DEBUG_ESP_LUA_ENGINE Serial
+#if defined(DEBUG_ESP_LUA_ENGINE)
+#define log_e(format, ...) \
+  DEBUG_ESP_LUA_ENGINE.printf("E: " format "\n", ##__VA_ARGS__)
+#define log_v(format, ...) \
+  DEBUG_ESP_LUA_ENGINE.printf("V: " format "\n", ##__VA_ARGS__)
+#else
+#define log_e(format, ...)
+#define log_v(format, ...)
+#endif  // defined(DEBUG_ESP_LUA_ENGINE)
+#endif  // defined(ARDUINO_ARCH_ESP8266)
+
+EspLuaEngine::PauseFunction EspLuaEngine::_pauseFunction = nullptr;
+String EspLuaEngine::_lastError;
 
 /*Public methods*/
 
@@ -39,20 +59,33 @@ EspLuaEngine::~EspLuaEngine() {
   }
 }
 
-bool EspLuaEngine::isInErrorState() {
-  if (!_lua_state) return false;
+void EspLuaEngine::setPauseFunction(PauseFunction func) {
+  _pauseFunction = func;
+}
 
-  // Check if there is an error on the stack
-  if (lua_type(_lua_state, -1) == LUA_TSTRING) {
-    const char* error_msg = lua_tostring(_lua_state, -1);
-    if (error_msg) {
-      _lastError = "execution error" ;  // Store the error message
-      log_e("Lua error: %s", _lastError.c_str());
-      lua_pop(_lua_state, 1);  // Clean up the error from the stack
-      return true;
+void EspLuaEngine::_defaultPauseFunction() {
+#if defined(ARDUINO_ARCH_ESP32)
+  vTaskDelay(ESP_LUA_CHECK_INTERVAL);
+#endif  // defined(ARDUINO_ARCH_ESP32)
+#if defined(ARDUINO_ARCH_ESP8266)
+  delay(ESP_LUA_CHECK_INTERVAL);
+#endif  // defined(ARDUINO_ARCH_ESP8266)
+}
+
+void EspLuaEngine::hookFunction(lua_State* L, lua_Debug* ar) {
+  if (_isPaused.load()) {
+    while (_isPaused.load() && _isRunning.load()) {
+      if (_pauseFunction) {
+        _pauseFunction();
+      } else {
+        _defaultPauseFunction();
+      }
     }
   }
-  return false;
+  if (!_isRunning.load()) {
+    if (_lastError.length() == 0) _lastError = "Execution stopped";
+    luaL_error(L, "Execution stopped");
+  }
 }
 
 void EspLuaEngine::resetState() {
@@ -68,16 +101,69 @@ void EspLuaEngine::resetState() {
 }
 
 bool EspLuaEngine::executeScript(const char* script) {
-  _lastError.clear();  // Clear the error message
-  // execute the script and check for errors
-  if (luaL_dostring(_lua_state, script) != LUA_OK) {
-    _lastError = lua_tostring(_lua_state, -1);
-    log_e("%s", _lastError.c_str());
+  _lastError="";  // Clear the error message
+  _isPaused.store(false);
+  _isRunning.store(true);
+
+  // Configure the hook function
+  lua_sethook(_lua_state, hookFunction, LUA_MASKCOUNT,
+              ESP_LUA_NB_LINES_BEFORE_HOOK);
+
+  bool success = true;
+
+  // Compile the script
+  if (luaL_loadstring(_lua_state, script) != LUA_OK) {
+    if (_lastError.length() == 0) _lastError = lua_tostring(_lua_state, -1);
+    log_e("Error loading script: %s", _lastError.c_str());
     lua_pop(_lua_state, 1);
-    return false;
+    success = false;
+  } else {
+    // Execute the script
+    if (lua_pcall(_lua_state, 0, 0, 0) != LUA_OK) {
+      if (_lastError.length() == 0) _lastError = lua_tostring(_lua_state, -1);
+      log_e("Error executing script: %s", _lastError.c_str());
+      lua_pop(_lua_state, 1);
+      success = false;
+    }
   }
-  return true;
+
+  // Disable the hook function
+  lua_sethook(_lua_state, nullptr, 0, 0);
+  _isRunning.store(false);
+  _isPaused.store(false);
+
+  return success;
 }
+
+void EspLuaEngine::pauseExecution() {
+  if (_isRunning.load()) {
+    _isPaused.store(true);
+  }
+}
+
+void EspLuaEngine::resumeExecution() { _isPaused.store(false); }
+
+void EspLuaEngine::stopExecution() {
+  _isRunning.store(false);
+  _isPaused.store(false);
+  if (_lastError.length() == 0) _lastError = "Execution stopped by user";
+}
+
+bool EspLuaEngine::isRunning() { return _isRunning.load(); }
+
+bool EspLuaEngine::isPaused() { return _isPaused.load(); }
+
+EspLuaEngine::Status EspLuaEngine::getStatus() {
+  if (_isPaused.load()) {
+    return Status::Paused;
+  } else if (_isRunning.load()) {
+    return Status::Running;
+  } else {
+    return Status::Idle;
+  }
+}
+
+bool EspLuaEngine::hasError() { return _lastError.length() > 0; }
 
 bool EspLuaEngine::registerFunction(const char* name, lua_CFunction function,
                                     void* userData) {
