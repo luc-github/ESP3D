@@ -25,9 +25,23 @@
 
 #include "../include/esp3d_config.h"
 #include "esp3d_message.h"
+#if defined(ARDUINO_ARCH_ESP32)
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
+#endif  // ARDUINO_ARCH_ESP32
 
+#if defined(ARDUINO_ARCH_ESP8266)
+//To avoid compilation error on ESP8266
+// and to use many ifdefs
+#ifndef pdTRUE
+#define pdTRUE true
+#define xSemaphoreTake(A, B) true
+#define xSemaphoreGive(A) 
+#define xSemaphoreCreateMutex(A) 0
+#define vSemaphoreDelete(A)
+#define SemaphoreHandle_t void*
+#endif //pdTRUE
+#endif //ESP8266
 
 class ESP3DMessageFIFO {
  public:

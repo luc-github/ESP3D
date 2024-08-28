@@ -42,8 +42,23 @@ class WebServer;
 
 #include "../modules/authentication/authentication_level_types.h"
 #include "esp3d_client_types.h"
+#if defined(ARDUINO_ARCH_ESP32)
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
+#endif  // ARDUINO_ARCH_ESP32
+
+#if defined(ARDUINO_ARCH_ESP8266)
+//To avoid compilation error on ESP8266
+// and to use many ifdefs
+#ifndef pdTRUE
+#define pdTRUE true
+#define xSemaphoreTake(A, B) true
+#define xSemaphoreGive(A) 
+#define xSemaphoreCreateMutex(A) 0
+#define vSemaphoreDelete(A)
+#define SemaphoreHandle_t void*
+#endif //pdTRUE
+#endif //ESP8266
 
 enum class ESP3DMessageType : uint8_t { head, core, tail, unique };
 
@@ -106,7 +121,6 @@ class ESP3DMessageManager final {
                        ESP3DAuthenticationLevel authentication_level =
                            ESP3DAuthenticationLevel::guest);
   bool _setDataContent(ESP3DMessage *msg, const uint8_t *data, size_t length);
-
   SemaphoreHandle_t _mutex;
 #if defined(ESP_LOG_FEATURE)
   int _msg_counting;
