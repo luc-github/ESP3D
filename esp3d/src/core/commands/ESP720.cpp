@@ -49,7 +49,11 @@ void ESP3DCommands::ESP720(int cmd_params_pos, ESP3DMessage* msg) {
 #endif  // AUTHENTICATION_FEATURE
 
   ESP3DMessage msgInfo;
-  esp3d_message_manager.copyMsgInfos(&msgInfo, *msg);
+  esp3d_log_d("Copy msg infos");
+  if (!esp3d_message_manager.copyMsgInfos(&msgInfo, *msg)) {
+    esp3d_log_e("Error copying msg infos");
+    return;
+  }
   tmpstr = get_clean_param(msg, cmd_params_pos);
 
   if (tmpstr.length() == 0) {

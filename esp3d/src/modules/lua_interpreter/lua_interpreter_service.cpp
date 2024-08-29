@@ -357,7 +357,9 @@ void LuaInterpreter::handle() {
         esp3d_commands.process(msg);
       }
       xSemaphoreGive(_stateMutex);
-    }
+    } else {
+    esp3d_log_e("Mutex not taken");
+  }
   }
 }
 

@@ -86,25 +86,22 @@ class ESP3DMessageManager final {
  public:
   ESP3DMessageManager();
   ~ESP3DMessageManager();
-  ESP3DMessage *newMsg(bool noMutext = false);
-  ESP3DMessage *newMsg(ESP3DRequest requestId, bool noMutext = false);
-  bool deleteMsg(ESP3DMessage *message, bool noMutext = false);
-  bool copyMsgInfos(ESP3DMessage *newMsgPtr, ESP3DMessage msg,
-                    bool noMutext = false);
-  ESP3DMessage *copyMsgInfos(ESP3DMessage msg, bool noMutext = false);
+  ESP3DMessage *newMsg();
+  ESP3DMessage *newMsg(ESP3DRequest requestId);
+  bool deleteMsg(ESP3DMessage *message);
+  bool copyMsgInfos(ESP3DMessage *newMsgPtr, ESP3DMessage msg);
+  ESP3DMessage *copyMsgInfos(ESP3DMessage msg);
 
-  ESP3DMessage *copyMsg(ESP3DMessage msg, bool noMutext = false);
+  ESP3DMessage *copyMsg(ESP3DMessage msg);
 
   ESP3DMessage *newMsg(ESP3DClientType origin, ESP3DClientType target,
                        const uint8_t *data, size_t length,
                        ESP3DAuthenticationLevel authentication_level =
-                           ESP3DAuthenticationLevel::guest, bool noMutext =
-                           false);
+                           ESP3DAuthenticationLevel::guest);
   ESP3DMessage *newMsg(ESP3DClientType origin, ESP3DClientType target,
                        ESP3DAuthenticationLevel authentication_level =
-                           ESP3DAuthenticationLevel::guest, bool noMutext =
-                           false);
-  bool setDataContent(ESP3DMessage *msg, const uint8_t *data, size_t length, bool noMutext = false);
+                           ESP3DAuthenticationLevel::guest);
+  bool setDataContent(ESP3DMessage *msg, const uint8_t *data, size_t length);
 
  private:
  bool _deleteMsg(ESP3DMessage *message);
