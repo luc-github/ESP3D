@@ -57,7 +57,7 @@ void ESP3DCommands::ESP715(int cmd_params_pos, ESP3DMessage* msg) {
     if (formatsd) {
       if (ESP_SD::getState() != ESP_SDCARD_BUSY) {
         ok_msg = "Starting formating...";
-        esp3d_message_manager.endMsg = copyMsgInfos(*msg);
+       endMsg =  esp3d_message_manager.copyMsgInfos(*msg);
       } else {
         hasError = true;
         error_msg = "SD card busy";

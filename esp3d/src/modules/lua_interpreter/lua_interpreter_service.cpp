@@ -246,8 +246,7 @@ void LuaInterpreter::scriptExecutionTask(void *parameter) {
       esp3d_log_e("%s", "SD file system not found");
     } else {
       if (ESP_SD::getState(true) == ESP_SDCARD_NOT_PRESENT) {
-        if self
-          ->(_lastError.length() == 0) self->_lastError = "SD card not present";
+        if (self->_lastError.length() == 0) self->_lastError = "SD card not present";
         esp3d_log_e("%s", "SD card not present");
       } else {
         ESP_SD::setState(ESP_SDCARD_BUSY);
@@ -288,8 +287,7 @@ void LuaInterpreter::scriptExecutionTask(void *parameter) {
             // close the file
             SDfileHandle.close();
           } else {
-            if self
-              ->(_lastError.length() == 0) self->_lastError =
+            if (self->_lastError.length() == 0) self->_lastError =
                   "File is not open: " + scriptName;
             esp3d_log_e("%s", "File is not open: " + scriptName);
           }
