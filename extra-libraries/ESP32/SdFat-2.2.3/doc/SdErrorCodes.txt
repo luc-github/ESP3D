@@ -1,0 +1,51 @@
+2022-07-01
+
+Run the SdErrorCode example to produce an updated list.
+
+Code,Symbol - failed operation
+0X00,SD_CARD_ERROR_NONE - No error
+0X01,SD_CARD_ERROR_CMD0 - Card reset failed
+0X02,SD_CARD_ERROR_CMD2 - SDIO read CID
+0X03,SD_CARD_ERROR_CMD3 - SDIO publish RCA
+0X04,SD_CARD_ERROR_CMD6 - Switch card function
+0X05,SD_CARD_ERROR_CMD7 - SDIO card select
+0X06,SD_CARD_ERROR_CMD8 - Send and check interface settings
+0X07,SD_CARD_ERROR_CMD9 - Read CSD data
+0X08,SD_CARD_ERROR_CMD10 - Read CID data
+0X09,SD_CARD_ERROR_CMD12 - Stop multiple block read
+0X0A,SD_CARD_ERROR_CMD13 - Read card status
+0X0B,SD_CARD_ERROR_CMD17 - Read single block
+0X0C,SD_CARD_ERROR_CMD18 - Read multiple blocks
+0X0D,SD_CARD_ERROR_CMD24 - Write single block
+0X0E,SD_CARD_ERROR_CMD25 - Write multiple blocks
+0X0F,SD_CARD_ERROR_CMD32 - Set first erase block
+0X10,SD_CARD_ERROR_CMD33 - Set last erase block
+0X11,SD_CARD_ERROR_CMD38 - Erase selected blocks
+0X12,SD_CARD_ERROR_CMD58 - Read OCR register
+0X13,SD_CARD_ERROR_CMD59 - Set CRC mode
+0X14,SD_CARD_ERROR_ACMD6 - Set SDIO bus width
+0X15,SD_CARD_ERROR_ACMD13 - Read extended status
+0X16,SD_CARD_ERROR_ACMD23 - Set pre-erased count
+0X17,SD_CARD_ERROR_ACMD41 - Activate card initialization
+0X18,SD_CARD_ERROR_ACMD51 - Read SCR data
+0X19,SD_CARD_ERROR_READ_TOKEN - Bad read data token
+0X1A,SD_CARD_ERROR_READ_CRC - Read CRC error
+0X1B,SD_CARD_ERROR_READ_FIFO - SDIO fifo read timeout
+0X1C,SD_CARD_ERROR_READ_REG - Read CID or CSD failed.
+0X1D,SD_CARD_ERROR_READ_START - Bad readStart argument
+0X1E,SD_CARD_ERROR_READ_TIMEOUT - Read data timeout
+0X1F,SD_CARD_ERROR_STOP_TRAN - Multiple block stop failed
+0X20,SD_CARD_ERROR_TRANSFER_COMPLETE - SDIO transfer complete
+0X21,SD_CARD_ERROR_WRITE_DATA - Write data not accepted
+0X22,SD_CARD_ERROR_WRITE_FIFO - SDIO fifo write timeout
+0X23,SD_CARD_ERROR_WRITE_START - Bad writeStart argument
+0X24,SD_CARD_ERROR_WRITE_PROGRAMMING - Flash programming
+0X25,SD_CARD_ERROR_WRITE_TIMEOUT - Write timeout
+0X26,SD_CARD_ERROR_DMA - DMA transfer failed
+0X27,SD_CARD_ERROR_ERASE - Card did not accept erase commands
+0X28,SD_CARD_ERROR_ERASE_SINGLE_SECTOR - Card does not support erase
+0X29,SD_CARD_ERROR_ERASE_TIMEOUT - Erase command timeout
+0X2A,SD_CARD_ERROR_INIT_NOT_CALLED - Card has not been initialized
+0X2B,SD_CARD_ERROR_INVALID_CARD_CONFIG - Invalid card config
+0X2C,SD_CARD_ERROR_FUNCTION_NOT_SUPPORTED - Unsupported SDIO command
+0X2D,SD_CARD_ERROR_UNKNOWN - Unknown error

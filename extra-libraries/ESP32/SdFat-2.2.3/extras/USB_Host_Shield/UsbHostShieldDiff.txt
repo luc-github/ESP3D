@@ -1,0 +1,10 @@
+master/masstorage.cpp" 2022-10-18 08:48:03.639503200 -0700
+@@ -796,6 +796,7 @@
+                 buf[i] = 0x00;
+         }
+         WriteOk[lun] = true;
++        return 0;  // WHG - Many USB keys don't respond.
+         uint8_t rc = ModeSense6(lun, 0, 0x3f, 0, 192, buf);
+         if(!rc) {
+                 WriteOk[lun] = ((buf[2] & 0x80) == 0);
+
