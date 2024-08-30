@@ -157,6 +157,14 @@ void ESP3DCommands::ESP420(int cmd_params_pos, ESP3DMessage* msg) {
 
   // FW architecture
   tmpstr = ESP3DSettings::TargetBoard();
+  #ifdef ARDUINO_ARCH_ESP32
+  tmpstr = ESP.getChipModel();
+  tmpstr+="-";
+  tmpstr+=ESP.getChipRevision();
+  tmpstr+="-";
+  tmpstr+=ESP.getChipCores();
+  tmpstr+="@";
+  #endif // ARDUINO_ARCH_ESP32
   if (!dispatchIdValue(json, "FW arch", tmpstr.c_str(), target, requestId,
                        false)) {
     return;
