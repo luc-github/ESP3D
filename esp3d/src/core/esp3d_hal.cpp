@@ -34,10 +34,13 @@
 #endif  // __has_include ("rtc_wdt.h")
 #endif  // CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
 #include <WiFi.h>
-#include <esp_adc/adc_oneshot.h>
 #include <esp_adc/adc_continuous.h>
+#include <esp_adc/adc_oneshot.h>
 #include <esp_task_wdt.h>
+
+#if !CONFIG_IDF_TARGET_ESP32C6
 #include <soc/rtc_cntl_reg.h>
+#endif  // !CONFIG_IDF_TARGET_ESP32C6
 
 TaskHandle_t ESP3DHal::xHandle = nullptr;
 #endif  // ARDUINO_ARCH_ESP32
@@ -136,6 +139,7 @@ void ESP3DHal::analogRange(uint32_t range) {
 
 // Setup
 bool ESP3DHal::begin() {
+  checkTWDT();
 #if defined(ARDUINO_ARCH_ESP32) && defined(CAMERA_DEVICE)
   esp3d_log("Disable brown out");
   WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);  // disable brownout detector
@@ -161,8 +165,48 @@ bool ESP3DHal::begin() {
 // End ESP3D
 void ESP3DHal::end() {}
 
+void ESP3DHal::checkTWDT() {
+  // ESP32-C6 Seems not working with esp_task_wdt_reset()
+  // I itinitally though it was wrong initialization of TWDT
+  // doing esp_task_wdt_init() is not working
+  // but esp_task_wdt_reconfigure() is  working
+  // unfortunately it is still not working with esp_task_wdt_reset()
+  // so because doing esp_task_wdt_reconfigure and not do not change the behavior 
+  // so I comment it for now as note
+  // Instead I use vTaskDelay(1) to feed the WDT and seems ok
+  // delay(1) seems also ok
+/*
+#if CONFIG_IDF_TARGET_ESP32C6
+//ESP32-C6 
+  esp_err_t err = esp_task_wdt_status(NULL);
+  if (err == ESP_ERR_NOT_FOUND) {
+    esp3d_log_e("WDT was never initialized");
+    esp_task_wdt_config_t twdt_config = {
+        .timeout_ms = 2 * 1000,
+        .idle_core_mask = (1 << 0),
+        .trigger_panic = true,
+    };
+    err = esp_task_wdt_reconfigure(&twdt_config);
+    if (err == ESP_ERR_INVALID_STATE) {
+      esp3d_log_e("WDT already initialized");
+    } else if (err != ESP_OK) {
+      esp3d_log_e("WDT cannot be setup");
+    } else {
+      esp3d_log("WDT setup ok");
+    }
+  }
+#endif  // CONFIG_IDF_TARGET_ESP32C6
+*/
+}
+
 // Watchdog feeder
 void ESP3DHal::wdtFeed() {
+//ESP32-C6 Seems not working with esp_task_wdt_reset()
+#if CONFIG_IDF_TARGET_ESP32C6
+  //delay(1) seems also ok
+  vTaskDelay(1);
+  return;
+#endif  // CONFIG_IDF_TARGET_ESP32C6
 #ifdef ARDUINO_ARCH_ESP8266
   ESP.wdtFeed();
 #endif  // ARDUINO_ARCH_ESP8266
@@ -173,35 +217,33 @@ void ESP3DHal::wdtFeed() {
     lastYield = now;
     vTaskDelay(5);  // delay 1 RTOS tick
   }
-#if !defined(DISABLE_WDT_ESP3DLIB_TASK) && !defined(DISABLE_WDT_CORE_0)
 #if CONFIG_IDF_TARGET_ESP32
   // FIXME: not implemented
   rtc_wdt_feed();
 #endif  // CONFIG_IDF_TARGET_ESP32S2
-#endif  //! defined(DISABLE_WDT_ESP3DLIB_TASK) && !defined(DISABLE_WDT_CORE_0)
-#ifndef DISABLE_WDT_ESP3DLIB_TASK
-  if (xHandle && esp_task_wdt_status(xHandle) == ESP_OK) {
-    if (esp_task_wdt_reset() != ESP_OK) {
-      esp3d_log_e("WDT Reset failed");
+  esp_err_t err = esp_task_wdt_status(NULL);
+  if (err == ESP_ERR_NOT_FOUND) {
+    esp3d_log_e("No WDT task found, add it");
+    // no task found add it
+    err = esp_task_wdt_add(NULL);
+    if (err != ESP_OK) {
+      esp3d_log_e("Failed to add WDT task");
     }
+  } else if (err == ESP_ERR_INVALID_STATE) {
+    esp3d_log_e("WDT was never initialized");
   }
-#endif  // DISABLE_WDT_ESP3DLIB_TASK
+  if (esp_task_wdt_reset() != ESP_OK) {
+    esp3d_log_e("Failed to reset WDT task");
+  }
 #endif  // ARDUINO_ARCH_ESP32
 }
 
 // wait function
 void ESP3DHal::wait(uint32_t milliseconds) {
-#if defined(ASYNCWEBSERVER)
   uint32_t timeout = millis();
   while ((millis() - timeout) < milliseconds) {
     wdtFeed();
   }
-#else   // !(ASYNCWEBSERVER
-  wdtFeed();
-  // before 0 was acceptable, now it seems need to put 5 to have some effect if
-  // on esp32 core 0
-  delay(milliseconds < 5 ? 5 : milliseconds);
-#endif  // !ASYNCWEBSERVER
 }
 
 uint16_t ESP3DHal::getChipID() {
