@@ -36,11 +36,11 @@ ESP3DMessageManager::ESP3DMessageManager() {
 ESP3DMessageManager::~ESP3DMessageManager() { vSemaphoreDelete(_mutex); }
 
 bool ESP3DMessageManager::deleteMsg(ESP3DMessage* message) {
-  esp3d_log_d("Delete msg");
+  esp3d_log("Delete msg");
   if (xSemaphoreTake(_mutex, portMAX_DELAY) == pdTRUE) {
     bool result = _deleteMsg(message);
     xSemaphoreGive(_mutex);
-    esp3d_log_d("Delete msg done");
+    esp3d_log("Delete msg done");
     return result;
   } else {
     esp3d_log_e("Mutex not taken");
@@ -49,13 +49,13 @@ bool ESP3DMessageManager::deleteMsg(ESP3DMessage* message) {
 }
 
 bool ESP3DMessageManager::_deleteMsg(ESP3DMessage* message) {
-  esp3d_log_d("_Delete msg");
+  esp3d_log("_Delete msg");
   if (!message) {
     esp3d_log_e("Message is null");
     return false;
   }
   if (message->data) {
-    esp3d_log_d("Free data");
+    esp3d_log("Free data");
     free(message->data);
   }
   free(message);
@@ -67,7 +67,7 @@ bool ESP3DMessageManager::_deleteMsg(ESP3DMessage* message) {
 }
 
 ESP3DMessage* ESP3DMessageManager::newMsg() {
-  esp3d_log_d("New msg");
+  esp3d_log("New msg");
   if (xSemaphoreTake(_mutex, portMAX_DELAY) == pdTRUE) {
     ESP3DMessage* newMsgPtr = nullptr;
     newMsgPtr = _newMsg();
@@ -80,7 +80,7 @@ ESP3DMessage* ESP3DMessageManager::newMsg() {
 }
 
 ESP3DMessage* ESP3DMessageManager::_newMsg() {
-  esp3d_log_d("_New msg");
+  esp3d_log("_New msg");
   ESP3DMessage* newMsgPtr = (ESP3DMessage*)malloc(sizeof(ESP3DMessage));
   if (newMsgPtr) {
 #if defined(ESP_LOG_FEATURE)
@@ -101,12 +101,12 @@ ESP3DMessage* ESP3DMessageManager::_newMsg() {
 }
 
 ESP3DMessage* ESP3DMessageManager::newMsg(ESP3DRequest requestId) {
-  esp3d_log_d("New msg");
+  esp3d_log("New msg");
   if (xSemaphoreTake(_mutex, portMAX_DELAY) == pdTRUE) {
     ESP3DMessage* newMsgPtr = nullptr;
     newMsgPtr = _newMsg(requestId);
     xSemaphoreGive(_mutex);
-    esp3d_log_d("New msg done");
+    esp3d_log("New msg done");
     return newMsgPtr;
   } else {
     esp3d_log_e("Mutex not taken");
@@ -115,10 +115,10 @@ ESP3DMessage* ESP3DMessageManager::newMsg(ESP3DRequest requestId) {
 }
 
 ESP3DMessage* ESP3DMessageManager::_newMsg(ESP3DRequest requestId) {
-  esp3d_log_d("_New msg");
+  esp3d_log("_New msg");
   ESP3DMessage* newMsgPtr = _newMsg();
   if (newMsgPtr) {
-    esp3d_log_d("New msg done");
+    esp3d_log("New msg done");
     newMsgPtr->origin = ESP3DClientType::command;
     newMsgPtr->request_id = requestId;
   } else {
@@ -129,11 +129,11 @@ ESP3DMessage* ESP3DMessageManager::_newMsg(ESP3DRequest requestId) {
 
 bool ESP3DMessageManager::copyMsgInfos(ESP3DMessage* newMsgPtr,
                                        ESP3DMessage msg) {
-  esp3d_log_d("Copy msg infos");
+  esp3d_log("Copy msg infos");
   if (xSemaphoreTake(_mutex, portMAX_DELAY) == pdTRUE) {
     bool result = _copyMsgInfos(newMsgPtr, msg);
     xSemaphoreGive(_mutex);
-    esp3d_log_d("Copy msg infos done");
+    esp3d_log("Copy msg infos done");
     return result;
   } else {
     esp3d_log_e("Mutex not taken");
@@ -143,12 +143,12 @@ bool ESP3DMessageManager::copyMsgInfos(ESP3DMessage* newMsgPtr,
 
 bool ESP3DMessageManager::_copyMsgInfos(ESP3DMessage* newMsgPtr,
                                         ESP3DMessage msg) {
-  esp3d_log_d("_Copy msg infos");
+  esp3d_log("_Copy msg infos");
   if (!newMsgPtr) {
     esp3d_log_e("newMsgPtr is null");
     return false;
   }
-  esp3d_log_d("Copying msg infos");
+  esp3d_log("Copying msg infos");
   newMsgPtr->origin = msg.origin;
   newMsgPtr->target = msg.target;
   newMsgPtr->authentication_level = msg.authentication_level;
@@ -159,11 +159,11 @@ bool ESP3DMessageManager::_copyMsgInfos(ESP3DMessage* newMsgPtr,
 }
 
 ESP3DMessage* ESP3DMessageManager::copyMsgInfos(ESP3DMessage msg) {
-  esp3d_log_d("Copy msg infos");
+  esp3d_log("Copy msg infos");
   if (xSemaphoreTake(_mutex, portMAX_DELAY) == pdTRUE) {
     ESP3DMessage* newMsgPtr = _copyMsgInfos(msg);
     xSemaphoreGive(_mutex);
-    esp3d_log_d("Copy msg infos done");
+    esp3d_log("Copy msg infos done");
     return newMsgPtr;
   } else {
     esp3d_log_e("Mutex not taken");
@@ -172,7 +172,7 @@ ESP3DMessage* ESP3DMessageManager::copyMsgInfos(ESP3DMessage msg) {
 }
 
 ESP3DMessage* ESP3DMessageManager::_copyMsgInfos(ESP3DMessage msg) {
-  esp3d_log_d("_Copy msg infos");
+  esp3d_log("_Copy msg infos");
   ESP3DMessage* newMsgPtr = _newMsg();
   if (newMsgPtr) {
     _copyMsgInfos(newMsgPtr, msg);
@@ -183,7 +183,7 @@ ESP3DMessage* ESP3DMessageManager::_copyMsgInfos(ESP3DMessage msg) {
 }
 
 ESP3DMessage* ESP3DMessageManager::copyMsg(ESP3DMessage msg) {
-  esp3d_log_d("Copy msg");
+  esp3d_log("Copy msg");
   if (xSemaphoreTake(_mutex, portMAX_DELAY) == pdTRUE) {
     ESP3DMessage* newMsgPtr = _copyMsg(msg);
     xSemaphoreGive(_mutex);
@@ -195,7 +195,7 @@ ESP3DMessage* ESP3DMessageManager::copyMsg(ESP3DMessage msg) {
 }
 
 ESP3DMessage* ESP3DMessageManager::_copyMsg(ESP3DMessage msg) {
-  esp3d_log_d("_Copy msg");
+  esp3d_log("_Copy msg");
   ESP3DMessage* newMsgPtr = _newMsg(msg.origin, msg.target, msg.data, msg.size,
                                     msg.authentication_level);
   if (newMsgPtr) {
@@ -210,12 +210,12 @@ ESP3DMessage* ESP3DMessageManager::_copyMsg(ESP3DMessage msg) {
 ESP3DMessage* ESP3DMessageManager::newMsg(
     ESP3DClientType origin, ESP3DClientType target, const uint8_t* data,
     size_t length, ESP3DAuthenticationLevel authentication_level) {
-  esp3d_log_d("New msg");
+  esp3d_log("New msg");
   if (xSemaphoreTake(_mutex, portMAX_DELAY) == pdTRUE) {
     ESP3DMessage* newMsgPtr =
         _newMsg(origin, target, data, length, authentication_level);
     xSemaphoreGive(_mutex);
-    esp3d_log_d("New msg done");
+    esp3d_log("New msg done");
     return newMsgPtr;
   } else {
     esp3d_log_e("Mutex not taken");
@@ -227,7 +227,7 @@ ESP3DMessage* ESP3DMessageManager::_newMsg(
     ESP3DClientType origin, ESP3DClientType target, const uint8_t* data,
     size_t length, ESP3DAuthenticationLevel authentication_level) {
   ESP3DMessage* newMsgPtr = _newMsg(origin, target, authentication_level);
-  esp3d_log_d("_New msg");
+  esp3d_log("_New msg");
   if (newMsgPtr) {
     if (!_setDataContent(newMsgPtr, data, length)) {
       _deleteMsg(newMsgPtr);
@@ -236,7 +236,7 @@ ESP3DMessage* ESP3DMessageManager::_newMsg(
                   (uint8_t)origin, (uint8_t)target,
                   data ? (char*)data : "null");
     } else {
-      esp3d_log_d("Message created");
+      esp3d_log("Message created");
     }
   } else {
     esp3d_log_e("newMsgPtr is null");
@@ -247,11 +247,11 @@ ESP3DMessage* ESP3DMessageManager::_newMsg(
 ESP3DMessage* ESP3DMessageManager::newMsg(
     ESP3DClientType origin, ESP3DClientType target,
     ESP3DAuthenticationLevel authentication_level) {
-  esp3d_log_d("New msg");
+  esp3d_log("New msg");
   if (xSemaphoreTake(_mutex, portMAX_DELAY) == pdTRUE) {
     ESP3DMessage* newMsgPtr = _newMsg(origin, target, authentication_level);
     xSemaphoreGive(_mutex);
-    esp3d_log_d("New msg done");
+    esp3d_log("New msg done");
     return newMsgPtr;
   } else {
     esp3d_log_e("Mutex not taken");
@@ -262,7 +262,7 @@ ESP3DMessage* ESP3DMessageManager::newMsg(
 ESP3DMessage* ESP3DMessageManager::_newMsg(
     ESP3DClientType origin, ESP3DClientType target,
     ESP3DAuthenticationLevel authentication_level) {
-  esp3d_log_d("_New msg");
+  esp3d_log("_New msg");
   ESP3DMessage* newMsgPtr = _newMsg();
   if (newMsgPtr) {
     newMsgPtr->origin = origin;
@@ -271,17 +271,17 @@ ESP3DMessage* ESP3DMessageManager::_newMsg(
   } else {
     esp3d_log_e("newMsgPtr is null");
   }
-  esp3d_log_d("_New msg done");
+  esp3d_log("_New msg done");
   return newMsgPtr;
 }
 
 bool ESP3DMessageManager::setDataContent(ESP3DMessage* msg, const uint8_t* data,
                                          size_t length) {
-  esp3d_log_d("Set data content");
+  esp3d_log("Set data content");
   if (xSemaphoreTake(_mutex, portMAX_DELAY) == pdTRUE) {
     bool result = _setDataContent(msg, data, length);
     xSemaphoreGive(_mutex);
-    esp3d_log_d("Set data content done");
+    esp3d_log("Set data content done");
     return result;
   } else {
     esp3d_log_e("Mutex not taken");
@@ -291,7 +291,7 @@ bool ESP3DMessageManager::setDataContent(ESP3DMessage* msg, const uint8_t* data,
 
 bool ESP3DMessageManager::_setDataContent(ESP3DMessage* msg,
                                           const uint8_t* data, size_t length) {
-  esp3d_log_d("_Set data content");
+  esp3d_log("_Set data content");
   if (!msg) {
     esp3d_log_e("no valid msg container");
     return false;

@@ -71,7 +71,7 @@ bool LuaInterpreter::dispatch(ESP3DMessage *message) {
 }
 
 const char *LuaInterpreter::getLastError() {
-  esp3d_log_d("getLastError %s %s", _lastError.c_str(), _luaEngine.getLastError());
+  esp3d_log("getLastError %s %s", _lastError.c_str(), _luaEngine.getLastError());
   if (_lastError.length() == 0) {
     return _luaEngine.getLastError();
   }
@@ -149,17 +149,17 @@ void LuaInterpreter::resetLuaEnvironment() {
 }
 
 void LuaInterpreter::deleteScriptTask() {
-  esp3d_log_d("Delete script task start");
+  esp3d_log("Delete script task start");
   if (_scriptBuffer) {
-    esp3d_log_d("Free script buffer");
+    esp3d_log("Free script buffer");
     free(_scriptBuffer);
     _scriptBuffer = nullptr;
   }
-  esp3d_log_d("Reset lua environment");
+  esp3d_log("Reset lua environment");
   _luaFSType = Lua_Filesystem_Type::none;
   if (_lastError != "") resetLuaEnvironment();
   if (_scriptTask != NULL) {
-    esp3d_log_d("Delete script task");
+    esp3d_log("Delete script task");
     TaskHandle_t tmpTask = _scriptTask;
     _scriptTask = NULL;
     vTaskDelete(tmpTask);
@@ -302,14 +302,14 @@ void LuaInterpreter::scriptExecutionTask(void *parameter) {
   }
 #endif  // SD_DEVICE
   // Check if the file system type is not determined
-  esp3d_log_d("Check state");
+  esp3d_log("Check state");
   if (self->_luaFSType == Lua_Filesystem_Type::none) {
     if (self->_lastError.length() == 0)
       self->_lastError = "Cannot determine file system type";
     esp3d_log_e("%s", "Cannot determine file system type");
   } else {
     // Execute the script
-    esp3d_log_d("Execute script");
+    esp3d_log("Execute script");
     if (self->_luaFSType != Lua_Filesystem_Type::none && self->_scriptBuffer) {
       if (!self->_luaEngine.executeScript(self->_scriptBuffer)) {
         if (self->_lastError.length() == 0) {
@@ -319,7 +319,7 @@ void LuaInterpreter::scriptExecutionTask(void *parameter) {
       }
     }
   }
-  esp3d_log_d("Delete script task");
+  esp3d_log("Delete script task");
   self->deleteScriptTask();
 }
 
@@ -349,11 +349,11 @@ void LuaInterpreter::handle() {
 #endif  // NOTIFICATION_FEATURE
       }
       if (_messageOutFIFO.size() > 0) {
-        esp3d_log_d("lua_interpreter message size %d", _messageOutFIFO.size());
+        esp3d_log("lua_interpreter message size %d", _messageOutFIFO.size());
       }
       ESP3DMessage *msg = _messageOutFIFO.pop();
       if (msg) {
-        esp3d_log_d("Processing message: %s", msg->data);
+        esp3d_log("Processing message: %s", msg->data);
         esp3d_commands.process(msg);
       }
       xSemaphoreGive(_stateMutex);
@@ -433,15 +433,15 @@ int LuaInterpreter::l_analogRead(lua_State *L) {
 }
 
 int LuaInterpreter::l_print(lua_State *L) {
-  esp3d_log_d("lua_interpreter output");
+  esp3d_log("lua_interpreter output");
   LuaInterpreter *self =
       (LuaInterpreter *)lua_touserdata(L, lua_upvalueindex(1));
   String dataString;
   dataString = "";
   int nargs = lua_gettop(L);
-  // esp3d_log_d("lua_interpreter output args %d", nargs);
+  // esp3d_log("lua_interpreter output args %d", nargs);
   for (int i = 1; i <= nargs; i++) {
-    // esp3d_log_d("lua_interpreter output arg %d", i);
+    // esp3d_log("lua_interpreter output arg %d", i);
     if (lua_isstring(L, i)) {
       dataString += lua_tostring(L, i);
     } else if (lua_isnumber(L, i)) {
@@ -457,18 +457,18 @@ int LuaInterpreter::l_print(lua_State *L) {
   if (!dataString.endsWith("\n")) {
     dataString += "\n";
   }
-  esp3d_log_d("lua_interpreter output %s", dataString.c_str());
-  esp3d_log_d("Message Creation");
+  esp3d_log("lua_interpreter output %s", dataString.c_str());
+  esp3d_log("Message Creation");
   ESP3DMessage *msg = esp3d_message_manager.newMsg(
       ESP3DClientType::lua_script, esp3d_commands.getOutputClient(),
       (uint8_t *)dataString.c_str(), dataString.length(),
       ESP3DAuthenticationLevel::admin);
-  esp3d_log_d("Message created");
+  esp3d_log("Message created");
 
   if (msg) {
     // process command
     msg->type = ESP3DMessageType::unique;
-    esp3d_log_d("Message sent to fifo list");
+    esp3d_log("Message sent to fifo list");
     // push to FIFO
     self->_messageOutFIFO.push(msg);
   } else {

@@ -714,6 +714,8 @@ const char *ESP3DSettings::TargetBoard() {
 #define TYPE_BOARD "ESP32-S3"
 #elif CONFIG_IDF_TARGET_ESP32C3
 #define TYPE_BOARD "ESP32-C3"
+#elif CONFIG_IDF_TARGET_ESP32C6
+#define TYPE_BOARD "ESP32-C6"
 #endif
 #ifdef BOARD_HAS_PSRAM
 #define IS_PSRAM " (PSRAM)"
