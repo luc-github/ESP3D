@@ -171,71 +171,42 @@ void ESP3DHal::checkTWDT() {
   // doing esp_task_wdt_init() is not working
   // but esp_task_wdt_reconfigure() is  working
   // unfortunately it is still not working with esp_task_wdt_reset()
-  // so because doing esp_task_wdt_reconfigure and not do not change the behavior 
-  // so I comment it for now as note
-  // Instead I use vTaskDelay(1) to feed the WDT and seems ok
-  // delay(1) seems also ok
-/*
-#if CONFIG_IDF_TARGET_ESP32C6
-//ESP32-C6 
-  esp_err_t err = esp_task_wdt_status(NULL);
-  if (err == ESP_ERR_NOT_FOUND) {
-    esp3d_log_e("WDT was never initialized");
-    esp_task_wdt_config_t twdt_config = {
-        .timeout_ms = 2 * 1000,
-        .idle_core_mask = (1 << 0),
-        .trigger_panic = true,
-    };
-    err = esp_task_wdt_reconfigure(&twdt_config);
-    if (err == ESP_ERR_INVALID_STATE) {
-      esp3d_log_e("WDT already initialized");
-    } else if (err != ESP_OK) {
-      esp3d_log_e("WDT cannot be setup");
-    } else {
-      esp3d_log("WDT setup ok");
+  // so because doing esp_task_wdt_reconfigure and not do not change the
+  // behavior so I comment it for now as note Instead I use vTaskDelay(1) to
+  // feed the WDT and seems ok delay(1) seems also ok
+  /*
+  #if CONFIG_IDF_TARGET_ESP32C6
+  //ESP32-C6
+    esp_err_t err = esp_task_wdt_status(NULL);
+    if (err == ESP_ERR_NOT_FOUND) {
+      esp3d_log_e("WDT was never initialized");
+      esp_task_wdt_config_t twdt_config = {
+          .timeout_ms = 2 * 1000,
+          .idle_core_mask = (1 << 0),
+          .trigger_panic = true,
+      };
+      err = esp_task_wdt_reconfigure(&twdt_config);
+      if (err == ESP_ERR_INVALID_STATE) {
+        esp3d_log_e("WDT already initialized");
+      } else if (err != ESP_OK) {
+        esp3d_log_e("WDT cannot be setup");
+      } else {
+        esp3d_log("WDT setup ok");
+      }
     }
-  }
-#endif  // CONFIG_IDF_TARGET_ESP32C6
-*/
+  #endif  // CONFIG_IDF_TARGET_ESP32C6
+  */
 }
 
 // Watchdog feeder
 void ESP3DHal::wdtFeed() {
-//ESP32-C6 Seems not working with esp_task_wdt_reset()
-#if CONFIG_IDF_TARGET_ESP32C6
-  //delay(1) seems also ok
+#ifdef ARDUINO_ARCH_ESP32
   vTaskDelay(1);
   return;
-#endif  // CONFIG_IDF_TARGET_ESP32C6
+#endif  // ARDUINO_ARCH_ESP32
 #ifdef ARDUINO_ARCH_ESP8266
   ESP.wdtFeed();
 #endif  // ARDUINO_ARCH_ESP8266
-#ifdef ARDUINO_ARCH_ESP32
-  static uint64_t lastYield = 0;
-  uint64_t now = millis();
-  if ((now - lastYield) > 2000) {
-    lastYield = now;
-    vTaskDelay(5);  // delay 1 RTOS tick
-  }
-#if CONFIG_IDF_TARGET_ESP32
-  // FIXME: not implemented
-  rtc_wdt_feed();
-#endif  // CONFIG_IDF_TARGET_ESP32S2
-  esp_err_t err = esp_task_wdt_status(NULL);
-  if (err == ESP_ERR_NOT_FOUND) {
-    esp3d_log_e("No WDT task found, add it");
-    // no task found add it
-    err = esp_task_wdt_add(NULL);
-    if (err != ESP_OK) {
-      esp3d_log_e("Failed to add WDT task");
-    }
-  } else if (err == ESP_ERR_INVALID_STATE) {
-    esp3d_log_e("WDT was never initialized");
-  }
-  if (esp_task_wdt_reset() != ESP_OK) {
-    esp3d_log_e("Failed to reset WDT task");
-  }
-#endif  // ARDUINO_ARCH_ESP32
 }
 
 // wait function
