@@ -136,15 +136,15 @@
 //  MODE_ETH_CLOCK_GPIO0_OUT
 //  MODE_ETH_CLOCK_GPIO16_OUT
 //  MODE_ETH_CLOCK_GPIO17_OUT
-#define ESP3D_ETH_CLK_MODE MODE_ETH_CLOCK_GPIO17_OUT
+#define ESP3D_ETH_CLK_MODE MODE_ETH_CLOCK_GPIO0_IN
 
 // Pins of ethernet board
-#define ESP3D_ETH_PHY_POWER_PIN 12
-// #define ESP3D_ETH_PHY_MDC_PIN 23
-// #define ESP3D_ETH_PHY_MDIO_PIN 18
+#define ESP3D_ETH_PHY_POWER_PIN 16
+#define ESP3D_ETH_PHY_MDC_PIN 23
+#define ESP3D_ETH_PHY_MDIO_PIN 18
 
 // Address of ethernet board
-// #define ESP3D_ETH_PHY_ADDR 0
+#define ESP3D_ETH_PHY_ADDR 1
 
 /* Use Bluetooth
  * Enable serial bluetooth communications
@@ -283,14 +283,15 @@
  * ESP_SHARED_SD //Printer SD Card is also connected to ESP3D
  * Does your system has SD card and how it is connected to your ESP3D
  */
-// #define SD_DEVICE_CONNECTION ESP_SHARED_SD
+ #define SD_DEVICE_CONNECTION ESP_DIRECT_SD
 
 /* SD card library
  * ESP_SD_NATIVE //esp32 / esp8266
  * ESP_SDIO      //esp32 only
  * ESP_SDFAT2    //esp8266  / esp32
  */
-// #define SD_DEVICE ESP_SD_NATIVE
+ #define SD_DEVICE ESP_SDFAT2
+
 
 // #define SD_CARD_TYPE ESP_FYSETC_WIFI_PRO_SDCARD
 
@@ -299,7 +300,7 @@
  * SD_ONE_BIT_MODE
  * SD_FOUR_BIT_MODE
  */
-// #define SDIO_BIT_MODE SD_ONE_BIT_MODE
+ //#define SDIO_BIT_MODE SD_ONE_BIT_MODE
 
 /* Enable date/time on files
  * Set date/time on files using SNTP or last webui connection
@@ -335,7 +336,13 @@
 /* SD card CS pin
  * The pin used to select SD card in SPI mode
  */
-// #define ESP_SD_CS_PIN 5
+ //#define ESP_SD_CS_PIN 21
+ //#define ESP_SD_MISO_PIN 8
+ //#define ESP_SD_MOSI_PIN 9
+ //#define ESP_SD_SCK_PIN  7
+ //#define ESP_SDIO_CMD_PIN 38
+ //#define ESP_SDIO_D0_PIN 40
+ //#define ESP_SDIO_CLK_PIN 39
 
 /************************************
  *
@@ -383,7 +390,7 @@
  * The pin used to reset ESP3D setting if set to low for more than 1 second at
  * start
  */
-#define ESP3D_RESET_PIN 0
+//#define ESP3D_RESET_PIN 0
 
 /************************************
  *
@@ -505,9 +512,10 @@
  * CAMERA_MODEL_ESP32S2_CAM_BOARD
  * CAMERA_MODEL_ESP32S3_CAM_LCD
  * CAMERA_MODEL_ESP32S3_EYE
+ * CAMERA_MODEL_XIAO_ESP32S3  
  * Camera connected to ESP board, only ones with PSRAM are supported
  */
-// #define CAMERA_DEVICE CAMERA_MODEL_AI_THINKER
+// #define CAMERA_DEVICE CAMERA_MODEL_XIAO_ESP32S3
 
 /* Flip vertically
  * Flip camera vertically
@@ -621,9 +629,9 @@
 // LOG_OUTPUT_SERIAL2
 // LOG_OUTPUT_TELNET
 // LOG_OUTPUT_WEBSOCKET
-// #define ESP_LOG_FEATURE LOG_OUTPUT_SERIAL0
+ //#define ESP_LOG_FEATURE LOG_OUTPUT_SERIAL0
 
-// #define ESP3D_DEBUG_LEVEL LOG_LEVEL_DEBUG
+ //#define ESP3D_DEBUG_LEVEL LOG_LEVEL_VERBOSE
 
 #ifdef ESP_LOG_FEATURE
 #define LOG_ESP3D_BAUDRATE 115200
@@ -634,7 +642,7 @@
 // #define ESP_BENCHMARK_FEATURE
 
 // Disable sanity check at compilation
-// #define ESP_NO_SANITY_CHECK
+ //#define ESP_NO_SANITY_CHECK
 
 /************************************
  *
