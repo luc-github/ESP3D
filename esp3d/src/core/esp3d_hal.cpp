@@ -140,10 +140,6 @@ void ESP3DHal::analogRange(uint32_t range) {
 // Setup
 bool ESP3DHal::begin() {
   checkTWDT();
-#if defined(ARDUINO_ARCH_ESP32) && defined(CAMERA_DEVICE)
-  esp3d_log("Disable brown out");
-  WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);  // disable brownout detector
-#endif  // ARDUINO_ARCH_ESP32 && CAMERA_DEVICE
   // Clear all wifi state
   WiFi.persistent(false);
   WiFi.disconnect(true);
