@@ -283,14 +283,14 @@
  * ESP_SHARED_SD //Printer SD Card is also connected to ESP3D
  * Does your system has SD card and how it is connected to your ESP3D
  */
- #define SD_DEVICE_CONNECTION ESP_DIRECT_SD
+ //#define SD_DEVICE_CONNECTION ESP_DIRECT_SD
 
 /* SD card library
  * ESP_SD_NATIVE //esp32 / esp8266
  * ESP_SDIO      //esp32 only
  * ESP_SDFAT2    //esp8266  / esp32
  */
- #define SD_DEVICE ESP_SDFAT2
+ //#define SD_DEVICE ESP_SDFAT2
 
 
 // #define SD_CARD_TYPE ESP_FYSETC_WIFI_PRO_SDCARD
@@ -629,9 +629,9 @@
 // LOG_OUTPUT_SERIAL2
 // LOG_OUTPUT_TELNET
 // LOG_OUTPUT_WEBSOCKET
- //#define ESP_LOG_FEATURE LOG_OUTPUT_SERIAL0
+//#define ESP_LOG_FEATURE LOG_OUTPUT_SERIAL0
 
- //#define ESP3D_DEBUG_LEVEL LOG_LEVEL_VERBOSE
+//#define ESP3D_DEBUG_LEVEL LOG_LEVEL_DEBUG
 
 #ifdef ESP_LOG_FEATURE
 #define LOG_ESP3D_BAUDRATE 115200
@@ -642,7 +642,7 @@
 // #define ESP_BENCHMARK_FEATURE
 
 // Disable sanity check at compilation
- //#define ESP_NO_SANITY_CHECK
+// #define ESP_NO_SANITY_CHECK
 
 /************************************
  *

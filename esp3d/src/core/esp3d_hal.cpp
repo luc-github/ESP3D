@@ -207,10 +207,15 @@ void ESP3DHal::wdtFeed() {
 
 // wait function
 void ESP3DHal::wait(uint32_t milliseconds) {
+ #ifdef ARDUINO_ARCH_ESP32
   uint32_t timeout = millis();
   while ((millis() - timeout) < milliseconds) {
     wdtFeed();
   }
+#endif  // CONFIG_IDF_TARGET_ESP32
+#ifdef ARDUINO_ARCH_ESP8266
+delay(milliseconds);
+#endif  // ARDUINO_ARCH_ESP8266
 }
 
 uint16_t ESP3DHal::getChipID() {
