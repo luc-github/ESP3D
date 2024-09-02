@@ -72,7 +72,7 @@ void loop() {
   Serial.print(F("\r\nEnter File Number: "));
 
   while (!Serial.available()) {
-    SysCall::yield();
+    yield();
   }
   c = Serial.read();
   uint8_t i = c - '0';

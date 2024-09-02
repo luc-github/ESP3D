@@ -1,8 +1,20 @@
-### Warning: This is SdFat Version 2.
+File copy constructors and file assignment operators have been made private by
+default in 2.2.3 to prevent call by value and multiple copies of file instances.
 
-Earlier releases of Version 1 are here:
+SdFatConfig.h has options to make file constructors and assignment operators
+public.
 
-https://github.com/greiman/SdFat/releases
+UTF-8 encoded filenames are supported in v2.1.0 or later.
+
+Try the UnicodeFilenames example.  Here is output from ls:
+<pre>
+Type any character to begin
+ls:
+         0 😀/
+          20 россиянин
+          17 très élégant
+           9 狗.txt
+</pre>
 
 SdFat Version 2 supports FAT16/FAT32 and exFAT SD cards. It is mostly
 backward compatible with SdFat Version 1 for FAT16/FAT32 cards.

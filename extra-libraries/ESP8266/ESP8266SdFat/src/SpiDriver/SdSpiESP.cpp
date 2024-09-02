@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011-2020 Bill Greiman
+ * Copyright (c) 2011-2022 Bill Greiman
  * This file is part of the SdFat library for SD memory cards.
  *
  * MIT License
@@ -24,68 +24,63 @@
  */
 
 #include "SdSpiDriver.h"
-
-
-namespace sdfat {
-
-
 #if defined(SD_USE_CUSTOM_SPI) && (defined(ESP8266) || defined(ESP32))
 #define ESP_UNALIGN_OK 1
 //------------------------------------------------------------------------------
-void SdSpiArduinoDriver::activate() {
-  ::SPI.beginTransaction(m_spiSettings);
-}
+void SdSpiArduinoDriver::activate() { m_spi->beginTransaction(m_spiSettings); }
 //------------------------------------------------------------------------------
 void SdSpiArduinoDriver::begin(SdSpiConfig spiConfig) {
-  (void)spiConfig;
-  ::SPI.begin();
+  if (spiConfig.spiPort) {
+    m_spi = spiConfig.spiPort;
+#if defined(SDCARD_SPI) && defined(SDCARD_SS_PIN)
+  } else if (spiConfig.csPin == SDCARD_SS_PIN) {
+    m_spi = &SDCARD_SPI;
+#endif  // defined(SDCARD_SPI) && defined(SDCARD_SS_PIN)
+  } else {
+    m_spi = &SPI;
+  }
+  m_spi->begin();
 }
 //------------------------------------------------------------------------------
-void SdSpiArduinoDriver::deactivate() {
-  ::SPI.endTransaction();
-}
+void SdSpiArduinoDriver::deactivate() { m_spi->endTransaction(); }
 //------------------------------------------------------------------------------
-uint8_t SdSpiArduinoDriver::receive() {
-  return ::SPI.transfer(0XFF);
-}
+void SdSpiArduinoDriver::end() { m_spi->end(); }
+//------------------------------------------------------------------------------
+uint8_t SdSpiArduinoDriver::receive() { return m_spi->transfer(0XFF); }
 //------------------------------------------------------------------------------
 uint8_t SdSpiArduinoDriver::receive(uint8_t* buf, size_t count) {
 #if ESP_UNALIGN_OK
-  ::SPI.transferBytes(nullptr, buf, count);
-#else  // ESP_UNALIGN_OK
+  m_spi->transferBytes(nullptr, buf, count);
+#else   // ESP_UNALIGN_OK
   // Adjust to 32-bit alignment.
   while ((reinterpret_cast<uintptr_t>(buf) & 0X3) && count) {
-    *buf++ = ::SPI.transfer(0xff);
+    *buf++ = m_spi->transfer(0xff);
     count--;
   }
   // Do multiple of four byte transfers.
-  size_t n4 = 4*(count/4);
+  size_t n4 = 4 * (count / 4);
   if (n4) {
-    ::SPI.transferBytes(nullptr, buf, n4);
+    m_spi->transferBytes(nullptr, buf, n4);
   }
   // Transfer up to three remaining bytes.
   for (buf += n4, count -= n4; count; count--) {
-    *buf++ = ::SPI.transfer(0xff);
+    *buf++ = m_spi->transfer(0xff);
   }
 #endif  // ESP_UNALIGN_OK
   return 0;
 }
 //------------------------------------------------------------------------------
-void SdSpiArduinoDriver::send(uint8_t data) {
-  ::SPI.transfer(data);
-}
+void SdSpiArduinoDriver::send(uint8_t data) { m_spi->transfer(data); }
 //------------------------------------------------------------------------------
-void SdSpiArduinoDriver::send(const uint8_t* buf , size_t count) {
+void SdSpiArduinoDriver::send(const uint8_t* buf, size_t count) {
 #if !ESP_UNALIGN_OK
   // Adjust to 32-bit alignment.
   while ((reinterpret_cast<uintptr_t>(buf) & 0X3) && count) {
-    ::SPI.transfer(*buf++);
+    SPI.transfer(*buf++);
     count--;
   }
 #endif  // #if ESP_UNALIGN_OK
-  ::SPI.transferBytes(const_cast<uint8_t*>(buf), nullptr, count);
+
+  m_spi->transferBytes(const_cast<uint8_t*>(buf), nullptr, count);
 }
-#endif  // defined(SD_USE_CUSTOM_SPI) && defined(ESP8266)
-
-
-}; // namespace sdfat
+#endif  // defined(SD_USE_CUSTOM_SPI) && (defined(ESP8266) || defined(ESP32))

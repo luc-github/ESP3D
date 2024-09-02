@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011-2020 Bill Greiman
+ * Copyright (c) 2011-2022 Bill Greiman
  * This file is part of the SdFat library for SD memory cards.
  *
  * MIT License
@@ -24,12 +24,7 @@
  */
 #ifndef ArduinoFiles_h
 #define ArduinoFiles_h
-#include "../SdFatConfig.h"
-
-
-namespace sdfat {
-
-
+#include "SysCall.h"
 //------------------------------------------------------------------------------
 /** Arduino SD.h style flag for open for read. */
 #ifndef FILE_READ
@@ -44,7 +39,7 @@ namespace sdfat {
  * \class PrintFile
  * \brief PrintFile class.
  */
-template<class BaseFile>
+template <class BaseFile>
 class PrintFile : public print_t, public BaseFile {
  public:
   using BaseFile::clearWriteError;
@@ -55,16 +50,14 @@ class PrintFile : public print_t, public BaseFile {
    * \param[in] b byte to write.
    * \return one for success.
    */
-  size_t write(uint8_t b) {
-    return BaseFile::write(&b, 1);
-  }
+  size_t write(uint8_t b) { return BaseFile::write(&b, 1); }
 };
 //------------------------------------------------------------------------------
 /**
  * \class StreamFile
  * \brief StreamFile class.
  */
-template<class BaseFile, typename PosType>
+template <class BaseFile, typename PosType>
 class StreamFile : public stream_t, public BaseFile {
  public:
   using BaseFile::clearWriteError;
@@ -77,46 +70,29 @@ class StreamFile : public stream_t, public BaseFile {
   /** \return number of bytes available from the current position to EOF
    *   or INT_MAX if more than INT_MAX bytes are available.
    */
-  int available() {
-    return BaseFile::available();
-  }
+  int available() { return BaseFile::available(); }
   /** Ensure that any bytes written to the file are saved to the SD card. */
-  void flush() {
-    BaseFile::sync();
-  }
+  void flush() { BaseFile::sync(); }
   /** This function reports if the current file is a directory or not.
-  * \return true if the file is a directory.
-  */
-  bool isDirectory() {
-    return BaseFile::isDir();
-  }
-  /** No longer implemented due to Long File Names.
-   *
-   * Use getName(char* name, size_t size).
-   * \return a pointer to replacement suggestion.
+   * \return true if the file is a directory.
    */
-  const char* name() const {
-    return "use getName()";
-  }
+  bool isDirectory() { return BaseFile::isDir(); }
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+  char* __attribute__((error("use getName(name, size)"))) name();
+#endif  // DOXYGEN_SHOULD_SKIP_THIS
   /** Return the next available byte without consuming it.
    *
    * \return The byte if no error and not at eof else -1;
    */
-  int peek() {
-    return BaseFile::peek();
-  }
+  int peek() { return BaseFile::peek(); }
   /** \return the current file position. */
-  PosType position() {
-    return BaseFile::curPosition();
-  }
+  PosType position() { return BaseFile::curPosition(); }
   /** Read the next byte from a file.
    *
    * \return For success return the next byte in the file as an int.
    * If an error occurs or end of file is reached return -1.
    */
-  int read() {
-    return BaseFile::read();
-  }
+  int read() { return BaseFile::read(); }
   /** Rewind a file if it is a directory */
   void rewindDirectory() {
     if (BaseFile::isDir()) {
@@ -130,21 +106,15 @@ class StreamFile : public stream_t, public BaseFile {
    * \param[in] pos the new file position.
    * \return true for success or false for failure.
    */
-  bool seek(PosType pos) {
-    return BaseFile::seekSet(pos);
-  }
+  bool seek(PosType pos) { return BaseFile::seekSet(pos); }
   /** \return the file's size. */
-  PosType size() {
-    return BaseFile::fileSize();
-  }
+  PosType size() { return BaseFile::fileSize(); }
   /** Write a byte to a file. Required by the Arduino Print class.
    * \param[in] b the byte to be written.
    * Use getWriteError to check for errors.
    * \return 1 for success and 0 for failure.
    */
-  size_t write(uint8_t b) {
-    return BaseFile::write(b);
-  }
+  size_t write(uint8_t b) { return BaseFile::write(b); }
   /** Write data to an open file.
    *
    * \note Data is moved to the cache but may not be written to the
@@ -161,9 +131,4 @@ class StreamFile : public stream_t, public BaseFile {
     return BaseFile::write(buffer, size);
   }
 };
-
-
-}; // namespace sdfat
-
-
 #endif  // ArduinoFiles_h

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011-2020 Bill Greiman
+ * Copyright (c) 2011-2022 Bill Greiman
  * This file is part of the SdFat library for SD memory cards.
  *
  * MIT License
@@ -28,11 +28,6 @@
  */
 #ifndef SdSpiBaseClass_h
 #define SdSpiBaseClass_h
-
-
-namespace sdfat {
-
-
 /**
  * \class SdSpiBaseClass
  * \brief Base class for external SPI drivers
@@ -48,18 +43,20 @@ class SdSpiBaseClass {
   virtual void begin(SdSpiConfig config) = 0;
   /** Deactivate SPI hardware. */
   virtual void deactivate() {}
+  /** deactivate SPI driver. */
+  virtual void end() {}
   /** Receive a byte.
    *
    * \return The byte.
    */
   virtual uint8_t receive() = 0;
   /** Receive multiple bytes.
-  *
-  * \param[out] buf Buffer to receive the data.
-  * \param[in] count Number of bytes to receive.
-  *
-  * \return Zero for no error or nonzero error code.
-  */
+   *
+   * \param[out] buf Buffer to receive the data.
+   * \param[in] count Number of bytes to receive.
+   *
+   * \return Zero for no error or nonzero error code.
+   */
   virtual uint8_t receive(uint8_t* buf, size_t count) = 0;
   /** Send a byte.
    *
@@ -76,11 +73,6 @@ class SdSpiBaseClass {
    *
    * \param[in] maxSck Maximum SCK frequency.
    */
-  virtual void setSckSpeed(uint32_t maxSck) {(void)maxSck;}
+  virtual void setSckSpeed(uint32_t maxSck) { (void)maxSck; }
 };
-
-
-}; // namespace sdfat
-
-
 #endif  // SdSpiBaseClass_h

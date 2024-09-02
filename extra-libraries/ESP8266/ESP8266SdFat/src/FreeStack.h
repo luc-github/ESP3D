@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011-2020 Bill Greiman
+ * Copyright (c) 2011-2022 Bill Greiman
  * This file is part of the SdFat library for SD memory cards.
  *
  * MIT License
@@ -34,7 +34,7 @@
 /** Indicate FillStack() and UnusedStack() are available. */
 #define HAS_UNUSED_STACK 1
 /** boundary between stack and heap. */
-extern char *__brkval;
+extern char* __brkval;
 /** End of bss section.*/
 extern char __bss_end;
 /** Amount of free stack space.
@@ -48,9 +48,7 @@ inline int FreeStack() {
 #define HAS_UNUSED_STACK 0
 #elif defined(PLATFORM_ID)  // Particle board
 #include "Arduino.h"
-inline int FreeStack() {
-  return System.freeMemory();
-}
+inline int FreeStack() { return System.freeMemory(); }
 #elif defined(__IMXRT1062__)
 #define HAS_UNUSED_STACK 1
 extern uint8_t _ebss;
@@ -65,29 +63,11 @@ inline int FreeStack() {
   register uint32_t sp asm("sp");
   return reinterpret_cast<char*>(sp) - reinterpret_cast<char*>(sbrk(0));
 }
-#elif defined(ESP8266)
-
-
-#include <Arduino.h>
-
-namespace sdfat {
-
-
-inline int FreeStack() {
-  int free = (int)ESP.getFreeContStack();
-  ESP.resetFreeContStack();
-  return free;
-}
-
-
-}; // namespace sdfat
-
-
 #else  // defined(__AVR__) || defined(DOXYGEN)
 #ifndef FREE_STACK_CPP
 #warning FreeStack is not defined for this system.
 #endif  // FREE_STACK_CPP
-
+inline int FreeStack() { return 0; }
 #endif  // defined(__AVR__) || defined(DOXYGEN)
 #if defined(HAS_UNUSED_STACK) || defined(DOXYGEN)
 /** Fill stack with 0x55 pattern */
@@ -104,17 +84,7 @@ void FillStack();
 int UnusedStack();
 #else  // HAS_UNUSED_STACK
 #define HAS_UNUSED_STACK 0
-
-
-namespace sdfat {
-
-
 inline void FillStack() {}
-inline int UnusedStack() {return 0;}
-
-
-}; // namespace sdfat
-
-
+inline int UnusedStack() { return 0; }
 #endif  // defined(HAS_UNUSED_STACK)
 #endif  // FreeStack_h

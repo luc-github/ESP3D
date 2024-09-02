@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011-2020 Bill Greiman
+ * Copyright (c) 2011-2022 Bill Greiman
  * This file is part of the SdFat library for SD memory cards.
  *
  * MIT License
@@ -23,11 +23,6 @@
  * DEALINGS IN THE SOFTWARE.
  */
 #include "FsStructs.h"
-
-
-namespace sdfat {
-
-
 // bgnLba = relSector;
 // endLba = relSector + partSize - 1;
 void lbaToMbrChs(uint8_t* chs, uint32_t capacityMB, uint32_t lba) {
@@ -67,6 +62,3 @@ void lbaToMbrChs(uint8_t* chs, uint32_t capacityMB, uint32_t lba) {
   chs[1] = ((c >> 2) & 0XC0) | s;
   chs[2] = c;
 }
-
-
-}; // namespace sdfat

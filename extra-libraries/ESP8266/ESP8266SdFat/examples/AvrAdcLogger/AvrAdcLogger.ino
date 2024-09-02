@@ -20,12 +20,11 @@
  */
 #ifdef __AVR__
 #include <SPI.h>
-#include "SdFat.h"
+
+#include "AvrAdcLogger.h"
 #include "BufferedPrint.h"
 #include "FreeStack.h"
-#include "AvrAdcLogger.h"
-
-using namespace sdfat;
+#include "SdFat.h"
 
 // Save SRAM if 328.
 #ifdef __AVR_ATmega328P__
@@ -35,9 +34,6 @@ MinimumSerial MinSerial;
 #endif  // __AVR_ATmega328P__
 //------------------------------------------------------------------------------
 // This example was designed for exFAT but will support FAT16/FAT32.
-//
-// If an exFAT SD is required, the ExFatFormatter example will format
-// smaller cards with an exFAT file system.
 //
 // Note: Uno will not support SD_FAT_TYPE = 3.
 // SD_FAT_TYPE = 0 for SdFat/File as defined in SdFatConfig.h,
@@ -78,7 +74,7 @@ const float SAMPLE_RATE = 5000;  // Must be 0.25 or greater.
 // constant instead of being calculated from SAMPLE_RATE.  SAMPLE_RATE is not
 // used in the code below.  For example, setting SAMPLE_INTERVAL = 2.0e-4
 // will result in a 200 microsecond sample interval.
-const float SAMPLE_INTERVAL = 1.0/SAMPLE_RATE;
+const float SAMPLE_INTERVAL = 1.0 / SAMPLE_RATE;
 
 // Setting ROUND_SAMPLE_INTERVAL non-zero will cause the sample interval to
 // be rounded to a a multiple of the ADC clock period and will reduce sample
@@ -114,11 +110,11 @@ const size_t NAME_DIM = 40;
 #elif RAMEND < 0X10FF
 const size_t FIFO_SIZE_BYTES = 512;
 #elif RAMEND < 0X20FF
-const size_t FIFO_SIZE_BYTES = 4*512;
+const size_t FIFO_SIZE_BYTES = 4 * 512;
 #elif RAMEND < 0X40FF
-const size_t FIFO_SIZE_BYTES = 12*512;
-#else  // RAMEND
-const size_t FIFO_SIZE_BYTES = 16*512;
+const size_t FIFO_SIZE_BYTES = 12 * 512;
+#else   // RAMEND
+const size_t FIFO_SIZE_BYTES = 16 * 512;
 #endif  // RAMEND
 //------------------------------------------------------------------------------
 // ADC clock rate.
@@ -141,7 +137,7 @@ const size_t FIFO_SIZE_BYTES = 16*512;
 #define TMP_FILE_NAME "tmp_adc.bin"
 
 // Number of analog pins to log.
-const uint8_t PIN_COUNT = sizeof(PIN_LIST)/sizeof(PIN_LIST[0]);
+const uint8_t PIN_COUNT = sizeof(PIN_LIST) / sizeof(PIN_LIST[0]);
 
 // Minimum ADC clock cycles per sample interval
 const uint16_t MIN_ADC_CYCLES = 15;
@@ -154,11 +150,14 @@ const uint16_t ISR_TIMER0 = 160;
 //==============================================================================
 const uint32_t MAX_FILE_SIZE = MAX_FILE_SIZE_MiB << 20;
 
+// Max SPI rate for AVR is 10 MHz for F_CPU 20 MHz, 8 MHz for F_CPU 16 MHz.
+#define SPI_CLOCK SD_SCK_MHZ(10)
+
 // Select fastest interface.
 #if ENABLE_DEDICATED_SPI
-#define SD_CONFIG SdSpiConfig(SD_CS_PIN, DEDICATED_SPI)
+#define SD_CONFIG SdSpiConfig(SD_CS_PIN, DEDICATED_SPI, SPI_CLOCK)
 #else  // ENABLE_DEDICATED_SPI
-#define SD_CONFIG SdSpiConfig(SD_CS_PIN, SHARED_SPI)
+#define SD_CONFIG SdSpiConfig(SD_CS_PIN, SHARED_SPI, SPI_CLOCK)
 #endif  // ENABLE_DEDICATED_SPI
 
 #if SD_FAT_TYPE == 0
@@ -183,19 +182,19 @@ file_t csvFile;
 char binName[] = LOG_FILE_NAME;
 
 #if RECORD_EIGHT_BITS
-const size_t BLOCK_MAX_COUNT = PIN_COUNT*(DATA_DIM8/PIN_COUNT);
+const size_t BLOCK_MAX_COUNT = PIN_COUNT * (DATA_DIM8 / PIN_COUNT);
 typedef block8_t block_t;
-#else  // RECORD_EIGHT_BITS
-const size_t BLOCK_MAX_COUNT = PIN_COUNT*(DATA_DIM16/PIN_COUNT);
+#else   // RECORD_EIGHT_BITS
+const size_t BLOCK_MAX_COUNT = PIN_COUNT * (DATA_DIM16 / PIN_COUNT);
 typedef block16_t block_t;
-#endif // RECORD_EIGHT_BITS
+#endif  // RECORD_EIGHT_BITS
 
 // Size of FIFO in blocks.
-size_t const FIFO_DIM = FIFO_SIZE_BYTES/sizeof(block_t);
+size_t const FIFO_DIM = FIFO_SIZE_BYTES / sizeof(block_t);
 block_t* fifoData;
-volatile size_t fifoCount = 0; // volatile - shared, ISR and background.
-size_t fifoHead = 0;  // Only accessed by ISR during logging.
-size_t fifoTail = 0;  // Only accessed by writer during logging.
+volatile size_t fifoCount = 0;  // volatile - shared, ISR and background.
+size_t fifoHead = 0;            // Only accessed by ISR during logging.
+size_t fifoTail = 0;            // Only accessed by writer during logging.
 //==============================================================================
 // Interrupt Service Routines
 
@@ -222,7 +221,7 @@ ISR(ADC_vect) {
   // Read ADC data.
 #if RECORD_EIGHT_BITS
   uint8_t d = ADCH;
-#else  // RECORD_EIGHT_BITS
+#else   // RECORD_EIGHT_BITS
   // This will access ADCL first.
   uint16_t d = ADC;
 #endif  // RECORD_EIGHT_BITS
@@ -248,7 +247,7 @@ ISR(ADC_vect) {
     if (adcindex == 0) {
       timerFlag = false;
     }
-    adcindex =  adcindex < (PIN_COUNT - 1) ? adcindex + 1 : 0;
+    adcindex = adcindex < (PIN_COUNT - 1) ? adcindex + 1 : 0;
   } else {
     timerFlag = false;
   }
@@ -280,7 +279,7 @@ ISR(TIMER1_COMPB_vect) {
 }
 //==============================================================================
 // Error messages stored in flash.
-#define error(msg) (Serial.println(F(msg)),errorHalt())
+#define error(msg) (Serial.println(F(msg)), errorHalt())
 #define assert(e) ((e) ? (void)0 : error("assert: " #e))
 //------------------------------------------------------------------------------
 //
@@ -339,12 +338,13 @@ void dateTime(uint16_t* date, uint16_t* time, uint8_t* ms10) {
 #error unexpected ADC prescaler bits
 #endif
 //------------------------------------------------------------------------------
-inline bool adcActive() {return (1 << ADIE) & ADCSRA;}
+inline bool adcActive() { return (1 << ADIE) & ADCSRA; }
 //------------------------------------------------------------------------------
 // initialize ADC and timer1
 void adcInit(metadata_t* meta) {
   uint8_t adps;  // prescaler bits for ADCSRA
-  uint32_t ticks = F_CPU*SAMPLE_INTERVAL + 0.5;  // Sample interval cpu cycles.
+  uint32_t ticks =
+      F_CPU * SAMPLE_INTERVAL + 0.5;  // Sample interval cpu cycles.
 
   if (ADC_REF & ~((1 << REFS0) | (1 << REFS1))) {
     error("Invalid ADC reference");
@@ -354,9 +354,9 @@ void adcInit(metadata_t* meta) {
     error("Invalid ADC prescaler");
   }
   adps = ADC_PRESCALER;
-#else  // ADC_PRESCALER
+#else   // ADC_PRESCALER
   // Allow extra cpu cycles to change ADC settings if more than one pin.
-  int32_t adcCycles = (ticks - ISR_TIMER0)/PIN_COUNT - ISR_SETUP_ADC;
+  int32_t adcCycles = (ticks - ISR_TIMER0) / PIN_COUNT - ISR_SETUP_ADC;
 
   for (adps = 7; adps > 0; adps--) {
     if (adcCycles >= (MIN_ADC_CYCLES << adps)) {
@@ -413,19 +413,19 @@ void adcInit(metadata_t* meta) {
     // no prescale, CTC mode
     TCCR1B = (1 << WGM13) | (1 << WGM12) | (1 << CS10);
     tshift = 0;
-  } else if (ticks < 0X10000*8) {
+  } else if (ticks < 0X10000 * 8) {
     // prescale 8, CTC mode
     TCCR1B = (1 << WGM13) | (1 << WGM12) | (1 << CS11);
     tshift = 3;
-  } else if (ticks < 0X10000*64) {
+  } else if (ticks < 0X10000 * 64) {
     // prescale 64, CTC mode
     TCCR1B = (1 << WGM13) | (1 << WGM12) | (1 << CS11) | (1 << CS10);
     tshift = 6;
-  } else if (ticks < 0X10000*256) {
+  } else if (ticks < 0X10000 * 256) {
     // prescale 256, CTC mode
     TCCR1B = (1 << WGM13) | (1 << WGM12) | (1 << CS12);
     tshift = 8;
-  } else if (ticks < 0X10000*1024) {
+  } else if (ticks < 0X10000 * 1024) {
     // prescale 1024, CTC mode
     TCCR1B = (1 << WGM13) | (1 << WGM12) | (1 << CS12) | (1 << CS10);
     tshift = 10;
@@ -445,7 +445,7 @@ void adcInit(metadata_t* meta) {
   // Sample interval in CPU clock ticks.
   meta->sampleInterval = ticks;
   meta->cpuFrequency = F_CPU;
-  float sampleRate = (float)meta->cpuFrequency/meta->sampleInterval;
+  float sampleRate = (float)meta->cpuFrequency / meta->sampleInterval;
   Serial.print(F("Sample pins:"));
   for (uint8_t i = 0; i < meta->pinCount; i++) {
     Serial.print(' ');
@@ -455,11 +455,11 @@ void adcInit(metadata_t* meta) {
   Serial.print(F("ADC bits: "));
   Serial.println(meta->recordEightBits ? 8 : 10);
   Serial.print(F("ADC clock kHz: "));
-  Serial.println(meta->adcFrequency/1000);
+  Serial.println(meta->adcFrequency / 1000);
   Serial.print(F("Sample Rate: "));
   Serial.println(sampleRate);
   Serial.print(F("Sample interval usec: "));
-  Serial.println(1000000.0/sampleRate);
+  Serial.println(1000000.0 / sampleRate);
 }
 //------------------------------------------------------------------------------
 // enable ADC and timer1 interrupts
@@ -511,7 +511,7 @@ void binaryToCsv() {
     if (nb < 0) {
       error("read binFile failed");
     }
-    size_t nd = nb/sizeof(block_t);
+    size_t nd = nb / sizeof(block_t);
     if (nd < 1) {
       break;
     }
@@ -522,7 +522,8 @@ void binaryToCsv() {
         error("Invalid pinCount");
       }
       bp.print(F("Interval,"));
-      float intervalMicros = 1.0e6*pm->sampleInterval/(float)pm->cpuFrequency;
+      float intervalMicros =
+          1.0e6 * pm->sampleInterval / (float)pm->cpuFrequency;
       bp.print(intervalMicros, 4);
       bp.println(F(",usec"));
       for (uint8_t i = 0; i < PIN_COUNT; i++) {
@@ -544,14 +545,15 @@ void binaryToCsv() {
       }
       for (size_t j = 0; j < pd->count; j += PIN_COUNT) {
         for (size_t i = 0; i < PIN_COUNT; i++) {
-          if (!bp.printField(pd->data[i + j], i == (PIN_COUNT-1) ? '\n' : ',')) {
+          if (!bp.printField(pd->data[i + j],
+                             i == (PIN_COUNT - 1) ? '\n' : ',')) {
             error("printField failed");
           }
         }
       }
     }
     if ((millis() - tPct) > 1000) {
-      uint8_t pct = binFile.curPosition()/(binFile.fileSize()/100);
+      uint8_t pct = binFile.curPosition() / (binFile.fileSize() / 100);
       if (pct != lastPct) {
         tPct = millis();
         lastPct = pct;
@@ -564,7 +566,7 @@ void binaryToCsv() {
     error("close csvFile failed");
   }
   Serial.print(F("Done: "));
-  Serial.print(0.001*(millis() - t0));
+  Serial.print(0.001 * (millis() - t0));
   Serial.println(F(" Seconds"));
 }
 //------------------------------------------------------------------------------
@@ -622,7 +624,7 @@ bool createCsvFile() {
     error("no dot in binName");
   }
   strcpy(dot + 1, "csv");
-  if (!csvFile.open(csvName, O_WRONLY|O_CREAT|O_TRUNC)) {
+  if (!csvFile.open(csvName, O_WRONLY | O_CREAT | O_TRUNC)) {
     error("open csvFile failed");
   }
   Serial.print(F("Writing: "));
@@ -635,7 +637,7 @@ bool createCsvFile() {
 void logData() {
   uint32_t t0;
   uint32_t t1;
-  uint32_t overruns =0;
+  uint32_t overruns = 0;
   uint32_t count = 0;
   uint32_t maxLatencyUsec = 0;
   size_t maxFifoUse = 0;
@@ -679,7 +681,7 @@ void logData() {
       if (m > maxLatencyUsec) {
         maxLatencyUsec = m;
       }
-      if (tmpFifoCount >maxFifoUse) {
+      if (tmpFifoCount > maxFifoUse) {
         maxFifoUse = tmpFifoCount;
       }
       count += pBlock->count;
@@ -714,7 +716,7 @@ void logData() {
       isrStop = true;
     }
     if (fifoCount == 0 && !adcActive()) {
-       break;
+      break;
     }
   }
   Serial.println();
@@ -729,9 +731,9 @@ void logData() {
   Serial.print(F("Max write latency usec: "));
   Serial.println(maxLatencyUsec);
   Serial.print(F("Record time sec: "));
-  Serial.println(0.001*(t1 - t0), 3);
+  Serial.println(0.001 * (t1 - t0), 3);
   Serial.print(F("Sample count: "));
-  Serial.println(count/PIN_COUNT);
+  Serial.println(count / PIN_COUNT);
   Serial.print(F("Overruns: "));
   Serial.println(overruns);
   Serial.print(F("FIFO_DIM: "));
@@ -770,13 +772,13 @@ void printData() {
     return;
   }
   binFile.rewind();
-  if (binFile.read(&buf , sizeof(buf)) != sizeof(buf)) {
+  if (binFile.read(&buf, sizeof(buf)) != sizeof(buf)) {
     error("Read metadata failed");
   }
   Serial.println(F("Type any character to stop"));
   delay(1000);
   while (!Serial.available() &&
-         binFile.read(&buf , sizeof(buf)) == sizeof(buf)) {
+         binFile.read(&buf, sizeof(buf)) == sizeof(buf)) {
     if (buf.count == 0) {
       break;
     }
@@ -786,7 +788,7 @@ void printData() {
     }
     for (size_t i = 0; i < buf.count; i++) {
       Serial.print(buf.data[i], DEC);
-      if ((i+1)%PIN_COUNT) {
+      if ((i + 1) % PIN_COUNT) {
         Serial.print(',');
       } else {
         Serial.println();
@@ -798,7 +800,7 @@ void printData() {
 //------------------------------------------------------------------------------
 bool serialReadLine(char* str, size_t size) {
   size_t n = 0;
-  while(!Serial.available()) {
+  while (!Serial.available()) {
   }
   while (true) {
     int c = Serial.read();
@@ -809,7 +811,8 @@ bool serialReadLine(char* str, size_t size) {
       return false;
     }
     uint32_t m = millis();
-    while (!Serial.available() && (millis() - m) < 100){}
+    while (!Serial.available() && (millis() - m) < 100) {
+    }
     if (!Serial.available()) break;
   }
   str[n] = 0;
@@ -821,9 +824,11 @@ void setup(void) {
     pinMode(ERROR_LED_PIN, OUTPUT);
   }
   Serial.begin(9600);
-  while(!Serial) {}
+  while (!Serial) {
+  }
   Serial.println(F("Type any character to begin."));
-  while(!Serial.available()) {}
+  while (!Serial.available()) {
+  }
 
   FillStack();
 
@@ -831,9 +836,9 @@ void setup(void) {
   analogRead(PIN_LIST[0]);
 
 #if !ENABLE_DEDICATED_SPI
-  Serial.println(F(
-    "\nFor best performance edit SdFatConfig.h\n"
-    "and set ENABLE_DEDICATED_SPI nonzero"));
+  Serial.println(
+      F("\nFor best performance edit SdFatConfig.h\n"
+        "and set ENABLE_DEDICATED_SPI nonzero"));
 #endif  // !ENABLE_DEDICATED_SPI
   // Initialize SD.
   if (!sd.begin(SD_CONFIG)) {
@@ -867,8 +872,8 @@ void loop(void) {
   Serial.println(F("p - print data to Serial"));
   Serial.println(F("r - record ADC data"));
 
-  while(!Serial.available()) {
-    SysCall::yield();
+  while (!Serial.available()) {
+    yield();
   }
   char c = tolower(Serial.read());
   Serial.println();

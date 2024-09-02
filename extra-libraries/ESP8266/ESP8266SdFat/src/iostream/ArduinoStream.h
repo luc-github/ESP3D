@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011-2020 Bill Greiman
+ * Copyright (c) 2011-2022 Bill Greiman
  * This file is part of the SdFat library for SD memory cards.
  *
  * MIT License
@@ -28,13 +28,7 @@
  * \file
  * \brief ArduinoInStream and ArduinoOutStream classes
  */
-#include "SdFatConfig.h"
 #include "bufstream.h"
-
-
-namespace sdfat {
-
-
 //==============================================================================
 /**
  * \class ArduinoInStream
@@ -48,7 +42,7 @@ class ArduinoInStream : public ibufstream {
    * \param[in] buf buffer for input line
    * \param[in] size size of input buffer
    */
-  ArduinoInStream(Stream &hws, char* buf, size_t size) {
+  ArduinoInStream(Stream& hws, char* buf, size_t size) {
     m_hw = &hws;
     m_line = buf;
     m_size = size;
@@ -59,7 +53,7 @@ class ArduinoInStream : public ibufstream {
     uint32_t t;
     m_line[0] = '\0';
     while (!m_hw->available()) {
-      SysCall::yield();
+      yield();
     }
 
     while (1) {
@@ -76,7 +70,7 @@ class ArduinoInStream : public ibufstream {
       m_line[i++] = m_hw->read();
       m_line[i] = '\0';
     }
-done:
+  done:
     init(m_line);
   }
 
@@ -101,7 +95,7 @@ done:
   }
 
  private:
-  char *m_line;
+  char* m_line;
   size_t m_size;
   Stream* m_hw;
 };
@@ -116,7 +110,7 @@ class ArduinoOutStream : public ostream {
    *
    * \param[in] pr Print object for this ArduinoOutStream.
    */
-  explicit ArduinoOutStream(Print& pr) : m_pr(&pr) {}
+  explicit ArduinoOutStream(print_t& pr) : m_pr(&pr) {}
 
  protected:
   /// @cond SHOW_PROTECTED
@@ -130,9 +124,7 @@ class ArduinoOutStream : public ostream {
     }
     m_pr->write(c);
   }
-  void putstr(const char* str) {
-    m_pr->write(str);
-  }
+  void putstr(const char* str) { m_pr->write(str); }
   bool seekoff(off_type off, seekdir way) {
     (void)off;
     (void)way;
@@ -142,20 +134,11 @@ class ArduinoOutStream : public ostream {
     (void)pos;
     return false;
   }
-  bool sync() {
-    return true;
-  }
-  pos_type tellpos() {
-    return 0;
-  }
+  bool sync() { return true; }
+  pos_type tellpos() { return 0; }
   /// @endcond
  private:
   ArduinoOutStream() {}
-  Print* m_pr;
+  print_t* m_pr;
 };
-
-
-}; // namespace sdfat
-
-
 #endif  // ArduinoStream_h

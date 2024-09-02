@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011-2020 Bill Greiman
+ * Copyright (c) 2011-2022 Bill Greiman
  * This file is part of the SdFat library for SD memory cards.
  *
  * MIT License
@@ -24,7 +24,6 @@
  */
 #ifndef ExFatLib_h
 #define ExFatLib_h
-#include "ExFatVolume.h"
-#include "ExFatFile.h"
 #include "ExFatFormatter.h"
+#include "ExFatVolume.h"
 #endif  // ExFatLib_h

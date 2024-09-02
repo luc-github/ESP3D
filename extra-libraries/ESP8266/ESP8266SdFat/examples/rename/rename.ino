@@ -4,12 +4,9 @@
 #include "SdFat.h"
 #include "sdios.h"
 
-using namespace sdfat;
-
-
 // SD_FAT_TYPE = 0 for SdFat/File as defined in SdFatConfig.h,
 // 1 for FAT16/FAT32, 2 for exFAT, 3 for FAT16/FAT32 and exFAT.
-#define SD_FAT_TYPE 1
+#define SD_FAT_TYPE 3
 
 /*
   Change the value of SD_CS_PIN if you are using SPI and
@@ -23,19 +20,21 @@ using namespace sdfat;
 // SDCARD_SS_PIN is defined for the built-in SD on some boards.
 #ifndef SDCARD_SS_PIN
 const uint8_t SD_CS_PIN = SS;
-#else  // SDCARD_SS_PIN
+#else   // SDCARD_SS_PIN
 // Assume built-in SD is used.
 const uint8_t SD_CS_PIN = SDCARD_SS_PIN;
 #endif  // SDCARD_SS_PIN
 
+// Try max SPI clock for an SD. Reduce SPI_CLOCK if errors occur.
+#define SPI_CLOCK SD_SCK_MHZ(50)
 
 // Try to select the best SD card configuration.
 #if HAS_SDIO_CLASS
 #define SD_CONFIG SdioConfig(FIFO_SDIO)
 #elif ENABLE_DEDICATED_SPI
-#define SD_CONFIG SdSpiConfig(SD_CS_PIN, DEDICATED_SPI)
+#define SD_CONFIG SdSpiConfig(SD_CS_PIN, DEDICATED_SPI, SPI_CLOCK)
 #else  // HAS_SDIO_CLASS
-#define SD_CONFIG SdSpiConfig(SD_CS_PIN, SHARED_SPI)
+#define SD_CONFIG SdSpiConfig(SD_CS_PIN, SHARED_SPI, SPI_CLOCK)
 #endif  // HAS_SDIO_CLASS
 
 #if SD_FAT_TYPE == 0
@@ -65,11 +64,11 @@ void setup() {
 
   // Wait for USB Serial
   while (!Serial) {
-    SysCall::yield();
+    yield();
   }
   cout << F("Insert an empty SD.  Type any character to start.") << endl;
   while (!Serial.available()) {
-    SysCall::yield();
+    yield();
   }
 
   // Initialize at the highest speed supported by the board that is
@@ -81,8 +80,7 @@ void setup() {
   // Remove file/dirs from previous run.
   if (sd.exists("dir2/DIR3/NAME3.txt")) {
     cout << F("Removing /dir2/DIR3/NAME3.txt") << endl;
-    if (!sd.remove("dir2/DIR3/NAME3.txt") ||
-        !sd.rmdir("dir2/DIR3/") ||
+    if (!sd.remove("dir2/DIR3/NAME3.txt") || !sd.rmdir("dir2/DIR3/") ||
         !sd.rmdir("dir2/")) {
       error("remove/rmdir failed");
     }

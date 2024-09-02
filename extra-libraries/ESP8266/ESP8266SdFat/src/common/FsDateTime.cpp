@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011-2020 Bill Greiman
+ * Copyright (c) 2011-2022 Bill Greiman
  * This file is part of the SdFat library for SD memory cards.
  *
  * MIT License
@@ -22,13 +22,10 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
-#include "SysCall.h"
 #include "FsDateTime.h"
+
 #include "FmtNumber.h"
-
-
-namespace sdfat {
-
+#include "SysCall.h"
 
 static void dateTimeMs10(uint16_t* date, uint16_t* time, uint8_t* ms10) {
   *ms10 = 0;
@@ -37,19 +34,17 @@ static void dateTimeMs10(uint16_t* date, uint16_t* time, uint8_t* ms10) {
 //------------------------------------------------------------------------------
 /** Date time callback. */
 namespace FsDateTime {
-  void (*callback)(uint16_t* date, uint16_t* time, uint8_t* ms10) = nullptr;
-  void (*callback2)(uint16_t* date, uint16_t* time) = nullptr;
-  void clearCallback() {
-    callback = nullptr;
-  }
-  void setCallback(void (*dateTime)(uint16_t* date, uint16_t* time)) {
-    callback = dateTimeMs10;
-    callback2 = dateTime;
-  }
-  void setCallback(
-    void (*dateTime)(uint16_t* date, uint16_t* time, uint8_t* ms10)) {
-    callback = dateTime;
-  }
+void (*callback)(uint16_t* date, uint16_t* time, uint8_t* ms10) = nullptr;
+void (*callback2)(uint16_t* date, uint16_t* time) = nullptr;
+void clearCallback() { callback = nullptr; }
+void setCallback(void (*dateTime)(uint16_t* date, uint16_t* time)) {
+  callback = dateTimeMs10;
+  callback2 = dateTime;
+}
+void setCallback(void (*dateTime)(uint16_t* date, uint16_t* time,
+                                  uint8_t* ms10)) {
+  callback = dateTime;
+}
 }  // namespace FsDateTime
 //------------------------------------------------------------------------------
 static char* fsFmtField(char* str, uint16_t n, char sep) {
@@ -78,15 +73,14 @@ char* fsFmtTime(char* str, uint16_t time) {
 }
 //------------------------------------------------------------------------------
 char* fsFmtTime(char* str, uint16_t time, uint8_t sec100) {
-  str = fsFmtField(str, sec100%100, 0);
-  str = fsFmtField(str, 2*(time & 31) + sec100/100, '.');
+  str = fsFmtField(str, 2 * (time & 31) + (sec100 < 100 ? 0 : 1), 0);
   *--str = ':';
   return fsFmtTime(str, time);
 }
 //------------------------------------------------------------------------------
 char* fsFmtTimeZone(char* str, int8_t tz) {
-  char sign;
   if (tz & 0X80) {
+    char sign;
     if (tz & 0X40) {
       sign = '-';
       tz = -tz;
@@ -95,8 +89,8 @@ char* fsFmtTimeZone(char* str, int8_t tz) {
       tz &= 0X7F;
     }
     if (tz) {
-      str = fsFmtField(str, 15*(tz%4), 0);
-      str = fsFmtField(str, tz/4, ':');
+      str = fsFmtField(str, 15 * (tz % 4), 0);
+      str = fsFmtField(str, tz / 4, ':');
       *--str = sign;
     }
     *--str = 'C';
@@ -108,12 +102,12 @@ char* fsFmtTimeZone(char* str, int8_t tz) {
 //------------------------------------------------------------------------------
 size_t fsPrintDate(print_t* pr, uint16_t date) {
   // Allow YYYY-MM-DD
-  char buf[sizeof("YYYY-MM-DD") -1];
+  char buf[sizeof("YYYY-MM-DD") - 1];
   char* str = buf + sizeof(buf);
   if (date) {
     str = fsFmtDate(str, date);
   } else {
-     do {
+    do {
       *--str = ' ';
     } while (str > buf);
   }
@@ -122,7 +116,7 @@ size_t fsPrintDate(print_t* pr, uint16_t date) {
 //------------------------------------------------------------------------------
 size_t fsPrintDateTime(print_t* pr, uint16_t date, uint16_t time) {
   // Allow YYYY-MM-DD hh:mm
-  char buf[sizeof("YYYY-MM-DD hh:mm") -1];
+  char buf[sizeof("YYYY-MM-DD hh:mm") - 1];
   char* str = buf + sizeof(buf);
   if (date) {
     str = fsFmtTime(str, time);
@@ -140,10 +134,10 @@ size_t fsPrintDateTime(print_t* pr, uint32_t dateTime) {
   return fsPrintDateTime(pr, dateTime >> 16, dateTime & 0XFFFF);
 }
 //------------------------------------------------------------------------------
-size_t fsPrintDateTime(print_t* pr,
-                       uint32_t dateTime, uint8_t s100, int8_t tz) {
-  // Allow YYYY-MM-DD hh:mm:ss.ss UTC+hh:mm
-  char buf[sizeof("YYYY-MM-DD hh:mm:ss.ss UTC+hh:mm") -1];
+size_t fsPrintDateTime(print_t* pr, uint32_t dateTime, uint8_t s100,
+                       int8_t tz) {
+  // Allow YYYY-MM-DD hh:mm:ss UTC+hh:mm
+  char buf[sizeof("YYYY-MM-DD hh:mm:ss UTC+hh:mm") - 1];
   char* str = buf + sizeof(buf);
   if (tz) {
     str = fsFmtTimeZone(str, tz);
@@ -157,15 +151,15 @@ size_t fsPrintDateTime(print_t* pr,
 //------------------------------------------------------------------------------
 size_t fsPrintTime(print_t* pr, uint16_t time) {
   // Allow hh:mm
-  char buf[sizeof("hh:mm") -1];
+  char buf[sizeof("hh:mm") - 1];
   char* str = buf + sizeof(buf);
   str = fsFmtTime(str, time);
   return pr->write(reinterpret_cast<uint8_t*>(str), buf + sizeof(buf) - str);
 }
 //------------------------------------------------------------------------------
 size_t fsPrintTime(print_t* pr, uint16_t time, uint8_t sec100) {
-  // Allow hh:mm:ss.ss
-  char buf[sizeof("hh:mm:ss.ss") -1];
+  // Allow hh:mm:ss
+  char buf[sizeof("hh:mm:ss") - 1];
   char* str = buf + sizeof(buf);
   str = fsFmtTime(str, time, sec100);
   return pr->write(reinterpret_cast<uint8_t*>(str), buf + sizeof(buf) - str);
@@ -173,11 +167,8 @@ size_t fsPrintTime(print_t* pr, uint16_t time, uint8_t sec100) {
 //------------------------------------------------------------------------------
 size_t fsPrintTimeZone(print_t* pr, int8_t tz) {
   // Allow UTC+hh:mm
-  char buf[sizeof("UTC+hh:mm") -1];
+  char buf[sizeof("UTC+hh:mm") - 1];
   char* str = buf + sizeof(buf);
   str = fsFmtTimeZone(str, tz);
   return pr->write(reinterpret_cast<uint8_t*>(str), buf + sizeof(buf) - str);
 }
-
-
-}; // namespace sdfat

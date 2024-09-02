@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011-2020 Bill Greiman
+ * Copyright (c) 2011-2022 Bill Greiman
  * This file is part of the SdFat library for SD memory cards.
  *
  * MIT License
@@ -29,11 +29,6 @@
 #ifndef fstream_h
 #define fstream_h
 #include "iostream.h"
-
-
-namespace sdfat {
-
-
 //------------------------------------------------------------------------------
 /**
  * \class StreamBaseClass
@@ -41,38 +36,28 @@ namespace sdfat {
  */
 class StreamBaseClass : protected StreamBaseFile, virtual public ios {
  protected:
-  void clearWriteError() {
-    StreamBaseFile::clearWriteError();
-  }
+  void clearWriteError() { StreamBaseFile::clearWriteError(); }
   /* Internal do not use
    * \return mode
    */
   int16_t getch();
-  bool getWriteError() {
-    return StreamBaseFile::getWriteError();
-  }
+  bool getWriteError() { return StreamBaseFile::getWriteError(); }
   void open(const char* path, ios::openmode mode);
   /** Internal do not use
    * \return mode
    */
-  ios::openmode getmode() {
-    return m_mode;
-  }
+  ios::openmode getmode() { return m_mode; }
   void putch(char c);
-  void putstr(const char *str);
+  void putstr(const char* str);
   bool seekoff(off_type off, seekdir way);
   /** Internal do not use
    * \param[in] pos
    */
-  bool seekpos(pos_type pos) {
-    return StreamBaseFile::seekSet(pos);
-  }
+  bool seekpos(pos_type pos) { return StreamBaseFile::seekSet(pos); }
   /** Internal do not use
    * \param[in] mode
    */
-  void setmode(ios::openmode mode) {
-    m_mode = mode;
-  }
+  void setmode(ios::openmode mode) { m_mode = mode; }
   int write(const void* buf, size_t n);
   void write(char c);
 
@@ -84,7 +69,7 @@ class StreamBaseClass : protected StreamBaseFile, virtual public ios {
  * \class fstream
  * \brief file input/output stream.
  */
-class fstream : public iostream, StreamBaseClass  {
+class fstream : public iostream, StreamBaseClass {
  public:
   using iostream::peek;
   fstream() {}
@@ -108,9 +93,7 @@ class fstream : public iostream, StreamBaseClass  {
   /**  Close a file and force cached data and directory information
    *  to be written to the storage device.
    */
-  void close() {
-    StreamBaseClass::close();
-  }
+  void close() { StreamBaseClass::close(); }
   /** Open a fstream
    * \param[in] path path to open
    * \param[in] mode open mode
@@ -137,54 +120,36 @@ class fstream : public iostream, StreamBaseClass  {
     StreamBaseClass::open(path, mode);
   }
   /** \return True if stream is open else false. */
-  bool is_open() {
-    return StreamBaseFile::isOpen();
-  }
+  bool is_open() { return StreamBaseFile::isOpen(); }
 
  protected:
   /// @cond SHOW_PROTECTED
   /** Internal - do not use
    * \return
    */
-  int16_t getch() {
-    return StreamBaseClass::getch();
-  }
+  int16_t getch() { return StreamBaseClass::getch(); }
   /** Internal - do not use
-  * \param[out] pos
-  */
-  void getpos(pos_t* pos) {
-    StreamBaseFile::fgetpos(pos);
-  }
+   * \param[out] pos
+   */
+  void getpos(pos_t* pos) { StreamBaseFile::fgetpos(pos); }
   /** Internal - do not use
    * \param[in] c
    */
-  void putch(char c) {
-    StreamBaseClass::putch(c);
-  }
+  void putch(char c) { StreamBaseClass::putch(c); }
   /** Internal - do not use
    * \param[in] str
    */
-  void putstr(const char *str) {
-    StreamBaseClass::putstr(str);
-  }
+  void putstr(const char* str) { StreamBaseClass::putstr(str); }
   /** Internal - do not use
    * \param[in] pos
    */
   bool seekoff(off_type off, seekdir way) {
     return StreamBaseClass::seekoff(off, way);
   }
-  bool seekpos(pos_type pos) {
-    return StreamBaseClass::seekpos(pos);
-  }
-  void setpos(pos_t* pos) {
-    StreamBaseFile::fsetpos(pos);
-  }
-  bool sync() {
-    return StreamBaseClass::sync();
-  }
-  pos_type tellpos() {
-    return StreamBaseFile::curPosition();
-  }
+  bool seekpos(pos_type pos) { return StreamBaseClass::seekpos(pos); }
+  void setpos(pos_t* pos) { StreamBaseFile::fsetpos(pos); }
+  bool sync() { return StreamBaseClass::sync(); }
+  pos_type tellpos() { return StreamBaseFile::curPosition(); }
   /// @endcond
 };
 //==============================================================================
@@ -192,7 +157,7 @@ class fstream : public iostream, StreamBaseClass  {
  * \class ifstream
  * \brief file input stream.
  */
-class ifstream : public istream, StreamBaseClass  {
+class ifstream : public istream, StreamBaseClass {
  public:
   using istream::peek;
   ifstream() {}
@@ -200,22 +165,16 @@ class ifstream : public istream, StreamBaseClass  {
    * \param[in] path file to open
    * \param[in] mode open mode
    */
-  explicit ifstream(const char* path, openmode mode = in) {
-    open(path, mode);
-  }
+  explicit ifstream(const char* path, openmode mode = in) { open(path, mode); }
 #if DESTRUCTOR_CLOSES_FILE
   ~ifstream() {}
 #endif  // DESTRUCTOR_CLOSES_FILE
   /**  Close a file and force cached data and directory information
    *  to be written to the storage device.
    */
-  void close() {
-    StreamBaseClass::close();
-  }
+  void close() { StreamBaseClass::close(); }
   /** \return True if stream is open else false. */
-  bool is_open() {
-    return StreamBaseFile::isOpen();
-  }
+  bool is_open() { return StreamBaseFile::isOpen(); }
   /** Open an ifstream
    * \param[in] path file to open
    * \param[in] mode open mode
@@ -231,30 +190,20 @@ class ifstream : public istream, StreamBaseClass  {
   /** Internal - do not use
    * \return
    */
-  int16_t getch() {
-    return StreamBaseClass::getch();
-  }
+  int16_t getch() override { return StreamBaseClass::getch(); }
   /** Internal - do not use
    * \param[out] pos
    */
-  void getpos(pos_t* pos) {
-    StreamBaseFile::fgetpos(pos);
-  }
+  void getpos(pos_t* pos) override { StreamBaseFile::fgetpos(pos); }
   /** Internal - do not use
    * \param[in] pos
    */
-  bool seekoff(off_type off, seekdir way) {
+  bool seekoff(off_type off, seekdir way) override {
     return StreamBaseClass::seekoff(off, way);
   }
-  bool seekpos(pos_type pos) {
-    return StreamBaseClass::seekpos(pos);
-  }
-  void setpos(pos_t* pos) {
-    StreamBaseFile::fsetpos(pos);
-  }
-  pos_type tellpos() {
-    return StreamBaseFile::curPosition();
-  }
+  bool seekpos(pos_type pos) override { return StreamBaseClass::seekpos(pos); }
+  void setpos(pos_t* pos) override { StreamBaseFile::fsetpos(pos); }
+  pos_type tellpos() override { return StreamBaseFile::curPosition(); }
   /// @endcond
 };
 //==============================================================================
@@ -262,16 +211,14 @@ class ifstream : public istream, StreamBaseClass  {
  * \class ofstream
  * \brief file output stream.
  */
-class ofstream : public ostream, StreamBaseClass  {
+class ofstream : public ostream, StreamBaseClass {
  public:
   ofstream() {}
   /** Constructor with open
    * \param[in] path file to open
    * \param[in] mode open mode
    */
-  explicit ofstream(const char* path, openmode mode = out) {
-    open(path, mode);
-  }
+  explicit ofstream(const char* path, openmode mode = out) { open(path, mode); }
 #if DESTRUCTOR_CLOSES_FILE
   ~ofstream() {}
 #endif  // DESTRUCTOR_CLOSES_FILE
@@ -285,9 +232,7 @@ class ofstream : public ostream, StreamBaseClass  {
   /**  Close a file and force cached data and directory information
    *  to be written to the storage device.
    */
-  void close() {
-    StreamBaseClass::close();
-  }
+  void close() { StreamBaseClass::close(); }
   /** Open an ofstream
    * \param[in] path file to open
    * \param[in] mode open mode
@@ -298,9 +243,7 @@ class ofstream : public ostream, StreamBaseClass  {
     StreamBaseClass::open(path, mode | out);
   }
   /** \return True if stream is open else false. */
-  bool is_open() {
-    return StreamBaseFile::isOpen();
-  }
+  bool is_open() { return StreamBaseFile::isOpen(); }
 
  protected:
   /// @cond SHOW_PROTECTED
@@ -308,33 +251,18 @@ class ofstream : public ostream, StreamBaseClass  {
    * Internal do not use
    * \param[in] c
    */
-  void putch(char c) {
-    StreamBaseClass::putch(c);
-  }
-  void putstr(const char* str) {
-    StreamBaseClass::putstr(str);
-  }
-  bool seekoff(off_type off, seekdir way) {
+  void putch(char c) override { StreamBaseClass::putch(c); }
+  void putstr(const char* str) override { StreamBaseClass::putstr(str); }
+  bool seekoff(off_type off, seekdir way) override {
     return StreamBaseClass::seekoff(off, way);
   }
-  bool seekpos(pos_type pos) {
-    return StreamBaseClass::seekpos(pos);
-  }
+  bool seekpos(pos_type pos) override { return StreamBaseClass::seekpos(pos); }
   /**
    * Internal do not use
    * \param[in] b
    */
-  bool sync() {
-    return StreamBaseClass::sync();
-  }
-  pos_type tellpos() {
-    return StreamBaseFile::curPosition();
-  }
+  bool sync() override { return StreamBaseClass::sync(); }
+  pos_type tellpos() override { return StreamBaseFile::curPosition(); }
   /// @endcond
 };
-
-
-}; // namespace sdfat
-
-
 #endif  // fstream_h

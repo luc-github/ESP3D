@@ -11,11 +11,11 @@ void setup() {
   Serial.begin(9600);
   // Wait for USB Serial
   while (!Serial) {
-    SysCall::yield();
+    yield();
   }
   Serial.println("Type 'Y' to wipe all data.");
   while (!Serial.available()) {
-    SysCall::yield();
+    yield();
   }
   c = Serial.read();
   if (c != 'Y') {

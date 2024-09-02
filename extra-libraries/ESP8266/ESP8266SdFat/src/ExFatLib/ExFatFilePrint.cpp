@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011-2020 Bill Greiman
+ * Copyright (c) 2011-2022 Bill Greiman
  * This file is part of the SdFat library for SD memory cards.
  *
  * MIT License
@@ -24,14 +24,8 @@
  */
 #define DBG_FILE "ExFatFilePrint.cpp"
 #include "../common/DebugMacros.h"
-#include "ExFatFile.h"
-#include "upcase.h"
-#include "ExFatVolume.h"
-
-
-namespace sdfat {
-
-
+#include "../common/FsUtf.h"
+#include "ExFatLib.h"
 //------------------------------------------------------------------------------
 bool ExFatFile::ls(print_t* pr) {
   ExFatFile file;
@@ -57,7 +51,7 @@ bool ExFatFile::ls(print_t* pr) {
   }
   return true;
 
- fail:
+fail:
   return false;
 }
 //------------------------------------------------------------------------------
@@ -100,7 +94,7 @@ bool ExFatFile::ls(print_t* pr, uint8_t flags, uint8_t indent) {
   }
   return true;
 
- fail:
+fail:
   return false;
 }
 //------------------------------------------------------------------------------
@@ -125,13 +119,13 @@ size_t ExFatFile::printCreateDateTime(print_t* pr) {
 size_t ExFatFile::printFileSize(print_t* pr) {
   uint64_t n = m_validLength;
   char buf[21];
-  char *str = &buf[sizeof(buf) - 1];
-  char *bgn = str - 12;
+  char* str = &buf[sizeof(buf) - 1];
+  char* bgn = str - 12;
   *str = '\0';
   do {
     uint64_t m = n;
     n /= 10;
-    *--str = m - 10*n + '0';
+    *--str = m - 10 * n + '0';
   } while (n);
   while (str > bgn) {
     *--str = ' ';
@@ -148,42 +142,85 @@ size_t ExFatFile::printModifyDateTime(print_t* pr) {
   return 0;
 }
 //------------------------------------------------------------------------------
-size_t ExFatFile::printName(print_t* pr) {
+size_t ExFatFile::printName7(print_t* pr) {
   DirName_t* dn;
-  DirPos_t pos = m_dirPos;
   size_t n = 0;
   uint8_t in;
   uint8_t buf[15];
   if (!isOpen()) {
-      DBG_FAIL_MACRO;
-      goto fail;
+    DBG_FAIL_MACRO;
+    goto fail;
   }
-  for (uint8_t is = 1; is < m_setCount; is++) {
-    if (m_vol->dirSeek(&pos, is == 1 ? 64: 32) != 1) {
-      DBG_FAIL_MACRO;
-      goto fail;
-    }
-    dn = reinterpret_cast<DirName_t*>
-         (m_vol->dirCache(&pos, FsCache::CACHE_FOR_READ));
+  for (uint8_t is = 2; is <= m_setCount; is++) {
+    dn = reinterpret_cast<DirName_t*>(dirCache(is, FsCache::CACHE_FOR_READ));
     if (!dn || dn->type != EXFAT_TYPE_NAME) {
       DBG_FAIL_MACRO;
       goto fail;
     }
     for (in = 0; in < 15; in++) {
-      uint16_t c = getLe16(dn->unicode + 2*in);
+      uint16_t c = getLe16(dn->unicode + 2 * in);
       if (!c) {
-        break;;
+        break;
       }
-      buf[in] = c < 0X7f ? c : '?';
+      buf[in] = c < 0X7F ? c : '?';
       n++;
     }
     pr->write(buf, in);
   }
   return n;
 
- fail:
+fail:
   return 0;
 }
+//------------------------------------------------------------------------------
+size_t ExFatFile::printName8(print_t* pr) {
+  DirName_t* dn;
+  uint16_t hs = 0;
+  uint32_t cp;
+  size_t n = 0;
+  uint8_t in;
+  char buf[5];
+  if (!isOpen()) {
+    DBG_FAIL_MACRO;
+    goto fail;
+  }
+  for (uint8_t is = 2; is <= m_setCount; is++) {
+    dn = reinterpret_cast<DirName_t*>(dirCache(is, FsCache::CACHE_FOR_READ));
+    if (!dn || dn->type != EXFAT_TYPE_NAME) {
+      DBG_FAIL_MACRO;
+      goto fail;
+    }
+    for (in = 0; in < 15; in++) {
+      uint16_t c = getLe16(dn->unicode + 2 * in);
+      if (hs) {
+        if (!FsUtf::isLowSurrogate(c)) {
+          DBG_FAIL_MACRO;
+          goto fail;
+        }
+        cp = FsUtf::u16ToCp(hs, c);
+        hs = 0;
+      } else if (!FsUtf::isSurrogate(c)) {
+        if (c == 0) {
+          break;
+        }
+        cp = c;
+      } else if (FsUtf::isHighSurrogate(c)) {
+        hs = c;
+        continue;
+      } else {
+        DBG_FAIL_MACRO;
+        goto fail;
+      }
+      char* str = FsUtf::cpToMb(cp, buf, buf + sizeof(buf));
+      if (!str) {
+        DBG_FAIL_MACRO;
+        goto fail;
+      }
+      n += pr->write(reinterpret_cast<uint8_t*>(buf), str - buf);
+    }
+  }
+  return n;
 
-
-}; // namespace sdfat
+fail:
+  return 0;
+}

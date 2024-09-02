@@ -123,7 +123,7 @@ struct block_t {
 //
 void fatalBlink() {
   while (true) {
-    SysCall::yield();
+    yield();
     if (ERROR_LED_PIN >= 0) {
       digitalWrite(ERROR_LED_PIN, HIGH);
       delay(200);
@@ -321,7 +321,7 @@ void openBinFile() {
   Serial.write(name, BASE_NAME_SIZE);
   for (int i = 0; i < 2; i++) {
     while (!Serial.available()) {
-     SysCall::yield();
+     yield();
     }
     char c = Serial.read();
     Serial.write(c);
@@ -566,7 +566,7 @@ void setup(void) {
 
   // Wait for USB Serial
   while (!Serial) {
-    SysCall::yield();
+    yield();
   }
   Serial.print(F("\nFreeStack: "));
   Serial.println(FreeStack());
@@ -592,7 +592,7 @@ void setup(void) {
   if (sd.exists(TMP_FILE_NAME)) {
     Serial.println(F("\nType 'Y' to recover existing tmp file " TMP_FILE_NAME));
     while (!Serial.available()) {
-      SysCall::yield();
+      yield();
     }
     if (Serial.read() == 'Y') {
       recoverTmpFile();
@@ -617,11 +617,11 @@ void loop(void) {
   Serial.println(F("r - record data"));
   Serial.println(F("t - test without logging"));
   while(!Serial.available()) {
-    SysCall::yield();
+    yield();
   }
 #if WDT_YIELD_TIME_MICROS
   Serial.println(F("LowLatencyLogger can not run with watchdog timer"));
-  SysCall::halt();
+  while (true) {}
 #endif
 
   char c = tolower(Serial.read());

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011-2020 Bill Greiman
+ * Copyright (c) 2011-2022 Bill Greiman
  * This file is part of the SdFat library for SD memory cards.
  *
  * MIT License
@@ -23,16 +23,9 @@
  * DEALINGS IN THE SOFTWARE.
  */
 #include "SdSpiDriver.h"
-
-
-namespace sdfat {
-
-
 #if defined(SD_USE_CUSTOM_SPI) && defined(ARDUINO_ARCH_APOLLO3)
 //------------------------------------------------------------------------------
-void SdSpiArduinoDriver::activate() {
-  m_spi->beginTransaction(m_spiSettings);
-}
+void SdSpiArduinoDriver::activate() { m_spi->beginTransaction(m_spiSettings); }
 //------------------------------------------------------------------------------
 void SdSpiArduinoDriver::begin(SdSpiConfig spiConfig) {
   if (spiConfig.spiPort) {
@@ -43,40 +36,34 @@ void SdSpiArduinoDriver::begin(SdSpiConfig spiConfig) {
   m_spi->begin();
 }
 //------------------------------------------------------------------------------
-void SdSpiArduinoDriver::deactivate() {
-  m_spi->endTransaction();
-}
+void SdSpiArduinoDriver::deactivate() { m_spi->endTransaction(); }
 //------------------------------------------------------------------------------
-uint8_t SdSpiArduinoDriver::receive() {
-  return m_spi->transfer(0XFF);
-}
+void SdSpiArduinoDriver::end() { m_spi->end(); }
+//------------------------------------------------------------------------------
+uint8_t SdSpiArduinoDriver::receive() { return m_spi->transfer(0XFF); }
 //------------------------------------------------------------------------------
 uint8_t SdSpiArduinoDriver::receive(uint8_t* buf, size_t count) {
-  m_spi->transferIn(buf, count);
+  memset(buf, 0XFF, count);
+  m_spi->transfer(buf, count);
   return 0;
 }
 //------------------------------------------------------------------------------
-void SdSpiArduinoDriver::send(uint8_t data) {
-  m_spi->transfer(data);
-}
+void SdSpiArduinoDriver::send(uint8_t data) { m_spi->transfer(data); }
 //------------------------------------------------------------------------------
 void SdSpiArduinoDriver::send(const uint8_t* buf, size_t count) {
   // If not a multiple of four.  Command with CRC used six byte send.
-  while (count%4) {
+  while (count % 4) {
     send(*buf++);
     count--;
   }
   // Convert byte array to 4 byte array.
-  uint32_t myArray[count/4]; // NOLINT
-  for (int x = 0; x < count/4; x++) {
+  uint32_t myArray[count / 4];  // NOLINT
+  for (int x = 0; x < count / 4; x++) {
     myArray[x] = ((uint32_t)buf[(x * 4) + 3] << (8 * 3)) |
                  ((uint32_t)buf[(x * 4) + 2] << (8 * 2)) |
                  ((uint32_t)buf[(x * 4) + 1] << (8 * 1)) |
                  ((uint32_t)buf[(x * 4) + 0] << (8 * 0));
   }
-  m_spi->transfer(reinterpret_cast<void *>(myArray), count);
+  m_spi->transfer(reinterpret_cast<void*>(myArray), count);
 }
 #endif  // defined(SD_USE_CUSTOM_SPI) && defined(ARDUINO_ARCH_APOLLO3)
-
-
-}; // namespace sdfat

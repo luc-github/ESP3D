@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011-2020 Bill Greiman
+ * Copyright (c) 2011-2024 Bill Greiman
  * This file is part of the SdFat library for SD memory cards.
  *
  * MIT License
@@ -31,19 +31,19 @@ This is a major new version of SdFat. It is mostly
 backward compatible with SdFat Version 1 for FAT16/FAT32 cards.
 
 You should edit SdFatConfig.h to select features. The default version of
-SdFatConfig.h is suitable for UNO and other small AVR boards. 
+SdFatConfig.h is suitable for UNO and other small AVR boards.
 
 \section Intro Introduction
- 
-The Arduino %SdFat library supports FAT16, FAT32, and exFAT file systems 
+
+The Arduino %SdFat library supports FAT16, FAT32, and exFAT file systems
 on Standard SD, SDHC, and SDXC cards.
- 
+
 In %SdFat version 1, SdFat and File are the main classes.
 
 In %SdFat version 2, SdFat and File are defined by typedefs in terms of the
-following classes. 
+following classes.
 
-The file system classes in the %SdFat library are SdFat32, SdExFat, and SdFs. 
+The file system classes in the %SdFat library are SdFat32, SdExFat, and SdFs.
 SdFat32 supports FAT16 and FAT32. SdExFat supports exFAT, SdFs supports
 FAT16, FAT32, and exFAT.
 
@@ -69,7 +69,7 @@ boards.
 #endif  // defined(__AVR__) && FLASHEND < 0X8000
 \endcode
 
-It is possible to use option three, support or FAT16/FAT32 and exFat 
+It is possible to use option three, support or FAT16/FAT32 and exFat
 on an Uno or other AVR board with 32KB flash and 2KB SRAM but memory
 will be very limited.
 
@@ -79,7 +79,7 @@ Uno memory use for a simple data logger is:
 >
 > option 2, exFAT, 14942 bytes of flash and 895 bytes of SRAM.
 >
-> option 3, FAT16/FAT32 and exFAT, 21834 bytes of flash and 908 bytes of SRAM. 
+> option 3, FAT16/FAT32 and exFAT, 21834 bytes of flash and 908 bytes of SRAM.
 
 Please read documentation under the above classes tab for more information.
 
@@ -113,8 +113,8 @@ multi-block write.
 
 Relative paths in %SdFat are resolved in a manner similar to Windows.
 
-Each instance of SdFat32, SdExFat, and SdFs has a current directory.  
-This directory is called the volume working directory, vwd.  
+Each instance of SdFat32, SdExFat, and SdFs has a current directory.
+This directory is called the volume working directory, vwd.
 Initially this directory is the root directory for the volume.
 
 The volume working directory is changed by calling the chdir(path).
@@ -149,9 +149,9 @@ will open "/music/BigBand.wav" on sd2.
 
 \section Install Installation
 
-You must manually install %SdFat by renaming the download folder %SdFat 
+You must manually install %SdFat by renaming the download folder %SdFat
 and copy the %SdFat folder to the Arduino libraries folder in your
-sketchbook folder. 
+sketchbook folder.
 
 It will be necessary to unzip and rename the folder if you download a zip
 file from GitHub.
@@ -249,11 +249,9 @@ DirectoryFunctions - Use of chdir(), ls(), mkdir(), and rmdir().
 
 examplesV1 folder - Examples from SdFat V1 for compatibility tests.
 
-%ExFatFormatter - Produces optimal exFAT format for smaller SD cards.
-
 ExFatLogger - A data-logger optimized for exFAT features.
 
-ExFatUnicodeTest - Test program for Unicode file names.
+MinimumSizeSdReader - Example of small file reader for FAT16/FAT32.
 
 OpenNext - Open all files in the root dir and print their filename.
 
@@ -275,9 +273,15 @@ SoftwareSpi - Demo of limited Software SPI support in SdFat V2.
 
 STM32Test - Example use of two SPI ports on an STM32 board.
 
+TeensyDmaAdcLogger - Fast logger using DMA ADC.
+
 TeensyRtcTimestamp - %File timestamps for Teensy3.
 
 TeensySdioDemo - Demo of SDIO and SPI modes for the Teensy 3.5/3.6 built-in SD.
+
+TeensySdioLogger -  Fast logger using a ring buffer.
+
+UnicodeFilenames - Test program for Unicode file names.
 
 UserChipSelectFunction - Useful for port expanders or replacement of the standard GPIO functions.
 

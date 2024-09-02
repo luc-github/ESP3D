@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011-2020 Bill Greiman
+ * Copyright (c) 2011-2022 Bill Greiman
  * This file is part of the SdFat library for SD memory cards.
  *
  * MIT License
@@ -23,8 +23,7 @@
  * DEALINGS IN THE SOFTWARE.
  */
 #include "FsNew.h"
-
-void* operator new(size_t size, sdfat::newalign_t* ptr) {
+void* operator new(size_t size, newalign_t* ptr) {
   (void)size;
   return ptr;
 }

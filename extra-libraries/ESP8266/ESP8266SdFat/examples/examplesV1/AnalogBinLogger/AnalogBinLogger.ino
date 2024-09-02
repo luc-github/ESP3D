@@ -22,6 +22,7 @@
 #ifdef __AVR__
 #include <SPI.h>
 #include "SdFat.h"
+#include "sdios.h"
 #include "FreeStack.h"
 #include "AnalogBinLogger.h"
 //------------------------------------------------------------------------------
@@ -648,7 +649,7 @@ void logData() {
     bgnErase = endErase + 1;
   }
   // Start a multiple block write.
-  if (!sd.card()->writeStart(bgnBlock, FILE_BLOCK_COUNT)) {
+  if (!sd.card()->writeStart(bgnBlock)) {
     error("writeBegin failed");
   }
   // Write metadata.
@@ -798,7 +799,7 @@ void loop(void) {
   Serial.println(F("r - record ADC data"));
 
   while(!Serial.available()) {
-    SysCall::yield();
+    yield();
   }
   char c = tolower(Serial.read());
   if (ERROR_LED_PIN >= 0) {

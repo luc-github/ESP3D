@@ -1,10 +1,5 @@
 #ifndef SleepingBeautyGpioPinMap_h
 #define SleepingBeautyGpioPinMap_h
-
-
-namespace sdfat {
-
-
 static const GpioPinMap_t GpioPinMap[] = {
   GPIO_PIN(D, 0),  // D0
   GPIO_PIN(D, 1),  // D1
@@ -39,9 +34,4 @@ static const GpioPinMap_t GpioPinMap[] = {
   GPIO_PIN(A, 6),  // D30
   GPIO_PIN(A, 7)   // D31
 };
-
-
-}; // namespace sdfat
-
-
 #endif  // SleepingBeautyGpioPinMap_h

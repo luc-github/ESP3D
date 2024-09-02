@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011-2020 Bill Greiman
+ * Copyright (c) 2011-2022 Bill Greiman
  * This file is part of the SdFat library for SD memory cards.
  *
  * MIT License
@@ -30,16 +30,11 @@
  */
 #include "istream.h"
 #include "ostream.h"
-
-
-namespace sdfat {
-
-
 /** Skip white space
  * \param[in] is the Stream
  * \return The stream
  */
-inline istream& ws(istream& is) {
+inline istream &ws(istream &is) {
   is.skipWhite();
   return is;
 }
@@ -47,7 +42,7 @@ inline istream& ws(istream& is) {
  * \param[in] os The Stream
  * \return The stream
  */
-inline ostream& endl(ostream& os) {
+inline ostream &endl(ostream &os) {
   os.put('\n');
 #if ENDL_CALLS_FLUSH
   os.flush();
@@ -58,7 +53,7 @@ inline ostream& endl(ostream& os) {
  * \param[in] os The stream
  * \return The stream
  */
-inline ostream& flush(ostream& os) {
+inline ostream &flush(ostream &os) {
   os.flush();
   return os;
 }
@@ -80,7 +75,7 @@ struct setfill {
  * \param[in] arg set setfill object
  * \return the stream
  */
-inline ostream &operator<< (ostream &os, const setfill &arg) {
+inline ostream &operator<<(ostream &os, const setfill &arg) {
   os.fill(arg.c);
   return os;
 }
@@ -110,7 +105,7 @@ struct setprecision {
  * \param[in] arg set setprecision object
  * \return the stream
  */
-inline ostream &operator<< (ostream &os, const setprecision &arg) {
+inline ostream &operator<<(ostream &os, const setprecision &arg) {
   os.precision(arg.p);
   return os;
 }
@@ -140,7 +135,7 @@ struct setw {
  * \param[in] arg set setw object
  * \return the stream
  */
-inline ostream &operator<< (ostream &os, const setw &arg) {
+inline ostream &operator<<(ostream &os, const setw &arg) {
   os.width(arg.w);
   return os;
 }
@@ -158,11 +153,5 @@ inline istream &operator>>(istream &is, const setw &arg) {
  * \class iostream
  * \brief Input/Output stream
  */
-class iostream : public istream, public ostream {
-};
-
-
-}; // namespace sdfat
-
-
+class iostream : public istream, public ostream {};
 #endif  // iostream_h

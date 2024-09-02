@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011-2020 Bill Greiman
+ * Copyright (c) 2011-2022 Bill Greiman
  * This file is part of the SdFat library for SD memory cards.
  *
  * MIT License
@@ -32,17 +32,14 @@
 #if SPI_DRIVER_SELECT == 0 && SD_HAS_CUSTOM_SPI
 #define SD_USE_CUSTOM_SPI
 #endif  // SPI_DRIVER_SELECT == 0 && SD_HAS_CUSTOM_SPI
-
-
-namespace sdfat {
-
-
 /**
  * \class SdSpiArduinoDriver
  * \brief Optimized SPI class for access to SD and SDHC flash memory cards.
  */
 class SdSpiArduinoDriver {
  public:
+  /** Constructor. */
+  SdSpiArduinoDriver() = default;
   /** Activate SPI hardware. */
   void activate();
   /** Initialize the SPI bus.
@@ -60,12 +57,12 @@ class SdSpiArduinoDriver {
    */
   uint8_t receive();
   /** Receive multiple bytes.
-  *
-  * \param[out] buf Buffer to receive the data.
-  * \param[in] count Number of bytes to receive.
-  *
-  * \return Zero for no error or nonzero error code.
-  */
+   *
+   * \param[out] buf Buffer to receive the data.
+   * \param[in] count Number of bytes to receive.
+   *
+   * \return Zero for no error or nonzero error code.
+   */
   uint8_t receive(uint8_t* buf, size_t count);
   /** Send a byte.
    *
@@ -87,16 +84,11 @@ class SdSpiArduinoDriver {
   }
 
  private:
-  SPIClass *m_spi;
+  SPIClass* m_spi = nullptr;
   SPISettings m_spiSettings;
 };
 /** Typedef for use of SdSpiArduinoDriver */
 typedef SdSpiArduinoDriver SdSpiDriver;
-
-
-}; // namespace sdfat
-
-
 //------------------------------------------------------------------------------
 #ifndef SD_USE_CUSTOM_SPI
 #include "SdSpiLibDriver.h"

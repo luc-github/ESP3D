@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011-2020 Bill Greiman
+ * Copyright (c) 2011-2022 Bill Greiman
  * This file is part of the SdFat library for SD memory cards.
  *
  * MIT License
@@ -22,41 +22,38 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
-#include "FatFormatter.h"
-
-
-namespace sdfat {
-
-
+#include "FatLib.h"
 // Set nonzero to use calculated CHS in MBR.  Should not be required.
-#define USE_LBA_TO_CHS 0
+#define USE_LBA_TO_CHS 1
 
 // Constants for file system structure optimized for flash.
 uint16_t const BU16 = 128;
 uint16_t const BU32 = 8192;
 // Assume 512 byte sectors.
 const uint16_t BYTES_PER_SECTOR = 512;
-const uint16_t SECTORS_PER_MB = 0X100000/BYTES_PER_SECTOR;
+const uint16_t SECTORS_PER_MB = 0X100000 / BYTES_PER_SECTOR;
 const uint16_t FAT16_ROOT_ENTRY_COUNT = 512;
 const uint16_t FAT16_ROOT_SECTOR_COUNT =
-               32*FAT16_ROOT_ENTRY_COUNT/BYTES_PER_SECTOR;
+    32 * FAT16_ROOT_ENTRY_COUNT / BYTES_PER_SECTOR;
 //------------------------------------------------------------------------------
 #define PRINT_FORMAT_PROGRESS 1
 #if !PRINT_FORMAT_PROGRESS
 #define writeMsg(str)
 #elif defined(__AVR__)
-#define writeMsg(str) if (m_pr) m_pr->print(F(str))
+#define writeMsg(str) \
+  if (m_pr) m_pr->print(F(str))
 #else  // PRINT_FORMAT_PROGRESS
-#define writeMsg(str) if (m_pr) m_pr->write(str)
+#define writeMsg(str) \
+  if (m_pr) m_pr->write(str)
 #endif  // PRINT_FORMAT_PROGRESS
 //------------------------------------------------------------------------------
-bool FatFormatter::format(BlockDevice* dev, uint8_t* secBuf, print_t* pr) {
+bool FatFormatter::format(FsBlockDevice* dev, uint8_t* secBuf, print_t* pr) {
   bool rtn;
   m_dev = dev;
   m_secBuf = secBuf;
   m_pr = pr;
   m_sectorCount = m_dev->sectorCount();
-  m_capacityMB = (m_sectorCount + SECTORS_PER_MB - 1)/SECTORS_PER_MB;
+  m_capacityMB = (m_sectorCount + SECTORS_PER_MB - 1) / SECTORS_PER_MB;
 
   if (m_capacityMB <= 6) {
     writeMsg("Card is too small.\r\n");
@@ -77,7 +74,7 @@ bool FatFormatter::format(BlockDevice* dev, uint8_t* secBuf, print_t* pr) {
     // SDXC cards
     m_sectorsPerCluster = 128;
   }
-  rtn = m_sectorCount < 0X400000 ? makeFat16() :makeFat32();
+  rtn = m_sectorCount < 0X400000 ? makeFat16() : makeFat32();
   if (rtn) {
     writeMsg("Format Done\r\n");
   } else {
@@ -92,9 +89,9 @@ bool FatFormatter::initFatDir(uint8_t fatType, uint32_t sectorCount) {
   writeMsg("Writing FAT ");
   for (uint32_t i = 1; i < sectorCount; i++) {
     if (!m_dev->writeSector(m_fatStart + i, m_secBuf)) {
-       return false;
+      return false;
     }
-    if ((i%(sectorCount/32)) == 0) {
+    if ((i % (sectorCount / 32)) == 0) {
       writeMsg(".");
     }
   }
@@ -136,13 +133,12 @@ void FatFormatter::initPbs() {
 //------------------------------------------------------------------------------
 bool FatFormatter::makeFat16() {
   uint32_t nc;
-  uint32_t r;
   PbsFat_t* pbs = reinterpret_cast<PbsFat_t*>(m_secBuf);
 
-  for (m_dataStart = 2*BU16; ; m_dataStart += BU16) {
-    nc = (m_sectorCount - m_dataStart)/m_sectorsPerCluster;
-    m_fatSize = (nc + 2 + (BYTES_PER_SECTOR/2) - 1)/(BYTES_PER_SECTOR/2);
-    r = BU16 + 1 + 2*m_fatSize + FAT16_ROOT_SECTOR_COUNT;
+  for (m_dataStart = 2 * BU16;; m_dataStart += BU16) {
+    nc = (m_sectorCount - m_dataStart) / m_sectorsPerCluster;
+    m_fatSize = (nc + 2 + (BYTES_PER_SECTOR / 2) - 1) / (BYTES_PER_SECTOR / 2);
+    uint32_t r = BU16 + 1 + 2 * m_fatSize + FAT16_ROOT_SECTOR_COUNT;
     if (m_dataStart >= r) {
       m_relativeSectors = m_dataStart - r + BU16;
       break;
@@ -155,8 +151,8 @@ bool FatFormatter::makeFat16() {
   }
   m_reservedSectorCount = 1;
   m_fatStart = m_relativeSectors + m_reservedSectorCount;
-  m_totalSectors = nc*m_sectorsPerCluster
-                   + 2*m_fatSize + m_reservedSectorCount + 32;
+  m_totalSectors =
+      nc * m_sectorsPerCluster + 2 * m_fatSize + m_reservedSectorCount + 32;
   if (m_totalSectors < 65536) {
     m_partType = 0X04;
   } else {
@@ -188,15 +184,14 @@ bool FatFormatter::makeFat16() {
 //------------------------------------------------------------------------------
 bool FatFormatter::makeFat32() {
   uint32_t nc;
-  uint32_t r;
   PbsFat_t* pbs = reinterpret_cast<PbsFat_t*>(m_secBuf);
   FsInfo_t* fsi = reinterpret_cast<FsInfo_t*>(m_secBuf);
 
   m_relativeSectors = BU32;
-  for (m_dataStart = 2*BU32; ; m_dataStart += BU32) {
-    nc = (m_sectorCount - m_dataStart)/m_sectorsPerCluster;
-    m_fatSize = (nc + 2 + (BYTES_PER_SECTOR/4) - 1)/(BYTES_PER_SECTOR/4);
-    r = m_relativeSectors + 9 + 2*m_fatSize;
+  for (m_dataStart = 2 * BU32;; m_dataStart += BU32) {
+    nc = (m_sectorCount - m_dataStart) / m_sectorsPerCluster;
+    m_fatSize = (nc + 2 + (BYTES_PER_SECTOR / 4) - 1) / (BYTES_PER_SECTOR / 4);
+    uint32_t r = m_relativeSectors + 9 + 2 * m_fatSize;
     if (m_dataStart >= r) {
       break;
     }
@@ -206,9 +201,9 @@ bool FatFormatter::makeFat32() {
     writeMsg("Bad cluster count\r\n");
     return false;
   }
-  m_reservedSectorCount = m_dataStart - m_relativeSectors - 2*m_fatSize;
+  m_reservedSectorCount = m_dataStart - m_relativeSectors - 2 * m_fatSize;
   m_fatStart = m_relativeSectors + m_reservedSectorCount;
-  m_totalSectors = nc*m_sectorsPerCluster + m_dataStart - m_relativeSectors;
+  m_totalSectors = nc * m_sectorsPerCluster + m_dataStart - m_relativeSectors;
   // type depends on address of end sector
   // max CHS has lba = 16450560 = 1024*255*63
   if ((m_relativeSectors + m_totalSectors) <= 16450560) {
@@ -237,14 +232,14 @@ bool FatFormatter::makeFat32() {
   pbs->bpb.bpb32.volumeType[2] = 'T';
   pbs->bpb.bpb32.volumeType[3] = '3';
   pbs->bpb.bpb32.volumeType[4] = '2';
-  if (!m_dev->writeSector(m_relativeSectors, m_secBuf)  ||
+  if (!m_dev->writeSector(m_relativeSectors, m_secBuf) ||
       !m_dev->writeSector(m_relativeSectors + 6, m_secBuf)) {
     return false;
   }
   // write extra boot area and backup
-  memset(m_secBuf, 0 , BYTES_PER_SECTOR);
+  memset(m_secBuf, 0, BYTES_PER_SECTOR);
   setLe32(fsi->trailSignature, FSINFO_TRAIL_SIGNATURE);
-  if (!m_dev->writeSector(m_relativeSectors + 2, m_secBuf)  ||
+  if (!m_dev->writeSector(m_relativeSectors + 2, m_secBuf) ||
       !m_dev->writeSector(m_relativeSectors + 8, m_secBuf)) {
     return false;
   }
@@ -253,11 +248,11 @@ bool FatFormatter::makeFat32() {
   setLe32(fsi->structSignature, FSINFO_STRUCT_SIGNATURE);
   setLe32(fsi->freeCount, 0XFFFFFFFF);
   setLe32(fsi->nextFree, 0XFFFFFFFF);
-  if (!m_dev->writeSector(m_relativeSectors + 1, m_secBuf)  ||
+  if (!m_dev->writeSector(m_relativeSectors + 1, m_secBuf) ||
       !m_dev->writeSector(m_relativeSectors + 7, m_secBuf)) {
     return false;
   }
-  return initFatDir(32, 2*m_fatSize + m_sectorsPerCluster);
+  return initFatDir(32, 2 * m_fatSize + m_sectorsPerCluster);
 }
 //------------------------------------------------------------------------------
 bool FatFormatter::writeMbr() {
@@ -267,8 +262,8 @@ bool FatFormatter::writeMbr() {
 #if USE_LBA_TO_CHS
   lbaToMbrChs(mbr->part->beginCHS, m_capacityMB, m_relativeSectors);
   lbaToMbrChs(mbr->part->endCHS, m_capacityMB,
-              m_relativeSectors + m_totalSectors -1);
-#else  // USE_LBA_TO_CHS
+              m_relativeSectors + m_totalSectors - 1);
+#else   // USE_LBA_TO_CHS
   mbr->part->beginCHS[0] = 1;
   mbr->part->beginCHS[1] = 1;
   mbr->part->beginCHS[2] = 0;
@@ -283,6 +278,3 @@ bool FatFormatter::writeMbr() {
   setLe16(mbr->signature, MBR_SIGNATURE);
   return m_dev->writeSector(0, m_secBuf);
 }
-
-
-}; // namespace sdfat

@@ -13,11 +13,11 @@ void setup() {
   Serial.begin(9600);
   // Wait for USB Serial.
   while(!Serial) {
-    SysCall::yield();
+    yield();
   }
   Serial.println(F("Type any character to start"));
   while (!Serial.available()) {
-    SysCall::yield();
+    yield();
   }
   // Initialize the SD.
   if (!SD.begin(csPin)) {

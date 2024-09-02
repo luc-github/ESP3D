@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011-2020 Bill Greiman
+ * Copyright (c) 2011-2024 Bill Greiman
  * This file is part of the SdFat library for SD memory cards.
  *
  * MIT License
@@ -22,18 +22,19 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
+/**
+ * \file
+ * \brief Top level include for SPI and SDIO cards.
+ */
 #ifndef SdCard_h
 #define SdCard_h
-#include "SdioCard.h"
 #include "SdSpiCard.h"
-
-
-namespace sdfat {
-
-
+#include "SdioCard.h"
 #if HAS_SDIO_CLASS
+/** Type for both SPI and SDIO cards. */
 typedef SdCardInterface SdCard;
-#else  // HAS_SDIO_CLASS
+#else   // HAS_SDIO_CLASS
+/** Type for SPI card. */
 typedef SdSpiCard SdCard;
 #endif  // HAS_SDIO_CLASS
 /** Determine card configuration type.
@@ -41,13 +42,19 @@ typedef SdSpiCard SdCard;
  * \param[in] cfg Card configuration.
  * \return true if SPI.
  */
-inline bool isSpi(SdSpiConfig cfg) {(void)cfg; return true;}
+inline bool isSpi(SdSpiConfig cfg) {
+  (void)cfg;
+  return true;
+}
 /** Determine card configuration type.
  *
  * \param[in] cfg Card configuration.
  * \return true if SPI.
  */
-inline bool isSpi(SdioConfig cfg) {(void)cfg; return false;}
+inline bool isSpi(SdioConfig cfg) {
+  (void)cfg;
+  return false;
+}
 /**
  * \class SdCardFactory
  * \brief Setup a SPI card or SDIO card.
@@ -57,11 +64,10 @@ class SdCardFactory {
   /** Initialize SPI card.
    *
    * \param[in] config SPI configuration.
-   * \return generic card pointer.
+   * \return generic card pointer or nullptr if failure.
    */
   SdCard* newCard(SdSpiConfig config) {
-    m_spiCard.begin(config);
-    return &m_spiCard;
+    return m_spiCard.begin(config) ? &m_spiCard : nullptr;
   }
   /** Initialize SDIO card.
    *
@@ -70,9 +76,8 @@ class SdCardFactory {
    */
   SdCard* newCard(SdioConfig config) {
 #if HAS_SDIO_CLASS
-    m_sdioCard.begin(config);
-    return &m_sdioCard;
-#else  // HAS_SDIO_CLASS
+    return m_sdioCard.begin(config) ? &m_sdioCard : nullptr;
+#else   // HAS_SDIO_CLASS
     (void)config;
     return nullptr;
 #endif  // HAS_SDIO_CLASS
@@ -84,9 +89,4 @@ class SdCardFactory {
 #endif  // HAS_SDIO_CLASS
   SdSpiCard m_spiCard;
 };
-
-
-}; // namespace sdfat
-
-
 #endif  // SdCard_h

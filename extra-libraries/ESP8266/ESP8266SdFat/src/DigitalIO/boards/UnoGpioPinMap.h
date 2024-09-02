@@ -1,10 +1,5 @@
 #ifndef UnoGpioPinMap_h
 #define UnoGpioPinMap_h
-
-
-namespace sdfat {
-
-
 static const GpioPinMap_t GpioPinMap[] = {
   GPIO_PIN(D, 0),  // D0
   GPIO_PIN(D, 1),  // D1
@@ -27,9 +22,4 @@ static const GpioPinMap_t GpioPinMap[] = {
   GPIO_PIN(C, 4),  // D18
   GPIO_PIN(C, 5)   // D19
 };
-
-
-}; // namespace sdfat
-
-
 #endif  // UnoGpioPinMap_h

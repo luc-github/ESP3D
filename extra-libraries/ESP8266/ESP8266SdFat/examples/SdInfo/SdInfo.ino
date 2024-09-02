@@ -1,11 +1,13 @@
 /*
  * This program attempts to initialize an SD card and analyze its structure.
+ * The CID and CSD registers are also printed in HEX for use in online
+ * decoders like these.
+ *
+ * https://gurumeditation.org/1342/sd-memory-card-register-decoder/
+ * https://archive.goughlui.com/static/multicid.htm
  */
 #include "SdFat.h"
 #include "sdios.h"
-
-using namespace sdfat;
-
 /*
   Set DISABLE_CS_PIN to disable a second SPI device.
   For example, with the Ethernet shield, set DISABLE_CS_PIN
@@ -22,9 +24,9 @@ const int8_t DISABLE_CS_PIN = -1;
 */
 // SDCARD_SS_PIN is defined for the built-in SD on some boards.
 #ifndef SDCARD_SS_PIN
-const uint8_t SD_CS_PIN = SS;
-#else  // SDCARD_SS_PIN
-const uint8_t SD_CS_PIN = SDCARD_SS_PIN;
+const uint8_t SD_CS_PIN = 4;
+#else   // SDCARD_SS_PIN
+const uint8_t SD_CS_PIN = 4;
 #endif  // SDCARD_SS_PIN
 
 // Try to select the best SD card configuration.
@@ -38,28 +40,28 @@ const uint8_t SD_CS_PIN = SDCARD_SS_PIN;
 
 //------------------------------------------------------------------------------
 SdFs sd;
-cid_t m_cid;
-csd_t m_csd;
-uint32_t m_eraseSize;
-uint32_t m_ocr;
+cid_t cid;
+csd_t csd;
+scr_t scr;
+uint8_t cmd6Data[64];
+uint32_t eraseSize;
+uint32_t ocr;
 static ArduinoOutStream cout(Serial);
 //------------------------------------------------------------------------------
-bool cidDmp() {
+void cidDmp() {
   cout << F("\nManufacturer ID: ");
-  cout << uppercase << showbase << hex << int(m_cid.mid) << dec << endl;
-  cout << F("OEM ID: ") << m_cid.oid[0] << m_cid.oid[1] << endl;
+  cout << uppercase << showbase << hex << int(cid.mid) << dec << endl;
+  cout << F("OEM ID: ") << cid.oid[0] << cid.oid[1] << endl;
   cout << F("Product: ");
   for (uint8_t i = 0; i < 5; i++) {
-    cout << m_cid.pnm[i];
+    cout << cid.pnm[i];
   }
-  cout << F("\nVersion: ");
-  cout << int(m_cid.prv_n) << '.' << int(m_cid.prv_m) << endl;
-  cout << F("Serial number: ") << hex << m_cid.psn << dec << endl;
+  cout << F("\nRevision: ") << cid.prvN() << '.' << cid.prvM() << endl;
+  cout << F("Serial number: ") << hex << cid.psn() << dec << endl;
   cout << F("Manufacturing date: ");
-  cout << int(m_cid.mdt_month) << '/';
-  cout << (2000 + m_cid.mdt_year_low + 10 * m_cid.mdt_year_high) << endl;
-  cout << endl;
-  return true;
+  cout << cid.mdtMonth() << '/' << cid.mdtYear() << endl;
+  cout << F("CID HEX: ");
+  hexDmp(&cid, sizeof(cid));
 }
 //------------------------------------------------------------------------------
 void clearSerialInput() {
@@ -71,30 +73,26 @@ void clearSerialInput() {
   } while (micros() - m < 10000);
 }
 //------------------------------------------------------------------------------
-bool csdDmp() {
-  bool eraseSingleBlock;
-  if (m_csd.v1.csd_ver == 0) {
-    eraseSingleBlock = m_csd.v1.erase_blk_en;
-    m_eraseSize = (m_csd.v1.sector_size_high << 1) | m_csd.v1.sector_size_low;
-  } else if (m_csd.v2.csd_ver == 1) {
-    eraseSingleBlock = m_csd.v2.erase_blk_en;
-    m_eraseSize = (m_csd.v2.sector_size_high << 1) | m_csd.v2.sector_size_low;
-  } else {
-    cout << F("m_csd version error\n");
-    return false;
-  }
-  m_eraseSize++;
-  cout << F("cardSize: ") << 0.000512 * sdCardCapacity(&m_csd);
+void csdDmp() {
+  eraseSize = csd.eraseSize();
+  cout << F("\ncardSize: ") << 0.000512 * csd.capacity();
   cout << F(" MB (MB = 1,000,000 bytes)\n");
 
-  cout << F("flashEraseSize: ") << int(m_eraseSize) << F(" blocks\n");
+  cout << F("flashEraseSize: ") << int(eraseSize) << F(" blocks\n");
   cout << F("eraseSingleBlock: ");
-  if (eraseSingleBlock) {
+  if (csd.eraseSingleBlock()) {
     cout << F("true\n");
   } else {
     cout << F("false\n");
   }
-  return true;
+  cout << F("dataAfterErase: ");
+  if (scr.dataAfterErase()) {
+    cout << F("ones\n");
+  } else {
+    cout << F("zeros\n");
+  }
+  cout << F("CSD HEX: ");
+  hexDmp(&csd, sizeof(csd));
 }
 //------------------------------------------------------------------------------
 void errorPrint() {
@@ -102,8 +100,17 @@ void errorPrint() {
     cout << F("SD errorCode: ") << hex << showbase;
     printSdErrorSymbol(&Serial, sd.sdErrorCode());
     cout << F(" = ") << int(sd.sdErrorCode()) << endl;
-    cout << F("SD errorData = ") << int(sd.sdErrorData()) << endl;
+    cout << F("SD errorData = ") << int(sd.sdErrorData()) << dec << endl;
   }
+}
+//------------------------------------------------------------------------------
+void hexDmp(void* reg, uint8_t size) {
+  uint8_t* u8 = reinterpret_cast<uint8_t*>(reg);
+  cout << hex << noshowbase;
+  for (size_t i = 0; i < size; i++) {
+    cout << setw(2) << setfill('0') << int(u8[i]);
+  }
+  cout << dec << endl;
 }
 //------------------------------------------------------------------------------
 bool mbrDmp() {
@@ -117,18 +124,18 @@ bool mbrDmp() {
   cout << F("\nSD Partition Table\n");
   cout << F("part,boot,bgnCHS[3],type,endCHS[3],start,length\n");
   for (uint8_t ip = 1; ip < 5; ip++) {
-    MbrPart_t *pt = &mbr.part[ip - 1];
+    MbrPart_t* pt = &mbr.part[ip - 1];
     if ((pt->boot != 0 && pt->boot != 0X80) ||
-        getLe32(pt->relativeSectors) > sdCardCapacity(&m_csd)) {
+        getLe32(pt->relativeSectors) > csd.capacity()) {
       valid = false;
     }
     cout << int(ip) << ',' << uppercase << showbase << hex;
     cout << int(pt->boot) << ',';
-    for (int i = 0; i < 3; i++ ) {
+    for (int i = 0; i < 3; i++) {
       cout << int(pt->beginCHS[i]) << ',';
     }
     cout << int(pt->type) << ',';
-    for (int i = 0; i < 3; i++ ) {
+    for (int i = 0; i < 3; i++) {
       cout << int(pt->endCHS[i]) << ',';
     }
     cout << dec << getLe32(pt->relativeSectors) << ',';
@@ -142,25 +149,26 @@ bool mbrDmp() {
 //------------------------------------------------------------------------------
 void dmpVol() {
   cout << F("\nScanning FAT, please wait.\n");
-  uint32_t freeClusterCount = sd.freeClusterCount();
+  int32_t freeClusterCount = sd.freeClusterCount();
   if (sd.fatType() <= 32) {
     cout << F("\nVolume is FAT") << int(sd.fatType()) << endl;
   } else {
     cout << F("\nVolume is exFAT\n");
   }
   cout << F("sectorsPerCluster: ") << sd.sectorsPerCluster() << endl;
-  cout << F("clusterCount:      ") << sd.clusterCount() << endl;
-  cout << F("freeClusterCount:  ") << freeClusterCount << endl;
   cout << F("fatStartSector:    ") << sd.fatStartSector() << endl;
   cout << F("dataStartSector:   ") << sd.dataStartSector() << endl;
-  if (sd.dataStartSector() % m_eraseSize) {
-    cout << F("Data area is not aligned on flash erase boundary!\n");
-    cout << F("Download and use formatter from www.sdcard.org!\n");
+  cout << F("clusterCount:      ") << sd.clusterCount() << endl;
+  cout << F("freeClusterCount:  ");
+  if (freeClusterCount >= 0) {
+    cout << freeClusterCount << endl;
+  } else {
+    cout << F("failed\n");
+    errorPrint();
   }
 }
 //------------------------------------------------------------------------------
 void printCardType() {
-
   cout << F("\nCard type: ");
 
   switch (sd.card()->type()) {
@@ -173,7 +181,7 @@ void printCardType() {
       break;
 
     case SD_CARD_TYPE_SDHC:
-      if (sdCardCapacity(&m_csd) < 70000000) {
+      if (csd.capacity() < 70000000) {
         cout << F("SDHC\n");
       } else {
         cout << F("SDXC\n");
@@ -188,8 +196,8 @@ void printCardType() {
 void printConfig(SdSpiConfig config) {
   if (DISABLE_CS_PIN < 0) {
     cout << F(
-           "\nAssuming the SD is the only SPI device.\n"
-           "Edit DISABLE_CS_PIN to disable an SPI device.\n");
+        "\nAssuming the SD is the only SPI device.\n"
+        "Edit DISABLE_CS_PIN to disable an SPI device.\n");
   } else {
     cout << F("\nDisabling SPI device on pin ");
     cout << int(DISABLE_CS_PIN) << endl;
@@ -209,11 +217,10 @@ void setup() {
   Serial.begin(9600);
   // Wait for USB Serial
   while (!Serial) {
-    SysCall::yield();
+    yield();
   }
-  cout << F("SdFat version: ") << SD_FAT_VERSION << endl;
+  cout << F("SdFat version: ") << SD_FAT_VERSION_STR << endl;
   printConfig(SD_CONFIG);
-
 }
 //------------------------------------------------------------------------------
 void loop() {
@@ -223,39 +230,45 @@ void loop() {
   // F stores strings in flash to save RAM
   cout << F("\ntype any character to start\n");
   while (!Serial.available()) {
-    SysCall::yield();
+    yield();
   }
   uint32_t t = millis();
   if (!sd.cardBegin(SD_CONFIG)) {
     cout << F(
-           "\nSD initialization failed.\n"
-           "Do not reformat the card!\n"
-           "Is the card correctly inserted?\n"
-           "Is there a wiring/soldering problem?\n");
+        "\nSD initialization failed.\n"
+        "Do not reformat the card!\n"
+        "Is the card correctly inserted?\n"
+        "Is there a wiring/soldering problem?\n");
     if (isSpi(SD_CONFIG)) {
       cout << F(
-           "Is SD_CS_PIN set to the correct value?\n"
-           "Does another SPI device need to be disabled?\n"
-           );
+          "Is SD_CS_PIN set to the correct value?\n"
+          "Does another SPI device need to be disabled?\n");
     }
     errorPrint();
     return;
   }
   t = millis() - t;
-  cout << F("init time: ") << t << " ms" << endl;
+  cout << F("init time: ") << dec << t << " ms" << endl;
 
-  if (!sd.card()->readCID(&m_cid) ||
-      !sd.card()->readCSD(&m_csd) ||
-      !sd.card()->readOCR(&m_ocr)) {
+  if (!sd.card()->readCID(&cid) || !sd.card()->readCSD(&csd) ||
+      !sd.card()->readOCR(&ocr) || !sd.card()->readSCR(&scr)) {
     cout << F("readInfo failed\n");
     errorPrint();
     return;
   }
   printCardType();
+  cout << F("sdSpecVer: ") << 0.01 * scr.sdSpecVer() << endl;
+  cout << F("HighSpeedMode: ");
+  if (scr.sdSpecVer() > 101 && sd.card()->cardCMD6(0X00FFFFFF, cmd6Data) &&
+      (2 & cmd6Data[13])) {
+    cout << F("true\n");
+  } else {
+    cout << F("false\n");
+  }
   cidDmp();
   csdDmp();
   cout << F("\nOCR: ") << uppercase << showbase;
-  cout << hex << m_ocr << dec << endl;
+  cout << hex << ocr << dec << endl;
   if (!mbrDmp()) {
     return;
   }

@@ -3,9 +3,6 @@
 //
 #include "SdFat.h"
 
-using namespace sdfat;
-
-
 // SD_CHIP_SELECT_MODE must be set to one or two in SdFat/SdFatConfig.h.
 // A value of one allows optional replacement and two requires replacement.
 #if SD_CHIP_SELECT_MODE == 1 || SD_CHIP_SELECT_MODE == 2

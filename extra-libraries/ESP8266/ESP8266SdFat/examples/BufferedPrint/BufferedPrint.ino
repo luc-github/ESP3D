@@ -1,15 +1,12 @@
 // Test and benchmark of the fast bufferedPrint class.
 //
 // Mainly for AVR but may improve print performance with other CPUs.
-#include "SdFat.h"
 #include "BufferedPrint.h"
-
-using namespace sdfat;
-
+#include "SdFat.h"
 
 // SD_FAT_TYPE = 0 for SdFat/File as defined in SdFatConfig.h,
 // 1 for FAT16/FAT32, 2 for exFAT, 3 for FAT16/FAT32 and exFAT.
-#define SD_FAT_TYPE 1
+#define SD_FAT_TYPE 3
 /*
   Change the value of SD_CS_PIN if you are using SPI and
   your hardware does not use the default value, SS.
@@ -22,18 +19,21 @@ using namespace sdfat;
 // SDCARD_SS_PIN is defined for the built-in SD on some boards.
 #ifndef SDCARD_SS_PIN
 const uint8_t SD_CS_PIN = SS;
-#else  // SDCARD_SS_PIN
+#else   // SDCARD_SS_PIN
 // Assume built-in SD is used.
 const uint8_t SD_CS_PIN = SDCARD_SS_PIN;
 #endif  // SDCARD_SS_PIN
+
+// Try max SPI clock for an SD. Reduce SPI_CLOCK if errors occur.
+#define SPI_CLOCK SD_SCK_MHZ(50)
 
 // Try to select the best SD card configuration.
 #if HAS_SDIO_CLASS
 #define SD_CONFIG SdioConfig(FIFO_SDIO)
 #elif ENABLE_DEDICATED_SPI
-#define SD_CONFIG SdSpiConfig(SD_CS_PIN, DEDICATED_SPI)
+#define SD_CONFIG SdSpiConfig(SD_CS_PIN, DEDICATED_SPI, SPI_CLOCK)
 #else  // HAS_SDIO_CLASS
-#define SD_CONFIG SdSpiConfig(SD_CS_PIN, SHARED_SPI)
+#define SD_CONFIG SdSpiConfig(SD_CS_PIN, SHARED_SPI, SPI_CLOCK)
 #endif  // HAS_SDIO_CLASS
 
 #if SD_FAT_TYPE == 0
@@ -71,49 +71,48 @@ void benchmark() {
       bp.begin(&file);
     }
     uint32_t t = millis();
-    switch(test) {
-    case 0:
-      Serial.println(F("Test of println(uint16_t)"));
-      for (uint16_t i = 0; i < N_PRINT; i++) {
-        file.println(i);
-      }
-      break;
+    switch (test) {
+      case 0:
+        Serial.println(F("Test of println(uint16_t)"));
+        for (uint16_t i = 0; i < N_PRINT; i++) {
+          file.println(i);
+        }
+        break;
 
-    case 1:
-      Serial.println(F("Test of printField(uint16_t, char)"));
-      for (uint16_t i = 0; i < N_PRINT; i++) {
-        bp.printField(i, '\n');
-      }
-      break;
+      case 1:
+        Serial.println(F("Test of printField(uint16_t, char)"));
+        for (uint16_t i = 0; i < N_PRINT; i++) {
+          bp.printField(i, '\n');
+        }
+        break;
 
-    case 2:
-      Serial.println(F("Test of println(uint32_t)"));
-      for (uint16_t i = 0; i < N_PRINT; i++) {
-        file.println(12345678UL + i);
-      }
-      break;
+      case 2:
+        Serial.println(F("Test of println(uint32_t)"));
+        for (uint16_t i = 0; i < N_PRINT; i++) {
+          file.println(12345678UL + i);
+        }
+        break;
 
-    case 3:
-      Serial.println(F("Test of printField(uint32_t, char)"));
-      for (uint16_t i = 0; i < N_PRINT; i++) {
-        bp.printField(12345678UL + i, '\n');
-      }
-      break;
+      case 3:
+        Serial.println(F("Test of printField(uint32_t, char)"));
+        for (uint16_t i = 0; i < N_PRINT; i++) {
+          bp.printField(12345678UL + i, '\n');
+        }
+        break;
 
-    case 4:
-      Serial.println(F("Test of println(double)"));
-      for (uint16_t i = 0; i < N_PRINT; i++) {
-        file.println((double)0.01*i);
-      }
-      break;
+      case 4:
+        Serial.println(F("Test of println(double)"));
+        for (uint16_t i = 0; i < N_PRINT; i++) {
+          file.println((double)0.01 * i);
+        }
+        break;
 
-    case 5:
-      Serial.println(F("Test of printField(double, char)"));
-      for (uint16_t i = 0; i < N_PRINT; i++) {
-        bp.printField((double)0.01*i, '\n');
-      }
-      break;
-
+      case 5:
+        Serial.println(F("Test of printField(double, char)"));
+        for (uint16_t i = 0; i < N_PRINT; i++) {
+          bp.printField((double)0.01 * i, '\n');
+        }
+        break;
     }
     if (test & 1) {
       bp.sync();
@@ -125,13 +124,13 @@ void benchmark() {
     file.close();
     t = millis() - t;
     Serial.print(F("Time "));
-    Serial.print(0.001*t, 3);
+    Serial.print(0.001 * t, 3);
     Serial.println(F(" sec"));
     Serial.print(F("File size "));
-    Serial.print(0.001*s);
+    Serial.print(0.001 * s);
     Serial.println(F(" KB"));
     Serial.print(F("Write "));
-    Serial.print(s/t);
+    Serial.print(s / t);
     Serial.println(F(" KB/sec"));
     Serial.println();
   }
@@ -139,23 +138,23 @@ void benchmark() {
 //------------------------------------------------------------------------------
 void testMemberFunctions() {
   BufferedPrint<Print, 32> bp(&Serial);
-  char c = 'c';    // char
+  char c = 'c';  // char
 //#define BASIC_TYPES
 #ifdef BASIC_TYPES
-  signed char sc = -1;   // signed 8-bit
-  unsigned char uc = 1;  // unsiged 8-bit
-  signed short ss = -2;  // signed 16-bit
-  unsigned short us = 2; // unsigned 16-bit
-  signed long sl = -4;   // signed 32-bit
-  unsigned long ul = 4;  // unsigned 32-bit
-#else  // BASIC_TYPES
-  int8_t sc = -1;  // signed 8-bit
-  uint8_t uc = 1;  // unsiged 8-bit
-  int16_t ss = -2; // signed 16-bit
-  uint16_t us = 2; // unsigned 16-bit
-  int32_t sl = -4; // signed 32-bit
-  uint32_t ul = 4; // unsigned 32-bit
-#endif  // BASIC_TYPES
+  signed char sc = -1;    // signed 8-bit
+  unsigned char uc = 1;   // unsiged 8-bit
+  signed short ss = -2;   // signed 16-bit
+  unsigned short us = 2;  // unsigned 16-bit
+  signed long sl = -4;    // signed 32-bit
+  unsigned long ul = 4;   // unsigned 32-bit
+#else                     // BASIC_TYPES
+  int8_t sc = -1;   // signed 8-bit
+  uint8_t uc = 1;   // unsiged 8-bit
+  int16_t ss = -2;  // signed 16-bit
+  uint16_t us = 2;  // unsigned 16-bit
+  int32_t sl = -4;  // signed 32-bit
+  uint32_t ul = 4;  // unsigned 32-bit
+#endif                    // BASIC_TYPES
   float f = -1.234;
   double d = -5.678;
   bp.println();
@@ -216,9 +215,11 @@ void testMemberFunctions() {
 //------------------------------------------------------------------------------
 void setup() {
   Serial.begin(9600);
-  while (!Serial) {}
+  while (!Serial) {
+  }
   Serial.println("Type any character to begin.");
-  while(!Serial.available()) {}
+  while (!Serial.available()) {
+  }
   if (!sd.begin(SD_CONFIG)) {
     sd.initErrorHalt(&Serial);
   }
@@ -226,10 +227,10 @@ void setup() {
   Serial.println(F("Test member funcions:"));
   testMemberFunctions();
   Serial.println();
-  Serial.println(F("Benchmark performance for uint16_t, uint32_t, and double:"));
+  Serial.println(
+      F("Benchmark performance for uint16_t, uint32_t, and double:"));
   benchmark();
   Serial.println("Done");
 }
 //------------------------------------------------------------------------------
-void loop() {
-}
+void loop() {}

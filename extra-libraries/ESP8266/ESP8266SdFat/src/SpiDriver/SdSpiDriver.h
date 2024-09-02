@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011-2020 Bill Greiman
+ * Copyright (c) 2011-2022 Bill Greiman
  * This file is part of the SdFat library for SD memory cards.
  *
  * MIT License
@@ -29,11 +29,6 @@
 #ifndef SdSpiDriver_h
 #define SdSpiDriver_h
 #include "../common/SysCall.h"
-
-
-namespace sdfat {
-
-
 /**
  * Initialize SD chip select pin.
  *
@@ -47,16 +42,34 @@ void sdCsInit(SdCsPin_t pin);
  * \param[in] level SD card chip select level.
  */
 void sdCsWrite(SdCsPin_t pin, bool level);
-
-
-}; // namespace sdfat
-
-
+//------------------------------------------------------------------------------
+/** SPI bus is share with other devices. */
+const uint8_t SHARED_SPI = 0;
+#if ENABLE_DEDICATED_SPI
+/** The SD is the only device on the SPI bus. */
+const uint8_t DEDICATED_SPI = 1;
+/**
+ * \param[in] opt option field of SdSpiConfig.
+ * \return true for dedicated SPI.
+ */
+inline bool spiOptionDedicated(uint8_t opt) { return opt & DEDICATED_SPI; }
+#else   // ENABLE_DEDICATED_SPI
+/**
+ * \param[in] opt option field of SdSpiConfig.
+ * \return true for dedicated SPI.
+ */
+inline bool spiOptionDedicated(uint8_t opt) {
+  (void)opt;
+  return false;
+}
+#endif  // ENABLE_DEDICATED_SPI
+/** The user will call begin. Useful for custom SPI configurations.       */
+const uint8_t USER_SPI_BEGIN = 2;
 //------------------------------------------------------------------------------
 /** SPISettings for SCK frequency in Hz. */
 #define SD_SCK_HZ(maxSpeed) (maxSpeed)
 /** SPISettings for SCK frequency in MHz. */
-#define SD_SCK_MHZ(maxMhz) (1000000UL*(maxMhz))
+#define SD_SCK_MHZ(maxMhz) (1000000UL * (maxMhz))
 // SPI divisor constants - obsolete.
 /** Set SCK to max rate. */
 #define SPI_FULL_SPEED SD_SCK_MHZ(50)
@@ -73,86 +86,37 @@ void sdCsWrite(SdCsPin_t pin, bool level);
 /** Set SCK rate to 500 kHz for AVR. */
 #define SPI_SIXTEENTH_SPEED SD_SCK_HZ(500000)
 //------------------------------------------------------------------------------
-/** The SD is the only device on the SPI bus. */
-#define DEDICATED_SPI 0X80
-/** SPI bus is share with other devices. */
-#define SHARED_SPI 0
 #if SPI_DRIVER_SELECT < 2
 #include "SPI.h"
-
-
-namespace sdfat {
-
-
 /** Port type for Arduino SPI hardware driver. */
 typedef SPIClass SpiPort_t;
-
-
-}; // namespace sdfat
-
-
 #elif SPI_DRIVER_SELECT == 2
-
-
-namespace sdfat {
-
-
 class SdSpiSoftDriver;
 /** Port type for software SPI driver. */
 typedef SdSpiSoftDriver SpiPort_t;
-
-
-}; // namespace sdfat
-
-
 #elif SPI_DRIVER_SELECT == 3
-
-
-namespace sdfat {
-
-
 class SdSpiBaseClass;
 /** Port type for extrernal SPI driver. */
-typedef SdSpiBaseClass  SpiPort_t;
-
-
-}; // namespace sdfat
-
-
-#else  // SPI_DRIVER_SELECT
-
-
-namespace sdfat {
-
-
-typedef void*  SpiPort_t;
-
-
-}; // namespace sdfat
-
-
+typedef SdSpiBaseClass SpiPort_t;
+#else   // SPI_DRIVER_SELECT
+typedef void* SpiPort_t;
 #endif  // SPI_DRIVER_SELECT
 //------------------------------------------------------------------------------
-
-
-namespace sdfat {
-
-
 /**
  * \class SdSpiConfig
  * \brief SPI card configuration.
  */
 class SdSpiConfig {
  public:
-   /** SdSpiConfig constructor.
+  /** SdSpiConfig constructor.
    *
    * \param[in] cs Chip select pin.
    * \param[in] opt Options.
    * \param[in] maxSpeed Maximum SCK frequency.
    * \param[in] port The SPI port to use.
    */
-  SdSpiConfig(SdCsPin_t cs, uint8_t opt, uint32_t maxSpeed, SpiPort_t* port) :
-    csPin(cs), options(opt), maxSck(maxSpeed), spiPort(port) {}
+  SdSpiConfig(SdCsPin_t cs, uint8_t opt, uint32_t maxSpeed, SpiPort_t* port)
+      : csPin(cs), options(opt), maxSck(maxSpeed), spiPort(port) {}
 
   /** SdSpiConfig constructor.
    *
@@ -160,53 +124,36 @@ class SdSpiConfig {
    * \param[in] opt Options.
    * \param[in] maxSpeed Maximum SCK frequency.
    */
-  SdSpiConfig(SdCsPin_t cs, uint8_t opt, uint32_t maxSpeed) :
-    csPin(cs), options(opt), maxSck(maxSpeed), spiPort(nullptr) {}
+  SdSpiConfig(SdCsPin_t cs, uint8_t opt, uint32_t maxSpeed)
+      : csPin(cs), options(opt), maxSck(maxSpeed) {}
   /** SdSpiConfig constructor.
    *
    * \param[in] cs Chip select pin.
    * \param[in] opt Options.
    */
-  SdSpiConfig(SdCsPin_t cs, uint8_t opt) :
-    csPin(cs), options(opt), maxSck(SD_SCK_MHZ(50)), spiPort(nullptr)  {}
+  SdSpiConfig(SdCsPin_t cs, uint8_t opt) : csPin(cs), options(opt) {}
   /** SdSpiConfig constructor.
    *
    * \param[in] cs Chip select pin.
    */
-  explicit SdSpiConfig(SdCsPin_t cs) : csPin(cs), options(SHARED_SPI),
-                                     maxSck(SD_SCK_MHZ(50)), spiPort(nullptr) {}
+  explicit SdSpiConfig(SdCsPin_t cs) : csPin(cs) {}
 
   /** Chip select pin. */
   const SdCsPin_t csPin;
   /** Options */
-  const uint8_t options;
+  const uint8_t options = SHARED_SPI;
   /** Max SCK frequency */
-  const uint32_t maxSck;
+  const uint32_t maxSck = SD_SCK_MHZ(50);
   /** SPI port */
-  SpiPort_t* spiPort;
+  SpiPort_t* spiPort = nullptr;
 };
-
-
-}; // namespace sdfat
-
-
 #if SPI_DRIVER_SELECT < 2
 #include "SdSpiArduinoDriver.h"
 #elif SPI_DRIVER_SELECT == 2
 #include "SdSpiSoftDriver.h"
 #elif SPI_DRIVER_SELECT == 3
 #include "SdSpiBaseClass.h"
-
-
-namespace sdfat {
-
-
 typedef SdSpiBaseClass SdSpiDriver;
-
-
-}; // namespace sdfat
-
-
 #else  // SPI_DRIVER_SELECT
 #error Invalid SPI_DRIVER_SELECT
 #endif  // SPI_DRIVER_SELECT

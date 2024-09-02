@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011-2020 Bill Greiman
+ * Copyright (c) 2011-2022 Bill Greiman
  * This file is part of the SdFat library for SD memory cards.
  *
  * MIT License
@@ -40,80 +40,84 @@
 // (we add 1 because we will be using the floor of the result later)
 // divmod10_asm16 and divmod10_asm32 are public domain code by Stimmer.
 // http://forum.arduino.cc/index.php?topic=167414.msg1293679#msg1293679
-#define divmod10_asm16(in32, mod8, tmp8)    \
-asm volatile(          \
-      " ldi %2,51     \n\t"     \
-      " mul %A0,%2    \n\t"     \
-      " clr %A0       \n\t"     \
-      " add r0,%2     \n\t"     \
-      " adc %A0,r1    \n\t"     \
-      " mov %1,r0     \n\t"     \
-      " mul %B0,%2    \n\t"     \
-      " clr %B0       \n\t"     \
-      " add %A0,r0    \n\t"     \
-      " adc %B0,r1    \n\t"     \
-      " clr r1        \n\t"     \
-      " add %1,%A0    \n\t"     \
-      " adc %A0,%B0   \n\t"     \
-      " adc %B0,r1   \n\t"      \
-      " add %1,%B0    \n\t"     \
-      " adc %A0,r1   \n\t"      \
-      " adc %B0,r1    \n\t"     \
-      " lsr %B0       \n\t"     \
-      " ror %A0       \n\t"     \
-      " ror %1        \n\t"     \
-      " ldi %2,10     \n\t"     \
-      " mul %1,%2     \n\t"     \
-      " mov %1,r1     \n\t"     \
-      " clr r1        \n\t"     \
-      :"+r"(in32), "=d"(mod8), "=d"(tmp8) : : "r0")
+#define divmod10_asm16(in32, mod8, tmp8)   \
+  asm volatile(                            \
+      " ldi %2,51     \n\t"                \
+      " mul %A0,%2    \n\t"                \
+      " clr %A0       \n\t"                \
+      " add r0,%2     \n\t"                \
+      " adc %A0,r1    \n\t"                \
+      " mov %1,r0     \n\t"                \
+      " mul %B0,%2    \n\t"                \
+      " clr %B0       \n\t"                \
+      " add %A0,r0    \n\t"                \
+      " adc %B0,r1    \n\t"                \
+      " clr r1        \n\t"                \
+      " add %1,%A0    \n\t"                \
+      " adc %A0,%B0   \n\t"                \
+      " adc %B0,r1   \n\t"                 \
+      " add %1,%B0    \n\t"                \
+      " adc %A0,r1   \n\t"                 \
+      " adc %B0,r1    \n\t"                \
+      " lsr %B0       \n\t"                \
+      " ror %A0       \n\t"                \
+      " ror %1        \n\t"                \
+      " ldi %2,10     \n\t"                \
+      " mul %1,%2     \n\t"                \
+      " mov %1,r1     \n\t"                \
+      " clr r1        \n\t"                \
+      : "+r"(in32), "=d"(mod8), "=d"(tmp8) \
+      :                                    \
+      : "r0")
 
-#define divmod10_asm32(in32, mod8, tmp8)    \
-asm volatile(          \
-      " ldi %2,51     \n\t"     \
-      " mul %A0,%2    \n\t"     \
-      " clr %A0       \n\t"     \
-      " add r0,%2     \n\t"     \
-      " adc %A0,r1    \n\t"     \
-      " mov %1,r0     \n\t"     \
-      " mul %B0,%2    \n\t"     \
-      " clr %B0       \n\t"     \
-      " add %A0,r0    \n\t"     \
-      " adc %B0,r1    \n\t"     \
-      " mul %C0,%2    \n\t"     \
-      " clr %C0       \n\t"     \
-      " add %B0,r0    \n\t"     \
-      " adc %C0,r1    \n\t"     \
-      " mul %D0,%2    \n\t"     \
-      " clr %D0       \n\t"     \
-      " add %C0,r0    \n\t"     \
-      " adc %D0,r1    \n\t"     \
-      " clr r1        \n\t"     \
-      " add %1,%A0    \n\t"     \
-      " adc %A0,%B0   \n\t"     \
-      " adc %B0,%C0   \n\t"     \
-      " adc %C0,%D0   \n\t"     \
-      " adc %D0,r1    \n\t"     \
-      " add %1,%B0    \n\t"     \
-      " adc %A0,%C0   \n\t"     \
-      " adc %B0,%D0   \n\t"     \
-      " adc %C0,r1    \n\t"     \
-      " adc %D0,r1    \n\t"     \
-      " add %1,%D0    \n\t"     \
-      " adc %A0,r1    \n\t"     \
-      " adc %B0,r1    \n\t"     \
-      " adc %C0,r1    \n\t"     \
-      " adc %D0,r1    \n\t"     \
-      " lsr %D0       \n\t"     \
-      " ror %C0       \n\t"     \
-      " ror %B0       \n\t"     \
-      " ror %A0       \n\t"     \
-      " ror %1        \n\t"     \
-      " ldi %2,10     \n\t"     \
-      " mul %1,%2     \n\t"     \
-      " mov %1,r1     \n\t"     \
-      " clr r1        \n\t"     \
-      :"+r"(in32), "=d"(mod8), "=d"(tmp8) : : "r0")
+#define divmod10_asm32(in32, mod8, tmp8)   \
+  asm volatile(                            \
+      " ldi %2,51     \n\t"                \
+      " mul %A0,%2    \n\t"                \
+      " clr %A0       \n\t"                \
+      " add r0,%2     \n\t"                \
+      " adc %A0,r1    \n\t"                \
+      " mov %1,r0     \n\t"                \
+      " mul %B0,%2    \n\t"                \
+      " clr %B0       \n\t"                \
+      " add %A0,r0    \n\t"                \
+      " adc %B0,r1    \n\t"                \
+      " mul %C0,%2    \n\t"                \
+      " clr %C0       \n\t"                \
+      " add %B0,r0    \n\t"                \
+      " adc %C0,r1    \n\t"                \
+      " mul %D0,%2    \n\t"                \
+      " clr %D0       \n\t"                \
+      " add %C0,r0    \n\t"                \
+      " adc %D0,r1    \n\t"                \
+      " clr r1        \n\t"                \
+      " add %1,%A0    \n\t"                \
+      " adc %A0,%B0   \n\t"                \
+      " adc %B0,%C0   \n\t"                \
+      " adc %C0,%D0   \n\t"                \
+      " adc %D0,r1    \n\t"                \
+      " add %1,%B0    \n\t"                \
+      " adc %A0,%C0   \n\t"                \
+      " adc %B0,%D0   \n\t"                \
+      " adc %C0,r1    \n\t"                \
+      " adc %D0,r1    \n\t"                \
+      " add %1,%D0    \n\t"                \
+      " adc %A0,r1    \n\t"                \
+      " adc %B0,r1    \n\t"                \
+      " adc %C0,r1    \n\t"                \
+      " adc %D0,r1    \n\t"                \
+      " lsr %D0       \n\t"                \
+      " ror %C0       \n\t"                \
+      " ror %B0       \n\t"                \
+      " ror %A0       \n\t"                \
+      " ror %1        \n\t"                \
+      " ldi %2,10     \n\t"                \
+      " mul %1,%2     \n\t"                \
+      " mov %1,r1     \n\t"                \
+      " clr r1        \n\t"                \
+      : "+r"(in32), "=d"(mod8), "=d"(tmp8) \
+      :                                    \
+      : "r0")
 //------------------------------------------------------------------------------
 /*
 // C++ code is based on this version of divmod10 by robtillaart.
@@ -134,13 +138,12 @@ void divmod10(uint32_t in, uint32_t &div, uint32_t &mod)
   q = q >> 3;
 
   // determine error
-  uint32_t  r = in - ((q << 3) + (q << 1));   // r = in - q*10;
+  uint32_t r = in - ((q << 3) + (q << 1));   // r = in - q*10;
   div = q + (r > 9);
   if (r > 9) mod = r - 10;
   else mod = r;
 }
-// Hackers delight function is here:
-// http://www.hackersdelight.org/hdcodetxt/divuc.c.txt
+// See: https://github.com/hcs0/Hackers-Delight
 // Code below uses 8/10 = 0.1100 1100 1100 1100 1100 1100 1100 1100.
 // 15 ops including the multiply, or 17 elementary ops.
 unsigned divu10(unsigned n) {
@@ -156,11 +159,6 @@ unsigned divu10(unsigned n) {
 // return q + (r > 9);
 }
 */
-
-
-namespace sdfat {
-
-
 //------------------------------------------------------------------------------
 // Format 16-bit unsigned
 char* fmtBase10(char* str, uint16_t n) {
@@ -168,7 +166,7 @@ char* fmtBase10(char* str, uint16_t n) {
 #ifdef USE_STIMMER
     uint8_t tmp8, r;
     divmod10_asm16(n, r, tmp8);
-#else  // USE_STIMMER
+#else   // USE_STIMMER
     uint16_t t = n;
     n = (n >> 1) + (n >> 2);
     n = n + (n >> 4);
@@ -193,7 +191,7 @@ char* fmtBase10(char* str, uint32_t n) {
 #ifdef USE_STIMMER
     uint8_t tmp8, r;
     divmod10_asm32(n, r, tmp8);
-#else  //  USE_STIMMER
+#else   //  USE_STIMMER
     uint32_t t = n;
     n = (n >> 1) + (n >> 2);
     n = n + (n >> 4);
@@ -237,7 +235,7 @@ char* fmtUnsigned(char* str, uint32_t num, uint8_t base, bool caps) {
   if (base == 10) return fmtBase10(str, (uint32_t)num);
 #endif  // USE_FMT_BASE10
   do {
-    int c = num%base;
+    int c = num % base;
     *--str = c + (c < 10 ? '0' : caps ? 'A' - 10 : 'a' - 10);
   } while (num /= base);
   return str;
@@ -245,11 +243,11 @@ char* fmtUnsigned(char* str, uint32_t num, uint8_t base, bool caps) {
 //-----------------------------------------------------------------------------
 
 static const double powTen[] = {1e1, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9};
-static const double rnd[] =
-  {5e-1, 5e-2, 5e-3, 5e-4, 5e-5, 5e-6, 5e-7, 5e-8, 5e-9, 5e-10};
-static const size_t MAX_PREC = sizeof(powTen)/sizeof(powTen[0]);
+static const double rnd[] = {5e-1, 5e-2, 5e-3, 5e-4, 5e-5,
+                             5e-6, 5e-7, 5e-8, 5e-9, 5e-10};
+static const size_t MAX_PREC = sizeof(powTen) / sizeof(powTen[0]);
 
-char *fmtDouble(char *str, double num, uint8_t prec, bool altFmt) {
+char* fmtDouble(char* str, double num, uint8_t prec, bool altFmt) {
   bool neg = num < 0;
   if (neg) {
     num = -num;
@@ -281,7 +279,7 @@ char *fmtDouble(char *str, double num, uint8_t prec, bool altFmt) {
   uint32_t ul = num;
   if (prec) {
     char* s = str - prec;
-    uint32_t f = (num - ul)*powTen[prec - 1];
+    uint32_t f = (num - ul) * powTen[prec - 1];
     str = fmtBase10(str, f);
     while (str > s) {
       *--str = '0';
@@ -304,8 +302,8 @@ char *fmtDouble(char *str, double num, uint8_t prec, bool altFmt) {
  * \param[in] expChar Use exp format if non zero.
  * \return Pointer to first character of result.
  */
-char* fmtDouble(char* str, double value,
-                uint8_t prec, bool altFmt, char expChar) {
+char* fmtDouble(char* str, double value, uint8_t prec, bool altFmt,
+                char expChar) {
   if (expChar != 'e' && expChar != 'E') {
     expChar = 0;
   }
@@ -353,11 +351,11 @@ char* fmtDouble(char* str, double value,
           exp++;
         }
       } else if (value < 1.0L) {
-         while (value < 1e-16L) {
+        while (value < 1e-16L) {
           value *= 1e16L;
           exp -= 16;
         }
-         while (value < 1e-4L) {
+        while (value < 1e-4L) {
           value *= 1e4L;
           exp -= 4;
         }
@@ -390,13 +388,13 @@ char* fmtDouble(char* str, double value,
   uint32_t whole = value;
   if (prec) {
     char* tmp = str - prec;
-    uint32_t fraction = (value - whole)*powTen[prec - 1];
+    uint32_t fraction = (value - whole) * powTen[prec - 1];
     str = fmtBase10(str, fraction);
     while (str > tmp) {
       *--str = '0';
     }
   }
-  if (prec || altFmt)*--str = '.';
+  if (prec || altFmt) *--str = '.';
   str = fmtBase10(str, whole);
   if (neg) {
     *--str = '-';
@@ -410,14 +408,14 @@ char* fmtDouble(char* str, double value,
 #ifdef __AVR__
 static const float m[] PROGMEM = {1e-1, 1e-2, 1e-4, 1e-8, 1e-16, 1e-32};
 static const float p[] PROGMEM = {1e+1, 1e+2, 1e+4, 1e+8, 1e+16, 1e+32};
-#else  // __AVR__
+#else   // __AVR__
 static const float m[] = {1e-1, 1e-2, 1e-4, 1e-8, 1e-16, 1e-32};
 static const float p[] = {1e+1, 1e+2, 1e+4, 1e+8, 1e+16, 1e+32};
 #endif  // __AVR__
 #endif  // DOXYGEN_SHOULD_SKIP_THIS
 // scale float v by power of ten. return v*10^n
 float scale10(float v, int8_t n) {
-  const float *s;
+  const float* s;
   if (n < 0) {
     n = -n;
     s = m;
@@ -430,7 +428,7 @@ float scale10(float v, int8_t n) {
     if (n & 1) {
       v *= pgm_read_float(&s[i]);
     }
-#else  // __AVR__
+#else   // __AVR__
     if (n & 1) {
       v *= s[i];
     }
@@ -455,7 +453,8 @@ float scanFloat(const char* str, const char** ptr) {
     *ptr = str;
   }
 
-  while (isSpace((c = *str++))) {}
+  while (isSpace((c = *str++))) {
+  }
   neg = c == '-';
   if (c == '-' || c == '+') {
     c = *str++;
@@ -469,7 +468,7 @@ float scanFloat(const char* str, const char** ptr) {
     if (isDigit(c)) {
       digit = true;
       if (nd < 9) {
-        fract = 10*fract + c - '0';
+        fract = 10 * fract + c - '0';
         nd++;
         if (dot) {
           fracExp--;
@@ -504,7 +503,7 @@ float scanFloat(const char* str, const char** ptr) {
       if (exp > EXP_LIMIT) {
         goto fail;
       }
-      exp = 10*exp + c - '0';
+      exp = 10 * exp + c - '0';
       successPtr = str;
       c = *str++;
     }
@@ -516,9 +515,6 @@ float scanFloat(const char* str, const char** ptr) {
   v = scale10(static_cast<float>(fract), fracExp);
   return neg ? -v : v;
 
- fail:
+fail:
   return 0;
 }
-
-
-}; // namespace sdfat

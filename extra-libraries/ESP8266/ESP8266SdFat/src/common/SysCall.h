@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011-2020 Bill Greiman
+ * Copyright (c) 2011-2022 Bill Greiman
  * This file is part of the SdFat library for SD memory cards.
  *
  * MIT License
@@ -28,40 +28,16 @@
  */
 #ifndef SysCall_h
 #define SysCall_h
-#include <stdint.h>
 #include <stddef.h>
+#include <stdint.h>
+
 #include "../SdFatConfig.h"
-
-
-namespace sdfat {
-
-
 #if __cplusplus < 201103
 #warning nullptr defined
 /** Define nullptr if not C++11 */
 #define nullptr NULL
 #endif  // __cplusplus < 201103
 //------------------------------------------------------------------------------
-/** Type for millis. */
-typedef uint16_t SdMillis_t;
-//------------------------------------------------------------------------------
-/**
- * \class SysCall
- * \brief SysCall - Class to wrap system calls.
- */
-class SysCall {
- public:
-  /** \return the time in milliseconds. */
-  static SdMillis_t curTimeMS();
-  /** Halt execution of this thread. */
-  static void halt() {
-    while (1) {
-      yield();
-    }
-  }
-  /** Yield to other threads. */
-  static void yield();
-};
 #if ENABLE_ARDUINO_FEATURES
 #if defined(ARDUINO)
 /** Use Arduino Print. */
@@ -77,44 +53,11 @@ typedef Stream stream_t;
 #define F(str) (str)
 #endif  // F
 //------------------------------------------------------------------------------
-/** \return the time in milliseconds. */
-inline SdMillis_t SysCall::curTimeMS() {
-  return millis();
-}
-//------------------------------------------------------------------------------
-#if defined(PLATFORM_ID)  // Only defined if a Particle device
-inline void SysCall::yield() {
-  // Recommended to only call Particle.process() if system threading is disabled
-  if (system_thread_get_state(NULL) == spark::feature::DISABLED) {
-    Particle.process();
-  }
-}
-#elif defined(ARDUINO)
-inline void SysCall::yield() {
-  // Use the external Arduino yield() function.
-#if defined(ESP8266)
-  // SdFat uses `SysCall::yield()` from within OS callbacks, a no-no.
-  // Use delay(0) instead, which is safe under all circumstances
-  ::delay(0);
-#else
-  ::yield();
-#endif
-}
-#else  // defined(PLATFORM_ID)
-inline void SysCall::yield() {}
-#endif  // defined(PLATFORM_ID)
-//------------------------------------------------------------------------------
 #else  // ENABLE_ARDUINO_FEATURES
 #include "PrintBasic.h"
 /** If not Arduino */
 typedef PrintBasic print_t;
 /** If not Arduino */
 typedef PrintBasic stream_t;
-inline void SysCall::yield() {}
 #endif  // ENABLE_ARDUINO_FEATURES
-
-
-}; // namespace sdfat
-
-
 #endif  // SysCall_h

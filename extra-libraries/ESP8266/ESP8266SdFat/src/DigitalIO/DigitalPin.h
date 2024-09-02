@@ -225,11 +225,6 @@ void fastDigitalWrite(uint8_t pin, bool value) {
   }
 }
 #elif defined(ESP8266)
-
-
-namespace sdfat {
-
-
 //------------------------------------------------------------------------------
 /** Set pin value
  * @param[in] pin Arduino pin number
@@ -265,11 +260,6 @@ bool fastDigitalRead(uint8_t pin) {
   }
   return 0;
 }
-
-
-}; // namespace sdfat
-
-
 #else  // CORE_TEENSY
 //------------------------------------------------------------------------------
 inline void fastDigitalWrite(uint8_t pin, bool value) {

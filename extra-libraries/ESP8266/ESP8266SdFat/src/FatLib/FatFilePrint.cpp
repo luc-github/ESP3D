@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011-2020 Bill Greiman
+ * Copyright (c) 2011-2022 Bill Greiman
  * This file is part of the SdFat library for SD memory cards.
  *
  * MIT License
@@ -25,62 +25,8 @@
 #include <math.h>
 #define DBG_FILE "FatFilePrint.cpp"
 #include "../common/DebugMacros.h"
-#include "FatFile.h"
+#include "FatLib.h"
 
-
-namespace sdfat {
-
-
-//------------------------------------------------------------------------------
-static void printHex(print_t* pr, uint8_t w, uint16_t h) {
-  char buf[5];
-  char* ptr = buf + sizeof(buf);
-  *--ptr = 0;
-  for (uint8_t i = 0; i < w; i++) {
-    char c = h & 0XF;
-    *--ptr = c < 10 ? c + '0' : c + 'A' - 10;
-    h >>= 4;
-  }
-  pr->write(ptr);
-}
-//------------------------------------------------------------------------------
-void FatFile::dmpFile(print_t* pr, uint32_t pos, size_t n) {
-  char text[17];
-  text[16] = 0;
-  if (n >= 0XFFF0) {
-    n = 0XFFF0;
-  }
-  if (!seekSet(pos)) {
-    return;
-  }
-  for (size_t i = 0; i <= n; i++) {
-    if ((i & 15) == 0) {
-      if (i) {
-        pr->write(' ');
-        pr->write(text);
-        if (i == n) {
-          break;
-        }
-      }
-      pr->write('\r');
-      pr->write('\n');
-      if (i >= n) {
-        break;
-      }
-      printHex(pr, 4, i);
-      pr->write(' ');
-    }
-    int16_t h = read();
-    if (h < 0) {
-      break;
-    }
-    pr->write(' ');
-    printHex(pr, 2, h);
-    text[i&15] = ' ' <= h && h < 0X7F ? h : '.';
-  }
-  pr->write('\r');
-  pr->write('\n');
-}
 //------------------------------------------------------------------------------
 bool FatFile::ls(print_t* pr, uint8_t flags, uint8_t indent) {
   FatFile file;
@@ -121,7 +67,7 @@ bool FatFile::ls(print_t* pr, uint8_t flags, uint8_t indent) {
   }
   return true;
 
- fail:
+fail:
   return false;
 }
 //------------------------------------------------------------------------------
@@ -153,7 +99,7 @@ size_t FatFile::printModifyDateTime(print_t* pr) {
 //------------------------------------------------------------------------------
 size_t FatFile::printFileSize(print_t* pr) {
   char buf[11];
-  char *ptr = buf + sizeof(buf);
+  char* ptr = buf + sizeof(buf);
   *--ptr = 0;
   ptr = fmtBase10(ptr, fileSize());
   while (ptr > buf) {
@@ -161,6 +107,3 @@ size_t FatFile::printFileSize(print_t* pr) {
   }
   return pr->write(buf);
 }
-
-
-}; // namespace sdfat

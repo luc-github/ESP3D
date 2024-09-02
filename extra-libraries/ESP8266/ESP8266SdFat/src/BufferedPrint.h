@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011-2020 Bill Greiman
+ * Copyright (c) 2011-2022 Bill Greiman
  * This file is part of the SdFat library for SD memory cards.
  *
  * MIT License
@@ -28,17 +28,15 @@
  * \file
  * \brief Fast buffered print.
  */
+#ifdef __AVR__
+#include <avr/pgmspace.h>
+#endif  // __AVR__
 #include "common/FmtNumber.h"
-
-
-namespace sdfat {
-
-
 /**
  * \class BufferedPrint
  * \brief Fast buffered print template.
  */
-template<typename WriteClass, uint8_t BUF_DIM>
+template <typename WriteClass, uint8_t BUF_DIM>
 class BufferedPrint {
  public:
   BufferedPrint() : m_wr(nullptr), m_in(0) {}
@@ -54,7 +52,7 @@ class BufferedPrint {
     m_in = 0;
   }
   /** Flush the buffer - same as sync() with no status return. */
-  void flush() {sync();}
+  void flush() { sync(); }
   /** Print a character followed by a field terminator.
    * \param[in] c character to print.
    * \param[in] term The field terminator.  Use '\\n' for CR LF.
@@ -77,7 +75,7 @@ class BufferedPrint {
    * \param[in] term The field terminator.  Use '\\n' for CR LF.
    * \return true for success or false if an error occurs.
    */
-  size_t printField(const __FlashStringHelper *fsh, char term) {
+  size_t printField(const __FlashStringHelper* fsh, char term) {
 #ifdef __AVR__
     size_t rtn = 0;
     PGM_P p = reinterpret_cast<PGM_P>(fsh);
@@ -98,8 +96,8 @@ class BufferedPrint {
       rtn += write(str, buf + sizeof(buf) - str);
     }
     return rtn;
-#else  // __AVR__
-    return printField(reinterpret_cast<const char *>(fsh), term);
+#else   // __AVR__
+    return printField(reinterpret_cast<const char*>(fsh), term);
 #endif  // __AVR__
   }
   /** Print a string followed by a field terminator.
@@ -144,7 +142,7 @@ class BufferedPrint {
    * \param[in] prec Number of digits after decimal point.
    * \return true for success or false if an error occurs.
    */
-  size_t printField(float f, char term,  uint8_t prec = 2) {
+  size_t printField(float f, char term, uint8_t prec = 2) {
     return printField(static_cast<double>(f), term, prec);
   }
   /** Print an integer value for 8, 16, and 32 bit signed and unsigned types.
@@ -152,7 +150,7 @@ class BufferedPrint {
    * \param[in] term The field terminator.  Use '\\n' for CR LF.
    * \return true for success or false if an error occurs.
    */
-  template<typename Type>
+  template <typename Type>
   size_t printField(Type n, char term) {
     const uint8_t DIM = sizeof(Type) <= 2 ? 8 : 13;
     char buf[DIM];
@@ -189,9 +187,7 @@ class BufferedPrint {
    * \param[in] prec Number of digits after decimal point.
    * \return true for success or false if an error occurs.
    */
-  size_t print(double d, uint8_t prec = 2) {
-    return printField(d, 0, prec);
-  }
+  size_t print(double d, uint8_t prec = 2) { return printField(d, 0, prec); }
   /** Print a double followed by CR LF.
    * \param[in] d The number to be printed.
    * \param[in] prec Number of digits after decimal point.
@@ -220,7 +216,7 @@ class BufferedPrint {
    * \param[in] v item to print.
    * \return true for success or false if an error occurs.
    */
-  template<typename Type>
+  template <typename Type>
   size_t print(Type v) {
     return printField(v, 0);
   }
@@ -228,7 +224,7 @@ class BufferedPrint {
    * \param[in] v item to print.
    * \return true for success or false if an error occurs.
    */
-  template<typename Type>
+  template <typename Type>
   size_t println(Type v) {
     return printField(v, '\n');
   }
@@ -243,7 +239,7 @@ class BufferedPrint {
     m_in = 0;
     return true;
   }
- /** Write data to an open file.
+  /** Write data to an open file.
    * \param[in] src Pointer to the location of the data to be written.
    *
    * \param[in] n Number of bytes to write.
@@ -271,9 +267,4 @@ class BufferedPrint {
   // Insure room for double.
   uint8_t m_buf[BUF_DIM < 24 ? 24 : BUF_DIM];  // NOLINT
 };
-
-
-}; // namespace sdfat
-
-
 #endif  // BufferedPrint_h

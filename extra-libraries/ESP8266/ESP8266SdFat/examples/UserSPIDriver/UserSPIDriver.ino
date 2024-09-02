@@ -1,10 +1,7 @@
 // An example of an external SPI driver.
 //
-#include "SdFat.h"
 #include "SPI.h"  // Only required if you use features in the SPI library.
-
-using namespace sdfat;
-
+#include "SdFat.h"
 
 #if SPI_DRIVER_SELECT == 3  // Must be set in SdFat/SdFatConfig.h
 
@@ -19,22 +16,16 @@ using namespace sdfat;
 class MySpiClass : public SdSpiBaseClass {
  public:
   // Activate SPI hardware with correct speed and mode.
-  void activate() {
-    SPI.beginTransaction(m_spiSettings);
-  }
+  void activate() { SPI.beginTransaction(m_spiSettings); }
   // Initialize the SPI bus.
   void begin(SdSpiConfig config) {
     (void)config;
     SPI.begin();
   }
   // Deactivate SPI hardware.
-  void deactivate() {
-    SPI.endTransaction();
-  }
+  void deactivate() { SPI.endTransaction(); }
   // Receive a byte.
-  uint8_t receive() {
-    return SPI.transfer(0XFF);
-  }
+  uint8_t receive() { return SPI.transfer(0XFF); }
   // Receive multiple bytes.
   // Replace this function if your board has multiple byte receive.
   uint8_t receive(uint8_t* buf, size_t count) {
@@ -44,9 +35,7 @@ class MySpiClass : public SdSpiBaseClass {
     return 0;
   }
   // Send a byte.
-  void send(uint8_t data) {
-    SPI.transfer(data);
-  }
+  void send(uint8_t data) { SPI.transfer(data); }
   // Send multiple bytes.
   // Replace this function if your board has multiple byte send.
   void send(const uint8_t* buf, size_t count) {
@@ -62,8 +51,11 @@ class MySpiClass : public SdSpiBaseClass {
  private:
   SPISettings m_spiSettings;
 } mySpi;
-
+#if ENABLE_DEDICATED_SPI
 #define SD_CONFIG SdSpiConfig(SD_CS_PIN, DEDICATED_SPI, SD_SCK_MHZ(50), &mySpi)
+#else  // ENABLE_DEDICATED_SPI
+#define SD_CONFIG SdSpiConfig(SD_CS_PIN, SHARED_SPI, SD_SCK_MHZ(50), &mySpi)
+#endif  // ENABLE_DEDICATED_SPI
 SdFat sd;
 
 //------------------------------------------------------------------------------
@@ -73,9 +65,11 @@ void setup() {
     sd.initErrorHalt(&Serial);
   }
   sd.ls(&Serial, LS_SIZE);
+  Serial.println("Done");
 }
 //------------------------------------------------------------------------------
 void loop() {}
 #else  // SPI_DRIVER_SELECT
 #error SPI_DRIVER_SELECT must be three in SdFat/SdFatConfig.h
 #endif  // SPI_DRIVER_SELECT
+

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011-2020 Bill Greiman
+ * Copyright (c) 2011-2022 Bill Greiman
  * This file is part of the SdFat library for SD memory cards.
  *
  * MIT License
@@ -22,19 +22,11 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
-#include "common/SysCall.h"
-#if defined(UDR0) || defined(DOXYGEN)
 #include "MinimumSerial.h"
-
-
-namespace sdfat {
-
-
-const uint16_t MIN_2X_BAUD = F_CPU/(4*(2*0XFFF + 1)) + 1;
+#if defined(UDR0) || defined(DOXYGEN)
+const uint16_t MIN_2X_BAUD = F_CPU / (4 * (2 * 0XFFF + 1)) + 1;
 //------------------------------------------------------------------------------
-int MinimumSerial::available() {
-  return UCSR0A & (1 << RXC0) ? 1 : 0;
-}
+int MinimumSerial::available() { return UCSR0A & (1 << RXC0) ? 1 : 0; }
 //------------------------------------------------------------------------------
 void MinimumSerial::begin(uint32_t baud) {
   uint16_t baud_setting;
@@ -58,7 +50,8 @@ void MinimumSerial::begin(uint32_t baud) {
 }
 //------------------------------------------------------------------------------
 void MinimumSerial::flush() {
-  while (((1 << UDRIE0) & UCSR0B) || !(UCSR0A & (1 << UDRE0))) {}
+  while (((1 << UDRIE0) & UCSR0B) || !(UCSR0A & (1 << UDRE0))) {
+  }
 }
 //------------------------------------------------------------------------------
 int MinimumSerial::read() {
@@ -69,12 +62,9 @@ int MinimumSerial::read() {
 }
 //------------------------------------------------------------------------------
 size_t MinimumSerial::write(uint8_t b) {
-  while (((1 << UDRIE0) & UCSR0B) || !(UCSR0A & (1 << UDRE0))) {}
+  while (((1 << UDRIE0) & UCSR0B) || !(UCSR0A & (1 << UDRE0))) {
+  }
   UDR0 = b;
   return 1;
 }
-
-}; // namepace sdfat
-
-
 #endif  //  defined(UDR0) || defined(DOXYGEN)

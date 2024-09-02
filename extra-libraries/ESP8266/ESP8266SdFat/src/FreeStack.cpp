@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011-2020 Bill Greiman
+ * Copyright (c) 2011-2022 Bill Greiman
  * This file is part of the SdFat library for SD memory cards.
  *
  * MIT License
@@ -24,11 +24,6 @@
  */
 #define FREE_STACK_CPP
 #include "FreeStack.h"
-
-
-namespace sdfat {
-
-
 #if defined(HAS_UNUSED_STACK) && HAS_UNUSED_STACK
 //------------------------------------------------------------------------------
 inline char* stackBegin() {
@@ -44,7 +39,7 @@ inline char* stackBegin() {
 }
 //------------------------------------------------------------------------------
 inline char* stackPointer() {
-#if  defined(__AVR__)
+#if defined(__AVR__)
   return reinterpret_cast<char*>(SP);
 #elif defined(__arm__)
   register uint32_t sp asm("sp");
@@ -83,6 +78,3 @@ int UnusedStack() {
   return n;
 }
 #endif  // defined(HAS_UNUSED_STACK) && HAS_UNUSED_STACK
-
-
-}; // namepace sdfat

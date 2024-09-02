@@ -4,14 +4,11 @@
 // This example will also run on an Uno and other boards using software SPI.
 //
 #include "SdFat.h"
-
-using namespace sdfat;
-
 #if SPI_DRIVER_SELECT == 2  // Must be set in SdFat/SdFatConfig.h
 
 // SD_FAT_TYPE = 0 for SdFat/File as defined in SdFatConfig.h,
 // 1 for FAT16/FAT32, 2 for exFAT, 3 for FAT16/FAT32 and exFAT.
-#define SD_FAT_TYPE 0
+#define SD_FAT_TYPE 3
 //
 // Chip select may be constant or RAM variable.
 const uint8_t SD_CS_PIN = 10;
@@ -19,12 +16,16 @@ const uint8_t SD_CS_PIN = 10;
 // Pin numbers in templates must be constants.
 const uint8_t SOFT_MISO_PIN = 12;
 const uint8_t SOFT_MOSI_PIN = 11;
-const uint8_t SOFT_SCK_PIN  = 13;
+const uint8_t SOFT_SCK_PIN = 13;
 
 // SdFat software SPI template
 SoftSpiDriver<SOFT_MISO_PIN, SOFT_MOSI_PIN, SOFT_SCK_PIN> softSpi;
 // Speed argument is ignored for software SPI.
+#if ENABLE_DEDICATED_SPI
 #define SD_CONFIG SdSpiConfig(SD_CS_PIN, DEDICATED_SPI, SD_SCK_MHZ(0), &softSpi)
+#else  // ENABLE_DEDICATED_SPI
+#define SD_CONFIG SdSpiConfig(SD_CS_PIN, SHARED_SPI, SD_SCK_MHZ(0), &softSpi)
+#endif  // ENABLE_DEDICATED_SPI
 
 #if SD_FAT_TYPE == 0
 SdFat sd;
@@ -46,11 +47,11 @@ void setup() {
   Serial.begin(9600);
   // Wait for USB Serial
   while (!Serial) {
-    SysCall::yield();
+    yield();
   }
   Serial.println("Type any character to start");
   while (!Serial.available()) {
-    SysCall::yield();
+    yield();
   }
 
   if (!sd.begin(SD_CONFIG)) {
@@ -76,4 +77,4 @@ void setup() {
 void loop() {}
 #else  // SPI_DRIVER_SELECT
 #error SPI_DRIVER_SELECT must be two in SdFat/SdFatConfig.h
-#endif  //SPI_DRIVER_SELECT
+#endif  // SPI_DRIVER_SELECT

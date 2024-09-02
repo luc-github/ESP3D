@@ -64,12 +64,12 @@ void setup(void) {
 
   // Wait for USB Serial
   while (!Serial) {
-    SysCall::yield();
+    yield();
   }
 
   cout << F("Type any character to start\n");
   while (!Serial.available()) {
-    SysCall::yield();
+    yield();
   }
   delay(400);  // catch Due reset problem
 

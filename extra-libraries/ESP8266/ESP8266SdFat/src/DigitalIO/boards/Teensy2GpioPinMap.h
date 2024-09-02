@@ -1,10 +1,5 @@
 #ifndef Teensy2GpioPinMap_h
 #define Teensy2GpioPinMap_h
-
-
-namespace sdfat {
-
-
 static const GpioPinMap_t GpioPinMap[] = {
   GPIO_PIN(B, 0),  // D0
   GPIO_PIN(B, 1),  // D1
@@ -32,9 +27,4 @@ static const GpioPinMap_t GpioPinMap[] = {
   GPIO_PIN(D, 5),  // D23
   GPIO_PIN(E, 6),  // D24
 };
-
-
-}; // namespace sdfat
-
-
 #endif  // Teensy2GpioPinMap_h

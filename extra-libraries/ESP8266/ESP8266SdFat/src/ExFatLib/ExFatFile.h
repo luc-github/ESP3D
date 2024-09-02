@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011-2020 Bill Greiman
+ * Copyright (c) 2011-2024 Bill Greiman
  * This file is part of the SdFat library for SD memory cards.
  *
  * MIT License
@@ -30,63 +30,28 @@
  */
 #include <limits.h>
 #include <string.h>
-#include "ExFatConfig.h"
-#include "../common/FsDateTime.h"
-#include "../common/FsStructs.h"
-#include "../common/FsApiConstants.h"
+
 #include "../common/FmtNumber.h"
-#include "ExFatTypes.h"
+#include "../common/FsApiConstants.h"
+#include "../common/FsDateTime.h"
+#include "../common/FsName.h"
 #include "ExFatPartition.h"
 
-
-namespace sdfat {
-
-
 class ExFatVolume;
-
 //------------------------------------------------------------------------------
 /** Expression for path name separator. */
 #define isDirSeparator(c) ((c) == '/')
 //------------------------------------------------------------------------------
-/** test for legal character.
- *
- * \param[in] c character to be tested.
- *
- * \return true for legal character else false.
- */
-inline bool lfnLegalChar(ExChar_t c) {
-  if (c == '/' || c == '\\' || c == '"' || c == '*' ||
-      c == ':' || c == '<' || c == '>' || c == '?' || c == '|') {
-    return false;
-  }
-#if USE_EXFAT_UNICODE_NAMES
-  return 0X1F < c;
-#else  // USE_EXFAT_UNICODE_NAMES
-  return 0X1F < c && c < 0X7F;
-#endif  // USE_EXFAT_UNICODE_NAMES
-}
-//------------------------------------------------------------------------------
 /**
- * \struct ExName_t
+ * \class ExName_t
  * \brief Internal type for file name - do not use in user apps.
  */
-struct ExName_t {
-  /** length of Long File Name */
-  size_t len;
-  /** Long File Name start. */
-  const ExChar_t* lfn;
-};
-//------------------------------------------------------------------------------
-/**
- * \struct ExFatPos_t
- * \brief Internal type for file position - do not use in user apps.
- */
-struct ExFatPos_t {
-  /** stream position */
-  uint64_t position;
-  /** cluster for position */
-  uint32_t cluster;
-  ExFatPos_t() : position(0), cluster(0) {}
+class ExName_t : public FsName {
+ public:
+  /** Length of UTF-16 name */
+  size_t nameLength;
+  /** Hash for UTF-16 name */
+  uint16_t nameHash;
 };
 //------------------------------------------------------------------------------
 /**
@@ -96,29 +61,108 @@ struct ExFatPos_t {
 class ExFatFile {
  public:
   /** Create an instance. */
-  ExFatFile() : m_attributes(FILE_ATTR_CLOSED), m_error(0), m_flags(0) {}
+  ExFatFile() {}
+  /**  Create a file object and open it in the current working directory.
+   *
+   * \param[in] path A path for a file to be opened.
+   *
+   * \param[in] oflag Values for \a oflag are constructed by a bitwise-inclusive
+   * OR of open flags. see FatFile::open(FatFile*, const char*, uint8_t).
+   */
+  ExFatFile(const char* path, oflag_t oflag) { open(path, oflag); }
 
+  /** Copy from to this.
+   * \param[in] from Source file.
+   */
+  void copy(const ExFatFile* from) {
+    if (from != this) {
+#if FILE_COPY_CONSTRUCTOR_SELECT
+      *this = *from;
+#else   // FILE_COPY_CONSTRUCTOR_SELECT
+      memcpy(this, from, sizeof(ExFatFile));
+#endif  // FILE_COPY_CONSTRUCTOR_SELECT
+    }
+  }
+  /** move from to this.
+   * \param[in] from Source file.
+   */
+  void move(ExFatFile* from) {
+    if (from != this) {
+      copy(from);
+      from->m_attributes = FILE_ATTR_CLOSED;
+    }
+  }
+
+#if FILE_COPY_CONSTRUCTOR_SELECT == FILE_COPY_CONSTRUCTOR_PUBLIC
+  /** Copy constructor.
+   * \param[in] from Move from file.
+   *
+   */
+  ExFatFile(const ExFatFile& from) = default;
+  /** Copy assignment operator.
+   * \param[in] from Move from file.
+   * \return Copied file.
+   */
+  ExFatFile& operator=(const ExFatFile& from) = default;
+#elif FILE_COPY_CONSTRUCTOR_SELECT == FILE_COPY_CONSTRUCTOR_PRIVATE
+
+ private:
+  ExFatFile(const ExFatFile& from) = default;
+  ExFatFile& operator=(const ExFatFile& from) = default;
+
+ public:
+#else   // FILE_COPY_CONSTRUCTOR_SELECT
+  ExFatFile(const ExFatFile& from) = delete;
+  ExFatFile& operator=(const ExFatFile& from) = delete;
+#endif  // FILE_COPY_CONSTRUCTOR_SELECT
+
+#if FILE_MOVE_CONSTRUCTOR_SELECT
+  /** Move constructor.
+   * \param[in] from Move from file.
+   */
+  ExFatFile(ExFatFile&& from) { move(&from); }
+  /** Move assignment operator.
+   * \param[in] from Move from file.
+   * \return Moved file.
+   */
+  ExFatFile& operator=(ExFatFile&& from) {
+    move(&from);
+    return *this;
+  }
+#else  // FILE_MOVE_CONSTRUCTOR_SELECT
+  ExFatFile(ExFatFile&& from) = delete;
+  ExFatFile& operator=(ExFatFile&& from) = delete;
+#endif
+
+  /** Destructor */
 #if DESTRUCTOR_CLOSES_FILE
   ~ExFatFile() {
     if (isOpen()) {
       close();
     }
   }
+#else   // DESTRUCTOR_CLOSES_FILE
+  ~ExFatFile() = default;
 #endif  // DESTRUCTOR_CLOSES_FILE
 
   /** The parenthesis operator.
-    *
-    * \return true if a file is open.
-    */
-  operator bool() {
-    return isOpen();
-  }
-  /** \return The number of bytes available from the current position
-   * to EOF for normal files.  Zero is returned for directory files.
+   *
+   * \return true if a file is open.
    */
-  uint64_t available64() {
-    return isFile() ? fileSize() - curPosition() : 0;
-  }
+  operator bool() { return isOpen(); }
+  /**
+   * \return user settable file attributes for success else -1.
+   */
+  int attrib() { return isFileOrSubDir() ? m_attributes & FS_ATTRIB_COPY : -1; }
+  /** Set file attributes
+   *
+   * \param[in] bits bit-wise or of selected attributes: FS_ATTRIB_READ_ONLY,
+   *            FS_ATTRIB_HIDDEN, FS_ATTRIB_SYSTEM, FS_ATTRIB_ARCHIVE.
+   *
+   * \note attrib() will fail for set read-only if the file is open for write.
+   * \return true for success or false for failure.
+   */
+  bool attrib(uint8_t bits);
   /** \return The number of bytes available from the current position
    * to EOF for normal files.  INT_MAX is returned for very large files.
    *
@@ -131,6 +175,14 @@ class ExFatFile {
     uint64_t n = available64();
     return n > INT_MAX ? INT_MAX : n;
   }
+  /** \return The number of bytes available from the current position
+   * to EOF for normal files.  Zero is returned for directory files.
+   */
+  uint64_t available64() { return isFile() ? fileSize() - curPosition() : 0; }
+  /** Clear all error bits. */
+  void clearError() { m_error = 0; }
+  /** Clear writeError. */
+  void clearWriteError() { m_error &= ~WRITE_ERROR; }
   /** Close a file and force cached data and directory information
    *  to be written to the storage device.
    *
@@ -140,40 +192,41 @@ class ExFatFile {
   /** Check for contiguous file and return its raw sector range.
    *
    * \param[out] bgnSector the first sector address for the file.
-   * \param[out] endSector the last  sector address for the file.
+   * \param[out] endSector the last sector address for the file.
    *
    * Parameters may be nullptr.
    *
    * \return true for success or false for failure.
    */
   bool contiguousRange(uint32_t* bgnSector, uint32_t* endSector);
+  /** \return The current cluster number for a file or directory. */
+  uint32_t curCluster() const { return m_curCluster; }
   /** \return The current position for a file or directory. */
-  uint64_t curPosition() const {return m_curPosition;}
-
+  uint64_t curPosition() const { return m_curPosition; }
   /** \return Total data length for file. */
-  uint64_t dataLength() {return m_dataLength;}
+  uint64_t dataLength() const { return m_dataLength; }
   /** \return Directory entry index. */
-  uint32_t dirIndex() {return m_dirPos.position/32;}
+  uint32_t dirIndex() const { return m_dirPos.position / FS_DIR_SIZE; }
   /** Test for the existence of a file in a directory
    *
    * \param[in] path Path of the file to be tested for.
    *
    * The calling instance must be an open directory file.
    *
-   * dirFile.exists("TOFIND.TXT") searches for "TOFIND.TXT" in  the directory
+   * dirFile.exists("TOFIND.TXT") searches for "TOFIND.TXT" in the directory
    * dirFile.
    *
    * \return true if the file exists else false.
    */
-  bool exists(const ExChar_t* path) {
+  bool exists(const char* path) {
     ExFatFile file;
     return file.open(this, path, O_RDONLY);
   }
   /** get position for streams
    * \param[out] pos struct to receive position
    */
-  void fgetpos(fspos_t* pos);
- /**
+  void fgetpos(fspos_t* pos) const;
+  /**
    * Get a string from a file.
    *
    * fgets() reads bytes from a file into the array pointed to by \a str, until
@@ -196,31 +249,15 @@ class ExFatFile {
    */
   int fgets(char* str, int num, char* delim = nullptr);
   /** \return The total number of bytes in a file. */
-  uint64_t fileSize() {return m_validLength;}
+  uint64_t fileSize() const { return m_validLength; }
   /** \return Address of first sector or zero for empty file. */
-  uint32_t firstSector();
+  uint32_t firstSector() const;
   /** Set position for streams
    * \param[in] pos struct with value for new position
    */
   void fsetpos(const fspos_t* pos);
   /** Arduino name for sync() */
-  void flush() {sync();}
-  /**
-   * Get a file's name followed by a zero byte.
-   *
-   * \param[out] name An array of characters for the file's name.
-   * \param[in] size The size of the array in characters.
-   * \return the name length.
-   */
-  size_t getName(ExChar_t* name, size_t size);
-  /** Clear all error bits. */
-  void clearError() {
-    m_error = 0;
-  }
-  /** Clear writeError. */
-  void clearWriteError() {
-    m_error &= ~WRITE_ERROR;
-  }
+  void flush() { sync(); }
   /** Get a file's access date and time.
    *
    * \param[out] pdate Packed date for directory entry.
@@ -238,9 +275,7 @@ class ExFatFile {
    */
   bool getCreateDateTime(uint16_t* pdate, uint16_t* ptime);
   /** \return All error bits. */
-  uint8_t getError() {
-    return isOpen() ? m_error : 0XFF;
-  }
+  uint8_t getError() const { return isOpen() ? m_error : 0XFF; }
   /** Get a file's modify date and time.
    *
    * \param[out] pdate Packed date for directory entry.
@@ -249,30 +284,68 @@ class ExFatFile {
    * \return true for success or false for failure.
    */
   bool getModifyDateTime(uint16_t* pdate, uint16_t* ptime);
-  /** \return value of writeError */
-  bool getWriteError() {
-    return isOpen() ? m_error & WRITE_ERROR : true;
+  /**
+   * Get a file's name followed by a zero.
+   *
+   * \param[out] name An array of characters for the file's name.
+   * \param[in] size The size of the array in characters.
+   * \return length for success or zero for failure.
+   */
+  size_t getName(char* name, size_t size) {
+#if USE_UTF8_LONG_NAMES
+    return getName8(name, size);
+#else   // USE_UTF8_LONG_NAMES
+    return getName7(name, size);
+#endif  // USE_UTF8_LONG_NAMES
   }
+  /**
+   * Get a file's ASCII name followed by a zero.
+   *
+   * \param[out] name An array of characters for the file's name.
+   * \param[in] size The size of the array in characters.
+   * \return the name length.
+   */
+  size_t getName7(char* name, size_t size);
+  /**
+   * Get a file's UTF-8 name followed by a zero.
+   *
+   * \param[out] name An array of characters for the file's name.
+   * \param[in] size The size of the array in characters.
+   * \return the name length.
+   */
+  size_t getName8(char* name, size_t size);
+  /** \return value of writeError */
+  bool getWriteError() const { return isOpen() ? m_error & WRITE_ERROR : true; }
+  /**
+   * Check for FsBlockDevice busy.
+   *
+   * \return true if busy else false.
+   */
+  bool isBusy();
   /** \return True if the file is contiguous. */
-  bool isContiguous() const {return m_flags & FILE_FLAG_CONTIGUOUS;}
+  bool isContiguous() const { return m_flags & FILE_FLAG_CONTIGUOUS; }
   /** \return True if this is a directory. */
-  bool isDir() const  {return m_attributes & FILE_ATTR_DIR;}
+  bool isDir() const { return m_attributes & FILE_ATTR_DIR; }
   /** \return True if this is a normal file. */
-  bool isFile() const {return m_attributes & FILE_ATTR_FILE;}
+  bool isFile() const { return m_attributes & FILE_ATTR_FILE; }
+  /** \return True if this is a normal file or sub-directory. */
+  bool isFileOrSubDir() const { return isFile() || isSubDir(); }
   /** \return True if this is a hidden. */
-  bool isHidden() const {return m_attributes & FILE_ATTR_HIDDEN;}
+  bool isHidden() const { return m_attributes & FS_ATTRIB_HIDDEN; }
   /** \return true if the file is open. */
-  bool isOpen() const {return m_attributes;}
+  bool isOpen() const { return m_attributes; }
   /** \return True if file is read-only */
-  bool isReadOnly() const {return m_attributes & FILE_ATTR_READ_ONLY;}
-  /** \return True if this is a subdirectory. */
-  bool isSubDir() const {return m_attributes & FILE_ATTR_SUBDIR;}
+  bool isReadOnly() const { return m_attributes & FS_ATTRIB_READ_ONLY; }
   /** \return True if this is the root directory. */
-  bool isRoot() const {return m_attributes & FILE_ATTR_ROOT;}
+  bool isRoot() const { return m_attributes & FILE_ATTR_ROOT; }
+  /** \return True file is readable. */
+  bool isReadable() const { return m_flags & FILE_FLAG_READ; }
+  /** \return True if this is a sub-directory. */
+  bool isSubDir() const { return m_attributes & FILE_ATTR_SUBDIR; }
+  /** \return True if this is a system file. */
+  bool isSystem() const { return m_attributes & FS_ATTRIB_SYSTEM; }
   /** \return True file is writable. */
-  bool isReadable() const {return m_flags & FILE_FLAG_READ;}
-  /** \return True file is writable. */
-  bool isWritable() const {return m_flags & FILE_FLAG_WRITE;}
+  bool isWritable() const { return m_flags & FILE_FLAG_WRITE; }
   /** List directory contents.
    *
    * \param[in] pr Print stream for list.
@@ -289,10 +362,10 @@ class ExFatFile {
    *
    * LS_SIZE - %Print file size.
    *
-   * LS_R - Recursive list of subdirectories.
+   * LS_R - Recursive list of sub-directories.
    *
    * \param[in] indent Amount of space before file name. Used for recursive
-   * list to indicate subdirectory level.
+   * list to indicate sub-directory level.
    *
    * \return true for success or false for failure.
    */
@@ -308,7 +381,7 @@ class ExFatFile {
    *
    * \return true for success or false for failure.
    */
-  bool mkdir(ExFatFile* parent, const ExChar_t* path, bool pFlag = true);
+  bool mkdir(ExFatFile* parent, const char* path, bool pFlag = true);
   /** Open a file or directory by name.
    *
    * \param[in] dirFile An open directory containing the file to be opened.
@@ -353,7 +426,7 @@ class ExFatFile {
    *
    * \return true for success or false for failure.
    */
-  bool open(ExFatFile* dirFile, const ExChar_t* path, oflag_t oflag);
+  bool open(ExFatFile* dirFile, const char* path, oflag_t oflag = O_RDONLY);
   /** Open a file in the volume working directory.
    *
    * \param[in] vol Volume where the file is located.
@@ -365,7 +438,7 @@ class ExFatFile {
    *
    * \return true for success or false for failure.
    */
-  bool open(ExFatVolume* vol, const ExChar_t* path, int oflag);
+  bool open(ExFatVolume* vol, const char* path, oflag_t oflag = O_RDONLY);
   /** Open a file by index.
    *
    * \param[in] dirFile An open ExFatFile instance for the directory.
@@ -374,12 +447,39 @@ class ExFatFile {
    * opened.  The value for \a index is (directory file position)/32.
    *
    * \param[in] oflag bitwise-inclusive OR of open flags.
-   *            See see ExFatFile::open(ExFatFile*, const ExChar_t*, uint8_t).
+   *            See see ExFatFile::open(ExFatFile*, const char*, uint8_t).
    *
    * See open() by path for definition of flags.
    * \return true for success or false for failure.
    */
-  bool open(ExFatFile* dirFile, uint32_t index, oflag_t oflag);
+  bool open(ExFatFile* dirFile, uint32_t index, oflag_t oflag = O_RDONLY);
+  /** Open a file by index in the current working directory.
+   *
+   * \param[in] index The \a index of the directory entry for the file to be
+   * opened.  The value for \a index is (directory file position)/32.
+   *
+   * \param[in] oflag bitwise-inclusive OR of open flags.
+   *                  See see FatFile::open(FatFile*, const char*, uint8_t).
+   *
+   * See open() by path for definition of flags.
+   * \return true for success or false for failure.
+   */
+  bool open(uint32_t index, oflag_t oflag = O_RDONLY);
+  /** Open a file in the current working directory.
+   *
+   * \param[in] path A path with a valid name for a file to be opened.
+   *
+   * \param[in] oflag bitwise-inclusive OR of open flags.
+   *                  See see ExFatFile::open(ExFatFile*, const char*, uint8_t).
+   *
+   * \return true for success or false for failure.
+   */
+  bool open(const char* path, oflag_t oflag = O_RDONLY);
+  /** Open the current working directory.
+   *
+   * \return true for success or false for failure.
+   */
+  bool openCwd();
   /** Open the next file or subdirectory in a directory.
    *
    * \param[in] dirFile An open instance for the directory
@@ -391,16 +491,6 @@ class ExFatFile {
    * \return true for success or false for failure.
    */
   bool openNext(ExFatFile* dirFile, oflag_t oflag = O_RDONLY);
-  /** Open a file in the current working directory.
-   *
-   * \param[in] path A path with a valid name for a file to be opened.
-   *
-   * \param[in] oflag bitwise-inclusive OR of open flags.
-   *                  See see ExFatFile::open(ExFatFile*, const char*, uint8_t).
-   *
-   * \return true for success or false for failure.
-   */
-  bool open(const ExChar_t* path, int oflag = O_RDONLY);
   /** Open a volume's root directory.
    *
    * \param[in] vol The FAT volume containing the root directory to be opened.
@@ -424,6 +514,20 @@ class ExFatFile {
    * \return true for success or false for failure.
    */
   bool preAllocate(uint64_t length);
+  /** Print a file's access date and time
+   *
+   * \param[in] pr Print stream for output.
+   *
+   * \return true for success or false for failure.
+   */
+  size_t printAccessDateTime(print_t* pr);
+  /** Print a file's creation date and time
+   *
+   * \param[in] pr Print stream for output.
+   *
+   * \return true for success or false for failure.
+   */
+  size_t printCreateDateTime(print_t* pr);
   /** Print a number followed by a field terminator.
    * \param[in] value The number to be printed.
    * \param[in] term The field terminator.  Use '\\n' for CR LF.
@@ -459,7 +563,7 @@ class ExFatFile {
   template <typename Type>
   size_t printField(Type value, char term) {
     char sign = 0;
-    char buf[3*sizeof(Type) + 3];
+    char buf[3 * sizeof(Type) + 3];
     char* str = buf + sizeof(buf);
 
     if (term) {
@@ -487,21 +591,6 @@ class ExFatFile {
    * \return The number of bytes printed.
    */
   size_t printFileSize(print_t* pr);
-   /** Print a file's access date and time
-   *
-   * \param[in] pr Print stream for output.
-   *
-   * \return true for success or false for failure.
-   */
-  size_t printAccessDateTime(print_t* pr);
-  /** Print a file's creation date and time
-   *
-   * \param[in] pr Print stream for output.
-   *
-   * \return true for success or false for failure.
-   */
-  size_t printCreateDateTime(print_t* pr);
-
   /** Print a file's modify date and time
    *
    * \param[in] pr Print stream for output.
@@ -513,9 +602,29 @@ class ExFatFile {
    *
    * \param[in] pr Print stream for output.
    *
+   * \return length for success or zero for failure.
+   */
+  size_t printName(print_t* pr) {
+#if USE_UTF8_LONG_NAMES
+    return printName8(pr);
+#else   // USE_UTF8_LONG_NAMES
+    return printName7(pr);
+#endif  // USE_UTF8_LONG_NAMES
+  }
+  /** Print a file's ASCII name
+   *
+   * \param[in] pr Print stream for output.
+   *
    * \return true for success or false for failure.
    */
-  size_t printName(print_t* pr);
+  size_t printName7(print_t* pr);
+  /** Print a file's UTF-8 name
+   *
+   * \param[in] pr Print stream for output.
+   *
+   * \return true for success or false for failure.
+   */
+  size_t printName8(print_t* pr);
   /** Read the next byte from a file.
    *
    * \return For success read returns the next byte in the file as an int.
@@ -562,26 +671,24 @@ class ExFatFile {
    *
    * \return true for success or false for failure.
    */
-  bool remove(const ExChar_t* path);
-   /** Rename a file or subdirectory.
+  bool remove(const char* path);
+  /** Rename a file or subdirectory.
    *
    * \param[in] newPath New path name for the file/directory.
    *
    * \return true for success or false for failure.
    */
-  bool rename(const ExChar_t* newPath);
-   /** Rename a file or subdirectory.
+  bool rename(const char* newPath);
+  /** Rename a file or subdirectory.
    *
    * \param[in] dirFile Directory for the new path.
    * \param[in] newPath New path name for the file/directory.
    *
    * \return true for success or false for failure.
    */
-  bool rename(ExFatFile* dirFile, const ExChar_t* newPath);
+  bool rename(ExFatFile* dirFile, const char* newPath);
   /** Set the file's current position to zero. */
-  void rewind() {
-    seekSet(0);
-  }
+  void rewind() { seekSet(0); }
   /** Remove a directory file.
    *
    * The directory file will be removed only if it is empty and is not the
@@ -599,9 +706,7 @@ class ExFatFile {
    * \param[in] offset The new position in bytes from the current position.
    * \return true for success or false for failure.
    */
-  bool seekCur(int64_t offset) {
-    return seekSet(m_curPosition + offset);
-  }
+  bool seekCur(int64_t offset) { return seekSet(m_curPosition + offset); }
   /** Set the files position to end-of-file + \a offset. See seekSet().
    * Can't be used for directory files since file size is not defined.
    * \param[in] offset The new position in bytes from end-of-file.
@@ -617,6 +722,8 @@ class ExFatFile {
    * \return true for success or false for failure.
    */
   bool seekSet(uint64_t pos);
+  /** \return directory set count */
+  uint8_t setCount() const { return m_setCount; }
   /** The sync() call causes all modified data and directory fields
    * to be written to the storage device.
    *
@@ -668,32 +775,28 @@ class ExFatFile {
    * \return true for success or false for failure.
    */
   bool truncate();
-   /** Truncate a file to a specified length.  The current file position
+  /** Truncate a file to a specified length.  The current file position
    * will be set to end of file.
    *
    * \param[in] length The desired length for the file.
    *
    * \return true for success or false for failure.
    */
-  bool truncate(uint64_t length) {
-    return seekSet(length) && truncate();
-  }
+  bool truncate(uint64_t length) { return seekSet(length) && truncate(); }
 
   /** \return The valid number of bytes in a file. */
-  uint64_t validLength() {return m_validLength;}
+  uint64_t validLength() const { return m_validLength; }
   /** Write a string to a file. Used by the Arduino Print class.
    * \param[in] str Pointer to the string.
    * Use getWriteError to check for errors.
    * \return count of characters written for success or -1 for failure.
    */
-  size_t write(const char* str) {
-    return write(str, strlen(str));
-  }
+  size_t write(const char* str) { return write(str, strlen(str)); }
   /** Write a single byte.
    * \param[in] b The byte to be written.
    * \return +1 for success or zero for failure.
    */
-  size_t write(uint8_t b) {return write(&b, 1);}
+  size_t write(uint8_t b) { return write(&b, 1); }
   /** Write data to an open file.
    *
    * \note Data is moved to the cache but may not be written to the
@@ -704,102 +807,87 @@ class ExFatFile {
    * \param[in] count Number of bytes to write.
    *
    * \return For success write() returns the number of bytes written, always
-   * \a count.
+   * \a count. If an error occurs, write() returns zero and writeError is set.
    */
   size_t write(const void* buf, size_t count);
-  //============================================================================
-#if USE_EXFAT_UNICODE_NAMES
-  // Not Implemented when Unicode is selected.
-  bool exists(const char* path);
-  size_t getName(char *name, size_t size);
-  bool mkdir(ExFatFile* parent, const char* path, bool pFlag = true);
-  bool open(ExFatVolume* vol, const char* path, int oflag);
-  bool open(ExFatFile* dir, const char* path, int oflag);
-  bool open(const char* path, int oflag = O_RDONLY);
-  bool remove(const char* path);
-  bool rename(const char* newPath);
-  bool rename(ExFatFile* dirFile, const char* newPath);
-#endif  // USE_EXFAT_UNICODE_NAMES
+//------------------------------------------------------------------------------
+#if ENABLE_ARDUINO_SERIAL
+  /** List directory contents.
+   *
+   * \param[in] flags The inclusive OR of
+   *
+   * LS_DATE - %Print file modification date
+   *
+   * LS_SIZE - %Print file size.
+   *
+   * LS_R - Recursive list of subdirectories.
+   *
+   * \return true for success or false for failure.
+   */
+  bool ls(uint8_t flags = 0) { return ls(&Serial, flags); }
+  /** Print a file's name.
+   *
+   * \return length for success or zero for failure.
+   */
+  size_t printName() { return ExFatFile::printName(&Serial); }
+#endif  // ENABLE_ARDUINO_SERIAL
 
  private:
   /** ExFatVolume allowed access to private members. */
   friend class ExFatVolume;
   bool addCluster();
   bool addDirCluster();
-  uint8_t setCount() {return m_setCount;}
+  bool cmpName(const DirName_t* dirName, ExName_t* fname);
+  uint8_t* dirCache(uint8_t set, uint8_t options);
+  bool hashName(ExName_t* fname);
   bool mkdir(ExFatFile* parent, ExName_t* fname);
-  bool openRootFile(ExFatFile* dir,
-                    const ExChar_t* name, uint8_t nameLength, oflag_t oflag);
-  bool open(ExFatFile* dirFile, ExName_t* fname, oflag_t oflag) {
-    return openRootFile(dirFile, fname->lfn, fname->len, oflag);
-  }
-  bool parsePathName(const ExChar_t* path,
-                            ExName_t* fname, const ExChar_t** ptr);
-  uint32_t curCluster() const {return m_curCluster;}
-  ExFatVolume* volume() const {return m_vol;}
+
+  bool openPrivate(ExFatFile* dir, ExName_t* fname, oflag_t oflag);
+  bool parsePathName(const char* path, ExName_t* fname, const char** ptr);
+  ExFatVolume* volume() const { return m_vol; }
   bool syncDir();
   //----------------------------------------------------------------------------
   static const uint8_t WRITE_ERROR = 0X1;
-  static const uint8_t READ_ERROR  = 0X2;
+  static const uint8_t READ_ERROR = 0X2;
 
   /** This file has not been opened. */
   static const uint8_t FILE_ATTR_CLOSED = 0;
-  /** File is read-only. */
-  static const uint8_t FILE_ATTR_READ_ONLY = EXFAT_ATTRIB_READ_ONLY;
-  /** File should be hidden in directory listings. */
-  static const uint8_t FILE_ATTR_HIDDEN = EXFAT_ATTRIB_HIDDEN;
-  /** Entry is for a system file. */
-  static const uint8_t FILE_ATTR_SYSTEM = EXFAT_ATTRIB_SYSTEM;
   /** Entry for normal data file */
   static const uint8_t FILE_ATTR_FILE = 0X08;
   /** Entry is for a subdirectory */
-  static const uint8_t FILE_ATTR_SUBDIR = EXFAT_ATTRIB_DIRECTORY;
-  static const uint8_t FILE_ATTR_ARCHIVE = EXFAT_ATTRIB_ARCHIVE;
+  static const uint8_t FILE_ATTR_SUBDIR = FS_ATTRIB_DIRECTORY;
   /** Root directory */
   static const uint8_t FILE_ATTR_ROOT = 0X40;
   /** Directory type bits */
   static const uint8_t FILE_ATTR_DIR = FILE_ATTR_SUBDIR | FILE_ATTR_ROOT;
-  /** Attributes to copy from directory entry */
-  static const uint8_t FILE_ATTR_COPY = EXFAT_ATTRIB_READ_ONLY |
-                       EXFAT_ATTRIB_HIDDEN | EXFAT_ATTRIB_SYSTEM |
-                       EXFAT_ATTRIB_DIRECTORY | EXFAT_ATTRIB_ARCHIVE;
 
   static const uint8_t FILE_FLAG_READ = 0X01;
   static const uint8_t FILE_FLAG_WRITE = 0X02;
   static const uint8_t FILE_FLAG_APPEND = 0X08;
-  static const uint8_t FILE_FLAG_CONTIGUOUS  = 0X40;
+  static const uint8_t FILE_FLAG_CONTIGUOUS = 0X40;
   static const uint8_t FILE_FLAG_DIR_DIRTY = 0X80;
 
-
-  uint64_t      m_curPosition;
-  uint64_t      m_dataLength;
-  uint64_t      m_validLength;
-  uint32_t      m_curCluster;
-  uint32_t      m_firstCluster;
-  ExFatVolume*  m_vol;
-  DirPos_t      m_dirPos;
-  uint8_t       m_setCount;
-  uint8_t       m_attributes;
-  uint8_t       m_error;
-  uint8_t       m_flags;
+  uint64_t m_curPosition;
+  uint64_t m_dataLength;
+  uint64_t m_validLength;
+  uint32_t m_curCluster;
+  uint32_t m_firstCluster;
+  ExFatVolume* m_vol;
+  DirPos_t m_dirPos;
+  uint8_t m_setCount;
+  uint8_t m_attributes = FILE_ATTR_CLOSED;
+  uint8_t m_error = 0;
+  uint8_t m_flags = 0;
 };
 
-
-}; // namespace sdfat
-
-
 #include "../common/ArduinoFiles.h"
-
-namespace sdfat {
-
-
 /**
  * \class ExFile
  * \brief exFAT file with Arduino Stream.
  */
 class ExFile : public StreamFile<ExFatFile, uint64_t> {
  public:
-   /** Opens the next file or folder in a directory.
+  /** Opens the next file or folder in a directory.
    *
    * \param[in] oflag open flags.
    * \return a FatStream object.
@@ -810,9 +898,4 @@ class ExFile : public StreamFile<ExFatFile, uint64_t> {
     return tmpFile;
   }
 };
-
-
-}; // namespace sdfat
-
-
 #endif  // ExFatFile_h

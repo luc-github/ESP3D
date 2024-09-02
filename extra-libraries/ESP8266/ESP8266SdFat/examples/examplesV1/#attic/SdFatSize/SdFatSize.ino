@@ -15,7 +15,7 @@ void setup() {
 
   // Wait for USB Serial
   while (!Serial) {
-    SysCall::yield();
+    yield();
   }
 
   if (!sd.begin()) {

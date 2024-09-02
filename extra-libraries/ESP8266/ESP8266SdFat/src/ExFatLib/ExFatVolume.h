@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011-2020 Bill Greiman
+ * Copyright (c) 2011-2022 Bill Greiman
  * This file is part of the SdFat library for SD memory cards.
  *
  * MIT License
@@ -24,13 +24,7 @@
  */
 #ifndef ExFatVolume_h
 #define ExFatVolume_h
-#include "ExFatPartition.h"
 #include "ExFatFile.h"
-
-
-namespace sdfat {
-
-
 //==============================================================================
 /**
  * \class ExFatVolume
@@ -38,23 +32,43 @@ namespace sdfat {
  */
 class ExFatVolume : public ExFatPartition {
  public:
-  ExFatVolume() {
+  ExFatVolume() {}
+  /** Get file's user settable attributes.
+   * \param[in] path path to file.
+   * \return user settable file attributes for success else -1.
+   */
+  int attrib(const char* path) {
+    ExFatFile tmpFile;
+    return tmpFile.open(this, path, O_RDONLY) ? tmpFile.attrib() : -1;
+  }
+  /** Set file's user settable attributes.
+   * \param[in] path path to file.
+   * \param[in] bits bit-wise or of selected attributes: FS_ATTRIB_READ_ONLY,
+   *            FS_ATTRIB_HIDDEN, FS_ATTRIB_SYSTEM, FS_ATTRIB_ARCHIVE.
+   *
+   * \return true for success or false for failure.
+   */
+  bool attrib(const char* path, uint8_t bits) {
+    ExFatFile tmpFile;
+    return tmpFile.open(this, path, O_RDONLY) ? tmpFile.attrib(bits) : false;
   }
   /**
    * Initialize an FatVolume object.
    * \param[in] dev Device block driver.
    * \param[in] setCwv Set current working volume if true.
-   * \param[in] part partition to initialize.
+   * \param[in] part Partition to initialize.
+   * \param[in] volStart Start sector of volume if part is zero.
    * \return true for success or false for failure.
    */
-  bool begin(BlockDevice* dev, bool setCwv = true, uint8_t part = 1) {
-    if (!init(dev, part)) {
+  bool begin(FsBlockDevice* dev, bool setCwv = true, uint8_t part = 1,
+             uint32_t volStart = 0) {
+    if (!init(dev, part, volStart)) {
       return false;
     }
     if (!chdir()) {
       return false;
     }
-    if (setCwv) {
+    if (setCwv || !m_cwv) {
       m_cwv = this;
     }
     return true;
@@ -72,11 +86,10 @@ class ExFatVolume : public ExFatPartition {
    * \param[in] path Path for volume working directory.
    * \return true for success or false for failure.
    */
-  bool chdir(const ExChar_t* path);
-  /** \return current working volume. */
-  static ExFatVolume* cwv() {return m_cwv;}
+  bool chdir(const char* path);
+
   /** Change global working volume to this volume. */
-  void chvol() {m_cwv = this;}
+  void chvol() { m_cwv = this; }
 
   /**
    * Test for the existence of a file.
@@ -85,11 +98,10 @@ class ExFatVolume : public ExFatPartition {
    *
    * \return true if the file exists else false.
    */
-  bool exists(const ExChar_t* path) {
+  bool exists(const char* path) {
     ExFatFile tmp;
     return tmp.open(this, path, O_RDONLY);
   }
-
   //----------------------------------------------------------------------------
   /** List the directory contents of the root directory.
    *
@@ -105,9 +117,7 @@ class ExFatVolume : public ExFatPartition {
    *
    * \return true for success or false for failure.
    */
-  bool ls(print_t* pr, uint8_t flags = 0) {
-    return m_vwd.ls(pr, flags);
-  }
+  bool ls(print_t* pr, uint8_t flags = 0) { return m_vwd.ls(pr, flags); }
   /** List the contents of a directory.
    *
    * \param[in] pr Print stream for list.
@@ -124,7 +134,7 @@ class ExFatVolume : public ExFatPartition {
    *
    * \return true for success or false for failure.
    */
-  bool ls(print_t* pr, const ExChar_t* path, uint8_t flags) {
+  bool ls(print_t* pr, const char* path, uint8_t flags) {
     ExFatFile dir;
     return dir.open(this, path, O_RDONLY) && dir.ls(pr, flags);
   }
@@ -136,7 +146,7 @@ class ExFatVolume : public ExFatPartition {
    *
    * \return true for success or false for failure.
    */
-  bool mkdir(const ExChar_t* path, bool pFlag = true) {
+  bool mkdir(const char* path, bool pFlag = true) {
     ExFatFile sub;
     return sub.mkdir(vwd(), path, pFlag);
   }
@@ -146,7 +156,7 @@ class ExFatVolume : public ExFatPartition {
    * \param[in] oflag open flags.
    * \return a ExFile object.
    */
-  ExFile open(const ExChar_t* path, oflag_t oflag = O_RDONLY) {
+  ExFile open(const char* path, oflag_t oflag = O_RDONLY) {
     ExFile tmpFile;
     tmpFile.open(this, path, oflag);
     return tmpFile;
@@ -157,7 +167,7 @@ class ExFatVolume : public ExFatPartition {
    *
    * \return true for success or false for failure.
    */
-  bool remove(const ExChar_t* path) {
+  bool remove(const char* path) {
     ExFatFile tmp;
     return tmp.open(this, path, O_WRONLY) && tmp.remove();
   }
@@ -175,7 +185,7 @@ class ExFatVolume : public ExFatPartition {
    *
    * \return true for success or false for failure.
    */
-  bool rename(const ExChar_t* oldPath, const ExChar_t* newPath) {
+  bool rename(const char* oldPath, const char* newPath) {
     ExFatFile file;
     return file.open(vwd(), oldPath, O_RDONLY) && file.rename(vwd(), newPath);
   }
@@ -187,7 +197,7 @@ class ExFatVolume : public ExFatPartition {
    *
    * \return true for success or false for failure.
    */
-  bool rmdir(const ExChar_t* path) {
+  bool rmdir(const char* path) {
     ExFatFile sub;
     return sub.open(this, path, O_RDONLY) && sub.rmdir();
   }
@@ -199,7 +209,7 @@ class ExFatVolume : public ExFatPartition {
    *
    * \return true for success or false for failure.
    */
-  bool truncate(const ExChar_t* path, uint64_t length) {
+  bool truncate(const char* path, uint64_t length) {
     ExFatFile file;
     if (!file.open(this, path, O_WRONLY)) {
       return false;
@@ -211,10 +221,8 @@ class ExFatVolume : public ExFatPartition {
    *
    * \return true for success or false for failure.
    */
-  bool ls() {
-    return ls(&Serial);
-  }
-   /** List the directory contents of the volume root to Serial.
+  bool ls() { return ls(&Serial); }
+  /** List the directory contents of the volume root to Serial.
    *
    * \param[in] flags The inclusive OR of
    *
@@ -226,9 +234,7 @@ class ExFatVolume : public ExFatPartition {
    *
    * \return true for success or false for failure.
    */
-  bool ls(uint8_t flags) {
-    return ls(&Serial, flags);
-  }
+  bool ls(uint8_t flags) { return ls(&Serial, flags); }
   /** List the directory contents of a directory to Serial.
    *
    * \param[in] path directory to list.
@@ -243,7 +249,7 @@ class ExFatVolume : public ExFatPartition {
    *
    * \return true for success or false for failure.
    */
-  bool ls(const ExChar_t* path, uint8_t flags = 0) {
+  bool ls(const char* path, uint8_t flags = 0) {
     return ls(&Serial, path, flags);
   }
 #endif  // ENABLE_ARDUINO_SERIAL
@@ -253,18 +259,14 @@ class ExFatVolume : public ExFatPartition {
    * \param[in] path Path for volume working directory.
    * \return true for success or false for failure.
    */
-  bool chdir(const String& path) {
-    return chdir(path.c_str());
-  }
+  bool chdir(const String& path) { return chdir(path.c_str()); }
   /** Test for the existence of a file in a directory
    *
    * \param[in] path Path of the file to be tested for.
    *
    * \return true if the file exists else false.
    */
-  bool exists(const String &path) {
-    return exists(path.c_str());
-  }
+  bool exists(const String& path) { return exists(path.c_str()); }
   /** Make a subdirectory in the volume root directory.
    *
    * \param[in] path A path with a valid 8.3 DOS name for the subdirectory.
@@ -273,7 +275,7 @@ class ExFatVolume : public ExFatPartition {
    *
    * \return true for success or false for failure.
    */
-  bool mkdir(const String &path, bool pFlag = true) {
+  bool mkdir(const String& path, bool pFlag = true) {
     return mkdir(path.c_str(), pFlag);
   }
   /** open a file
@@ -282,7 +284,7 @@ class ExFatVolume : public ExFatPartition {
    * \param[in] oflag open oflag flags.
    * \return a ExFile object.
    */
-  ExFile open(const String &path, oflag_t oflag = O_RDONLY) {
+  ExFile open(const String& path, oflag_t oflag = O_RDONLY) {
     return open(path.c_str(), oflag);
   }
   /** Remove a file from the volume root directory.
@@ -291,9 +293,7 @@ class ExFatVolume : public ExFatPartition {
    *
    * \return true for success or false for failure.
    */
-  bool remove(const String& path) {
-    return remove(path.c_str());
-  }
+  bool remove(const String& path) { return remove(path.c_str()); }
   /** Rename a file or subdirectory.
    *
    * \param[in] oldPath Path name to the file or subdirectory to be renamed.
@@ -319,9 +319,7 @@ class ExFatVolume : public ExFatPartition {
    *
    * \return true for success or false for failure.
    */
-  bool rmdir(const String& path) {
-    return rmdir(path.c_str());
-  }
+  bool rmdir(const String& path) { return rmdir(path.c_str()); }
   /** Truncate a file to a specified length.  The current file position
    * will be at the new EOF.
    *
@@ -334,25 +332,12 @@ class ExFatVolume : public ExFatPartition {
     return truncate(path.c_str(), length);
   }
 #endif  // ENABLE_ARDUINO_STRING
-  //============================================================================
-#if  USE_EXFAT_UNICODE_NAMES
-  // Not implemented when Unicode is selected.
-  bool exists(const char* path);
-  bool mkdir(const char* path, bool pFlag = true);
-  bool remove(const char* path);
-  bool rename(const char* oldPath, const char* newPath);
-  bool rmdir(const char* path);
-#endif  //  USE_EXFAT_UNICODE_NAMES
 
  private:
   friend ExFatFile;
-  ExFatFile* vwd() {return &m_vwd;}
-  ExFatFile m_vwd;
+  static ExFatVolume* cwv() { return m_cwv; }
+  ExFatFile* vwd() { return &m_vwd; }
   static ExFatVolume* m_cwv;
+  ExFatFile m_vwd;
 };
-
-
-}; // namespace sdfat
-
-
 #endif  // ExFatVolume_h

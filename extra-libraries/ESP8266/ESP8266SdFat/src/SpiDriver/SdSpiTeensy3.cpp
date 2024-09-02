@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011-2020 Bill Greiman
+ * Copyright (c) 2011-2022 Bill Greiman
  * This file is part of the SdFat library for SD memory cards.
  *
  * MIT License
@@ -23,17 +23,10 @@
  * DEALINGS IN THE SOFTWARE.
  */
 #include "SdSpiDriver.h"
-
-
-namespace sdfat {
-
-
-#if defined(SD_USE_CUSTOM_SPI) &&  defined(__arm__) && defined(CORE_TEENSY)
+#if defined(SD_USE_CUSTOM_SPI) && defined(__arm__) && defined(CORE_TEENSY)
 #define USE_BLOCK_TRANSFER 1
 //------------------------------------------------------------------------------
-void SdSpiArduinoDriver::activate() {
-  m_spi->beginTransaction(m_spiSettings);
-}
+void SdSpiArduinoDriver::activate() { m_spi->beginTransaction(m_spiSettings); }
 //------------------------------------------------------------------------------
 void SdSpiArduinoDriver::begin(SdSpiConfig spiConfig) {
   if (spiConfig.spiPort) {
@@ -51,19 +44,17 @@ void SdSpiArduinoDriver::begin(SdSpiConfig spiConfig) {
   m_spi->begin();
 }
 //------------------------------------------------------------------------------
-void SdSpiArduinoDriver::deactivate() {
-  m_spi->endTransaction();
-}
+void SdSpiArduinoDriver::deactivate() { m_spi->endTransaction(); }
 //------------------------------------------------------------------------------
-uint8_t SdSpiArduinoDriver::receive() {
-  return m_spi->transfer(0XFF);
-}
+void SdSpiArduinoDriver::end() { m_spi->end(); }
+//------------------------------------------------------------------------------
+uint8_t SdSpiArduinoDriver::receive() { return m_spi->transfer(0XFF); }
 //------------------------------------------------------------------------------
 uint8_t SdSpiArduinoDriver::receive(uint8_t* buf, size_t count) {
 #if USE_BLOCK_TRANSFER
   memset(buf, 0XFF, count);
   m_spi->transfer(buf, count);
-#else  // USE_BLOCK_TRANSFER
+#else   // USE_BLOCK_TRANSFER
   for (size_t i = 0; i < count; i++) {
     buf[i] = m_spi->transfer(0XFF);
   }
@@ -71,11 +62,9 @@ uint8_t SdSpiArduinoDriver::receive(uint8_t* buf, size_t count) {
   return 0;
 }
 //------------------------------------------------------------------------------
-void SdSpiArduinoDriver::send(uint8_t data) {
-  m_spi->transfer(data);
-}
+void SdSpiArduinoDriver::send(uint8_t data) { m_spi->transfer(data); }
 //------------------------------------------------------------------------------
-void SdSpiArduinoDriver::send(const uint8_t* buf , size_t count) {
+void SdSpiArduinoDriver::send(const uint8_t* buf, size_t count) {
 #if USE_BLOCK_TRANSFER
   uint32_t tmp[128];
   if (0 < count && count <= 512) {
@@ -89,6 +78,3 @@ void SdSpiArduinoDriver::send(const uint8_t* buf , size_t count) {
   }
 }
 #endif  // defined(SD_USE_CUSTOM_SPI) && defined(__arm__) &&defined(CORE_TEENSY)
-
-
-}; // namespace sdfat

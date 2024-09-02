@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011-2020 Bill Greiman
+ * Copyright (c) 2011-2022 Bill Greiman
  * This file is part of the SdFat library for SD memory cards.
  *
  * MIT License
@@ -23,11 +23,6 @@
  * DEALINGS IN THE SOFTWARE.
  */
 #include "fstream.h"
-
-
-namespace sdfat {
-
-
 //------------------------------------------------------------------------------
 int16_t StreamBaseClass::getch() {
   uint8_t c;
@@ -57,35 +52,35 @@ void StreamBaseClass::open(const char* path, ios::openmode mode) {
   oflag_t oflag;
   clearWriteError();
   switch (mode & (app | in | out | trunc)) {
-  case app | in:
-  case app | in | out:
-    oflag = O_RDWR | O_APPEND | O_CREAT;
-    break;
+    case app | in:
+    case app | in | out:
+      oflag = O_RDWR | O_APPEND | O_CREAT;
+      break;
 
-  case app:
-  case app | out:
-    oflag = O_WRONLY | O_APPEND | O_CREAT;
-    break;
+    case app:
+    case app | out:
+      oflag = O_WRONLY | O_APPEND | O_CREAT;
+      break;
 
-  case in:
-    oflag = O_RDONLY;
-    break;
+    case in:
+      oflag = O_RDONLY;
+      break;
 
-  case in | out:
-    oflag = O_RDWR | O_CREAT;
-    break;
+    case in | out:
+      oflag = O_RDWR | O_CREAT;
+      break;
 
-  case in | out | trunc:
-    oflag = O_RDWR | O_TRUNC | O_CREAT;
-    break;
+    case in | out | trunc:
+      oflag = O_RDWR | O_TRUNC | O_CREAT;
+      break;
 
-  case out:
-  case out | trunc:
-    oflag = O_WRONLY | O_TRUNC | O_CREAT;
-    break;
+    case out:
+    case out | trunc:
+      oflag = O_WRONLY | O_TRUNC | O_CREAT;
+      break;
 
-  default:
-    goto fail;
+    default:
+      goto fail;
   }
   if (mode & ios::ate) {
     oflag |= O_AT_END;
@@ -97,7 +92,7 @@ void StreamBaseClass::open(const char* path, ios::openmode mode) {
   clear();
   return;
 
- fail:
+fail:
   StreamBaseFile::close();
   setstate(failbit);
   return;
@@ -138,20 +133,20 @@ void StreamBaseClass::putstr(const char* str) {
 bool StreamBaseClass::seekoff(off_type off, seekdir way) {
   pos_type pos;
   switch (way) {
-  case beg:
-    pos = off;
-    break;
+    case beg:
+      pos = off;
+      break;
 
-  case cur:
-    pos = StreamBaseFile::curPosition() + off;
-    break;
+    case cur:
+      pos = StreamBaseFile::curPosition() + off;
+      break;
 
-  case end:
-    pos = StreamBaseFile::fileSize() + off;
-    break;
+    case end:
+      pos = StreamBaseFile::fileSize() + off;
+      break;
 
-  default:
-    return false;
+    default:
+      return false;
   }
   return seekpos(pos);
 }
@@ -160,9 +155,4 @@ int StreamBaseClass::write(const void* buf, size_t n) {
   return StreamBaseFile::write(buf, n);
 }
 //------------------------------------------------------------------------------
-void StreamBaseClass::write(char c) {
-  StreamBaseFile::write(&c, 1);
-}
-
-
-}; // namespace sdfat
+void StreamBaseClass::write(char c) { StreamBaseFile::write(&c, 1); }

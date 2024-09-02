@@ -1,8 +1,7 @@
-2019-12-10
+2022-07-01
 
 Run the SdErrorCode example to produce an updated list.
 
-C
 Code,Symbol - failed operation
 0X00,SD_CARD_ERROR_NONE - No error
 0X01,SD_CARD_ERROR_CMD0 - Card reset failed
@@ -28,23 +27,25 @@ Code,Symbol - failed operation
 0X15,SD_CARD_ERROR_ACMD13 - Read extended status
 0X16,SD_CARD_ERROR_ACMD23 - Set pre-erased count
 0X17,SD_CARD_ERROR_ACMD41 - Activate card initialization
-0X18,SD_CARD_ERROR_READ_TOKEN - Bad read data token
-0X19,SD_CARD_ERROR_READ_CRC - Read CRC error
-0X1A,SD_CARD_ERROR_READ_FIFO - SDIO fifo read timeout
-0X1B,SD_CARD_ERROR_READ_REG - Read CID or CSD failed.
-0X1C,SD_CARD_ERROR_READ_START - Bad readStart argument
-0X1D,SD_CARD_ERROR_READ_TIMEOUT - Read data timeout
-0X1E,SD_CARD_ERROR_STOP_TRAN - Multiple block stop failed
-0X1F,SD_CARD_ERROR_WRITE_DATA - Write data not accepted
-0X20,SD_CARD_ERROR_WRITE_FIFO - SDIO fifo write timeout
-0X21,SD_CARD_ERROR_WRITE_START - Bad writeStart argument
-0X22,SD_CARD_ERROR_WRITE_PROGRAMMING - Flash programming
-0X23,SD_CARD_ERROR_WRITE_TIMEOUT - Write timeout
-0X24,SD_CARD_ERROR_DMA - DMA transfer failed
-0X25,SD_CARD_ERROR_ERASE - Card did not accept erase commands
-0X26,SD_CARD_ERROR_ERASE_SINGLE_SECTOR - Card does not support erase
-0X27,SD_CARD_ERROR_ERASE_TIMEOUT - Erase command timeout
-0X28,SD_CARD_ERROR_INIT_NOT_CALLED - Card has not been initialized
-0X29,SD_CARD_ERROR_INVALID_CARD_CONFIG - Invalid card config
-0X2A,SD_CARD_ERROR_FUNCTION_NOT_SUPPORTED - Unsupported SDIO command
-0X2B,SD_CARD_ERROR_UNKNOWN - Unknown error
+0X18,SD_CARD_ERROR_ACMD51 - Read SCR data
+0X19,SD_CARD_ERROR_READ_TOKEN - Bad read data token
+0X1A,SD_CARD_ERROR_READ_CRC - Read CRC error
+0X1B,SD_CARD_ERROR_READ_FIFO - SDIO fifo read timeout
+0X1C,SD_CARD_ERROR_READ_REG - Read CID or CSD failed.
+0X1D,SD_CARD_ERROR_READ_START - Bad readStart argument
+0X1E,SD_CARD_ERROR_READ_TIMEOUT - Read data timeout
+0X1F,SD_CARD_ERROR_STOP_TRAN - Multiple block stop failed
+0X20,SD_CARD_ERROR_TRANSFER_COMPLETE - SDIO transfer complete
+0X21,SD_CARD_ERROR_WRITE_DATA - Write data not accepted
+0X22,SD_CARD_ERROR_WRITE_FIFO - SDIO fifo write timeout
+0X23,SD_CARD_ERROR_WRITE_START - Bad writeStart argument
+0X24,SD_CARD_ERROR_WRITE_PROGRAMMING - Flash programming
+0X25,SD_CARD_ERROR_WRITE_TIMEOUT - Write timeout
+0X26,SD_CARD_ERROR_DMA - DMA transfer failed
+0X27,SD_CARD_ERROR_ERASE - Card did not accept erase commands
+0X28,SD_CARD_ERROR_ERASE_SINGLE_SECTOR - Card does not support erase
+0X29,SD_CARD_ERROR_ERASE_TIMEOUT - Erase command timeout
+0X2A,SD_CARD_ERROR_INIT_NOT_CALLED - Card has not been initialized
+0X2B,SD_CARD_ERROR_INVALID_CARD_CONFIG - Invalid card config
+0X2C,SD_CARD_ERROR_FUNCTION_NOT_SUPPORTED - Unsupported SDIO command
+0X2D,SD_CARD_ERROR_UNKNOWN - Unknown error
