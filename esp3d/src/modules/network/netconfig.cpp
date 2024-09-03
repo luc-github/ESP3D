@@ -544,9 +544,11 @@ if (mode == ESP_WIFI_STA || mode == ESP_WIFI_AP) {
   esp3d_log("DHCP Status %d", (int)dhcp_status);
   started = (dhcp_status == ESP_NETIF_DHCP_STARTED);
 } 
+#if defined(ETH_FEATURE)
 if (mode == ESP_ETH_STA) {
   started = (EthConfig::ipMode()==DHCP_MODE);
 }
+#endif  // ETH_FEATURE
 
 #endif  // ARDUINO_ARCH_ESP32
 #ifdef ARDUINO_ARCH_ESP8266
