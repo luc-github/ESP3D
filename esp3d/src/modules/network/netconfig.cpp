@@ -562,15 +562,12 @@ bool NetConfig::isDHCPServer(uint8_t mode) {
   bool itis = false;
 #ifdef ARDUINO_ARCH_ESP32
   //Fzor some reason esp_netif_dhcps_get_status() give always !DHCP_MODE for Ethernet even if it is set to DHCP
-  if (mode == ESP_WIFI_STA || mode == ESP_WIFI_AP) {
+  if (mode == ESP_WIFI_AP) {
   esp_netif_dhcp_status_t dhcp_status;
-  esp_netif_dhcps_get_status((mode == ESP_WIFI_STA)  ? get_esp_interface_netif(ESP_IF_WIFI_STA) :get_esp_interface_netif(ESP_IF_WIFI_AP),
+  esp_netif_dhcps_get_status(get_esp_interface_netif(ESP_IF_WIFI_AP),
                                  &dhcp_status);
   itis = (dhcp_status == ESP_NETIF_DHCP_STARTED);
   } 
-  if (mode == ESP_ETH_STA) {
-    itis = (EthConfig::ipMode()==DHCP_MODE);
-  }
 #endif  // ARDUINO_ARCH_ESP32
 #ifdef ARDUINO_ARCH_ESP8266
   (void)mode;
