@@ -63,11 +63,11 @@ const uint16_t ServstringKeysPos[] = {ESP_TIME_ZONE,
                                       ESP_NOTIFICATION_TOKEN2,
                                       ESP_NOTIFICATION_SETTINGS};
 
-const char* IPKeysVal[] = {"STA_IP", "STA_GW", "STA_MSK", "STA_DNS", "AP_IP"};
+const char* IPKeysVal[] = {"STA_IP", "STA_GW", "STA_MSK", "STA_DNS", "AP_IP","ETH_STA_IP", "ETH_STA_GW", "ETH_STA_MSK", "ETH_STA_DNS"};
 
 const uint16_t IPKeysPos[] = {ESP_STA_IP_VALUE, ESP_STA_GATEWAY_VALUE,
                               ESP_STA_MASK_VALUE, ESP_STA_DNS_VALUE,
-                              ESP_AP_IP_VALUE};
+                              ESP_AP_IP_VALUE, ESP_ETH_STA_IP_VALUE, ESP_ETH_STA_GATEWAY_VALUE, ESP_ETH_STA_MASK_VALUE, ESP_ETH_STA_DNS_VALUE};
 
 const char* ServintKeysVal[] = {
     "Serial_Bridge_Baud"
@@ -226,7 +226,7 @@ bool processingFileFunction(const char* section, const char* key,
         } else if (strcasecmp("OFF", value) == 0) {
           b = ESP_NO_NETWORK;
         } else {
-          P = -1;  // invalide value
+          P = -1;  // invalid value
         }
       }
     }
@@ -243,7 +243,23 @@ bool processingFileFunction(const char* section, const char* key,
         } else if (strcasecmp("OFF", value) == 0) {
           b = ESP_NO_NETWORK;
         } else {
-          P = -1;  // invalide value
+          P = -1;  // invalid value
+        }
+      }
+    }
+
+    // ETH STA fallback mode BT, OFF
+    if (!done) {
+      if (strcasecmp("eth_sta_fallback", key) == 0) {
+        T = 'B';
+        P = ESP_STA_FALLBACK_MODE;
+        done = true;
+        if (strcasecmp("BT", value) == 0) {
+          b = ESP_BT;
+        } else if (strcasecmp("OFF", value) == 0) {
+          b = ESP_NO_NETWORK;
+        } else {
+          P = -1;  // invalid value
         }
       }
     }
@@ -259,10 +275,27 @@ bool processingFileFunction(const char* section, const char* key,
         } else if (strcasecmp("STATIC", key) == 0) {
           b = STATIC_IP_MODE;
         } else {
-          P = -1;  // invalide value
+          P = -1;  // invalid value
         }
       }
     }
+    
+     // ETH STA IP Mode DHCP / STATIC
+    if (!done) {
+      if (strcasecmp("ETH_STA_IP_mode", key) == 0) {
+        T = 'B';
+        P = ESP_ETH_STA_IP_MODE;
+        done = true;
+        if (strcasecmp("DHCP", value) == 0) {
+          b = DHCP_MODE;
+        } else if (strcasecmp("STATIC", key) == 0) {
+          b = STATIC_IP_MODE;
+        } else {
+          P = -1;  // invalid value
+        }
+      }
+    }
+
   } else if (strcasecmp("services", section) == 0) {
     if (!done) {
       done = processString(ServstringKeysVal, ServstringKeysPos,
@@ -310,7 +343,7 @@ bool processingFileFunction(const char* section, const char* key,
         } else if (strcasecmp("HOMEASSISTANT", value) == 0) {
           b = ESP_HOMEASSISTANT_NOTIFICATION;
         } else {
-          P = -1;  // invalide value
+          P = -1;  // invalid value
         }
       }
     }
@@ -333,7 +366,7 @@ bool processingFileFunction(const char* section, const char* key,
         } else if (strcasecmp("BME280", key) == 0) {
           b = BME280_DEVICE;
         } else {
-          P = -1;  // invalide value
+          P = -1;  // invalid value
         }
       }
     }
@@ -366,7 +399,7 @@ bool processingFileFunction(const char* section, const char* key,
         } else if (strcasecmp("SMOOTHIEWARE", value) == 0) {
           b = SMOOTHIEWARE;
         } else {
-          P = -1;  // invalide value
+          P = -1;  // invalid value
         }
       }
     }

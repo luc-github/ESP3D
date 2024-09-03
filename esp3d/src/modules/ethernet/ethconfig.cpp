@@ -29,62 +29,39 @@
 #endif  // ARDUINO_ARCH_ESP8266
 #include "../../core/esp3d_commands.h"
 #include "../../core/esp3d_settings.h"
+#include "../../core/esp3d_string.h"
 #include "../network/netconfig.h"
 #include "ethconfig.h"
+
+#if defined(GCODE_HOST_FEATURE)
+#include "../gcode_host/gcode_host.h"
+#endif  // GCODE_HOST_FEATURE
+
 bool EthConfig::_started = false;
 bool EthConfig::_connected = false;
+uint8_t EthConfig::_ipMode = DHCP_MODE;
 const uint8_t DEFAULT_AP_MASK_VALUE[] = {255, 255, 255, 0};
 
 bool EthConfig::StartSTA() {
   bool res = true;
-  if ((ESP3DSettings::readByte(ESP_STA_IP_MODE) != DHCP_MODE)) {
-    int32_t IP = ESP3DSettings::read_IP(ESP_STA_IP_VALUE);
-    int32_t GW = ESP3DSettings::read_IP(ESP_STA_GATEWAY_VALUE);
-    int32_t MK = ESP3DSettings::read_IP(ESP_STA_MASK_VALUE);
-    int32_t DNS = ESP3DSettings::read_IP(ESP_STA_DNS_VALUE);
+  if (_ipMode == STATIC_IP_MODE) {
+    int32_t IP = ESP3DSettings::read_IP(ESP_ETH_STA_IP_VALUE);
+    int32_t GW = ESP3DSettings::read_IP(ESP_ETH_STA_GATEWAY_VALUE);
+    int32_t MK = ESP3DSettings::read_IP(ESP_ETH_STA_MASK_VALUE);
+    int32_t DNS = ESP3DSettings::read_IP(ESP_ETH_STA_DNS_VALUE);
     IPAddress ip(IP), mask(MK), gateway(GW), dns(DNS);
     res = ETH.config(ip, gateway, mask, dns);
   }
   return res;
 }
-/*bool EthConfig::StartSRV()
-{
-    bool res = true;
-    //static IP
-    int32_t IP = ESP3DSettings::read_IP(ESP_AP_IP_VALUE);
-    IPAddress ip(IP), mask(DEFAULT_AP_MASK_VALUE), gateway(IP);
-    if (!ETH.config(ip, gateway,mask)) {
-        res = false;
-        esp3d_log_e("Set static IP error");
-    }
-    //start DHCP server
-    if(res) {
-        dhcps_lease_t lease;
-        lease.enable = true;
-        lease.start_ip.addr = static_cast<uint32_t>(IP) + (1 << 24);
-        lease.end_ip.addr = static_cast<uint32_t>(IP) + (11 << 24);
-        tcpip_adapter_dhcps_stop(TCPIP_ADAPTER_IF_ETH);
-        tcpip_adapter_dhcps_option(
-            (tcpip_adapter_option_mode_t)TCPIP_ADAPTER_OP_SET,
-            (tcpip_adapter_option_id_t)REQUESTED_IP_ADDRESS,
-            (void*)&lease, sizeof(dhcps_lease_t)
-        );
 
-        if (tcpip_adapter_dhcps_start(TCPIP_ADAPTER_IF_ETH) != ESP_OK){
-            res = false;
-            esp3d_log_e("Start DHCP server failed");
-        }
-    }
-    return res;
-}*/
+bool EthConfig::linkUp() { return _connected; }
 
-bool EthConfig::linkUp() {
-#if defined(ESP_IDF_VERSION_MAJOR)
-  // patch for https://github.com/espressif/arduino-esp32/issues/6105
-  return _connected;
-#else
-  return ETH.linkUp();
-#endif
+uint8_t EthConfig::ipMode(bool fromsettings) {
+  if (fromsettings) {
+    _ipMode = (ESP3DSettings::readByte(ESP_ETH_STA_IP_MODE) != DHCP_MODE);
+  }
+  return _ipMode;
 }
 
 /**
@@ -92,9 +69,33 @@ bool EthConfig::linkUp() {
  */
 bool EthConfig::begin(int8_t& espMode) {
   bool res = false;
-
+  ipMode(true);
   end();
-  _started = ETH.begin();
+  if (ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_LAN8720) {
+    esp3d_log_d("ETH PHY Type %d", ESP3D_ETH_PHY_TYPE);
+    _started = ETH.begin();
+  } else {
+    if (ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_TLK110 ||
+        ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_RTL8201 ||
+        ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_DP83848 ||
+        ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_KSZ8041 ||
+        ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_KSZ8081) {
+      esp3d_log_d("ETH PHY Type %d", ESP3D_ETH_PHY_TYPE);
+      _started = ETH.begin(ETH_PHY_TYPE, ETH_PHY_ADDR, ETH_PHY_POWER,
+                           ETH_PHY_MDC, ETH_PHY_MDIO, ETH_CLK_MODE);
+    } else {
+      if (ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_W5500) {
+        esp3d_log_d("ETH spi PHY Type %d", ESP3D_ETH_PHY_TYPE);
+        SPI.begin(ETH_SPI_SCK, ETH_SPI_MISO, ETH_SPI_MOSI);
+        _started = ETH.begin(ETH_PHY_TYPE, ETH_PHY_ADDR, ETH_PHY_CS,
+                             ETH_PHY_IRQ, ETH_PHY_RST, SPI);
+      } else {
+        esp3d_log("Ethernet PHY type not supported");
+        return false;
+      }
+    }
+  }
+
   if (_started) {
     if (ESP3DSettings::isVerboseBoot()) {
       esp3d_commands.dispatch("Starting ethernet", ESP3DClientType::all_clients,
@@ -104,7 +105,7 @@ bool EthConfig::begin(int8_t& espMode) {
     }
     res = true;
   } else {
-    esp3d_commands.dispatch("Failed starting ethernet write failed",
+    esp3d_commands.dispatch("Failed starting ethernet failed",
                             ESP3DClientType::all_clients, no_id,
                             ESP3DMessageType::unique, ESP3DClientType::system,
                             ESP3DAuthenticationLevel::admin);
@@ -120,7 +121,7 @@ bool EthConfig::begin(int8_t& espMode) {
             ESP3DMessageType::unique, ESP3DClientType::system,
             ESP3DAuthenticationLevel::admin);
       }
-      espMode = ESP3DSettings::readByte(ESP_STA_FALLBACK_MODE);
+      espMode = ESP3DSettings::readByte(ESP_ETH_STA_FALLBACK_MODE);
       res = true;
     } else {
       if (ESP3DSettings::isVerboseBoot()) {
@@ -130,20 +131,9 @@ bool EthConfig::begin(int8_t& espMode) {
                                 ESP3DAuthenticationLevel::admin);
       }
     }
-
-  } else {
-    // if(!StartSRV()){
-    //    res = false;
-    //
-    // } else {
-    //
-    // }
   }
-
-  // if ((ESP3DSettings::readByte(ESP_STA_IP_MODE) != DHCP_MODE) || (espMode
-  // == ESP_ETH_SRV)){
-  if ((ESP3DSettings::readByte(ESP_STA_IP_MODE) != DHCP_MODE)) {
-    // as no event to display static IP
+  // Static IP or DHCP client ?
+  if ((ESP3DSettings::readByte(ESP_ETH_STA_IP_MODE) != DHCP_MODE)) {
     esp3d_commands.dispatch(ETH.localIP().toString().c_str(),
                             ESP3DClientType::all_clients, no_id,
                             ESP3DMessageType::unique, ESP3DClientType::system,
@@ -158,8 +148,10 @@ bool EthConfig::begin(int8_t& espMode) {
  */
 
 void EthConfig::end() {
-  // esp_eth_disable();
+  // ETH.end();
   _started = false;
+  _ipMode = DHCP_MODE;
+  _connected = false;
 }
 
 bool EthConfig::started() { return _started; }

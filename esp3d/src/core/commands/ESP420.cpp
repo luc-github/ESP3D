@@ -397,6 +397,7 @@ void ESP3DCommands::ESP420(int cmd_params_pos, ESP3DMessage* msg) {
       return;
     }
     // IP mode
+    esp3d_log_d("IP mode %d", NetConfig::isIPModeDHCP(ESP_ETH_STA));
     tmpstr = (NetConfig::isIPModeDHCP(ESP_ETH_STA)) ? "dhcp" : "static";
     if (!dispatchIdValue(json, "ip mode", tmpstr.c_str(), target, requestId,
                          false)) {
@@ -423,6 +424,11 @@ void ESP3DCommands::ESP420(int cmd_params_pos, ESP3DMessage* msg) {
     // DNS value
     tmpstr = ETH.dnsIP().toString();
     if (!dispatchIdValue(json, "DNS", tmpstr.c_str(), target, requestId,
+                         false)) {
+      return;
+    }
+  } else {
+     if (!dispatchIdValue(json, "ethernet", "OFF", target, requestId,
                          false)) {
       return;
     }
