@@ -1,5 +1,5 @@
 /*
- ESP104.cpp - ESP3D command class
+ ESP118.cpp - ESP3D command class
 
  Copyright (c) 2014 Luc Lebosse. All rights reserved.
 
@@ -24,10 +24,10 @@
 #include "../esp3d_commands.h"
 #include "../esp3d_settings.h"
 
-#define COMMAND_ID 104
-// Set STA fallback mode state at boot which can be BT, WIFI-SETUP,  OFF
-//[ESP104]<state> json=<no> pwd=<admin password>
-void ESP3DCommands::ESP104(int cmd_params_pos, ESP3DMessage* msg) {
+#define COMMAND_ID 118
+// Set ETH STA fallback mode state at boot which can be BT, WIFI-SETUP,  OFF
+//[ESP118]<state> json=<no> pwd=<admin password>
+void ESP3DCommands::ESP118(int cmd_params_pos, ESP3DMessage* msg) {
   ESP3DClientType target = msg->origin;
   ESP3DRequest requestId = msg->request_id;
   (void)requestId;
@@ -48,7 +48,7 @@ void ESP3DCommands::ESP104(int cmd_params_pos, ESP3DMessage* msg) {
 #endif  // AUTHENTICATION_FEATURE
   tmpstr = get_clean_param(msg, cmd_params_pos);
   if (tmpstr.length() == 0) {
-    byteValue = ESP3DSettings::readByte(ESP_STA_FALLBACK_MODE);
+    byteValue = ESP3DSettings::readByte(ESP_ETH_STA_FALLBACK_MODE);
 #if defined(BLUETOOTH_FEATURE)
     if (byteValue == (uint8_t)ESP_BT) {
       ok_msg = "BT";
@@ -79,10 +79,10 @@ void ESP3DCommands::ESP104(int cmd_params_pos, ESP3DMessage* msg) {
     esp3d_log(
         "got %s param for a value of %d, is valid %d", tmpstr.c_str(),
         byteValue,
-        ESP3DSettings::isValidByteSetting(byteValue, ESP_STA_FALLBACK_MODE));
-    if (ESP3DSettings::isValidByteSetting(byteValue, ESP_STA_FALLBACK_MODE)) {
+        ESP3DSettings::isValidByteSetting(byteValue, ESP_ETH_STA_FALLBACK_MODE));
+    if (ESP3DSettings::isValidByteSetting(byteValue, ESP_ETH_STA_FALLBACK_MODE)) {
       esp3d_log("Value %d is valid", byteValue);
-      if (!ESP3DSettings::writeByte(ESP_STA_FALLBACK_MODE, byteValue)) {
+      if (!ESP3DSettings::writeByte(ESP_ETH_STA_FALLBACK_MODE, byteValue)) {
         hasError = true;
         error_msg = "Set value failed";
       }
@@ -98,4 +98,4 @@ void ESP3DCommands::ESP104(int cmd_params_pos, ESP3DMessage* msg) {
   }
 }
 
-#endif  // WIFI_FEATURE
+#endif  // ETH_FEATURE

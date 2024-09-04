@@ -53,14 +53,10 @@ class ESP3DCommands {
   void ESP100(int cmd_params_pos, ESP3DMessage* msg);
   void ESP101(int cmd_params_pos, ESP3DMessage* msg);
 #endif  // WIFI_FEATURE
-#if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
+#if defined(WIFI_FEATURE)
   void ESP102(int cmd_params_pos, ESP3DMessage* msg);
   void ESP103(int cmd_params_pos, ESP3DMessage* msg);
-#endif  // WIFI_FEATURE ||ETH_FEATURE
-#if defined(WIFI_FEATURE) || defined(BLUETOOTH_FEATURE) || defined(ETH_FEATURE)
   void ESP104(int cmd_params_pos, ESP3DMessage* msg);
-#endif  // WIFI_FEATURE || BLUETOOTH_FEATURE || ETH_FEATURE
-#if defined(WIFI_FEATURE)
   void ESP105(int cmd_params_pos, ESP3DMessage* msg);
   void ESP106(int cmd_params_pos, ESP3DMessage* msg);
   void ESP107(int cmd_params_pos, ESP3DMessage* msg);
@@ -77,6 +73,11 @@ class ESP3DCommands {
   void ESP114(int cmd_params_pos, ESP3DMessage* msg);
   void ESP115(int cmd_params_pos, ESP3DMessage* msg);
 #endif  // WIFI_FEATURE || BLUETOOTH_FEATURE || ETH_FEATURE
+#if defined(ETH_FEATURE)
+  void ESP116(int cmd_params_pos, ESP3DMessage* msg);
+  void ESP117(int cmd_params_pos, ESP3DMessage* msg);
+  void ESP118(int cmd_params_pos, ESP3DMessage* msg);
+#endif  // ETH_FEATURE
 #if defined(HTTP_FEATURE)
   void ESP120(int cmd_params_pos, ESP3DMessage* msg);
   void ESP121(int cmd_params_pos, ESP3DMessage* msg);

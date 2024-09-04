@@ -388,7 +388,7 @@ void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
       ESP101(cmd_params_pos, msg);
       break;
 #endif  // WIFI_FEATURE
-#if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
+#if defined(WIFI_FEATURE) 
     // Change STA IP mode (DHCP/STATIC)
     //[ESP102]<mode>pwd=<admin password>
     case 102:
@@ -399,15 +399,11 @@ void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
     case 103:
       ESP103(cmd_params_pos, msg);
       break;
-#endif  // WIFI_FEATURE ||ETH_FEATURE
-#if defined(WIFI_FEATURE) || defined(BLUETOOTH_FEATURE) || defined(ETH_FEATURE)
     // Set fallback mode which can be BT,  WIFI-AP, OFF
     //[ESP104]<state>pwd=<admin password>
     case 104:
       ESP104(cmd_params_pos, msg);
       break;
-#endif  // WIFI_FEATURE || BLUETOOTH_FEATURE || ETH_FEATURE)
-#if defined(WIFI_FEATURE)
     // AP SSID
     //[ESP105]<SSID>[pwd=<admin password>]
     case 105:
@@ -464,6 +460,24 @@ void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
       ESP115(cmd_params_pos, msg);
       break;
 #endif  // WIFI_FEATURE|| ETH_FEATURE || BT_FEATURE
+
+#if defined(ETH_FEATURE) 
+    // Change ETH STA IP mode (DHCP/STATIC)
+    //[ESP116]<mode>pwd=<admin password>
+    case 116:
+      ESP102(cmd_params_pos, msg);
+      break;
+    // Change ETH STA IP/Mask/GW
+    //[ESP117]IP=<IP> MSK=<IP> GW=<IP> pwd=<admin password>
+    case 117:
+      ESP117(cmd_params_pos, msg);
+      break;
+    // Set fallback mode which can be BT, OFF
+    //[ESP118]<state>pwd=<admin password>
+    case 118:
+      ESP118(cmd_params_pos, msg);
+      break;
+#endif  // ETH_FEATURE  
 
 #ifdef HTTP_FEATURE
     // Set HTTP state which can be ON, OFF
