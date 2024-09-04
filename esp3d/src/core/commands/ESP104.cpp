@@ -18,7 +18,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "../../include/esp3d_config.h"
-#if defined(ETH_FEATURE)
+#if defined(WIFI_FEATURE)
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/network/netconfig.h"
 #include "../esp3d_commands.h"
