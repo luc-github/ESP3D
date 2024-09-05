@@ -81,13 +81,13 @@ bool EthConfig::begin(int8_t& espMode) {
         ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_KSZ8041 ||
         ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_KSZ8081) {
       esp3d_log_d("ETH PHY Type %d", ESP3D_ETH_PHY_TYPE);
-      _started = ETH.begin(ETH_PHY_TYPE, ETH_PHY_ADDR, ETH_PHY_POWER,
-                           ETH_PHY_MDC, ETH_PHY_MDIO, ETH_CLK_MODE);
+      _started = ETH.begin(ESP3D_ETH_PHY_TYPE, ESP3D_ETH_PHY_ADDR, ESP3D_ETH_PHY_POWER_PIN,
+                           ESP3D_ETH_PHY_MDC_PIN, ESP3D_ETH_PHY_MDIO_PIN, ESP3D_ETH_CLK_MODE_PIN);
     } else {
       if (ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_W5500) {
         esp3d_log_d("ETH spi PHY Type %d", ESP3D_ETH_PHY_TYPE);
         SPI.begin(ETH_SPI_SCK, ETH_SPI_MISO, ETH_SPI_MOSI);
-        _started = ETH.begin(ETH_PHY_TYPE, ETH_PHY_ADDR, ETH_PHY_CS,
+        _started = ETH.begin(ESP3D_ETH_PHY_TYPE, ESP3D_ETH_PHY_ADDR, ETH_PHY_CS,
                              ETH_PHY_IRQ, ETH_PHY_RST, SPI);
       } else {
         esp3d_log("Ethernet PHY type not supported");
