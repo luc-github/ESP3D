@@ -75,6 +75,12 @@
 #define MIN_SERVER_ADDRESS_LENGTH 0
 
 // default byte values
+#ifdef ETH_FEATURE
+#define DEFAULT_ETH_STA_FALLBACK_MODE STRING(ESP_NO_NETWORK)
+#else
+#define DEFAULT_ETH_STA_FALLBACK_MODE STRING(ESP_NO_NETWORK)
+#endif  // ETH_FEATURE
+
 #ifdef WIFI_FEATURE
 #define DEFAULT_STA_FALLBACK_MODE STRING(ESP_AP_SETUP)
 #if defined(STATION_WIFI_SSID) && defined(STATION_WIFI_PASSWORD)
@@ -192,6 +198,12 @@ uint16_t ESP3DSettingsData[] = {ESP_RADIO_MODE,
                                 ESP_STA_DNS_VALUE,
                                 ESP_AP_IP_VALUE,
                                 ESP_STA_IP_MODE,
+                                ESP_ETH_STA_FALLBACK_MODE,
+                                ESP_ETH_STA_IP_VALUE,
+                                ESP_ETH_STA_GATEWAY_VALUE,
+                                ESP_ETH_STA_MASK_VALUE,
+                                ESP_ETH_STA_DNS_VALUE,
+                                ESP_ETH_STA_IP_MODE,
                                 ESP_SETTINGS_VERSION,
                                 ESP_NOTIFICATION_TYPE,
                                 ESP_CALIBRATION,
@@ -240,7 +252,6 @@ uint16_t ESP3DSettingsData[] = {ESP_RADIO_MODE,
                                 ESP_FTP_DATA_PASSIVE_PORT,
                                 ESP_WEBDAV_PORT,
                                 ESP_SERIAL_BRIDGE_BAUD
-
 };
 #if defined(SD_DEVICE)
 const uint8_t SupportedSPIDivider[] = {1, 2, 4, 6, 8, 16, 32};
@@ -714,6 +725,8 @@ const char *ESP3DSettings::TargetBoard() {
 #define TYPE_BOARD "ESP32-S3"
 #elif CONFIG_IDF_TARGET_ESP32C3
 #define TYPE_BOARD "ESP32-C3"
+#elif CONFIG_IDF_TARGET_ESP32C6
+#define TYPE_BOARD "ESP32-C6"
 #endif
 #ifdef BOARD_HAS_PSRAM
 #define IS_PSRAM " (PSRAM)"
@@ -960,12 +973,19 @@ bool ESP3DSettings::isValidByteSetting(uint8_t value,
         return true;
       }
       break;
+#ifdef ETH_FEATURE
+    case ESP_ETH_STA_IP_MODE: 
+      if (value == DHCP_MODE || value == STATIC_IP_MODE) {
+        return true;
+      }
+      break;
+#endif  // ETH_FEATURE
+#if defined(WIFI_FEATURE)
     case ESP_STA_IP_MODE:
       if (value == DHCP_MODE || value == STATIC_IP_MODE) {
         return true;
       }
       break;
-#if defined(WIFI_FEATURE)
     case ESP_AP_CHANNEL:
       for (uint8_t i = 0; i < SupportedApChannelsSize; i++) {
         if (value == SupportedApChannels[i]) {
@@ -1012,11 +1032,9 @@ bool ESP3DSettings::isValidByteSetting(uint8_t value,
       // 0 means no timeout so it is ok to have 0
       return true;
       break;
-    case ESP_STA_FALLBACK_MODE:
+#ifdef ETH_FEATURE
+    case ESP_ETH_STA_FALLBACK_MODE:
       if (value == ESP_NO_NETWORK
-#if defined(WIFI_FEATURE)
-          || value == ESP_AP_SETUP
-#endif  // WIFI_FEATURE
 #if defined(BT_FEATURE)
           || value == ESP_BT
 #endif  // BT_FEATURE
@@ -1024,7 +1042,20 @@ bool ESP3DSettings::isValidByteSetting(uint8_t value,
         return true;
       }
       break;
+#endif  // ETH_FEATURE
+#if defined(WIFI_FEATURE)
+    case ESP_STA_FALLBACK_MODE:
+      if (value == ESP_NO_NETWORK
 
+          || value == ESP_AP_SETUP
+#if defined(BT_FEATURE)
+          || value == ESP_BT
+#endif  // BT_FEATURE
+      ) {
+        return true;
+      }
+      break;
+#endif  // WIFI_FEATURE
     default:
       return false;
   }
@@ -1117,8 +1148,10 @@ const ESP3DSettingDescription *ESP3DSettings::getSettingPtr(
     case ESP_SECURE_SERIAL:
     case ESP_BOOT_RADIO_STATE:
     case ESP_STA_FALLBACK_MODE:
+    case ESP_ETH_STA_FALLBACK_MODE:
     case ESP_SERIAL_BRIDGE_ON:
     case ESP_STA_IP_MODE:
+    case ESP_ETH_STA_IP_MODE:
       setting.type = ESP3DSettingType::byte_t;  // byte
       break;
 
@@ -1144,6 +1177,10 @@ const ESP3DSettingDescription *ESP3DSettings::getSettingPtr(
     case ESP_STA_GATEWAY_VALUE:
     case ESP_STA_MASK_VALUE:
     case ESP_STA_DNS_VALUE:
+    case ESP_ETH_STA_IP_VALUE:
+    case ESP_ETH_STA_GATEWAY_VALUE:
+    case ESP_ETH_STA_MASK_VALUE:
+    case ESP_ETH_STA_DNS_VALUE:
     case ESP_AP_IP_VALUE:
 
       setting.type = ESP3DSettingType::ip_t;  // ip = 4 bytes
@@ -1197,11 +1234,17 @@ const ESP3DSettingDescription *ESP3DSettings::getSettingPtr(
     case ESP_WEBDAV_ON:
     case ESP_SECURE_SERIAL:
     case ESP_BOOT_RADIO_STATE:
+    case ESP_ETH_STA_FALLBACK_MODE:
     case ESP_STA_FALLBACK_MODE:
     case ESP_SERIAL_BRIDGE_ON:
+    case ESP_ETH_STA_IP_MODE:
     case ESP_STA_IP_MODE:
       setting.size = 1;  // 1 byte
       break;
+    case ESP_ETH_STA_IP_VALUE:
+    case ESP_ETH_STA_GATEWAY_VALUE:
+    case ESP_ETH_STA_MASK_VALUE:
+    case ESP_ETH_STA_DNS_VALUE:
     case ESP_STA_IP_VALUE:
     case ESP_STA_GATEWAY_VALUE:
     case ESP_STA_MASK_VALUE:
@@ -1278,6 +1321,8 @@ const ESP3DSettingDescription *ESP3DSettings::getSettingPtr(
 
   // default value of setting in string
   switch (index) {
+
+    case ESP_ETH_STA_IP_MODE:
     case ESP_STA_IP_MODE:
       setting.default_val = DEFAULT_STA_IP_MODE;
       break;
@@ -1350,6 +1395,9 @@ const ESP3DSettingDescription *ESP3DSettings::getSettingPtr(
     case ESP_BOOT_RADIO_STATE:
       setting.default_val = DEFAULT_BOOT_RADIO_STATE;
       break;
+    case ESP_ETH_STA_FALLBACK_MODE:
+      setting.default_val = DEFAULT_ETH_STA_FALLBACK_MODE;
+      break;
     case ESP_STA_FALLBACK_MODE:
       setting.default_val = DEFAULT_STA_FALLBACK_MODE;
       break;
@@ -1401,15 +1449,19 @@ const ESP3DSettingDescription *ESP3DSettings::getSettingPtr(
     case ESP_TIME_ZONE:
       setting.default_val = DEFAULT_TIME_ZONE;
       break;
+    case ESP_ETH_STA_IP_VALUE:
     case ESP_STA_IP_VALUE:
       setting.default_val = DEFAULT_STA_IP_VALUE;
       break;
+    case ESP_ETH_STA_GATEWAY_VALUE:
     case ESP_STA_GATEWAY_VALUE:
       setting.default_val = DEFAULT_STA_GATEWAY_VALUE;
       break;
+    case ESP_ETH_STA_MASK_VALUE:
     case ESP_STA_MASK_VALUE:
       setting.default_val = DEFAULT_STA_MASK_VALUE;
       break;
+    case ESP_ETH_STA_DNS_VALUE:
     case ESP_STA_DNS_VALUE:
       setting.default_val = DEFAULT_STA_DNS_VALUE;
       break;

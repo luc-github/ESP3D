@@ -31,8 +31,8 @@
 #ifndef FTP_SERVER_H
 #define FTP_SERVER_H
 
-class WiFiServer;
-class WiFiClient;
+#include <WiFiClient.h>
+#include <WiFiServer.h>
 #ifndef FF_MAX_LFN
 #define FF_MAX_LFN 255
 #endif

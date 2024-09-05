@@ -123,12 +123,7 @@ uint8_t ESP_SD::getState(bool refresh) {
   if (SD.begin((ESP_SD_CS_PIN == -1) ? SS : ESP_SD_CS_PIN,
                SD_SCK_HZ(F_CPU / _spi_speed_divider))) {
     esp3d_log("Init SD State ok");
-    csd_t m_csd;
-    if (SD.card()->readCSD(&m_csd) && sdCardCapacity(&m_csd) > 0) {
-      _state = ESP_SDCARD_IDLE;
-    } else {
-      esp3d_log_e("Cannot get card size");
-    }
+    _state = ESP_SDCARD_IDLE;
   } else {
     esp3d_log_e("Init SD State failed");
   }
@@ -463,6 +458,9 @@ ESP_SDFile::ESP_SDFile(void* handle, bool isdir, bool iswritemode,
 }
 // todo need also to add short filename
 const char* ESP_SDFile::shortname() const {
+ #if SDFAT_FILE_TYPE != 1
+  return _name.c_str();
+#else
   static char sname[13];
   File ftmp = SD.open(_filename.c_str());
   if (ftmp) {
@@ -475,6 +473,7 @@ const char* ESP_SDFile::shortname() const {
   } else {
     return _name.c_str();
   }
+#endif
 }
 
 void ESP_SDFile::close() {

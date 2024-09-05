@@ -55,6 +55,9 @@
 #endif  // SD_UPDATE_FEATURE
 #include "../modules/boot_delay/boot_delay.h"
 #include "esp3d_message.h"
+#ifdef ESP_LUA_INTERPRETER_FEATURE
+#include "../modules/lua_interpreter/lua_interpreter_service.h"
+#endif  // ESP_LUA_INTERPRETER_FEATURE
 
 bool Esp3D::restart = false;
 
@@ -179,6 +182,10 @@ void Esp3D::handle() {
 #if defined(GCODE_HOST_FEATURE)
   esp3d_gcode_host.handle();
 #endif  // GCODE_HOST_FEATURE
+
+#ifdef ESP_LUA_INTERPRETER_FEATURE
+  esp3d_lua_interpreter.handle();
+#endif  // ESP_LUA_INTERPRETER_FEATURE
 }
 
 bool Esp3D::started() { return _started; }

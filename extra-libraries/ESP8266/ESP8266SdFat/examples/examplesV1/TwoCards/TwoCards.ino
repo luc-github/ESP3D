@@ -27,7 +27,7 @@ void setup() {
   Serial.begin(9600);
   // Wait for USB Serial
   while (!Serial) {
-    SysCall::yield();
+    yield();
   }
   Serial.print(F("FreeStack: "));
 
@@ -40,7 +40,7 @@ void setup() {
 
   Serial.println(F("type any character to start"));
   while (!Serial.available()) {
-    SysCall::yield();
+    yield();
   }
 
   // disable sd2 while initializing sd1

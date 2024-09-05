@@ -25,8 +25,7 @@
 
 #define ESP_STATE_DISCONNECTED 0
 
-#ifndef _ESP3DOUTPUT_H
-#define _ESP3DOUTPUT_H
+#pragma once
 
 #include "../include/esp3d_config.h"
 
@@ -43,6 +42,23 @@ class WebServer;
 
 #include "../modules/authentication/authentication_level_types.h"
 #include "esp3d_client_types.h"
+#if defined(ARDUINO_ARCH_ESP32)
+#include "freertos/FreeRTOS.h"
+#include "freertos/semphr.h"
+#endif  // ARDUINO_ARCH_ESP32
+
+#if defined(ARDUINO_ARCH_ESP8266)
+//To avoid compilation error on ESP8266
+// and to use many ifdefs
+#ifndef pdTRUE
+#define pdTRUE true
+#define xSemaphoreTake(A, B) true
+#define xSemaphoreGive(A) 
+#define xSemaphoreCreateMutex(A) 0
+#define vSemaphoreDelete(A)
+#define SemaphoreHandle_t void*
+#endif //pdTRUE
+#endif //ESP8266
 
 enum class ESP3DMessageType : uint8_t { head, core, tail, unique };
 
@@ -68,21 +84,44 @@ struct ESP3DMessage {
 
 class ESP3DMessageManager final {
  public:
-  static ESP3DMessage *newMsg();
-  static ESP3DMessage *newMsg(ESP3DRequest requestId);
-  static bool deleteMsg(ESP3DMessage *message);
-  static bool copyMsgInfos(ESP3DMessage *newMsgPtr, ESP3DMessage msg);
-  static ESP3DMessage *copyMsgInfos(ESP3DMessage msg);
-  static ESP3DMessage *copyMsg(ESP3DMessage msg);
-  static ESP3DMessage *newMsg(ESP3DClientType origin, ESP3DClientType target,
-                              const uint8_t *data, size_t length,
-                              ESP3DAuthenticationLevel authentication_level =
-                                  ESP3DAuthenticationLevel::guest);
-  static ESP3DMessage *newMsg(ESP3DClientType origin, ESP3DClientType target,
-                              ESP3DAuthenticationLevel authentication_level =
-                                  ESP3DAuthenticationLevel::guest);
-  static bool setDataContent(ESP3DMessage *msg, const uint8_t *data,
-                             size_t length);
+  ESP3DMessageManager();
+  ~ESP3DMessageManager();
+  ESP3DMessage *newMsg();
+  ESP3DMessage *newMsg(ESP3DRequest requestId);
+  bool deleteMsg(ESP3DMessage *message);
+  bool copyMsgInfos(ESP3DMessage *newMsgPtr, ESP3DMessage msg);
+  ESP3DMessage *copyMsgInfos(ESP3DMessage msg);
+
+  ESP3DMessage *copyMsg(ESP3DMessage msg);
+
+  ESP3DMessage *newMsg(ESP3DClientType origin, ESP3DClientType target,
+                       const uint8_t *data, size_t length,
+                       ESP3DAuthenticationLevel authentication_level =
+                           ESP3DAuthenticationLevel::guest);
+  ESP3DMessage *newMsg(ESP3DClientType origin, ESP3DClientType target,
+                       ESP3DAuthenticationLevel authentication_level =
+                           ESP3DAuthenticationLevel::guest);
+  bool setDataContent(ESP3DMessage *msg, const uint8_t *data, size_t length);
+
+ private:
+ bool _deleteMsg(ESP3DMessage *message);
+  ESP3DMessage *_newMsg();
+  ESP3DMessage *_newMsg(ESP3DRequest requestId);
+  bool _copyMsgInfos(ESP3DMessage *newMsgPtr, ESP3DMessage msg);
+  ESP3DMessage *_copyMsgInfos(ESP3DMessage msg);
+  ESP3DMessage *_copyMsg(ESP3DMessage msg);
+  ESP3DMessage *_newMsg(ESP3DClientType origin, ESP3DClientType target,
+                       const uint8_t *data, size_t length,
+                       ESP3DAuthenticationLevel authentication_level =
+                           ESP3DAuthenticationLevel::guest);
+  ESP3DMessage *_newMsg(ESP3DClientType origin, ESP3DClientType target,
+                       ESP3DAuthenticationLevel authentication_level =
+                           ESP3DAuthenticationLevel::guest);
+  bool _setDataContent(ESP3DMessage *msg, const uint8_t *data, size_t length);
+  SemaphoreHandle_t _mutex;
+#if defined(ESP_LOG_FEATURE)
+  int _msg_counting;
+#endif  // ESP_LOG_FEATURE
 };
 
-#endif  //_ESP3DOUTPUT_H
+extern ESP3DMessageManager esp3d_message_manager;

@@ -28,7 +28,7 @@ void setup() {
   Serial.begin(9600);
   // Wait for USB Serial
   while (!Serial) {
-    SysCall::yield();
+    yield();
   }
 }
 //------------------------------------------------------------------------------
@@ -44,7 +44,7 @@ void loop() {
   // F stores strings in flash to save RAM
   cout << F("Type any character to start\n");
   while (!Serial.available()) {
-    SysCall::yield();
+    yield();
   }
   delay(400);  // catch Due reset problem
 

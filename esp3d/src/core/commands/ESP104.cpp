@@ -18,7 +18,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "../../include/esp3d_config.h"
-#if defined(WIFI_FEATURE) || defined(BLUETOOTH_FEATURE) || defined(ETH_FEATURE)
+#if defined(WIFI_FEATURE)
 #include "../../modules/authentication/authentication_service.h"
 #include "../../modules/network/netconfig.h"
 #include "../esp3d_commands.h"
@@ -54,11 +54,6 @@ void ESP3DCommands::ESP104(int cmd_params_pos, ESP3DMessage* msg) {
       ok_msg = "BT";
     } else
 #endif  // BLUETOOTH_FEATURE
-#if defined(WIFI_FEATURE)
-        if (byteValue == (uint8_t)ESP_AP_SETUP) {
-      ok_msg = "CONFIG";
-    } else
-#endif  // WIFI_FEATURE
       if (byteValue == (uint8_t)ESP_NO_NETWORK) {
         ok_msg = "OFF";
       } else {
@@ -76,11 +71,6 @@ void ESP3DCommands::ESP104(int cmd_params_pos, ESP3DMessage* msg) {
       byteValue = (uint8_t)ESP_BT;
     } else
 #endif  // BLUETOOTH_FEATURE
-#if defined(WIFI_FEATURE)
-        if (tmpstr == "CONFIG") {
-      byteValue = (uint8_t)ESP_AP_SETUP;
-    } else
-#endif  // WIFI_FEATURE
       if (tmpstr == "OFF") {
         byteValue = (uint8_t)ESP_NO_NETWORK;
       } else {

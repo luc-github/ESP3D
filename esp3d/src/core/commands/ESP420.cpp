@@ -157,6 +157,14 @@ void ESP3DCommands::ESP420(int cmd_params_pos, ESP3DMessage* msg) {
 
   // FW architecture
   tmpstr = ESP3DSettings::TargetBoard();
+  #ifdef ARDUINO_ARCH_ESP32
+  tmpstr = ESP.getChipModel();
+  tmpstr+="-";
+  tmpstr+=ESP.getChipRevision();
+  tmpstr+="-";
+  tmpstr+=ESP.getChipCores();
+  tmpstr+="@";
+  #endif // ARDUINO_ARCH_ESP32
   if (!dispatchIdValue(json, "FW arch", tmpstr.c_str(), target, requestId,
                        false)) {
     return;
@@ -389,6 +397,7 @@ void ESP3DCommands::ESP420(int cmd_params_pos, ESP3DMessage* msg) {
       return;
     }
     // IP mode
+    esp3d_log_d("IP mode %d", NetConfig::isIPModeDHCP(ESP_ETH_STA));
     tmpstr = (NetConfig::isIPModeDHCP(ESP_ETH_STA)) ? "dhcp" : "static";
     if (!dispatchIdValue(json, "ip mode", tmpstr.c_str(), target, requestId,
                          false)) {
@@ -415,6 +424,11 @@ void ESP3DCommands::ESP420(int cmd_params_pos, ESP3DMessage* msg) {
     // DNS value
     tmpstr = ETH.dnsIP().toString();
     if (!dispatchIdValue(json, "DNS", tmpstr.c_str(), target, requestId,
+                         false)) {
+      return;
+    }
+  } else {
+     if (!dispatchIdValue(json, "ethernet", "OFF", target, requestId,
                          false)) {
       return;
     }

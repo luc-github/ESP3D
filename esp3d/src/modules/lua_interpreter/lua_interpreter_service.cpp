@@ -20,12 +20,15 @@
 
 #include "../../include/esp3d_config.h"
 
-#ifdef ESP_LUA_INTERPRETER_FEATURE
+#if defined(ESP_LUA_INTERPRETER_FEATURE) && defined(ARDUINO_ARCH_ESP32)
 
 #include "../../core/esp3d_commands.h"
 #include "../../core/esp3d_hal.h"
 #include "../../core/esp3d_settings.h"
 #include "lua_interpreter_service.h"
+#if defined(NOTIFICATION_FEATURE)
+#include "../notifications/notifications_service.h"
+#endif  // NOTIFICATION_FEATURE
 #if defined(FILESYSTEM_FEATURE)
 #include "../filesystem/esp_filesystem.h"
 #endif  // FILESYSTEM_FEATURE
@@ -39,20 +42,21 @@ LuaInterpreter esp3d_lua_interpreter;
 
 LuaInterpreter::LuaInterpreter() {
   _scriptTask = NULL;
-  _isRunning = false;
-  _isPaused = false;
   _pauseTime = 0;
-  _pauseSemaphore = xSemaphoreCreateBinary();
   _luaFSType = Lua_Filesystem_Type::none;
-  xSemaphoreGive(_pauseSemaphore);  // Initialize as available
   setupFunctions();
   registerConstants();
   _scriptBuffer = nullptr;
+  _stateMutex = xSemaphoreCreateMutex();
+  _messageInFIFO.setMaxSize(10);  // no limit
+  _messageInFIFO.setId("in");
+  _messageOutFIFO.setMaxSize(0);  // no limit
+  _messageOutFIFO.setId("out");
 }
 
 LuaInterpreter::~LuaInterpreter() {
   deleteScriptTask();
-  vSemaphoreDelete(_pauseSemaphore);
+  vSemaphoreDelete(_stateMutex);
 }
 
 bool LuaInterpreter::dispatch(ESP3DMessage *message) {
@@ -60,10 +64,18 @@ bool LuaInterpreter::dispatch(ESP3DMessage *message) {
     return false;
   }
   if (message->size > 0 && message->data) {
-    _messageFIFO.push(message);
+    _messageInFIFO.push(message);
     return true;
   }
   return false;
+}
+
+const char *LuaInterpreter::getLastError() {
+  esp3d_log("getLastError %s %s", _lastError.c_str(), _luaEngine.getLastError());
+  if (_lastError.length() == 0) {
+    return _luaEngine.getLastError();
+  }
+  return _lastError.c_str();
 }
 
 bool LuaInterpreter::createScriptTask() {
@@ -71,79 +83,86 @@ bool LuaInterpreter::createScriptTask() {
     deleteScriptTask();
   }
 
-  BaseType_t xReturned = xTaskCreate(scriptExecutionTask, "LuaScriptTask", 8192,
-                                     this, tskIDLE_PRIORITY + 1, &_scriptTask);
+  _lastError = "";
+  BaseType_t xReturned = xTaskCreatePinnedToCore(
+      scriptExecutionTask, /* Task function. */
+      "LuaScriptTask",     /* name of task. */
+      8192,                /* Stack size of task */
+      this,                /* parameter of the task = is main or bridge*/
+      1,                   /* priority of the task */
+      &_scriptTask,        /* Task handle to keep track of created task */
+      1                    /* Core to run the task */
+  );
 
   if (xReturned != pdPASS) {
-    _lastError = "Failed to create script task";
+    if (_lastError.length() == 0) _lastError = "Failed to create script task";
     return false;
   }
-  _isRunning = true;
-  _isPaused = false;
   _startTime = millis();
   return true;
 }
 
 bool LuaInterpreter::executeScriptAsync(const char *script) {
   bool result = true;
-  if (_isRunning) {
-    _lastError = "A script is already running";
+  if (_luaEngine.isRunning()) {
+    if (_lastError.length() == 0) _lastError = "A script is already running";
     return false;
   }
   _currentScriptName = script;
   if (!createScriptTask()) {
-    _lastError = "Failed to create script task";
+    if (_lastError.length() == 0) _lastError = "Failed to create script task";
     result = false;
   }
 
   return result;
 }
 
-void LuaInterpreter::abortCurrentScript() {
-  if (_isRunning && _scriptTask != NULL) {
-    deleteScriptTask();
-    _lastError = "Script aborted";
+void LuaInterpreter::abortScript() {
+  if (_luaEngine.isRunning() && _scriptTask != NULL) {
+    if (_lastError.length() == 0) _lastError = "Script aborted";
+    _luaEngine.stopExecution();
   }
 }
 
 bool LuaInterpreter::pauseScript() {
-  if (_isRunning && !_isPaused) {
-    _isPaused = true;
+  if (_luaEngine.isRunning() && !_luaEngine.isPaused()) {
+    _luaEngine.pauseExecution();
     _pauseTime = millis();
-    xSemaphoreTake(_pauseSemaphore, 0);
     return true;
   }
   return false;
 }
 
 bool LuaInterpreter::resumeScript() {
-  if (_isRunning && _isPaused) {
-    _isPaused = false;
+  if (_luaEngine.isRunning() && _luaEngine.isPaused()) {
+    _luaEngine.resumeExecution();
     _startTime += (millis() - _pauseTime);
-    xSemaphoreGive(_pauseSemaphore);
     return true;
   }
   return false;
 }
 
+void LuaInterpreter::resetLuaEnvironment() {
+  _luaEngine.resetState();
+  setupFunctions();
+  registerConstants();
+}
+
 void LuaInterpreter::deleteScriptTask() {
-  if (_scriptTask != NULL) {
-    vTaskDelete(_scriptTask);
-    _scriptTask = NULL;
-  }
+  esp3d_log("Delete script task start");
   if (_scriptBuffer) {
+    esp3d_log("Free script buffer");
     free(_scriptBuffer);
     _scriptBuffer = nullptr;
   }
-  _isRunning = false;
-  _isPaused = false;
+  esp3d_log("Reset lua environment");
   _luaFSType = Lua_Filesystem_Type::none;
-}
-
-void LuaInterpreter::checkPause() {
-  if (_isPaused) {
-    xSemaphoreTake(_pauseSemaphore, portMAX_DELAY);
-    xSemaphoreGive(_pauseSemaphore);
+  if (_lastError != "") resetLuaEnvironment();
+  if (_scriptTask != NULL) {
+    esp3d_log("Delete script task");
+    TaskHandle_t tmpTask = _scriptTask;
+    _scriptTask = NULL;
+    vTaskDelete(tmpTask);
   }
 }
 
@@ -152,6 +171,7 @@ void LuaInterpreter::scriptExecutionTask(void *parameter) {
   String scriptName = self->_currentScriptName;
   if (self->_scriptBuffer) {
     free(self->_scriptBuffer);
+    self->_scriptBuffer = nullptr;
   }
   self->_lastError = "";
   size_t fileSize = 0;
@@ -175,8 +195,9 @@ void LuaInterpreter::scriptExecutionTask(void *parameter) {
         fileSize = FSfileHandle.size();
         esp3d_log("File %s opened, size is %d", scriptName.c_str(), fileSize);
         if (fileSize > ESP_LUA_MAX_SCRIPT_SIZE) {
-          self->_lastError = "File size is too large";
-          esp3d_log_e(% s, self->_lastError.c_str());
+          if (self->_lastError.length() == 0)
+            self->_lastError = "File size is too large";
+          esp3d_log_e("%s", "File size is too large");
         } else {
           // allocate memory for the script
           self->_scriptBuffer = (char *)malloc(fileSize + 1);
@@ -188,24 +209,28 @@ void LuaInterpreter::scriptExecutionTask(void *parameter) {
             esp3d_log("File %s read into buffer", scriptName.c_str());
             // check if the read is ok
             if (readSize != fileSize) {
-              self->_lastError = "Failed to read file";
-              esp3d_log_e(% s, self->_lastError.c_str());
+              if (self->_lastError.length() == 0)
+                self->_lastError = "Failed to read file";
+              esp3d_log_e("%s", self->_lastError.c_str());
             } else {
               self->_luaFSType = Lua_Filesystem_Type::fLash;
             }
           } else {
-            self->_lastError = "Failed to allocate memory for script";
-            esp3d_log_e(% s, self->_lastError.c_str());
+            if (self->_lastError.length() == 0)
+              self->_lastError = "Failed to allocate memory for script";
+            esp3d_log_e("%s", "Failed to allocate memory for script");
           }
         }
         FSfileHandle.close();
       } else {
-        self->_lastError = "File is not open: " + scriptName;
-        esp3d_log_e(% s, self->_lastError.c_str());
+        if (self->_lastError.length() == 0)
+          self->_lastError = "File is not open: " + scriptName;
+        esp3d_log_e("%s", self->_lastError.c_str());
       }
     } else {
-      self->_lastError = "File not found: " + scriptName;
-      esp3d_log_e(% s, self->_lastError.c_str());
+      if (self->_lastError.length() == 0)
+        self->_lastError = "File not found: " + scriptName;
+      esp3d_log_e("%s", "File is not open: " + scriptName);
     }
   }
 #endif  // FILESYSTEM_FEATURE
@@ -216,12 +241,13 @@ void LuaInterpreter::scriptExecutionTask(void *parameter) {
     esp3d_log("Processing SD file %s", scriptName.c_str());
     // Check if the SD file system is available
     if (!ESP_SD::accessFS()) {
-      self->_lastError = "SD file system not found";
-      esp3d_log_e(% s, self->_lastError.c_str());
+      if (self->_lastError.length() == 0)
+        self->_lastError = "SD file system not found";
+      esp3d_log_e("%s", "SD file system not found");
     } else {
       if (ESP_SD::getState(true) == ESP_SDCARD_NOT_PRESENT) {
-        self->_lastError = "SD card not present";
-        esp3d_log_e(% s, self->_lastError.c_str());
+        if (self->_lastError.length() == 0) self->_lastError = "SD card not present";
+        esp3d_log_e("%s", "SD card not present");
       } else {
         ESP_SD::setState(ESP_SDCARD_BUSY);
         // Check script name exists
@@ -232,8 +258,9 @@ void LuaInterpreter::scriptExecutionTask(void *parameter) {
             // Check script file size is under 2048 bytes
             fileSize = SDfileHandle.size();
             if (fileSize > ESP_LUA_MAX_SCRIPT_SIZE) {
-              self->_lastError = "File size is too large";
-              esp3d_log_e(% s, self->_lastError.c_str());
+              if (self->_lastError.length() == 0)
+                self->_lastError = "File size is too large";
+              esp3d_log_e("%s", "File size is too large");
             } else {
               // allocate memory for the script
               self->_scriptBuffer = (char *)malloc(fileSize + 1);
@@ -245,25 +272,29 @@ void LuaInterpreter::scriptExecutionTask(void *parameter) {
                 esp3d_log("File %s read into buffer", scriptName.c_str());
                 // check if the read is ok
                 if (readSize != fileSize) {
-                  self->_lastError = "Failed to read file";
-                  esp3d_log_e(% s, self->_lastError.c_str());
+                  if (self->_lastError.length() == 0)
+                    self->_lastError = "Failed to read file";
+                  esp3d_log_e("%s", "Failed to read file");
                 } else {
                   self->_luaFSType = Lua_Filesystem_Type::sd;
                 }
               } else {
-                self->_lastError = "Failed to allocate memory for script";
-                esp3d_log_e(% s, self->_lastError.c_str());
+                if (self->_lastError.length() == 0)
+                  self->_lastError = "Failed to allocate memory for script";
+                esp3d_log_e("%s", "Failed to allocate memory for script");
               }
             }
             // close the file
             SDfileHandle.close();
           } else {
-            self->_lastError = "File is not open: " + scriptName;
-            esp3d_log_e(% s, self->_lastError.c_str());
+            if (self->_lastError.length() == 0) self->_lastError =
+                  "File is not open: " + scriptName;
+            esp3d_log_e("%s", "File is not open: " + scriptName);
           }
         } else {
-          self->_lastError = "File not found: " + scriptName;
-          esp3d_log_e(% s, self->_lastError.c_str());
+          if (self->_lastError.length() == 0)
+            self->_lastError = "File not found: " + scriptName;
+          esp3d_log_e("%s", "File not found: " + scriptName);
         }
       }
       ESP_SD::releaseFS();
@@ -271,30 +302,76 @@ void LuaInterpreter::scriptExecutionTask(void *parameter) {
   }
 #endif  // SD_DEVICE
   // Check if the file system type is not determined
-  if (self->_luaFSType == Lua_Filesystem_Type::none &&
-      self->_lastError.length() == 0) {
-    self->_lastError = "Cannot determine file system type";
-    esp3d_log_e(% s, self->_lastError.c_str());
-  }
-  // Execute the script
-  if (self->_luaFSType != Lua_Filesystem_Type::none && self->_scriptBuffer) {
-    if (!self->_luaEngine.executeScript(self->_scriptBuffer)) {
-      self->_lastError = "Script execution failed";
-      esp3d_log_e(% s, self->_lastError.c_str());
+  esp3d_log("Check state");
+  if (self->_luaFSType == Lua_Filesystem_Type::none) {
+    if (self->_lastError.length() == 0)
+      self->_lastError = "Cannot determine file system type";
+    esp3d_log_e("%s", "Cannot determine file system type");
+  } else {
+    // Execute the script
+    esp3d_log("Execute script");
+    if (self->_luaFSType != Lua_Filesystem_Type::none && self->_scriptBuffer) {
+      if (!self->_luaEngine.executeScript(self->_scriptBuffer)) {
+        if (self->_lastError.length() == 0) {
+          self->_lastError = "Script execution failed";
+        }
+        esp3d_log_e("%s", "Script execution failed");
+      }
     }
   }
+  esp3d_log("Delete script task");
   self->deleteScriptTask();
 }
 
-unsigned long LuaInterpreter::getExecutionTime() const {
-  if (!_isRunning) return 0;
-  if (_isPaused) return _pauseTime - _startTime;
+bool LuaInterpreter::begin() {
+  end();
+  return true;
+}
+
+void LuaInterpreter::end() { deleteScriptTask(); }
+
+void LuaInterpreter::handle() {
+  static bool notificationSent = false;
+  if (_luaEngine.isRunning() && notificationSent) {
+    notificationSent = false;
+  }
+  if (_messageOutFIFO.size() > 0 || _luaEngine.hasError()) {
+    if (xSemaphoreTake(_stateMutex, portMAX_DELAY) == pdTRUE) {
+      // Check if the script is in error state and if still running
+      if (_luaEngine.hasError()) {
+        _lastError = _luaEngine.getLastError();
+#ifdef NOTIFICATION_FEATURE
+        if (!notificationSent) {
+          String errorMsg = "Error: " + _lastError;
+          notificationsservice.sendAutoNotification(errorMsg.c_str());
+          notificationSent = true;
+        }
+#endif  // NOTIFICATION_FEATURE
+      }
+      if (_messageOutFIFO.size() > 0) {
+        esp3d_log("lua_interpreter message size %d", _messageOutFIFO.size());
+      }
+      ESP3DMessage *msg = _messageOutFIFO.pop();
+      if (msg) {
+        esp3d_log("Processing message: %s", msg->data);
+        esp3d_commands.process(msg);
+      }
+      xSemaphoreGive(_stateMutex);
+    } else {
+    esp3d_log_e("Mutex not taken");
+  }
+  }
+}
+
+uint64_t LuaInterpreter::getExecutionTime() {
+  if (!_luaEngine.isRunning()) return 0;
+  if (_luaEngine.isPaused()) return _pauseTime - _startTime;
   return millis() - _startTime;
 }
 
-bool LuaInterpreter::isScriptRunning() const { return _isRunning; }
+bool LuaInterpreter::isScriptRunning() { return _luaEngine.isRunning(); }
 
-bool LuaInterpreter::isScriptPaused() const { return _isPaused; }
+bool LuaInterpreter::isScriptPaused() { return _luaEngine.isPaused(); }
 
 void LuaInterpreter::setupFunctions() {
   _luaEngine.registerFunction("pinMode", l_pinMode);
@@ -304,9 +381,10 @@ void LuaInterpreter::setupFunctions() {
   _luaEngine.registerFunction("analogRead", l_analogRead);
   _luaEngine.registerFunction("available", l_available, this);
   _luaEngine.registerFunction("readData", l_readData, this);
-  _luaEngine.registerFunction("delay", l_delay);
+  _luaEngine.registerFunction("delay", l_delay, this);
   _luaEngine.registerFunction("yield", l_yield);
   _luaEngine.registerFunction("millis", l_millis);
+  _luaEngine.registerFunction("print", l_print, this);
 }
 
 void LuaInterpreter::registerConstants() {
@@ -354,21 +432,45 @@ int LuaInterpreter::l_analogRead(lua_State *L) {
   return 1;
 }
 
-int l_print(lua_State *L) {
+int LuaInterpreter::l_print(lua_State *L) {
+  esp3d_log("lua_interpreter output");
+  LuaInterpreter *self =
+      (LuaInterpreter *)lua_touserdata(L, lua_upvalueindex(1));
   String dataString;
+  dataString = "";
   int nargs = lua_gettop(L);
+  // esp3d_log("lua_interpreter output args %d", nargs);
   for (int i = 1; i <= nargs; i++) {
+    // esp3d_log("lua_interpreter output arg %d", i);
     if (lua_isstring(L, i)) {
       dataString += lua_tostring(L, i);
+    } else if (lua_isnumber(L, i)) {
+      dataString += String(lua_tonumber(L, i));
+    } else if (lua_isboolean(L, i)) {
+      dataString += lua_toboolean(L, i) ? "true" : "false";
+    } else if (lua_isnil(L, i)) {
+      dataString += "nil";
+    } else {
+      dataString += lua_typename(L, lua_type(L, i));
     }
   }
-  ESP3DMessage *msg = ESP3DMessageManager::newMsg(
+  if (!dataString.endsWith("\n")) {
+    dataString += "\n";
+  }
+  esp3d_log("lua_interpreter output %s", dataString.c_str());
+  esp3d_log("Message Creation");
+  ESP3DMessage *msg = esp3d_message_manager.newMsg(
       ESP3DClientType::lua_script, esp3d_commands.getOutputClient(),
       (uint8_t *)dataString.c_str(), dataString.length(),
       ESP3DAuthenticationLevel::admin);
+  esp3d_log("Message created");
+
   if (msg) {
     // process command
-    esp3d_commands.process(msg);
+    msg->type = ESP3DMessageType::unique;
+    esp3d_log("Message sent to fifo list");
+    // push to FIFO
+    self->_messageOutFIFO.push(msg);
   } else {
     esp3d_log_e("Cannot create message");
   }
@@ -378,17 +480,17 @@ int l_print(lua_State *L) {
 int LuaInterpreter::l_available(lua_State *L) {
   LuaInterpreter *self =
       (LuaInterpreter *)lua_touserdata(L, lua_upvalueindex(1));
-  lua_pushinteger(L, self->_messageFIFO.size());
+  lua_pushinteger(L, self->_messageInFIFO.size());
   return 1;
 }
 
 int LuaInterpreter::l_readData(lua_State *L) {
   LuaInterpreter *self =
       (LuaInterpreter *)lua_touserdata(L, lua_upvalueindex(1));
-  ESP3DMessage *message = self->_messageFIFO.pop();
+  ESP3DMessage *message = self->_messageInFIFO.pop();
   if (message) {
     lua_pushlstring(L, (const char *)message->data, message->size);
-    ESP3DMessageManager::deleteMsg(message);
+    esp3d_message_manager.deleteMsg(message);
   } else {
     lua_pushnil(L);
   }
@@ -396,8 +498,27 @@ int LuaInterpreter::l_readData(lua_State *L) {
 }
 
 int LuaInterpreter::l_delay(lua_State *L) {
+  LuaInterpreter *self =
+      (LuaInterpreter *)lua_touserdata(L, lua_upvalueindex(1));
   int ms = luaL_checkinteger(L, 1);
-  vTaskDelay(pdMS_TO_TICKS(ms));
+  TickType_t delayTicks = pdMS_TO_TICKS(ms);
+  // Check if during delay the script is aborted or paused
+  while (delayTicks > 0) {
+    TickType_t delayThis = (delayTicks > ESP_LUA_CHECK_INTERVAL)
+                               ? ESP_LUA_CHECK_INTERVAL
+                               : delayTicks;
+    vTaskDelay(delayThis);
+    delayTicks -= delayThis;
+    while (self->_luaEngine.isPaused()) {
+      vTaskDelay(ESP_LUA_CHECK_INTERVAL);
+    }
+
+    if (!(self->_luaEngine.isRunning())) {
+      if (self->_lastError.length() == 0)
+        self->_lastError = "Execution stopped";
+      luaL_error(L, "Execution stopped");
+    }
+  }
   return 0;
 }
 

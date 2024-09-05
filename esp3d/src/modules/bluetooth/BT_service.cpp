@@ -25,7 +25,7 @@
 #ifdef BLUETOOTH_FEATURE
 #include "../../core/esp3d_commands.h"
 #include "../../core/esp3d_settings.h"
-#include "../../esp3d_string.h"
+#include "../../core/esp3d_string.h"
 #include "../network/netconfig.h"
 #include "BT_service.h"
 #include "BluetoothSerial.h"
@@ -192,7 +192,7 @@ ESP3DAuthenticationLevel BTService::getAuthentication() { return _auth; }
 void BTService::flushbuffer() {
   _buffer[_buffer_size] = 0x0;
   // dispatch command
-  ESP3DMessage *msg = ESP3DMessageManager::newMsg(
+  ESP3DMessage *msg = esp3d_message_manager.newMsg(
       ESP3DClientType::bluetooth, esp3d_commands.getOutputClient(), _buffer,
       _buffer_size, _auth);
   if (msg) {
@@ -288,7 +288,7 @@ bool BTService::dispatch(ESP3DMessage *message) {
     if (sentcnt != message->size) {
       return false;
     }
-    ESP3DMessageManager::deleteMsg(message);
+    esp3d_message_manager.deleteMsg(message);
     return true;
   }
 

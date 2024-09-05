@@ -127,27 +127,11 @@ uint8_t ESP_SD::getState(bool refresh) {
             ESP_SD_MOSI_PIN != -1 ? ESP_SD_MOSI_PIN : MOSI,
             ESP_SD_SCK_PIN != -1 ? ESP_SD_SCK_PIN : SCK);
   // refresh content if card was removed
-#if !(defined(ESP_SD_DETECT_PIN) && ESP_SD_DETECT_PIN != -1)
-  if (xPortGetCoreID() == 0) {
-    disableCore0WDT();
-  } else {
-    disableCore1WDT();
-  }
-#endif  // !(defined(ESP_SD_DETECT_PIN)
   if (SD.begin((ESP_SD_CS_PIN == -1) ? SS : ESP_SD_CS_PIN,
                SD_SCK_MHZ(FREQMZ / _spi_speed_divider))) {
-    csd_t m_csd;
-    if (SD.card()->readCSD(&m_csd) && sdCardCapacity(&m_csd) > 0) {
       _state = ESP_SDCARD_IDLE;
-    }
   }
-#if !(defined(ESP_SD_DETECT_PIN) && ESP_SD_DETECT_PIN != -1)
-  if (xPortGetCoreID() == 0) {
-    enableCore0WDT();
-  } else {
-    enableCore1WDT();
-  }
-#endif  // !(defined(ESP_SD_DETECT_PIN)
+
   return _state;
 }
 

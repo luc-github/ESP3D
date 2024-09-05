@@ -388,7 +388,7 @@ void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
       ESP101(cmd_params_pos, msg);
       break;
 #endif  // WIFI_FEATURE
-#if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
+#if defined(WIFI_FEATURE) 
     // Change STA IP mode (DHCP/STATIC)
     //[ESP102]<mode>pwd=<admin password>
     case 102:
@@ -399,15 +399,11 @@ void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
     case 103:
       ESP103(cmd_params_pos, msg);
       break;
-#endif  // WIFI_FEATURE ||ETH_FEATURE
-#if defined(WIFI_FEATURE) || defined(BLUETOOTH_FEATURE) || defined(ETH_FEATURE)
     // Set fallback mode which can be BT,  WIFI-AP, OFF
     //[ESP104]<state>pwd=<admin password>
     case 104:
       ESP104(cmd_params_pos, msg);
       break;
-#endif  // WIFI_FEATURE || BLUETOOTH_FEATURE || ETH_FEATURE)
-#if defined(WIFI_FEATURE)
     // AP SSID
     //[ESP105]<SSID>[pwd=<admin password>]
     case 105:
@@ -464,6 +460,24 @@ void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
       ESP115(cmd_params_pos, msg);
       break;
 #endif  // WIFI_FEATURE|| ETH_FEATURE || BT_FEATURE
+
+#if defined(ETH_FEATURE) 
+    // Change ETH STA IP mode (DHCP/STATIC)
+    //[ESP116]<mode>pwd=<admin password>
+    case 116:
+      ESP102(cmd_params_pos, msg);
+      break;
+    // Change ETH STA IP/Mask/GW
+    //[ESP117]IP=<IP> MSK=<IP> GW=<IP> pwd=<admin password>
+    case 117:
+      ESP117(cmd_params_pos, msg);
+      break;
+    // Set fallback mode which can be BT, OFF
+    //[ESP118]<state>pwd=<admin password>
+    case 118:
+      ESP118(cmd_params_pos, msg);
+      break;
+#endif  // ETH_FEATURE  
 
 #ifdef HTTP_FEATURE
     // Set HTTP state which can be ON, OFF
@@ -1165,9 +1179,9 @@ void ESP3DCommands::process(ESP3DMessage *msg) {
     esp3d_log("Execute internal command %d", cmdId);
     execute_internal_command(cmdId, espcmdpos, msg);
   } else {
-    esp3d_log("Dispatch command, len %d, from %d(%s) to %d(%s)", msg->size,
+    /*esp3d_log("Dispatch command, len %d, from %d(%s) to %d(%s)", msg->size,
               static_cast<uint8_t>(msg->origin), GETCLIENTSTR(msg->origin),
-              static_cast<uint8_t>(msg->target), GETCLIENTSTR(msg->target));
+              static_cast<uint8_t>(msg->target), GETCLIENTSTR(msg->target));*/
 
     // Work around to avoid to dispatch single \n or \r to everyone as it is
     // part of previous ESP3D command
@@ -1177,10 +1191,11 @@ void ESP3DCommands::process(ESP3DMessage *msg) {
       lastIsESP3D = false;
       // delete message
       esp3d_log("Delete message");
-      ESP3DMessageManager::deleteMsg(msg);
+      esp3d_message_manager.deleteMsg(msg);
       return;
     }
     lastIsESP3D = false;
+    esp3d_log("Dispatch message: %s", msg->data);
     dispatch(msg);
   }
 }
@@ -1206,25 +1221,25 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg, uint8_t *sbuf, size_t len) {
       }
       tmpstr += '\n';
       esp3d_log("update command success: *%s*", tmpstr.c_str());
-      if (!ESP3DMessageManager::setDataContent(msg, (uint8_t *)tmpstr.c_str(),
+      if (!esp3d_message_manager.setDataContent(msg, (uint8_t *)tmpstr.c_str(),
                                                tmpstr.length())) {
         esp3d_log_e("set data content failed");
-        ESP3DMessageManager::deleteMsg(msg);
+        esp3d_message_manager.deleteMsg(msg);
         return false;
       }
     } else {
       esp3d_log("format command success, no need to update");
-      if (!ESP3DMessageManager::setDataContent(msg, sbuf, len)) {
+      if (!esp3d_message_manager.setDataContent(msg, sbuf, len)) {
         esp3d_log_e("set data content failed");
-        ESP3DMessageManager::deleteMsg(msg);
+        esp3d_message_manager.deleteMsg(msg);
         return false;
       }
     }
   } else {
     esp3d_log("not unique or tail message");
-    if (!ESP3DMessageManager::setDataContent(msg, sbuf, len)) {
+    if (!esp3d_message_manager.setDataContent(msg, sbuf, len)) {
       esp3d_log_e("set data content failed");
-      ESP3DMessageManager::deleteMsg(msg);
+      esp3d_message_manager.deleteMsg(msg);
       return false;
     }
   }
@@ -1235,7 +1250,7 @@ bool ESP3DCommands::dispatch(uint8_t *sbuf, size_t size, ESP3DClientType target,
                              ESP3DRequest requestId, ESP3DMessageType type,
                              ESP3DClientType origin,
                              ESP3DAuthenticationLevel authentication_level) {
-  ESP3DMessage *newMsgPtr = ESP3DMessageManager::newMsg(origin, target);
+  ESP3DMessage *newMsgPtr = esp3d_message_manager.newMsg(origin, target);
   if (newMsgPtr) {
     newMsgPtr->request_id = requestId;
     newMsgPtr->type = type;
@@ -1249,7 +1264,7 @@ bool ESP3DCommands::dispatch(const char *sbuf, ESP3DClientType target,
                              ESP3DRequest requestId, ESP3DMessageType type,
                              ESP3DClientType origin,
                              ESP3DAuthenticationLevel authentication_level) {
-  ESP3DMessage *newMsgPtr = ESP3DMessageManager::newMsg(origin, target);
+  ESP3DMessage *newMsgPtr = esp3d_message_manager.newMsg(origin, target);
   if (newMsgPtr) {
     newMsgPtr->request_id = requestId;
     newMsgPtr->type = type;
@@ -1281,7 +1296,7 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
   switch (msg->target) {
     case ESP3DClientType::no_client:
       esp3d_log("No client message");
-      ESP3DMessageManager::deleteMsg(msg);
+      esp3d_message_manager.deleteMsg(msg);
       break;
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL
     case ESP3DClientType::serial:
@@ -1303,7 +1318,7 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
           MYSERIAL1.write('\n');
         }
       }
-      ESP3DMessageManager::deleteMsg(msg);
+      esp3d_message_manager.deleteMsg(msg);
       break;
 
     case ESP3DClientType::socket_serial:
@@ -1413,7 +1428,7 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
       tmp.replace("\n", " ");
       tmp.replace("\r", "");
       tmp += "\n";
-      if (ESP3DMessageManager::setDataContent(msg, (uint8_t *)tmp.c_str(),
+      if (esp3d_message_manager.setDataContent(msg, (uint8_t *)tmp.c_str(),
                                               tmp.length())) {
         return dispatch(msg);
       }
@@ -1432,7 +1447,7 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
           msg->target = ESP3DClientType::remote_screen;
         } else {
           // duplicate message because current is  already pending
-          ESP3DMessage *copy_msg = ESP3DMessageManager::copyMsg(*msg);
+          ESP3DMessage *copy_msg = esp3d_message_manager.copyMsg(*msg);
           if (copy_msg) {
             copy_msg->target = ESP3DClientType::remote_screen;
             dispatch(copy_msg);
@@ -1451,7 +1466,7 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
           msg->target = ESP3DClientType::lua_script;
         } else {
           // duplicate message because current is  already pending
-          ESP3DMessage *copy_msg = ESP3DMessageManager::copyMsg(*msg);
+          ESP3DMessage *copy_msg = esp3d_message_manager.copyMsg(*msg);
           if (copy_msg) {
             copy_msg->target = ESP3DClientType::lua_script;
             dispatch(copy_msg);
@@ -1471,7 +1486,7 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
           msg->request_id.id = ESP_OUTPUT_STATUS;
         } else {
           // duplicate message because current is  already pending
-          ESP3DMessage *copy_msg = ESP3DMessageManager::copyMsg(*msg);
+          ESP3DMessage *copy_msg = esp3d_message_manager.copyMsg(*msg);
           if (copy_msg) {
             copy_msg->target = ESP3DClientType::rendering;
             copy_msg->request_id.id = ESP_OUTPUT_STATUS;
@@ -1491,7 +1506,7 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
           msg->target = ESP3DClientType::echo_serial;
         } else {
           // duplicate message because current is  already pending
-          ESP3DMessage *copy_msg = ESP3DMessageManager::copyMsg(*msg);
+          ESP3DMessage *copy_msg = esp3d_message_manager.copyMsg(*msg);
           if (copy_msg) {
             copy_msg->target = ESP3DClientType::echo_serial;
             dispatch(copy_msg);
@@ -1509,7 +1524,7 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
           msg->target = ESP3DClientType::serial_bridge;
         } else {
           // duplicate message because current is  already pending
-          ESP3DMessage *copy_msg = ESP3DMessageManager::copyMsg(*msg);
+          ESP3DMessage *copy_msg = esp3d_message_manager.copyMsg(*msg);
           if (copy_msg) {
             copy_msg->target = ESP3DClientType::serial_bridge;
             dispatch(copy_msg);
@@ -1528,7 +1543,7 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
           msg->target = ESP3DClientType::bluetooth;
         } else {
           // duplicate message because current is  already pending
-          ESP3DMessage *copy_msg = ESP3DMessageManager::copyMsg(*msg);
+          ESP3DMessage *copy_msg = esp3d_message_manager.copyMsg(*msg);
           if (copy_msg) {
             copy_msg->target = ESP3DClientType::bluetooth;
             dispatch(copy_msg);
@@ -1547,7 +1562,7 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
           msg->target = ESP3DClientType::telnet;
         } else {
           // duplicate message because current is  already pending
-          ESP3DMessage *copy_msg = ESP3DMessageManager::copyMsg(*msg);
+          ESP3DMessage *copy_msg = esp3d_message_manager.copyMsg(*msg);
           if (copy_msg) {
             copy_msg->target = ESP3DClientType::telnet;
             dispatch(copy_msg);
@@ -1570,7 +1585,7 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
           msg->target = ESP3DClientType::webui_websocket;
         } else {
           // duplicate message because current is  already pending
-          ESP3DMessage *copy_msg = ESP3DMessageManager::copyMsg(*msg);
+          ESP3DMessage *copy_msg = esp3d_message_manager.copyMsg(*msg);
           if (copy_msg) {
             copy_msg->target = ESP3DClientType::webui_websocket;
             dispatch(copy_msg);
@@ -1592,7 +1607,7 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
           msg->target = ESP3DClientType::websocket;
         } else {
           // duplicate message because current is  already pending
-          ESP3DMessage *copy_msg = ESP3DMessageManager::copyMsg(*msg);
+          ESP3DMessage *copy_msg = esp3d_message_manager.copyMsg(*msg);
           if (copy_msg) {
             copy_msg->target = ESP3DClientType::websocket;
             dispatch(copy_msg);
@@ -1624,7 +1639,7 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
   // clear message
   if (!sendOk) {
     esp3d_log_e("Send msg failed");
-    ESP3DMessageManager::deleteMsg(msg);
+    esp3d_message_manager.deleteMsg(msg);
   }
   return sendOk;
 }

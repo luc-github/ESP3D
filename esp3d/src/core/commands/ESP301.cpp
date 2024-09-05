@@ -51,23 +51,40 @@ void ESP3DCommands::ESP301(int cmd_params_pos, ESP3DMessage* msg) {
 #endif  // AUTHENTICATION_FEATURE
   tmpstr = get_clean_param(msg, cmd_params_pos);
   if (tmpstr.length() == 0) {
+    String error = esp3d_lua_interpreter.getLastError();
     if (!esp3d_lua_interpreter.isScriptRunning()) {
       if (json) {
-        ok_msg = "{\"status\":\"idle\"}";
+        ok_msg = "{\"status\":\"idle\"";
+        if (error.length() > 0) {
+          ok_msg += ",\"error\":\"" + error + "\"";
+        }
+        ok_msg+="}";
       } else {
         ok_msg = "idle";
+        if (error.length() > 0) {
+          ok_msg += ", error: " + error;
+        }
       }
     } else {
       String status =
           esp3d_lua_interpreter.isScriptPaused() ? "paused" : "running";
+      
+      if (error.length() > 0) {
+        status = "error";
+      }
       String scriptName = esp3d_lua_interpreter.getCurrentScriptName();
       String duration = esp3d_string::formatDuration(
           esp3d_lua_interpreter.getExecutionTime());
       if (json) {
+        String errorMsg = error.length() > 0 ? ",\"error\":\"" + error + "\"" : "";
         ok_msg = "{\"status\":\"" + status + "\",\"script\":\"" + scriptName +
-                 "\",\"duration\":\"" + duration + "\"}";
+                 "\",\"duration\":\"" + duration + "\"" + errorMsg + "}";
       } else {
-        ok_msg = status + ", " + scriptName + ", duration " + duration;
+        ok_msg = status;
+        if (error.length() > 0) {
+          ok_msg += ": " + error;
+        }
+        ok_msg += ", " + scriptName + ", duration " + duration;
       }
     }
   } else {
@@ -113,7 +130,7 @@ void ESP3DCommands::ESP301(int cmd_params_pos, ESP3DMessage* msg) {
               }
             }
           } else if (tmpstr == "ABORT") {
-            esp3d_lua_interpreter.abortCurrentScript();
+            esp3d_lua_interpreter.abortScript();
             ok_msg = "Script aborted";
           }
         } else {

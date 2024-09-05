@@ -289,7 +289,7 @@ bool HTTP_Server::dispatch(ESP3DMessage* msg) {
         _webserver->sendContent("");
       }
     }
-    ESP3DMessageManager::deleteMsg(msg);
+    esp3d_message_manager.deleteMsg(msg);
     return true;
   }
   return false;
@@ -346,13 +346,7 @@ void HTTP_Server::end() {
 void HTTP_Server::handle() {
   if (_started) {
     if (_webserver) {
-#ifdef DISABLE_WDT_CORE_0
-      disableCore0WDT();
-#endif  // DISABLE_WDT_CORE_0
       _webserver->handleClient();
-#ifdef DISABLE_WDT_CORE_0
-      enableCore0WDT();
-#endif  // DISABLE_WDT_CORE_0
     }
   }
 }

@@ -242,8 +242,10 @@ int Camera::command(const char *param, const char *value) {
 
 bool Camera::initHardware() {
   _initialised = false;
+  #if !(CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32C3 || CONFIG_IDF_TARGET_ESP32C6)
   esp3d_log("Disable brown out");
   WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);  // disable brownout detector
+  #endif  // !(CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32C3 || CONFIG_IDF_TARGET_ESP32C6)
   stopHardware();
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;

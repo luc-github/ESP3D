@@ -64,7 +64,7 @@ bool WebSocket_Server::dispatch(ESP3DMessage *message) {
     if (sentcnt != message->size) {
       return false;
     }
-    ESP3DMessageManager::deleteMsg(message);
+    esp3d_message_manager.deleteMsg(message);
     return true;
   }
   return false;
@@ -330,7 +330,7 @@ void WebSocket_Server::flushRXbuffer() {
     return;
   }
   _RXbuffer[_RXbufferSize] = 0x0;
-  ESP3DMessage *msg = ESP3DMessageManager::newMsg(
+  ESP3DMessage *msg = esp3d_message_manager.newMsg(
       _type, esp3d_commands.getOutputClient(), _RXbuffer, _RXbufferSize, _auth);
   if (msg) {
     // process command

@@ -21,8 +21,9 @@
 #ifndef _TELNET_SERVER_H
 #define _TELNET_SERVER_H
 
-class WiFiServer;
-class WiFiClient;
+#include <WiFiClient.h>
+#include <WiFiServer.h>
+
 #include "../../core/esp3d_message.h"
 
 #define ESP3D_TELNET_BUFFER_SIZE 1200

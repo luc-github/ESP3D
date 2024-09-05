@@ -18,7 +18,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "../../include/esp3d_config.h"
-#if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
+#if defined(WIFI_FEATURE)
 #include "../../modules/network/netconfig.h"
 #include "../esp3d_commands.h"
 #include "../esp3d_settings.h"
@@ -26,9 +26,6 @@
 #if defined(WIFI_FEATURE)
 #include "../../modules/wifi/wificonfig.h"
 #endif  // WIFI_FEATURE
-#if defined(ETH_FEATURE)
-#include "../../modules/ethernet/ethconfig.h"
-#endif  // ETH_FEATURE
 #include "../../modules/authentication/authentication_service.h"
 #define COMMAND_ID 103
 // Change STA IP/Mask/GW
@@ -121,4 +118,4 @@ void ESP3DCommands::ESP103(int cmd_params_pos, ESP3DMessage* msg) {
   }
 }
 
-#endif  // WIFI_FEATURE || ETH_FEATURE
+#endif  // WIFI_FEATURE

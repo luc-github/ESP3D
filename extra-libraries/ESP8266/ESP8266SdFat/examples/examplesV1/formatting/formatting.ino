@@ -45,7 +45,7 @@ void setup(void) {
 
   // Wait for USB Serial
   while (!Serial) {
-    SysCall::yield();
+    yield();
   }
   delay(2000);
 

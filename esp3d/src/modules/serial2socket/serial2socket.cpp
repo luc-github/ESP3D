@@ -167,7 +167,7 @@ void Serial_2_Socket::handle_flush() {
 }
 void Serial_2_Socket::flush(void) {
   if (_TXbufferSize > 0 && _started && !_paused) {
-    ESP3DMessage *msg = ESP3DMessageManager::newMsg(
+    ESP3DMessage *msg = esp3d_message_manager.newMsg(
         ESP3DClientType::socket_serial, ESP3DClientType::all_clients, _TXbuffer,
         _TXbufferSize, _auth);
     // dispatch command
@@ -195,7 +195,7 @@ bool Serial_2_Socket::dispatch(ESP3DMessage *message) {
       esp3d_log_e("Serial2Socket: cannot push all data");
       return false;
     }
-    ESP3DMessageManager::deleteMsg(message);
+    esp3d_message_manager.deleteMsg(message);
     return true;
   }
   esp3d_log_e("Serial2Socket: no data in message");

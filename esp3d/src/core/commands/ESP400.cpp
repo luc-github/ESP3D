@@ -91,6 +91,19 @@ const char* FallbackValues[] = {"0"
 #endif  // BLUETOOTH_FEATURE
 };
 
+const char* EthFallbackValues[] = {"0"
+#ifdef BLUETOOTH_FEATURE
+                                ,
+                                "3"
+#endif  // BLUETOOTH_FEATURE
+};
+const char* EthFallbackLabels[] = {"none"
+#ifdef BLUETOOTH_FEATURE
+                                ,
+                                "bt"
+#endif  // BLUETOOTH_FEATURE
+};
+
 const char* FirmwareLabels[] = {"Unknown", "Grbl", "Marlin", "Smoothieware",
                                 "Repetier"};
 
@@ -204,6 +217,30 @@ void ESP3DCommands::ESP400(int cmd_params_pos, ESP3DMessage* msg) {
   dispatchSetting(json, "network/network", ESP_BOOT_RADIO_STATE, "radio_boot",
                   YesNoValues, YesNoLabels, sizeof(YesNoValues) / sizeof(char*),
                   -1, -1, -1, NULL, true, target, requestId);
+#if defined(ETH_FEATURE)
+ // Ethernet STA IP mode
+  dispatchSetting(json, "network/eth-sta", ESP_ETH_STA_IP_MODE, "ip mode", IpModeValues,
+                  IpModeLabels, sizeof(IpModeLabels) / sizeof(char*), -1, -1,
+                  -1, nullptr, true, target, requestId);
+  // Ethernet STA static IP
+  dispatchSetting(json, "network/eth-sta", ESP_ETH_STA_IP_VALUE, "ip", nullptr, nullptr,
+                  -1, -1, -1, -1, nullptr, true, target, requestId);
+
+  // Ethernet STA static Gateway
+  dispatchSetting(json, "network/eth-sta", ESP_ETH_STA_GATEWAY_VALUE, "gw", nullptr,
+                  nullptr, -1, -1, -1, -1, nullptr, true, target, requestId);
+  // Ethernet STA static Mask
+  dispatchSetting(json, "network/eth-sta", ESP_ETH_STA_MASK_VALUE, "msk", nullptr,
+                  nullptr, -1, -1, -1, -1, nullptr, true, target, requestId);
+  // Ethernet STA static DNS
+  dispatchSetting(json, "network/eth-sta", ESP_ETH_STA_DNS_VALUE, "DNS", nullptr,
+                  nullptr, -1, -1, -1, -1, nullptr, true, target, requestId);
+   // Ethernet Sta fallback mode
+  dispatchSetting(json, "network/eth-sta", ESP_ETH_STA_FALLBACK_MODE,
+                  "sta fallback mode", EthFallbackValues, EthFallbackLabels,
+                  sizeof(EthFallbackValues) / sizeof(char*), -1, -1, -1, nullptr,
+                  true, target, requestId);
+#endif  // ETH_FEATURE
 #ifdef WIFI_FEATURE
   // STA SSID network/sta
   dispatchSetting(json, "network/sta", ESP_STA_SSID, "SSID", nullptr, nullptr,
@@ -214,7 +251,7 @@ void ESP3DCommands::ESP400(int cmd_params_pos, ESP3DMessage* msg) {
                   nullptr, 64, 8, 0, -1, nullptr, true, target, requestId);
 
 #endif  // WIFI_FEATURE
-#if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
+#if defined(WIFI_FEATURE) 
   // STA IP mode
   dispatchSetting(json, "network/sta", ESP_STA_IP_MODE, "ip mode", IpModeValues,
                   IpModeLabels, sizeof(IpModeLabels) / sizeof(char*), -1, -1,
@@ -233,15 +270,15 @@ void ESP3DCommands::ESP400(int cmd_params_pos, ESP3DMessage* msg) {
   dispatchSetting(json, "network/sta", ESP_STA_DNS_VALUE, "DNS", nullptr,
                   nullptr, -1, -1, -1, -1, nullptr, true, target, requestId);
 
-#endif  // WIFI_FEATURE || ETH_FEATURE
+#endif  // WIFI_FEATURE 
 
-#if defined(WIFI_FEATURE) || defined(ETH_FEATURE) || defined(BT_FEATURE)
+#if defined(WIFI_FEATURE) 
   // Sta fallback mode
   dispatchSetting(json, "network/sta", ESP_STA_FALLBACK_MODE,
                   "sta fallback mode", FallbackValues, FallbackLabels,
                   sizeof(FallbackValues) / sizeof(char*), -1, -1, -1, nullptr,
                   true, target, requestId);
-#endif  // WIFI_FEATURE || ETH_FEATURE || BT_FEATURE
+#endif  // WIFI_FEATURE  
 #if defined(WIFI_FEATURE)
   // AP SSID network/ap
   dispatchSetting(json, "network/ap", ESP_AP_SSID, "SSID", nullptr, nullptr, 32,

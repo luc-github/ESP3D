@@ -26,15 +26,11 @@ const char* help[] = {
     "[ESP100](SSID) - display/set STA SSID",
     "[ESP101](Password) - set STA password",
 #endif  // WIFI_FEATURE
-#if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
+#if defined(WIFI_FEATURE)
     "[ESP102](Mode) - display/set STA IP mode (DHCP/STATIC)",
     "[ESP103](IP=xxxx MSK=xxxx GW=xxxx) - display/set STA IP/Mask/GW",
-#endif  // WIFI_FEATURE || ETH_FEATURE
-#if defined(WIFI_FEATURE) || defined(BLUETOOTH_FEATURE) || defined(ETH_FEATURE)
     "[ESP104](State) - display/set sta fallback mode which can be BT, SETUP, "
     "OFF",
-#endif  // WIFI_FEATURE || BLUETOOTH_FEATURE || ETH_FEATURE
-#if defined(WIFI_FEATURE)
     "[ESP105](SSID) - display/set AP SSID",
     "[ESP106](Password) - set AP password",
     "[ESP107](IP) - display/set AP IP",
@@ -53,6 +49,11 @@ const char* help[] = {
     "[ESP115](State) - display/set immediate Network state which can be ON, "
     "OFF",
 #endif  // WIFI_FEATURE || ETH_FEATURE || BT_FEATURE
+#if defined(ETH_FEATURE)
+    "[ESP116](Mode) - display/set ETH STA IP mode (DHCP/STATIC)",
+    "[ESP117](IP=xxxx MSK=xxxx GW=xxxx) - display/set ETH STA IP/Mask/GW",
+    "[ESP118](State) - display/set eth sta fallback mode which can be BT, Off",
+#endif  // ETH_FEATURE
 #if defined(HTTP_FEATURE)
     "[ESP120](State) - display/set HTTP state which can be ON, OFF",
     "[ESP121](Port) - display/set HTTP port ",
@@ -196,13 +197,9 @@ const uint cmdlist[] = {
 #if defined(WIFI_FEATURE)
     100, 101,
 #endif  // WIFI_FEATURE
-#if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
+#if defined(WIFI_FEATURE) 
     102, 103,
-#endif  // WIFI_FEATURE || ETH_FEATURE
-#if defined(WIFI_FEATURE) || defined(BLUETOOTH_FEATURE) || defined(ETH_FEATURE)
     104,
-#endif  // WIFI_FEATURE || BLUETOOTH_FEATURE || ETH_FEATURE
-#if defined(WIFI_FEATURE)
     105, 106, 107, 108,
 #endif  // WIFI_FEATURE
 #if defined(WIFI_FEATURE) || defined(BLUETOOTH_FEATURE) || defined(ETH_FEATURE)
@@ -214,6 +211,9 @@ const uint cmdlist[] = {
 #if defined(WIFI_FEATURE) || defined(ETH_FEATURE) || defined(BT_FEATURE)
     112, 114, 115,
 #endif  // WIFI_FEATURE || ETH_FEATURE || BT_FEATURE
+#if defined(ETH_FEATURE) 
+    116, 117, 118,
+#endif  // ETH_FEATURE
 #if defined(HTTP_FEATURE)
     120, 121,
 #endif  // HTTP_FEATURE

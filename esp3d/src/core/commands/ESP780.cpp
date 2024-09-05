@@ -49,7 +49,7 @@ void ESP3DCommands::ESP780(int cmd_params_pos, ESP3DMessage* msg) {
 #endif  // AUTHENTICATION_FEATURE
 
   ESP3DMessage msgInfo;
-  ESP3DMessageManager::copyMsgInfos(&msgInfo, *msg);
+  esp3d_message_manager.copyMsgInfos(&msgInfo, *msg);
   tmpstr = get_clean_param(msg, cmd_params_pos);
 
   if (tmpstr.length() == 0) {
@@ -105,7 +105,7 @@ void ESP3DCommands::ESP780(int cmd_params_pos, ESP3DMessage* msg) {
             if (!json) {
               ok_msg += "\n";
             }
-            ESP3DMessage* newMsg = ESP3DMessageManager::copyMsgInfos(msgInfo);
+            ESP3DMessage* newMsg = esp3d_message_manager.copyMsgInfos(msgInfo);
             if (newMsg) {
               newMsg->type = ESP3DMessageType::core;
               if (!dispatch(newMsg, ok_msg.c_str())) {
@@ -157,7 +157,7 @@ void ESP3DCommands::ESP780(int cmd_params_pos, ESP3DMessage* msg) {
             if (!json) {
               ok_msg += "\n";
             }
-            ESP3DMessage* newMsg = ESP3DMessageManager::copyMsgInfos(msgInfo);
+            ESP3DMessage* newMsg = esp3d_message_manager.copyMsgInfos(msgInfo);
             if (newMsg) {
               newMsg->type = ESP3DMessageType::core;
               if (!dispatch(newMsg, ok_msg.c_str())) {
@@ -203,7 +203,7 @@ void ESP3DCommands::ESP780(int cmd_params_pos, ESP3DMessage* msg) {
           ok_msg += "\n";
         }
 
-        ESP3DMessage* newMsg = ESP3DMessageManager::copyMsgInfos(msgInfo);
+        ESP3DMessage* newMsg = esp3d_message_manager.copyMsgInfos(msgInfo);
         newMsg->type = ESP3DMessageType::tail;
         if (!dispatch(newMsg, ok_msg.c_str())) {
           esp3d_log_e("Error sending response to clients");

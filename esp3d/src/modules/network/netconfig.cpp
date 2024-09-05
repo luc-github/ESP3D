@@ -48,6 +48,10 @@
 #include "../gcode_host/gcode_host.h"
 #endif  // GCODE_HOST_FEATURE
 
+#if defined(ARDUINO_ARCH_ESP32)
+esp_netif_t *get_esp_interface_netif(esp_interface_t interface);
+#endif  // ARDUINO_ARCH_ESP32
+
 String NetConfig::_hostname = "";
 bool NetConfig::_needReconnect2AP = false;
 bool NetConfig::_events_registered = false;
@@ -231,11 +235,12 @@ void NetConfig::onWiFiEvent(WiFiEvent_t event) {
     case ARDUINO_EVENT_WIFI_STA_LOST_IP:
       if (_started) {
         _needReconnect2AP = true;
+        esp3d_log("WiFi STA lost IP");
       }
       break;
 #ifdef ETH_FEATURE
     case ARDUINO_EVENT_ETH_START: {
-      EthConfig::setConnected(false);
+      esp3d_log("Ethernet started");
       if (ESP3DSettings::isVerboseBoot()) {
         esp3d_commands.dispatch(
             "Checking connection", ESP3DClientType::all_clients, no_id,
@@ -248,18 +253,24 @@ void NetConfig::onWiFiEvent(WiFiEvent_t event) {
                               no_id, ESP3DMessageType::unique,
                               ESP3DClientType::system,
                               ESP3DAuthenticationLevel::admin);
+      esp3d_log("Ethernet connected");
       EthConfig::setConnected(true);
     } break;
     case ARDUINO_EVENT_ETH_DISCONNECTED: {
+      esp3d_log("Ethernet disconnected");
       esp3d_commands.dispatch("Cable disconnected",
                               ESP3DClientType::all_clients, no_id,
                               ESP3DMessageType::unique, ESP3DClientType::system,
                               ESP3DAuthenticationLevel::admin);
       EthConfig::setConnected(false);
     } break;
+    case ARDUINO_EVENT_ETH_LOST_IP:
+      esp3d_log("Ethernet lost IP");
+      break;
     case ARDUINO_EVENT_ETH_GOT_IP: {
 #if COMMUNICATION_PROTOCOL != MKS_SERIAL
 #if defined(ESP_GOT_IP_HOOK) && defined(GCODE_HOST_FEATURE)
+      ESP3DHal::wait(500);
       String ipMsg = esp3d_string::expandString(ESP_GOT_IP_HOOK);
       esp3d_log("Got IP, sending hook: %s", ipMsg.c_str());
       esp3d_gcode_host.processScript(ipMsg.c_str(),
@@ -268,7 +279,9 @@ void NetConfig::onWiFiEvent(WiFiEvent_t event) {
 #endif  // #if COMMUNICATION_PROTOCOL == MKS_SERIAL
       EthConfig::setConnected(true);
     } break;
+
     case ARDUINO_EVENT_ETH_STOP:
+      esp3d_log("Ethernet stopped");
       EthConfig::setConnected(false);
       break;
 #endif  // ETH_FEATURE
@@ -523,12 +536,20 @@ void NetConfig::handle() {
 bool NetConfig::isIPModeDHCP(uint8_t mode) {
   bool started = false;
 #ifdef ARDUINO_ARCH_ESP32
-  tcpip_adapter_dhcp_status_t dhcp_status;
-  tcpip_adapter_dhcpc_get_status((mode == ESP_WIFI_STA)  ? TCPIP_ADAPTER_IF_STA
-                                 : (mode == ESP_WIFI_AP) ? TCPIP_ADAPTER_IF_AP
-                                                         : TCPIP_ADAPTER_IF_ETH,
+if (mode == ESP_WIFI_STA || mode == ESP_WIFI_AP) {
+  esp_netif_dhcp_status_t dhcp_status;
+  esp_netif_dhcpc_get_status((mode == ESP_WIFI_STA)  ? get_esp_interface_netif(ESP_IF_WIFI_STA)
+                                 :  get_esp_interface_netif(ESP_IF_WIFI_AP),
                                  &dhcp_status);
-  started = (dhcp_status == TCPIP_ADAPTER_DHCP_STARTED);
+  esp3d_log("DHCP Status %d", (int)dhcp_status);
+  started = (dhcp_status == ESP_NETIF_DHCP_STARTED);
+} 
+#if defined(ETH_FEATURE)
+if (mode == ESP_ETH_STA) {
+  started = (EthConfig::ipMode()==DHCP_MODE);
+}
+#endif  // ETH_FEATURE
+
 #endif  // ARDUINO_ARCH_ESP32
 #ifdef ARDUINO_ARCH_ESP8266
   (void)mode;
@@ -540,12 +561,13 @@ bool NetConfig::isIPModeDHCP(uint8_t mode) {
 bool NetConfig::isDHCPServer(uint8_t mode) {
   bool itis = false;
 #ifdef ARDUINO_ARCH_ESP32
-  tcpip_adapter_dhcp_status_t dhcp_status;
-  tcpip_adapter_dhcps_get_status((mode == ESP_WIFI_STA)  ? TCPIP_ADAPTER_IF_STA
-                                 : (mode == ESP_WIFI_AP) ? TCPIP_ADAPTER_IF_AP
-                                                         : TCPIP_ADAPTER_IF_ETH,
+  //Fzor some reason esp_netif_dhcps_get_status() give always !DHCP_MODE for Ethernet even if it is set to DHCP
+  if (mode == ESP_WIFI_AP) {
+  esp_netif_dhcp_status_t dhcp_status;
+  esp_netif_dhcps_get_status(get_esp_interface_netif(ESP_IF_WIFI_AP),
                                  &dhcp_status);
-  itis = (dhcp_status == TCPIP_ADAPTER_DHCP_STARTED);
+  itis = (dhcp_status == ESP_NETIF_DHCP_STARTED);
+  } 
 #endif  // ARDUINO_ARCH_ESP32
 #ifdef ARDUINO_ARCH_ESP8266
   (void)mode;

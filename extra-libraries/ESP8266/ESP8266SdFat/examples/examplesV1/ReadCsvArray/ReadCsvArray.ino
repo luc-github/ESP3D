@@ -47,18 +47,18 @@ size_t readField(File* file, char* str, size_t size, const char* delim) {
   return n;
 }
 //------------------------------------------------------------------------------
-#define errorHalt(msg) {Serial.println(F(msg)); SysCall::halt();}
+#define errorHalt(msg) {Serial.println(F(msg)); while (true) {}}
 //------------------------------------------------------------------------------
 void setup() {
   Serial.begin(9600);
 
   // Wait for USB Serial
   while (!Serial) {
-    SysCall::yield();
+    yield();
   }
   Serial.println("Type any character to start");
   while (!Serial.available()) {
-    SysCall::yield();
+    yield();
   }
   // Initialize the SD.
   if (!SD.begin(CS_PIN)) {

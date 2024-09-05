@@ -70,13 +70,13 @@ void setup() {
 
   // Wait for USB Serial
   while (!Serial) {
-    SysCall::yield();
+    yield();
   }
   delay(1000);
 
   Serial.println(F("Type any character to start"));
   while (!Serial.available()) {
-    SysCall::yield();
+    yield();
   }
 
   // Initialize at the highest speed supported by the board that is
@@ -145,6 +145,6 @@ void loop() {
     // Close file and stop.
     file.close();
     Serial.println(F("Done"));
-    SysCall::halt();
+    while (true) {}
   }
 }

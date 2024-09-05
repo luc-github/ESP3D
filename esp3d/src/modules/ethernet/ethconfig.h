@@ -55,12 +55,13 @@ class EthConfig {
   static void handle();
   static bool started();
   static void setConnected(bool connected) { _connected = connected; }
-
+  static uint8_t ipMode(bool fromsettings = false);
   static bool linkUp();
 
  private:
   static bool _started;
   static bool _connected;
+  static uint8_t _ipMode;
 };
 
 #endif  //_ETH_CONFIG_H

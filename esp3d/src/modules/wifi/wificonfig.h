@@ -44,6 +44,7 @@
 #define AUTH_WPA_WPA2_PSK WIFI_AUTH_WPA_WPA2_PSK
 #define ENC_TYPE_NONE AUTH_OPEN
 #define WiFiMode_t wifi_mode_t
+#include <esp_netif.h>
 #endif  // ARDUINO_ARCH_ESP32
 #ifdef ARDUINO_ARCH_ESP8266
 #include <ESP8266WiFi.h>
