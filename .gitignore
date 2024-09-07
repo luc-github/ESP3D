@@ -10,3 +10,4 @@ embedded/node_modules
 .vscode/launch.json
 .vscode/arduino.json
 esp3d/myconfig.h
+__pycache__
