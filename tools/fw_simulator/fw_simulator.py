@@ -32,7 +32,7 @@ def main():
     for port, desc, hwid in sorted(ports):
         print(common.bcolors.COL_GREEN+" - {}: {} ".format(port, desc)+common.bcolors.END_COL)
         desc.capitalize()
-        if (desc.find("SERIAL") != -1):
+        if (desc.find("SERIAL") != -1 or desc.find("UART") != -1):
             portTFT = port
             print(common.bcolors.COL_GREEN +
                   "Found " + portTFT + " for ESP3D"+common.bcolors.END_COL)
@@ -41,7 +41,7 @@ def main():
     if (portTFT == ""):
         print(common.bcolors.COL_RED+"No serial port found"+common.bcolors.END_COL)
         exit(0)
-    ser = serial.Serial(portTFT, 115200)
+    ser = serial.Serial(portTFT, 1000000)
     print(common.bcolors.COL_GREEN+"Now Simulating: " + fw_name + common.bcolors.END_COL)
     starttime = common.current_milli_time()
     # loop forever, just unplug the port to stop the program or do ctrl-c
