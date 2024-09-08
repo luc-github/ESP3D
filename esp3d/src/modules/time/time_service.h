@@ -45,6 +45,7 @@ class TimeService {
   bool _started;
   bool _isInternetTime;
   String _time_zone;
+  String _time_zone_config;
 };
 
 extern TimeService timeService;
