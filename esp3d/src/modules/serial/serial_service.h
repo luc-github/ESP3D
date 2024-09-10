@@ -24,6 +24,10 @@
 #include "../../core/esp3d_client_types.h"
 #include "../../core/esp3d_message.h"
 
+#if defined(ARDUINO_ARCH_ESP32)
+#include "../../core/esp3d_messageFifo.h"
+#endif  // ARDUINO_ARCH_ESP32
+
 #define ESP3D_SERIAL_BUFFER_SIZE 1024
 
 extern const uint32_t SupportedBaudList[];
@@ -36,11 +40,10 @@ class ESP3DSerialService final {
   void setParameters();
   bool begin(uint8_t serialIndex);
   bool end();
-  void updateBaudRate(long br);
+  void updateBaudRate(uint32_t br);
   void handle();
-  void process();
   bool reset();
-  long baudRate();
+  uint32_t baudRate();
   uint8_t serialIndex() { return _serialIndex; }
   const uint32_t *get_baudratelist(uint8_t *count);
   void flush();
@@ -52,8 +55,13 @@ class ESP3DSerialService final {
   void initAuthentication();
   void setAuthentication(ESP3DAuthenticationLevel auth) { _auth = auth; }
   ESP3DAuthenticationLevel getAuthentication();
-
+#if defined(ARDUINO_ARCH_ESP32)
+  void receiveCb();
+  static void receiveSerialCb();
+  static void receiveBridgeSeialCb();
+#endif  // ARDUINO_ARCH_ESP32
  private:
+  uint32_t _baudRate;
   ESP3DAuthenticationLevel _auth;
   uint8_t _serialIndex;
   ESP3DClientType _origin;
@@ -65,6 +73,10 @@ class ESP3DSerialService final {
   uint32_t _lastflush;
   uint8_t _buffer[ESP3D_SERIAL_BUFFER_SIZE + 1];  // keep space of 0x0 terminal
   size_t _buffer_size;
+#if defined(ARDUINO_ARCH_ESP32)
+  SemaphoreHandle_t _mutex;
+  ESP3DMessageFIFO _messagesInFIFO;
+#endif  // ARDUINO_ARCH_ESP32
   void push2buffer(uint8_t *sbuf, size_t len);
   void flushbuffer();
 };

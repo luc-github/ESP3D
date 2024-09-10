@@ -40,7 +40,7 @@ ESP3DSerialService esp3d_serial_service = ESP3DSerialService(MAIN_SERIAL);
 const uint32_t SupportedBaudList[] = {9600,    19200,   38400,  57600,  74880,
                                       115200,  230400,  250000, 500000, 921600,
                                       1000000, 1958400, 2000000};
-const size_t SupportedBaudListSize = sizeof(SupportedBaudList) / sizeof(long);
+const size_t SupportedBaudListSize = sizeof(SupportedBaudList) / sizeof(uint32_t);
 
 #define TIMEOUT_SERIAL_FLUSH 1500
 // Constructor
@@ -97,8 +97,8 @@ bool ESP3DSerialService::begin(uint8_t serialIndex) {
   }
   _lastflush = millis();
   // read from settings
-  long br = 0;
-  long defaultBr = 0;
+  uint32_t br = 0;
+  uint32_t defaultBr = 0;
 
   br = ESP3DSettings::readUint32(ESP_BAUD_RATE);
   defaultBr = ESP3DSettings::getDefaultIntegerSetting(ESP_BAUD_RATE);
@@ -136,13 +136,13 @@ bool ESP3DSerialService::end() {
 // return the array of uint32_t and array size
 const uint32_t *ESP3DSerialService::get_baudratelist(uint8_t *count) {
   if (count) {
-    *count = sizeof(SupportedBaudList) / sizeof(long);
+    *count = sizeof(SupportedBaudList) / sizeof(uint32_t);
   }
   return SupportedBaudList;
 }
 
 // Function which could be called in other loop
-void ESP3DSerialService::process() {
+void ESP3DSerialService::handle() {
   if (!_started) {
     return;
   }
@@ -169,8 +169,6 @@ void ESP3DSerialService::process() {
   }
 }
 
-// Function which could be called in other loop
-void ESP3DSerialService::handle() { process(); }
 
 void ESP3DSerialService::flushbuffer() {
   _buffer[_buffer_size] = 0x0;
@@ -333,7 +331,7 @@ bool ESP3DSerialService::reset() {
       ESP_BAUD_RATE, ESP3DSettings::getDefaultIntegerSetting(ESP_BAUD_RATE));
 }
 
-void ESP3DSerialService::updateBaudRate(long br) {
+void ESP3DSerialService::updateBaudRate(uint32_t br) {
   if (br != baudRate()) {
     Serials[_serialIndex]->flush();
     Serials[_serialIndex]->updateBaudRate(br);
@@ -341,7 +339,7 @@ void ESP3DSerialService::updateBaudRate(long br) {
 }
 
 // Get current baud rate
-long ESP3DSerialService::baudRate() {
+uint32_t ESP3DSerialService::baudRate() {
   return Serials[_serialIndex]->baudRate();
 }
 

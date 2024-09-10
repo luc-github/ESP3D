@@ -611,11 +611,6 @@
  */
 #define ESP_SAVE_SETTINGS SETTINGS_IN_EEPROM
 
-/* Add serial task
- * ESP32 need to add a task to handle serial communication
- */
-#define SERIAL_INDEPENDANT_TASK
-
 /************************************
  *
  * Development setting
