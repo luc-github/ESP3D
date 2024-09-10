@@ -78,7 +78,6 @@ bool TimeService::isInternetTime(bool readfromsettings) {
 bool TimeService::begin() {
   esp3d_log("Starting TimeService");
   end();
-  String s1, s2, s3, t1;
   updateTimeZone(true);
 #if defined(WIFI_FEATURE)
   // no time server in AP mode
@@ -110,14 +109,14 @@ bool TimeService::begin() {
   if (!isInternetTime(true)) {
     return true;
   }
-  s1 = ESP3DSettings::readString(ESP_TIME_SERVER1);
-  s2 = ESP3DSettings::readString(ESP_TIME_SERVER2);
-  s3 = ESP3DSettings::readString(ESP_TIME_SERVER3);
+  _server[0] = ESP3DSettings::readString(ESP_TIME_SERVER1);
+  _server[1] = ESP3DSettings::readString(ESP_TIME_SERVER2);
+  _server[2] = ESP3DSettings::readString(ESP_TIME_SERVER3);
 #if defined(ARDUINO_ARCH_ESP32)
-  configTzTime(_time_zone_config.c_str(), s1.c_str(), s2.c_str(), s3.c_str());
+  configTzTime(_time_zone_config.c_str(), _server[0].c_str(),  _server[1].length() > 0 ? _server[1].c_str() : nullptr,  _server[2].length() > 0 ? _server[2].c_str() : nullptr);  
 #endif  // ARDUINO_ARCH_ESP32
 #if defined(ARDUINO_ARCH_ESP8266)
-  configTime(t1.c_str(), s1.c_str(), s2.c_str(), s3.c_str());
+  configTime(_time_zone_config.c_str(), _server[0].c_str(),  _server[1].length() > 0 ? _server[1].c_str() : nullptr,  _server[2].length() > 0 ? _server[2].c_str() : nullptr);
 #endif  // ARDUINO_ARCH_ESP8266
 
   time_t now = time(nullptr);
