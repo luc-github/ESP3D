@@ -21,6 +21,13 @@
 #pragma once
 
 /**************************
+ * Arduino core version
+ * ***********************/
+#if ESP_ARDUINO_VERSION_MAJOR == 1
+#error "ESP3D does not support Arduino Core 1.x.x"
+#endif
+
+/**************************
  * Settings
  * ***********************/
 #if (ESP_SAVE_SETTINGS == SETTINGS_IN_PREFERENCES) && \

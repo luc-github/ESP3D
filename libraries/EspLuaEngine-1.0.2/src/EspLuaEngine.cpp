@@ -43,6 +43,8 @@ EspLuaEngine::PauseFunction EspLuaEngine::_pauseFunction = nullptr;
 String EspLuaEngine::_lastError;
 
 /*Public methods*/
+std::atomic<bool> EspLuaEngine::_isPaused{false};
+std::atomic<bool> EspLuaEngine::_isRunning{false};
 
 EspLuaEngine::EspLuaEngine() : _lua_state(nullptr) {
   _lua_state = luaL_newstate();

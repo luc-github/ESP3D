@@ -17,10 +17,9 @@
   License along with This code; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-
+#if defined(ARDUINO_ARCH_ESP8266)
 #include "../../include/esp3d_config.h"
-#if COMMUNICATION_PROTOCOL == MKS_SERIAL || \
-    COMMUNICATION_PROTOCOL == RAW_SERIAL || defined(ESP_SERIAL_BRIDGE_OUTPUT)
+#if COMMUNICATION_PROTOCOL == MKS_SERIAL || COMMUNICATION_PROTOCOL == RAW_SERIAL
 #include "../../core/esp3d_commands.h"
 #include "../../core/esp3d_settings.h"
 #include "../../core/esp3d_string.h"
@@ -30,43 +29,18 @@
 #include "../mks/mks_service.h"
 #endif  // COMMUNICATION_PROTOCOL == MKS_SERIAL
 #include "../authentication/authentication_service.h"
-#if defined(ARDUINO_ARCH_ESP8266)
 #define MAX_SERIAL 2
 HardwareSerial *Serials[MAX_SERIAL] = {&Serial, &Serial1};
-#endif  // ARDUINO_ARCH_ESP8266
-
-#if defined(ARDUINO_ARCH_ESP32)
-
-#if defined(CONFIG_IDF_TARGET_ESP32C3) ||  defined(CONFIG_IDF_TARGET_ESP32C6) ||defined(CONFIG_IDF_TARGET_ESP32S2)
-#define MAX_SERIAL 2
-HardwareSerial *Serials[MAX_SERIAL] = {&Serial, &Serial1};
-#else
-#define MAX_SERIAL 3
-HardwareSerial *Serials[MAX_SERIAL] = {&Serial, &Serial1, &Serial2};
-#endif
-
-#endif  // ARDUINO_ARCH_ESP32
 
 // Serial Parameters
 #define ESP_SERIAL_PARAM SERIAL_8N1
 
-#define ESP3DSERIAL_RUNNING_PRIORITY 1
-#define ESP3DSERIAL_RUNNING_CORE 1
-#define SERIAL_YIELD 10
-
 ESP3DSerialService esp3d_serial_service = ESP3DSerialService(MAIN_SERIAL);
-#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
-ESP3DSerialService serial_bridge_service = ESP3DSerialService(BRIDGE_SERIAL);
-#endif  // ESP_SERIAL_BRIDGE_OUTPUT
-
-#if defined(ARDUINO_ARCH_ESP32) && defined(SERIAL_INDEPENDANT_TASK)
-TaskHandle_t _hserialtask = nullptr;
-#endif  // ARDUINO_ARCH_ESP32
 
 const uint32_t SupportedBaudList[] = {9600,    19200,   38400,  57600,  74880,
                                       115200,  230400,  250000, 500000, 921600,
                                       1000000, 1958400, 2000000};
-const size_t SupportedBaudListSize = sizeof(SupportedBaudList) / sizeof(long);
+const size_t SupportedBaudListSize = sizeof(SupportedBaudList) / sizeof(uint32_t);
 
 #define TIMEOUT_SERIAL_FLUSH 1500
 // Constructor
@@ -79,50 +53,14 @@ ESP3DSerialService::ESP3DSerialService(uint8_t id) {
   _needauthentication = false;
 #endif  // AUTHENTICATION_FEATURE
   _id = id;
-  switch (_id) {
-    case MAIN_SERIAL:
-      _rxPin = ESP_RX_PIN;
-      _txPin = ESP_TX_PIN;
-      _origin = ESP3DClientType::serial;
-      break;
-#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
-    case BRIDGE_SERIAL:
-      _rxPin = ESP_BRIDGE_RX_PIN;
-      _txPin = ESP_BRIDGE_TX_PIN;
-      _origin = ESP3DClientType::serial_bridge;
-      break;
-#endif  // ESP_SERIAL_BRIDGE_OUTPUT
-    default:
-      _rxPin = ESP_RX_PIN;
-      _txPin = ESP_TX_PIN;
-      _origin = ESP3DClientType::serial;
-      break;
-  }
+
+  _rxPin = ESP_RX_PIN;
+  _txPin = ESP_TX_PIN;
+  _origin = ESP3DClientType::serial;
 }
 
 // Destructor
 ESP3DSerialService::~ESP3DSerialService() { end(); }
-
-// dedicated serial task
-#if defined(ARDUINO_ARCH_ESP32) && defined(SERIAL_INDEPENDANT_TASK)
-void ESP3DSerialTaskfn(void *parameter) {
-  uint8_t id = *((uint8_t *)parameter);
-  if (id == MAIN_SERIAL) {
-    esp3d_log("Serial Task for main serial");
-  } else {
-    esp3d_log("Serial Task for bridge serial");
-  }
-  for (;;) {
-    esp3d_serial_service.process();
-#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
-    esp3d_log("Serial Task for bridge serial");
-    serial_bridge_service.process();
-#endif                             // ESP_SERIAL_BRIDGE_OUTPUT
-    ESP3DHal::wait(SERIAL_YIELD);  // Yield to other tasks
-  }
-  vTaskDelete(NULL);
-}
-#endif  // ARDUINO_ARCH_ESP32
 
 // extra parameters that do not need a begin
 void ESP3DSerialService::setParameters() {
@@ -152,11 +90,6 @@ ESP3DAuthenticationLevel ESP3DSerialService::getAuthentication() {
 bool ESP3DSerialService::begin(uint8_t serialIndex) {
   _serialIndex = serialIndex - 1;
   esp3d_log("Serial %d begin for %d", _serialIndex, _id);
-  if (_id == BRIDGE_SERIAL &&
-      ESP3DSettings::readByte(ESP_SERIAL_BRIDGE_ON) == 0) {
-    esp3d_log("Serial %d for %d is disabled", _serialIndex, _id);
-    return true;
-  }
   if (_serialIndex >= MAX_SERIAL) {
     esp3d_log_e("Serial %d begin for %d failed, index out of range",
                 _serialIndex, _id);
@@ -164,25 +97,11 @@ bool ESP3DSerialService::begin(uint8_t serialIndex) {
   }
   _lastflush = millis();
   // read from settings
-  long br = 0;
-  long defaultBr = 0;
-  switch (_id) {
-    case MAIN_SERIAL:
-      br = ESP3DSettings::readUint32(ESP_BAUD_RATE);
-      defaultBr = ESP3DSettings::getDefaultIntegerSetting(ESP_BAUD_RATE);
-      break;
-#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
-    case BRIDGE_SERIAL:
-      br = ESP3DSettings::readUint32(ESP_SERIAL_BRIDGE_BAUD);
-      defaultBr =
-          ESP3DSettings::getDefaultIntegerSetting(ESP_SERIAL_BRIDGE_BAUD);
-      break;
-#endif  // ESP_SERIAL_BRIDGE_OUTPUT
-    default:
-      esp3d_log_e("Serial %d begin for %d failed, unknown id", _serialIndex,
-                  _id);
-      return false;
-  }
+  uint32_t br = 0;
+  uint32_t defaultBr = 0;
+
+  br = ESP3DSettings::readUint32(ESP_BAUD_RATE);
+  defaultBr = ESP3DSettings::getDefaultIntegerSetting(ESP_BAUD_RATE);
   setParameters();
   esp3d_log("Baud rate is %d , default is %d", br, defaultBr);
   _buffer_size = 0;
@@ -192,36 +111,11 @@ bool ESP3DSerialService::begin(uint8_t serialIndex) {
       br = defaultBr;
     }
     Serials[_serialIndex]->setRxBufferSize(SERIAL_RX_BUFFER_SIZE);
-#ifdef ARDUINO_ARCH_ESP8266
     Serials[_serialIndex]->begin(br, ESP_SERIAL_PARAM, SERIAL_FULL,
                                  (_txPin == -1) ? 1 : _txPin);
     if (_rxPin != -1) {
       Serials[_serialIndex]->pins((_txPin == -1) ? 1 : _txPin, _rxPin);
     }
-
-#endif  // ARDUINO_ARCH_ESP8266
-#if defined(ARDUINO_ARCH_ESP32)
-    Serials[_serialIndex]->begin(br, ESP_SERIAL_PARAM, _rxPin, _txPin);
-#if defined(SERIAL_INDEPENDANT_TASK)
-    // create serial task once
-    esp3d_log("Serial %d for %d Task creation", _serialIndex, _id);
-    if (_hserialtask == nullptr && (_id == MAIN_SERIAL)) {
-      xTaskCreatePinnedToCore(
-          ESP3DSerialTaskfn,   /* Task function. */
-          "ESP3D Serial Task", /* name of task. */
-          8192,                /* Stack size of task */
-          &_id,                /* parameter of the task = is main or bridge*/
-          ESP3DSERIAL_RUNNING_PRIORITY, /* priority of the task */
-          &_hserialtask, /* Task handle to keep track of created task */
-          ESP3DSERIAL_RUNNING_CORE /* Core to run the task */
-      );
-    }
-    if (_hserialtask == nullptr) {
-      esp3d_log_e("Serial %d for %d Task creation failed", _serialIndex, _id);
-      return false;
-    }
-#endif  // SERIAL_INDEPENDANT_TASK
-#endif  // ARDUINO_ARCH_ESP32
   }
   _started = true;
   esp3d_log("Serial %d for %d is started", _serialIndex, _id);
@@ -242,13 +136,13 @@ bool ESP3DSerialService::end() {
 // return the array of uint32_t and array size
 const uint32_t *ESP3DSerialService::get_baudratelist(uint8_t *count) {
   if (count) {
-    *count = sizeof(SupportedBaudList) / sizeof(long);
+    *count = sizeof(SupportedBaudList) / sizeof(uint32_t);
   }
   return SupportedBaudList;
 }
 
 // Function which could be called in other loop
-void ESP3DSerialService::process() {
+void ESP3DSerialService::handle() {
   if (!_started) {
     return;
   }
@@ -275,18 +169,6 @@ void ESP3DSerialService::process() {
   }
 }
 
-// Function which could be called in other loop
-void ESP3DSerialService::handle() {
-  // the serial bridge do not use independant task
-  // not sure if it is sill necessary to do it for the main serial
-  // TBC..
-#if defined(ARDUINO_ARCH_ESP32) && defined(SERIAL_INDEPENDANT_TASK)
-  if (_id == MAIN_SERIAL) {
-    return;
-  }
-#endif  // ARDUINO_ARCH_ESP32 && SERIAL_INDEPENDANT_TASK0
-  process();
-}
 
 void ESP3DSerialService::flushbuffer() {
   _buffer[_buffer_size] = 0x0;
@@ -445,28 +327,11 @@ void ESP3DSerialService::push2buffer(uint8_t *sbuf, size_t len) {
 // Reset Serial Setting (baud rate)
 bool ESP3DSerialService::reset() {
   esp3d_log("Reset serial");
-  bool res = false;
-  switch (_id) {
-    case MAIN_SERIAL:
-      return ESP3DSettings::writeUint32(
-          ESP_BAUD_RATE,
-          ESP3DSettings::getDefaultIntegerSetting(ESP_BAUD_RATE));
-#if defined(ESP_SERIAL_BRIDGE_OUTPUT)
-    case BRIDGE_SERIAL:
-      res = ESP3DSettings::writeByte(
-          ESP_SERIAL_BRIDGE_ON,
-          ESP3DSettings::getDefaultByteSetting(ESP_SERIAL_BRIDGE_ON));
-      return res &&
-             ESP3DSettings::writeUint32(ESP_SERIAL_BRIDGE_BAUD,
-                                        ESP3DSettings::getDefaultIntegerSetting(
-                                            ESP_SERIAL_BRIDGE_BAUD));
-#endif  // ESP_SERIAL_BRIDGE_OUTPUT
-    default:
-      return res;
-  }
+  return ESP3DSettings::writeUint32(
+      ESP_BAUD_RATE, ESP3DSettings::getDefaultIntegerSetting(ESP_BAUD_RATE));
 }
 
-void ESP3DSerialService::updateBaudRate(long br) {
+void ESP3DSerialService::updateBaudRate(uint32_t br) {
   if (br != baudRate()) {
     Serials[_serialIndex]->flush();
     Serials[_serialIndex]->updateBaudRate(br);
@@ -474,19 +339,8 @@ void ESP3DSerialService::updateBaudRate(long br) {
 }
 
 // Get current baud rate
-long ESP3DSerialService::baudRate() {
-  long br = 0;
-  br = Serials[_serialIndex]->baudRate();
-#ifdef ARDUINO_ARCH_ESP32
-  // workaround for ESP32
-  if (br == 115201) {
-    br = 115200;
-  }
-  if (br == 230423) {
-    br = 230400;
-  }
-#endif  // ARDUINO_ARCH_ESP32
-  return br;
+uint32_t ESP3DSerialService::baudRate() {
+  return Serials[_serialIndex]->baudRate();
 }
 
 size_t ESP3DSerialService::writeBytes(const uint8_t *buffer, size_t size) {
@@ -567,3 +421,4 @@ bool ESP3DSerialService::dispatch(ESP3DMessage *message) {
 
 #endif  // COMMUNICATION_PROTOCOL == MKS_SERIAL || COMMUNICATION_PROTOCOL ==
         // RAW_SERIAL
+#endif  // ARDUINO_ARCH_ESP8266
