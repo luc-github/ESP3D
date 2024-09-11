@@ -252,7 +252,12 @@ const char* mDNS_Service::answerIP(uint16_t index) {
     return "";
   }
 #if defined(ARDUINO_ARCH_ESP32)
+#if ESP_ARDUINO_VERSION_MAJOR == 3
   tmp = MDNS.address(index).toString();
+#endif  // ESP_ARDUINO_VERSION_MAJOR == 3
+#if ESP_ARDUINO_VERSION_MAJOR == 2
+  tmp = MDNS.IP(index).toString();
+#endif  // ESP_ARDUINO_VERSION_MAJOR == 2
 
 #endif  // ARDUINO_ARCH_ESP32
 #if defined(ARDUINO_ARCH_ESP8266)

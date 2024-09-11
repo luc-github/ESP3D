@@ -34,8 +34,13 @@
 #endif  // __has_include ("rtc_wdt.h")
 #endif  // CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
 #include <WiFi.h>
+#if ESP_ARDUINO_VERSION_MAJOR == 3
 #include <esp_adc/adc_continuous.h>
 #include <esp_adc/adc_oneshot.h>
+#endif  // ESP_ARDUINO_VERSION_MAJOR == 3
+#if ESP_ARDUINO_VERSION_MAJOR == 2
+#include <driver/adc.h>
+#endif  // ESP_ARDUINO_VERSION_MAJOR == 2  
 #include <esp_task_wdt.h>
 
 #if !CONFIG_IDF_TARGET_ESP32C6

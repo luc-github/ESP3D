@@ -22,7 +22,9 @@
 #if defined(WIFI_FEATURE)
 #ifdef ARDUINO_ARCH_ESP32
 #include <esp_wifi.h>
+#if ESP_ARDUINO_VERSION_MAJOR == 3
 #include <esp_wifi_ap_get_sta_list.h>
+#endif  // ESP_ARDUINO_VERSION_MAJOR == 3
 #endif  // ARDUINO_ARCH_ESP32
 #ifdef ARDUINO_ARCH_ESP8266
 #endif  // ARDUINO_ARCH_ESP8266
@@ -515,19 +517,30 @@ const char* WiFiConfig::getConnectedSTA(uint8_t* totalcount, bool reset) {
     current = 0;
   }
 static wifi_sta_list_t sta_list;
+#if ESP_ARDUINO_VERSION_MAJOR == 3
 static wifi_sta_mac_ip_list_t tcpip_sta_list;
-
+#endif  // ESP_ARDUINO_VERSION_MAJOR == 3
+#if ESP_ARDUINO_VERSION_MAJOR == 2
+  static tcpip_adapter_sta_list_t tcpip_sta_list;
+#endif  // ESP_ARDUINO_VERSION_MAJOR == 2 
   if (reset) {
     count = 0;
   }
   if (count == 0) {
     current = 0;
+#if ESP_ARDUINO_VERSION_MAJOR == 3    
     if(esp_wifi_ap_get_sta_list(&sta_list)!=ESP_OK){
+#endif  // ESP_ARDUINO_VERSION_MAJOR == 3
+#if ESP_ARDUINO_VERSION_MAJOR == 2
+    if(tcpip_adapter_get_sta_list(&sta_list, &tcpip_sta_list)!=ESP_OK){
+#endif  // ESP_ARDUINO_VERSION_MAJOR == 2
   return "";
 }
     if (sta_list.num > 0) {
+#if ESP_ARDUINO_VERSION_MAJOR == 3
       ESP_ERROR_CHECK(
           esp_wifi_ap_get_sta_list_with_ip(&sta_list, &tcpip_sta_list));
+#endif  // ESP_ARDUINO_VERSION_MAJOR == 3
     }
     count = sta_list.num;
   }
