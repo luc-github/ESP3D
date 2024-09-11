@@ -25,13 +25,21 @@
 #include "esp_eth.h"
 
 #endif  // ARDUINO_ARCH_ESP32
-#ifdef ARDUINO_ARCH_ESP8266
-#endif  // ARDUINO_ARCH_ESP8266
 #include "../../core/esp3d_commands.h"
 #include "../../core/esp3d_settings.h"
 #include "../../core/esp3d_string.h"
 #include "../network/netconfig.h"
 #include "ethconfig.h"
+#ifdef ETHERNET_SPI_USE_SPI
+#define ETH_SPI SPI
+#endif  // ETHERNET_SPI_USE_SPI
+#if ETHERNET_SPI_USE_SPI2
+#define ETH_SPI SPI2
+#endif  // ETHERNET_SPI_USE_SPI2  
+#ifndef ETH_SPI
+#define ETH_SPI SPI
+#endif  // ETH_SPI
+#
 
 #if defined(GCODE_HOST_FEATURE)
 #include "../gcode_host/gcode_host.h"
@@ -71,30 +79,44 @@ bool EthConfig::begin(int8_t& espMode) {
   bool res = false;
   ipMode(true);
   end();
-  if (ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_LAN8720) {
-    esp3d_log_d("ETH PHY Type %d", ESP3D_ETH_PHY_TYPE);
-    _started = ETH.begin();
-  } else {
-    if (ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_TLK110 ||
-        ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_RTL8201 ||
-        ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_DP83848 ||
-        ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_KSZ8041 ||
-        ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_KSZ8081) {
-      esp3d_log_d("ETH PHY Type %d", ESP3D_ETH_PHY_TYPE);
-      _started = ETH.begin(ESP3D_ETH_PHY_TYPE, ESP3D_ETH_PHY_ADDR, ESP3D_ETH_PHY_POWER_PIN,
-                           ESP3D_ETH_PHY_MDC_PIN, ESP3D_ETH_PHY_MDIO_PIN, ESP3D_ETH_CLK_MODE_PIN);
-    } else {
-      if (ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_W5500) {
-        esp3d_log_d("ETH spi PHY Type %d", ESP3D_ETH_PHY_TYPE);
-        SPI.begin(ETH_SPI_SCK, ETH_SPI_MISO, ETH_SPI_MOSI);
-        _started = ETH.begin(ESP3D_ETH_PHY_TYPE, ESP3D_ETH_PHY_ADDR, ETH_PHY_CS,
-                             ETH_PHY_IRQ, ETH_PHY_RST, SPI);
-      } else {
-        esp3d_log("Ethernet PHY type not supported");
-        return false;
-      }
-    }
+#if ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_LAN8720
+  esp3d_log_d("ETH PHY Type %d", ESP3D_ETH_PHY_TYPE);
+  _started = ETH.begin();
+#endif  // ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_LAN8720
+#if ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_TLK110 ||  \
+    ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_RTL8201 || \
+    ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_DP83848 || \
+    ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_KSZ8041 || \
+    ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_KSZ8081
+  eth_phy_type_t phytype = ETH_PHY_TLK110;
+  if (ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_RTL8201) {
+    phytype = ETH_PHY_RTL8201;
   }
+  if (ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_DP83848) {
+    phytype = ETH_PHY_DP83848;
+  }
+  if (ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_KSZ8041) {
+    phytype = ETH_PHY_KSZ8041;
+  }
+  if (ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_KSZ8081) {
+    phytype = ETH_PHY_KSZ8081;
+  }
+  esp3d_log_d("ETH PHY Type %d", phytype);
+  _started = ETH.begin(phytype, ESP3D_ETH_PHY_ADDR,
+                       ESP3D_ETH_PHY_POWER_PIN, ESP3D_ETH_PHY_MDC_PIN,
+                       ESP3D_ETH_PHY_MDIO_PIN, ESP3D_ETH_CLK_MODE_PIN);
+#endif  // ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_TLK110 || ESP3D_ETH_PHY_TYPE ==
+        // TYPE_ETH_PHY_RTL8201 || ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_DP83848 ||
+        // ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_KSZ8041 || ESP3D_ETH_PHY_TYPE ==
+        // TYPE_ETH_PHY_KSZ8081
+#if ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_W5500
+  esp3d_log_d("ETH spi PHY Type %d", ESP3D_ETH_PHY_TYPE);
+  ETH_SPI.begin(ETH_SPI_SCK, ETH_SPI_MISO, ETH_SPI_MOSI);
+  _started = ETH.begin(ETH_PHY_W5500, ESP3D_ETH_PHY_ADDR, ETH_PHY_CS,
+                       ETH_PHY_IRQ, ETH_PHY_RST, ETH_SPI);
+                       
+  
+#endif  // ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_W5500
 
   if (_started) {
     if (ESP3DSettings::isVerboseBoot()) {
