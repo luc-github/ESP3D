@@ -478,6 +478,27 @@
 #define ESP_SD_DETECT_PIN -1
 #endif  // ESP_SD_DETECT_PIN
 
+//SPI pis for ethernet
+#ifndef ETH_PHY_CS
+#define ETH_PHY_CS   15
+#endif // ETH_PHY_CS
+#ifndef ETH_PHY_IRQ 
+#define ETH_PHY_IRQ  4
+#endif // ETH_PHY_IRQ
+#ifndef ETH_PHY_RST
+#define ETH_PHY_RST  5
+#endif // ETH_PHY_RST
+#ifndef ETH_SPI_SCK
+#define ETH_SPI_SCK  14
+#endif // ETH_SPI_SCK
+#ifndef ETH_SPI_MISO
+#define ETH_SPI_MISO 12
+#endif // ETH_SPI_MISO
+#ifndef ETH_SPI_MOSI
+#define ETH_SPI_MOSI 13
+#endif // ETH_SPI_MOSI
+
+
 #if defined(PIN_RESET_FEATURE) && !defined(ESP3D_RESET_PIN)
 #define ESP3D_RESET_PIN -1
 #endif  // PIN_RESET_FEATURE
