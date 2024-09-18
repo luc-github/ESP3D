@@ -116,7 +116,7 @@ ESP3DAuthenticationLevel ESP3DSerialService::getAuthentication() {
 void ESP3DSerialService::receiveSerialCb() { esp3d_serial_service.receiveCb(); }
 
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
-void ESP3DSerialService::receiveBridgeSeialCb() {
+void ESP3DSerialService::receiveBridgeSerialCb() {
   serial_bridge_service.receiveCb();
 }
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
@@ -205,7 +205,7 @@ bool ESP3DSerialService::begin(uint8_t serialIndex) {
     }
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
     if (_id == BRIDGE_SERIAL) {
-      Serials[_serialIndex]->onReceive(receiveBridgeSeialCb);
+      Serials[_serialIndex]->onReceive(receiveBridgeSerialCb);
     }
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
   }
