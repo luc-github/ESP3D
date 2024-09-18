@@ -1,0 +1,9 @@
+dependencies:
+  espressif/usb_host_cdc_acm:
+    public: true
+    version: '>=1.0.4,<3.0.0'
+  idf:
+    version: '>=4.4'
+description: USB Host Virtual COM Port Service
+url: https://github.com/espressif/idf-extra-components/tree/master/usb/usb_host_vcp
+version: 1.0.0~2

@@ -1,0 +1,10 @@
+dependencies:
+  idf:
+    version: '>=4.4'
+description: USB Host CDC-ACM driver
+targets:
+- esp32s2
+- esp32s3
+- esp32p4
+url: https://github.com/espressif/idf-extra-components/tree/master/usb/usb_host_cdc_acm
+version: 2.0.2~1
