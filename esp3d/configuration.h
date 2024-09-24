@@ -72,14 +72,14 @@
  * USE_USB_SERIAL //for ESP32  S2/S3 Only
  */
 // Main serial port
-#define ESP_SERIAL_OUTPUT USE_USB_SERIAL
+#define ESP_SERIAL_OUTPUT USE_SERIAL_0
 
 
 /* Optional Output 
  * Instead of Serial, you can use USB Serial
  * USE_USB_SERIAL //for ESP32  S2/S3 Only
  */
-#define USB_SERIAL_FEATURE
+//#define USB_SERIAL_FEATURE
 
 /* Bridge Serial port (deprecated on esp8266 as second serial is)
  * which serial ESP use to bridge to another device (ESP32 has 3 serials
