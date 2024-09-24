@@ -85,6 +85,7 @@ const char *esp3dmsgstr[] = {"head", "core", "tail", "unique"};
 ESP3DCommands esp3d_commands;
 
 ESP3DCommands::ESP3DCommands() {
+  //Need to sync with setting part
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL
   _output_client = ESP3DClientType::serial;
 #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL
@@ -820,6 +821,17 @@ void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
       ESP901(cmd_params_pos, msg);
       break;
 #endif  // COMMUNICATION_PROTOCOL != SOCKET_SERIAL
+#if defined(USB_SERIAL_FEATURE)
+    // Get / Set USB Serial Baud Rate
+    //[ESP902]<BAUD RATE> json=<no> pwd=<admin/user password>
+    case 902:
+      ESP902(cmd_params_pos, msg);
+      break;
+    // Get / Set Client Output
+    case 950:
+      ESP950(cmd_params_pos, msg);
+      break;
+#endif  // defined(USB_SERIAL_FEATURE)
 #ifdef BUZZER_DEVICE
     // Get state / Set Enable / Disable buzzer
     //[ESP910]<ENABLE/DISABLE>
@@ -1276,11 +1288,20 @@ bool ESP3DCommands::dispatch(const char *sbuf, ESP3DClientType target,
 }
 
 ESP3DClientType ESP3DCommands::getOutputClient(bool fromSettings) {
-  // TODO: add setting for it when necessary
+//It is a setting only if there is a choice between USB/Serial 
+#if defined(USB_SERIAL_FEATURE)
+  if (fromSettings) {
+    _output_client =  (ESP3DClientType)ESP3DSettings::readByte(ESP_OUTPUT_CLIENT);
+  }
+  return ESP3DClientType::usb_serial;
+#else
   (void)fromSettings;
+  //if not setting, then it is the default one, which is hardcoded
+#endif
   esp3d_log("OutputClient: %d %s", static_cast<uint8_t>(_output_client),
             GETCLIENTSTR(_output_client));
   return _output_client;
+
 }
 
 bool ESP3DCommands::dispatch(ESP3DMessage *msg) {

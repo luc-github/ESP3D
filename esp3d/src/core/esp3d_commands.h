@@ -180,6 +180,10 @@ class ESP3DCommands {
   void ESP900(int cmd_params_pos, ESP3DMessage* msg);
   void ESP901(int cmd_params_pos, ESP3DMessage* msg);
 #endif  // COMMUNICATION_PROTOCOL != SOCKET_SERIAL
+#if defined(USB_SERIAL_FEATURE)
+  void ESP902(int cmd_params_pos, ESP3DMessage* msg);
+  void ESP950(int cmd_params_pos, ESP3DMessage* msg);
+#endif  // defined(USB_SERIAL_FEATURE)
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
   void ESP930(int cmd_params_pos, ESP3DMessage* msg);
   void ESP931(int cmd_params_pos, ESP3DMessage* msg);
