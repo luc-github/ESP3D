@@ -26,8 +26,8 @@
 
 #define ESP3D_USB_SERIAL_BUFFER_SIZE 1024
 
-extern const uint32_t SupportedBaudList[];
-extern const size_t SupportedBaudListSize;
+extern const uint32_t SupportedUsbSerialBaudList[];
+extern const size_t SupportedUsbSerialBaudListSize;
 
 class ESP3DUsbSerialService final {
  public:

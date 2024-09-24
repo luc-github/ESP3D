@@ -135,9 +135,13 @@ const char* IpModeValues[] = {"0", "1"};
 const char* SupportedApChannelsStr[] = {"1", "2", "3",  "4",  "5",  "6",  "7",
                                         "8", "9", "10", "11", "12", "13", "14"};
 
+
+/// Note Currently the Serial and USB Serial baud rate list is the same
+// if this change this part need to be updated
 const char* SupportedBaudListSizeStr[] = {
     "9600",   "19200",  "38400",  "57600",   "74880",   "115200", "230400",
     "250000", "500000", "921600", "1000000", "1958400", "2000000"};
+
 
 #ifdef SENSOR_DEVICE
 

@@ -54,6 +54,9 @@
 #endif  // TIMESTAMP_FEATURE
 
 #include "../modules/serial/serial_service.h"
+#if defined(USB_SERIAL_FEATURE)
+#include "../modules/usb-serial/usb_serial_service.h"
+#endif // USB_SERIAL_FEATURE  
 
 // Current Settings Version
 #define CURRENT_SETTINGS_VERSION "ESP3D05"
@@ -882,7 +885,15 @@ bool ESP3DSettings::isValidIntegerSetting(uint32_t value,
   }
   switch (settingElement) {
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
+#if defined(USB_SERIAL_FEATURE)
     case ESP_USB_SERIAL_BAUD_RATE:
+      for (uint8_t i = 0; i < SupportedUsbSerialBaudListSize; i++) {
+        if (value == SupportedUsbSerialBaudList[i]) {
+          return true;
+        }
+      }
+      break;
+#endif // USB_SERIAL_FEATURE
     case ESP_SERIAL_BRIDGE_BAUD:
     case ESP_BAUD_RATE:
       for (uint8_t i = 0; i < SupportedBaudListSize; i++) {

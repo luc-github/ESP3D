@@ -23,7 +23,13 @@
 #include "../../core/esp3d_string.h"
 #include "../authentication/authentication_service.h"
 #include "../../core/esp3d_settings.h"
+#include "../../core/esp3d_commands.h"
 #include "usb_serial_service.h"
+
+const uint32_t SupportedUsbSerialBaudList[] = {9600,    19200,   38400,  57600,  74880,
+                                      115200,  230400,  250000, 500000, 921600,
+                                      1000000, 1958400, 2000000};
+const size_t SupportedUsbSerialBaudListSize = sizeof(SupportedUsbSerialBaudList) / sizeof(uint32_t);
 
 ESP3DUsbSerialService esp3d_usb_serial_service;
 
@@ -123,11 +129,9 @@ bool ESP3DUsbSerialService::begin() {
   }
   _lastflush = millis();
   // read from settings
-  uint32_t br = 0;
-  uint32_t defaultBr = 0;
 
-      br = ESP3DSettings::readUint32(ESP_USB_SERIAL_BAUD_RATE);
-      defaultBr = ESP3DSettings::getDefaultIntegerSetting(ESP_USB_SERIAL_BAUD_RATE);
+uint32_t br = ESP3DSettings::readUint32(ESP_USB_SERIAL_BAUD_RATE);
+uint32_t defaultBr = ESP3DSettings::getDefaultIntegerSetting(ESP_USB_SERIAL_BAUD_RATE);
 
   setParameters();
   esp3d_log("Baud rate is %d , default is %d", br, defaultBr);
@@ -147,7 +151,6 @@ bool ESP3DUsbSerialService::begin() {
 */
   }
   _started = true;
-  esp3d_log("Serial %d for %d is started", _serialIndex, _id);
   return true;
 }
 
@@ -159,7 +162,7 @@ bool ESP3DUsbSerialService::end() {
     vSemaphoreDelete(_mutex);
     _mutex = NULL;
   }
-  Serials[_serialIndex]->end();
+  //Serials[_serialIndex]->end();
   _buffer_size = 0;
   _started = false;
   initAuthentication();
@@ -169,9 +172,9 @@ bool ESP3DUsbSerialService::end() {
 // return the array of uint32_t and array size
 const uint32_t *ESP3DUsbSerialService::get_baudratelist(uint8_t *count) {
   if (count) {
-    *count = sizeof(SupportedBaudList) / sizeof(uint32_t);
+    *count = sizeof(SupportedUsbSerialBaudList) / sizeof(uint32_t);
   }
-  return SupportedBaudList;
+  return SupportedUsbSerialBaudList;
 }
 
 // Function which could be called in other loop
@@ -204,9 +207,7 @@ void ESP3DUsbSerialService::flushbuffer() {
 
   // dispatch command
   ESP3DMessage *message = esp3d_message_manager.newMsg(
-      _origin,
-      _id == MAIN_SERIAL ? ESP3DClientType::all_clients
-                         : esp3d_commands.getOutputClient(),
+      _origin, ESP3DClientType::all_clients,
       (uint8_t *)_buffer, _buffer_size, getAuthentication());
   if (message) {
     // process command
