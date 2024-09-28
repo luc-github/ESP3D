@@ -246,7 +246,7 @@ void ESP3DSerialService::handle() {
       len = 10;
     }
     while (len > 0) {
-      esp3d_log_d("Serial in fifo size %d", _messagesInFIFO.size());
+      esp3d_log("Serial in fifo size %d", _messagesInFIFO.size());
       ESP3DMessage *message = _messagesInFIFO.pop();
       if (message) {
         esp3d_commands.process(message);
@@ -274,7 +274,7 @@ void ESP3DSerialService::flushbuffer() {
   if (message) {
     // process command
     message->type = ESP3DMessageType::unique;
-    esp3d_log_d("Message sent to fifo list");
+    esp3d_log("Message sent to fifo list");
     _messagesInFIFO.push(message);
   } else {
     esp3d_log_e("Cannot create message");

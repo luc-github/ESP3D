@@ -82,6 +82,10 @@ const char *esp3dmsgstr[] = {"head", "core", "tail", "unique"};
 #include "../modules/display/display.h"
 #endif  // DISPLAY_DEVICE
 
+#if defined(GCODE_HOST_FEATURE)
+#include "../modules/gcode_host/gcode_host.h"
+#endif  // GCODE_HOST_FEATURE
+
 ESP3DCommands esp3d_commands;
 
 ESP3DCommands::ESP3DCommands() {
@@ -1437,6 +1441,16 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
       break;
 #endif  // COMMUNICATION_PROTOCOL == MKS_SERIAL
 
+#if defined(GCODE_HOST_FEATURE)
+    case ESP3DClientType::stream:
+      esp3d_log("Gcode host message");
+      if (!esp3d_gcode_host.dispatch(msg)) {
+        sendOk = false;
+        esp3d_log_e("Gcode host dispatch failed");
+      }
+      break;
+#endif  // GCODE_HOST_FEATURE
+
 #ifdef PRINTER_HAS_DISPLAY
     case ESP3DClientType::remote_screen:
       esp3d_log("Remote screen message");
@@ -1497,6 +1511,24 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
         }
       }
 #endif  // ESP_LUA_INTERPRETER_FEATURE
+
+#if defined(GCODE_HOST_FEATURE)
+      if (msg->origin != ESP3DClientType::stream && esp3d_gcode_host.getStatus() != HOST_NO_STREAM) {
+        if (msg->target == ESP3DClientType::all_clients) {
+          // become the reference message
+          msg->target = ESP3DClientType::stream;
+        } else {
+          // duplicate message because current is  already pending
+          ESP3DMessage *copy_msg = esp3d_message_manager.copyMsg(*msg);
+          if (copy_msg) {
+            copy_msg->target = ESP3DClientType::stream;
+            dispatch(copy_msg);
+          } else {
+            esp3d_log_e("Cannot duplicate message for gcode host");
+          }
+        }
+      }
+#endif
 
 #if defined(DISPLAY_DEVICE)
       if (msg->origin != ESP3DClientType::rendering &&

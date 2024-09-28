@@ -23,6 +23,7 @@
 #include "../../core/esp3d_client_types.h"
 #include "../../core/esp3d_message.h"
 #include "../../core/esp3d_messageFifo.h"
+#include <esp32_usb_serial.h>
 
 #define ESP3D_USB_SERIAL_BUFFER_SIZE 1024
 
@@ -59,10 +60,14 @@ class ESP3DUsbSerialService final {
   ESP3DClientType _origin;
   bool _started;
   bool _needauthentication;
+  bool _is_connected;
   uint32_t _lastflush;
   uint8_t _buffer[ESP3D_USB_SERIAL_BUFFER_SIZE + 1];  // keep space of 0x0 terminal
   size_t _buffer_size;
-  SemaphoreHandle_t _mutex;
+  SemaphoreHandle_t _buffer_mutex;
+  SemaphoreHandle_t _device_disconnected_mutex;
+  std::unique_ptr<CdcAcmDevice> _vcp_ptr;
+ TaskHandle_t _xHandle;
   ESP3DMessageFIFO _messagesInFIFO;
   void push2buffer(uint8_t *sbuf, size_t len);
   void flushbuffer();

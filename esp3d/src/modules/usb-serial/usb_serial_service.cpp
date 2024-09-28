@@ -34,17 +34,34 @@ const size_t SupportedUsbSerialBaudListSize = sizeof(SupportedUsbSerialBaudList)
 ESP3DUsbSerialService esp3d_usb_serial_service;
 
 #define SERIAL_COMMUNICATION_TIMEOUT 500
-
-
 // Serial Parameters
-#define ESP_USBSERIAL_PARAM SERIAL_8N1
+#define ESP_USB_SERIAL_DATA_BITS (8)
+#define ESP_USB_SERIAL_PARITY \
+  (0)  // 0: 1 stopbit, 1: 1.5 stopbits, 2: 2 stopbits
+#define ESP_USB_SERIAL_STOP_BITS \
+  (0)  // 0: None, 1: Odd, 2: Even, 3: Mark, 4: Space
+// Task parameters
+#define ESP_USB_SERIAL_RX_BUFFER_SIZE 512
+#define ESP_USB_SERIAL_TX_BUFFER_SIZE 128
 
+#define ESP_USB_SERIAL_TASK_SIZE 4096
+#if CONFIG_FREERTOS_UNICORE
+#define ESP_USB_SERIAL_TASK_CORE 0
+#else
+#define ESP_USB_SERIAL_TASK_CORE 1
+#endif  // CONFIG_FREERTOS_UNICORE
+
+#define ESP_USB_SERIAL_TASK_PRIORITY 10
 
 #define TIMEOUT_USB_SERIAL_FLUSH 1500
 // Constructor
 ESP3DUsbSerialService::ESP3DUsbSerialService() {
   _buffer_size = 0;
-  _mutex = NULL;
+  _buffer_mutex = NULL;
+  _device_disconnected_mutex = NULL;
+  _is_connected = false;
+  _xHandle = NULL;
+  _vcp_ptr = NULL;
   _started = false;
 #if defined(AUTHENTICATION_FEATURE)
   _needauthentication = true;
@@ -96,7 +113,7 @@ void ESP3DUsbSerialService::receiveCb() {
   if (!started()) {
     return;
   }
- /* if (xSemaphoreTake(_mutex, portMAX_DELAY)) {
+ /* if (xSemaphoreTake(_buffer_mutex, portMAX_DELAY)) {
     uint32_t now = millis();
     while ((millis() - now) < SERIAL_COMMUNICATION_TIMEOUT) {
       if (Serials[_serialIndex]->available()) {
@@ -114,7 +131,7 @@ void ESP3DUsbSerialService::receiveCb() {
       }
     }
 
-    xSemaphoreGive(_mutex);
+    xSemaphoreGive(_buffer_mutex);
   } else {
     esp3d_log_e("Mutex not taken");
   }*/
@@ -122,8 +139,13 @@ void ESP3DUsbSerialService::receiveCb() {
 
 // Setup Serial
 bool ESP3DUsbSerialService::begin() {
-  _mutex = xSemaphoreCreateMutex();
-  if (_mutex == NULL) {
+  _buffer_mutex = xSemaphoreCreateMutex();
+  if (_buffer_mutex == NULL) {
+    esp3d_log_e("Mutex creation failed");
+    return false;
+  }
+  _device_disconnected_mutex = xSemaphoreCreateMutex();
+  if (_device_disconnected_mutex == NULL) {
     esp3d_log_e("Mutex creation failed");
     return false;
   }
@@ -158,13 +180,29 @@ uint32_t defaultBr = ESP3DSettings::getDefaultIntegerSetting(ESP_USB_SERIAL_BAUD
 bool ESP3DUsbSerialService::end() {
   flush();
   delay(100);
-  if (_mutex != NULL) {
-    vSemaphoreDelete(_mutex);
-    _mutex = NULL;
+  if (_buffer_mutex != NULL) {
+    vSemaphoreDelete(_buffer_mutex);
+    _buffer_mutex = NULL;
+  }
+  if (_device_disconnected_mutex != NULL) {
+    vSemaphoreDelete(_device_disconnected_mutex);
+    _device_disconnected_mutex = NULL;
   }
   //Serials[_serialIndex]->end();
   _buffer_size = 0;
   _started = false;
+  _is_connected = false;
+  if (_xHandle != NULL) {
+    vTaskDelete(_xHandle);
+    _xHandle = NULL;
+    esp3d_log("Task deleted");
+  }
+  if (_vcp_ptr != NULL) {
+    _vcp_ptr = NULL;
+    esp3d_log("VCP deleted");
+  }
+  usb_serial_deinit();
+  usb_serial_delete_task();
   initAuthentication();
   return true;
 }
@@ -186,7 +224,7 @@ void ESP3DUsbSerialService::handle() {
       len = 10;
     }
     while (len > 0) {
-      esp3d_log_d("Serial in fifo size %d", _messagesInFIFO.size());
+      esp3d_log("Serial in fifo size %d", _messagesInFIFO.size());
       ESP3DMessage *message = _messagesInFIFO.pop();
       if (message) {
         esp3d_commands.process(message);
@@ -212,7 +250,7 @@ void ESP3DUsbSerialService::flushbuffer() {
   if (message) {
     // process command
     message->type = ESP3DMessageType::unique;
-    esp3d_log_d("Message sent to fifo list");
+    esp3d_log("Message sent to fifo list");
     _messagesInFIFO.push(message);
   } else {
     esp3d_log_e("Cannot create message");

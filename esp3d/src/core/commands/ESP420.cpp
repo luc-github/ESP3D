@@ -421,7 +421,7 @@ void ESP3DCommands::ESP420(int cmd_params_pos, ESP3DMessage* msg) {
       return;
     }
     // IP mode
-    esp3d_log_d("IP mode %d", NetConfig::isIPModeDHCP(ESP_ETH_STA));
+    esp3d_log("IP mode %d", NetConfig::isIPModeDHCP(ESP_ETH_STA));
     tmpstr = (NetConfig::isIPModeDHCP(ESP_ETH_STA)) ? "dhcp" : "static";
     if (!dispatchIdValue(json, "ip mode", tmpstr.c_str(), target, requestId,
                          false)) {
