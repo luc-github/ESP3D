@@ -51,9 +51,9 @@ class ESP3DUsbSerialService final {
   void initAuthentication();
   void setAuthentication(ESP3DAuthenticationLevel auth) { _auth = auth; }
   ESP3DAuthenticationLevel getAuthentication();
-  void receiveCb();
-  static void receiveSerialCb();
-  static void receiveBridgeSerialCb();
+  void connectDevice();
+  void setConnected(bool connected) { _is_connected = connected; }
+  void receiveCb(const uint8_t *data, size_t data_len, void *arg);
  private:
   uint32_t _baudRate;
   ESP3DAuthenticationLevel _auth;
