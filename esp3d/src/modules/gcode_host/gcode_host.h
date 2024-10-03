@@ -22,7 +22,7 @@
 #define _GCODE_HOST_H
 
 #include <Arduino.h>
-
+#include "../../core/esp3d_message.h"
 #include "../authentication/authentication_service.h"
 
 #define ERROR_NO_ERROR 0
@@ -40,16 +40,16 @@
 #define ERROR_FILE_NOT_FOUND 12
 #define ERROR_STREAM_ABORTED 13
 
-#define HOST_NO_STREAM 0
-#define HOST_START_STREAM 1
-#define HOST_READ_LINE 2
-#define HOST_PROCESS_LINE 3
-#define HOST_WAIT4_ACK 4
-#define HOST_PAUSE_STREAM 5
-#define HOST_RESUME_STREAM 6
-#define HOST_STOP_STREAM 7
-#define HOST_ERROR_STREAM 8
-#define HOST_ABORT_STREAM 9
+#define HOST_NO_STREAM 100
+#define HOST_START_STREAM 101
+#define HOST_READ_LINE 102
+#define HOST_PROCESS_LINE 103
+#define HOST_WAIT4_ACK 104
+#define HOST_PAUSE_STREAM 105
+#define HOST_RESUME_STREAM 106
+#define HOST_STOP_STREAM 107
+#define HOST_ERROR_STREAM 108
+#define HOST_ABORT_STREAM 109
 
 #define TYPE_SCRIPT_STREAM 0
 #define TYPE_FS_STREAM 1
@@ -73,6 +73,8 @@ class GcodeHost {
   bool resetCommandNumbering();
   uint8_t Checksum(const char* command, uint32_t commandSize);
   String CheckSumCommand(const char* command, uint32_t commandnb);
+
+  bool dispatch(ESP3DMessage* message);
 
   /*bool wait_for_ack(uint32_t timeout = DEFAULT_TIMOUT, bool checksum=false,
    * const char * ack=nullptr);*/

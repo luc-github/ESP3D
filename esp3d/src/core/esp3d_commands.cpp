@@ -82,9 +82,14 @@ const char *esp3dmsgstr[] = {"head", "core", "tail", "unique"};
 #include "../modules/display/display.h"
 #endif  // DISPLAY_DEVICE
 
+#if defined(GCODE_HOST_FEATURE)
+#include "../modules/gcode_host/gcode_host.h"
+#endif  // GCODE_HOST_FEATURE
+
 ESP3DCommands esp3d_commands;
 
 ESP3DCommands::ESP3DCommands() {
+  //Need to sync with setting part
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL
   _output_client = ESP3DClientType::serial;
 #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL
@@ -820,6 +825,17 @@ void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
       ESP901(cmd_params_pos, msg);
       break;
 #endif  // COMMUNICATION_PROTOCOL != SOCKET_SERIAL
+#if defined(USB_SERIAL_FEATURE)
+    // Get / Set USB Serial Baud Rate
+    //[ESP902]<BAUD RATE> json=<no> pwd=<admin/user password>
+    case 902:
+      ESP902(cmd_params_pos, msg);
+      break;
+    // Get / Set Client Output
+    case 950:
+      ESP950(cmd_params_pos, msg);
+      break;
+#endif  // defined(USB_SERIAL_FEATURE)
 #ifdef BUZZER_DEVICE
     // Get state / Set Enable / Disable buzzer
     //[ESP910]<ENABLE/DISABLE>
@@ -1276,11 +1292,20 @@ bool ESP3DCommands::dispatch(const char *sbuf, ESP3DClientType target,
 }
 
 ESP3DClientType ESP3DCommands::getOutputClient(bool fromSettings) {
-  // TODO: add setting for it when necessary
+//It is a setting only if there is a choice between USB/Serial 
+#if defined(USB_SERIAL_FEATURE)
+  if (fromSettings) {
+    _output_client =  (ESP3DClientType)ESP3DSettings::readByte(ESP_OUTPUT_CLIENT);
+  }
+  return ESP3DClientType::usb_serial;
+#else
   (void)fromSettings;
+  //if not setting, then it is the default one, which is hardcoded
+#endif
   esp3d_log("OutputClient: %d %s", static_cast<uint8_t>(_output_client),
             GETCLIENTSTR(_output_client));
   return _output_client;
+
 }
 
 bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
@@ -1416,6 +1441,16 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
       break;
 #endif  // COMMUNICATION_PROTOCOL == MKS_SERIAL
 
+#if defined(GCODE_HOST_FEATURE)
+    case ESP3DClientType::stream:
+      esp3d_log("Gcode host message");
+      if (!esp3d_gcode_host.dispatch(msg)) {
+        sendOk = false;
+        esp3d_log_e("Gcode host dispatch failed");
+      }
+      break;
+#endif  // GCODE_HOST_FEATURE
+
 #ifdef PRINTER_HAS_DISPLAY
     case ESP3DClientType::remote_screen:
       esp3d_log("Remote screen message");
@@ -1476,6 +1511,24 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
         }
       }
 #endif  // ESP_LUA_INTERPRETER_FEATURE
+
+#if defined(GCODE_HOST_FEATURE)
+      if (msg->origin != ESP3DClientType::stream && esp3d_gcode_host.getStatus() != HOST_NO_STREAM) {
+        if (msg->target == ESP3DClientType::all_clients) {
+          // become the reference message
+          msg->target = ESP3DClientType::stream;
+        } else {
+          // duplicate message because current is  already pending
+          ESP3DMessage *copy_msg = esp3d_message_manager.copyMsg(*msg);
+          if (copy_msg) {
+            copy_msg->target = ESP3DClientType::stream;
+            dispatch(copy_msg);
+          } else {
+            esp3d_log_e("Cannot duplicate message for gcode host");
+          }
+        }
+      }
+#endif
 
 #if defined(DISPLAY_DEVICE)
       if (msg->origin != ESP3DClientType::rendering &&

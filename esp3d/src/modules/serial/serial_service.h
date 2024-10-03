@@ -58,7 +58,7 @@ class ESP3DSerialService final {
 #if defined(ARDUINO_ARCH_ESP32)
   void receiveCb();
   static void receiveSerialCb();
-  static void receiveBridgeSeialCb();
+  static void receiveBridgeSerialCb();
 #endif  // ARDUINO_ARCH_ESP32
  private:
   uint32_t _baudRate;

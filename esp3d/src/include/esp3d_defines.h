@@ -59,7 +59,7 @@ typedef uint ESP3DSettingIndex;
 #define ESP_INTERNET_TIME 120      // 1  byte = flag
 #define ESP_HTTP_PORT 121          // 4  bytes = int
 #define ESP_TELNET_PORT 125        // 4  bytes = int
-// #define FREE 129                      // 1  bytes = flag
+#define ESP_OUTPUT_CLIENT 129      // 1  bytes = flag
 #define ESP_HOSTNAME \
   130  // 33 bytes 32+1 = string  ; warning does not support multibyte char like
        // chinese
@@ -140,6 +140,7 @@ typedef uint ESP3DSettingIndex;
 #define ESP_ETH_STA_MASK_VALUE 1240     // 4  bytes xxx.xxx.xxx.xxx
 #define ESP_ETH_STA_GATEWAY_VALUE 1244  // 4  bytes xxx.xxx.xxx.xxx
 #define ESP_ETH_STA_DNS_VALUE     1248  // 4  bytes xxx.xxx.xxx.xxx
+#define ESP_USB_SERIAL_BAUD_RATE   1252  // 4  bytes= int
 
 // Hidden password
 #define HIDDEN_PASSWORD "********"
@@ -160,6 +161,7 @@ typedef uint ESP3DSettingIndex;
 #define USE_SERIAL_0 1
 #define USE_SERIAL_1 2
 #define USE_SERIAL_2 3
+#define USE_USB_SERIAL -1
 
 // Serial service ID
 #define MAIN_SERIAL 1

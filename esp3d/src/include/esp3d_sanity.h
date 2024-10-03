@@ -82,6 +82,20 @@
 #endif  // COMMUNICATION_PROTOCOL == MKS_SERIAL
 
 /**************************
+ * USB-Serial
+ * ***********************/
+#if defined(USB_SERIAL_FEATURE) && (!defined(ARDUINO_ARCH_ESP32) || (!defined(CONFIG_IDF_TARGET_ESP32S2) && !defined(CONFIG_IDF_TARGET_ESP32S3)))
+#error USB-Serial is only available for ESP32 S2 and S3
+#endif
+
+
+
+#if  ESP_SERIAL_OUTPUT == USE_USB_SERIAL && !defined(USB_SERIAL_FEATURE)
+#error USB_SERIAL_FEATURE is necessary for ESP_SERIAL_OUTPUT == USE_USB_SERIAL
+#endif  
+
+
+/**************************
  * Bluetooth
  * ***********************/
 #if (defined(BLUETOOTH_FEATURE) && !defined(ARDUINO_ARCH_ESP32)) || (defined(BLUETOOTH_FEATURE) && (defined(CONFIG_IDF_TARGET_ESP32S2) || defined(CONFIG_IDF_TARGET_ESP32S3) || defined(CONFIG_IDF_TARGET_ESP32C3)))  

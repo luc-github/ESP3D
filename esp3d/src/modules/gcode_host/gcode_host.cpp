@@ -47,6 +47,18 @@ bool GcodeHost::begin() {
   return true;
 }
 
+bool GcodeHost::dispatch(ESP3DMessage* message) { 
+  if (!message || _step == HOST_NO_STREAM) {
+    return false;
+  }
+  if (message->size > 0 && message->data) {
+    push(message->data, message->size);
+    esp3d_message_manager.deleteMsg(message);
+    return true;
+  }
+  return false;
+ }
+
 void GcodeHost::end() {
   _commandNumber = 0;
   _error = ERROR_NO_ERROR;
@@ -313,7 +325,9 @@ void GcodeHost::processCommand() {
     _step = HOST_READ_LINE;
   } else {
     esp3d_log("Command %s is valid", _currentCommand.c_str());
-    String cmd = _currentCommand + "\n";
+    if (!_currentCommand.endsWith("\n")) {
+      _currentCommand += "\n";
+    }
     bool isESPcmd = esp3d_commands.is_esp_command(
         (uint8_t *)_currentCommand.c_str(), _currentCommand.length());
     if (isESPcmd) {
@@ -323,7 +337,7 @@ void GcodeHost::processCommand() {
       if (msg) {
         // process command
         esp3d_commands.process(msg);
-        esp3d_log("Command is ESP command: %s", cmd.c_str());
+        esp3d_log("Command is ESP command: %s", _currentCommand.c_str());
         _step = HOST_READ_LINE;
       } else {
         esp3d_log_e("Cannot create message");
@@ -337,7 +351,7 @@ void GcodeHost::processCommand() {
       if (msg) {
         // process command
         esp3d_commands.process(msg);
-        esp3d_log("Command is GCODE command: %s", cmd.c_str());
+        esp3d_log("Command is GCODE command: %s", _currentCommand.c_str());
         _startTimeOut = millis();
         if (isAckNeeded()) {
           _step = HOST_WAIT4_ACK;
@@ -494,10 +508,8 @@ uint32_t GcodeHost::getCommandNumber(String &response) {
 bool GcodeHost::processScript(const char *line,
                               ESP3DAuthenticationLevel auth_type) {
   if (_step != HOST_NO_STREAM) {
-    esp3d_log("Streaming already in progress");
-    while (_step != HOST_NO_STREAM) {
-      handle();
-    }
+      esp3d_log("Streaming already in progress");
+      return false;
   }
   _script = line;
   _script.trim();

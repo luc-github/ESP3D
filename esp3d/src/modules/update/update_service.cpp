@@ -87,9 +87,17 @@ const uint16_t ServintKeysPos[] = {
     ESP_FTP_CTRL_PORT,        ESP_FTP_DATA_ACTIVE_PORT,
     ESP_FTP_DATA_PASSIVE_PORT};
 
-const char* SysintKeysVal[] = {"Baud_rate", "Boot_delay"};
+const char* SysintKeysVal[] = {"Baud_rate", 
+#if defined(USB_SERIAL_FEATURE)
+                                "USB_Serial_Baud_rate",
+ #endif // USB_SERIAL_FEATURE   
+                                "Boot_delay"};
 
-const uint16_t SysintKeysPos[] = {ESP_BAUD_RATE, ESP_BOOT_DELAY};
+const uint16_t SysintKeysPos[] = {ESP_BAUD_RATE, 
+#if defined(USB_SERIAL_FEATURE)
+                            ESP_USB_SERIAL_BAUD_RATE,  
+#endif // USB_SERIAL_FEATURE
+                            ESP_BOOT_DELAY};
 
 const char* ServboolKeysVal[] = {"Serial_Bridge_active", "AUTONOTIFICATION",
                                  "HTTP_active",          "TELNET_active",
@@ -403,6 +411,23 @@ bool processingFileFunction(const char* section, const char* key,
         }
       }
     }
+    //Output USB Serial
+    #if defined(USB_SERIAL_FEATURE)
+    if (!done) {
+      if (strcasecmp("output", key) == 0) {
+        T = 'B';
+        P = ESP_OUTPUT_CLIENT;
+        done = true;
+        if (strcasecmp("USB", value) == 0) {
+          b = ESP3DClientType::usb_serial;
+        } else if (strcasecmp("SERIAL", value) == 0) {
+          b = ESP3DClientType::serial;
+        } else {
+          P = -1;  // invalid value
+        }
+      }
+    }
+    #endif // USB_SERIAL_FEATURE
   }
 
   // now we save -handle saving status
