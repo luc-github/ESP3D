@@ -194,7 +194,7 @@ void ESP3DUsbSerialService::connectDevice() {
       .user_arg = NULL,
   };
   cdc_acm_line_coding_t line_coding = {
-      .dwDTERate = ESP3D_USB_SERIAL_BAUDRATE,
+      .dwDTERate = _baudRate,
       .bCharFormat = ESP3D_USB_SERIAL_STOP_BITS,
       .bParityType = ESP3D_USB_SERIAL_PARITY,
       .bDataBits = ESP3D_USB_SERIAL_DATA_BITS,
@@ -221,6 +221,8 @@ void ESP3DUsbSerialService::connectDevice() {
     uint16_t pid = esp_usb::getPID();
     esp3d_log_d("USB device with VID: 0x%04X (%s), PID: 0x%04X (%s) found\n",
                   vid, esp_usb::getVIDString(), pid, esp_usb::getPIDString());
+    //TODO:             
+    //Do notification to user ?1
     xSemaphoreTake(device_disconnected_sem, portMAX_DELAY);
     vTaskDelay(10);
     _vcp_ptr = nullptr;
@@ -407,8 +409,6 @@ void ESP3DUsbSerialService::push2buffer(uint8_t *sbuf, size_t len) {
 
 void ESP3DUsbSerialService::updateBaudRate(uint32_t br) {
   if (br != _baudRate) {
-    /*    Serials[_serialIndex]->flush();
-        Serials[_serialIndex]->updateBaudRate(br);*/
     _baudRate = br;
   }
 }
