@@ -71,9 +71,9 @@ bool LuaInterpreter::dispatch(ESP3DMessage *message) {
 }
 
 const char *LuaInterpreter::getLastError() {
-  esp3d_log("getLastError %s %s", _lastError.c_str(), _luaEngine.getLastError());
-  if (_lastError.length() == 0) {
-    return _luaEngine.getLastError();
+  esp3d_log("getLastError *%s * %s*", _lastError.c_str(), _luaEngine.getLastError());
+  if ( _lastError.length() == 0) {
+     _lastError = _luaEngine.getLastError();
   }
   return _lastError.c_str();
 }
@@ -82,7 +82,7 @@ bool LuaInterpreter::createScriptTask() {
   if (_scriptTask != NULL) {
     deleteScriptTask();
   }
-
+  _luaEngine.clearError();
   _lastError = "";
   BaseType_t xReturned = xTaskCreatePinnedToCore(
       scriptExecutionTask, /* Task function. */
@@ -104,11 +104,14 @@ bool LuaInterpreter::createScriptTask() {
 
 bool LuaInterpreter::executeScriptAsync(const char *script) {
   bool result = true;
+  _luaEngine.clearError();
+  _lastError = "";
   if (_luaEngine.isRunning()) {
     if (_lastError.length() == 0) _lastError = "A script is already running";
     return false;
   }
   _currentScriptName = script;
+  _lastError  = "";
   if (!createScriptTask()) {
     if (_lastError.length() == 0) _lastError = "Failed to create script task";
     result = false;

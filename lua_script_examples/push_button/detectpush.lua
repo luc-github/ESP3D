@@ -19,14 +19,15 @@
     ]]--
 
 -- Setup
--- pin 4 is connected to the push button
-local pin = 4
+-- pin 0 is connected to the push button
+local pin = 0
 -- LOW is the value when the button is pressed
 local trigger_value = LOW
 -- send ESP3D command to display current IP address to the printer screen
-local command = "[ESP111]OUTPUT=printer\n"
+local command = "[ESP111]OUTPUT=PRINTER\n"
 -- variable to read the pin value
 local pinval
+local lastpush = millis()
 -- define the pin mode
 pinMode(pin, INPUT_PULLUP)
 -- Main loop
@@ -35,8 +36,12 @@ while (true) do
     pinval = digitalRead(pin)
     -- if the pin value is `trigger_value` then send the command
     if (pinval == trigger_value) then
-        -- send the command to the esp3d
-        print(command)
+        -- do not overflow the system so only send command if at least 1 second elapsed since last one
+        if ((millis()-lastpush) > 1000) then
+            lastpush = millis()
+            -- send the command to the esp3d
+            print(command)
+        end
     end
     -- yield to other tasks
     yield()
