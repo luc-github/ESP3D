@@ -225,6 +225,11 @@ void GcodeHost::endStream() {
   }
 #endif  // SD_DEVICE
   _step = HOST_NO_STREAM;
+  if (!_scriptList.isEmpty()){
+    ScriptEntry scr = _scriptList.pop();
+    processScript(scr.script.c_str(),scr.auth_type);
+  }
+  //TODO: do same for files
 }
 
 void GcodeHost::readNextCommand() {
@@ -508,8 +513,10 @@ uint32_t GcodeHost::getCommandNumber(String &response) {
 bool GcodeHost::processScript(const char *line,
                               ESP3DAuthenticationLevel auth_type) {
   if (_step != HOST_NO_STREAM) {
-      esp3d_log("Streaming already in progress");
-      return false;
+      esp3d_log("Streaming already in progress, put to queue");
+      String s = line;
+      _scriptList.push(line, auth_type);
+      return true;
   }
   _script = line;
   _script.trim();

@@ -24,6 +24,7 @@
 #include <Arduino.h>
 #include "../../core/esp3d_message.h"
 #include "../authentication/authentication_service.h"
+#include "./gcode_script_fifo.h"
 
 #define ERROR_NO_ERROR 0
 #define ERROR_TIME_OUT 1
@@ -112,6 +113,7 @@ class GcodeHost {
   bool isAck(String& line);
 
  private:
+  ESP3DScriptFIFO _scriptList;
   ESP3DAuthenticationLevel _auth;
   uint8_t _buffer[ESP_HOST_BUFFER_SIZE + 1];
   size_t _bufferSize;

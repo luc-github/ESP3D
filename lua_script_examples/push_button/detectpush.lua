@@ -24,7 +24,7 @@ local pin = 0
 -- LOW is the value when the button is pressed
 local trigger_value = LOW
 -- send ESP3D command to display current IP address to the printer screen
-local command = "[ESP111]OUTPUT=PRINTER\n"
+local command = "[ESP212]IP:%ESP_IP%\n"
 -- variable to read the pin value
 local pinval
 local lastpush = millis()
