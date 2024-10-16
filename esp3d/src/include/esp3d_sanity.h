@@ -74,7 +74,7 @@
 
 #if COMMUNICATION_PROTOCOL == MKS_SERIAL
 #if defined(PRINTER_HAS_DISPLAY)
-#error MKS serial protocol is not compatible with display output
+#error MKS serial protocol is not compatible with `PRINTER_HAS_DISPLAY`, comment `PRINTER_HAS_DISPLAY` in configuration.h
 #endif  // defined(PRINTER_HAS_DISPLAY)
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
 #error MKS serial protocol is not compatible with serial bridge output

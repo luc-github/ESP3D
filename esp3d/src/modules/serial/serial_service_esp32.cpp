@@ -19,7 +19,7 @@
 */
 #if defined(ARDUINO_ARCH_ESP32)
 #include "../../include/esp3d_config.h"
-#if COMMUNICATION_PROTOCOL == RAW_SERIAL || defined(ESP_SERIAL_BRIDGE_OUTPUT)
+#if COMMUNICATION_PROTOCOL == RAW_SERIAL || defined(ESP_SERIAL_BRIDGE_OUTPUT) || COMMUNICATION_PROTOCOL == MKS_SERIAL 
 #include "../../core/esp3d_commands.h"
 #include "../../core/esp3d_settings.h"
 #include "../../core/esp3d_string.h"
