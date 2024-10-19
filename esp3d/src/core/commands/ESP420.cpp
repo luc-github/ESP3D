@@ -233,19 +233,23 @@ void ESP3DCommands::ESP420(int cmd_params_pos, ESP3DMessage* msg) {
   if (!dispatchIdValue(json, "output", tmpstr.c_str(), target, requestId)) {
     return;
   }
+  if (esp3d_commands.getOutputClient() == ESP3DClientType::usb_serial) {
     tmpstr = String(esp3d_usb_serial_service.baudRate());
-  if (!dispatchIdValue(json, "baud", tmpstr.c_str(), target, requestId,
-                       false)) {
-    return;
+    if (!dispatchIdValue(json, "baud", tmpstr.c_str(), target, requestId,
+                         false)) {
+      return;
+    }
   }
 #endif  // defined(USB_SERIAL_FEATURE)
 
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
-  // baud rate
-  tmpstr = String(esp3d_serial_service.baudRate());
-  if (!dispatchIdValue(json, "baud", tmpstr.c_str(), target, requestId,
-                       false)) {
-    return;
+  if (esp3d_commands.getOutputClient() == ESP3DClientType::serial) {
+    // baud rate
+    tmpstr = String(esp3d_serial_service.baudRate());
+    if (!dispatchIdValue(json, "baud", tmpstr.c_str(), target, requestId,
+                         false)) {
+      return;
+    }
   }
 #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
         // MKS_SERIAL

@@ -105,7 +105,8 @@ ESP3DAuthenticationLevel ESP3DUsbSerialService::getAuthentication() {
 /**
  * @brief Data received callback
  */
-bool rx_callback(const uint8_t *data, size_t data_len, void *arg) {
+bool usb_rx_callback(const uint8_t *data, size_t data_len, void *arg) {
+  esp3d_log("rx_callback %d : %s", data_len, (const char *)data);
   esp3d_usb_serial_service.receiveCb(data, data_len);
   return true;
 }
@@ -118,17 +119,15 @@ bool rx_callback(const uint8_t *data, size_t data_len, void *arg) {
 void handle_event(const cdc_acm_host_dev_event_data_t *event, void *user_ctx) {
   switch (event->type) {
     case CDC_ACM_HOST_ERROR:
-     esp3d_log_e("CDC-ACM error has occurred, err_no = %d\n",
-                    event->data.error);
+      esp3d_log_e("CDC-ACM error has occurred, err_no = %d\n",
+                  event->data.error);
       break;
     case CDC_ACM_HOST_DEVICE_DISCONNECTED:
       esp3d_log("Device suddenly disconnected");
-      xSemaphoreGive(device_disconnected_sem);
-      setConnected(false)
+      esp3d_usb_serial_service.setConnected(false);
       break;
     case CDC_ACM_HOST_SERIAL_STATE:
-      esp3d_log("Serial state notif 0x%04X\n",
-                    event->data.serial_state.val);
+      esp3d_log("Serial state notif 0x%04X\n", event->data.serial_state.val);
       break;
     case CDC_ACM_HOST_NETWORK_CONNECTION:
       esp3d_log("Network connection established");
@@ -139,30 +138,45 @@ void handle_event(const cdc_acm_host_dev_event_data_t *event, void *user_ctx) {
   }
 }
 
+void ESP3DUsbSerialService::setConnected(bool connected) {
+  _is_connected = connected;
+  if (_is_connected) {
+    esp3d_log("USB device connected");
+    if (xSemaphoreTake(_device_disconnected_mutex, portMAX_DELAY) != pdTRUE) {
+      esp3d_log_e("Mutex not taken");
+      _is_connected = false;
 
+    }
+  } else {
+    esp3d_log("USB device disconnected");
+    xSemaphoreGive(_device_disconnected_mutex);
+    _vcp_ptr = nullptr;
+  }
+}
 
-
-void ESP3DUsbSerialService::receiveCb(const uint8_t *data, size_t data_len, void *arg) {
+void ESP3DUsbSerialService::receiveCb(const uint8_t *data, size_t data_len,
+                                      void *arg) {
+  esp3d_log("receiveCb %d : %s", data_len, (const char *)data);
   if (!started()) {
     return;
   }
-   if (xSemaphoreTake(_buffer_mutex, portMAX_DELAY)) {
-   for (size_t i = 0; i < data_len; i++) {
-         _buffer[_buffer_size] = data[i];
-         _buffer_size++;
-         if (_buffer_size > ESP3D_SERIAL_BUFFER_SIZE ||
-             _buffer[_buffer_size - 1] == '\n' ||
-             _buffer[_buffer_size - 1] == '\r') {
-           if (_buffer[_buffer_size - 1] == '\r') {
-             _buffer[_buffer_size - 1] = '\n';
-           }
-           flushbuffer();
-         }
-     }
-     xSemaphoreGive(_buffer_mutex);
-   } else {
-     esp3d_log_e("Mutex not taken");
-   }
+  if (xSemaphoreTake(_buffer_mutex, portMAX_DELAY) == pdTRUE) {
+    for (size_t i = 0; i < data_len; i++) {
+      _buffer[_buffer_size] = data[i];
+      _buffer_size++;
+      if (_buffer_size > ESP3D_USB_SERIAL_BUFFER_SIZE ||
+          _buffer[_buffer_size - 1] == '\n' ||
+          _buffer[_buffer_size - 1] == '\r') {
+        if (_buffer[_buffer_size - 1] == '\r') {
+          _buffer[_buffer_size - 1] = '\n';
+        }
+        flushbuffer();
+      }
+    }
+    xSemaphoreGive(_buffer_mutex);
+  } else {
+    esp3d_log_e("Mutex not taken");
+  }
 }
 
 // this task only handle connection
@@ -171,7 +185,8 @@ static void esp3d_usb_serial_connection_task(void *pvParameter) {
   while (1) {
     /* Delay */
     vTaskDelay(pdMS_TO_TICKS(10));
-    if (! esp3d_usb_serial_service.started()) {
+    if (!esp3d_usb_serial_service.started()) {
+      esp3d_log_e("USB Serial service not started");
       break;
     }
     esp3d_usb_serial_service.connectDevice();
@@ -181,7 +196,8 @@ static void esp3d_usb_serial_connection_task(void *pvParameter) {
 }
 
 void ESP3DUsbSerialService::connectDevice() {
-  if (!_started || _is_connected) {
+  if (!_started || _is_connected || _vcp_ptr ) {
+    //esp3d_log("USB device is connected (%d) or service not started (%d)", _is_connected, _started);
     return;
   }
   const cdc_acm_host_device_config_t dev_config = {
@@ -190,7 +206,7 @@ void ESP3DUsbSerialService::connectDevice() {
       .out_buffer_size = ESP3D_USB_SERIAL_TX_BUFFER_SIZE,
       .in_buffer_size = ESP3D_USB_SERIAL_RX_BUFFER_SIZE,
       .event_cb = handle_event,
-      .data_cb = rx_callback,
+      .data_cb = usb_rx_callback,
       .user_arg = NULL,
   };
   cdc_acm_line_coding_t line_coding = {
@@ -202,11 +218,11 @@ void ESP3DUsbSerialService::connectDevice() {
   // You don't need to know the device's VID and PID. Just plug in any device
   // and the VCP service will pick correct (already registered) driver for the
   // device
- esp3d_log("Waiting for USB device");
+  esp3d_log("Waiting for USB device");
   _vcp_ptr = std::unique_ptr<CdcAcmDevice>(esp_usb::VCP::open(&dev_config));
 
-  if (_vcp_ptr == nullptr) {
-    esp3d_log_w("USB device not found");
+  if (!_vcp_ptr) {
+    esp3d_log_e("USB device not found, retrying...");
     return;
   }
 
@@ -215,19 +231,16 @@ void ESP3DUsbSerialService::connectDevice() {
   esp3d_log("USB device found");
 
   if (_vcp_ptr->line_coding_set(&line_coding) == ESP_OK) {
-    esp3d_log("Line coding set");
-    _is_connected = true;
+    esp3d_log("USB Connected");
     uint16_t vid = esp_usb::getVID();
     uint16_t pid = esp_usb::getPID();
-    esp3d_log_d("USB device with VID: 0x%04X (%s), PID: 0x%04X (%s) found\n",
-                  vid, esp_usb::getVIDString(), pid, esp_usb::getPIDString());
-    //TODO:             
-    //Do notification to user ?1
-    xSemaphoreTake(device_disconnected_sem, portMAX_DELAY);
-    vTaskDelay(10);
-    _vcp_ptr = nullptr;
+    esp3d_log("USB device with VID: 0x%04X (%s), PID: 0x%04X (%s) found\n",
+                vid, esp_usb::getVIDString(), pid, esp_usb::getPIDString());
+    // TODO:
+    // Do notification to user ?
+    setConnected(true);
   } else {
-   esp3d_log_e("Line coding set failed");
+    esp3d_log_e("USB device not identified");
   }
 }
 
@@ -246,44 +259,44 @@ bool ESP3DUsbSerialService::begin() {
   _lastflush = millis();
   // read from settings
 
-  uint32_t br = ESP3DSettings::readUint32(ESP_USB_SERIAL_BAUD_RATE);
-  uint32_t defaultBr =
-      ESP3DSettings::getDefaultIntegerSetting(ESP_USB_SERIAL_BAUD_RATE);
-
-  setParameters();
-  esp3d_log("Baud rate is %d , default is %d", br, defaultBr);
+  _baudRate = ESP3DSettings::readUint32(ESP_USB_SERIAL_BAUD_RATE);
+  esp3d_log("Baud rate is %d ", _baudRate);
   _buffer_size = 0;
   // change only if different from current
-  if (br != baudRate()) {
-    if (!ESP3DSettings::isValidIntegerSetting(br, ESP3D_USB_SERIAL_BAUD_RATE)) {
-      br = defaultBr;
-    }
-    _baudRate = br;
-  }
+
   if (ESP_OK != usb_serial_init()) {
     esp3d_log_e("USB Serial Init failed");
     return false;
   } else {
+    esp3d_log("USB Serial Init OK");
     if (ESP_OK != usb_serial_create_task()) {
       esp3d_log_e("USB Serial Create Task failed");
       return false;
+    } else {
+      esp3d_log("USB Serial Create Task OK");
     }
-    device_disconnected_mutex = xSemaphoreCreateMutex();
-    if (device_disconnected_mutex == NULL) {
+    _device_disconnected_mutex = xSemaphoreCreateMutex();
+    if (_device_disconnected_mutex == NULL) {
       Serial.println("Mutex creation failed");
       return false;
+    } else {
+      esp3d_log("Mutex creation OK");
     }
+    _started = true;
 
     BaseType_t res = xTaskCreatePinnedToCore(
         esp3d_usb_serial_connection_task, "esp3d_usb_serial_task",
-        ESP3D_USB_SERIAL_TASK_SIZE, NULL, ESP3D_USB_SERIAL_TASK_PRIORITY, &xHandle,
-        ESP3D_USB_SERIAL_TASK_CORE);
-    if (res != pdPASS || !xHandle) {
+        ESP3D_USB_SERIAL_TASK_SIZE, NULL, ESP3D_USB_SERIAL_TASK_PRIORITY,
+        &_xHandle, ESP3D_USB_SERIAL_TASK_CORE);
+    if (res != pdPASS || !_xHandle) {
       esp3d_log_e("Failed to create USB Serial Connection Task");
+      _started = false;
       return false;
+    } else {
+      esp3d_log("USB Serial Connection Task OK");
     }
   }
-  _started = true;
+
   return true;
 }
 
@@ -370,43 +383,6 @@ void ESP3DUsbSerialService::flushbuffer() {
   _buffer_size = 0;
 }
 
-// push collected data to buffer and proceed accordingly
-void ESP3DUsbSerialService::push2buffer(uint8_t *sbuf, size_t len) {
-  if (!_started) {
-    return;
-  }
-  esp3d_log("buffer get %d data ", len);
-  /* for (size_t i = 0; i < len; i++) {
-     _lastflush = millis();
-     // command is defined
-     if ((char(sbuf[i]) == '\n') || (char(sbuf[i]) == '\r')) {
-       if (_buffer_size < ESP3D_SERIAL_BUFFER_SIZE) {
-         _buffer[_buffer_size] = sbuf[i];
-         _buffer_size++;
-       }
-       flushbuffer();
-     } else if (esp3d_string::isPrintableChar(char(sbuf[i]))) {
-       if (_buffer_size < ESP3D_SERIAL_BUFFER_SIZE) {
-         _buffer[_buffer_size] = sbuf[i];
-         _buffer_size++;
-       } else {
-         flushbuffer();
-         _buffer[_buffer_size] = sbuf[i];
-         _buffer_size++;
-       }
-     } else {  // it is not printable char
-       // clean buffer first
-       if (_buffer_size > 0) {
-         flushbuffer();
-       }
-       // process char
-       _buffer[_buffer_size] = sbuf[i];
-       _buffer_size++;
-       flushbuffer();
-     }
-   }*/
-}
-
 void ESP3DUsbSerialService::updateBaudRate(uint32_t br) {
   if (br != _baudRate) {
     _baudRate = br;
@@ -417,33 +393,27 @@ void ESP3DUsbSerialService::updateBaudRate(uint32_t br) {
 uint32_t ESP3DUsbSerialService::baudRate() { return _baudRate; }
 
 size_t ESP3DUsbSerialService::writeBytes(const uint8_t *buffer, size_t size) {
-  if (!_started) {
+  if (!_started || !_is_connected) {
+    esp3d_log_e("USB Serial not started or not connected");
     return 0;
-  } /*
-   if ((uint)Serials[_serialIndex]->availableForWrite() >= size) {
-     return Serials[_serialIndex]->write(buffer, size);
-   } else {
-     size_t sizetosend = size;
-     size_t sizesent = 0;
-     uint8_t *buffertmp = (uint8_t *)buffer;
-     uint32_t starttime = millis();
-     // loop until all is sent or timeout
-     while (sizetosend > 0 && ((millis() - starttime) < 100)) {
-       size_t available = Serials[_serialIndex]->availableForWrite();
-       if (available > 0) {
-         // in case less is sent
-         available = Serials[_serialIndex]->write(
-             &buffertmp[sizesent],
-             (available >= sizetosend) ? sizetosend : available);
-         sizetosend -= available;
-         sizesent += available;
-         starttime = millis();
-       } else {
-         ESP3DHal::wait(5);
-       }
-     }
-     return sizesent;
-   }*/
+  }
+  esp3d_log("writeBytes %d : %s", size, (const char *)buffer);
+  if (_vcp_ptr && _vcp_ptr->tx_blocking((uint8_t *)buffer, size) == ESP_OK) { 
+    if (!(_vcp_ptr && _vcp_ptr->set_control_line_state(true, true) == ESP_OK)) {
+      esp3d_log_e("Failed to set control line state");
+      return 0;
+
+      esp3d_log_e("Failed to send message");
+      return 0;
+    }
+    return size;
+  }
+  if (!_vcp_ptr) {
+    esp3d_log_e("_vcp_ptr is null");
+  } else {
+    esp3d_log_e("tx_blocking failed");
+  }
+  esp3d_log_e("Failed to send message");
   return 0;
 }
 
@@ -467,6 +437,7 @@ void ESP3DUsbSerialService::swap() {
 }
 
 bool ESP3DUsbSerialService::dispatch(ESP3DMessage *message) {
+  esp3d_log("dispatching received message");
   bool done = false;
   // Only is serial service is started
   if (_started) {
@@ -476,9 +447,10 @@ bool ESP3DUsbSerialService::dispatch(ESP3DMessage *message) {
       if (message->data && message->size != 0) {
         if (writeBytes(message->data, message->size) == message->size) {
           flush();
-          // Delete message now
-          esp3d_message_manager.deleteMsg(message);
           done = true;
+          // Delete message now
+          esp3d_log("Deleting message");
+          esp3d_message_manager.deleteMsg(message);
         } else {
           esp3d_log_e("Error while sending data");
         }
@@ -488,6 +460,8 @@ bool ESP3DUsbSerialService::dispatch(ESP3DMessage *message) {
     } else {
       esp3d_log_e("Error null message");
     }
+  } else {
+    esp3d_log_e("Serial service not started");
   }
   return done;
 }

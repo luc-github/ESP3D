@@ -69,7 +69,6 @@
  * available, ESP8266 only 2) USE_SERIAL_0 //for ESP8266/32, also used by
  * bootloader output, so consider to make it quiet USE_SERIAL_1 //for ESP8266/32
  * USE_SERIAL_2 //for ESP32 Only
- * USE_USB_SERIAL //for ESP32  S2/S3 Only
  */
 // Main serial port
 #define ESP_SERIAL_OUTPUT USE_SERIAL_0
@@ -587,6 +586,7 @@
  * Commands to run on startup
  * Separate commands with ';' or use file
  */
+// #define ESP_AUTOSTART_SCRIPT "[ESP300]/FS/init.lua\n"
 // #define ESP_AUTOSTART_SCRIPT "M117 Mounting SD;M21"
 // #define ESP_AUTOSTART_SCRIPT_FILE "autoscript.gco"
 
@@ -633,9 +633,9 @@
 // LOG_OUTPUT_SERIAL2
 // LOG_OUTPUT_TELNET
 // LOG_OUTPUT_WEBSOCKET
-//#define ESP_LOG_FEATURE LOG_OUTPUT_SERIAL0
+// #define ESP_LOG_FEATURE LOG_OUTPUT_SERIAL0
 
-//#define ESP3D_DEBUG_LEVEL LOG_LEVEL_DEBUG
+// #define ESP3D_DEBUG_LEVEL LOG_LEVEL_DEBUG
 
 #ifdef ESP_LOG_FEATURE
 #define LOG_ESP3D_BAUDRATE 115200

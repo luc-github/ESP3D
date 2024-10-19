@@ -86,6 +86,10 @@ const char *esp3dmsgstr[] = {"head", "core", "tail", "unique"};
 #include "../modules/gcode_host/gcode_host.h"
 #endif  // GCODE_HOST_FEATURE
 
+#if defined(USB_SERIAL_FEATURE)
+#include "../modules/usb-serial/usb_serial_service.h" 
+#endif  // USB_SERIAL_FEATURE
+
 ESP3DCommands esp3d_commands;
 
 ESP3DCommands::ESP3DCommands() {
@@ -340,6 +344,7 @@ void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
                             msg->origin == ESP3DClientType::serial_bridge ||
                             msg->origin == ESP3DClientType::telnet ||
                             msg->origin == ESP3DClientType::websocket ||
+                            msg->origin == ESP3DClientType::usb_serial ||
                             msg->origin == ESP3DClientType::bluetooth)) {
     msg->authentication_level =
         AuthenticationService::getAuthenticatedLevel(pwd.c_str(), msg);
@@ -353,6 +358,11 @@ void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
         serial_bridge_service.setAuthentication(msg->authentication_level);
         break;
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
+#if defined(USB_SERIAL_FEATURE)
+      case ESP3DClientType::usb_serial:
+        esp3d_usb_serial_service.setAuthentication(msg->authentication_level);
+        break;
+#endif  // USB_SERIAL_FEATURE
 #if defined(TELNET_FEATURE)
       case ESP3DClientType::telnet:
         telnet_server.setAuthentication(msg->authentication_level);
@@ -1297,7 +1307,7 @@ ESP3DClientType ESP3DCommands::getOutputClient(bool fromSettings) {
   if (fromSettings) {
     _output_client =  (ESP3DClientType)ESP3DSettings::readByte(ESP_OUTPUT_CLIENT);
   }
-  return ESP3DClientType::usb_serial;
+  return _output_client;
 #else
   (void)fromSettings;
   //if not setting, then it is the default one, which is hardcoded
@@ -1331,6 +1341,15 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
         esp3d_log_e("Serial dispatch failed");
       }
       break;
+#if defined(USB_SERIAL_FEATURE)
+    case ESP3DClientType::usb_serial:
+      esp3d_log("USB Serial message");
+      if (!esp3d_usb_serial_service.dispatch(msg)) {
+        sendOk = false;
+        esp3d_log_e("USB Serial dispatch failed");
+      }
+      break;
+#endif  // USB_SERIAL_FEATURE
 #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL
 
 #if COMMUNICATION_PROTOCOL == SOCKET_SERIAL

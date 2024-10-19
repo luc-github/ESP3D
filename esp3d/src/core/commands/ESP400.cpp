@@ -42,8 +42,8 @@ const char* OutputClientsLabels[] = {
     "serial port",
     "usb port",
 };
-const char* OutputClientsValues[] = {STRING(ESP3DClientType::serial),
-                                     STRING(ESP3DClientType::usb_serial)};
+const char* OutputClientsValues[] = {"1",
+                                     "2"};
 #endif  // USB_SERIAL_FEATURE
 
 const char* YesNoLabels[] = {"no", "yes"};
