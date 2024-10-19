@@ -82,6 +82,10 @@
 #include "../../modules/authentication/authentication_service.h"
 #endif  // AUTHENTICATION_FEATURE
 
+#if defined(USB_SERIAL_FEATURE)
+#include "../../modules/usb-serial/usb_serial_service.h"
+#endif  // defined(USB_SERIAL_FEATURE)
+
 // Get ESP current status
 // output is JSON or plain text according parameter
 //[ESP420]json=<no>
@@ -157,14 +161,14 @@ void ESP3DCommands::ESP420(int cmd_params_pos, ESP3DMessage* msg) {
 
   // FW architecture
   tmpstr = ESP3DSettings::TargetBoard();
-  #ifdef ARDUINO_ARCH_ESP32
+#ifdef ARDUINO_ARCH_ESP32
   tmpstr = ESP.getChipModel();
-  tmpstr+="-";
-  tmpstr+=ESP.getChipRevision();
-  tmpstr+="-";
-  tmpstr+=ESP.getChipCores();
-  tmpstr+="@";
-  #endif // ARDUINO_ARCH_ESP32
+  tmpstr += "-";
+  tmpstr += ESP.getChipRevision();
+  tmpstr += "-";
+  tmpstr += ESP.getChipCores();
+  tmpstr += "@";
+#endif  // ARDUINO_ARCH_ESP32
   if (!dispatchIdValue(json, "FW arch", tmpstr.c_str(), target, requestId,
                        false)) {
     return;
@@ -217,15 +221,39 @@ void ESP3DCommands::ESP420(int cmd_params_pos, ESP3DMessage* msg) {
     return;
   }
 #endif  // FILESYSTEM_FEATURE
-#if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
-  // baud rate
-  tmpstr = String(esp3d_serial_service.baudRate());
-  if (!dispatchIdValue(json, "baud", tmpstr.c_str(), target, requestId,
-                       false)) {
+
+#if defined(USB_SERIAL_FEATURE)
+  tmpstr = "???";
+  if (esp3d_commands.getOutputClient() == ESP3DClientType::usb_serial) {
+    tmpstr = "usb port";
+  }
+  if (esp3d_commands.getOutputClient() == ESP3DClientType::serial) {
+    tmpstr = "serial port";
+  }
+  if (!dispatchIdValue(json, "output", tmpstr.c_str(), target, requestId)) {
     return;
+  }
+  if (esp3d_commands.getOutputClient() == ESP3DClientType::usb_serial) {
+    tmpstr = String(esp3d_usb_serial_service.baudRate());
+    if (!dispatchIdValue(json, "baud", tmpstr.c_str(), target, requestId,
+                         false)) {
+      return;
+    }
+  }
+#endif  // defined(USB_SERIAL_FEATURE)
+
+#if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL
+  if (esp3d_commands.getOutputClient() == ESP3DClientType::serial) {
+    // baud rate
+    tmpstr = String(esp3d_serial_service.baudRate());
+    if (!dispatchIdValue(json, "baud", tmpstr.c_str(), target, requestId,
+                         false)) {
+      return;
+    }
   }
 #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
         // MKS_SERIAL
+
 #if defined(WIFI_FEATURE)
   if (WiFi.getMode() != WIFI_OFF) {
     // sleep mode
@@ -397,7 +425,7 @@ void ESP3DCommands::ESP420(int cmd_params_pos, ESP3DMessage* msg) {
       return;
     }
     // IP mode
-    esp3d_log_d("IP mode %d", NetConfig::isIPModeDHCP(ESP_ETH_STA));
+    esp3d_log("IP mode %d", NetConfig::isIPModeDHCP(ESP_ETH_STA));
     tmpstr = (NetConfig::isIPModeDHCP(ESP_ETH_STA)) ? "dhcp" : "static";
     if (!dispatchIdValue(json, "ip mode", tmpstr.c_str(), target, requestId,
                          false)) {
@@ -428,8 +456,7 @@ void ESP3DCommands::ESP420(int cmd_params_pos, ESP3DMessage* msg) {
       return;
     }
   } else {
-     if (!dispatchIdValue(json, "ethernet", "OFF", target, requestId,
-                         false)) {
+    if (!dispatchIdValue(json, "ethernet", "OFF", target, requestId, false)) {
       return;
     }
   }

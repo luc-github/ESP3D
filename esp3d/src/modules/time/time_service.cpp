@@ -189,7 +189,7 @@ bool TimeService::updateTimeZone(bool fromsettings) {
   _time_zone_config += ">";
   _time_zone_config += _time_zone[0]=='+' ? "-" : "+";
   _time_zone_config += &_time_zone[1];
-  esp3d_log_d("Time zone is %s", _time_zone_config.c_str());
+  esp3d_log("Time zone is %s", _time_zone_config.c_str());
   return true;
 }
 

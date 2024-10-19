@@ -179,6 +179,9 @@ const char* help[] = {
     "[ESP900](ENABLE/DISABLE) - display/set serial state",
     "[ESP901]<BAUD RATE> - display/set serial baud rate",
 #endif  // COMMUNICATION_PROTOCOL != SOCKET_SERIAL
+#if defined(USB_SERIAL_FEATURE)
+    "[ESP902]<BAUD RATE> - display/set USB Serial baud rate",
+#endif  // defined(USB_SERIAL_FEATURE)
 #ifdef BUZZER_DEVICE
     "[ESP910](ENABLE/DISABLE) - display/set buzzer state",
 #endif  // BUZZER_DEVICE
@@ -186,6 +189,9 @@ const char* help[] = {
     "[ESP930](ENABLE/DISABLE/CLOSE) - display/set serial bridge state",
     "[ESP931]<BAUD RATE> - display/set serial bridge baud rate",
 #endif  // defined(ESP_SERIAL_BRIDGE_OUTPUT)
+#if defined(USB_SERIAL_FEATURE)
+    "[ESP950]<SERIAL/USB> - display/set client output",
+#endif  // defined(USB_SERIAL_FEATURE)
 #if defined(ARDUINO_ARCH_ESP32) &&                             \
     (CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32S2 || \
      CONFIG_IDF_TARGET_ESP32C3)
@@ -304,13 +310,18 @@ const uint cmdlist[] = {
 #if COMMUNICATION_PROTOCOL != SOCKET_SERIAL
     900, 901,
 #endif  // COMMUNICATION_PROTOCOL != SOCKET_SERIAL
+#if defined(USB_SERIAL_FEATURE)
+    902,
+#endif  // defined(USB_SERIAL_FEATURE)
 #ifdef BUZZER_DEVICE
     910,
-
 #endif  // BUZZER_DEVICE
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
     930, 931,
 #endif  // defined(ESP_SERIAL_BRIDGE_OUTPUT)
+#if defined(USB_SERIAL_FEATURE)
+    950,
+#endif  // defined(USB_SERIAL_FEATURE)
 #if defined(ARDUINO_ARCH_ESP32) &&                             \
     (CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32S2 || \
      CONFIG_IDF_TARGET_ESP32C3)

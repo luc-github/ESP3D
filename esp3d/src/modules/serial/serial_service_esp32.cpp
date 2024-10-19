@@ -19,7 +19,7 @@
 */
 #if defined(ARDUINO_ARCH_ESP32)
 #include "../../include/esp3d_config.h"
-#if COMMUNICATION_PROTOCOL == RAW_SERIAL || defined(ESP_SERIAL_BRIDGE_OUTPUT)
+#if COMMUNICATION_PROTOCOL == RAW_SERIAL || defined(ESP_SERIAL_BRIDGE_OUTPUT) || COMMUNICATION_PROTOCOL == MKS_SERIAL 
 #include "../../core/esp3d_commands.h"
 #include "../../core/esp3d_settings.h"
 #include "../../core/esp3d_string.h"
@@ -116,7 +116,7 @@ ESP3DAuthenticationLevel ESP3DSerialService::getAuthentication() {
 void ESP3DSerialService::receiveSerialCb() { esp3d_serial_service.receiveCb(); }
 
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
-void ESP3DSerialService::receiveBridgeSeialCb() {
+void ESP3DSerialService::receiveBridgeSerialCb() {
   serial_bridge_service.receiveCb();
 }
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
@@ -205,7 +205,7 @@ bool ESP3DSerialService::begin(uint8_t serialIndex) {
     }
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
     if (_id == BRIDGE_SERIAL) {
-      Serials[_serialIndex]->onReceive(receiveBridgeSeialCb);
+      Serials[_serialIndex]->onReceive(receiveBridgeSerialCb);
     }
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
   }
@@ -246,7 +246,7 @@ void ESP3DSerialService::handle() {
       len = 10;
     }
     while (len > 0) {
-      esp3d_log_d("Serial in fifo size %d", _messagesInFIFO.size());
+      esp3d_log("Serial in fifo size %d", _messagesInFIFO.size());
       ESP3DMessage *message = _messagesInFIFO.pop();
       if (message) {
         esp3d_commands.process(message);
@@ -274,7 +274,7 @@ void ESP3DSerialService::flushbuffer() {
   if (message) {
     // process command
     message->type = ESP3DMessageType::unique;
-    esp3d_log_d("Message sent to fifo list");
+    esp3d_log("Message sent to fifo list");
     _messagesInFIFO.push(message);
   } else {
     esp3d_log_e("Cannot create message");

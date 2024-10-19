@@ -80,7 +80,7 @@ bool EthConfig::begin(int8_t& espMode) {
   ipMode(true);
   end();
 #if ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_LAN8720
-  esp3d_log_d("ETH PHY Type %d", ESP3D_ETH_PHY_TYPE);
+  esp3d_log("ETH PHY Type %d", ESP3D_ETH_PHY_TYPE);
   _started = ETH.begin();
 #endif  // ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_LAN8720
 #if ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_TLK110 ||  \
@@ -101,7 +101,7 @@ bool EthConfig::begin(int8_t& espMode) {
   if (ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_KSZ8081) {
     phytype = ETH_PHY_KSZ8081;
   }
-  esp3d_log_d("ETH PHY Type %d", phytype);
+  esp3d_log("ETH PHY Type %d", phytype);
   _started = ETH.begin(phytype, ESP3D_ETH_PHY_ADDR,
                        ESP3D_ETH_PHY_POWER_PIN, ESP3D_ETH_PHY_MDC_PIN,
                        ESP3D_ETH_PHY_MDIO_PIN, ESP3D_ETH_CLK_MODE_PIN);
@@ -110,7 +110,7 @@ bool EthConfig::begin(int8_t& espMode) {
         // ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_KSZ8041 || ESP3D_ETH_PHY_TYPE ==
         // TYPE_ETH_PHY_KSZ8081
 #if ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_W5500
-  esp3d_log_d("ETH spi PHY Type %d", ESP3D_ETH_PHY_TYPE);
+  esp3d_log("ETH spi PHY Type %d", ESP3D_ETH_PHY_TYPE);
   ETH_SPI.begin(ETH_SPI_SCK, ETH_SPI_MISO, ETH_SPI_MOSI);
   _started = ETH.begin(ETH_PHY_W5500, ESP3D_ETH_PHY_ADDR, ETH_PHY_CS,
                        ETH_PHY_IRQ, ETH_PHY_RST, ETH_SPI);

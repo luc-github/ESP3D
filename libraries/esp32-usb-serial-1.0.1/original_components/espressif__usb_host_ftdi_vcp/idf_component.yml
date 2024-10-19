@@ -1,0 +1,9 @@
+dependencies:
+  espressif/usb_host_cdc_acm:
+    public: true
+    version: ^2.0.0
+  idf:
+    version: '>=4.4'
+description: USB Host driver for FTDI USB<->UART converters series of chips
+url: https://github.com/espressif/idf-extra-components/tree/master/usb/usb_host_ftdi_vcp
+version: 2.0.0

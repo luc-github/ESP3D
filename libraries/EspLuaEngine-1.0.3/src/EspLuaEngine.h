@@ -66,6 +66,7 @@ class EspLuaEngine {
   bool isRunning();
   Status getStatus();
   bool hasError();
+  void clearError(){_lastError="";}
 
  private:
   lua_State* _lua_state;
