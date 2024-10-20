@@ -240,6 +240,15 @@ void ESP3DCommands::ESP420(int cmd_params_pos, ESP3DMessage* msg) {
       return;
     }
   }
+  if (esp3d_usb_serial_service.isConnected()) {
+    tmpstr = esp3d_usb_serial_service.getVIDString();
+    tmpstr += ":";
+    tmpstr += esp3d_usb_serial_service.getPIDString();
+    if (!dispatchIdValue(json, "Vid/Pid", tmpstr.c_str(), target, requestId,
+                         false)) {
+      return;
+    }
+  }
 #endif  // defined(USB_SERIAL_FEATURE)
 
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL == MKS_SERIAL

@@ -255,6 +255,32 @@ void ESP3DUsbSerialService::connectDevice() {
   }
 }
 
+const char *ESP3DUsbSerialService::getVIDString() {
+  if (_vcp_ptr && _is_connected) {
+    return esp_usb::getVIDString();
+  }
+  return "None";
+}
+const char *ESP3DUsbSerialService::getPIDString() {
+  if (_vcp_ptr && _is_connected) {
+    return esp_usb::getPIDString();
+  }
+  return "None";
+}
+
+uint16_t ESP3DUsbSerialService::getVID() {
+  if (_vcp_ptr && _is_connected) {
+    return esp_usb::getVID();
+  }
+  return 0;
+}
+uint16_t ESP3DUsbSerialService::getPID() {
+  if (_vcp_ptr && _is_connected) {
+    return esp_usb::getPID();
+  }
+  return 0;
+}
+
 // Setup Serial
 bool ESP3DUsbSerialService::begin() {
   _buffer_mutex = xSemaphoreCreateMutex();

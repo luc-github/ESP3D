@@ -56,6 +56,11 @@ class ESP3DUsbSerialService final {
   void connectDevice();
   void setConnected(bool connected);
   void receiveCb(const uint8_t *data, size_t data_len, void *arg = nullptr);
+  bool isConnected() { return _is_connected; }
+  const char * getVIDString();
+  const char * getPIDString();
+  uint16_t getVID();
+  uint16_t getPID();
 
  private:
   uint32_t _baudRate;
