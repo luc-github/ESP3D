@@ -26,6 +26,10 @@
 #include "../authentication/authentication_service.h"
 #include "usb_serial_service.h"
 
+#if defined(NOTIFICATION_FEATURE)
+#include "../notifications/notifications_service.h"
+#endif  // NOTIFICATION_FEATURE
+
 const uint32_t SupportedUsbSerialBaudList[] = {
     9600,   19200,  38400,  57600,   74880,   115200, 230400,
     250000, 500000, 921600, 1000000, 1958400, 2000000};
@@ -119,6 +123,9 @@ bool usb_rx_callback(const uint8_t *data, size_t data_len, void *arg) {
 void handle_event(const cdc_acm_host_dev_event_data_t *event, void *user_ctx) {
   switch (event->type) {
     case CDC_ACM_HOST_ERROR:
+#if defined(NOTIFICATION_FEATURE)
+      notificationsservice.sendAutoNotification("USB Error occured");
+#endif  // NOTIFICATION_FEATURE
       esp3d_log_e("CDC-ACM error has occurred, err_no = %d\n",
                   event->data.error);
       break;
@@ -142,13 +149,18 @@ void ESP3DUsbSerialService::setConnected(bool connected) {
   _is_connected = connected;
   if (_is_connected) {
     esp3d_log("USB device connected");
+#if defined(NOTIFICATION_FEATURE)
+    notificationsservice.sendAutoNotification("USB Connected");
+#endif  // NOTIFICATION_FEATURE
     if (xSemaphoreTake(_device_disconnected_mutex, portMAX_DELAY) != pdTRUE) {
       esp3d_log_e("Mutex not taken");
       _is_connected = false;
-
     }
   } else {
     esp3d_log("USB device disconnected");
+#if defined(NOTIFICATION_FEATURE)
+    notificationsservice.sendAutoNotification("USB Disconnected");
+#endif  // NOTIFICATION_FEATURE
     xSemaphoreGive(_device_disconnected_mutex);
     _vcp_ptr = nullptr;
   }
@@ -196,8 +208,9 @@ static void esp3d_usb_serial_connection_task(void *pvParameter) {
 }
 
 void ESP3DUsbSerialService::connectDevice() {
-  if (!_started || _is_connected || _vcp_ptr ) {
-    //esp3d_log("USB device is connected (%d) or service not started (%d)", _is_connected, _started);
+  if (!_started || _is_connected || _vcp_ptr) {
+    // esp3d_log("USB device is connected (%d) or service not started (%d)",
+    // _is_connected, _started);
     return;
   }
   const cdc_acm_host_device_config_t dev_config = {
@@ -234,10 +247,8 @@ void ESP3DUsbSerialService::connectDevice() {
     esp3d_log("USB Connected");
     uint16_t vid = esp_usb::getVID();
     uint16_t pid = esp_usb::getPID();
-    esp3d_log("USB device with VID: 0x%04X (%s), PID: 0x%04X (%s) found\n",
-                vid, esp_usb::getVIDString(), pid, esp_usb::getPIDString());
-    // TODO:
-    // Do notification to user ?
+    esp3d_log("USB device with VID: 0x%04X (%s), PID: 0x%04X (%s) found\n", vid,
+              esp_usb::getVIDString(), pid, esp_usb::getPIDString());
     setConnected(true);
   } else {
     esp3d_log_e("USB device not identified");
@@ -398,7 +409,7 @@ size_t ESP3DUsbSerialService::writeBytes(const uint8_t *buffer, size_t size) {
     return 0;
   }
   esp3d_log("writeBytes %d : %s", size, (const char *)buffer);
-  if (_vcp_ptr && _vcp_ptr->tx_blocking((uint8_t *)buffer, size) == ESP_OK) { 
+  if (_vcp_ptr && _vcp_ptr->tx_blocking((uint8_t *)buffer, size) == ESP_OK) {
     if (!(_vcp_ptr && _vcp_ptr->set_control_line_state(true, true) == ESP_OK)) {
       esp3d_log_e("Failed to set control line state");
       return 0;
