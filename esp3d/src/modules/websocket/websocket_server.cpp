@@ -287,7 +287,7 @@ void WebSocket_Server::push2RXbuffer(uint8_t *sbuf, size_t len) {
   for (size_t i = 0; i < len; i++) {
     _lastRXflush = millis();
     // command is defined
-    if ((char(sbuf[i]) == '\n') || (char(sbuf[i]) == '\r')) {
+    if (char(sbuf[i]) == '\n') {
       if (_RXbufferSize < RXBUFFERSIZE) {
         _RXbuffer[_RXbufferSize] = sbuf[i];
         _RXbufferSize++;

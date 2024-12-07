@@ -133,11 +133,7 @@ void ESP3DSerialService::receiveCb() {
         _buffer_size++;
         now = millis();
         if (_buffer_size > ESP3D_SERIAL_BUFFER_SIZE ||
-            _buffer[_buffer_size - 1] == '\n' ||
-            _buffer[_buffer_size - 1] == '\r') {
-          if (_buffer[_buffer_size - 1] == '\r') {
-            _buffer[_buffer_size - 1] = '\n';
-          }
+            _buffer[_buffer_size - 1] == '\n') {
           flushbuffer();
         }
       }
@@ -292,7 +288,7 @@ void ESP3DSerialService::push2buffer(uint8_t *sbuf, size_t len) {
   for (size_t i = 0; i < len; i++) {
     _lastflush = millis();
     // command is defined
-    if ((char(sbuf[i]) == '\n') || (char(sbuf[i]) == '\r')) {
+    if (char(sbuf[i]) == '\n') {
       if (_buffer_size < ESP3D_SERIAL_BUFFER_SIZE) {
         _buffer[_buffer_size] = sbuf[i];
         _buffer_size++;

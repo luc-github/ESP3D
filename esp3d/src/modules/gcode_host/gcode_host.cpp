@@ -81,7 +81,7 @@ bool GcodeHost::push(const uint8_t *sbuf, size_t len) {
   esp3d_log("Push got %d bytes", len);
   for (size_t i = 0; i < len; i++) {
     // it is a line process it
-    if (sbuf[i] == '\n' || sbuf[i] == '\r') {
+    if (sbuf[i] == '\n') {
       flush();
     } else {
       // fill buffer until it is full
@@ -263,7 +263,7 @@ void GcodeHost::readNextCommand() {
       } else {
         _processedSize++;
         _currentPosition++;
-        if (!(((char)c == '\n') || ((char)c == '\r'))) {
+        if (!((char)c == '\n')) {
           _currentCommand += (char)c;
         } else {
           processing = false;
@@ -290,7 +290,7 @@ void GcodeHost::readNextCommand() {
       } else {
         _processedSize++;
         _currentPosition++;
-        if (!(((char)c == '\n') || ((char)c == '\r'))) {
+        if (!(char)c == '\n' ) {
           _currentCommand += (char)c;
         } else {
           processing = false;

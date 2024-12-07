@@ -22,6 +22,7 @@
 #include <Arduino.h>
 
 #include "../include/esp3d_config.h"
+#include "esp3d_settings.h"
 
 #if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
 #include "../modules/network/netconfig.h"
@@ -175,15 +176,15 @@ const char* esp3d_string::urlEncode(const char* s) {
   encoded = "";
   char temp[4];
   for (int i = 0; i < strlen(s); i++) {
-    temp[0] =s[i];
-    if (temp[0] == 32) {  //space
+    temp[0] = s[i];
+    if (temp[0] == 32) {  // space
       encoded.concat('+');
-    } else if ((temp[0] >= 48 && temp[0] <= 57)        /*0-9*/
-               || (temp[0] >= 65 && temp[0] <= 90)     /*A-Z*/
-               || (temp[0] >= 97 && temp[0] <= 122)    /*a-z*/
+    } else if ((temp[0] >= 48 && temp[0] <= 57)     /*0-9*/
+               || (temp[0] >= 65 && temp[0] <= 90)  /*A-Z*/
+               || (temp[0] >= 97 && temp[0] <= 122) /*a-z*/
     ) {
       encoded.concat(temp[0]);
-    } else {  //character needs encoding
+    } else {  // character needs encoding
       snprintf(temp, 4, "%%%02X", temp[0]);
       encoded.concat(temp);
     }
@@ -208,7 +209,7 @@ const char* esp3d_string::formatBytes(uint64_t bytes) {
 
 bool esp3d_string::isPrintableChar(char ch) {
   int c = static_cast<int>(ch);
-  if (c == 9 || (c >= 32 && c <= 126) || c >= 128) {
+  if (c == '\t' || c == '\r' || (c >= ' ' && c <= '~') || c >= 128) {
     return true;
   }
   return false;
@@ -254,7 +255,7 @@ const char* esp3d_string::formatDuration(uint64_t duration) {
     display = true;
   }
   if (hours > 0 || display) {
-    result+= String(hours) + "h ";
+    result += String(hours) + "h ";
     display = true;
   }
   if (minutes > 0 || display) {
@@ -267,16 +268,18 @@ const char* esp3d_string::formatDuration(uint64_t duration) {
 }
 
 bool esp3d_string::isRealtimeCommand(char c) {
+  if (ESP3DSettings::GetFirmwareTarget() == GRBL ||
+      ESP3DSettings::GetFirmwareTarget() == GRBLHAL) {
     // Standard characters
     if (c == '?' || c == '!' || c == '~' || c == 0x18) {  // 0x18 is  ^X
-        return true;
+      return true;
     }
-    
+
     // Range >= 0x80 et <= 0xA4
     const unsigned char uc = static_cast<unsigned char>(c);
     if (uc >= 0x80 && uc <= 0xA4) {
-        return true;
+      return true;
     }
-    
-    return false;
+  }
+  return false;
 }

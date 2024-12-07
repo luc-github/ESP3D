@@ -99,7 +99,7 @@ size_t Serial_2_Socket::write(const uint8_t *buffer, size_t size) {
   for (int i = 0; i < size; i++) {
     _TXbuffer[_TXbufferSize] = buffer[i];
     _TXbufferSize++;
-    if (buffer[i] == (const uint8_t)'\n' || buffer[i] == (const uint8_t)'\r') {
+    if (buffer[i] == (const uint8_t)'\n') {
       esp3d_log("S2S: %s TXSize: %d", (const char *)_TXbuffer, _TXbufferSize);
       flush();
     }

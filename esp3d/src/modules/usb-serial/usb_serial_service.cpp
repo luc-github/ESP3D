@@ -177,11 +177,7 @@ void ESP3DUsbSerialService::receiveCb(const uint8_t *data, size_t data_len,
       _buffer[_buffer_size] = data[i];
       _buffer_size++;
       if (_buffer_size > ESP3D_USB_SERIAL_BUFFER_SIZE ||
-          _buffer[_buffer_size - 1] == '\n' ||
-          _buffer[_buffer_size - 1] == '\r') {
-        if (_buffer[_buffer_size - 1] == '\r') {
-          _buffer[_buffer_size - 1] = '\n';
-        }
+          _buffer[_buffer_size - 1] == '\n') {
         flushbuffer();
       }
     }
