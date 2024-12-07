@@ -227,7 +227,6 @@ class ESP3DCommands {
                        bool isFirst = false);
   bool dispatchAuthenticationError(ESP3DMessage* msg, uint cmdid, bool json);
   bool formatCommand(char* cmd, size_t len);
-  bool isRealTimeCommand(char* cmd, size_t len);
   ESP3DClientType getOutputClient(bool fromSettings = false);
   void setOutputClient(ESP3DClientType output_client) {
     _output_client = output_client;

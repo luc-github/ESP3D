@@ -257,7 +257,8 @@ bool HTTP_Server::dispatch(ESP3DMessage* msg) {
   }
   if ((msg->size > 0 && msg->data) || (msg->type == ESP3DMessageType::tail)) {
     if (msg->type == ESP3DMessageType::head ||
-        msg->type == ESP3DMessageType::unique) {
+        msg->type == ESP3DMessageType::unique ||
+        msg->type == ESP3DMessageType::realtimecmd) {
       set_http_headers();
       int code = 200;
       if (msg->request_id.code != 0) {

@@ -31,7 +31,7 @@ const char* formatBytes(uint64_t bytes);
 bool isPrintableChar(char c);
 const char* expandString(const char* s, bool formatspace = false);
 const char * urlEncode(const char* s);
-bool isRealtimeCommand(char c);
+bool isRealTimeCommand(char c);
 }  // namespace esp3d_string
 
 #endif  //_ESP3D_STRING_H

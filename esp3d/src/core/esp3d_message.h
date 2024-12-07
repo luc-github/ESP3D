@@ -60,7 +60,7 @@ class WebServer;
 #endif //pdTRUE
 #endif //ESP8266
 
-enum class ESP3DMessageType : uint8_t { head, core, tail, unique };
+enum class ESP3DMessageType : uint8_t { head, core, tail, unique, realtimecmd };
 
 union ESP3DRequest {
   uint id;

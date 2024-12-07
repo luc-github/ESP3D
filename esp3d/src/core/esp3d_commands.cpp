@@ -107,8 +107,6 @@ ESP3DCommands::ESP3DCommands() {
 
 ESP3DCommands::~ESP3DCommands() {}
 
-bool ESP3DCommands::isRealTimeCommand(char *cmd, size_t len) { return false; }
-
 // check if current line is an [ESPXXX] command
 bool ESP3DCommands::is_esp_command(uint8_t *sbuf, size_t len) {
   // TODO
@@ -1156,10 +1154,6 @@ bool ESP3DCommands::dispatchIdValue(bool json, const char *Id,
 }
 
 bool ESP3DCommands::formatCommand(char *cmd, size_t len) {
-  if (isRealTimeCommand(cmd, len)) {
-    // TODO: what if is realtime command ?
-    return true;
-  }
   uint sizestr = strlen(cmd);
   if (len > sizestr + 2) {
     cmd[sizestr] = '\n';
@@ -1233,7 +1227,7 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg, uint8_t *sbuf, size_t len) {
   // check is need \n at the end of the command
   if (msg->type == ESP3DMessageType::unique ||
       msg->type == ESP3DMessageType::tail) {
-    esp3d_log("unique or tail message :*%s*", (char *)sbuf);
+    esp3d_log_d("unique or tail message :*%s*", (char *)sbuf);
     if (!formatCommand((char *)sbuf, len)) {
       esp3d_log("format command failed");
       String tmpstr = "";
@@ -1250,7 +1244,7 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg, uint8_t *sbuf, size_t len) {
         return false;
       }
     } else {
-      esp3d_log("format command success, no need to update");
+      esp3d_log_d("format command success, no need to update");
       if (!esp3d_message_manager.setDataContent(msg, sbuf, len)) {
         esp3d_log_e("set data content failed");
         esp3d_message_manager.deleteMsg(msg);
@@ -1259,6 +1253,9 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg, uint8_t *sbuf, size_t len) {
     }
   } else {
     esp3d_log("not unique or tail message");
+    if (msg->type == ESP3DMessageType::realtimecmd){
+      esp3d_log_d("realtime command");
+    }
     if (!esp3d_message_manager.setDataContent(msg, sbuf, len)) {
       esp3d_log_e("set data content failed");
       esp3d_message_manager.deleteMsg(msg);
@@ -1468,6 +1465,12 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
 
 #ifdef PRINTER_HAS_DISPLAY
     case ESP3DClientType::remote_screen:
+      if (ESP3DSettings::GetFirmwareTarget() == GRBL ||
+      ESP3DSettings::GetFirmwareTarget() == GRBLHAL) {
+        esp3d_log_e("Remote screen message is not supported for GRBL");
+        sendOk = false;
+        break;
+      }
       esp3d_log("Remote screen message");
       // change target to output client
       msg->target = getOutputClient();

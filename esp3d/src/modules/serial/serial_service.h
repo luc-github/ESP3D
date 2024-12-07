@@ -29,6 +29,7 @@
 #endif  // ARDUINO_ARCH_ESP32
 
 #define ESP3D_SERIAL_BUFFER_SIZE 1024
+#define ESP_SERIAL_PARAM SERIAL_8N1
 
 extern const uint32_t SupportedBaudList[];
 extern const size_t SupportedBaudListSize;
@@ -47,7 +48,9 @@ class ESP3DSerialService final {
   uint8_t serialIndex() { return _serialIndex; }
   const uint32_t *get_baudratelist(uint8_t *count);
   void flush();
+  #if defined(ARDUINO_ARCH_ESP8266)
   void swap();
+  #endif // ARDUINO_ARCH_ESP8266
   size_t writeBytes(const uint8_t *buffer, size_t size);
   size_t readBytes(uint8_t *sbuf, size_t len);
   inline bool started() { return _started; }
@@ -77,8 +80,12 @@ class ESP3DSerialService final {
   SemaphoreHandle_t _mutex;
   ESP3DMessageFIFO _messagesInFIFO;
 #endif  // ARDUINO_ARCH_ESP32
+#if defined(ARDUINO_ARCH_ESP8266)
   void push2buffer(uint8_t *sbuf, size_t len);
-  void flushbuffer();
+#endif // ARDUINO_ARCH_ESP8266
+  void flushBuffer();
+  void flushChar(char c);
+  void flushData(const uint8_t* data, size_t size, ESP3DMessageType type);
 };
 
 extern ESP3DSerialService esp3d_serial_service;

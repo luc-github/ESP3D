@@ -443,7 +443,7 @@
 /* Printer screen
  *  If your printer has a display
  */
-#define PRINTER_HAS_DISPLAY
+//#define PRINTER_HAS_DISPLAY
 
 /* ESP3D screen
  * Screen connected to ESP board
@@ -644,9 +644,9 @@
 // LOG_OUTPUT_SERIAL2
 // LOG_OUTPUT_TELNET
 // LOG_OUTPUT_WEBSOCKET
-// #define ESP_LOG_FEATURE LOG_OUTPUT_SERIAL0
+ #define ESP_LOG_FEATURE LOG_OUTPUT_SERIAL0
 
-// #define ESP3D_DEBUG_LEVEL LOG_LEVEL_DEBUG
+ #define ESP3D_DEBUG_LEVEL LOG_LEVEL_DEBUG
 
 #ifdef ESP_LOG_FEATURE
 #define LOG_ESP3D_BAUDRATE 115200
@@ -657,7 +657,7 @@
 // #define ESP_BENCHMARK_FEATURE
 
 // Disable sanity check at compilation
-// #define ESP_NO_SANITY_CHECK
+ #define ESP_NO_SANITY_CHECK
 
 /************************************
  *

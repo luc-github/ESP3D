@@ -175,7 +175,7 @@ const char* esp3d_string::urlEncode(const char* s) {
   static String encoded;
   encoded = "";
   char temp[4];
-  for (int i = 0; i < strlen(s); i++) {
+  for (size_t i = 0; i < strlen(s); i++) {
     temp[0] = s[i];
     if (temp[0] == 32) {  // space
       encoded.concat('+');
@@ -267,7 +267,7 @@ const char* esp3d_string::formatDuration(uint64_t duration) {
   return result.c_str();
 }
 
-bool esp3d_string::isRealtimeCommand(char c) {
+bool esp3d_string::isRealTimeCommand(char c) {
   if (ESP3DSettings::GetFirmwareTarget() == GRBL ||
       ESP3DSettings::GetFirmwareTarget() == GRBLHAL) {
     // Standard characters

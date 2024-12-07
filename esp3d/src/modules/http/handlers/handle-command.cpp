@@ -29,19 +29,9 @@
 #include "../../../core/esp3d_commands.h"
 #include "../../../core/esp3d_message.h"
 #include "../../../core/esp3d_settings.h"
+#include "../../../core/esp3d_string.h"
 #include "../../authentication/authentication_service.h"
 
-const unsigned char realTimeCommands[] = {
-    '!',  '~',  '?',  0x18, 0x84, 0x85, 0x90, 0x92, 0x93, 0x94, 0x95,
-    0x96, 0x97, 0x99, 0x9A, 0x9B, 0x9C, 0x9D, 0x9E, 0xA0, 0xA1};
-bool isRealTimeCommand(unsigned char c) {
-  for (unsigned int i = 0; i < sizeof(realTimeCommands); i++) {
-    if (c == realTimeCommands[i]) {
-      return true;
-    }
-  }
-  return false;
-}
 
 // Handle web command query and send answer//////////////////////////////
 void HTTP_Server::handle_web_command() {
@@ -53,26 +43,36 @@ void HTTP_Server::handle_web_command() {
   }
   // esp3d_log("Authentication = %d", auth_level);
   String cmd = "";
+  bool isRealTimeCommand = false;
   if (_webserver->hasArg("cmd")) {
     cmd = _webserver->arg("cmd");
+    esp3d_log_d("Command is %s", cmd.c_str());
     if (!cmd.endsWith("\n")) {
-      if (ESP3DSettings::GetFirmwareTarget() == GRBL) {
+      esp3d_log_d("Command is not ending with \\n");
+      if (ESP3DSettings::GetFirmwareTarget() == GRBL || ESP3DSettings::GetFirmwareTarget() == GRBLHAL) {
         uint len = cmd.length();
-        if (!((len == 1 && isRealTimeCommand(cmd[0])) ||
-              (len == 2 && isRealTimeCommand(cmd[1])))) {
+        if (!((len == 1 && esp3d_string::isRealTimeCommand(cmd[0])) ||
+              (len == 2 && esp3d_string::isRealTimeCommand(cmd[1])))) {
           cmd += "\n";
+          esp3d_log_d("Command is not realtime, adding \\n");
         } else {  // no need \n for realtime command
+          esp3d_log_d("Command is realtime, no need to add \\n");
+          isRealTimeCommand = true;
           // remove the 0XC2 that should not be there
-          if (len == 2 && isRealTimeCommand(cmd[1]) && cmd[1] == 0xC2) {
+          if (len == 2 && esp3d_string::isRealTimeCommand(cmd[1]) && cmd[1] == 0xC2) {
             cmd[0] = cmd[1];
             cmd[1] = 0x0;
+            esp3d_log_d("Command is realtime, removing 0xC2");
           }
         }
       } else {
+        esp3d_log_d("Command is not realtime, adding \\n");
         cmd += "\n";  // need to validate command
       }
+    } else {
+      esp3d_log_d("Command is ending with \\n");
     }
-    esp3d_log("Web Command: %s", cmd.c_str());
+    esp3d_log_d("Message type is %s for %s", isRealTimeCommand ? "realtimecmd" : "unique", cmd.c_str());
     if (esp3d_commands.is_esp_command((uint8_t *)cmd.c_str(), cmd.length())) {
       ESP3DMessage *msg = esp3d_message_manager.newMsg(
           ESP3DClientType::http, esp3d_commands.getOutputClient(),
@@ -91,7 +91,7 @@ void HTTP_Server::handle_web_command() {
       // no need to wait to answer then
       _webserver->send(200, "text/plain", "ESP3D says: command forwarded");
       esp3d_commands.dispatch(cmd.c_str(), esp3d_commands.getOutputClient(),
-                              no_id, ESP3DMessageType::unique,
+                              no_id, isRealTimeCommand ? ESP3DMessageType::realtimecmd :ESP3DMessageType::unique,
                               ESP3DClientType::http, auth_level);
     }
   } else if (_webserver->hasArg("ping")) {
