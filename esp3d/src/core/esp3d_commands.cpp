@@ -1205,10 +1205,6 @@ void ESP3DCommands::process(ESP3DMessage *msg) {
     esp3d_log("Execute internal command %d", cmdId);
     execute_internal_command(cmdId, espcmdpos, msg);
   } else {
-    /*esp3d_log("Dispatch command, len %d, from %d(%s) to %d(%s)", msg->size,
-              static_cast<uint8_t>(msg->origin), GETCLIENTSTR(msg->origin),
-              static_cast<uint8_t>(msg->target), GETCLIENTSTR(msg->target));*/
-
     // Work around to avoid to dispatch single \n or \r to everyone as it is
     // part of previous ESP3D command
     if (msg->size == 1 &&

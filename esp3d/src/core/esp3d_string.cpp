@@ -265,3 +265,18 @@ const char* esp3d_string::formatDuration(uint64_t duration) {
 
   return result.c_str();
 }
+
+bool esp3d_string::isRealtimeCommand(char c) {
+    // Standard characters
+    if (c == '?' || c == '!' || c == '~' || c == 0x18) {  // 0x18 is  ^X
+        return true;
+    }
+    
+    // Range >= 0x80 et <= 0xA4
+    const unsigned char uc = static_cast<unsigned char>(c);
+    if (uc >= 0x80 && uc <= 0xA4) {
+        return true;
+    }
+    
+    return false;
+}
