@@ -217,6 +217,9 @@ void BTService::flushBuffer() {
 
 // push collected data to buffer and proceed accordingly
 void BTService::push2buffer(uint8_t *sbuf, size_t len) {
+  if (!_buffer || !_started) {
+    return;
+  }
   for (size_t i = 0; i < len; i++) {
     _lastflush = millis();
     if (esp3d_string::isRealTimeCommand(sbuf[i])) {
@@ -224,7 +227,7 @@ void BTService::push2buffer(uint8_t *sbuf, size_t len) {
     } else {
       _buffer[_buffer_size] = sbuf[i];
       _buffer_size++;
-      if (_buffer_size > ESP3D_SERIAL_BUFFER_SIZE ||
+      if (_buffer_size > ESP3D_BT_BUFFER_SIZE ||
           _buffer[_buffer_size - 1] == '\n') {
         flushBuffer();
       }
