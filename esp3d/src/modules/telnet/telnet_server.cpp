@@ -186,7 +186,7 @@ void Telnet_Server::handle() {
   // we cannot left data in buffer too long
   // in case some commands "forget" to add \n
   if (((millis() - _lastflush) > TIMEOUT_TELNET_FLUSH) && (_buffer_size > 0)) {
-    flushbuffer();
+    flushBuffer();
   }
 }
 
@@ -214,57 +214,48 @@ void Telnet_Server::initAuthentication() {
 }
 ESP3DAuthenticationLevel Telnet_Server::getAuthentication() { return _auth; }
 
-void Telnet_Server::flushbuffer() {
-  if (!_buffer || !_started) {
-    _buffer_size = 0;
-    return;
-  }
-  _buffer[_buffer_size] = 0x0;
-  ESP3DMessage *msg = esp3d_message_manager.newMsg(
-      ESP3DClientType::telnet, esp3d_commands.getOutputClient(), _buffer,
-      _buffer_size, _auth);
-  if (msg) {
-    // process command
-    esp3d_commands.process(msg);
+
+
+void Telnet_Server::flushData(const uint8_t *data, size_t size, ESP3DMessageType type) {
+  ESP3DMessage *message = esp3d_message_manager.newMsg(
+      ESP3DClientType::telnet, esp3d_commands.getOutputClient(), data,
+      size, _auth);
+
+  if (message) {
+    message->type = type;
+    esp3d_log("Process Message");
+    esp3d_commands.process(message);
   } else {
     esp3d_log_e("Cannot create message");
   }
-
   _lastflush = millis();
+}
+
+
+void Telnet_Server::flushChar(char c) { flushData((uint8_t *)&c, 1, ESP3DMessageType::realtimecmd); }
+
+void Telnet_Server::flushBuffer() {
+  _buffer[_buffer_size] = 0x0;
+  flushData((uint8_t *)_buffer, _buffer_size, ESP3DMessageType::unique);
   _buffer_size = 0;
 }
 
+
 void Telnet_Server::push2buffer(uint8_t *sbuf, size_t len) {
-  if (!_buffer) {
+  if (!_buffer || !_started) {
     return;
   }
   for (size_t i = 0; i < len; i++) {
     _lastflush = millis();
-    // command is defined
-    if (char(sbuf[i]) == '\n') {
-      if (_buffer_size < ESP3D_TELNET_BUFFER_SIZE) {
-        _buffer[_buffer_size] = sbuf[i];
-        _buffer_size++;
-      }
-      flushbuffer();
-    } else if (esp3d_string::isPrintableChar(char(sbuf[i]))) {
-      if (_buffer_size < ESP3D_TELNET_BUFFER_SIZE) {
-        _buffer[_buffer_size] = sbuf[i];
-        _buffer_size++;
-      } else {
-        flushbuffer();
-        _buffer[_buffer_size] = sbuf[i];
-        _buffer_size++;
-      }
-    } else {  // it is not printable char
-      // clean buffer first
-      if (_buffer_size > 0) {
-        flushbuffer();
-      }
-      // process char
+    if (esp3d_string::isRealTimeCommand(sbuf[i])) {
+      flushChar(sbuf[i]);
+    } else {
       _buffer[_buffer_size] = sbuf[i];
       _buffer_size++;
-      flushbuffer();
+      if (_buffer_size > ESP3D_TELNET_BUFFER_SIZE ||
+          _buffer[_buffer_size - 1] == '\n') {
+        flushBuffer();
+      }
     }
   }
 }

@@ -176,7 +176,7 @@ void BTService::handle() {
   // we cannot left data in buffer too long
   // in case some commands "forget" to add \n
   if (((millis() - _lastflush) > TIMEOUT_BT_FLUSH) && (_buffer_size > 0)) {
-    flushbuffer();
+    flushBuffer();
   }
 }
 
@@ -192,8 +192,8 @@ ESP3DAuthenticationLevel BTService::getAuthentication() { return _auth; }
 void BTService::flushData(const uint8_t *data, size_t size,
                           ESP3DMessageType type) {
   ESP3DMessage *message = esp3d_message_manager.newMsg(
-      ESP3DClientType::bluetooth, esp3d_commands.getOutputClient(), _buffer,
-      _buffer_size, _auth);
+      ESP3DClientType::bluetooth, esp3d_commands.getOutputClient(), data,
+      size, _auth);
 
   if (message) {
     message->type = type;

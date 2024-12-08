@@ -57,7 +57,7 @@ class BTService {
   uint8_t _buffer[ESP3D_BT_BUFFER_SIZE + 1];  // keep space of 0x0 terminal
   size_t _buffer_size;
   void push2buffer(uint8_t* sbuf, size_t len);
-  void flushbuffer();
+  void flushBuffer();
   void flushChar(char c);
   void flushData(const uint8_t* data, size_t size, ESP3DMessageType type);
   bool _started;

@@ -62,7 +62,9 @@ class Telnet_Server {
   uint8_t* _buffer;
   size_t _buffer_size;
   void push2buffer(uint8_t* sbuf, size_t len);
-  void flushbuffer();
+  void flushBuffer();
+  void flushChar(char c);
+  void flushData(const uint8_t* data, size_t size, ESP3DMessageType type);
 };
 
 extern Telnet_Server telnet_server;
