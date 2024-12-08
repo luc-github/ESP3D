@@ -281,36 +281,20 @@ size_t WebSocket_Server::writeBytes(const uint8_t *buffer, size_t size) {
 }
 
 void WebSocket_Server::push2RXbuffer(uint8_t *sbuf, size_t len) {
-  if (!_RXbuffer || !_started) {
+   if (!_RXbuffer || !_started || !sbuf) {
     return;
   }
   for (size_t i = 0; i < len; i++) {
     _lastRXflush = millis();
-    // command is defined
-    if (char(sbuf[i]) == '\n') {
-      if (_RXbufferSize < RXBUFFERSIZE) {
-        _RXbuffer[_RXbufferSize] = sbuf[i];
-        _RXbufferSize++;
-      }
-      flushRXbuffer();
-    } else if (esp3d_string::isPrintableChar(char(sbuf[i]))) {
-      if (_RXbufferSize < RXBUFFERSIZE) {
-        _RXbuffer[_RXbufferSize] = sbuf[i];
-        _RXbufferSize++;
-      } else {
-        flushRXbuffer();
-        _RXbuffer[_RXbufferSize] = sbuf[i];
-        _RXbufferSize++;
-      }
-    } else {  // it is not printable char
-      // clean buffer first
-      if (_RXbufferSize > 0) {
-        flushRXbuffer();
-      }
-      // process char
+    if (esp3d_string::isRealTimeCommand(sbuf[i])) {
+      flushRXChar(sbuf[i]);
+    } else {
       _RXbuffer[_RXbufferSize] = sbuf[i];
       _RXbufferSize++;
-      flushRXbuffer();
+      if (_RXbufferSize > RXBUFFERSIZE ||
+          _RXbuffer[_RXbufferSize - 1] == '\n') {
+        flushRXbuffer();
+      }
     }
   }
 }
@@ -324,22 +308,33 @@ void WebSocket_Server::initAuthentication() {
 }
 ESP3DAuthenticationLevel WebSocket_Server::getAuthentication() { return _auth; }
 
+void WebSocket_Server::flushRXChar(char c) {
+  flushRXData((uint8_t *)&c, 1, ESP3DMessageType::realtimecmd);
+}
+
 void WebSocket_Server::flushRXbuffer() {
-  if (!_RXbuffer || !_started) {
-    _RXbufferSize = 0;
+  _RXbuffer[_RXbufferSize] = 0x0;
+  flushRXData((uint8_t *)_RXbuffer, _RXbufferSize, ESP3DMessageType::unique);
+  _RXbufferSize = 0;
+}
+
+void WebSocket_Server::flushRXData(const uint8_t *data, size_t size,
+                                   ESP3DMessageType type) {
+  if (!data || !_started) {
     return;
   }
-  _RXbuffer[_RXbufferSize] = 0x0;
-  ESP3DMessage *msg = esp3d_message_manager.newMsg(
-      _type, esp3d_commands.getOutputClient(), _RXbuffer, _RXbufferSize, _auth);
-  if (msg) {
-    // process command
-    esp3d_commands.process(msg);
+  ESP3DMessage *message = esp3d_message_manager.newMsg(
+      _type, esp3d_commands.getOutputClient(), 
+      data, size, _auth);
+
+  if (message) {
+    message->type = type;
+    esp3d_log("Process Message");
+    esp3d_commands.process(message);
   } else {
     esp3d_log_e("Cannot create message");
   }
   _lastRXflush = millis();
-  _RXbufferSize = 0;
 }
 
 void WebSocket_Server::handle() {

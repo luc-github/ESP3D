@@ -70,6 +70,8 @@ class WebSocket_Server {
   uint8_t _current_id;
   void flushTXbuffer();
   void flushRXbuffer();
+  void flushRXChar(char c);
+  void flushRXData(const uint8_t* data, size_t size, ESP3DMessageType type);
   uint8_t *_RXbuffer;
   uint16_t _RXbufferSize;
 };
