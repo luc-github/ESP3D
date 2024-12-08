@@ -58,6 +58,8 @@ class BTService {
   size_t _buffer_size;
   void push2buffer(uint8_t* sbuf, size_t len);
   void flushbuffer();
+  void flushChar(char c);
+  void flushData(const uint8_t* data, size_t size, ESP3DMessageType type);
   bool _started;
 };
 

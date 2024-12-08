@@ -189,19 +189,29 @@ void BTService::initAuthentication() {
 }
 ESP3DAuthenticationLevel BTService::getAuthentication() { return _auth; }
 
-void BTService::flushbuffer() {
-  _buffer[_buffer_size] = 0x0;
-  // dispatch command
-  ESP3DMessage *msg = esp3d_message_manager.newMsg(
+void BTService::flushData(const uint8_t *data, size_t size,
+                          ESP3DMessageType type) {
+  ESP3DMessage *message = esp3d_message_manager.newMsg(
       ESP3DClientType::bluetooth, esp3d_commands.getOutputClient(), _buffer,
       _buffer_size, _auth);
-  if (msg) {
-    // process command
-    esp3d_commands.process(msg);
+
+  if (message) {
+    message->type = type;
+    esp3d_log("Process Message");
+    esp3d_commands.process(message);
   } else {
     esp3d_log_e("Cannot create message");
   }
   _lastflush = millis();
+}
+
+void BTService::flushChar(char c) {
+  flushData((uint8_t *)&c, 1, ESP3DMessageType::realtimecmd);
+}
+
+void BTService::flushBuffer() {
+  _buffer[_buffer_size] = 0x0;
+  flushData((uint8_t *)_buffer, _buffer_size, ESP3DMessageType::unique);
   _buffer_size = 0;
 }
 
@@ -209,31 +219,15 @@ void BTService::flushbuffer() {
 void BTService::push2buffer(uint8_t *sbuf, size_t len) {
   for (size_t i = 0; i < len; i++) {
     _lastflush = millis();
-    // command is defined
-    if (char(sbuf[i]) == '\n') {
-      if (_buffer_size < ESP3D_BT_BUFFER_SIZE) {
-        _buffer[_buffer_size] = sbuf[i];
-        _buffer_size++;
-      }
-      flushbuffer();
-    } else if (esp3d_string::isPrintableChar(char(sbuf[i]))) {
-      if (_buffer_size < ESP3D_BT_BUFFER_SIZE) {
-        _buffer[_buffer_size] = sbuf[i];
-        _buffer_size++;
-      } else {
-        flushbuffer();
-        _buffer[_buffer_size] = sbuf[i];
-        _buffer_size++;
-      }
-    } else {  // it is not printable char
-      // clean buffer first
-      if (_buffer_size > 0) {
-        flushbuffer();
-      }
-      // process char
+    if (esp3d_string::isRealTimeCommand(sbuf[i])) {
+      flushChar(sbuf[i]);
+    } else {
       _buffer[_buffer_size] = sbuf[i];
       _buffer_size++;
-      flushbuffer();
+      if (_buffer_size > ESP3D_SERIAL_BUFFER_SIZE ||
+          _buffer[_buffer_size - 1] == '\n') {
+        flushBuffer();
+      }
     }
   }
 }
