@@ -78,7 +78,7 @@ void HTTP_Server::handle_web_command() {
           ESP3DClientType::http, esp3d_commands.getOutputClient(),
           (uint8_t *)cmd.c_str(), cmd.length(), auth_level);
       if (msg) {
-        msg->type = ESP3DMessageType::unique;
+        msg->type = ESP3DMessageType::unique; //ESP3D command is always unique
         msg->request_id.code = 200;
         // process command
         esp3d_commands.process(msg);
