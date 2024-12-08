@@ -79,7 +79,9 @@ class ESP3DUsbSerialService final {
 
   TaskHandle_t _xHandle;
   ESP3DMessageFIFO _messagesInFIFO;
-  void flushbuffer();
+  void flushBuffer();
+  void flushChar(char c);
+  void flushData(const uint8_t* data, size_t size, ESP3DMessageType type);
 };
 
 extern ESP3DUsbSerialService esp3d_usb_serial_service;

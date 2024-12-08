@@ -174,11 +174,15 @@ void ESP3DUsbSerialService::receiveCb(const uint8_t *data, size_t data_len,
   }
   if (xSemaphoreTake(_buffer_mutex, portMAX_DELAY) == pdTRUE) {
     for (size_t i = 0; i < data_len; i++) {
-      _buffer[_buffer_size] = data[i];
-      _buffer_size++;
-      if (_buffer_size > ESP3D_USB_SERIAL_BUFFER_SIZE ||
-          _buffer[_buffer_size - 1] == '\n') {
-        flushbuffer();
+      if (esp3d_string::isRealTimeCommand(data[i])) {
+        flushChar(data[i]);
+      } else {
+        _buffer[_buffer_size] = data[i];
+        _buffer_size++;
+        if (_buffer_size > ESP3D_USB_SERIAL_BUFFER_SIZE ||
+            _buffer[_buffer_size - 1] == '\n') {
+          flushBuffer();
+        }
       }
     }
     xSemaphoreGive(_buffer_mutex);
@@ -393,26 +397,31 @@ void ESP3DUsbSerialService::handle() {
   }
 }
 
-void ESP3DUsbSerialService::flushbuffer() {
-  _buffer[_buffer_size] = 0x0;
-  if (_buffer_size == 1 && _buffer[0] == '\n') {
-    _buffer_size = 0;
+void ESP3DUsbSerialService::flushData(const uint8_t *data, size_t size,
+                                      ESP3DMessageType type) {
+  if (!data || !_started) {
     return;
   }
-
-  // dispatch command
   ESP3DMessage *message = esp3d_message_manager.newMsg(
-      _origin, ESP3DClientType::all_clients, (uint8_t *)_buffer, _buffer_size,
-      getAuthentication());
+      _origin, ESP3DClientType::all_clients, data, size, getAuthentication());
   if (message) {
     // process command
-    message->type = ESP3DMessageType::unique;
+    message->type = type;
     esp3d_log("Message sent to fifo list");
     _messagesInFIFO.push(message);
   } else {
     esp3d_log_e("Cannot create message");
   }
   _lastflush = millis();
+}
+
+void ESP3DUsbSerialService::flushChar(char c) {
+  flushData((uint8_t *)&c, 1, ESP3DMessageType::realtimecmd);
+}
+
+void ESP3DUsbSerialService::flushBuffer() {
+  _buffer[_buffer_size] = 0x0;
+  flushData((uint8_t *)_buffer, _buffer_size, ESP3DMessageType::unique);
   _buffer_size = 0;
 }
 
