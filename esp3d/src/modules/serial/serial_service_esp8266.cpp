@@ -146,7 +146,7 @@ void ESP3DSerialService::handle() {
 
 // push collected data to buffer and proceed accordingly
 void ESP3DSerialService::push2buffer(uint8_t *sbuf, size_t len) {
-  if (!_started) {
+  if (!_started || !_buffer) {
     return;
   }
   esp3d_log("buffer get %d data ", len);
