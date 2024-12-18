@@ -501,6 +501,17 @@
  * Sensor feature
  *
  ************************************/
+//#define SENSOR_DEVICE BMP280_DEVICE
+
+// Sensor i2C address
+// Wire address of sensor
+#define SENSOR_ADDR 0x76
+
+// Unit
+// C
+// Unit of the sensor result
+#define SENSOR__UNIT "C"
+
 /* Sensor pin
  * The pin used for the sensor
  */
