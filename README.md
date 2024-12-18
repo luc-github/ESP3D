@@ -1,7 +1,7 @@
 # ESP3D 3.0 alpha stage ![ESP3D](https://img.shields.io/badge/dynamic/json?label=ESP3D&query=$.version&url=https://raw.githubusercontent.com/luc-github/ESP3D/refs/heads/3.0/info.json)
 
 <img src="https://github.com/luc-github/ESP3D/blob/3.0/images/Screen/logo2.png">
-<H3>Do not use it for production, in alpha stage - breaking changes can happen anytime - just be aware of that, but feel free to test it and feedback</H3>
+<H3>Beta stage - ready for testing - feel free to test it and feedback</H3>
 Firmware for ESP8266/ESP8285 and ESP32 (original, pico, S2, S3, C3) used with 3D printer/Sand-Table and CNC 
 
 To compile ESP3D you need to edit the configuration.h according your needs.   
@@ -29,18 +29,10 @@ Please go to [esp3d.io](http://esp3d.io/esp3d/v3.x/index.html) for documentation
    * Android :
        - SSDP/UPnP Scanner : https://play.google.com/store/apps/details?id=com.vgc.ssdpscan
        
-# TODO List to move to beta 
-
-- [Finish web UI Major features (3D printing and GRBL)](https://github.com/luc-github/ESP3D-WEBUI/issues/94#issuecomment-660600551)(done :+1:)
-- Do user documentation: Readme / features list description / wiki/ Features videos etc... (on going on http://esp3d.io)
-- Complete all planned features  (https://github.com/users/luc-github/projects/1/views/1)
-- Test current features heavily   
-- Collect some feedback  
 
 # TODO List in beta
 
 - Test heavily (still)
-- [Implement minor missing features not present in alpha](https://github.com/luc-github/ESP3D-WEBUI/issues?q=is%3Aissue+is%3Aopen+label%3A3.0)
 - Translate UI and build language packs
 - Adjust features according feedback
 - Refactoring code when necessary
