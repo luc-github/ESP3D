@@ -128,6 +128,11 @@ bool WiFiConfig::ConnectSTA2AP() {
     count++;
     status = WiFi.status();
   }
+  if (ESP3DSettings::isVerboseBoot()) {
+    esp3d_commands.dispatch(msg.c_str(), ESP3DClientType::all_clients, no_id,
+                            ESP3DMessageType::unique, ESP3DClientType::system,
+                            ESP3DAuthenticationLevel::admin);
+  }
   return (status == WL_CONNECTED);
 }
 
@@ -330,10 +335,20 @@ bool WiFiConfig::begin(int8_t& espMode) {
       espMode = ESP3DSettings::readByte(ESP_STA_FALLBACK_MODE);
       NetConfig::setMode(espMode);
       if (espMode == ESP_AP_SETUP) {
+         if (ESP3DSettings::isVerboseBoot()) {
+            esp3d_commands.dispatch("Fallback mode is AP Setup", ESP3DClientType::all_clients, no_id,
+                                    ESP3DMessageType::unique, ESP3DClientType::system,
+                                    ESP3DAuthenticationLevel::admin);
+          }
         esp3d_log("Starting AP mode in setup mode");
         res = StartAP(true);
       } else {
         // let setup to handle the change
+         if (ESP3DSettings::isVerboseBoot()) {
+          esp3d_commands.dispatch("Fallback mode is not WiFi", ESP3DClientType::all_clients, no_id,
+                                  ESP3DMessageType::unique, ESP3DClientType::system,
+                                  ESP3DAuthenticationLevel::admin);
+        }
         res = true;
       }
     }
