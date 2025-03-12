@@ -137,10 +137,10 @@ typedef uint ESP3DSettingIndex;
 #define ESP_SERIAL_BRIDGE_BAUD 1225  // 4  bytes= int
 #define ESP_TIME_ZONE 1229           // 7 bytes 6+1 = string
 #define ESP_ETH_STA_IP_VALUE 1237       // 4  bytes xxx.xxx.xxx.xxx
-#define ESP_ETH_STA_MASK_VALUE 1240     // 4  bytes xxx.xxx.xxx.xxx
-#define ESP_ETH_STA_GATEWAY_VALUE 1244  // 4  bytes xxx.xxx.xxx.xxx
-#define ESP_ETH_STA_DNS_VALUE     1248  // 4  bytes xxx.xxx.xxx.xxx
-#define ESP_USB_SERIAL_BAUD_RATE   1252  // 4  bytes= int
+#define ESP_ETH_STA_MASK_VALUE 1241     // 4  bytes xxx.xxx.xxx.xxx
+#define ESP_ETH_STA_GATEWAY_VALUE 1245  // 4  bytes xxx.xxx.xxx.xxx
+#define ESP_ETH_STA_DNS_VALUE     1249  // 4  bytes xxx.xxx.xxx.xxx
+#define ESP_USB_SERIAL_BAUD_RATE   1253  // 4  bytes= int
 
 // Hidden password
 #define HIDDEN_PASSWORD "********"
