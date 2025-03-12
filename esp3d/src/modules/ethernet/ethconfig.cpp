@@ -161,7 +161,14 @@ bool EthConfig::begin(int8_t& espMode) {
   }
   if (res) {
     // Static IP or DHCP client ?
-    if ((ESP3DSettings::readByte(ESP_ETH_STA_IP_MODE) == DHCP_MODE)) {
+    if ((ESP3DSettings::readByte(ESP_ETH_STA_IP_MODE) != DHCP_MODE)) {
+      int32_t IP = ESP3DSettings::read_IP(ESP_ETH_STA_IP_VALUE);
+      int32_t GW = ESP3DSettings::read_IP(ESP_ETH_STA_GATEWAY_VALUE);
+      int32_t MK = ESP3DSettings::read_IP(ESP_ETH_STA_MASK_VALUE);
+      int32_t DNS = ESP3DSettings::read_IP(ESP_ETH_STA_DNS_VALUE);
+      IPAddress ip(IP), mask(MK), gateway(GW), dns(DNS);
+      ETH.config(ip, gateway, mask, dns);
+    } else {     
       uint64_t start = millis();
       String ip = ETH.localIP().toString();
       esp3d_log("IP");
