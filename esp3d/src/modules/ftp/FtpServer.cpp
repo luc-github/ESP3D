@@ -260,7 +260,7 @@ void FtpServer::handle() {
   } else if (cmdStage == FTP_Client) {  // Ftp server idle
     if (ftpServer->hasClient()) {
       client.stop();
-      client = ftpServer->available();
+      client = ftpServer->accept();
     }
     if (client.connected()) {  // A client connected
       clientConnected();
@@ -1051,7 +1051,7 @@ int FtpServer::dataConnect(bool out150) {
       while (!data.connected() && count-- > 0) {
         if (dataServer->hasClient()) {
           data.stop();
-          data = dataServer->available();
+          data = dataServer->accept();
         }
         delay(1);
       }

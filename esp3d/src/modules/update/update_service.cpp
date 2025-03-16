@@ -70,7 +70,7 @@ const uint16_t IPKeysPos[] = {ESP_STA_IP_VALUE, ESP_STA_GATEWAY_VALUE,
                               ESP_AP_IP_VALUE, ESP_ETH_STA_IP_VALUE, ESP_ETH_STA_GATEWAY_VALUE, ESP_ETH_STA_MASK_VALUE, ESP_ETH_STA_DNS_VALUE};
 
 const char* ServintKeysVal[] = {
-    "Serial_Bridge_Baud"
+    "Serial_Bridge_Baud",
     "HTTP_Port",
     "TELNET_Port",
     "SENSOR_INTERVAL",
