@@ -123,8 +123,8 @@ void ESP3DCommands::ESP201(int cmd_params_pos, ESP3DMessage* msg) {
             }
           }
           value = digitalRead(pin);
-          ok_msg = String(value);
         }
+        ok_msg = String(value);
       }
     }
   }
