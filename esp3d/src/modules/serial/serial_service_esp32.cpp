@@ -86,25 +86,35 @@ void ESP3DSerialService::receiveCb() {
   if (!started()) {
     return;
   }
+  //take mutex
   if (xSemaphoreTake(_mutex, portMAX_DELAY)) {
-    uint32_t now = millis();
-    while ((millis() - now) < SERIAL_COMMUNICATION_TIMEOUT) {
-      if (Serials[_serialIndex]->available()) {
-        _buffer[_buffer_size] = Serials[_serialIndex]->read();
-        now = millis();
-        if (esp3d_string::isRealTimeCommand(_buffer[_buffer_size])) {
-          flushChar(_buffer[_buffer_size]);
-          _buffer[_buffer_size] = '\0'; //remove realtime command from buffer
-        } else {
-          _buffer_size++;
-          if (_buffer_size > ESP3D_SERIAL_BUFFER_SIZE ||
-              _buffer[_buffer_size - 1] == '\n') {
-            flushBuffer();
-          }
+    // Get expected len of data
+    size_t count = Serials[_serialIndex]->available();
+    
+    //loop until each byte is handled
+    while (count > 0) {
+      int data = Serials[_serialIndex]->read();
+      
+      // If  read() failed we leave
+      if (data == -1) {
+        esp3d_log_e("Serial read failed unexpectedly");
+        break;  // only break to release mutex
+      }
+      //take the char
+      count--;
+      _buffer[_buffer_size] = (uint8_t)data;
+      //check what next step is
+      if (esp3d_string::isRealTimeCommand(_buffer[_buffer_size])) {
+        flushChar(_buffer[_buffer_size]);
+        _buffer[_buffer_size] = '\0'; //remove realtime command from buffer
+      } else {
+        _buffer_size++;
+        if (_buffer_size > ESP3D_SERIAL_BUFFER_SIZE || _buffer[_buffer_size - 1] == '\n') {
+          flushBuffer();
         }
       }
     }
-
+    //release mutex
     xSemaphoreGive(_mutex);
   } else {
     esp3d_log_e("Mutex not taken");
