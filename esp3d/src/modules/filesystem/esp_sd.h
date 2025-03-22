@@ -20,14 +20,9 @@
 
 #ifndef _ESP_SD_H
 #define _ESP_SD_H
-#include <time.h>
 
-#include "../../core/esp3d_message.h"
 #include "../../include/esp3d_config.h"
-
-#define ESP_SD_FS_HEADER "/SD"
-
-#define ESP_MAX_SD_OPENHANDLE 4
+#include "sd/esp_sd_common.h"
 
 class ESP_SDFile {
  public:
