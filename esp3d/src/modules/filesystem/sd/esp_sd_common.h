@@ -25,7 +25,6 @@
 
 #define ESP_MAX_SD_OPENHANDLE 4
 
-namespace ESP3D_SD {
 
 #if (SD_DEVICE == ESP_SD_NATIVE) && defined(ARDUINO_ARCH_ESP8266)
 #define FS_NO_GLOBALS
@@ -88,5 +87,3 @@ using ESP3D_SD_Class = SDMMCFS;
 
 extern ESP3D_SD_Class ESP3D_SD_Card;
 extern ESP3D_File tSDFile_handle[ESP_MAX_SD_OPENHANDLE];
-
-}

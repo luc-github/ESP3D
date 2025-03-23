@@ -62,7 +62,7 @@ File tSDFile_handle[ESP_MAX_SD_OPENHANDLE];
 #else
 #include <FS.h>
 File tSDFile_handle[ESP_MAX_SD_OPENHANDLE];
-#endif
+#endif*/
 
 #if defined(ESP3DLIB_ENV)
 #include "../../include/Marlin/cardreader.h"
@@ -138,7 +138,7 @@ bool ESP_SD::disableSharedSD() {
 bool ESP_SD::_started = false;
 uint8_t ESP_SD::_state = ESP_SDCARD_NOT_PRESENT;
 uint8_t ESP_SD::_spi_speed_divider = 1;
-*/
+
 
 bool ESP_SD::_sizechanged = true;
 uint8_t ESP_SD::setState(uint8_t flag) {
