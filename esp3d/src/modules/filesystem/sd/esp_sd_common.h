@@ -69,12 +69,10 @@ using ESP3D_SD_Class = SdFat;
 #endif // ((SD_DEVICE == ESP_SDFAT) || (SD_DEVICE == ESP_SDFAT2)) && defined(ARDUINO_ARCH_ESP32
 
 #if (SD_DEVICE == ESP_SD_NATIVE) && defined(ARDUINO_ARCH_ESP32)
-#define FS_NO_GLOBALS
-#define NO_GLOBAL_SD
 #include <FS.h>
 #include <SD.h> 
 using ESP3D_File = fs::File;
-using ESP3D_SD_Class = SDFileSystem;
+using ESP3D_SD_Class = fs::SDFS;
 #endif // (SD_DEVICE == ESP_SD_NATIVE) && defined(ARDUINO_ARCH_ESP32
 
 #if (SD_DEVICE == ESP_SDIO) && defined(ARDUINO_ARCH_ESP32)
