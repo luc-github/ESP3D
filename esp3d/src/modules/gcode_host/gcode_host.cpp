@@ -290,7 +290,7 @@ void GcodeHost::readNextCommand() {
       } else {
         _processedSize++;
         _currentPosition++;
-        if (!(char)c == '\n' ) {
+        if ((char)c != '\n' ) {
           _currentCommand += (char)c;
         } else {
           processing = false;
