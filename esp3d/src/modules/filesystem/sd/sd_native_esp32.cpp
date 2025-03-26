@@ -243,7 +243,7 @@ bool ESP_SD::rmdir(const char *path) {
         newdir += f.name();
         pathlist.push(newdir);
         f.close();
-        f = File();
+        f =ESP3D_File();
       } else {
         String filepath = pathlist.top() + '/';
         filepath += f.name();
@@ -270,7 +270,7 @@ bool ESP_SD::rmdir(const char *path) {
 void ESP_SD::closeAll() {
   for (uint8_t i = 0; i < ESP_MAX_SD_OPENHANDLE; i++) {
     tSDFile_handle[i].close();
-    tSDFile_handle[i] = File();
+    tSDFile_handle[i] =ESP3D_File();
   }
 }
 
@@ -337,7 +337,7 @@ void ESP_SDFile::close() {
         ftmp.close();
       }
     }
-    tSDFile_handle[_index] = File();
+    tSDFile_handle[_index] =ESP3D_File();
     // esp3d_log("Closing File at index %d",_index);
     _index = -1;
   }
