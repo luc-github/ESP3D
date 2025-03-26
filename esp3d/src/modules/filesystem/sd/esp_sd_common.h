@@ -37,6 +37,7 @@ using ESP3D_SD_Class = SDClass;
 #if ((SD_DEVICE == ESP_SDFAT) || (SD_DEVICE == ESP_SDFAT2)) && defined(ARDUINO_ARCH_ESP8266)
 #define FS_NO_GLOBALS
 #define NO_GLOBAL_SD
+#define DISABLE_FS_H_WARNING 1
 #include <SdFat.h>
 #if SDFAT_FILE_TYPE == 1
 using ESP3D_File = File32;
@@ -53,6 +54,7 @@ using ESP3D_SD_Class = SdFat;
 #if ((SD_DEVICE == ESP_SDFAT) || (SD_DEVICE == ESP_SDFAT2)) && defined(ARDUINO_ARCH_ESP32)
 #define FS_NO_GLOBALS
 #define NO_GLOBAL_SD
+#define DISABLE_FS_H_WARNING 1
 #include <SdFat.h>
 #if SDFAT_FILE_TYPE == 1
 using ESP3D_File = File32;
