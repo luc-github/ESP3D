@@ -295,7 +295,7 @@ ESP_SDFile::ESP_SDFile(void* handle, bool isdir, bool iswritemode,
   bool set = false;
   for (uint8_t i = 0; (i < ESP_MAX_SD_OPENHANDLE) && !set; i++) {
     if (!tSDFile_handle[i]) {
-      tSDFile_handle[i] = *((File*)handle);
+      tSDFile_handle[i] = *((ESP3D_File*)handle);
       // filename
       _filename = path;
       // name
