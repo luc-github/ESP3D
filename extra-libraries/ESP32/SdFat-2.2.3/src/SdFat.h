@@ -24,7 +24,6 @@
  */
 #ifndef SdFat_h
 #define SdFat_h
-#define DISABLE_FS_H_WARNING 1
 /**
  * \file
  * \brief main SdFs include file.

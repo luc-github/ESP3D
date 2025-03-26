@@ -20,16 +20,13 @@ sd_native_esp8266.cpp - ESP3D sd support class
 #include "../../../include/esp3d_config.h"
 #if defined(ARDUINO_ARCH_ESP8266) && defined(SD_DEVICE)
 #if (SD_DEVICE == ESP_SD_NATIVE)
-#define FS_NO_GLOBALS
-#include <SD.h>
-#include <SDFS.h>
-
 #include <stack>
 
 #include "../../../core/esp3d_settings.h"
 #include "../esp_sd.h"
 
-extern File tSDFile_handle[ESP_MAX_SD_OPENHANDLE];
+ESP3D_SD_Class ESP3D_SD_Card;
+ESP3D_File tSDFile_handle[ESP_MAX_SD_OPENHANDLE];
 
 void dateTime(uint16_t* date, uint16_t* dtime) {
   struct tm tmstruct;
@@ -41,30 +38,10 @@ void dateTime(uint16_t* date, uint16_t* dtime) {
   *dtime = FAT_TIME(tmstruct.tm_hour, tmstruct.tm_min, tmstruct.tm_sec);
 }
 
-time_t getDateTimeFile(File& filehandle) {
+time_t getDateTimeFile(ESP3D_File& filehandle) {
   static time_t dt = 0;
 #ifdef SD_TIMESTAMP_FEATURE
-  struct tm timefile;
-  dir_t d;
-  if (filehandle) {
-    if (filehandle.dirEntry(&d)) {
-      timefile.tm_year = FAT_YEAR(d.lastWriteDate) - 1900;
-      timefile.tm_mon = FAT_MONTH(d.lastWriteDate) - 1;
-      timefile.tm_mday = FAT_DAY(d.lastWriteDate);
-      timefile.tm_hour = FAT_HOUR(d.lastWriteTime);
-      timefile.tm_min = FAT_MINUTE(d.lastWriteTime);
-      timefile.tm_sec = FAT_SECOND(d.lastWriteTime);
-      timefile.tm_isdst = -1;
-      dt = mktime(&timefile);
-      if (dt == -1) {
-        esp3d_log_e("mktime failed");
-      }
-    } else {
-      esp3d_log_e("stat file failed");
-    }
-  } else {
-    esp3d_log("check file for stat failed");
-  }
+  dt = filehandle.getLastWrite();
 #endif  // SD_TIMESTAMP_FEATURE
   return dt;
 }
@@ -96,10 +73,10 @@ uint8_t ESP_SD::getState(bool refresh) {
   // SD is idle or not detected, let see if still the case
   _state = ESP_SDCARD_NOT_PRESENT;
   // refresh content if card was removed
-  if (SD.begin((ESP_SD_CS_PIN == -1) ? SS : ESP_SD_CS_PIN,
+  if (ESP3D_SD_Card.begin((ESP_SD_CS_PIN == -1) ? SS : ESP_SD_CS_PIN,
                SD_SCK_HZ(F_CPU / _spi_speed_divider))) {
     esp3d_log("Init SD State ok");
-    if (SD.size64() > 0) {
+    if (ESP3D_SD_Card.size64() > 0) {
       esp3d_log("SD available");
       _state = ESP_SDCARD_IDLE;
     } else {
@@ -152,7 +129,7 @@ void ESP_SD::refreshStats(bool force) {
 uint64_t ESP_SD::totalBytes(bool refresh) {
   static uint64_t _totalBytes = 0;
   if (refresh || _totalBytes == 0) {
-    _totalBytes = SD.size64();
+    _totalBytes = ESP3D_SD_Card.size64();
     ;
   }
   return _totalBytes;
@@ -207,7 +184,7 @@ ESP_SDFile ESP_SD::open(const char* path, uint8_t mode) {
       return ESP_SDFile();
     }
   }
-  File tmp = SD.open(path, (mode == ESP_FILE_READ)    ? FILE_READ
+ ESP3D_File tmp = ESP3D_SD_Card.open(path, (mode == ESP_FILE_READ)    ? FILE_READ
                            : (mode == ESP_FILE_WRITE) ? FILE_WRITE
                                                       : FILE_WRITE);
   ESP_SDFile esptmp(&tmp, tmp.isDirectory(),
@@ -222,7 +199,7 @@ bool ESP_SD::exists(const char* path) {
     return _started;
   }
   esp3d_log("%s exists ?", path);
-  res = SD.exists(path);
+  res = ESP3D_SD_Card.exists(path);
   if (!res) {
     esp3d_log("Seems not -  trying open it");
     ESP_SDFile root = ESP_SD::open(path, ESP_FILE_READ);
@@ -236,10 +213,10 @@ bool ESP_SD::exists(const char* path) {
 
 bool ESP_SD::remove(const char* path) {
   _sizechanged = true;
-  return SD.remove(path);
+  return ESP3D_SD_Card.remove(path);
 }
 
-bool ESP_SD::mkdir(const char* path) { return SD.mkdir(path); }
+bool ESP_SD::mkdir(const char* path) { return ESP3D_SD_Card.mkdir(path); }
 
 bool ESP_SD::rmdir(const char* path) {
   String p = path;
@@ -256,9 +233,9 @@ bool ESP_SD::rmdir(const char* path) {
   std::stack<String> pathlist;
   pathlist.push(p);
   while (pathlist.size() > 0 && res) {
-    File dir = SD.open(pathlist.top().c_str());
+   ESP3D_File dir = ESP3D_SD_Card.open(pathlist.top().c_str());
     dir.rewindDirectory();
-    File f = dir.openNextFile();
+   ESP3D_File f = dir.openNextFile();
     bool candelete = true;
     while (f && res) {
       if (f.isDirectory()) {
@@ -267,12 +244,12 @@ bool ESP_SD::rmdir(const char* path) {
         newdir += "/";
         pathlist.push(newdir);
         f.close();
-        f = File();
+        f =ESP3D_File();
       } else {
         _sizechanged = true;
         String filepath = pathlist.top() + f.name();
         f.close();
-        if (!SD.remove(filepath.c_str())) {
+        if (!ESP3D_SD_Card.remove(filepath.c_str())) {
           res = false;
         }
         f = dir.openNextFile();
@@ -280,7 +257,7 @@ bool ESP_SD::rmdir(const char* path) {
     }
     if (candelete) {
       if (pathlist.top() != "/") {
-        res = SD.rmdir(pathlist.top().c_str());
+        res = ESP3D_SD_Card.rmdir(pathlist.top().c_str());
       }
       pathlist.pop();
     }
@@ -298,7 +275,7 @@ bool ESP_SDFile::seek(uint32_t pos, uint8_t mode) {
 void ESP_SD::closeAll() {
   for (uint8_t i = 0; i < ESP_MAX_SD_OPENHANDLE; i++) {
     tSDFile_handle[i].close();
-    tSDFile_handle[i] = File();
+    tSDFile_handle[i] =ESP3D_File();
   }
 }
 
@@ -318,7 +295,7 @@ ESP_SDFile::ESP_SDFile(void* handle, bool isdir, bool iswritemode,
   bool set = false;
   for (uint8_t i = 0; (i < ESP_MAX_SD_OPENHANDLE) && !set; i++) {
     if (!tSDFile_handle[i]) {
-      tSDFile_handle[i] = *((File*)handle);
+      tSDFile_handle[i] = *((ESP3D_File*)handle);
       // filename
       _filename = path;
       // name
@@ -366,15 +343,15 @@ void ESP_SDFile::close() {
     // reopen if mode = write
     // udate size + date
     if (_iswritemode && !_isdir) {
-      File ftmp = SD.open(_filename.c_str());
+     ESP3D_File ftmp = ESP3D_SD_Card.open(_filename.c_str());
       if (ftmp) {
         _size = ftmp.size();
         _lastwrite = getDateTimeFile(ftmp);
         ftmp.close();
       }
     }
-    tSDFile_handle[_index] = File();
-    // esp3d_log("Closing File at index %d",_index);
+    tSDFile_handle[_index] =ESP3D_File();
+    // esp3d_log("ClosingESP3D_File at index %d",_index);
     _index = -1;
   }
 }
@@ -384,7 +361,7 @@ ESP_SDFile ESP_SDFile::openNextFile() {
     esp3d_log_e("openNextFile failed");
     return ESP_SDFile();
   }
-  File tmp = tSDFile_handle[_index].openNextFile();
+ ESP3D_File tmp = tSDFile_handle[_index].openNextFile();
   if (tmp) {
     String name = tmp.name();
     esp3d_log("tmp name :%s %s", name.c_str(),
