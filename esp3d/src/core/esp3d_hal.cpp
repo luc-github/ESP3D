@@ -202,7 +202,11 @@ void ESP3DHal::checkTWDT() {
 // Watchdog feeder
 void ESP3DHal::wdtFeed() {
 #ifdef ARDUINO_ARCH_ESP32
-  vTaskDelay(1);
+  if (esp_task_wdt_status(NULL) == ESP_OK) {
+    vTaskDelay(1);
+  } else {
+   delay(1);
+  }
   return;
 #endif  // ARDUINO_ARCH_ESP32
 #ifdef ARDUINO_ARCH_ESP8266

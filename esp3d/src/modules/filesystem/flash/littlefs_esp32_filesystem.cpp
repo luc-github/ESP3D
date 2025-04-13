@@ -23,7 +23,9 @@ littlefs_esp32_filesystem.cpp - ESP3D littlefs filesystem configuration class
     defined(ARDUINO_ARCH_ESP32)
 #include <FS.h>
 #include <LittleFS.h>
-
+extern "C" {
+  #include "esp_littlefs.h"
+  }
 #include <stack>
 
 #include "../esp_filesystem.h"
@@ -58,7 +60,9 @@ bool ESP_FileSystem::rename(const char *oldpath, const char *newpath) {
 const char *ESP_FileSystem::FilesystemName() { return "LittleFS"; }
 
 bool ESP_FileSystem::format() {
-  bool res = LittleFS.format();
+ //Use directly the function to avoid any wdt issue
+ // bool res = LittleFS.format();
+  bool res =  (ESP_OK == esp_littlefs_format("spiffs"));
   if (res) {
     res = begin();
   }
