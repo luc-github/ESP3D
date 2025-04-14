@@ -24,8 +24,8 @@
 #include <Print.h>
 
 #include "../authentication/authentication_level_types.h"
-#define S2S_TXBUFFERSIZE 1200
-#define S2S_RXBUFFERSIZE 128
+#define S2S_TXBUFFERSIZE 512
+#define S2S_RXBUFFERSIZE 256
 #define S2S_FLUSHTIMEOUT 500
 
 class ESP3DMessage;  // forward declaration
@@ -51,8 +51,8 @@ class Serial_2_Socket : public Stream {
   int available();
   int peek(void);
   int read(void);
-  bool push(const uint8_t *buffer, size_t size);
-  void flush(void);
+  bool push2RX(const uint8_t *buffer, size_t size);
+  void flush(bool useMutex = true);
   void handle_flush();
   void handle();
   operator bool() const;
@@ -63,10 +63,12 @@ class Serial_2_Socket : public Stream {
   bool _started;
   bool _paused;
   ESP3DAuthenticationLevel _auth;
+  void* _rxBufferMutex; // Opaque pointer for RX buffer mutex
+  void* _txBufferMutex; // Opaque pointer for TX buffer mutex
   uint32_t _lastflush;
-  uint8_t _TXbuffer[S2S_TXBUFFERSIZE];
+  uint8_t _TXbuffer[S2S_TXBUFFERSIZE+1];
   uint16_t _TXbufferSize;
-  uint8_t _RXbuffer[S2S_RXBUFFERSIZE];
+  uint8_t _RXbuffer[S2S_RXBUFFERSIZE+1];
   uint16_t _RXbufferSize;
   uint16_t _RXbufferpos;
 };

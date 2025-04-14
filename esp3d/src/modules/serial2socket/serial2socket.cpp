@@ -23,6 +23,8 @@
 
 #if defined(ESP3DLIB_ENV) && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
 #include <Arduino.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/semphr.h"
 
 #include "../../core/esp3d_commands.h"
 #include "../../core/esp3d_message.h"
@@ -30,8 +32,34 @@
 
 Serial_2_Socket Serial2Socket;
 
-Serial_2_Socket::Serial_2_Socket() { end(); }
-Serial_2_Socket::~Serial_2_Socket() { end(); }
+Serial_2_Socket::Serial_2_Socket() {
+  _rxBufferMutex = (void*)xSemaphoreCreateMutex();
+  if (_rxBufferMutex == NULL) {
+    esp3d_log_e("Serial2Socket: Failed to create RX mutex");
+  }
+  
+  _txBufferMutex = (void*)xSemaphoreCreateMutex();
+  if (_txBufferMutex == NULL) {
+    esp3d_log_e("Serial2Socket: Failed to create TX mutex");
+  }
+  
+  end();
+}
+
+Serial_2_Socket::~Serial_2_Socket() {
+  if (_rxBufferMutex != NULL) {
+    vSemaphoreDelete((SemaphoreHandle_t)_rxBufferMutex);
+    _rxBufferMutex = NULL;
+  }
+  
+  if (_txBufferMutex != NULL) {
+    vSemaphoreDelete((SemaphoreHandle_t)_txBufferMutex);
+    _txBufferMutex = NULL;
+  }
+  
+  end();
+}
+
 void Serial_2_Socket::begin(long speed) { end(); }
 
 void Serial_2_Socket::enable(bool enable) { _started = enable; }
@@ -39,9 +67,23 @@ void Serial_2_Socket::enable(bool enable) { _started = enable; }
 void Serial_2_Socket::pause(bool state) {
   _paused = state;
   if (_paused) {
-    _TXbufferSize = 0;
-    _RXbufferSize = 0;
-    _RXbufferpos = 0;
+    // Protect TX buffer access with mutex
+    if (_txBufferMutex != NULL && xSemaphoreTake((SemaphoreHandle_t)_txBufferMutex, pdMS_TO_TICKS(100)) == pdTRUE) {
+      _TXbufferSize = 0;
+      xSemaphoreGive((SemaphoreHandle_t)_txBufferMutex);
+    } else {
+      _TXbufferSize = 0;
+    }
+    
+    // Protect RX buffer access with mutex
+    if (_rxBufferMutex != NULL && xSemaphoreTake((SemaphoreHandle_t)_rxBufferMutex, pdMS_TO_TICKS(100)) == pdTRUE) {
+      _RXbufferSize = 0;
+      _RXbufferpos = 0;
+      xSemaphoreGive((SemaphoreHandle_t)_rxBufferMutex);
+    } else {
+      _RXbufferSize = 0;
+      _RXbufferpos = 0;
+    }
   } else {
     _lastflush = millis();
   }
@@ -50,9 +92,24 @@ void Serial_2_Socket::pause(bool state) {
 bool Serial_2_Socket::isPaused() { return _paused; }
 
 void Serial_2_Socket::end() {
-  _TXbufferSize = 0;
-  _RXbufferSize = 0;
-  _RXbufferpos = 0;
+  // Protect TX buffer access with mutex
+  if (_txBufferMutex != NULL && xSemaphoreTake((SemaphoreHandle_t)_txBufferMutex, pdMS_TO_TICKS(100)) == pdTRUE) {
+    _TXbufferSize = 0;
+    xSemaphoreGive((SemaphoreHandle_t)_txBufferMutex);
+  } else {
+    _TXbufferSize = 0;
+  }
+  
+  // Protect RX buffer access with mutex
+  if (_rxBufferMutex != NULL && xSemaphoreTake((SemaphoreHandle_t)_rxBufferMutex, pdMS_TO_TICKS(100)) == pdTRUE) {
+    _RXbufferSize = 0;
+    _RXbufferpos = 0;
+    xSemaphoreGive((SemaphoreHandle_t)_rxBufferMutex);
+  } else {
+    _RXbufferSize = 0;
+    _RXbufferpos = 0;
+  }
+  
   _started = false;
   _paused = false;
   _lastflush = millis();
@@ -70,16 +127,32 @@ bool Serial_2_Socket::started() { return _started; }
 Serial_2_Socket::operator bool() const { return true; }
 
 int Serial_2_Socket::available() {
-  if (_paused) {
+  if (_paused || !_started) {
     return 0;
   }
-  return _RXbufferSize;
+  if (_RXbufferSize == 0) {
+    return 0;
+  }
+
+  // Protect RX buffer access with mutex
+  if (_rxBufferMutex != NULL && xSemaphoreTake((SemaphoreHandle_t)_rxBufferMutex, pdMS_TO_TICKS(100)) != pdTRUE) {
+    esp3d_log_e("Serial2Socket: Failed to take mutex for available");
+    return 0;
+  }
+
+  int size = _RXbufferSize;
+
+  if (_rxBufferMutex != NULL) {
+    xSemaphoreGive((SemaphoreHandle_t)_rxBufferMutex);
+  }
+  return size;
 }
 
 size_t Serial_2_Socket::write(uint8_t c) {
   if (!_started || _paused) {
     return 1;
   }
+  esp3d_log_d("Serial2Socket: write one char %c", c);
   return write(&c, 1);
 }
 
@@ -88,39 +161,81 @@ size_t Serial_2_Socket::write(const uint8_t *buffer, size_t size) {
     esp3d_log("Serial2Socket: no data, not started or paused");
     return size;
   }
+  
+  // Take TX buffer mutex once for the entire function
+  if (_txBufferMutex != NULL && xSemaphoreTake((SemaphoreHandle_t)_txBufferMutex, pdMS_TO_TICKS(100)) != pdTRUE) {
+    esp3d_log_e("Serial2Socket: Failed to take mutex for write");
+    return 0;
+  }
+  
   if (_TXbufferSize == 0) {
     _lastflush = millis();
   }
-  // send full line
+  
+  // Check if buffer is full and needs flushing
   if (_TXbufferSize + size > S2S_TXBUFFERSIZE) {
-    flush();
+    esp3d_log_d("Serial2Socket: buffer full, flush it");
+    flush(false); // Use flush without mutex since we already have it
   }
-  // need periodic check to force to flush in case of no end
+  
+  // Add data to buffer and flush on newline
   for (int i = 0; i < size; i++) {
     _TXbuffer[_TXbufferSize] = buffer[i];
     _TXbufferSize++;
     if (buffer[i] == (const uint8_t)'\n') {
-      esp3d_log("S2S: %s TXSize: %d", (const char *)_TXbuffer, _TXbufferSize);
-      flush();
+      esp3d_log_d("S2S: %s TXSize: %d", (const char *)_TXbuffer, _TXbufferSize);
+      flush(false); // Use flush without mutex since we already have it
     }
   }
-  handle_flush();
+  
+  // Check if we need to flush based on time
+  if (_TXbufferSize > 0 && ((millis() - _lastflush) > S2S_FLUSHTIMEOUT)) {
+    flush(false); // Use flush without mutex since we already have it
+  }
+  
+  // Release the mutex at the end
+  if (_txBufferMutex != NULL) {
+    xSemaphoreGive((SemaphoreHandle_t)_txBufferMutex);
+  }
+  
   return size;
 }
 
 int Serial_2_Socket::peek(void) {
-  if (_RXbufferSize > 0 && _started) {
-    return _RXbuffer[_RXbufferpos];
-  } else {
+  esp3d_log_d("Serial2Socket: peek first of %d", _RXbufferSize);
+  if (_RXbufferSize <= 0 || !_started) {
     return -1;
   }
+
+  // Protect RX buffer access with mutex
+  if (_rxBufferMutex != NULL && xSemaphoreTake((SemaphoreHandle_t)_rxBufferMutex, pdMS_TO_TICKS(100)) != pdTRUE) {
+    esp3d_log_e("Serial2Socket: Failed to take mutex for peek");
+    return -1;
+  }
+
+  uint8_t v = _RXbuffer[_RXbufferpos];
+
+  if (_rxBufferMutex != NULL) {
+    xSemaphoreGive((SemaphoreHandle_t)_rxBufferMutex);
+  }
+  return v;
 }
 
-bool Serial_2_Socket::push(const uint8_t *buffer, size_t size) {
+// Send data to socket output buffer
+bool Serial_2_Socket::push2RX(const uint8_t *buffer, size_t size) {
   if (buffer == NULL || size == 0 || !_started || _paused) {
     return false;
   }
+  
+  // Protect RX buffer access with mutex
+  if (_rxBufferMutex != NULL && xSemaphoreTake((SemaphoreHandle_t)_rxBufferMutex, pdMS_TO_TICKS(100)) != pdTRUE) {
+    esp3d_log_e("Serial2Socket: cannot take mutex for push2RX");
+    return false;
+  }
+  
   int data_size = size;
+  bool success = false;
+  esp3d_log_d("Serial2Socket: pushing %d chars to buffer", data_size);
   if ((data_size + _RXbufferSize) <= S2S_RXBUFFERSIZE) {
     int current = _RXbufferpos + _RXbufferSize;
     if (current > S2S_RXBUFFERSIZE) {
@@ -134,24 +249,41 @@ bool Serial_2_Socket::push(const uint8_t *buffer, size_t size) {
       current++;
     }
     _RXbufferSize += size;
-    _RXbuffer[current] = 0;
-    return true;
+    if (current < S2S_RXBUFFERSIZE) {
+      _RXbuffer[current] = 0;
+    }
+    success = true;
   }
-  return false;
+  
+  if (_rxBufferMutex != NULL) {
+    xSemaphoreGive((SemaphoreHandle_t)_rxBufferMutex);
+  }
+  return success;
 }
 
 int Serial_2_Socket::read(void) {
-  if (_RXbufferSize > 0 && _started && !_paused) {
-    int v = _RXbuffer[_RXbufferpos];
-    _RXbufferpos++;
-    if (_RXbufferpos > (S2S_RXBUFFERSIZE - 1)) {
-      _RXbufferpos = 0;
-    }
-    _RXbufferSize--;
-    return v;
-  } else {
+  if (_RXbufferSize <= 0 || !_started || _paused) {
     return -1;
   }
+
+  // Protect RX buffer access with mutex
+  if (_rxBufferMutex != NULL && xSemaphoreTake((SemaphoreHandle_t)_rxBufferMutex, pdMS_TO_TICKS(100)) != pdTRUE) {
+    esp3d_log_e("Serial2Socket: Failed to take mutex for read");
+    return -1;
+  }
+
+  uint8_t v = _RXbuffer[_RXbufferpos];
+  _RXbufferpos++;
+  if (_RXbufferpos > (S2S_RXBUFFERSIZE - 1)) {
+    _RXbufferpos = 0;
+  }
+  _RXbufferSize--;
+  esp3d_log_d("Serial2Socket: read one char %c", v);
+  
+  if (_rxBufferMutex != NULL) {
+    xSemaphoreGive((SemaphoreHandle_t)_rxBufferMutex);
+  }
+  return v;
 }
 
 void Serial_2_Socket::handle() { handle_flush(); }
@@ -161,16 +293,35 @@ void Serial_2_Socket::handle_flush() {
     if ((_TXbufferSize >= S2S_TXBUFFERSIZE) ||
         ((millis() - _lastflush) > S2S_FLUSHTIMEOUT)) {
       esp3d_log("force socket flush");
-      flush();
+      flush(true);
     }
   }
 }
-void Serial_2_Socket::flush(void) {
+
+void Serial_2_Socket::flush(bool useMutex) {
+
+  // Process buffer if there's data and we're not paused
   if (_TXbufferSize > 0 && _started && !_paused) {
+     // Protect TX buffer access with mutex if requested
+    if (useMutex && _txBufferMutex != NULL) {
+    if (xSemaphoreTake((SemaphoreHandle_t)_txBufferMutex, pdMS_TO_TICKS(100)) != pdTRUE) {
+      esp3d_log_e("Serial2Socket: Failed to take mutex for flush");
+      return;
+    }
+  }
     ESP3DMessage *msg = esp3d_message_manager.newMsg(
         ESP3DClientType::socket_serial, ESP3DClientType::all_clients, _TXbuffer,
         _TXbufferSize, _auth);
-    // dispatch command
+    
+    // Reset buffer before processing
+    _lastflush = millis();
+    _TXbufferSize = 0;
+    
+    // Release mutex if we took it
+    if (useMutex && _txBufferMutex != NULL) {
+      xSemaphoreGive((SemaphoreHandle_t)_txBufferMutex);
+    }
+    
     if (msg) {
       // process command
       msg->type = ESP3DMessageType::unique;
@@ -178,10 +329,6 @@ void Serial_2_Socket::flush(void) {
     } else {
       esp3d_log_e("Cannot create message");
     }
-    // refresh timout
-    _lastflush = millis();
-    // reset buffer
-    _TXbufferSize = 0;
   }
 }
 
@@ -191,7 +338,8 @@ bool Serial_2_Socket::dispatch(ESP3DMessage *message) {
     return false;
   }
   if (message->size > 0 && message->data) {
-    if (!push(message->data, message->size)) {
+    esp3d_log_d("Serial2Socket: dispatch message %d", message->size);
+    if (!push2RX(message->data, message->size)) {
       esp3d_log_e("Serial2Socket: cannot push all data");
       return false;
     }
