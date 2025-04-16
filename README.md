@@ -79,7 +79,7 @@ This branch does not take any new features, only bug fix, for new feature please
        <a href="https://luc-github.github.io/sponsors/esp3d/silver-8.html" target="_blank" rel="noopener noreferrer"><img src="https://luc-github.github.io/sponsors/esp3d/silver-8.svg" style="max-width:400px; width:auto; height:auto"></a>
        <a href="https://luc-github.github.io/sponsors/esp3d/silver-9.html" target="_blank" rel="noopener noreferrer"><img src="https://luc-github.github.io/sponsors/esp3d/silver-9.svg" style="max-width:400px; width:auto; height:auto"></a>
    </div>
-   Support ESP3D Development - <a href="https://esp3d.io/sponsors" target="_blank" rel="noopener noreferrer">Become a Sponsor</a>
+   Support ESP3D Development - <a href="https://esp3d.io/sponsoring" target="_blank" rel="noopener noreferrer">Become a Sponsor</a>
 </div>
 
 
