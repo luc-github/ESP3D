@@ -36,7 +36,7 @@
 #if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
 #include "../modules/serial2socket/serial2socket.h"
 #endif  // COMMUNICATION_PROTOCOL ==SOCKET_SERIAL
-#if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
+#if defined(WIFI_FEATURE) || defined(ETH_FEATURE) || defined(BLUETOOTH_FEATURE)
 #include "../modules/network/netconfig.h"
 #endif  // WIFI_FEATURE || ETH FEATURE
 #if defined(FILESYSTEM_FEATURE)
