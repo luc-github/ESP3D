@@ -1,7 +1,6 @@
 # ESP3D 3.0 ![ESP3D](https://img.shields.io/badge/dynamic/json?label=ESP3D&query=$.version&url=https://raw.githubusercontent.com/luc-github/ESP3D/refs/heads/3.0/info.json)
 
 <img src="https://github.com/luc-github/ESP3D/blob/3.0/images/Screen/logo2.png">
-<H3>Beta stage - ready for testing - feel free to test it and feedback</H3>
 Firmware for ESP8266/ESP8285 and ESP32 (original, pico, S2, S3, C3, C6) used with 3D printer/Sand-Table and CNC 
 
 To compile ESP3D you need to edit the configuration.h according your needs.   
