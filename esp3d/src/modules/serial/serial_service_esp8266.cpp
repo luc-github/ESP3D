@@ -82,6 +82,7 @@ bool ESP3DSerialService::begin(uint8_t serialIndex) {
     if (_rxPin != -1) {
       Serials[_serialIndex]->pins((_txPin == -1) ? 1 : _txPin, _rxPin);
     }
+    _baudRate = br;
   }
   _started = true;
   esp3d_log("Serial %d for %d is started", _serialIndex, _id);
