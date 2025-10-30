@@ -1480,6 +1480,7 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
       // replace end of line with space
       tmp.replace("\n", " ");
       tmp.replace("\r", "");
+      tmp.trim();
       tmp += "\n";
       //Override lock from Marlin if error was displayed previouly preventing any update
       if (ESP3DSettings::GetFirmwareTarget() == MARLIN ||
