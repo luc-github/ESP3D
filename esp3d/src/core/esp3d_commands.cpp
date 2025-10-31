@@ -1482,7 +1482,7 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
       tmp.replace("\r", "");
       tmp.trim();
       tmp += "\n";
-      //Override lock from Marlin if error was displayed previouly preventing any update
+      //Override lock from Marlin if error was displayed previously preventing any update
       if (ESP3DSettings::GetFirmwareTarget() == MARLIN ||
           ESP3DSettings::GetFirmwareTarget() == MARLIN_EMBEDDED) {
         tmp = "M117\n" + tmp;
