@@ -1,4 +1,4 @@
-# ESP3D 3.0 ![ESP3D](https://img.shields.io/badge/dynamic/json?label=ESP3D&query=$.version&url=https://raw.githubusercontent.com/luc-github/ESP3D/refs/heads/3.0/info.json) ![Development](https://img.shields.io/badge/dynamic/json?label=Development&query=$.devt&url=https://raw.githubusercontent.com/luc-github/ESP3D/refs/heads/3.0/info.json)
+# ESP3D 3.0 ![ESP3D](https://img.shields.io/badge/dynamic/json?label=ESP3D&query=$.version&url=https://raw.githubusercontent.com/luc-github/ESP3D/refs/heads/3.0/info.json) ![Development](https://img.shields.io/badge/dynamic/json?label=Development&query=$.devt&color=green&url=https://raw.githubusercontent.com/luc-github/ESP3D/refs/heads/3.0/info.json)
 
 <img src="https://github.com/luc-github/ESP3D/blob/3.0/images/Screen/logo2.png">
 Firmware for ESP8266/ESP8285 and ESP32 (original, pico, S2, S3, C3, C6) used with 3D printer/Sand-Table and CNC 
