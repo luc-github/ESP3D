@@ -7,10 +7,15 @@ To compile ESP3D you need to edit the configuration.h according your needs.
 You can also generate it, using [![Development  Version](https://img.shields.io/badge/ESP3D-Configurator-red?style=for-the-badge&logo=preact)](https://luc-github.github.io/) which simplify a lot this step.   
 or click here: https://luc-github.github.io/      
 
-ESP3D V3 use ESP3D-WebUI 3.0, but it is built according your system and your system firmware:   
- https://github.com/luc-github/ESP3D-WEBUI/tree/3.0/dist/, so you need to use the right one, the [ESP3D-Configurator](https://luc-github.github.io/) may also help you to download the correct version for your needs.
+ESP3D 3.0 use [![Development  Version](https://img.shields.io/badge/Devt-v3.0-yellow?style=plastic&label=ESP3D-WEBUI)](https://github.com/luc-github/ESP3D-WEBUI/tree/3.0), but it is built according your system and your system firmware:[![Development  Version](https://img.shields.io/badge/Devt-v3.0-yellow?style=plastic&label=WebUI%20Packages)](https://github.com/luc-github/ESP3D-WEBUI/tree/3.0/dist/). 
 
-[Latest development version ![Development Version](https://img.shields.io/badge/Devt-v3.0-yellow?style=plastic) ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/luc-github/ESP3D/3.0?style=plastic)](https://github.com/luc-github/ESP3D/tree/3.0) [![github-ci](https://github.com/luc-github/ESP3D/workflows/build-ci/badge.svg)](https://github.com/luc-github/ESP3D/actions/workflows/build-ci.yml) [![Development  Version](https://img.shields.io/badge/Devt-v3.0-yellow?style=plastic&label=WebUI)](https://github.com/luc-github/ESP3D-WEBUI/tree/3.0)
+so you need to use the right one, the [ESP3D-Configurator](https://luc-github.github.io/) may also help you to download the correct version for your needs.
+
+![Development](https://img.shields.io/badge/dynamic/json?label=Development&query=$.devt&color=green&style=plastic&url=https://raw.githubusercontent.com/luc-github/ESP3D/refs/heads/3.0/info.json)
+[![Development  Version](https://img.shields.io/badge/Devt-v3.0-yellow?style=plastic&label=ESP3D-WEBUI)](https://github.com/luc-github/ESP3D-WEBUI/tree/3.0)
+![GitHub last commit (branch)](https://img.shields.io/github/last-commit/luc-github/ESP3D/3.0?style=plastic)
+[![github-ci](https://github.com/luc-github/ESP3D/workflows/build-ci/badge.svg)](https://github.com/luc-github/ESP3D/actions/workflows/build-ci.yml)
+
 
 Please go to [esp3d.io](http://esp3d.io/esp3d/v3.x/index.html) for documentation and installation
 
