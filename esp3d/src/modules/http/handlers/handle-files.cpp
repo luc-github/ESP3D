@@ -63,7 +63,9 @@ void HTTP_Server::handleFSFileList() {
   }
   // get current path
   if (_webserver->hasArg("path")) {
-    path += _webserver->arg("path");
+    path = _webserver->arg("path");
+  } else {
+    path = "/";
   }
   // to have a clean path
   path.trim();
