@@ -100,7 +100,7 @@ void HTTP_Server::handleSDFileList() {
           status = shortname + " deleted";
           // what happen if no "/." and no other subfiles for SPIFFS like?
           String ptmp = path;
-          if ((path != "/") && (path[path.length() - 1] = '/')) {
+          if ((path != "/") && (path[path.length() - 1] == '/')) {
             ptmp = path.substring(0, path.length() - 1);
           }
           if (!ESP_SD::exists(ptmp.c_str())) {
@@ -160,7 +160,7 @@ void HTTP_Server::handleSDFileList() {
   buffer2send.reserve(1200);
   buffer2send = "{\"files\":[";
   String ptmp = path;
-  if ((path != "/") && (path[path.length() - 1] = '/')) {
+  if ((path != "/") && (path[path.length() - 1] == '/')) {
     ptmp = path.substring(0, path.length() - 1);
   }
   _webserver->setContentLength(CONTENT_LENGTH_UNKNOWN);
