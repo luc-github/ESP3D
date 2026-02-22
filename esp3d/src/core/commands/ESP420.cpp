@@ -92,6 +92,25 @@
 #include "../../modules/usb-serial/usb_serial_service.h"
 #endif  // defined(USB_SERIAL_FEATURE)
 
+#if defined(ARDUINO_ARCH_ESP32)
+#include <esp_wifi.h>
+static String getWifiMac(wifi_interface_t iface) {
+  uint8_t mac[6];
+  esp_err_t err = esp_wifi_get_mac(iface, mac);
+  if (err == ESP_OK) {
+   
+    char buf[18];
+    sprintf(buf, "%02X:%02X:%02X:%02X:%02X:%02X",
+            mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    esp3d_log("MAC address for interface %d: %s", iface, buf);
+    return String(buf);
+  } else {
+    esp3d_log("Error getting MAC address: %d ,  %s", err, esp_err_to_name(err));
+  }
+  return "00:00:00:00:00:00";
+}
+#endif  // ARDUINO_ARCH_ESP8266
+
 // Get ESP current status
 // output is JSON or plain text according parameter
 //[ESP420]json=<no>
@@ -584,7 +603,11 @@ void ESP3DCommands::ESP420(int cmd_params_pos, ESP3DMessage* msg) {
         return;
       }
       // Disabled Mode
+      #if defined(ARDUINO_ARCH_ESP32)
+      tmpstr = getWifiMac(WIFI_IF_AP);
+      #else
       tmpstr = WiFi.softAPmacAddress();
+      #endif
       if (!dispatchIdValue(json, "mac", tmpstr.c_str(), target, requestId,
                            false)) {
         return;
@@ -659,9 +682,13 @@ void ESP3DCommands::ESP420(int cmd_params_pos, ESP3DMessage* msg) {
                            false)) {
         return;
       }
-      // Disabled Mode
-      tmpstr = WiFi.macAddress();
-      if (!dispatchIdValue(json, "mac", tmpstr.c_str(), target, requestId,
+
+      #if defined(ARDUINO_ARCH_ESP32)
+      tmpstr = getWifiMac(WIFI_IF_STA);
+      #else
+       tmpstr = WiFi.macAddress();
+      #endif // ARDUINO_ARCH_ESP32
+       if (!dispatchIdValue(json, "mac", tmpstr.c_str(), target, requestId,
                            false)) {
         return;
       }
