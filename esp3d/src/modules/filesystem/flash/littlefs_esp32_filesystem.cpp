@@ -33,7 +33,11 @@ extern "C" {
 extern File tFile_handle[ESP_MAX_OPENHANDLE];
 
 bool ESP_FileSystem::begin() {
-  _started = LittleFS.begin(true);
+  _started = LittleFS.begin(false);
+   if (!_started) {
+    esp3d_log("LittleFS Mount Failed");
+    _started = format();
+   }
   return _started;
 }
 
@@ -64,7 +68,7 @@ bool ESP_FileSystem::format() {
  // bool res = LittleFS.format();
   bool res =  (ESP_OK == esp_littlefs_format("spiffs"));
   if (res) {
-    res = begin();
+    res = LittleFS.begin(false);
   }
   return res;
 }

@@ -19,6 +19,7 @@
 */
 
 #include "../include/esp3d_config.h"
+#include <esp_log.h>
 #if defined(ESP_LOG_FEATURE)
 // telnet
 #if ESP_LOG_FEATURE == LOG_OUTPUT_TELNET
@@ -121,6 +122,27 @@ void esp3d_logf(uint8_t level, const char* format, ...) {
 }
 
 void esp3d_log_init() {
+#if !defined(SHOW_ESP_LOG)
+  esp_log_level_set("wifi", ESP_LOG_NONE);
+  esp_log_level_set("sdmmc", ESP_LOG_NONE);
+  esp_log_level_set("vfs_fat_sdmmc", ESP_LOG_NONE);
+  esp_log_level_set("sdmmc_periph", ESP_LOG_NONE);
+  esp_log_level_set("sdmmc_req",    ESP_LOG_NONE);
+  esp_log_level_set("sdmmc_common", ESP_LOG_NONE);
+  esp_log_level_set("fatfs", ESP_LOG_NONE);
+  esp_log_level_set("sdspi", ESP_LOG_NONE);
+  esp_log_level_set("sd_diskio", ESP_LOG_NONE);
+  esp_log_level_set("vfs_fat",        ESP_LOG_NONE);
+  esp_log_level_set("esp_littlefs",   ESP_LOG_NONE);
+  esp_log_level_set("task_wdt",       ESP_LOG_NONE);
+  esp_log_level_set("camera",         ESP_LOG_NONE);
+  esp_log_level_set("sccb",           ESP_LOG_NONE);
+  esp_log_level_set("ov2640",         ESP_LOG_NONE);
+  esp_log_level_set("esp_eth",        ESP_LOG_NONE);
+  esp_log_level_set("emac",           ESP_LOG_NONE);
+  esp_log_level_set("phy",            ESP_LOG_NONE);
+#endif // !defined(SHOW_ESP_LOG)
+
 #if (ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL0) || \
     (ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL1) || \
     (ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL2)
@@ -142,6 +164,7 @@ void esp3d_log_init() {
 }
 
 void esp3d_network_log_init() {
+
 #if ESP_LOG_FEATURE == LOG_OUTPUT_TELNET
   telnet_log.begin(LOG_ESP3D_OUTPUT_PORT, true);
 #endif  // ESP_LOG_FEATURE == LOG_OUTPUT_TELNET
