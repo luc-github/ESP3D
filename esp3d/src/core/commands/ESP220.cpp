@@ -64,7 +64,6 @@ void ESP3DCommands::ESP220(int cmd_params_pos, ESP3DMessage* msg) {
     bool isFirst = true;
     bool hasPin = false;
 #if defined(SD_DEVICE) && SD_DEVICE != ESP_SDIO
-
     //   SD CS
     tmpstr = String(ESP_SD_CS_PIN == -1 ? SS : ESP_SD_CS_PIN);
     if (!dispatchIdValue(json, " SD CS", tmpstr.c_str(), target, requestId,
@@ -100,6 +99,57 @@ void ESP3DCommands::ESP220(int cmd_params_pos, ESP3DMessage* msg) {
                          isFirst)) {
       return;
     }
+
+#endif  // defined(SD_DEVICE) && SD_DEVICE != ESP_SDIO
+#if defined(SD_DEVICE) && SD_DEVICE == ESP_SDIO
+    // ====================== SDIO / SDMMC pins (ESP32 + S3) ======================
+    // CLK
+    tmpstr = String(ESP_SDIO_CLK_PIN == -1 ? 14 : ESP_SDIO_CLK_PIN);
+    if (!dispatchIdValue(json, " SD CLK", tmpstr.c_str(), target, requestId, isFirst)) {
+      return;
+    }
+    isFirst = false;
+    hasPin = true;
+
+    // CMD
+    tmpstr = String(ESP_SDIO_CMD_PIN == -1 ? 15 : ESP_SDIO_CMD_PIN);
+    if (!dispatchIdValue(json, " SD CMD", tmpstr.c_str(), target, requestId, isFirst)) {
+      return;
+    }
+
+    // D0
+    tmpstr = String(ESP_SDIO_D0_PIN == -1 ? 2 : ESP_SDIO_D0_PIN);
+    if (!dispatchIdValue(json, " SD D0", tmpstr.c_str(), target, requestId, isFirst)) {
+      return;
+    }
+
+    // D1
+    tmpstr = String(ESP_SDIO_D1_PIN == -1 ? 4 : ESP_SDIO_D1_PIN);
+    if (!dispatchIdValue(json, " SD D1", tmpstr.c_str(), target, requestId, isFirst)) {
+      return;
+    }
+
+    // D2
+    tmpstr = String(ESP_SDIO_D2_PIN == -1 ? 12 : ESP_SDIO_D2_PIN);
+    if (!dispatchIdValue(json, " SD D2", tmpstr.c_str(), target, requestId, isFirst)) {
+      return;
+    }
+
+    // D3
+    tmpstr = String(ESP_SDIO_D3_PIN == -1 ? 13 : ESP_SDIO_D3_PIN);
+    if (!dispatchIdValue(json, " SD D3", tmpstr.c_str(), target, requestId, isFirst)) {
+      return;
+    }
+
+    // Bit mode (1-bit ou 4-bit)
+    #if defined(SDIO_BIT_MODE)
+    tmpstr = (SDIO_BIT_MODE == SD_ONE_BIT_MODE) ? "1-bit" : "4-bit";
+    if (!dispatchIdValue(json, " SDIO MODE", tmpstr.c_str(), target, requestId, isFirst)) {
+      return;
+    }
+    #endif
+#endif  // SD_DEVICE == ESP_SDIO
+#if defined(SD_DEVICE)
 #if ESP_SD_DETECT_PIN != -1
     //   SD DETECT STATE
     tmpstr = String(ESP_SD_DETECT_VALUE);
@@ -108,7 +158,7 @@ void ESP3DCommands::ESP220(int cmd_params_pos, ESP3DMessage* msg) {
       return;
     }
 #endif  // ESP_SD_DETECT_PIN !=-1
-#endif  // defined(SD_DEVICE) && SD_DEVICE != ESP_SDIO
+#endif // SD_DEVICE
 #if SD_DEVICE_CONNECTION == ESP_SHARED_SD && defined(ESP_FLAG_SHARED_SD_PIN)
     //   SD SWITCH
     tmpstr = String(ESP_FLAG_SHARED_SD_PIN);
