@@ -738,6 +738,13 @@ void ESP3DCommands::ESP420(int cmd_params_pos, ESP3DMessage* msg) {
                                                              : "none ";
   tmpstr += "(";
   tmpstr += ESP_SD::FilesystemName();
+  if (SD_DEVICE  == ESP_SDIO){
+    if(SDIO_BIT_MODE == SD_ONE_BIT_MODE) {
+      tmpstr += " 1-bit";
+    } else {
+      tmpstr += " 4-bit";
+    }
+  }
   tmpstr += ")";
   if (!dispatchIdValue(json, "sd", tmpstr.c_str(), target, requestId, false)) {
     return;
