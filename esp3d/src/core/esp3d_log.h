@@ -30,31 +30,35 @@ extern void esp3d_network_log_end();
 
 extern void esp3d_log_init();
 
-#if !defined(ESP3D_DEBUG_LEVEL)
-#define ESP3D_DEBUG_LEVEL LOG_LEVEL_NONE
-#endif  // ESP3D_DEBUG_LEVEL
+#if !defined(ESP3D_LOG_LEVEL) && defined(ESP_DEBUG_FEATURE)
+#error "ESP3D_LOG_LEVEL is not defined, please define it in configuration.h"
+#endif  // !defined(ESP3D_LOG_LEVEL) && defined(ESP_DEBUG_FEATURE)
+
+#if !defined(ESP3D_LOG_LEVEL)
+#define ESP3D_LOG_LEVEL LOG_LEVEL_NONE
+#endif  // ESP3D_LOG_LEVEL
 #if defined(ARDUINO_ARCH_ESP8266)
 // no need with latest esp8266 core
 #define pathToFileName(p) p
 #endif  // ARDUINO_ARCH_ESP8266
 
-#if ESP3D_DEBUG_LEVEL >= LOG_LEVEL_VERBOSE
+#if ESP3D_LOG_LEVEL >= LOG_LEVEL_VERBOSE
 #define esp3d_log(format, ...)                                                 \
   esp3d_logf(LOG_LEVEL_VERBOSE, "[ESP3D-VERBOSE][%s:%u] %s(): " format "\r\n", \
              pathToFileName(__FILE__), __LINE__, __FUNCTION__, ##__VA_ARGS__)
 #else
 #define esp3d_log(format, ...)
-#endif  // ESP3D_DEBUG_LEVEL>= LOG_LEVEL_VERBOSE
+#endif  // ESP3D_LOG_LEVEL>= LOG_LEVEL_VERBOSE
 
-#if ESP3D_DEBUG_LEVEL >= LOG_LEVEL_DEBUG
+#if ESP3D_LOG_LEVEL >= LOG_LEVEL_DEBUG
 #define esp3d_log_d(format, ...)                                           \
   esp3d_logf(LOG_LEVEL_DEBUG, "[ESP3D-DEBUG][%s:%u] %s(): " format "\r\n", \
              pathToFileName(__FILE__), __LINE__, __FUNCTION__, ##__VA_ARGS__)
 #else
 #define esp3d_log_d(format, ...)
-#endif  // ESP3D_DEBUG_LEVEL>= LOG_LEVEL_DEBUG
+#endif  // ESP3D_LOG_LEVEL>= LOG_LEVEL_DEBUG
 
-#if ESP3D_DEBUG_LEVEL >= LOG_LEVEL_ERROR
+#if ESP3D_LOG_LEVEL >= LOG_LEVEL_ERROR
 #define esp3d_log_e(format, ...)                                           \
   esp3d_logf(LOG_LEVEL_ERROR, "[ESP3D-ERROR][%s:%u] %s(): " format "\r\n", \
              pathToFileName(__FILE__), __LINE__, __FUNCTION__, ##__VA_ARGS__)
@@ -64,13 +68,13 @@ extern void esp3d_log_init();
 #define ESP3D_LOG_NETWORK_END_FN esp3d_network_log_end();
 #else
 #define esp3d_log_e(format, ...)
-#endif  // ESP3D_DEBUG_LEVEL >= LOG_LEVEL_ERROR
+#endif  // ESP3D_LOG_LEVEL >= LOG_LEVEL_ERROR
 
 #else
 #define esp3d_log_e(format, ...)
 #define esp3d_log_d(format, ...)
 #define esp3d_log(format, ...)
-#undef ESP3D_DEBUG_LEVEL
+#undef ESP3D_LOG_LEVEL
 #define ESP3D_LOG_INIT_FN
 #define ESP3D_LOG_NETWORK_INIT_FN
 #define ESP3D_LOG_NETWORK_HANDLE_FN
