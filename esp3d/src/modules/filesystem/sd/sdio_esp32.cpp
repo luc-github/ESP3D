@@ -34,91 +34,114 @@ ESP3D_File tSDFile_handle[ESP_MAX_SD_OPENHANDLE];
 #define SDIO_BIT_MODE SD_FOUR_BIT_MODE
 #endif  // SDIO_BIT_MODE
 
-uint8_t ESP_SD::getState(bool refresh) {
-  static bool lastinitok = false;
-#ifdef SDMMC_FORCE_BEGIN
-  lastinitok = false;
-#endif  // SDMMC_LIGHT_CHECK
-#if defined(ESP_SD_DETECT_PIN) && ESP_SD_DETECT_PIN != -1
-  // no need to go further if SD detect is not correct
-  if (!((digitalRead(ESP_SD_DETECT_PIN) == ESP_SD_DETECT_VALUE) ? true
-                                                                : false)) {
-    _state = ESP_SDCARD_NOT_PRESENT;
-    return _state;
-  }
-#endif  // ESP_SD_DETECT_PIN
-  // if busy doing something return state
-  if (!((_state == ESP_SDCARD_NOT_PRESENT) || _state == ESP_SDCARD_IDLE)) {
-    return _state;
-  }
-  if (!refresh) {
-    return _state;  // to avoid refresh=true + busy to reset SD and waste time
-  }
-  // SD is idle or not detected, let see if still the case
-  _state = ESP_SDCARD_NOT_PRESENT;
-  // refresh content if card was removed
-  if (!lastinitok) {
-    esp3d_log("last init was failed try sd_mmc begin");
-    ESP3D_SD_Card.end();
-    if (ESP3D_SD_Card.begin("/sdcard", SDIO_BIT_MODE)) {
-      esp3d_log("sd_mmc begin succeed");
-      if (ESP3D_SD_Card.cardType() != CARD_NONE) {
-        _state = ESP_SDCARD_IDLE;
-        lastinitok = true;
-        esp3d_log("sd_mmc card type succeed");
-      } else {
-        esp3d_log_e("sd_mmc card type failed");
-      }
-    } else {
-      esp3d_log_e("sd_mmc begin failed");
-    }
-  } else {
-    esp3d_log("last init was ok try card type");
-    if (ESP3D_SD_Card.cardType() != CARD_NONE) {
-      esp3d_log("checking sd_mmc card type succeed");
-      _state = ESP_SDCARD_IDLE;
-    } else {
-      lastinitok = false;
-      esp3d_log_e("Soft sd check failed");
-      ESP3D_SD_Card.end();
-      if (ESP3D_SD_Card.begin("/sdcard", SDIO_BIT_MODE)) {
-        esp3d_log("new sd_mmc begin succeed");
-        if (ESP3D_SD_Card.cardType() != CARD_NONE) {
-          _state = ESP_SDCARD_IDLE;
-          lastinitok = true;
-          esp3d_log("new sd_mmc card type succeed");
-        } else {
-          esp3d_log_e("new sd_mmc card type failed");
-        }
-      } else {
-        esp3d_log("new sd_mmc begin failed");
-      }
-    }
-  }
-  return _state;
-}
-
-bool ESP_SD::begin() {
+// Apply SDIO pins configuration based on settings
+// Note: This does nothing on standard ESP32 (pins are hard-coded in silicon)
+//       but is required for ESP32-S2 / C3 / S3 / etc.
+static void applySDPins() {
 #if SDIO_BIT_MODE == SD_ONE_BIT_MODE
 #if (ESP_SDIO_CLK_PIN != -1) || (ESP_SDIO_CMD_PIN != -1) || \
     (ESP_SDIO_D0_PIN != -1)
   ESP3D_SD_Card.setPins(ESP_SDIO_CLK_PIN, ESP_SDIO_CMD_PIN, ESP_SDIO_D0_PIN);
-#endif  //(ESP_SDIO_CLK_PIN != -1)
+#endif
 #else
 #if (ESP_SDIO_CLK_PIN != -1) || (ESP_SDIO_CMD_PIN != -1) || \
     (ESP_SDIO_D0_PIN != -1) || (ESP_SDIO_D1_PIN != -1) ||   \
     (ESP_SDIO_D2_PIN != -1) || (ESP_SDIO_D3_PIN != -1)
   ESP3D_SD_Card.setPins(ESP_SDIO_CLK_PIN, ESP_SDIO_CMD_PIN, ESP_SDIO_D0_PIN,
-                 ESP_SDIO_D1_PIN, ESP_SDIO_D2_PIN, ESP_SDIO_D3_PIN);
-#endif  //(ESP_SDIO_CLK_PIN != -1)
+                        ESP_SDIO_D1_PIN, ESP_SDIO_D2_PIN, ESP_SDIO_D3_PIN);
+#endif
 #endif  // SD_ONE_BIT_MODE
-  esp3d_log("Begin SDIO");
-  _started = true;
+}
+
+uint8_t ESP_SD::getState(bool refresh) {
+  static uint32_t lastReinitTime = 0;
+
+#if defined(ESP_SD_DETECT_PIN) && ESP_SD_DETECT_PIN != -1
+  if (digitalRead(ESP_SD_DETECT_PIN) != ESP_SD_DETECT_VALUE) {
+    _state = ESP_SDCARD_NOT_PRESENT;
+    return _state;
+  }
+#endif
+
+  if (_state == ESP_SDCARD_BUSY) return _state;
+  if (!refresh) return _state;
+
 #ifdef SDMMC_FORCE_BEGIN
-  _state = ESP_SDCARD_NOT_PRESENT;
-#else
-  _state = getState(true);
-#endif  // SDMMC_FORCE_BEGIN
+  if (millis() - lastReinitTime > 250) {        // anti-spam cooldown
+    esp3d_log("SDMMC_FORCE_BEGIN → full re-init");
+
+    ESP3D_SD_Card.end();
+    delay(80);                                  // very important for 4-bit stability
+
+    applySDPins();
+
+    bool ok = ESP3D_SD_Card.begin("/sdcard", SDIO_BIT_MODE);
+
+    if (ok && ESP3D_SD_Card.cardType() != CARD_NONE) {
+      _state = ESP_SDCARD_IDLE;
+      esp3d_log("Re-init OK (new card detected)");
+
+      // <<<=== FIX HERE ===>>>
+      // Force refresh of size cache when a new card is inserted
+      totalBytes(true);     // force refresh
+      usedBytes(true);      // force refresh
+      _sizechanged = true;  // also mark for refreshStats()
+
+    } else {
+      _state = ESP_SDCARD_NOT_PRESENT;
+      esp3d_log_e("Re-init failed");
+    }
+
+    lastReinitTime = millis();
+    return _state;
+  }
+#endif
+
+  // Soft check (fast path)
+  if (ESP3D_SD_Card.cardType() != CARD_NONE) {
+    _state = ESP_SDCARD_IDLE;
+    return _state;
+  }
+
+  // Sanity / fallback re-init
+  if (millis() - lastReinitTime > 500) {
+    ESP3D_SD_Card.end();
+    delay(50);
+    applySDPins();
+
+    if (ESP3D_SD_Card.begin("/sdcard", SDIO_BIT_MODE) && ESP3D_SD_Card.cardType() != CARD_NONE) {
+      _state = ESP_SDCARD_IDLE;
+      totalBytes(true);
+      usedBytes(true);
+      _sizechanged = true;
+    } else {
+      _state = ESP_SDCARD_NOT_PRESENT;
+    }
+    lastReinitTime = millis();
+  }
+
+  return _state;
+}
+
+bool ESP_SD::begin() {
+  esp3d_log("SDIO begin - mode %s", (SDIO_BIT_MODE == SD_ONE_BIT_MODE) ? "1-bit" : "4-bit");
+
+  applySDPins();
+
+  _started = ESP3D_SD_Card.begin("/sdcard", SDIO_BIT_MODE);
+
+  if (_started) {
+    _state = (ESP3D_SD_Card.cardType() != CARD_NONE) ? ESP_SDCARD_IDLE : ESP_SDCARD_NOT_PRESENT;
+
+    // Force initial size cache refresh at boot
+    if (_state == ESP_SDCARD_IDLE) {
+      totalBytes(true);
+      usedBytes(true);
+      _sizechanged = true;
+    }
+  } else {
+    _state = ESP_SDCARD_NOT_PRESENT;
+  }
 
   return _started;
 }
