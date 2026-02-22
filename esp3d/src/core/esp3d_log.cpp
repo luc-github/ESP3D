@@ -19,8 +19,12 @@
 */
 
 #include "../include/esp3d_config.h"
-#include <esp_log.h>
+
 #if defined(ESP_LOG_FEATURE)
+#if defined(ARDUINO_ARCH_ESP32)
+#include <esp_log.h>
+#endif  // ARDUINO_ARCH_ESP32
+
 // telnet
 #if ESP_LOG_FEATURE == LOG_OUTPUT_TELNET
 #include "../modules/telnet/telnet_server.h"
@@ -122,6 +126,7 @@ void esp3d_logf(uint8_t level, const char* format, ...) {
 }
 
 void esp3d_log_init() {
+#if defined(ARDUINO_ARCH_ESP32)
 #if !defined(SHOW_ESP_LOG)
   esp_log_level_set("wifi", ESP_LOG_NONE);
   esp_log_level_set("sdmmc", ESP_LOG_NONE);
@@ -142,7 +147,7 @@ void esp3d_log_init() {
   esp_log_level_set("emac",           ESP_LOG_NONE);
   esp_log_level_set("phy",            ESP_LOG_NONE);
 #endif // !defined(SHOW_ESP_LOG)
-
+#endif // ARDUINO_ARCH_ESP32
 #if (ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL0) || \
     (ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL1) || \
     (ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL2)
