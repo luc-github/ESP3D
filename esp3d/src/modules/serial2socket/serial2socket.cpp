@@ -152,7 +152,7 @@ size_t Serial_2_Socket::write(uint8_t c) {
   if (!_started || _paused) {
     return 1;
   }
-  esp3d_log_d("Serial2Socket: write one char %c", c);
+  esp3d_log("Serial2Socket: write one char %c", c);
   return write(&c, 1);
 }
 
@@ -174,7 +174,7 @@ size_t Serial_2_Socket::write(const uint8_t *buffer, size_t size) {
   
   // Check if buffer is full and needs flushing
   if (_TXbufferSize + size > S2S_TXBUFFERSIZE) {
-    esp3d_log_d("Serial2Socket: buffer full, flush it");
+    esp3d_log("Serial2Socket: buffer full, flush it");
     flush(false); // Use flush without mutex since we already have it
   }
   
@@ -183,7 +183,7 @@ size_t Serial_2_Socket::write(const uint8_t *buffer, size_t size) {
     _TXbuffer[_TXbufferSize] = buffer[i];
     _TXbufferSize++;
     if (buffer[i] == (const uint8_t)'\n') {
-      esp3d_log_d("S2S: %s TXSize: %d", (const char *)_TXbuffer, _TXbufferSize);
+      esp3d_log("S2S: %s TXSize: %d", (const char *)_TXbuffer, _TXbufferSize);
       flush(false); // Use flush without mutex since we already have it
     }
   }
@@ -202,7 +202,7 @@ size_t Serial_2_Socket::write(const uint8_t *buffer, size_t size) {
 }
 
 int Serial_2_Socket::peek(void) {
-  esp3d_log_d("Serial2Socket: peek first of %d", _RXbufferSize);
+  esp3d_log("Serial2Socket: peek first of %d", _RXbufferSize);
   if (_RXbufferSize <= 0 || !_started) {
     return -1;
   }
@@ -235,7 +235,7 @@ bool Serial_2_Socket::push2RX(const uint8_t *buffer, size_t size) {
   
   int data_size = size;
   bool success = false;
-  esp3d_log_d("Serial2Socket: pushing %d chars to buffer", data_size);
+  esp3d_log("Serial2Socket: pushing %d chars to buffer", data_size);
   if ((data_size + _RXbufferSize) <= S2S_RXBUFFERSIZE) {
     int current = _RXbufferpos + _RXbufferSize;
     if (current > S2S_RXBUFFERSIZE) {
@@ -278,7 +278,7 @@ int Serial_2_Socket::read(void) {
     _RXbufferpos = 0;
   }
   _RXbufferSize--;
-  esp3d_log_d("Serial2Socket: read one char %c", v);
+  esp3d_log("Serial2Socket: read one char %c", v);
   
   if (_rxBufferMutex != NULL) {
     xSemaphoreGive((SemaphoreHandle_t)_rxBufferMutex);
@@ -338,7 +338,7 @@ bool Serial_2_Socket::dispatch(ESP3DMessage *message) {
     return false;
   }
   if (message->size > 0 && message->data) {
-    esp3d_log_d("Serial2Socket: dispatch message %d", message->size);
+    esp3d_log("Serial2Socket: dispatch message %d", message->size);
     if (!push2RX(message->data, message->size)) {
       esp3d_log_e("Serial2Socket: cannot push all data");
       return false;

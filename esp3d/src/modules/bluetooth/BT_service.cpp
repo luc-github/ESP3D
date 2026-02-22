@@ -71,7 +71,7 @@ static void my_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param) {
       BTService::setClientAddress(str);
       String stmp = "BT Connected with ";
       stmp += str;
-      esp3d_log_d("BT Connected with %s", str);
+      esp3d_log("BT Connected with %s", str);
       esp3d_commands.dispatch(stmp.c_str(), ESP3DClientType::all_clients, no_id,
                               ESP3DMessageType::unique, ESP3DClientType::system,
                               ESP3DAuthenticationLevel::admin);
@@ -84,7 +84,7 @@ static void my_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param) {
                               ESP3DClientType::system,
                               ESP3DAuthenticationLevel::admin);
       BTService::setClientAddress("");
-      esp3d_log_d("BT Disconnected");
+      esp3d_log("BT Disconnected");
     } break;
     default:
       break;
@@ -223,7 +223,7 @@ void BTService::push2buffer(uint8_t *sbuf, size_t len) {
   }
   for (size_t i = 0; i < len; i++) {
     _lastflush = millis();
-    esp3d_log_d("BTService::push2buffer: %c", sbuf[i]);
+    esp3d_log("BTService::push2buffer: %c", sbuf[i]);
     if (esp3d_string::isRealTimeCommand(sbuf[i])) {
       flushChar(sbuf[i]);
     } else {
@@ -239,10 +239,10 @@ void BTService::push2buffer(uint8_t *sbuf, size_t len) {
 
 size_t BTService::writeBytes(const uint8_t *buffer, size_t size) {
   if (availableForWrite() >= size) {
-    esp3d_log_d("BTService::writeBytes: %d bytes", size);
+    esp3d_log("BTService::writeBytes: %d bytes", size);
     return SerialBT.write(buffer, size);
   } else {
-    esp3d_log_d("BTService::writeBytes: %d bytes, not enough space",
+    esp3d_log("BTService::writeBytes: %d bytes, not enough space",
                 size);
     size_t sizetosend = size;
     size_t sizesent = 0;
