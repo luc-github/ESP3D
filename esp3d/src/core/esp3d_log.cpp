@@ -125,49 +125,6 @@ void esp3d_logf(uint8_t level, const char* format, ...) {
   }
 }
 
-void esp3d_log_init() {
-#if defined(ARDUINO_ARCH_ESP32)
-#if !defined(SHOW_ESP_LOG)
-  esp_log_level_set("wifi", ESP_LOG_NONE);
-  esp_log_level_set("sdmmc", ESP_LOG_NONE);
-  esp_log_level_set("vfs_fat_sdmmc", ESP_LOG_NONE);
-  esp_log_level_set("sdmmc_periph", ESP_LOG_NONE);
-  esp_log_level_set("sdmmc_req",    ESP_LOG_NONE);
-  esp_log_level_set("sdmmc_common", ESP_LOG_NONE);
-  esp_log_level_set("fatfs", ESP_LOG_NONE);
-  esp_log_level_set("sdspi", ESP_LOG_NONE);
-  esp_log_level_set("sd_diskio", ESP_LOG_NONE);
-  esp_log_level_set("vfs_fat",        ESP_LOG_NONE);
-  esp_log_level_set("esp_littlefs",   ESP_LOG_NONE);
-  esp_log_level_set("task_wdt",       ESP_LOG_NONE);
-  esp_log_level_set("camera",         ESP_LOG_NONE);
-  esp_log_level_set("sccb",           ESP_LOG_NONE);
-  esp_log_level_set("ov2640",         ESP_LOG_NONE);
-  esp_log_level_set("esp_eth",        ESP_LOG_NONE);
-  esp_log_level_set("emac",           ESP_LOG_NONE);
-  esp_log_level_set("phy",            ESP_LOG_NONE);
-#endif // !defined(SHOW_ESP_LOG)
-#endif // ARDUINO_ARCH_ESP32
-#if (ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL0) || \
-    (ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL1) || \
-    (ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL2)
-#ifdef ARDUINO_ARCH_ESP8266
-  LOG_OUTPUT_SERIAL.begin(LOG_ESP3D_BAUDRATE, SERIAL_8N1, SERIAL_FULL,
-                          (ESP_LOG_TX_PIN == -1) ? 1 : ESP_LOG_TX_PIN);
-#if ESP_LOG_RX_PIN != -1
-  LOG_OUTPUT_SERIAL
-      .pins((ESP_LOG_TX_PIN == -1) ? 1 : ESP_LOG_TX_PIN, ESP_LOG_RX_PIN)
-#endif  // ESP_LOG_RX_PIN != -1
-#endif  // ARDUINO_ARCH_ESP8266
-#if defined(ARDUINO_ARCH_ESP32)
-          LOG_OUTPUT_SERIAL.begin(LOG_ESP3D_BAUDRATE, SERIAL_8N1,
-                                  ESP_LOG_RX_PIN, ESP_LOG_TX_PIN);
-#endif  // ARDUINO_ARCH_ESP32
-
-#endif  // (ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL0) || (ESP_LOG_FEATURE ==
-        // LOG_OUTPUT_SERIAL1)||(ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL2)
-}
-
 void esp3d_network_log_init() {
 
 #if ESP_LOG_FEATURE == LOG_OUTPUT_TELNET
@@ -195,3 +152,51 @@ void esp3d_network_log_end() {
 }
 
 #endif  // ESP_LOG_FEATURE
+
+void esp3d_log_init() {
+#if defined(ARDUINO_ARCH_ESP32)
+#if !defined(SHOW_ESP_LOG)
+  esp_log_level_set("wifi", ESP_LOG_NONE);
+  esp_log_level_set("sdmmc", ESP_LOG_NONE);
+  esp_log_level_set("vfs_fat_sdmmc", ESP_LOG_NONE);
+  esp_log_level_set("sdmmc_periph", ESP_LOG_NONE);
+  esp_log_level_set("sdmmc_req",    ESP_LOG_NONE);
+  esp_log_level_set("sdmmc_common", ESP_LOG_NONE);
+  esp_log_level_set("fatfs", ESP_LOG_NONE);
+  esp_log_level_set("sdspi", ESP_LOG_NONE);
+  esp_log_level_set("sd_diskio", ESP_LOG_NONE);
+  esp_log_level_set("vfs_fat",        ESP_LOG_NONE);
+  esp_log_level_set("esp_littlefs",   ESP_LOG_NONE);
+  esp_log_level_set("task_wdt",       ESP_LOG_NONE);
+  esp_log_level_set("camera",         ESP_LOG_NONE);
+  esp_log_level_set("sccb",           ESP_LOG_NONE);
+  esp_log_level_set("ov2640",         ESP_LOG_NONE);
+  esp_log_level_set("esp_eth",        ESP_LOG_NONE);
+  esp_log_level_set("emac",           ESP_LOG_NONE);
+  esp_log_level_set("phy",            ESP_LOG_NONE);
+#endif // !defined(SHOW_ESP_LOG)
+#endif // ARDUINO_ARCH_ESP32
+
+#if defined(ESP_LOG_FEATURE)
+
+#if (ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL0) || \
+    (ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL1) || \
+    (ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL2)
+#ifdef ARDUINO_ARCH_ESP8266
+  LOG_OUTPUT_SERIAL.begin(LOG_ESP3D_BAUDRATE, SERIAL_8N1, SERIAL_FULL,
+                          (ESP_LOG_TX_PIN == -1) ? 1 : ESP_LOG_TX_PIN);
+#if ESP_LOG_RX_PIN != -1
+  LOG_OUTPUT_SERIAL
+      .pins((ESP_LOG_TX_PIN == -1) ? 1 : ESP_LOG_TX_PIN, ESP_LOG_RX_PIN)
+#endif  // ESP_LOG_RX_PIN != -1
+#endif  // ARDUINO_ARCH_ESP8266
+#if defined(ARDUINO_ARCH_ESP32)
+          LOG_OUTPUT_SERIAL.begin(LOG_ESP3D_BAUDRATE, SERIAL_8N1,
+                                  ESP_LOG_RX_PIN, ESP_LOG_TX_PIN);
+#endif  // ARDUINO_ARCH_ESP32
+
+#endif  // (ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL0) || (ESP_LOG_FEATURE ==
+        // LOG_OUTPUT_SERIAL1)||(ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL2)
+
+#endif  // ESP_LOG_FEATURE
+}

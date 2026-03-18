@@ -22,13 +22,14 @@
 
 #include "../include/esp3d_config.h"
 #include "../include/esp3d_defines.h"
+extern void esp3d_log_init();
+
 #if defined(ESP_LOG_FEATURE)
 extern void esp3d_logf(uint8_t level, const char* format, ...);
 extern void esp3d_network_log_init();
 extern void esp3d_network_log_handle();
 extern void esp3d_network_log_end();
 
-extern void esp3d_log_init();
 
 #if !defined(ESP3D_LOG_LEVEL) && defined(ESP_DEBUG_FEATURE)
 #error "ESP3D_LOG_LEVEL is not defined, please define it in configuration.h"
@@ -75,7 +76,7 @@ extern void esp3d_log_init();
 #define esp3d_log_d(format, ...)
 #define esp3d_log(format, ...)
 #undef ESP3D_LOG_LEVEL
-#define ESP3D_LOG_INIT_FN
+#define ESP3D_LOG_INIT_FN  esp3d_log_init(); //to desactivate idf log extensively
 #define ESP3D_LOG_NETWORK_INIT_FN
 #define ESP3D_LOG_NETWORK_HANDLE_FN
 #define ESP3D_LOG_NETWORK_END_FN
