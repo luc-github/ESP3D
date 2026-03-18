@@ -30,16 +30,6 @@
 #include "../../core/esp3d_string.h"
 #include "../network/netconfig.h"
 #include "ethconfig.h"
-#ifdef ETHERNET_SPI_USE_SPI
-#define ETH_SPI SPI
-#endif  // ETHERNET_SPI_USE_SPI
-#if ETHERNET_SPI_USE_SPI2
-#define ETH_SPI SPI2
-#endif  // ETHERNET_SPI_USE_SPI2
-#ifndef ETH_SPI
-#define ETH_SPI SPI
-#endif  // ETH_SPI
-#
 
 #if defined(GCODE_HOST_FEATURE)
 #include "../gcode_host/gcode_host.h"
@@ -109,11 +99,20 @@ bool EthConfig::begin(int8_t& espMode) {
         // TYPE_ETH_PHY_RTL8201 || ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_DP83848 ||
         // ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_KSZ8041 || ESP3D_ETH_PHY_TYPE ==
         // TYPE_ETH_PHY_KSZ8081
+
 #if ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_W5500
-  esp3d_log("ETH spi PHY Type %d", ESP3D_ETH_PHY_TYPE);
-  ETH_SPI.begin(ETH_SPI_SCK, ETH_SPI_MISO, ETH_SPI_MOSI);
+#if defined(ETHERNET_SPI_USE_SPI) && (ETHERNET_SPI_USE_SPI == 1)
+  esp3d_log("ETH spi PHY Type %d using SPI", ESP3D_ETH_PHY_TYPE);
+  SPI.begin(ETH_SPI_SCK, ETH_SPI_MISO, ETH_SPI_MOSI);
   _started = ETH.begin(ETH_PHY_W5500, ESP3D_ETH_PHY_ADDR, ETH_PHY_CS,
-                       ETH_PHY_IRQ, ETH_PHY_RST, ETH_SPI);
+                       ETH_PHY_IRQ, ETH_PHY_RST, SPI);
+#endif  // defined(ETHERNET_SPI_USE_SPI) && (ETHERNET_SPI_USE_SPI == 1)
+#if defined(ETHERNET_SPI_USE_SPI2) && (ETHERNET_SPI_USE_SPI2 == 1)
+  esp3d_log("ETH spi PHY Type %d using SPI2", ESP3D_ETH_PHY_TYPE);
+
+  _started = ETH.begin(ETH_PHY_W5500, ESP3D_ETH_PHY_ADDR, ETH_PHY_CS,
+                       ETH_PHY_IRQ, ETH_PHY_RST, SPI3_HOST,ETH_SPI_SCK, ETH_SPI_MISO, ETH_SPI_MOSI);
+#endif  // defined(ETHERNET_SPI_USE_SPI2) && (ETHERNET_SPI_USE_SPI2 == 1)
 #endif  // ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_W5500
 
   if (_started) {
