@@ -478,7 +478,7 @@ void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
     // Change ETH STA IP mode (DHCP/STATIC)
     //[ESP116]<mode>pwd=<admin password>
     case 116:
-      ESP102(cmd_params_pos, msg);
+      ESP116(cmd_params_pos, msg);
       break;
     // Change ETH STA IP/Mask/GW
     //[ESP117]IP=<IP> MSK=<IP> GW=<IP> pwd=<admin password>
