@@ -16,6 +16,15 @@
         "bug",
         "code"
       ]
+    },
+    {
+      "login": "Binch3000",
+      "name": "Binch3000",
+      "avatar_url": "https://avatars.githubusercontent.com/u/168651837?v=4",
+      "profile": "https://github.com/Binch3000",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
