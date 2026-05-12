@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ESP3D-X — WebSocket terminal (data + WebUI)</title>
+  <style>
+    :root {
+      --bg: #1a1d23;
+      --panel: #23272f;
+      --text: #e6e8ec;
+      --muted: #8b919a;
+      --accent: #6cb3ff;
+      --ok: #7dcea0;
+      --err: #f1948a;
+      --mono: ui-monospace, "Cascadia Code", Consolas, monospace;
+    }
+    * { box-sizing: border-box; }
+    html {
+      height: 100%;
+    }
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100%;
+      max-height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      padding: 0.75rem 1rem;
+      background: var(--panel);
+      border-bottom: 1px solid #333;
+    }
+    h1 { font-size: 1rem; font-weight: 600; margin: 0; }
+    .sub { font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem; }
+    main {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      /* Row height = viewport remainder, not max-content of the log (critical). */
+      grid-template-rows: minmax(0, 1fr);
+      gap: 0;
+      flex: 1;
+      min-height: 0;
+    }
+    main > .log-wrap {
+      min-height: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    main > aside {
+      min-height: 0;
+      overflow-y: auto;
+    }
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: 1fr;
+        grid-template-rows: minmax(0, 38vh) minmax(0, 1fr);
+      }
+      aside {
+        order: -1;
+        max-height: none;
+      }
+    }
+    .controls {
+      flex-shrink: 0;
+      padding: 0.75rem 1rem;
+      display: flex; flex-wrap: wrap; gap: 0.5rem;
+      align-items: center;
+      background: var(--panel);
+      border-bottom: 1px solid #333;
+    }
+    label { font-size: 0.75rem; color: var(--muted); margin-right: 0.25rem; }
+    input[type="text"], input[type="number"] {
+      background: #111;
+      border: 1px solid #444;
+      color: var(--text);
+      padding: 0.35rem 0.5rem;
+      border-radius: 4px;
+      font-family: var(--mono);
+      font-size: 0.85rem;
+    }
+    input.narrow { width: 5rem; }
+    input.wide { width: 7.5rem; }
+    select.conn-profile-select {
+      background: #111;
+      border: 1px solid #444;
+      color: var(--text);
+      padding: 0.35rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      max-width: 16rem;
+    }
+    select.subproto-select {
+      background: #111;
+      border: 1px solid #444;
+      color: var(--text);
+      padding: 0.35rem 0.5rem;
+      border-radius: 4px;
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      min-width: 7.5rem;
+    }
+    #subprotoCustom { display: none; vertical-align: middle; }
+    #subprotoCustom.is-visible { display: inline-block; }
+    button {
+      background: #3d5a80;
+      color: #fff;
+      border: none;
+      padding: 0.4rem 0.75rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    button:hover { filter: brightness(1.1); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    button.danger { background: #922b21; }
+    button.accent { background: #1e6f5c; }
+    /* Flex child must shrink so overflow scrolls inside the pane (not the whole page). */
+    .log-scroll {
+      flex: 1;
+      min-height: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+      background: var(--bg);
+    }
+    #log {
+      margin: 0;
+      padding: 0.75rem 1rem;
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .line-in { color: var(--accent); }
+    .line-out { color: var(--ok); }
+    .line-bin { color: #d7bde2; }
+    .line-stream { color: #dbeafe; }
+    .line-err { color: var(--err); }
+    .line-meta { color: var(--muted); }
+    aside {
+      background: #1e2228;
+      border-left: 1px solid #333;
+      padding: 0.75rem 1rem;
+      font-size: 0.78rem;
+      line-height: 1.5;
+      overflow: auto;
+    }
+    aside h2 { font-size: 0.85rem; margin: 0 0 0.5rem; }
+    aside p, aside ul { margin: 0 0 0.75rem; color: var(--muted); }
+    aside code { background: #111; padding: 0.1em 0.35em; border-radius: 3px; color: #cbd5e1; }
+    .send-row, .xfer-row {
+      flex-shrink: 0;
+      padding: 0.5rem 1rem;
+      border-top: 1px solid #333;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      background: var(--panel);
+    }
+    .xfer-row { border-top: none; border-bottom: 1px solid #333; }
+    #cmd { flex: 1; min-width: 12rem; font-family: var(--mono); font-size: 0.85rem; }
+    .xfer-hint { font-size: 0.72rem; color: var(--muted); width: 100%; margin: 0; }
+    .xfer-progress-wrap {
+      flex-shrink: 0;
+      padding: 0.35rem 1rem 0.6rem;
+      background: #1a1e24;
+      border-bottom: 1px solid #333;
+    }
+    .xfer-progress-wrap[hidden] {
+      display: none !important;
+    }
+    .xfer-progress-meta {
+      font-size: 0.72rem;
+      color: var(--muted);
+      font-family: var(--mono);
+      margin-bottom: 0.35rem;
+    }
+    .xfer-progress-track {
+      height: 8px;
+      border-radius: 4px;
+      background: #111;
+      border: 1px solid #3a3f48;
+      overflow: hidden;
+    }
+    .xfer-progress-bar {
+      height: 100%;
+      width: 0%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, #2d6a4f, #52b788);
+      transition: width 0.08s ease-out;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>ESP3D-X — WebSocket terminal</h1>
+    <div class="sub"><strong>Data</strong> = <code>/wsdata</code> + V1 file transfer + <code>esp3d-v1</code>. <strong>WebUI stream</strong> = <code>/ws</code> + <code>webui-v3</code> (binary = raw machine bytes, decoded like the embedded WebUI).</div>
+  </header>
+  <main>
+    <div class="log-wrap">
+      <div class="controls">
+        <span>
+          <label>Profile</label>
+          <select id="connProfile" class="conn-profile-select" title="Connection preset">
+            <option value="data" selected>Data /wsdata (V1 tools)</option>
+            <option value="webui">WebUI /ws (stream)</option>
+          </select>
+        </span>
+        <span><label>Host</label><input type="text" id="host" class="wide" value="192.168.1.100" /></span>
+        <span><label>Port</label><input type="number" id="port" class="narrow" value="80" min="1" max="65535" /></span>
+        <span><label>Path</label><input type="text" id="path" class="wide" value="/wsdata" /></span>
+        <span>
+          <label>Subprotocol</label>
+          <select id="subprotoSelect" class="subproto-select" title="Sec-WebSocket-Protocol">
+            <option value="webui-v3">webui-v3</option>
+            <option value="esp3d-v1" selected>esp3d-v1</option>
+            <option value="__custom__">Custom…</option>
+          </select>
+          <input type="text" id="subprotoCustom" class="wide" placeholder="e.g. myproto" maxlength="64" autocomplete="off" />
+        </span>
+        <label><input type="checkbox" id="wss" /> WSS (TLS)</label>
+        <label><input type="checkbox" id="logBinHex" /> Log raw BIN (hex)</label>
+        <button type="button" id="btnConnect">Connect</button>
+        <button type="button" id="btnDisconnect" disabled>Disconnect</button>
+        <button type="button" id="btnSr" class="accent" disabled title="Binary SR (empty payload) — expect RS">Send SR probe</button>
+        <button type="button" id="btnClear" class="danger">Clear log</button>
+      </div>
+      <div id="xferRow" class="xfer-row">
+        <p class="xfer-hint"><strong>V1 binary</strong> — same as <code>ws_transfer_test.py</code> (1024 B packets). Run <strong>SR</strong> first if unsure the link is idle.</p>
+        <span><label>Remote dir</label><input type="text" id="remoteDir" class="wide" value="/fs" /></span>
+        <input type="file" id="uploadPick" style="display:none" />
+        <button type="button" id="btnUploadPick" disabled>Upload file…</button>
+        <span><label>Download name</label><input type="text" id="dlName" class="wide" placeholder="file.gcode" /></span>
+        <button type="button" id="btnDownload" disabled>Download</button>
+      </div>
+      <div id="xferProgressWrap" class="xfer-progress-wrap" hidden>
+        <div class="xfer-progress-meta" id="xferProgressLabel">—</div>
+        <div class="xfer-progress-track">
+          <div id="xferProgressBar" class="xfer-progress-bar"></div>
+        </div>
+      </div>
+      <div id="logScroll" class="log-scroll">
+        <pre id="log"></pre>
+      </div>
+      <div class="send-row">
+        <input type="text" id="cmd" placeholder='[ESP720]/ json=yes — newline added if missing' disabled />
+        <button type="button" id="btnSend" disabled>Send text</button>
+      </div>
+    </div>
+    <aside>
+      <h2>Profiles</h2>
+      <p><strong>Data</strong> — <code>docs/esp3d_websocket_protocol_v1.md</code>, <code>docs/websockets_protocol.md</code> (data WS). V1: SR→RS, upload/download, <code>[ESP720]</code>…. <strong>Log raw BIN (hex)</strong>: off = one summary line per frame; on = full hex dump (verbose during transfer).</p>
+      <p><strong>WebUI stream</strong> — <code>docs/websockets_protocol.md</code> § Terminal → binary mode. BINARY = raw bytes; decoded like <code>embedded/src/index.js</code> (byte→char, lines on CR/LF). No V1 upload on this socket. Optional hex log for debugging.</p>
+      <p>CLI: <code>ws_transfer_test.py</code> (<code>pip install websockets</code>). Legacy <code>ws_webui_term.html</code> redirects here.</p>
+      <p class="line-meta"><code>file://</code> / WSS: serve over HTTP if the browser blocks mixed content.</p>
+    </aside>
+  </main>
+  <script>
+(function () {
+  const PACKET_SIZE = 1024;
+  const S_OK = 0x4f;
+
+  const logEl = document.getElementById("log");
+  const logScrollEl = document.getElementById("logScroll");
+  const connProfileEl = document.getElementById("connProfile");
+  const hostEl = document.getElementById("host");
+  const portEl = document.getElementById("port");
+  const pathEl = document.getElementById("path");
+  const subprotoSelect = document.getElementById("subprotoSelect");
+  const subprotoCustom = document.getElementById("subprotoCustom");
+  const wssEl = document.getElementById("wss");
+  const logBinHexEl = document.getElementById("logBinHex");
+  const cmdEl = document.getElementById("cmd");
+  const remoteDirEl = document.getElementById("remoteDir");
+  const uploadPick = document.getElementById("uploadPick");
+  const dlNameEl = document.getElementById("dlName");
+  const btnConnect = document.getElementById("btnConnect");
+  const btnDisconnect = document.getElementById("btnDisconnect");
+  const btnSr = document.getElementById("btnSr");
+  const btnSend = document.getElementById("btnSend");
+  const btnClear = document.getElementById("btnClear");
+  const btnUploadPick = document.getElementById("btnUploadPick");
+  const btnDownload = document.getElementById("btnDownload");
+  const xferRow = document.getElementById("xferRow");
+  const xferProgressWrap = document.getElementById("xferProgressWrap");
+  const xferProgressBar = document.getElementById("xferProgressBar");
+  const xferProgressLabel = document.getElementById("xferProgressLabel");
+
+  const te = new TextEncoder();
+
+  function isDataProfile() {
+    return connProfileEl.value === "data";
+  }
+
+  /** WebUI stream partial line — same as embedded WebUI wsMsg buffer. */
+  let streamPartial = "";
+
+  function applyConnectionProfile() {
+    const webui = !isDataProfile();
+    if (webui) {
+      pathEl.value = "/ws";
+      if (subprotoSelect.value !== "__custom__") {
+        subprotoSelect.value = "webui-v3";
+      }
+      xferRow.style.display = "none";
+      xferProgressWrap.hidden = true;
+      cmdEl.placeholder = "TEXT to ESP (\\n added if missing)";
+    } else {
+      pathEl.value = "/wsdata";
+      if (subprotoSelect.value !== "__custom__") {
+        subprotoSelect.value = "esp3d-v1";
+      }
+      xferRow.style.display = "flex";
+      cmdEl.placeholder = "[ESP720]/ json=yes — newline added if missing";
+    }
+    syncSubprotoCustomUi();
+    updateActionButtons();
+  }
+
+  connProfileEl.addEventListener("change", function () {
+    if (ws) {
+      return;
+    }
+    applyConnectionProfile();
+  });
+
+  function syncSubprotoCustomUi() {
+    const isCustom = subprotoSelect.value === "__custom__";
+    if (isCustom) {
+      subprotoCustom.classList.add("is-visible");
+      subprotoCustom.focus();
+    } else {
+      subprotoCustom.classList.remove("is-visible");
+    }
+  }
+
+  function getSubprotocol() {
+    if (subprotoSelect.value === "__custom__") {
+      return subprotoCustom.value.trim();
+    }
+    return subprotoSelect.value;
+  }
+
+  subprotoSelect.addEventListener("change", syncSubprotoCustomUi);
+  syncSubprotoCustomUi();
+
+  let ws = null;
+  const binQueue = [];
+  let binWaiter = null;
+  let xferBusy = false;
+  let srPending = false;
+
+  applyConnectionProfile();
+
+  function formatBytes(n) {
+    if (n < 1024) {
+      return n + " B";
+    }
+    if (n < 1048576) {
+      return (n / 1024).toFixed(1) + " KiB";
+    }
+    return (n / 1048576).toFixed(2) + " MiB";
+  }
+
+  function setXferProgress(visible, phase, done, total) {
+    if (!visible) {
+      xferProgressWrap.hidden = true;
+      xferProgressBar.style.width = "0%";
+      return;
+    }
+    xferProgressWrap.hidden = false;
+    var pct;
+    if (total > 0) {
+      pct = Math.min(100, Math.floor((done * 100) / total));
+    } else {
+      pct = 100;
+    }
+    xferProgressBar.style.width = pct + "%";
+    xferProgressLabel.textContent =
+      phase + " — " + formatBytes(done) + " / " + formatBytes(total) + " (" + pct + "%)";
+  }
+
+  function ensureLineTerminator(s) {
+    if (s.length === 0) {
+      return s;
+    }
+    var c = s.charCodeAt(s.length - 1);
+    if (c === 10 || c === 13) {
+      return s;
+    }
+    return s + "\n";
+  }
+
+  var scrollBottomPending = false;
+  function scheduleScrollLogToBottom() {
+    if (scrollBottomPending) {
+      return;
+    }
+    scrollBottomPending = true;
+    requestAnimationFrame(function () {
+      scrollBottomPending = false;
+      const el = logScrollEl;
+      el.scrollTop = el.scrollHeight;
+      requestAnimationFrame(function () {
+        el.scrollTop = el.scrollHeight;
+      });
+    });
+  }
+
+  if (typeof ResizeObserver !== "undefined") {
+    new ResizeObserver(function () {
+      scheduleScrollLogToBottom();
+    }).observe(logEl);
+  }
+
+  function append(cls, text) {
+    const span = document.createElement("span");
+    span.className = cls;
+    span.textContent = text;
+    logEl.appendChild(span);
+    logEl.appendChild(document.createTextNode("\n"));
+    scheduleScrollLogToBottom();
+  }
+
+  function appendMeta(text) {
+    append("line-meta", "[" + new Date().toISOString().slice(11, 23) + "] " + text);
+  }
+
+  function hexOneLine(u8) {
+    const parts = [];
+    for (let i = 0; i < u8.length; i++) {
+      parts.push(u8[i].toString(16).padStart(2, "0"));
+    }
+    return parts.join(" ");
+  }
+
+  function hexDump(buf) {
+    const u8 = new Uint8Array(buf);
+    const lines = [];
+    for (let i = 0; i < u8.length; i += 16) {
+      const chunk = u8.subarray(i, i + 16);
+      const hex = Array.from(chunk, function (b) {
+        return b.toString(16).padStart(2, "0");
+      }).join(" ");
+      const ascii = Array.from(chunk, function (b) {
+        return b >= 32 && b < 127 ? String.fromCharCode(b) : ".";
+      }).join("");
+      lines.push(("0000" + i.toString(16)).slice(-4) + "  " + hex.padEnd(48) + "  " + ascii);
+    }
+    return lines.join("\n");
+  }
+
+  function parseBinaryLabel(buf) {
+    if (buf.byteLength < 4) {
+      return "(short frame)";
+    }
+    const v = new DataView(buf);
+    const op = String.fromCharCode(v.getUint8(0), v.getUint8(1));
+    const len = v.getUint16(2, true);
+    return op + " len=" + len + " total=" + buf.byteLength;
+  }
+
+  function makeFrame(op2, payloadU8) {
+    const plen = payloadU8.byteLength;
+    const buf = new ArrayBuffer(4 + plen);
+    const v = new DataView(buf);
+    v.setUint8(0, op2.charCodeAt(0));
+    v.setUint8(1, op2.charCodeAt(1));
+    v.setUint16(2, plen, true);
+    if (plen > 0) {
+      new Uint8Array(buf, 4).set(payloadU8);
+    }
+    return buf;
+  }
+
+  function parseFrame(ab) {
+    const v = new DataView(ab);
+    const op = String.fromCharCode(v.getUint8(0), v.getUint8(1));
+    const len = v.getUint16(2, true);
+    const payload = new Uint8Array(ab, 4, Math.min(len, ab.byteLength - 4));
+    return { op: op, payload: payload };
+  }
+
+  function logIncomingBinary(buf) {
+    append("line-bin", "<< BIN: " + parseBinaryLabel(buf));
+    if (logBinHexEl.checked) {
+      append("line-bin", hexDump(buf));
+    }
+  }
+
+  /**
+   * WebUI /ws binary: embedded/src/index.js algorithm (byte as char, flush on CR/LF).
+   */
+  function decodeWebUiBinaryChunk(arrayBuffer) {
+    const bytes = new Uint8Array(arrayBuffer);
+    if (logBinHexEl.checked) {
+      append("line-bin", "<< BIN " + bytes.length + " B: " + hexOneLine(bytes));
+    }
+    let msg = "";
+    for (let i = 0; i < bytes.length; i++) {
+      msg += String.fromCharCode(bytes[i]);
+      if (bytes[i] === 10 || bytes[i] === 13) {
+        streamPartial += msg;
+        append("line-stream", "<< stream: " + streamPartial.replace(/\r/g, "\\r").replace(/\n/g, "\\n"));
+        streamPartial = "";
+        msg = "";
+      }
+    }
+    streamPartial += msg;
+  }
+
+  function recvBinary(timeoutMs) {
+    return new Promise(function (resolve, reject) {
+      if (binQueue.length > 0) {
+        resolve(binQueue.shift());
+        return;
+      }
+      var settled = false;
+      var t = setTimeout(function () {
+        if (!settled) {
+          settled = true;
+          if (binWaiter === handler) {
+            binWaiter = null;
+          }
+          reject(new Error("timeout (" + timeoutMs + " ms)"));
+        }
+      }, timeoutMs);
+      function handler(buf) {
+        if (settled) {
+          return;
+        }
+        settled = true;
+        clearTimeout(t);
+        binWaiter = null;
+        resolve(buf);
+      }
+      binWaiter = handler;
+    });
+  }
+
+  function routeWsMessage(ev) {
+    if (typeof ev.data === "string") {
+      const s = ev.data;
+      const disp = s.replace(/\r/g, "\\r").replace(/\n/g, "\\n");
+      append("line-out", "<< TEXT: " + disp);
+      return;
+    }
+    const buf = ev.data;
+    if (!isDataProfile()) {
+      if (binWaiter) {
+        const w = binWaiter;
+        binWaiter = null;
+        w(buf);
+        return;
+      }
+      decodeWebUiBinaryChunk(buf);
+      return;
+    }
+    if (binWaiter) {
+      const w = binWaiter;
+      binWaiter = null;
+      w(buf);
+      return;
+    }
+    binQueue.push(buf);
+    logIncomingBinary(buf);
+  }
+
+  /** SR / text / transfer — only when socket is OPEN (not CONNECTING). */
+  function updateActionButtons() {
+    const open = ws !== null && ws.readyState === WebSocket.OPEN;
+    const canUse = open && !xferBusy;
+    const dataProf = isDataProfile();
+    btnSr.disabled = !canUse || srPending || !dataProf;
+    btnSend.disabled = !canUse;
+    cmdEl.disabled = !canUse;
+    btnUploadPick.disabled = !canUse || !dataProf;
+    btnDownload.disabled = !canUse || !dataProf;
+  }
+
+  function setXferBusy(on) {
+    xferBusy = on;
+    updateActionButtons();
+  }
+
+  function setConnected(on) {
+    btnConnect.disabled = on;
+    btnDisconnect.disabled = !on;
+    if (!on) {
+      binQueue.length = 0;
+      binWaiter = null;
+      xferBusy = false;
+      srPending = false;
+      streamPartial = "";
+    }
+    hostEl.disabled = on;
+    portEl.disabled = on;
+    pathEl.disabled = on;
+    subprotoSelect.disabled = on;
+    subprotoCustom.disabled = on;
+    wssEl.disabled = on;
+    connProfileEl.disabled = on;
+    updateActionButtons();
+  }
+
+  function buildPathNamePayload(remoteDir, nameBytes, extraSize) {
+    const pathBytes = te.encode(remoteDir);
+    const total = 1 + pathBytes.length + 1 + nameBytes.length + extraSize;
+    const out = new Uint8Array(total);
+    let o = 0;
+    out[o] = pathBytes.length;
+    o++;
+    out.set(pathBytes, o);
+    o += pathBytes.length;
+    out[o] = nameBytes.length;
+    o++;
+    out.set(nameBytes, o);
+    o += nameBytes.length;
+    return { buf: out, offset: o };
+  }
+
+  function buildSuPayload(remoteDir, fileName, fileSize) {
+    const nb = te.encode(fileName);
+    const r = buildPathNamePayload(remoteDir, nb, 4);
+    new DataView(r.buf.buffer, r.buf.byteOffset + r.offset).setUint32(0, fileSize, true);
+    return r.buf;
+  }
+
+  function buildSdPayload(remoteDir, remoteName) {
+    const nb = te.encode(remoteName);
+    const r = buildPathNamePayload(remoteDir, nb, 0);
+    return r.buf;
+  }
+
+  async function doUpload(file) {
+    const remoteDir = remoteDirEl.value.trim() || "/fs";
+    const size = file.size;
+    const suPl = buildSuPayload(remoteDir, file.name, size);
+    appendMeta("→ SU " + remoteDir + "/" + file.name + " (" + size + " bytes)");
+    ws.send(makeFrame("SU", suPl));
+    const ab = await recvBinary(30000);
+    logIncomingBinary(ab);
+    const fr = parseFrame(ab);
+    if (fr.op !== "US" || fr.payload.length < 1 || fr.payload[0] !== S_OK) {
+      throw new Error("US rejected (op=" + fr.op + ")");
+    }
+    setXferProgress(true, "Upload → " + file.name, 0, size);
+    const raw = await file.arrayBuffer();
+    const u8 = new Uint8Array(raw);
+    var packetId = 0;
+    for (var off = 0; off < u8.length; off += PACKET_SIZE) {
+      const end = Math.min(off + PACKET_SIZE, u8.length);
+      const chunk = u8.subarray(off, end);
+      const pktPl = new Uint8Array(4 + chunk.length);
+      new DataView(pktPl.buffer).setUint32(0, packetId, true);
+      pktPl.set(chunk, 4);
+      ws.send(makeFrame("UP", pktPl));
+      const ackAb = await recvBinary(60000);
+      logIncomingBinary(ackAb);
+      const ack = parseFrame(ackAb);
+      if (ack.op !== "PU" || ack.payload.length < 1) {
+        throw new Error("PU failed packet " + packetId);
+      }
+      if (ack.payload[0] !== S_OK) {
+        var puExtra = "";
+        if (ack.payload.length >= 5) {
+          var bid = new DataView(ack.payload.buffer, ack.payload.byteOffset + 1).getUint32(0, true);
+          puExtra = bid === 0xffffffff ? " server id=unknown" : " server id=" + bid;
+        }
+        throw new Error("PU error sent packet " + packetId + puExtra);
+      }
+      if (ack.payload.length < 5) {
+        throw new Error("PU ok but short payload packet " + packetId);
+      }
+      const ackId = new DataView(ack.payload.buffer, ack.payload.byteOffset + 1).getUint32(0, true);
+      if (ackId !== packetId) {
+        throw new Error("PU id mismatch: expected " + packetId + " got " + ackId);
+      }
+      packetId++;
+      setXferProgress(true, "Upload → " + file.name, end, u8.length);
+      if (packetId % 4 === 0 || end >= u8.length) {
+        appendMeta("… UP " + end + "/" + u8.length + " B");
+      }
+    }
+    setXferProgress(true, "Upload → " + file.name, size, size);
+    ws.send(makeFrame("EU", new Uint8Array(0)));
+    append("line-in", ">> BIN EU (end upload)");
+    const ueAb = await recvBinary(30000);
+    logIncomingBinary(ueAb);
+    const ue = parseFrame(ueAb);
+    if (ue.op !== "UE" || ue.payload.length < 1 || ue.payload[0] !== S_OK) {
+      throw new Error("UE rejected");
+    }
+    appendMeta("Upload complete (" + packetId + " data packets)");
+  }
+
+  async function doDownload(remoteDir, remoteName) {
+    const sdPl = buildSdPayload(remoteDir, remoteName);
+    appendMeta("→ SD " + remoteDir + "/" + remoteName);
+    ws.send(makeFrame("SD", sdPl));
+    const ab = await recvBinary(30000);
+    logIncomingBinary(ab);
+    const fr = parseFrame(ab);
+    if (fr.op !== "DS" || fr.payload.length < 5 || fr.payload[0] !== S_OK) {
+      throw new Error("DS rejected (op=" + fr.op + ")");
+    }
+    const fileSize = new DataView(fr.payload.buffer, fr.payload.byteOffset + 1).getUint32(0, true);
+    appendMeta("DS OK — size " + fileSize + " bytes");
+    setXferProgress(true, "Download ← " + remoteName, 0, fileSize);
+    const chunks = [];
+    var received = 0;
+    var lastId = null;
+    while (true) {
+      const dpAb = await recvBinary(120000);
+      logIncomingBinary(dpAb);
+      const dp = parseFrame(dpAb);
+      if (dp.op === "ED") {
+        ws.send(makeFrame("DE", new Uint8Array([S_OK])));
+        append("line-in", ">> BIN DE (ack end)");
+        break;
+      }
+      if (dp.op !== "DP") {
+        throw new Error("Expected DP or ED, got " + dp.op);
+      }
+      if (dp.payload.length < 4) {
+        throw new Error("DP payload too short");
+      }
+      const pid = new DataView(dp.payload.buffer, dp.payload.byteOffset).getUint32(0, true);
+      const data = dp.payload.subarray(4);
+      if (lastId !== null && pid !== lastId + 1) {
+        append("line-err", "NAK: expected packet " + (lastId + 1) + ", got " + pid);
+        const nak = new Uint8Array(4);
+        new DataView(nak.buffer).setUint32(0, lastId + 1, true);
+        ws.send(makeFrame("NK", nak));
+        continue;
+      }
+      chunks.push(data);
+      received += data.length;
+      lastId = pid;
+      const ackPl = new Uint8Array(5);
+      ackPl[0] = S_OK;
+      new DataView(ackPl.buffer).setUint32(1, pid, true);
+      ws.send(makeFrame("PD", ackPl));
+      setXferProgress(true, "Download ← " + remoteName, received, fileSize);
+      if (received % (PACKET_SIZE * 4) < PACKET_SIZE || received >= fileSize) {
+        appendMeta("… DP " + received + "/" + fileSize + " B");
+      }
+    }
+    setXferProgress(true, "Download ← " + remoteName, fileSize, fileSize);
+    const blob = new Blob(chunks);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = remoteName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    appendMeta("Download triggered: " + remoteName + " (" + received + " bytes)");
+  }
+
+  btnConnect.addEventListener("click", function () {
+    if (ws) {
+      return;
+    }
+    streamPartial = "";
+    const scheme = wssEl.checked ? "wss" : "ws";
+    let path = pathEl.value.trim() || "/wsdata";
+    if (path.charAt(0) !== "/") {
+      path = "/" + path;
+    }
+    const url = scheme + "://" + hostEl.value.trim() + ":" + portEl.value + path;
+    const sub = getSubprotocol();
+    if (!sub) {
+      append("line-err", "Subprotocol: choose Custom and enter a name, or select webui-v3 / esp3d-v1.");
+      return;
+    }
+    appendMeta("Connecting " + url + " subprotocol=" + sub);
+    try {
+      ws = new WebSocket(url, [sub]);
+    } catch (e) {
+      append("line-err", "Error: " + e.message);
+      ws = null;
+      return;
+    }
+    ws.binaryType = "arraybuffer";
+    setConnected(true);
+
+    ws.onopen = function () {
+      if (isDataProfile()) {
+        append("line-meta", "open — data socket: welcome TEXT, then SR / text / V1 transfer");
+      } else {
+        append("line-meta", "open — WebUI socket: TEXT ids/PONG + BINARY machine stream");
+      }
+      updateActionButtons();
+    };
+    ws.onclose = function (ev) {
+      append("line-meta", "close code=" + ev.code + " reason=" + (ev.reason || ""));
+      ws = null;
+      binQueue.length = 0;
+      binWaiter = null;
+      setXferProgress(false);
+      setConnected(false);
+    };
+    ws.onerror = function () {
+      append("line-err", "WebSocket error (see browser devtools network tab)");
+    };
+    ws.onmessage = routeWsMessage;
+  });
+
+  btnDisconnect.addEventListener("click", function () {
+    if (ws) {
+      ws.close();
+    }
+  });
+
+  btnSr.addEventListener("click", function () {
+    if (!ws || ws.readyState !== WebSocket.OPEN || xferBusy || srPending) {
+      return;
+    }
+    srPending = true;
+    recvBinary(8000).then(function (buf) {
+      logIncomingBinary(buf);
+    }).catch(function (e) {
+      append("line-err", "SR: " + e.message);
+    }).finally(function () {
+      srPending = false;
+      updateActionButtons();
+    });
+    const buf = new ArrayBuffer(4);
+    const u8 = new Uint8Array(buf);
+    u8[0] = 0x53;
+    u8[1] = 0x52;
+    u8[2] = 0;
+    u8[3] = 0;
+    ws.send(buf);
+    append("line-in", ">> BIN SR (4 bytes, empty payload)");
+  });
+
+  btnSend.addEventListener("click", function () {
+    if (!ws || ws.readyState !== WebSocket.OPEN || xferBusy) {
+      return;
+    }
+    const line = cmdEl.value;
+    const wire = ensureLineTerminator(line);
+    ws.send(wire);
+    var shown = line.replace(/\r/g, "\\r").replace(/\n/g, "\\n");
+    if (wire.length > line.length) {
+      shown = shown + "\\n";
+    }
+    append("line-in", ">> TEXT: " + shown);
+    cmdEl.value = "";
+  });
+
+  cmdEl.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      btnSend.click();
+    }
+  });
+
+  btnUploadPick.addEventListener("click", function () {
+    if (!ws || xferBusy) {
+      return;
+    }
+    uploadPick.click();
+  });
+
+  uploadPick.addEventListener("change", function () {
+    const f = uploadPick.files && uploadPick.files[0];
+    uploadPick.value = "";
+    if (!f || !ws || xferBusy) {
+      return;
+    }
+    setXferBusy(true);
+    doUpload(f).catch(function (err) {
+      append("line-err", "Upload: " + err.message);
+    }).finally(function () {
+      setXferProgress(false);
+      setXferBusy(false);
+    });
+  });
+
+  btnDownload.addEventListener("click", function () {
+    if (!ws || xferBusy) {
+      return;
+    }
+    const remoteDir = remoteDirEl.value.trim() || "/fs";
+    const remoteName = dlNameEl.value.trim();
+    if (!remoteName) {
+      append("line-err", "Download: set remote file name");
+      return;
+    }
+    setXferBusy(true);
+    doDownload(remoteDir, remoteName).catch(function (err) {
+      append("line-err", "Download: " + err.message);
+    }).finally(function () {
+      setXferProgress(false);
+      setXferBusy(false);
+    });
+  });
+
+  btnClear.addEventListener("click", function () {
+    logEl.textContent = "";
+    streamPartial = "";
+  });
+})();
+  </script>
+</body>
+</html>

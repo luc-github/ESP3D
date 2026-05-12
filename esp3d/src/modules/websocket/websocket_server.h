@@ -22,6 +22,12 @@
 #define _WEBSOCKET_SERVER_H_
 
 #include "../../core/esp3d_message.h"
+#if defined(FILESYSTEM_FEATURE)
+#include "../filesystem/esp_filesystem.h"
+#endif
+#if defined(SD_DEVICE)
+#include "../filesystem/sd/esp_sd.h"
+#endif
 #define TXBUFFERSIZE 1200
 #define RXBUFFERSIZE 256
 #define FLUSHTIMEOUT 500
@@ -55,6 +61,7 @@ class WebSocket_Server {
   void setAuthentication(ESP3DAuthenticationLevel auth) { _auth = auth; }
   ESP3DAuthenticationLevel getAuthentication();
   bool isConnected();
+  void handleV1Binary(uint8_t num, uint8_t *payload, size_t length);
 
  private:
   ESP3DClientType _type;
@@ -74,6 +81,19 @@ class WebSocket_Server {
   void flushRXData(const uint8_t* data, size_t size, ESP3DMessageType type);
   uint8_t *_RXbuffer;
   uint16_t _RXbufferSize;
+#if defined(WS_DATA_FEATURE) && (defined(FILESYSTEM_FEATURE) || defined(SD_DEVICE))
+  uint8_t _transferState;
+  uint8_t _transferTargetFS;
+#if defined(FILESYSTEM_FEATURE)
+  ESP_File _transferFileFS;
+#endif
+#if defined(SD_DEVICE)
+  ESP_SDFile _transferFileSD;
+#endif
+  uint32_t _transferExpectedSize;
+  uint32_t _transferProcessedSize;
+  uint32_t _transferLastPacketId;
+#endif
 };
 
 extern WebSocket_Server websocket_terminal_server;

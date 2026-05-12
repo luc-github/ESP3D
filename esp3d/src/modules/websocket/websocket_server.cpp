@@ -35,11 +35,11 @@
 WebSocket_Server websocket_terminal_server("webui-v3",
                                            ESP3DClientType::webui_websocket);
 #if defined(WS_DATA_FEATURE)
-WebSocket_Server websocket_data_server("arduino", ESP3DClientType::websocket);
+WebSocket_Server websocket_data_server("esp3d-v1", ESP3DClientType::websocket);
 #endif  // WS_DATA_FEATURE
 bool WebSocket_Server::pushMSG(const char *data) {
   if (_websocket_server) {
-    esp3d_log("[%u]Broadcast %s", _current_id, data);
+    esp3d_log_d("[%u]Broadcast %s", _current_id, data);
     return _websocket_server->broadcastTXT(data);
   }
   return false;
@@ -72,7 +72,7 @@ bool WebSocket_Server::dispatch(ESP3DMessage *message) {
 
 bool WebSocket_Server::pushMSG(uint num, const char *data) {
   if (_websocket_server) {
-    esp3d_log("[%u]Send %s", num, data);
+    esp3d_log_d("[%u]Send %s", num, data);
     return _websocket_server->sendTXT(num, data);
   }
   return false;
@@ -97,23 +97,24 @@ void handle_Websocket_Server_Event(uint8_t num, uint8_t type, uint8_t *payload,
   (void)num;
   switch (type) {
     case WStype_DISCONNECTED:
-      esp3d_log("[%u] Disconnected! port %d", num,
+      esp3d_log_d("[%u] Disconnected! port %d", num,
                 websocket_data_server.port());
       break;
     case WStype_CONNECTED: {
       websocket_data_server.initAuthentication();
-      esp3d_log("[%u] Connected! port %d, %s", num,
+      esp3d_log_d("[%u] Connected! port %d, %s", num,
                 websocket_data_server.port(), payload);
+      websocket_data_server.pushMSG(num, "Welcome to ESP3D-X V1\n");
     } break;
     case WStype_TEXT:
-      esp3d_log("[%u] get Text: %s port %d", num, payload,
+      esp3d_log_d("[%u] get Text: %s port %d", num, payload,
                 websocket_data_server.port());
       websocket_data_server.push2RXbuffer(payload, length);
       break;
     case WStype_BIN:
-      esp3d_log("[%u] get binary length: %u port %d", num, length,
+      esp3d_log_d("[%u] get binary length: %u port %d", num, length,
                 websocket_data_server.port());
-      websocket_data_server.push2RXbuffer(payload, length);
+      websocket_data_server.handleV1Binary(num, payload, length);
       break;
     default:
       break;
@@ -129,11 +130,11 @@ void handle_Websocket_Terminal_Event(uint8_t num, uint8_t type,
   String msg;
   switch (type) {
     case WStype_DISCONNECTED:
-      esp3d_log("[%u] Socket Disconnected port %d!", num,
+      esp3d_log_d("[%u] Socket Disconnected port %d!", num,
                 websocket_terminal_server.port());
       break;
     case WStype_CONNECTED: {
-      esp3d_log("[%u] Connected! port %d, %s", num,
+      esp3d_log_d("[%u] Connected! port %d, %s", num,
                 websocket_terminal_server.port(), (const char *)payload);
       msg = "currentID:" + String(num);
       // send message to client
@@ -142,7 +143,7 @@ void handle_Websocket_Terminal_Event(uint8_t num, uint8_t type,
       msg = "activeID:" + String(num);
       websocket_terminal_server.pushMSG(msg.c_str());
       websocket_terminal_server.enableOnly(num);
-      esp3d_log("[%u] Socket connected port %d", num,
+      esp3d_log_d("[%u] Socket connected port %d", num,
                 websocket_terminal_server.port());
     } break;
     case WStype_TEXT:
@@ -160,12 +161,12 @@ void handle_Websocket_Terminal_Event(uint8_t num, uint8_t type,
         }
       }
 #endif  // AUTHENTICATION_FEATURE
-        // esp3d_log("[IGNORED][%u] get Text: %s  port %d", num, payload,
+        // esp3d_log_d("[IGNORED][%u] get Text: %s  port %d", num, payload,
         // websocket_terminal_server.port());
       break;
     case WStype_BIN:
       // we do not expect any input
-      // esp3d_log("[IGNORED][%u] get binary length: %u  port %d", num,
+      // esp3d_log_d("[IGNORED][%u] get binary length: %u  port %d", num,
       // length, websocket_terminal_server.port());
       break;
     default:
@@ -187,6 +188,12 @@ WebSocket_Server::WebSocket_Server(const char *protocol, ESP3DClientType type) {
   _RXbufferSize = 0;
   _protocol = protocol;
   _type = type;
+#if defined(WS_DATA_FEATURE) && defined(FILESYSTEM_FEATURE)
+  _transferState = 'O';
+  _transferExpectedSize = 0;
+  _transferProcessedSize = 0;
+  _transferLastPacketId = 0;
+#endif
   initAuthentication();
 }
 WebSocket_Server::~WebSocket_Server() { end(); }
@@ -239,6 +246,25 @@ void WebSocket_Server::end() {
     _port = 0;
   }
   _started = false;
+#if defined(WS_DATA_FEATURE) && (defined(FILESYSTEM_FEATURE) || defined(SD_DEVICE))
+  if (_transferState != 'O') {
+#if defined(FILESYSTEM_FEATURE)
+    if (_transferTargetFS == 1) {
+      if (_transferFileFS) _transferFileFS.close();
+      ESP_FileSystem::releaseFS();
+    }
+#endif
+#if defined(SD_DEVICE)
+    if (_transferTargetFS == 2) {
+      if (_transferFileSD) _transferFileSD.close();
+      ESP_SD::setState(ESP_SDCARD_IDLE);
+      ESP_SD::releaseFS();
+    }
+#endif
+  }
+  _transferState = 'O';
+  _transferTargetFS = 0;
+#endif
   initAuthentication();
 }
 
@@ -329,7 +355,7 @@ void WebSocket_Server::flushRXData(const uint8_t *data, size_t size,
 
   if (message) {
     message->type = type;
-    esp3d_log("Process Message");
+    esp3d_log_d("Process Message");
     esp3d_commands.process(message);
   } else {
     esp3d_log_e("Cannot create message");
@@ -368,7 +394,7 @@ void WebSocket_Server::flushTXbuffer(void) {
     if ((_TXbufferSize > 0) && (_websocket_server->connectedClients() > 0)) {
       if (_websocket_server) {
         _websocket_server->broadcastBIN(_TXbuffer, _TXbufferSize);
-        esp3d_log("WS Broadcast bin port %d: %d bytes", port(), _TXbufferSize);
+        esp3d_log_d("WS Broadcast bin port %d: %d bytes", port(), _TXbufferSize);
       }
       // refresh timout
       _lastTXflush = millis();
@@ -376,6 +402,213 @@ void WebSocket_Server::flushTXbuffer(void) {
   }
   // reset buffer
   _TXbufferSize = 0;
+}
+
+void WebSocket_Server::handleV1Binary(uint8_t num, uint8_t *payload, size_t length) {
+#if defined(WS_DATA_FEATURE) && (defined(FILESYSTEM_FEATURE) || defined(SD_DEVICE))
+  if (length < 4) return;
+  
+  char op[3] = {(char)payload[0], (char)payload[1], 0};
+  uint16_t plen = payload[2] | (payload[3] << 8);
+  if (length < 4U + plen) return;
+  
+  uint8_t *pdata = payload + 4;
+  esp3d_log_d("V1 Binary: length=%u, op=%s, plen=%u", length, op, plen);
+  
+  auto close_transfer = [&]() {
+    if (_transferState == 'O') return;
+#if defined(FILESYSTEM_FEATURE)
+    if (_transferTargetFS == 1) {
+      if (_transferFileFS) _transferFileFS.close();
+      ESP_FileSystem::releaseFS();
+    }
+#endif
+#if defined(SD_DEVICE)
+    if (_transferTargetFS == 2) {
+      if (_transferFileSD) _transferFileSD.close();
+      ESP_SD::setState(ESP_SDCARD_IDLE);
+      ESP_SD::releaseFS();
+    }
+#endif
+    _transferState = 'O';
+    _transferTargetFS = 0;
+  };
+
+  if (strcmp(op, "SR") == 0) {
+    uint8_t resp[6] = {'R', 'S', 2, 0, _transferState, 1};
+    if (_websocket_server) _websocket_server->sendBIN(num, resp, 6);
+  } else if (strcmp(op, "SU") == 0) {
+    if (_transferState != 'O') {
+      uint8_t resp[5] = {'U', 'S', 1, 0, 'B'};
+      if (_websocket_server) _websocket_server->sendBIN(num, resp, 5);
+      return;
+    }
+    if (plen < 1) return;
+    uint8_t path_len = pdata[0];
+    if (plen < 1U + path_len + 1U) return;
+    uint8_t name_len = pdata[1 + path_len];
+    if (plen < 1U + path_len + 1U + name_len + 4U) return;
+    
+    String path = "";
+    for (int i = 0; i < path_len; i++) path += (char)pdata[1 + i];
+    String name = "";
+    for (int i = 0; i < name_len; i++) name += (char)pdata[1 + path_len + 1 + i];
+    
+    _transferExpectedSize = pdata[1 + path_len + 1 + name_len] | 
+                           (pdata[1 + path_len + 1 + name_len + 1] << 8) | 
+                           (pdata[1 + path_len + 1 + name_len + 2] << 16) | 
+                           (pdata[1 + path_len + 1 + name_len + 3] << 24);
+    _transferProcessedSize = 0;
+    
+    esp3d_log_d("SU: path='%s' name='%s' size=%u", path.c_str(), name.c_str(), _transferExpectedSize);
+    
+    String fullpath = path;
+    if (fullpath.length() > 0 && fullpath[fullpath.length()-1] != '/' && name.length() > 0 && name[0] != '/') {
+      fullpath += "/";
+    }
+    fullpath += name;
+    
+    _transferTargetFS = 0;
+#if defined(FILESYSTEM_FEATURE)
+    if (fullpath.startsWith("/fs/")) {
+      fullpath.remove(0, 3);
+      _transferTargetFS = 1;
+    } else if (fullpath.startsWith("/fs")) {
+      fullpath.remove(0, 3);
+      if (fullpath.length() == 0) fullpath = "/";
+      _transferTargetFS = 1;
+    }
+#endif
+#if defined(SD_DEVICE)
+    if (fullpath.startsWith("/sd/")) {
+      fullpath.remove(0, 3);
+      _transferTargetFS = 2;
+    } else if (fullpath.startsWith("/sd")) {
+      fullpath.remove(0, 3);
+      if (fullpath.length() == 0) fullpath = "/";
+      _transferTargetFS = 2;
+    }
+#endif
+
+    if (_transferTargetFS == 0) {
+      esp3d_log_e("SU: Invalid or unsupported FS prefix");
+      uint8_t resp[5] = {'U', 'S', 1, 0, 'E'};
+      if (_websocket_server) _websocket_server->sendBIN(num, resp, 5);
+      return;
+    }
+
+    esp3d_log_d("SU: targetFS=%d fullpath='%s'", _transferTargetFS, fullpath.c_str());
+
+#if defined(FILESYSTEM_FEATURE)
+    if (_transferTargetFS == 1) {
+      if (ESP_FileSystem::accessFS()) {
+        if (ESP_FileSystem::exists(fullpath.c_str())) {
+          ESP_FileSystem::remove(fullpath.c_str());
+        }
+        _transferFileFS = ESP_FileSystem::open(fullpath.c_str(), ESP_FILE_WRITE);
+        if (_transferFileFS) {
+          esp3d_log_d("SU: File open success (FS)");
+          _transferState = 'U';
+          uint8_t resp[5] = {'U', 'S', 1, 0, 'O'};
+          if (_websocket_server) _websocket_server->sendBIN(num, resp, 5);
+        } else {
+          esp3d_log_e("SU: File open error for '%s'", fullpath.c_str());
+          ESP_FileSystem::releaseFS();
+          uint8_t resp[5] = {'U', 'S', 1, 0, 'E'};
+          if (_websocket_server) _websocket_server->sendBIN(num, resp, 5);
+        }
+      } else {
+        esp3d_log_e("SU: Cannot access FS");
+        uint8_t resp[5] = {'U', 'S', 1, 0, 'B'};
+        if (_websocket_server) _websocket_server->sendBIN(num, resp, 5);
+      }
+    }
+#endif
+
+#if defined(SD_DEVICE)
+    if (_transferTargetFS == 2) {
+      if (ESP_SD::accessFS()) {
+        if (ESP_SD::getState(true) == ESP_SDCARD_NOT_PRESENT) {
+          ESP_SD::releaseFS();
+          esp3d_log_e("SU: SD card not present");
+          uint8_t resp[5] = {'U', 'S', 1, 0, 'E'};
+          if (_websocket_server) _websocket_server->sendBIN(num, resp, 5);
+        } else {
+          ESP_SD::setState(ESP_SDCARD_BUSY);
+          if (ESP_SD::exists(fullpath.c_str())) {
+            ESP_SD::remove(fullpath.c_str());
+          }
+          _transferFileSD = ESP_SD::open(fullpath.c_str(), ESP_FILE_WRITE);
+          if (_transferFileSD) {
+            esp3d_log_d("SU: File open success (SD)");
+            _transferState = 'U';
+            uint8_t resp[5] = {'U', 'S', 1, 0, 'O'};
+            if (_websocket_server) _websocket_server->sendBIN(num, resp, 5);
+          } else {
+            esp3d_log_e("SU: File open error for '%s'", fullpath.c_str());
+            ESP_SD::setState(ESP_SDCARD_IDLE);
+            ESP_SD::releaseFS();
+            uint8_t resp[5] = {'U', 'S', 1, 0, 'E'};
+            if (_websocket_server) _websocket_server->sendBIN(num, resp, 5);
+          }
+        }
+      } else {
+        esp3d_log_e("SU: Cannot access SD");
+        uint8_t resp[5] = {'U', 'S', 1, 0, 'B'};
+        if (_websocket_server) _websocket_server->sendBIN(num, resp, 5);
+      }
+    }
+#endif
+  } else if (strcmp(op, "UP") == 0) {
+    if (_transferState != 'U' || plen < 4) {
+      esp3d_log_e("UP: error, state=%c, plen=%u", _transferState, plen);
+      uint8_t resp[9] = {'P', 'U', 5, 0, 'E', 0xFF, 0xFF, 0xFF, 0xFF};
+      if (plen >= 4) {
+        resp[5] = pdata[0]; resp[6] = pdata[1]; resp[7] = pdata[2]; resp[8] = pdata[3];
+      }
+      if (_websocket_server) _websocket_server->sendBIN(num, resp, 9);
+      return;
+    }
+    uint32_t pktid = pdata[0] | (pdata[1] << 8) | (pdata[2] << 16) | (pdata[3] << 24);
+    size_t chunk_size = plen - 4;
+    
+    if (chunk_size > 0) {
+      size_t written = 0;
+#if defined(FILESYSTEM_FEATURE)
+      if (_transferTargetFS == 1 && _transferFileFS) {
+        written = _transferFileFS.write(pdata + 4, chunk_size);
+      }
+#endif
+#if defined(SD_DEVICE)
+      if (_transferTargetFS == 2 && _transferFileSD) {
+        written = _transferFileSD.write(pdata + 4, chunk_size);
+      }
+#endif
+      if (written == chunk_size) {
+        _transferProcessedSize += written;
+        uint8_t resp[9] = {'P', 'U', 5, 0, 'O', pdata[0], pdata[1], pdata[2], pdata[3]};
+        if (_websocket_server) _websocket_server->sendBIN(num, resp, 9);
+      } else {
+        esp3d_log_e("UP: File write error, written %u / %u", written, chunk_size);
+        uint8_t resp[9] = {'P', 'U', 5, 0, 'E', pdata[0], pdata[1], pdata[2], pdata[3]};
+        if (_websocket_server) _websocket_server->sendBIN(num, resp, 9);
+      }
+    } else {
+      uint8_t resp[9] = {'P', 'U', 5, 0, 'O', pdata[0], pdata[1], pdata[2], pdata[3]};
+      if (_websocket_server) _websocket_server->sendBIN(num, resp, 9);
+    }
+  } else if (strcmp(op, "EU") == 0) {
+    close_transfer();
+    uint8_t resp[5] = {'U', 'E', 1, 0, 'O'};
+    if (_websocket_server) _websocket_server->sendBIN(num, resp, 5);
+  } else if (strcmp(op, "CM") == 0) {
+    if (plen >= 1 && pdata[0] == 'A') {
+      close_transfer();
+    }
+  }
+#else
+  push2RXbuffer(payload, length);
+#endif
 }
 
 #endif  // HTTP_FEATURE || WS_DATA_FEATURE
