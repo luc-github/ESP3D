@@ -31,9 +31,20 @@
 
 #if SD_DEVICE_CONNECTION == ESP_SHARED_SD
 bool ESP_SD::_enabled = false;
+ESP_SD::IsMCUBusyFn ESP_SD::_mcuBusyCallback = nullptr;
+ESP_SD::SDActionFn ESP_SD::_mcuReleaseCallback = nullptr;
+ESP_SD::SDActionFn ESP_SD::_mcuRemountCallback = nullptr;
+#endif  // SD_DEVICE_CONNECTION == ESP_SHARED_SD
+
+// Watchdog: force-release if no SD activity for this long (ms). 0 = disabled.
+static constexpr uint32_t SD_WATCHDOG_MS = 300000UL;  // 5 min
+
+#if SD_DEVICE_CONNECTION == ESP_SHARED_SD
+
 #if SD_CARD_TYPE == ESP_FYSETC_WIFI_PRO_SDCARD
 #include <SPI.h>
 #endif  // SD_CARD_TYPE == ESP_FYSETC_WIFI_PRO_SDCARD
+
 bool ESP_SD::enableSharedSD() {
   esp3d_log("Enable Shared SD if possible");
   if (_enabled) {
@@ -41,19 +52,24 @@ bool ESP_SD::enableSharedSD() {
     return false;
   }
 #if defined(ESP_SD_CS_SENSE) && ESP_SD_CS_SENSE != -1
-  bool active_cs = !digitalRead(ESP_SD_CS_SENSE);
-  if (active_cs) {
+  if (!digitalRead(ESP_SD_CS_SENSE)) {
     esp3d_log("SD CS is active, skip");
     return false;
   }
 #endif  // ESP_SD_CS_SENSE
 
-  _enabled = true;
+  // Check if MCU firmware is actively using the SD
+  if (_mcuBusyCallback && _mcuBusyCallback()) {
+    esp3d_log("MCU busy, skip");
+    return false;
+  }
+
+  // Ask MCU firmware to gracefully release the SD before we switch the bus
+  if (_mcuReleaseCallback) {
+    _mcuReleaseCallback();
+  }
+
 #if defined(ESP_FLAG_SHARED_SD_PIN) && ESP_FLAG_SHARED_SD_PIN != -1
-  // need to check if SD is in use ?
-  // Method : TBD
-  // 1 - check sd cs state ? what about SDIO then ?
-  // 2 - check M27 status ?
   esp3d_log("SD shared enabled PIN %d with %d", ESP_FLAG_SHARED_SD_PIN,
             ESP_FLAG_SHARED_SD_VALUE);
   digitalWrite(ESP_FLAG_SHARED_SD_PIN, ESP_FLAG_SHARED_SD_VALUE);
@@ -66,21 +82,13 @@ bool ESP_SD::enableSharedSD() {
   SPI.begin(ESP_SD_SCK_PIN, ESP_SD_MISO_PIN, ESP_SD_MOSI_PIN, ESP_SD_CS_PIN);
 #endif  // SD_CARD_TYPE == ESP_FYSETC_WIFI_PRO_SDCARD
 
-#if defined(ESP3DLIB_ENV)
-  // check if card is not currently in use
-  if (card.isMounted() && (IS_SD_PRINTING() || IS_SD_FETCHING() ||
-                           IS_SD_PAUSED() || IS_SD_FILE_OPEN())) {
-    _enabled = false;
-  } else {
-    card.release();
-  }
-#endif  // ESP3DLIB_ENV
-
-  return _enabled;
+  _enabled = true;
+  return true;
 }
 
 bool ESP_SD::disableSharedSD() {
 #if SD_CARD_TYPE == ESP_FYSETC_WIFI_PRO_SDCARD
+  // Release SPI pins so the MCU bus driver can take over cleanly
   pinMode(ESP_SD_CS_PIN, INPUT_PULLUP);
   pinMode(ESP_SD_MISO_PIN, INPUT_PULLUP);
   pinMode(ESP_SD_MOSI_PIN, INPUT_PULLUP);
@@ -89,14 +97,16 @@ bool ESP_SD::disableSharedSD() {
   pinMode(ESP_SD_D2_PIN, INPUT_PULLUP);
   SPI.end();
 #endif  // SD_CARD_TYPE == ESP_FYSETC_WIFI_PRO_SDCARD
-  // do the switch
-  digitalWrite(ESP_FLAG_SHARED_SD_PIN, !ESP_FLAG_SHARED_SD_VALUE);
+#if defined(ESP_FLAG_SHARED_SD_PIN) && ESP_FLAG_SHARED_SD_PIN != -1
+  digitalWrite(ESP_FLAG_SHARED_SD_PIN, ESP_FLAG_SHARED_SD_IDLE_VALUE);
   ESP3DHal::wait(100);
+#endif  // ESP_FLAG_SHARED_SD_PIN
   return true;
 }
 #endif  // SD_DEVICE_CONNECTION == ESP_SHARED_SD
 
 bool ESP_SD::_started = false;
+uint32_t ESP_SD::_acquireTimestamp = 0;
 uint8_t ESP_SD::_state = ESP_SDCARD_NOT_PRESENT;
 uint8_t ESP_SD::_spi_speed_divider = 1;
 bool ESP_SD::_sizechanged = true;
@@ -142,6 +152,7 @@ bool ESP_SD::accessFS(uint8_t FS) {
       res = true;
       esp3d_log("Accessing SD is ok");
       ESP_SD::setState(ESP_SDCARD_BUSY);
+      _acquireTimestamp = millis();
     }
   }
   return res;
@@ -149,22 +160,28 @@ bool ESP_SD::accessFS(uint8_t FS) {
 void ESP_SD::releaseFS(uint8_t FS) {
   (void)FS;
   esp3d_log("Release SD");
-  setState(ESP_SDCARD_IDLE);
 #if SD_DEVICE_CONNECTION == ESP_SHARED_SD
-  _enabled = false;
-#if defined(ESP_FLAG_SHARED_SD_PIN) && ESP_FLAG_SHARED_SD_PIN != -1
-  if (ESP_SD::disableSharedSD()) {
-    esp3d_log("Shared SD disabled");
+  if (_enabled) {
+    _enabled = false;
+    if (ESP_SD::disableSharedSD()) {
+      esp3d_log("Shared SD disabled");
+    }
+    // Notify MCU firmware that the bus is restored so it can remount
+    if (_mcuRemountCallback) {
+      _mcuRemountCallback();
+    }
   }
-#endif  // ESP_FLAG_SHARED_SD_PIN
-#if defined(ESP3DLIB_ENV)
-  esp3d_log("Mount SD in Marlin");
-  card.mount();
-#endif  // ESP3DLIB_ENV
 #endif  // SD_DEVICE_CONNECTION == ESP_SHARED_SD
+  setState(ESP_SDCARD_IDLE);
 }
 
-void ESP_SD::handle() {}
+void ESP_SD::handle() {
+  if (SD_WATCHDOG_MS > 0 && _state == ESP_SDCARD_BUSY &&
+      (millis() - _acquireTimestamp > SD_WATCHDOG_MS)) {
+    esp3d_log_e("SD watchdog: forced release after inactivity timeout");
+    releaseFS();
+  }
+}
 
 ESP_SDFile::ESP_SDFile(const char* name, const char* filename, bool isdir,
                        size_t size) {
@@ -214,6 +231,7 @@ size_t ESP_SDFile::write(uint8_t i) {
   if ((_index == -1) || _isdir) {
     return 0;
   }
+  ESP_SD::touchWatchdog();
   return tSDFile_handle[_index].write(i);
 }
 
@@ -221,6 +239,7 @@ size_t ESP_SDFile::write(const uint8_t* buf, size_t size) {
   if ((_index == -1) || _isdir) {
     return 0;
   }
+  ESP_SD::touchWatchdog();
   return tSDFile_handle[_index].write(buf, size);
 }
 
@@ -228,6 +247,7 @@ int ESP_SDFile::read() {
   if ((_index == -1) || _isdir) {
     return -1;
   }
+  ESP_SD::touchWatchdog();
   return tSDFile_handle[_index].read();
 }
 
@@ -235,6 +255,7 @@ size_t ESP_SDFile::read(uint8_t* buf, size_t size) {
   if ((_index == -1) || _isdir) {
     return -1;
   }
+  ESP_SD::touchWatchdog();
   return tSDFile_handle[_index].read(buf, size);
 }
 

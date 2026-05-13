@@ -174,14 +174,6 @@ void GcodeHost::startStream() {
       return;
     }
     _needRelease = true;
-    if (ESP_SD::getState(true) == ESP_SDCARD_NOT_PRESENT) {
-      _error = ERROR_FILE_NOT_FOUND;
-      _step = HOST_ERROR_STREAM;
-      esp3d_log_e("File not found: %s", _fileName.c_str());
-      return;
-    }
-    ESP_SD::setState(ESP_SDCARD_BUSY);
-
     if (ESP_SD::exists(_fileName.c_str())) {
       SDfileHandle = ESP_SD::open(_fileName.c_str());
     }

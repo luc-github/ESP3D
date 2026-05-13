@@ -75,18 +75,6 @@ void HTTP_Server::SDFileupload() {
           pushError(ESP_ERROR_NO_SD, "Upload rejected");
           return;
         }
-        if (ESP_SD::getState(true) == ESP_SDCARD_NOT_PRESENT) {
-          esp3d_log("Release Sd called");
-          ESP_SD::releaseFS();
-          _upload_status = UPLOAD_STATUS_FAILED;
-          pushError(ESP_ERROR_NO_SD, "Upload rejected");
-#if defined(ESP3DLIB_ENV) && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
-          Serial2Socket.pause(false);
-#endif  // ESP3DLIB_ENV && COMMUNICATION_PROTOCOL == SOCKET_SERIAL
-          return;
-        }
-        ESP_SD::setState(ESP_SDCARD_BUSY);
-
         if (upload_filename[0] != '/') {
           filename = "/" + upload_filename;
         } else {

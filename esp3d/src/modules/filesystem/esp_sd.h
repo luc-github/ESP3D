@@ -87,15 +87,27 @@ class ESP_SD {
   static void closeAll();
   static uint8_t getSPISpeedDivider() { return _spi_speed_divider; }
   static bool setSPISpeedDivider(uint8_t speeddivider);
+  static void touchWatchdog() {
+    if (_state == ESP_SDCARD_BUSY) _acquireTimestamp = millis();
+  }
 #if SD_DEVICE_CONNECTION == ESP_SHARED_SD
+  using IsMCUBusyFn = bool (*)();
+  using SDActionFn = void (*)();
   static bool enableSharedSD();
   static bool disableSharedSD();
   static bool isEnabled() { return _enabled; }
+  static void setMCUBusyCallback(IsMCUBusyFn cb) { _mcuBusyCallback = cb; }
+  static void setMCUReleaseCallback(SDActionFn cb) { _mcuReleaseCallback = cb; }
+  static void setMCURemountCallback(SDActionFn cb) { _mcuRemountCallback = cb; }
 #endif  // SD_DEVICE_CONNECTION == ESP_SHARED_SD
  private:
   static bool _started;
+  static uint32_t _acquireTimestamp;
 #if SD_DEVICE_CONNECTION == ESP_SHARED_SD
   static bool _enabled;
+  static IsMCUBusyFn _mcuBusyCallback;
+  static SDActionFn _mcuReleaseCallback;
+  static SDActionFn _mcuRemountCallback;
 #endif  // SD_DEVICE_CONNECTION == ESP_SHARED_SD
   static uint8_t _state;
   static uint8_t _spi_speed_divider;
