@@ -978,10 +978,11 @@ bool ESP3DSettings::isValidByteSetting(uint8_t value,
 #if defined(NOTIFICATION_FEATURE)
     case ESP_NOTIFICATION_TYPE:
       if (value == ESP_NO_NOTIFICATION || value == ESP_PUSHOVER_NOTIFICATION ||
-          value == ESP_EMAIL_NOTIFICATION || value == ESP_LINE_NOTIFICATION ||
+          value == ESP_EMAIL_NOTIFICATION ||
           value == ESP_TELEGRAM_NOTIFICATION ||
           value == ESP_IFTTT_NOTIFICATION ||
-          value == ESP_HOMEASSISTANT_NOTIFICATION) {
+          value == ESP_HOMEASSISTANT_NOTIFICATION ||
+          value == ESP_WHATS_APP_NOTIFICATION) {
         return true;
       }
 

@@ -18,9 +18,6 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // Inspired by following sources
-//* Line :
-//  - https://github.com/TridentTD/TridentTD_LineNotify
-//  - https://notify-bot.line.me/doc/en/
 //* Pushover:
 //  - https://github.com/ArduinoHannover/Pushover
 //  - https://pushover.net/api
@@ -69,10 +66,6 @@ extern "C" {
 #define PUSHOVERTIMEOUT 5000
 #define PUSHOVERSERVER "api.pushover.net"
 #define PUSHOVERPORT 443
-
-#define LINETIMEOUT 5000
-#define LINESERVER "notify-api.line.me"
-#define LINEPORT 443
 
 #define WHATSAPPTIMEOUT 5000
 #define WHATSAPPSERVER "api.callmebot.com"
@@ -164,8 +157,6 @@ const char* NotificationsService::getTypeString() {
       return "pushover";
     case ESP_EMAIL_NOTIFICATION:
       return "email";
-    case ESP_LINE_NOTIFICATION:
-      return "line";
     case ESP_TELEGRAM_NOTIFICATION:
       return "telegram";
     case ESP_IFTTT_NOTIFICATION:
@@ -205,9 +196,6 @@ bool NotificationsService::sendMSG(const char* title, const char* messagetxt) {
         break;
       case ESP_EMAIL_NOTIFICATION:
         return sendEmailMSG(title, message.c_str());
-        break;
-      case ESP_LINE_NOTIFICATION:
-        return sendLineMSG(title, message.c_str());
         break;
       case ESP_TELEGRAM_NOTIFICATION:
         return sendTelegramMSG(title, message.c_str());
@@ -461,47 +449,6 @@ bool NotificationsService::sendEmailMSG(const char* title,
   Notificationclient.stop();
   return true;
 }
-bool NotificationsService::sendLineMSG(const char* title, const char* message) {
-  String data;
-  String postcmd;
-  bool res;
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-  WiFiClientSecure Notificationclient;
-#pragma GCC diagnostic pop
-  Notificationclient.setInsecure();
-#if defined(ARDUINO_ARCH_ESP8266)
-  BearSSLSetup(Notificationclient);
-#endif  // ARDUINO_ARCH_ESP8266
-  (void)title;
-  if (!Notificationclient.connect(_serveraddress.c_str(), _port)) {
-    esp3d_log_e("Error connecting  server %s:%d", _serveraddress.c_str(),
-                _port);
-    return false;
-  }
-  // build data for post
-  data = "message=";
-  data += message;
-  // build post query
-  postcmd =
-      "POST /api/notify HTTP/1.1\r\nHost: notify-api.line.me\r\nConnection: "
-      "close\r\nCache-Control: no-cache\r\nUser-Agent: ESP3D\r\nAccept: "
-      "text/html,application/xhtml+xml,application/xml;q=0.9,*/"
-      "*;q=0.8\r\nContent-Type: application/x-www-form-urlencoded\r\n";
-  postcmd += "Authorization: Bearer ";
-  postcmd += _token1 + "\r\n";
-  postcmd += "Content-Length: ";
-  postcmd += data.length();
-  postcmd += "\r\n\r\n";
-  postcmd += data;
-  esp3d_log("Query: %s", postcmd.c_str());
-  // send query
-  Notificationclient.print(postcmd);
-  res = Wait4Answer(Notificationclient, "{", "\"status\":200", LINETIMEOUT);
-  Notificationclient.stop();
-  return res;
-}
-
 // IFTTT
 bool NotificationsService::sendIFTTTMSG(const char* title,
                                         const char* message) {
@@ -683,12 +630,7 @@ bool NotificationsService::begin() {
       _port = TELEGRAMPORT;
       _serveraddress = TELEGRAMSERVER;
       break;
-    case ESP_LINE_NOTIFICATION:
-      _token1 = ESP3DSettings::readString(ESP_NOTIFICATION_TOKEN1);
-      _port = LINEPORT;
-      _serveraddress = LINESERVER;
-      break;
-     case ESP_WHATS_APP_NOTIFICATION:
+    case ESP_WHATS_APP_NOTIFICATION:
       _token1 = ESP3DSettings::readString(ESP_NOTIFICATION_TOKEN1);
       _token2 = ESP3DSettings::readString(ESP_NOTIFICATION_TOKEN2);
       _port = WHATSAPPPORT;

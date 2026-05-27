@@ -99,7 +99,6 @@ Please use discord : [![discord](https://img.shields.io/discord/7528221487955969
 - FTP server come from Jean-Michel Gallego https://github.com/gallegojm/Arduino-Ftp-Server
 - WebDav server come from David Gauchard https://github.com/d-a-v/ESPWebDAV
 - Mks support come from https://github.com/makerbase-mks/MKS-WIFI
-- Line support come from https://github.com/TridentTD/TridentTD_LineNotify and https://notify-bot.line.me/doc/en/ and https://pushover.net/api
 - Pushover support come from https://github.com/ArduinoHannover/Pushover
 - Email support come from https://github.com/CosmicBoris/ESP8266SMTP and https://www.electronicshub.org/send-an-email-using-esp8266/
 - Telegram support come from https://medium.com/@xabaras/sending-a-message-to-a-telegram-channel-the-easy-way-eb0a0b32968

@@ -257,7 +257,7 @@ label can be: light/framesize/quality/contrast/brightness/saturation/gainceiling
     `[ESP600]msg json=<no> pwd=<admin/user password>`
 
 * Set/Get Notification settings   
-    `[ESP610]type=<NONE/PUSHOVER/EMAIL/LINE/IFTTT> T1=<token1> T2=<token2> TS=<Settings> json=<no> [pwd=<admin password>]`    
+    `[ESP610]type=<NONE/PUSHOVER/EMAIL/TELEGRAM/IFTTT/HOMEASSISTANT/WHATSAPP> T1=<token1> T2=<token2> TS=<Settings> json=<no> [pwd=<admin password>]`    
     Get will give type and settings only, not the protected T1/T2
 
 * Send Notification using URL   

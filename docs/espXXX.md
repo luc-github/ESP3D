@@ -2299,7 +2299,7 @@ weight = 800
  Set/Get Notification settings
 
 ## Input
-`[ESP610]type=<NONE/PUSHOVER/EMAIL/LINE/IFTTT> T1=<token1> T2=<token2> TS=<Settings> json=<no> pwd=<admin password>`
+`[ESP610]type=<NONE/PUSHOVER/EMAIL/TELEGRAM/IFTTT/HOMEASSISTANT/WHATSAPP> T1=<token1> T2=<token2> TS=<Settings> json=<no> pwd=<admin password>`
 
 * json=no
 the output format
@@ -2312,10 +2312,10 @@ can be in JSON or plain text
     - NONE
     - PUSHOVER
     - EMAIL
-    - LINE
     - TELEGRAM
     - IFTTT (by webhook)
-    - HomeAssistant (via webhook)
+    - HOMEASSISTANT (via webhook)
+    - WHATSAPP
 
 * T1
    * if T1 is not empty, it will set the token1 which depend on [type of notification](https://esp3d.io/esp3d/v3.x/documentation/notifications/index.html) 
