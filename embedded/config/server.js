@@ -2,6 +2,8 @@ const express = require("express");
 const chalk = require("chalk");
 let path = require("path");
 const fs = require("fs");
+const csrf = require("csurf");
+const csrfProtection = csrf({ cookie: true });
 const port = 8080;
 /*
  * Web Server for development
@@ -27,6 +29,7 @@ let WebSocketServer = require("ws").Server,
         },
     });
 app.use(fileUpload({ preserveExtension: true, debug: false }));
+app.use(csrfProtection);
 app.listen(port, () =>
     console.log(expresscolor(`[express] Listening on port ${port}!`))
 );
@@ -91,6 +94,11 @@ app.get("/config", function (req, res) {
 
 app.get("/command", function (req, res) {
     console.log(commandcolor(`[server]/command params: ${req.query.cmd}`));
+    const expectedPwd = process.env.ESP3D_PASSWORD || "admin";
+    if (req.query.pwd !== expectedPwd) {
+        res.status(401).json({ cmd: "0", status: "error", data: "Unauthorized" });
+        return;
+    }
     let url = req.query.cmd;
     if (url.startsWith("[ESP800]json")) {
         res.json({
@@ -503,9 +511,9 @@ function filesList(mypath, mainpath) {
         nb++;
     });
     res +=
-        '],"path":"' +
-        mypath +
-        '","occupation":"' +
+        '],"path":' +
+        JSON.stringify(mypath) +
+        ',"occupation":"' +
         ((100 * totalused) / total).toFixed(0) +
         '","status":"ok","total":"' +
         fileSizeString(total) +
@@ -592,7 +600,7 @@ app.all("/sdfiles", function (req, res) {
     }
     console.log("[server]path is " + mypath);
     if (!req.files || Object.keys(req.files).length === 0) {
-        return res.send(filesList(mypath, sdpath));
+        return res.type('application/json').send(filesList(mypath, sdpath));
     }
     let myFile = req.files.myfiles;
     if (typeof myFile.length == "undefined") {
@@ -600,7 +608,7 @@ app.all("/sdfiles", function (req, res) {
         console.log("[server]one file:" + fullpath);
         myFile.mv(fullpath, function (err) {
             if (err) return res.status(500).send(err);
-            res.send(filesList(mypath, sdpath));
+            res.type('application/json').send(filesList(mypath, sdpath));
         });
         return;
     } else {
@@ -609,7 +617,7 @@ app.all("/sdfiles", function (req, res) {
             let fullpath = path.normalize(sdpath + mypath + myFile[i].name);
             console.log(fullpath);
             myFile[i].mv(fullpath).then(() => {
-                if (i == myFile.length - 1) res.send(filesList(mypath, sdpath));
+                if (i == myFile.length - 1) res.type('application/json').send(filesList(mypath, sdpath));
             });
         }
     }
@@ -643,7 +651,7 @@ app.all("/files", function (req, res) {
     }
     console.log("[server]path is " + mypath);
     if (!req.files || Object.keys(req.files).length === 0) {
-        return res.send(filesList(mypath, serverpath));
+        return res.type('application/json').send(filesList(mypath, serverpath));
     }
     let myFile = req.files.myfiles;
     if (typeof myFile.length == "undefined") {
@@ -651,7 +659,7 @@ app.all("/files", function (req, res) {
         console.log("[server]one file:" + fullpath);
         myFile.mv(fullpath, function (err) {
             if (err) return res.status(500).send(err);
-            res.send(filesList(mypath, serverpath));
+            res.type('application/json').send(filesList(mypath, serverpath));
         });
         return;
     } else {
@@ -661,7 +669,7 @@ app.all("/files", function (req, res) {
             console.log(fullpath);
             myFile[i].mv(fullpath).then(() => {
                 if (i == myFile.length - 1)
-                    res.send(filesList(mypath, serverpath));
+                    res.type('application/json').send(filesList(mypath, serverpath));
             });
         }
     }
