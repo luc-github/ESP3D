@@ -213,6 +213,37 @@ void ESP3DCommands::ESP420(int cmd_params_pos, ESP3DMessage* msg) {
     return;
   }
 
+  // Log output and level
+#if defined(ESP_LOG_FEATURE)
+#if ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL0
+  tmpstr = "serial0/";
+#elif ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL1
+  tmpstr = "serial1/";
+#elif ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL2
+  tmpstr = "serial2/";
+#elif ESP_LOG_FEATURE == LOG_OUTPUT_TELNET
+  tmpstr = "telnet/";
+#elif ESP_LOG_FEATURE == LOG_OUTPUT_WEBSOCKET
+  tmpstr = "websocket/";
+#else
+  tmpstr = "unknown/";
+#endif
+#if ESP3D_LOG_LEVEL == LOG_LEVEL_VERBOSE
+  tmpstr += "verbose";
+#elif ESP3D_LOG_LEVEL == LOG_LEVEL_DEBUG
+  tmpstr += "debug";
+#elif ESP3D_LOG_LEVEL == LOG_LEVEL_ERROR
+  tmpstr += "error";
+#else
+  tmpstr += "none";
+#endif
+#else
+  tmpstr = "none";
+#endif  // ESP_LOG_FEATURE
+  if (!dispatchIdValue(json, "log", tmpstr.c_str(), target, requestId, false)) {
+    return;
+  }
+
   // Flash size
   tmpstr = esp3d_string::formatBytes(ESP.getFlashChipSize());
   if (!dispatchIdValue(json, "flash size", tmpstr.c_str(), target, requestId,

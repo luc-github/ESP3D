@@ -331,8 +331,8 @@ bool NetServices::begin() {
                             ESP3DAuthenticationLevel::admin);
   }
 #endif  // HTTP_FEATURE
-#if defined(MDNS_FEATURE) && defined(HTTP_FEATURE)
-  esp3d_mDNS.addESP3DServices(HTTP_Server::port());
+#if defined(MDNS_FEATURE)
+  esp3d_mDNS.addESP3DServices();
 #endif  // MDNS_FEATURE
 #if defined(MDNS_FEATURE) && defined(HTTP_FEATURE)
 #ifdef SSDP_FEATURE

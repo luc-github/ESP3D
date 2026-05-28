@@ -47,10 +47,43 @@
 #if defined(WS_DATA_FEATURE)
 #include "../websocket/websocket_server.h"
 #endif  // WS_DATA_FEATURE
+#include "../../core/esp3d_hal.h"
+#include "../../core/esp3d_string.h"
+#if defined(FILESYSTEM_FEATURE)
+#include "../filesystem/esp_filesystem.h"
+#endif  // FILESYSTEM_FEATURE
+#if defined(NOTIFICATION_FEATURE)
+#include "../notifications/notifications_service.h"
+#endif  // NOTIFICATION_FEATURE
+#if defined(CAMERA_DEVICE)
+#include "../camera/camera.h"
+#endif  // CAMERA_DEVICE
+#if defined(BLUETOOTH_FEATURE)
+#include "../bluetooth/BT_service.h"
+#endif  // BLUETOOTH_FEATURE
+#if defined(SENSOR_DEVICE)
+#include "../sensor/sensor.h"
+#endif  // SENSOR_DEVICE
+#if defined(TIMESTAMP_FEATURE)
+#include "../time/time_service.h"
+#endif  // TIMESTAMP_FEATURE
+// Helper: addServiceTxt with bool return on ESP32 (const char* overload returns void)
+// On ESP8266 addServiceTxt also returns void, so we always return true there.
+static bool esp3d_mdns_add_txt(const char* svc, const char* proto,
+                                const char* key, const char* val) {
+#if defined(ARDUINO_ARCH_ESP32)
+  return MDNS.addServiceTxt((char*)svc, (char*)proto, (char*)key, (char*)val);
+#else
+  MDNS.addServiceTxt(svc, proto, key, val);
+  return true;
+#endif
+}
+
 mDNS_Service esp3d_mDNS;
 
 #define MDNS_SERVICE_NAME "esp3d"
 #define MDNS_SERVICE_TYPE "tcp"
+#define MDNS_DEVICE_INFO_SERVICE "device-info"
 
 mDNS_Service::mDNS_Service() {
   _started = false;
@@ -136,6 +169,10 @@ void mDNS_Service::end() {
     esp3d_log_e("failed");
   }
 #endif  // WS_DATA_FEATURE
+  if (!MDNS.removeService(_hostname.c_str(), MDNS_DEVICE_INFO_SERVICE,
+                          MDNS_SERVICE_TYPE)) {
+    esp3d_log_e("failed");
+  }
 #endif  // ARDUINO_ARCH_ESP8266
 #if defined(ARDUINO_ARCH_ESP32)
   mdns_service_remove("_" MDNS_SERVICE_NAME, "_" MDNS_SERVICE_TYPE);
@@ -154,6 +191,7 @@ void mDNS_Service::end() {
 #if defined(WS_DATA_FEATURE)
   mdns_service_remove("_websocket", "_tcp");
 #endif  // WS_DATA_FEATURE
+  mdns_service_remove("_" MDNS_DEVICE_INFO_SERVICE, "_" MDNS_SERVICE_TYPE);
 #endif  // ARDUINO_ARCH_ESP32
   MDNS.end();
   _hostname = "";
@@ -167,32 +205,262 @@ void MDNSServiceQueryCallback(MDNSResponder::MDNSServiceInfo serviceInfo,
                               bool p_bSetContent) {}
 #endif  // ARDUINO_ARCH_ESP8266
 void mDNS_Service::addESP3DServices(uint16_t port) {
+  // Port 0 means auto-detect: first active service port will be used.
+  // Note: the ESP Arduino mDNS stack rejects port 0 at service registration
+  // (addService returns false), even though DNS-SD standard allows it.
   _port = port;
   if (WiFi.getMode() == WIFI_AP) {
     return;
   }
-  MDNS.addService(MDNS_SERVICE_NAME, MDNS_SERVICE_TYPE, _port);
-  MDNS.addServiceTxt(MDNS_SERVICE_NAME, MDNS_SERVICE_TYPE, "firmware",
-                     ESP3D_CODE_BASE);
-  MDNS.addServiceTxt(MDNS_SERVICE_NAME, MDNS_SERVICE_TYPE, "version",
-                     FW_VERSION);
+  // Register individual services first, capturing the first available port
 #if defined(HTTP_FEATURE)
   MDNS.addService("http", "tcp", HTTP_Server::port());
+  if (_port == 0) _port = HTTP_Server::port();
 #endif  // HTTP_FEATURE
 #if defined(FTP_FEATURE)
   MDNS.addService("ftp", "tcp", ftp_server.ctrlport());
+  if (_port == 0) _port = ftp_server.ctrlport();
 #endif  // FTP_FEATURE
 #if defined(TELNET_FEATURE)
   MDNS.addService("telnet", "tcp", telnet_server.port());
+  if (_port == 0) _port = telnet_server.port();
 #endif  // TELNET_FEATURE
 #if defined(WEBDAV_FEATURE)
   MDNS.addService("webdav", "tcp", webdav_server.port());
+  if (_port == 0) _port = webdav_server.port();
 #endif  // WEBDAV_FEATURE
 #if defined(WS_DATA_FEATURE)
   MDNS.addService("websocket", "tcp", websocket_data_server.port());
-  MDNS.addServiceTxt("websocket", "tcp", "uri", "/");
-  MDNS.addServiceTxt("websocket", "tcp", "subprotocol", "arduino");
+  if (!esp3d_mdns_add_txt("websocket", "tcp", "uri", "/")) {
+    esp3d_log_e("Failed to add TXT websocket/uri");
+  }
+  if (!esp3d_mdns_add_txt("websocket", "tcp", "subprotocol", "arduino")) {
+    esp3d_log_e("Failed to add TXT websocket/subprotocol");
+  }
+  if (_port == 0) _port = websocket_data_server.port();
 #endif  // WS_DATA_FEATURE
+  // No active service found - register esp3d and device-info with 8080
+  if (_port == 0) {
+    _port = 8080; 
+    esp3d_log("No active service port, using 8080 for esp3d and device-info registration");
+  }
+  // Main esp3d service (port = first active service port)
+  MDNS.addService(MDNS_SERVICE_NAME, MDNS_SERVICE_TYPE, _port);
+  if (!esp3d_mdns_add_txt(MDNS_SERVICE_NAME, MDNS_SERVICE_TYPE, "firmware",
+                          ESP3D_CODE_BASE)) {
+    esp3d_log_e("Failed to add TXT firmware");
+  }
+  if (!esp3d_mdns_add_txt(MDNS_SERVICE_NAME, MDNS_SERVICE_TYPE, "version",
+                          FW_VERSION)) {
+    esp3d_log_e("Failed to add TXT version");
+  }
+// Device info service - ESP8266 version: minimal records only to avoid OOM.
+// The mDNS parser needs heap to process incoming packets; too many TXT records
+// exhaust it and cause crashes.
+#if defined(ARDUINO_ARCH_ESP8266)
+  if (MDNS.addService(MDNS_DEVICE_INFO_SERVICE, MDNS_SERVICE_TYPE, _port)) {
+    esp3d_mdns_add_txt(MDNS_DEVICE_INFO_SERVICE, MDNS_SERVICE_TYPE, "board",
+                       ESP3DSettings::TargetBoard());
+  } else {
+    esp3d_log_e("Failed to add service " MDNS_DEVICE_INFO_SERVICE);
+  }
+#else
+  // Device info service - device identification and capabilities
+  if (!MDNS.addService(MDNS_DEVICE_INFO_SERVICE, MDNS_SERVICE_TYPE, _port)) {
+    esp3d_log_e("Failed to add service " MDNS_DEVICE_INFO_SERVICE);
+    return;
+  }
+  if (!esp3d_mdns_add_txt(MDNS_DEVICE_INFO_SERVICE, MDNS_SERVICE_TYPE, "name",
+                          _hostname.c_str())) {
+    esp3d_log_e("Failed to add TXT name");
+  }
+  if (!esp3d_mdns_add_txt(MDNS_DEVICE_INFO_SERVICE, MDNS_SERVICE_TYPE, "board",
+                          ESP3DSettings::TargetBoard())) {
+    esp3d_log_e("Failed to add TXT board");
+  }
+#if defined(ARDUINO_ARCH_ESP32)
+  if (!esp3d_mdns_add_txt(MDNS_DEVICE_INFO_SERVICE, MDNS_SERVICE_TYPE, "chip",
+                          ESP.getChipModel())) {
+    esp3d_log_e("Failed to add TXT chip");
+  }
+#endif  // ARDUINO_ARCH_ESP32
+  if (!esp3d_mdns_add_txt(MDNS_DEVICE_INFO_SERVICE, MDNS_SERVICE_TYPE, "fw",
+                          ESP3D_CODE_BASE)) {
+    esp3d_log_e("Failed to add TXT fw");
+  }
+  if (!esp3d_mdns_add_txt(MDNS_DEVICE_INFO_SERVICE, MDNS_SERVICE_TYPE, "ver",
+                          FW_VERSION)) {
+    esp3d_log_e("Failed to add TXT ver");
+  }
+  if (!esp3d_mdns_add_txt(MDNS_DEVICE_INFO_SERVICE, MDNS_SERVICE_TYPE,
+                          "target",
+                          ESP3DSettings::GetFirmwareTargetShortName())) {
+    esp3d_log_e("Failed to add TXT target");
+  }
+  if (!esp3d_mdns_add_txt(MDNS_DEVICE_INFO_SERVICE, MDNS_SERVICE_TYPE, "sdk",
+                          ESP.getSdkVersion())) {
+    esp3d_log_e("Failed to add TXT sdk");
+  }
+  if (!esp3d_mdns_add_txt(MDNS_DEVICE_INFO_SERVICE, MDNS_SERVICE_TYPE, "core",
+                          ESP3DHal::arduinoVersion())) {
+    esp3d_log_e("Failed to add TXT core");
+  }
+  {
+    String s = esp3d_string::formatBytes(ESP.getFlashChipSize());
+    if (!esp3d_mdns_add_txt(MDNS_DEVICE_INFO_SERVICE, MDNS_SERVICE_TYPE,
+                            "flash", s.c_str())) {
+      esp3d_log_e("Failed to add TXT flash");
+    }
+  }
+#if defined(ARDUINO_ARCH_ESP32) && defined(BOARD_HAS_PSRAM)
+  {
+    String s = esp3d_string::formatBytes(ESP.getPsramSize());
+    if (!esp3d_mdns_add_txt(MDNS_DEVICE_INFO_SERVICE, MDNS_SERVICE_TYPE,
+                            "psram", s.c_str())) {
+      esp3d_log_e("Failed to add TXT psram");
+    }
+  }
+#endif  // ARDUINO_ARCH_ESP32 && BOARD_HAS_PSRAM
+#if defined(FILESYSTEM_FEATURE)
+  {
+    String s = esp3d_string::formatBytes(ESP_FileSystem::totalBytes());
+    if (!esp3d_mdns_add_txt(MDNS_DEVICE_INFO_SERVICE, MDNS_SERVICE_TYPE, "fs",
+                            s.c_str())) {
+      esp3d_log_e("Failed to add TXT fs");
+    }
+  }
+#endif  // FILESYSTEM_FEATURE
+#if defined(NOTIFICATION_FEATURE)
+  if (!esp3d_mdns_add_txt(MDNS_DEVICE_INFO_SERVICE, MDNS_SERVICE_TYPE,
+                          "notification",
+                          notificationsservice.getTypeString())) {
+    esp3d_log_e("Failed to add TXT notification");
+  }
+#endif  // NOTIFICATION_FEATURE
+#if defined(CAMERA_DEVICE)
+  if (!esp3d_mdns_add_txt(MDNS_DEVICE_INFO_SERVICE, MDNS_SERVICE_TYPE,
+                          "camera", esp3d_camera.GetModelString())) {
+    esp3d_log_e("Failed to add TXT camera");
+  }
+#endif  // CAMERA_DEVICE
+#if defined(BLUETOOTH_FEATURE)
+  {
+    String btinfo = bt_service.hostname();
+    btinfo += "/";
+    btinfo += BTService::macAddress();
+    if (!esp3d_mdns_add_txt(MDNS_DEVICE_INFO_SERVICE, MDNS_SERVICE_TYPE, "bt",
+                            btinfo.c_str())) {
+      esp3d_log_e("Failed to add TXT bt");
+    }
+  }
+#endif  // BLUETOOTH_FEATURE
+#if defined(SENSOR_DEVICE)
+  if (!esp3d_mdns_add_txt(MDNS_DEVICE_INFO_SERVICE, MDNS_SERVICE_TYPE,
+                          "sensor", esp3d_sensor.GetCurrentModelString())) {
+    esp3d_log_e("Failed to add TXT sensor");
+  }
+#endif  // SENSOR_DEVICE
+#if defined(SD_UPDATE_FEATURE)
+  if (!esp3d_mdns_add_txt(
+          MDNS_DEVICE_INFO_SERVICE, MDNS_SERVICE_TYPE, "sd-update",
+          ESP3DSettings::readByte(ESP_SD_CHECK_UPDATE_AT_BOOT) != 0 ? "ON"
+                                                                     : "OFF")) {
+    esp3d_log_e("Failed to add TXT sd-update");
+  }
+#endif  // SD_UPDATE_FEATURE
+#if defined(WEB_UPDATE_FEATURE)
+  if (!esp3d_mdns_add_txt(MDNS_DEVICE_INFO_SERVICE, MDNS_SERVICE_TYPE,
+                          "web-update", "enabled")) {
+    esp3d_log_e("Failed to add TXT web-update");
+  }
+#endif  // WEB_UPDATE_FEATURE
+#if defined(TIMESTAMP_FEATURE)
+  if (!esp3d_mdns_add_txt(MDNS_DEVICE_INFO_SERVICE, MDNS_SERVICE_TYPE, "time",
+                          timeService.isInternetTime() ? "ntp" : "manual")) {
+    esp3d_log_e("Failed to add TXT time");
+  }
+#endif  // TIMESTAMP_FEATURE
+#if defined(SD_DEVICE)
+#if SD_DEVICE == ESP_SDIO
+  if (!esp3d_mdns_add_txt(MDNS_DEVICE_INFO_SERVICE, MDNS_SERVICE_TYPE, "sd",
+                          "SDIO")) {
+    esp3d_log_e("Failed to add TXT sd");
+  }
+#elif SD_DEVICE == ESP_SDFAT2
+  if (!esp3d_mdns_add_txt(MDNS_DEVICE_INFO_SERVICE, MDNS_SERVICE_TYPE, "sd",
+                          "SPI-SdFat")) {
+    esp3d_log_e("Failed to add TXT sd");
+  }
+#else
+  if (!esp3d_mdns_add_txt(MDNS_DEVICE_INFO_SERVICE, MDNS_SERVICE_TYPE, "sd",
+                          "SPI")) {
+    esp3d_log_e("Failed to add TXT sd");
+  }
+#endif
+#endif  // SD_DEVICE
+#if defined(LUA_INTERPRETER_FEATURE)
+  if (!esp3d_mdns_add_txt(MDNS_DEVICE_INFO_SERVICE, MDNS_SERVICE_TYPE, "lua",
+                          "enabled")) {
+    esp3d_log_e("Failed to add TXT lua");
+  }
+#endif  // LUA_INTERPRETER_FEATURE
+#if defined(USB_SERIAL_FEATURE)
+  if (!esp3d_mdns_add_txt(MDNS_DEVICE_INFO_SERVICE, MDNS_SERVICE_TYPE, "usb",
+                          "enabled")) {
+    esp3d_log_e("Failed to add TXT usb");
+  }
+#endif  // USB_SERIAL_FEATURE
+#if defined(AUTHENTICATION_FEATURE)
+  if (!esp3d_mdns_add_txt(MDNS_DEVICE_INFO_SERVICE, MDNS_SERVICE_TYPE, "auth",
+                          "enabled")) {
+    esp3d_log_e("Failed to add TXT auth");
+  }
+#else
+  if (!esp3d_mdns_add_txt(MDNS_DEVICE_INFO_SERVICE, MDNS_SERVICE_TYPE, "auth",
+                          "disabled")) {
+    esp3d_log_e("Failed to add TXT auth");
+  }
+#endif  // AUTHENTICATION_FEATURE
+#if defined(SSDP_FEATURE)
+  if (!esp3d_mdns_add_txt(MDNS_DEVICE_INFO_SERVICE, MDNS_SERVICE_TYPE, "ssdp",
+                          "enabled")) {
+    esp3d_log_e("Failed to add TXT ssdp");
+  }
+#endif  // SSDP_FEATURE
+  {
+    String loginfo = "";
+#if defined(ESP_LOG_FEATURE)
+#if ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL0
+    loginfo = "serial0/";
+#elif ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL1
+    loginfo = "serial1/";
+#elif ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL2
+    loginfo = "serial2/";
+#elif ESP_LOG_FEATURE == LOG_OUTPUT_TELNET
+    loginfo = "telnet/";
+#elif ESP_LOG_FEATURE == LOG_OUTPUT_WEBSOCKET
+    loginfo = "websocket/";
+#else
+    loginfo = "unknown/";
+#endif
+#if ESP3D_LOG_LEVEL == LOG_LEVEL_VERBOSE
+    loginfo += "verbose";
+#elif ESP3D_LOG_LEVEL == LOG_LEVEL_DEBUG
+    loginfo += "debug";
+#elif ESP3D_LOG_LEVEL == LOG_LEVEL_ERROR
+    loginfo += "error";
+#else
+    loginfo += "none";
+#endif
+#else
+    loginfo = "none";
+#endif  // ESP_LOG_FEATURE
+    if (!esp3d_mdns_add_txt(MDNS_DEVICE_INFO_SERVICE, MDNS_SERVICE_TYPE, "log",
+                            loginfo.c_str())) {
+      esp3d_log_e("Failed to add TXT log");
+    }
+  }
+#endif  // ARDUINO_ARCH_ESP8266 / else
 #if defined(ARDUINO_ARCH_ESP8266)
   _hMDNSServiceQuery = MDNS.installServiceQuery(
       MDNS_SERVICE_NAME, MDNS_SERVICE_TYPE, MDNSServiceQueryCallback);

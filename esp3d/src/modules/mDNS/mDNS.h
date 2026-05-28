@@ -28,7 +28,7 @@ class mDNS_Service {
   bool begin(const char* hostname);
   void end();
   void handle();
-  void addESP3DServices(uint16_t port);
+  void addESP3DServices(uint16_t port = 0);
   uint16_t servicesCount();
   const char* answerHostname(uint16_t index);
   const char* answerIP(uint16_t index);
