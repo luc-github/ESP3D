@@ -1,4 +1,4 @@
-# EspLuaEngine for ESP boards
+# EspLuaEngine for ESP boards ![EspLuaEngine](https://img.shields.io/badge/dynamic/json?label=Version&query=$.devt&color=green&url=https://raw.githubusercontent.com/luc-github/espluaengine/refs/heads/main/info.json)
 
 
 
@@ -7,6 +7,11 @@ Unleash the power of flexible scripting on your ESP32 with EspLuaEngine! This li
 While primarily optimized for ESP32, EspLuaEngine is also compatible with ESP8266 and ESP8685 platforms, albeit with reduced performance. This cross-platform support allows you to leverage Lua scripting across a range of ESP microcontrollers.
 
 [![Lua 5.4.7](https://img.shields.io/badge/Lua%205.4.7-blue?style=plastic)](https://www.lua.org)    
+
+> [!WARNING]
+>### Disclaimer
+> The software is provided 'as is,' without any warranty of any kind, expressed or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and non-infringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the software or the use or other dealings in the software.
+>It is essential that you carefully read and understand this disclaimer before using this software and its components. If you do not agree with any part of this disclaimer, please refrain from using the software.
 
 ## 🌟 Key Features
 
@@ -87,6 +92,16 @@ This project is licensed under the LGPL-3.0 License - see the [LICENSE](LICENSE)
 
 - Inspired by [ESP8266-Arduino-Lua](https://github.com/fdu/ESP8266-Arduino-Lua)
 - Built on the robust foundation of [Lua 5.4.7](https://www.lua.org/)
+
+### ☾ Lua Credits
+
+This project uses [Lua 5.4.7](https://www.lua.org/), developed by the team at [PUC-Rio](https://www.puc-rio.br/).
+
+<a href="https://www.lua.org/"><img src="luaa.gif" alt="Lua Logo" width="100"></a>
+
+> Copyright © 1994–2025 Lua.org, PUC-Rio.
+>
+> Lua is free software distributed under the terms of the MIT license. The only requirement is that if you use Lua, you should give credit by including the appropriate copyright notice somewhere in your product or its documentation.
 
 ---
 
