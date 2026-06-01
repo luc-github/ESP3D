@@ -27,11 +27,10 @@ Please go to [esp3d.io](http://esp3d.io/esp3d/v3.x/index.html) for documentation
 >It is essential that you carefully read and understand this disclaimer before using this software and its components. If you do not agree with any part of this disclaimer, please refrain from using the software.  
 
 # SSDP Discovery tools
-   * Windows : 
-       - Just go to Network page
-   * OSX : TBD
-   * Linux :
-       - On Debian-style distros, install `gupnp-tools` and run `gssdp-discover -i <devicename> --timeout=3`
+   * Windows / Linux / OSX:
+       - NetNeighbor : https://github.com/luc-github/NetNeighbor/
+       ![image](images/overview-hero.png)
+   
    * Android :
        - SSDP/UPnP Scanner : https://play.google.com/store/apps/details?id=com.vgc.ssdpscan
        
