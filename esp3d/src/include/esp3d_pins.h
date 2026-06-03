@@ -62,26 +62,64 @@
 #if defined(CAMERA_DEVICE)
 
 #if CAMERA_DEVICE == CAMERA_MODEL_CUSTOM
+#ifndef CAM_LED_PIN
 #define CAM_LED_PIN 4
+#endif  // CAM_LED_PIN
+#ifndef CAM_PULLUP1
 #define CAM_PULLUP1 -1
+#endif  // CAM_PULLUP1
+#ifndef CAM_PULLUP2
 #define CAM_PULLUP2 -1
+#endif  // CAM_PULLUP2
+#ifndef PWDN_GPIO_NUM
 #define PWDN_GPIO_NUM 32
+#endif  // PWDN_GPIO_NUM
+#ifndef RESET_GPIO_NUM
 #define RESET_GPIO_NUM -1
+#endif  // RESET_GPIO_NUM
+#ifndef XCLK_GPIO_NUM
 #define XCLK_GPIO_NUM 0
+#endif  // XCLK_GPIO_NUM
+#ifndef SIOD_GPIO_NUM
 #define SIOD_GPIO_NUM 26
+#endif  // SIOD_GPIO_NUM
+#ifndef SIOC_GPIO_NUM
 #define SIOC_GPIO_NUM 27
+#endif  // SIOC_GPIO_NUM
 
+#ifndef Y9_GPIO_NUM
 #define Y9_GPIO_NUM 35
+#endif  // Y9_GPIO_NUM
+#ifndef Y8_GPIO_NUM
 #define Y8_GPIO_NUM 34
+#endif  // Y8_GPIO_NUM
+#ifndef Y7_GPIO_NUM
 #define Y7_GPIO_NUM 39
+#endif  // Y7_GPIO_NUM
+#ifndef Y6_GPIO_NUM
 #define Y6_GPIO_NUM 36
+#endif  // Y6_GPIO_NUM
+#ifndef Y5_GPIO_NUM
 #define Y5_GPIO_NUM 21
+#endif  // Y5_GPIO_NUM
+#ifndef Y4_GPIO_NUM
 #define Y4_GPIO_NUM 19
+#endif  // Y4_GPIO_NUM
+#ifndef Y3_GPIO_NUM
 #define Y3_GPIO_NUM 18
+#endif  // Y3_GPIO_NUM
+#ifndef Y2_GPIO_NUM
 #define Y2_GPIO_NUM 5
+#endif  // Y2_GPIO_NUM
+#ifndef VSYNC_GPIO_NUM
 #define VSYNC_GPIO_NUM 25
+#endif  // VSYNC_GPIO_NUM
+#ifndef HREF_GPIO_NUM
 #define HREF_GPIO_NUM 23
+#endif  // HREF_GPIO_NUM
+#ifndef PCLK_GPIO_NUM
 #define PCLK_GPIO_NUM 22
+#endif  // PCLK_GPIO_NUM
 #endif  // CAMERA_MODEL_CUSTOM
 
 #if CAMERA_DEVICE == CAMERA_MODEL_WROVER_KIT
