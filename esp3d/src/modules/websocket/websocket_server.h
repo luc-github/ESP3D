@@ -26,7 +26,7 @@
 #include "../filesystem/esp_filesystem.h"
 #endif
 #if defined(SD_DEVICE)
-#include "../filesystem/sd/esp_sd.h"
+#include "../filesystem/esp_sd.h"
 #endif
 #define TXBUFFERSIZE 1200
 #define RXBUFFERSIZE 256
