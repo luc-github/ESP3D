@@ -19,7 +19,7 @@ so you need to use the right one, the [ESP3D-Configurator](https://luc-github.gi
 [![github-ci](https://github.com/luc-github/ESP3D/workflows/build-ci/badge.svg)](https://github.com/luc-github/ESP3D/actions/workflows/build-ci.yml)
 
 
-Please go to [esp3d.io](http://esp3d.io/esp3d/v3.x/index.html) for documentation and installation
+Please go to [esp3d.io](https://esp3d.io/esp3d/version-3x/) for documentation and installation
 
 > [!WARNING]
 >### Disclaimer
