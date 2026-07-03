@@ -7,7 +7,7 @@ ROOT_DIR = env['PROJECT_DIR']
 configuration_file = join(ROOT_DIR, "esp3d", "configuration.h")
 print("Check if need to add some library to path")
 if isfile(configuration_file):
-    fh = open(configuration_file, 'r')
+    fh = open(configuration_file, 'r', encoding='utf-8')
     entry = None
     for line in fh:
         pattern =r'^\s*#\s*define\s+SD_DEVICE\s+ESP_SDFAT2'
