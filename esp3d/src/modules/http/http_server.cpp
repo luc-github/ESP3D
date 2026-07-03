@@ -244,7 +244,7 @@ bool HTTP_Server::begin() {
   _webserver->collectHeaders(headerkeys, headerkeyssize);
   _webserver->begin();
 #ifdef AUTHENTICATION_FEATURE
-  AuthenticationService::begin(_webserver);
+  AuthenticationService::begin_session(_webserver);
 #endif  // AUTHENTICATION_FEATURE
 
   _started = no_error;
@@ -334,9 +334,6 @@ Embedded; http://www.esp3d.io) Host: http://192.168.0.1:8181
 void HTTP_Server::end() {
   _started = false;
   _upload_status = UPLOAD_STATUS_NONE;
-#ifdef AUTHENTICATION_FEATURE
-  AuthenticationService::end();
-#endif  // AUTHENTICATION_FEATURE
   if (_webserver) {
     _webserver->stop();
     delete _webserver;

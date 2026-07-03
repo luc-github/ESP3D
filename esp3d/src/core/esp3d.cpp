@@ -166,6 +166,9 @@ bool Esp3D::begin() {
   esp3d_gcode_host.processFile(ESP_AUTOSTART_SCRIPT_FILE);
 #endif  // ESP_AUTOSTART_FEATURE
 #endif  // GCODE_HOST_FEATURE
+#ifdef AUTHENTICATION_FEATURE
+  AuthenticationService::begin();
+#endif  // AUTHENTICATION_FEATURE
   esp3d_log("Esp3d Started");
   _started = true;
   return res;
@@ -232,6 +235,9 @@ bool Esp3D::end() {
   esp3d_serial_service.end();
 #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
         // MKS_SERIAL
+#ifdef AUTHENTICATION_FEATURE
+  AuthenticationService::end();
+#endif  // AUTHENTICATION_FEATURE
   return true;
 }
 

@@ -115,17 +115,21 @@ uint32_t AuthenticationService::setSessionTimeout(uint32_t timeout) {
 uint32_t AuthenticationService::getSessionTimeout() { return _sessionTimeout; }
 #endif  // HTTP_FEATURE
 
-bool AuthenticationService::begin(Authwebserver *webserver) {
+bool AuthenticationService::begin() {
   end();
-  update();
+  update(); 
+  return true; 
+}
+
 #if defined(HTTP_FEATURE)
+bool AuthenticationService::begin_session(Authwebserver *webserver) {
   _webserver = webserver;
   // value is in ms but storage is in min
   _sessionTimeout = 1000 * 60 * ESP3DSettings::readByte(ESP_SESSION_TIMEOUT);
-#endif  // HTTP_FEATURE
-  
   return true;
 }
+#endif  // HTTP_FEATURE
+
 void AuthenticationService::end() {
 #if defined(HTTP_FEATURE)
   _webserver = nullptr;
@@ -136,12 +140,15 @@ void AuthenticationService::end() {
 void AuthenticationService::update() {
   _adminpwd = ESP3DSettings::readString(ESP_ADMIN_PWD);
   _userpwd = ESP3DSettings::readString(ESP_USER_PWD);
+  //esp3d_log("Admin password: %s", _adminpwd.c_str());
+  //esp3d_log("User password: %s", _userpwd.c_str());
 }
 
 void AuthenticationService::handle() {}
 
 // check admin password
 bool AuthenticationService::isadmin(const char *pwd) {
+  //esp3d_log("%s vs %s", _adminpwd.c_str(), pwd);
   if (strcmp(_adminpwd.c_str(), pwd) != 0) {
     return false;
   } else {
@@ -151,6 +158,7 @@ bool AuthenticationService::isadmin(const char *pwd) {
 
 // check user password - admin password is also valid
 bool AuthenticationService::isuser(const char *pwd) {
+  //esp3d_log("%s vs %s", _userpwd.c_str(), pwd);
   // it is not user password
   if (strcmp(_userpwd.c_str(), pwd) != 0) {
     // check admin password

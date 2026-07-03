@@ -56,13 +56,14 @@ class AuthenticationService {
   static ESP3DAuthenticationLevel getAuthenticatedLevel(
       const char *pwd = nullptr, ESP3DMessage *esp3dmsg = nullptr);
 #ifdef AUTHENTICATION_FEATURE
-  static bool begin(Authwebserver *webserver);
+  static bool begin();
   static void end();
   static void handle();
   static bool isadmin(const char *pwd);
   static void update();
   static bool isuser(const char *pwd);
 #if defined(HTTP_FEATURE)
+  static bool begin_session(Authwebserver *webserver);
   static uint32_t setSessionTimeout(uint32_t timeout);
   static uint32_t getSessionTimeout();
   static uint32_t getSessionRemaining(const char *sessionID);
