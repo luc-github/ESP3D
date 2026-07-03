@@ -164,9 +164,11 @@ void ESP3DCommands::ESP401(int cmd_params_pos, ESP3DMessage* msg) {
 #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
         // MKS_SERIAL
 #ifdef AUTHENTICATION_FEATURE
+#ifdef HTTP_FEATURE
         case ESP_SESSION_TIMEOUT:
           AuthenticationService::setSessionTimeout(1000 * 60 * sval.toInt());
           break;
+#endif // HTTP_FEATURE
 #endif  // AUTHENTICATION_FEATURE
 #ifdef SD_DEVICE
         case ESP_SD_SPEED_DIV:
