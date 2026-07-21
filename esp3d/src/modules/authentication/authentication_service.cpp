@@ -116,7 +116,9 @@ uint32_t AuthenticationService::getSessionTimeout() { return _sessionTimeout; }
 #endif  // HTTP_FEATURE
 
 bool AuthenticationService::begin() {
-  end();
+#if defined(HTTP_FEATURE)
+  ClearAllSessions();
+#endif
   update(); 
   return true; 
 }
