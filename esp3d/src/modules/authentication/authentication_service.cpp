@@ -122,19 +122,23 @@ bool AuthenticationService::begin() {
 }
 
 #if defined(HTTP_FEATURE)
-bool AuthenticationService::begin_session(Authwebserver *webserver) {
+bool AuthenticationService::attachWebServer(Authwebserver *webserver) {
   _webserver = webserver;
   // value is in ms but storage is in min
   _sessionTimeout = 1000 * 60 * ESP3DSettings::readByte(ESP_SESSION_TIMEOUT);
   return true;
 }
+
+void AuthenticationService::detachWebServer() {
+  _webserver = nullptr;
+  ClearAllSessions();
+}
 #endif  // HTTP_FEATURE
 
 void AuthenticationService::end() {
-#if defined(HTTP_FEATURE)
-  _webserver = nullptr;
-  ClearAllSessions();
-#endif  // HTTP_FEATURE
+  // webserver attach/detach and HTTP session lifecycle are now owned by
+  // HTTP_Server (see attachWebServer/detachWebServer) to avoid this being
+  // called out of order relative to HTTP_Server::begin()/end().
 }
 
 void AuthenticationService::update() {
@@ -187,6 +191,10 @@ char *AuthenticationService::create_session_ID() {
   for (int i = 0; i < 17; i++) {
     sessionID[i] = '\0';
   }
+  if (!_webserver) {
+    strcpy(sessionID, "NONE");
+    return sessionID;
+  }
   // get time
   uint32_t now = millis();
   // get remote IP
@@ -215,6 +223,9 @@ bool AuthenticationService::ClearAllSessions() {
 }
 
 bool AuthenticationService::ClearCurrentHttpSession() {
+  if (!_webserver) {
+    return false;
+  }
   String cookie = _webserver->header("Cookie");
   int pos = cookie.indexOf("ESPSESSIONID=");
   String sessionID;
@@ -228,6 +239,9 @@ bool AuthenticationService::ClearCurrentHttpSession() {
 bool AuthenticationService::CreateSession(ESP3DAuthenticationLevel auth_level,
                                           ESP3DClientType client_type,
                                           const char *session_ID) {
+  if (!_webserver) {
+    return false;
+  }
   auth_ip *current_auth = (auth_ip *)malloc(sizeof(auth_ip));
   if (!current_auth) {
     esp3d_log_e("Error allocating memory for session");

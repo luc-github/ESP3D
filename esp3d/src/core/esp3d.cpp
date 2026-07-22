@@ -107,6 +107,12 @@ bool Esp3D::begin() {
     restart_now();
   }
 
+#ifdef AUTHENTICATION_FEATURE
+  // Passwords must be loaded before any command channel (serial, USB serial,
+  // network, ...) can start dispatching commands.
+  AuthenticationService::begin();
+#endif  // AUTHENTICATION_FEATURE
+
   esp3d_commands.getOutputClient(true);
 
   #if defined(USB_SERIAL_FEATURE)
@@ -166,9 +172,6 @@ bool Esp3D::begin() {
   esp3d_gcode_host.processFile(ESP_AUTOSTART_SCRIPT_FILE);
 #endif  // ESP_AUTOSTART_FEATURE
 #endif  // GCODE_HOST_FEATURE
-#ifdef AUTHENTICATION_FEATURE
-  AuthenticationService::begin();
-#endif  // AUTHENTICATION_FEATURE
   esp3d_log("Esp3d Started");
   _started = true;
   return res;

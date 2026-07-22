@@ -63,7 +63,8 @@ class AuthenticationService {
   static void update();
   static bool isuser(const char *pwd);
 #if defined(HTTP_FEATURE)
-  static bool begin_session(Authwebserver *webserver);
+  static bool attachWebServer(Authwebserver *webserver);
+  static void detachWebServer();
   static uint32_t setSessionTimeout(uint32_t timeout);
   static uint32_t getSessionTimeout();
   static uint32_t getSessionRemaining(const char *sessionID);
