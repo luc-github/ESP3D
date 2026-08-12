@@ -265,7 +265,9 @@ static HSE_state st_step_search(heatshrink_encoder *hse) {
         msi, hse->input_size + msi, 2*window_length, hse->input_size);
 
     bool fin = is_finishing(hse);
-    if (msi > hse->input_size - (fin ? 1 : lookahead_sz)) {
+    if (fin && hse->input_size == 0) {
+        return HSES_FLUSH_BITS;
+    } else if (msi > hse->input_size - (fin ? 1 : lookahead_sz)) {
         /* Current search buffer is exhausted, copy it into the
          * backlog and await more input. */
         LOG("-- end of search @ %d\n", msi);
