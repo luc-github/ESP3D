@@ -40,6 +40,11 @@
 #endif
 #endif
 
+#if defined(MARLIN_BINARY_FILE_TRANSFER_FEATURE) && \
+    !defined(GLOBAL_FILESYSTEM_FEATURE)
+#define GLOBAL_FILESYSTEM_FEATURE
+#endif
+
 #include "../core/esp3d_hal.h"
 #include "../core/esp3d_log.h"
 #include "../include/esp3d_pins.h"

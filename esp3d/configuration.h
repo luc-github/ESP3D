@@ -181,6 +181,12 @@
  */
 #define HTTP_FEATURE
 
+/* Copy files from the ESP flash / local SD to a Marlin-controlled SD card
+ * using Marlin's Binary File Transfer protocol (M28 B1).
+ * Marlin must be compiled with BINARY_FILE_TRANSFER.
+ */
+//#define MARLIN_BINARY_FILE_TRANSFER_FEATURE
+
 /* Use telnet server
  * Enable telnet light (raw tcp) communications
  */

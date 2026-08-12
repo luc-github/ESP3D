@@ -81,6 +81,9 @@ class HTTP_Server {
   static void FSFileupload();
   static void handleFSFileList();
 #endif  // FILESYSTEM_FEATURE
+#ifdef MARLIN_BINARY_FILE_TRANSFER_FEATURE
+  static void handleMarlinBft();
+#endif  // MARLIN_BINARY_FILE_TRANSFER_FEATURE
 #ifdef WEB_UPDATE_FEATURE
   static void handleUpdate();
   static void WebUpdateUpload();

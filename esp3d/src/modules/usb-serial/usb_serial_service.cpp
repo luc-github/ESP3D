@@ -441,24 +441,27 @@ size_t ESP3DUsbSerialService::writeBytes(const uint8_t *buffer, size_t size) {
     esp3d_log_e("USB Serial not started or not connected");
     return 0;
   }
-  esp3d_log("writeBytes %d : %s", size, (const char *)buffer);
-  if (_vcp_ptr && _vcp_ptr->tx_blocking((uint8_t *)buffer, size) == ESP_OK) {
-    if (!(_vcp_ptr && _vcp_ptr->set_control_line_state(true, true) == ESP_OK)) {
-      esp3d_log_e("Failed to set control line state");
-      return 0;
-
-      esp3d_log_e("Failed to send message");
-      return 0;
-    }
-    return size;
-  }
+  esp3d_log("writeBytes %d", size);
   if (!_vcp_ptr) {
     esp3d_log_e("_vcp_ptr is null");
-  } else {
-    esp3d_log_e("tx_blocking failed");
+    return 0;
   }
-  esp3d_log_e("Failed to send message");
-  return 0;
+  if (_vcp_ptr->set_control_line_state(true, true) != ESP_OK) {
+    esp3d_log_e("Failed to set control line state");
+    return 0;
+  }
+
+  size_t sent = 0;
+  while (sent < size) {
+    const size_t chunk =
+        min(size - sent, static_cast<size_t>(ESP3D_USB_SERIAL_TX_BUFFER_SIZE));
+    if (_vcp_ptr->tx_blocking((uint8_t *)&buffer[sent], chunk) != ESP_OK) {
+      esp3d_log_e("tx_blocking failed after %d bytes", sent);
+      return sent;
+    }
+    sent += chunk;
+  }
+  return sent;
 }
 
 size_t ESP3DUsbSerialService::readBytes(uint8_t *sbuf, size_t len) {

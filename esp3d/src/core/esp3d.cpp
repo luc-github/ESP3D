@@ -62,6 +62,9 @@
 #if defined(USB_SERIAL_FEATURE)
 #include "../modules/usb-serial/usb_serial_service.h"
 #endif  // USB_SERIAL_FEATURE
+#if defined(MARLIN_BINARY_FILE_TRANSFER_FEATURE)
+#include "../modules/marlin_bft/marlin_bft_service.h"
+#endif
 
 bool Esp3D::restart = false;
 
@@ -193,6 +196,9 @@ void Esp3D::handle() {
   esp3d_serial_service.handle();
 #endif  // COMMUNICATION_PROTOCOL == RAW_SERIAL || COMMUNICATION_PROTOCOL ==
         // MKS_SERIAL
+#if defined(MARLIN_BINARY_FILE_TRANSFER_FEATURE)
+  marlin_bft_service.handle();
+#endif
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
   serial_bridge_service.handle();
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT

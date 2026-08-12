@@ -67,6 +67,9 @@ void HTTP_Server::init_handlers() {
 #ifdef FILESYSTEM_FEATURE
   _webserver->on("/files", HTTP_ANY, handleFSFileList, FSFileupload);
 #endif  // FILESYSTEM_FEATURE
+#ifdef MARLIN_BINARY_FILE_TRANSFER_FEATURE
+  _webserver->on("/printer-sd-transfer", HTTP_ANY, handleMarlinBft);
+#endif  // MARLIN_BINARY_FILE_TRANSFER_FEATURE
 #if COMMUNICATION_PROTOCOL == MKS_SERIAL
   // MKS_SERIAL
   _webserver->on("/upload", HTTP_ANY, handleMKSUpload, MKSFileupload);
