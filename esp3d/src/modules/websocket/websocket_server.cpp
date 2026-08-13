@@ -30,6 +30,7 @@
 #include "../../core/esp3d_settings.h"
 #include "../../core/esp3d_string.h"
 #include "../authentication/authentication_service.h"
+#include "../printer_link/printer_link_service.h"
 #include "websocket_server.h"
 
 WebSocket_Server websocket_terminal_server("webui-v3",
@@ -142,6 +143,7 @@ void handle_Websocket_Terminal_Event(uint8_t num, uint8_t type,
       websocket_terminal_server.pushMSG(num, msg.c_str());
       msg = "activeID:" + String(num);
       websocket_terminal_server.pushMSG(msg.c_str());
+      printer_link_service.notifyWebUi(num);
       websocket_terminal_server.enableOnly(num);
       esp3d_log_d("[%u] Socket connected port %d", num,
                 websocket_terminal_server.port());

@@ -31,6 +31,7 @@
 #include "../../../core/esp3d_settings.h"
 #include "../../../core/esp3d_string.h"
 #include "../../authentication/authentication_service.h"
+#include "../../printer_link/printer_link_service.h"
 
 
 // Handle web command query and send answer//////////////////////////////
@@ -87,6 +88,12 @@ void HTTP_Server::handle_web_command() {
       }
     } else {
       HTTP_Server::set_http_headers();
+      if (printer_link_service.captured()) {
+        String response = "Printer link is captured by ";
+        response += printer_link_service.owner();
+        _webserver->send(423, "text/plain", response);
+        return;
+      }
       // the command is not ESP3D so it will be forwarded to the output client
       // no need to wait to answer then
       _webserver->send(200, "text/plain", "ESP3D says: command forwarded");

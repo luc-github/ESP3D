@@ -89,6 +89,7 @@ const char *esp3dmsgstr[] = {"head", "core", "tail", "unique"};
 #if defined(USB_SERIAL_FEATURE)
 #include "../modules/usb-serial/usb_serial_service.h" 
 #endif  // USB_SERIAL_FEATURE
+#include "../modules/printer_link/printer_link_service.h"
 
 ESP3DCommands esp3d_commands;
 
@@ -1329,6 +1330,13 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
 #if COMMUNICATION_PROTOCOL == RAW_SERIAL
     case ESP3DClientType::serial:
       esp3d_log("Serial message");
+      if (printer_link_service.captured()) {
+        esp3d_log_e("Printer link is captured by %s",
+                    printer_link_service.owner());
+        esp3d_message_manager.deleteMsg(msg);
+        sendOk = false;
+        break;
+      }
       if (!esp3d_serial_service.dispatch(msg)) {
         sendOk = false;
         esp3d_log_e("Serial dispatch failed");
@@ -1337,6 +1345,13 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
 #if defined(USB_SERIAL_FEATURE)
     case ESP3DClientType::usb_serial:
       esp3d_log("USB Serial message");
+      if (printer_link_service.captured()) {
+        esp3d_log_e("Printer link is captured by %s",
+                    printer_link_service.owner());
+        esp3d_message_manager.deleteMsg(msg);
+        sendOk = false;
+        break;
+      }
       if (!esp3d_usb_serial_service.dispatch(msg)) {
         sendOk = false;
         esp3d_log_e("USB Serial dispatch failed");

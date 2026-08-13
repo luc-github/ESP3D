@@ -25,6 +25,7 @@
 #include "../../core/esp3d_settings.h"
 #include "../../core/esp3d_string.h"
 #include "../authentication/authentication_service.h"
+#include "../printer_link/printer_link_service.h"
 #include "serial_service.h"
 
 #define SERIAL_COMMUNICATION_TIMEOUT 500
@@ -102,6 +103,8 @@ void ESP3DSerialService::receiveCb() {
       }
       //take the char
       count--;
+      const uint8_t received = static_cast<uint8_t>(data);
+      if (printer_link_service.consumeRx(&received, 1)) continue;
       _buffer[_buffer_size] = (uint8_t)data;
       //check what next step is
       if (esp3d_string::isRealTimeCommand(_buffer[_buffer_size])) {

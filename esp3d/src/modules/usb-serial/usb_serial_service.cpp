@@ -24,6 +24,7 @@
 #include "../../core/esp3d_settings.h"
 #include "../../core/esp3d_string.h"
 #include "../authentication/authentication_service.h"
+#include "../printer_link/printer_link_service.h"
 #include "usb_serial_service.h"
 
 #if defined(NOTIFICATION_FEATURE)
@@ -172,6 +173,7 @@ void ESP3DUsbSerialService::receiveCb(const uint8_t *data, size_t data_len,
   if (!started()) {
     return;
   }
+  if (printer_link_service.consumeRx(data, data_len)) return;
   if (xSemaphoreTake(_buffer_mutex, portMAX_DELAY) == pdTRUE) {
     for (size_t i = 0; i < data_len; i++) {
       if (esp3d_string::isRealTimeCommand(data[i])) {

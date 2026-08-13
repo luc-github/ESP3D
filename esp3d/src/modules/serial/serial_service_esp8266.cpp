@@ -29,6 +29,7 @@
 #include "../mks/mks_service.h"
 #endif  // COMMUNICATION_PROTOCOL == MKS_SERIAL
 #include "../authentication/authentication_service.h"
+#include "../printer_link/printer_link_service.h"
 #define MAX_SERIAL 2
 HardwareSerial *Serials[MAX_SERIAL] = {&Serial, &Serial1};
 
@@ -132,7 +133,9 @@ void ESP3DSerialService::handle() {
       size_t count = readBytes(sbuf, len);
       // push to buffer
       if (count > 0) {
-        push2buffer(sbuf, count);
+        if (!printer_link_service.consumeRx(sbuf, count)) {
+          push2buffer(sbuf, count);
+        }
       }
       // freen buffer
       free(sbuf);
