@@ -53,6 +53,10 @@ bool HTTP_Server::_started = false;
 uint16_t HTTP_Server::_port = 0;
 WEBSERVER* HTTP_Server::_webserver = nullptr;
 uint8_t HTTP_Server::_upload_status = UPLOAD_STATUS_NONE;
+#if defined(SD_DEVICE) && defined(GCODE_HOST_FEATURE)
+String HTTP_Server::_orca_uploaded_name;
+String HTTP_Server::_orca_selected_name;
+#endif
 
 void HTTP_Server::init_handlers() {
   _webserver->on("/", HTTP_ANY, handle_root);
@@ -74,6 +78,9 @@ void HTTP_Server::init_handlers() {
 #ifdef SD_DEVICE
   // SD
   _webserver->on("/sdfiles", HTTP_ANY, handleSDFileList, SDFileupload);
+#ifdef GCODE_HOST_FEATURE
+  _webserver->on("/upload_serial", HTTP_POST, handleOrcaUpload, OrcaSDFileupload);
+#endif
 #endif  // SD_DEVICE
 #ifdef WEB_UPDATE_FEATURE
   // web update

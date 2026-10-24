@@ -60,6 +60,10 @@ class HTTP_Server {
   static WEBSERVER* _webserver;
   static uint16_t _port;
   static uint8_t _upload_status;
+#if defined(SD_DEVICE) && defined(GCODE_HOST_FEATURE)
+  static String _orca_uploaded_name;
+  static String _orca_selected_name;
+#endif
   static const char* get_Splited_Value(String data, char separator, int index);
 #ifdef SSDP_FEATURE
   static void handle_SSDP();
@@ -89,6 +93,10 @@ class HTTP_Server {
 #ifdef SD_DEVICE
   static void SDFileupload();
   static void handleSDFileList();
+#ifdef GCODE_HOST_FEATURE
+  static void OrcaSDFileupload();
+  static void handleOrcaUpload();
+#endif
   static bool StreamSDFile(const char* filename, const char* contentType);
 #endif  // SD_DEVICE
 #if COMMUNICATION_PROTOCOL == MKS_SERIAL

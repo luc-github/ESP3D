@@ -93,6 +93,7 @@ void HTTP_Server::SDFileupload() {
           ESP_SD::remove(filename.c_str());
         }
         String path = _webserver->arg("path");
+        if (path.length() == 0) path = "/";
         if (path[0] != '/') {
           path = "/" + path;
         }
@@ -245,4 +246,48 @@ void HTTP_Server::SDFileupload() {
   }
   ESP3DHal::wait(5);
 }
+#ifdef GCODE_HOST_FEATURE
+// Orca sends a single multipart field named "file" with a short filename.
+// Reject paths: this endpoint always writes to the root of ESP3D's SD card.
+static bool isOrcaFilenameValid(const String& name) {
+  if (name.length() == 0 || name.length() > 64 || name[0] == '.') return false;
+  for (size_t i = 0; i < name.length(); ++i) {
+    char c = name[i];
+    if (c == '/' || c == '\\' || static_cast<uint8_t>(c) < 0x20) return false;
+  }
+  return true;
+}
+
+void HTTP_Server::OrcaSDFileupload() {
+  HTTPUpload& upload = _webserver->upload();
+  if (upload.status == UPLOAD_FILE_START) {
+    _orca_uploaded_name = "";
+    _orca_selected_name = "";
+    _upload_status = UPLOAD_STATUS_NONE;
+  }
+  if (!isOrcaFilenameValid(upload.filename)) {
+    _upload_status = UPLOAD_STATUS_FAILED;
+    return;
+  }
+  SDFileupload();
+  if (upload.status == UPLOAD_FILE_END &&
+      _upload_status == UPLOAD_STATUS_SUCCESSFUL) {
+    _orca_uploaded_name = upload.filename;
+  }
+}
+
+void HTTP_Server::handleOrcaUpload() {
+  if (AuthenticationService::getAuthenticatedLevel() ==
+      ESP3DAuthenticationLevel::guest) {
+    _webserver->send(401, "text/plain", "Wrong authentication!");
+  } else if (_upload_status == UPLOAD_STATUS_SUCCESSFUL &&
+             _orca_uploaded_name.length() > 0) {
+    _webserver->send(200, "text/plain", "ok");
+  } else {
+    _orca_uploaded_name = "";
+    _webserver->send(500, "text/plain", "SD upload failed");
+  }
+  _upload_status = UPLOAD_STATUS_NONE;
+}
+#endif  // GCODE_HOST_FEATURE
 #endif  // HTTP_FEATURE && SD_DEVICE

@@ -31,6 +31,10 @@
 #include "../../../core/esp3d_settings.h"
 #include "../../../core/esp3d_string.h"
 #include "../../authentication/authentication_service.h"
+#if defined(SD_DEVICE) && defined(GCODE_HOST_FEATURE)
+#include "../../filesystem/esp_sd.h"
+#include "../../gcode_host/gcode_host.h"
+#endif
 
 
 // Handle web command query and send answer//////////////////////////////
@@ -44,8 +48,62 @@ void HTTP_Server::handle_web_command() {
   // esp3d_log("Authentication = %d", auth_level);
   String cmd = "";
   bool isRealTimeCommand = false;
-  if (_webserver->hasArg("cmd")) {
-    cmd = _webserver->arg("cmd");
+#if defined(SD_DEVICE) && defined(GCODE_HOST_FEATURE)
+  if (_webserver->hasArg("plain")) {
+    // Orca's ESP3D host uses "plain" for its test and post-upload commands.
+    // Its M23/M24 refer to the file just uploaded to ESP3D's own SD card,
+    // not to a file on the printer firmware's SD card.
+    cmd = _webserver->arg("plain");
+    cmd.trim();
+    if (cmd.startsWith("M23 ")) {
+      String name = cmd.substring(4);
+      name.trim();
+      if (name.length() == 0 || name != _orca_uploaded_name) {
+        _webserver->send(409, "text/plain", "No matching SD upload");
+        return;
+      }
+      _orca_selected_name = name;
+      _webserver->send(200, "text/plain", "File selected");
+      return;
+    }
+    if (cmd == "M24") {
+      if (_orca_selected_name.length() == 0) {
+        _webserver->send(409, "text/plain", "No selected SD upload");
+        return;
+      }
+      if (esp3d_gcode_host.getStatus() != HOST_NO_STREAM) {
+        _webserver->send(409, "text/plain", "A stream is already active");
+        return;
+      }
+      String path = "/" + _orca_selected_name;
+      if (!ESP_SD::accessFS()) {
+        _webserver->send(503, "text/plain", "SD card unavailable");
+        return;
+      }
+      bool exists = ESP_SD::exists(path.c_str());
+      ESP_SD::releaseFS();
+      if (!exists) {
+        _webserver->send(404, "text/plain", "Uploaded file not found");
+        return;
+      }
+      String stream_path = "/SD" + path;
+      if (!esp3d_gcode_host.processFile(stream_path.c_str(), auth_level)) {
+        _webserver->send(500, "text/plain", "Cannot start SD stream");
+        return;
+      }
+      _orca_uploaded_name = "";
+      _orca_selected_name = "";
+      _webserver->send(200, "text/plain", "ESP3D SD stream started");
+      return;
+    }
+    if (cmd != "M105") {
+      _webserver->send(400, "text/plain", "Unsupported plain command");
+      return;
+    }
+  }
+#endif  // SD_DEVICE && GCODE_HOST_FEATURE
+  if (_webserver->hasArg("cmd") || cmd.length() > 0) {
+    if (cmd.length() == 0) cmd = _webserver->arg("cmd");
     esp3d_log("Command is %s", cmd.c_str());
     if (!cmd.endsWith("\n")) {
       esp3d_log("Command is not ending with \\n");
