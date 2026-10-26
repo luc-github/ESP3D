@@ -39,8 +39,16 @@ esp_netif_t *get_esp_interface_netif(esp_interface_t interface);
 
 const uint8_t DEFAULT_AP_MASK_VALUE[] = {255, 255, 255, 0};
 
+// How often the setup fallback looks for the STA network again
+#ifndef STA_FALLBACK_RETRY_INTERVAL
+#define STA_FALLBACK_RETRY_INTERVAL 120000
+#endif  // STA_FALLBACK_RETRY_INTERVAL
+
 IPAddress WiFiConfig::_ap_gateway;
 IPAddress WiFiConfig::_ap_subnet;
+bool WiFiConfig::_inStaFallback = false;
+bool WiFiConfig::_retryScanRunning = false;
+uint32_t WiFiConfig::_lastRetry = 0;
 
 const char* WiFiConfig::hostname() {
   static String tmp;
@@ -310,6 +318,8 @@ bool WiFiConfig::started() { return (WiFi.getMode() != WIFI_OFF); }
 bool WiFiConfig::begin(int8_t& espMode) {
   bool res = false;
   end();
+  _inStaFallback = false;
+  _retryScanRunning = false;
   esp3d_log("Starting Wifi Config");
   if (ESP3DSettings::isVerboseBoot()) {
     esp3d_commands.dispatch("Starting WiFi", ESP3DClientType::all_clients,
@@ -342,6 +352,8 @@ bool WiFiConfig::begin(int8_t& espMode) {
           }
         esp3d_log("Starting AP mode in setup mode");
         res = StartAP(true);
+        _inStaFallback = res;
+        _lastRetry = millis();
       } else {
         // let setup to handle the change
          if (ESP3DSettings::isVerboseBoot()) {
@@ -380,11 +392,68 @@ void WiFiConfig::end() {
  */
 
 void WiFiConfig::handle() {
+  if (_inStaFallback) {
+    handleFallbackRetry();
+    if (_retryScanRunning || !_inStaFallback) {
+      return;
+    }
+  }
   // to avoid mixed mode
   if (WiFi.getMode() == WIFI_AP_STA) {
     if (WiFi.scanComplete() != WIFI_SCAN_RUNNING) {
       WiFi.enableSTA(false);
     }
+  }
+}
+
+/**
+ * While the setup AP runs as STA fallback, look for the STA network now and
+ * then and restart the network when it is visible again. Only when enabled,
+ * and only while no client uses the setup AP, because scanning changes
+ * channels and would disturb that client.
+ */
+void WiFiConfig::handleFallbackRetry() {
+  if (_retryScanRunning) {
+    int16_t count = WiFi.scanComplete();
+    if (count == WIFI_SCAN_RUNNING) {
+      return;
+    }
+    _retryScanRunning = false;
+    _lastRetry = millis();
+    bool found = false;
+    if (count > 0) {
+      String SSID = ESP3DSettings::readString(ESP_STA_SSID);
+      for (int16_t i = 0; i < count && !found; i++) {
+        found = (WiFi.SSID(i) == SSID);
+      }
+    }
+    WiFi.scanDelete();
+    if (found) {
+      esp3d_log("STA network is back, leaving setup mode");
+      esp3d_commands.dispatch("STA network found, reconnecting",
+                              ESP3DClientType::all_clients, no_id,
+                              ESP3DMessageType::unique, ESP3DClientType::system,
+                              ESP3DAuthenticationLevel::admin);
+      // Falls back to setup mode again if the connection fails
+      NetConfig::begin();
+    }
+    return;
+  }
+  if (ESP3DSettings::readByte(ESP_STA_FALLBACK_RETRY) !=
+          (uint8_t)ESP3DState::on ||
+      ESP3DSettings::readByte(ESP_RADIO_MODE) != ESP_WIFI_STA) {
+    return;
+  }
+  if (millis() - _lastRetry < STA_FALLBACK_RETRY_INTERVAL) {
+    return;
+  }
+  _lastRetry = millis();
+  if (WiFi.softAPgetStationNum() > 0) {
+    return;
+  }
+  esp3d_log("Looking for the STA network");
+  if (WiFi.scanNetworks(true) == WIFI_SCAN_RUNNING) {
+    _retryScanRunning = true;
   }
 }
 

@@ -300,6 +300,11 @@ void ESP3DCommands::ESP400(int cmd_params_pos, ESP3DMessage* msg) {
                   "sta fallback mode", FallbackValues, FallbackLabels,
                   sizeof(FallbackValues) / sizeof(char*), -1, -1, -1, nullptr,
                   true, target, requestId);
+  // Rejoin the STA network from the setup fallback when it is back
+  dispatchSetting(json, "network/sta", ESP_STA_FALLBACK_RETRY,
+                  "sta fallback retry", YesNoValues, YesNoLabels,
+                  sizeof(YesNoValues) / sizeof(char*), -1, -1, -1, nullptr,
+                  true, target, requestId);
 #endif  // WIFI_FEATURE
 #if defined(WIFI_FEATURE)
   // AP SSID network/ap

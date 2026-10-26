@@ -78,8 +78,12 @@ class WiFiConfig {
 
  private:
   static bool ConnectSTA2AP();
+  static void handleFallbackRetry();
   static IPAddress _ap_gateway;
   static IPAddress _ap_subnet;
+  static bool _inStaFallback;
+  static bool _retryScanRunning;
+  static uint32_t _lastRetry;
 };
 
 #endif  //_WIFI_CONFIG_H
