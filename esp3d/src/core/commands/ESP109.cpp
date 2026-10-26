@@ -69,12 +69,11 @@ void ESP3DCommands::ESP109(int cmd_params_pos, ESP3DMessage* msg) {
     } else {
       byteValue = (uint8_t)-1;  // unknow flag so put outof range value
     }
-    esp3d_log(
-        "got %s param for a value of %d, is valid %d", tmpstr.c_str(),
-        byteValue,
-        ESP3DSettings::isValidByteSetting(byteValue, ESP_STA_FALLBACK_RETRY));
-    if (ESP3DSettings::isValidByteSetting(byteValue, ESP_STA_FALLBACK_RETRY)) {
-      esp3d_log("Value %d is valid", byteValue);
+    esp3d_log("got %s param for a value of %d", tmpstr.c_str(), byteValue);
+    // isValidByteSetting() accepts any value for on/off settings, so only
+    // ON and OFF are written
+    if (byteValue == (uint8_t)ESP3DState::off ||
+        byteValue == (uint8_t)ESP3DState::on) {
       if (!ESP3DSettings::writeByte(ESP_STA_FALLBACK_RETRY, byteValue)) {
         hasError = true;
         error_msg = "Set value failed";

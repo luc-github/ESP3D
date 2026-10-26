@@ -288,8 +288,9 @@ bool ESP3DSettings::begin() {
   }
 #if defined(WIFI_FEATURE)
   // Settings saved by older builds have no value here yet (0xFF)
-  if (!isValidByteSetting(readByte(ESP_STA_FALLBACK_RETRY),
-                          ESP_STA_FALLBACK_RETRY)) {
+  uint8_t staFallbackRetry = readByte(ESP_STA_FALLBACK_RETRY);
+  if (staFallbackRetry != (uint8_t)ESP3DState::off &&
+      staFallbackRetry != (uint8_t)ESP3DState::on) {
     writeByte(ESP_STA_FALLBACK_RETRY, atoi(DEFAULT_STA_FALLBACK_RETRY));
   }
 #endif  // WIFI_FEATURE
