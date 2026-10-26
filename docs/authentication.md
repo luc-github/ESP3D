@@ -81,6 +81,7 @@ Here the scope of right for each authentication level:
 | ESP106 | No | No | Set | Set |
 | ESP107 | No | No | Get | Get/Set |
 | ESP108 | No | No | Get | Get/Set |
+| ESP109 | No | No | Get | Get/Set |
 | ESP110 | No | No | Get | Get/Set |
 | ESP111 | No | No | Get | Get |
 | ESP112 | No | No | Get | Get/Set |

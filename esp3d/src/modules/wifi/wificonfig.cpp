@@ -354,6 +354,14 @@ bool WiFiConfig::begin(int8_t& espMode) {
         res = StartAP(true);
         _inStaFallback = res;
         _lastRetry = millis();
+        if (res && ESP3DSettings::readByte(ESP_STA_FALLBACK_RETRY) ==
+                       (uint8_t)ESP3DState::on) {
+          esp3d_commands.dispatch("Waiting for STA network",
+                                  ESP3DClientType::all_clients, no_id,
+                                  ESP3DMessageType::unique,
+                                  ESP3DClientType::system,
+                                  ESP3DAuthenticationLevel::admin);
+        }
       } else {
         // let setup to handle the change
          if (ESP3DSettings::isVerboseBoot()) {

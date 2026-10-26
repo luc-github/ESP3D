@@ -437,6 +437,11 @@ void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
     case 108:
       ESP108(cmd_params_pos, msg);
       break;
+    // Rejoin STA network from the setup fallback
+    //[ESP109]<state>pwd=<admin password>
+    case 109:
+      ESP109(cmd_params_pos, msg);
+      break;
 #endif  // WIFI_FEATURE
 
 #if defined(WIFI_FEATURE) || defined(BLUETOOTH_FEATURE) || defined(ETH_FEATURE)

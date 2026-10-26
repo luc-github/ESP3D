@@ -46,6 +46,9 @@ The json format is
 * Set/Get AP channel   
     `[ESP108]<channel> json=<no> pwd=<admin password>`
 
+* Set/Get sta rejoin from setup fallback which can be ON, OFF  
+    `[ESP109]<state> json=<no> pwd=<admin password>`
+
 * Set/Get radio state which can be WIFI-STA, WIFI-AP, BT, ETH-STA, ETH-AP, OFF  
     `[ESP110]<state> json=<no> pwd=<admin password>`
 
