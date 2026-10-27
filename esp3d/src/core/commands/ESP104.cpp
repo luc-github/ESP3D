@@ -25,7 +25,7 @@
 #include "../esp3d_settings.h"
 
 #define COMMAND_ID 104
-// Set STA fallback mode state at boot which can be BT, WIFI-SETUP,  OFF
+// Set STA fallback mode state at boot which can be BT, WIFI-SETUP, OFF
 //[ESP104]<state> json=<no> pwd=<admin password>
 void ESP3DCommands::ESP104(int cmd_params_pos, ESP3DMessage* msg) {
   ESP3DClientType target = msg->origin;
@@ -54,7 +54,9 @@ void ESP3DCommands::ESP104(int cmd_params_pos, ESP3DMessage* msg) {
       ok_msg = "BT";
     } else
 #endif  // BLUETOOTH_FEATURE
-      if (byteValue == (uint8_t)ESP_NO_NETWORK) {
+      if (byteValue == (uint8_t)ESP_AP_SETUP) {
+        ok_msg = "WIFI-SETUP";
+      } else if (byteValue == (uint8_t)ESP_NO_NETWORK) {
         ok_msg = "OFF";
       } else {
         ok_msg = "Unknown";
@@ -66,12 +68,15 @@ void ESP3DCommands::ESP104(int cmd_params_pos, ESP3DMessage* msg) {
       return;
     }
 #endif  // AUTHENTICATION_FEATURE
+    tmpstr.toUpperCase();
 #if defined(BLUETOOTH_FEATURE)
     if (tmpstr == "BT") {
       byteValue = (uint8_t)ESP_BT;
     } else
 #endif  // BLUETOOTH_FEATURE
-      if (tmpstr == "OFF") {
+      if (tmpstr == "WIFI-SETUP") {
+        byteValue = (uint8_t)ESP_AP_SETUP;
+      } else if (tmpstr == "OFF") {
         byteValue = (uint8_t)ESP_NO_NETWORK;
       } else {
         byteValue = (uint8_t)-1;  // unknow flag so put outof range value

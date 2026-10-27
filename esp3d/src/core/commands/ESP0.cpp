@@ -29,7 +29,7 @@ const char* help[] = {
 #if defined(WIFI_FEATURE)
     "[ESP102](Mode) - display/set STA IP mode (DHCP/STATIC)",
     "[ESP103](IP=xxxx MSK=xxxx GW=xxxx) - display/set STA IP/Mask/GW",
-    "[ESP104](State) - display/set sta fallback mode which can be BT, SETUP, "
+    "[ESP104](State) - display/set sta fallback mode which can be BT, WIFI-SETUP, "
     "OFF",
     "[ESP105](SSID) - display/set AP SSID",
     "[ESP106](Password) - set AP password",

@@ -260,7 +260,7 @@ bool processingFileFunction(const char* section, const char* key,
     if (!done) {
       if (strcasecmp("eth_sta_fallback", key) == 0) {
         T = 'B';
-        P = ESP_STA_FALLBACK_MODE;
+        P = ESP_ETH_STA_FALLBACK_MODE;
         done = true;
         if (strcasecmp("BT", value) == 0) {
           b = ESP_BT;

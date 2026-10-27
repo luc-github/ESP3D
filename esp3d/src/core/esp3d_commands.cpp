@@ -412,7 +412,7 @@ void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
     case 103:
       ESP103(cmd_params_pos, msg);
       break;
-    // Set fallback mode which can be BT,  WIFI-AP, OFF
+    // Set fallback mode which can be BT, WIFI-SETUP, OFF
     //[ESP104]<state>pwd=<admin password>
     case 104:
       ESP104(cmd_params_pos, msg);
