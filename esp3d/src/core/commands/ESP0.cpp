@@ -35,6 +35,8 @@ const char* help[] = {
     "[ESP106](Password) - set AP password",
     "[ESP107](IP) - display/set AP IP",
     "[ESP108](Chanel) - display/set AP chanel",
+    "[ESP109](State) - display/set sta rejoin from setup fallback which can "
+    "be ON, OFF",
 #endif  // WIFI_FEATURE
 #if defined(WIFI_FEATURE) || defined(BLUETOOTH_FEATURE) || defined(ETH_FEATURE)
     "[ESP110](State) - display/set radio state which can be BT, WIFI-STA, "
@@ -206,7 +208,7 @@ const uint cmdlist[] = {
 #if defined(WIFI_FEATURE) 
     102, 103,
     104,
-    105, 106, 107, 108,
+    105, 106, 107, 108, 109,
 #endif  // WIFI_FEATURE
 #if defined(WIFI_FEATURE) || defined(BLUETOOTH_FEATURE) || defined(ETH_FEATURE)
     110,

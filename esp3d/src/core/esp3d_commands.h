@@ -61,6 +61,7 @@ class ESP3DCommands {
   void ESP106(int cmd_params_pos, ESP3DMessage* msg);
   void ESP107(int cmd_params_pos, ESP3DMessage* msg);
   void ESP108(int cmd_params_pos, ESP3DMessage* msg);
+  void ESP109(int cmd_params_pos, ESP3DMessage* msg);
 #endif  // WIFI_FEATURE
 #if defined(WIFI_FEATURE) || defined(BLUETOOTH_FEATURE) || defined(ETH_FEATURE)
   void ESP110(int cmd_params_pos, ESP3DMessage* msg);

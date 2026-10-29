@@ -141,6 +141,7 @@ typedef uint ESP3DSettingIndex;
 #define ESP_ETH_STA_GATEWAY_VALUE 1245  // 4  bytes xxx.xxx.xxx.xxx
 #define ESP_ETH_STA_DNS_VALUE     1249  // 4  bytes xxx.xxx.xxx.xxx
 #define ESP_USB_SERIAL_BAUD_RATE   1253  // 4  bytes= int
+#define ESP_STA_FALLBACK_RETRY 1257     // 1 byte = flag
 
 // Hidden password
 #define HIDDEN_PASSWORD "********"

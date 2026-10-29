@@ -377,6 +377,46 @@ the admin password if authentication is enabled
 
 +++
 archetype = "section"
+title = "[ESP109]"
+weight = 800
++++
+Get/Set station rejoin from the setup fallback which can be ON, OFF
+
+When it is ON and the station connection failed over to the setup access point, ESP3D looks for the station network every 2 minutes (only while no client is connected to the access point) and reconnects when it is visible again. If that attempt fails it goes back to setup mode. `Waiting for STA network` and `STA network found, reconnecting` are sent to all clients, including serial.
+
+## Input
+`[ESP109]<mode> json=<no> pwd=<admin/user password>`
+
+* json=no
+the output format
+can be in JSON or plain text
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+* mode
+  * if mode is empty, it will display current mode
+  * if mode is not empty, it will set the setting mode: `ON` or `OFF`
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"109",
+   "status":"ok",
+   "data":"OFF"
+}
+```
+
+* `cmd` Id of requested command, should be `109`
+* `status` status of command, should be `ok`
+* `data` content of response, here the mode
+
++++
+archetype = "section"
 title = "[ESP110]"
 weight = 800
 +++
