@@ -25,6 +25,15 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "Mainfurr",
+      "name": "Mainfurr",
+      "avatar_url": "https://avatars.githubusercontent.com/u/90922330?v=4",
+      "profile": "https://github.com/Mainfurr",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
