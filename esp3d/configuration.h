@@ -81,7 +81,7 @@
 //#define USB_SERIAL_FEATURE
 
 /* Native USB serial client (USB CDC device)
- * For boards without USB-UART chip (ex: Lolin S2 mini / S3 mini)
+ * For boards without USB-UART chip (ex: Wemos S2 mini)
  * Needs ARDUINO_USB_CDC_ON_BOOT=1, ESP32 S2/S3/C3/C6 only
  * Not compatible with USB_SERIAL_FEATURE
  */
