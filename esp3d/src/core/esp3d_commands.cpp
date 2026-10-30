@@ -25,25 +25,30 @@
 #include "esp3d_settings.h"
 
 #if defined(ESP_LOG_FEATURE)
-const char *esp3dclientstr[] = {
+const char *const esp3dclientstr[] = {
     "no_client",     "serial",        "usb_serial",      "stream",
     "telnet",        "http",          "webui_websocket", "websocket",
     "rendering",     "bluetooth",     "socket_serial",   "echo_serial",
-    "serial_bridge", "remote_screen", "mks_serial",      "command",
-    "system",        "all_clients"};
+    "serial_bridge", "remote_screen", "mks_serial",      "lua_script",
+    "usb_cdc",       "command",       "system",          "all_clients"};
+static_assert(sizeof(esp3dclientstr) / sizeof(esp3dclientstr[0]) ==
+                  static_cast<uint8_t>(ESP3DClientType::all_clients) + 1,
+              "esp3dclientstr out of sync with ESP3DClientType");
 #define GETCLIENTSTR(id)                                         \
-  static_cast<uint8_t>(id) >= 0 &&                               \
-          static_cast<uint8_t>(id) <=                            \
-              static_cast<uint8_t>(ESP3DClientType::all_clients) \
+  static_cast<uint8_t>(id) <=                                    \
+          static_cast<uint8_t>(ESP3DClientType::all_clients)     \
       ? esp3dclientstr[static_cast<uint8_t>(id)]                 \
       : "Out of index"
 
-const char *esp3dmsgstr[] = {"head", "core", "tail", "unique"};
-#define GETMSGTYPESTR(id)                                    \
-  static_cast<uint8_t>(id) >= 0 &&                           \
-          static_cast<uint8_t>(id) <=                        \
-              static_cast<uint8_t>(ESP3DMessageType::unique) \
-      ? esp3dmsgstr[static_cast<uint8_t>(id)]                \
+const char *const esp3dmsgstr[] = {"head", "core", "tail", "unique",
+                                   "realtimecmd"};
+static_assert(sizeof(esp3dmsgstr) / sizeof(esp3dmsgstr[0]) ==
+                  static_cast<uint8_t>(ESP3DMessageType::realtimecmd) + 1,
+              "esp3dmsgstr out of sync with ESP3DMessageType");
+#define GETMSGTYPESTR(id)                                         \
+  static_cast<uint8_t>(id) <=                                     \
+          static_cast<uint8_t>(ESP3DMessageType::realtimecmd)     \
+      ? esp3dmsgstr[static_cast<uint8_t>(id)]                     \
       : "Out of index"
 
 #endif  // defined(ESP_LOG_FEATURE)
@@ -89,6 +94,10 @@ const char *esp3dmsgstr[] = {"head", "core", "tail", "unique"};
 #if defined(USB_SERIAL_FEATURE)
 #include "../modules/usb-serial/usb_serial_service.h" 
 #endif  // USB_SERIAL_FEATURE
+
+#if defined(USB_CDC_CLIENT_FEATURE)
+#include "../modules/usb-cdc/usb_cdc_service.h"
+#endif  // USB_CDC_CLIENT_FEATURE
 
 ESP3DCommands esp3d_commands;
 
@@ -343,6 +352,7 @@ void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
                             msg->origin == ESP3DClientType::telnet ||
                             msg->origin == ESP3DClientType::websocket ||
                             msg->origin == ESP3DClientType::usb_serial ||
+                            msg->origin == ESP3DClientType::usb_cdc ||
                             msg->origin == ESP3DClientType::bluetooth)) {
     msg->authentication_level =
         AuthenticationService::getAuthenticatedLevel(pwd.c_str(), msg);
@@ -361,6 +371,11 @@ void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
         esp3d_usb_serial_service.setAuthentication(msg->authentication_level);
         break;
 #endif  // USB_SERIAL_FEATURE
+#if defined(USB_CDC_CLIENT_FEATURE)
+      case ESP3DClientType::usb_cdc:
+        esp3d_usb_cdc_service.setAuthentication(msg->authentication_level);
+        break;
+#endif  // USB_CDC_CLIENT_FEATURE
 #if defined(TELNET_FEATURE)
       case ESP3DClientType::telnet:
         telnet_server.setAuthentication(msg->authentication_level);
@@ -869,6 +884,13 @@ void ESP3DCommands::execute_internal_command(int cmd, int cmd_params_pos,
       ESP931(cmd_params_pos, msg);
       break;
 #endif  // defined(ESP_SERIAL_BRIDGE_OUTPUT)
+#if defined(USB_CDC_CLIENT_FEATURE)
+    // Get state / Set Enable / Disable native USB CDC client
+    //[ESP935]<ENABLE/DISABLE/CLOSE> json=<no> pwd=<admin password>
+    case 935:
+      ESP935(cmd_params_pos, msg);
+      break;
+#endif  // defined(USB_CDC_CLIENT_FEATURE)
 #if defined(ARDUINO_ARCH_ESP32) &&                             \
     (CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32S2 || \
      CONFIG_IDF_TARGET_ESP32C3)
@@ -1392,6 +1414,16 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
       break;
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
 
+#if defined(USB_CDC_CLIENT_FEATURE)
+    case ESP3DClientType::usb_cdc:
+      esp3d_log("USB CDC message");
+      if (!esp3d_usb_cdc_service.dispatch(msg)) {
+        sendOk = false;
+        esp3d_log_e("USB CDC dispatch failed");
+      }
+      break;
+#endif  // USB_CDC_CLIENT_FEATURE
+
 #ifdef WS_DATA_FEATURE
     case ESP3DClientType::websocket:
       esp3d_log("Websocket message");
@@ -1616,6 +1648,25 @@ bool ESP3DCommands::dispatch(ESP3DMessage *msg) {
         }
       }
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
+
+#if defined(USB_CDC_CLIENT_FEATURE)
+      if (msg->origin != ESP3DClientType::usb_cdc &&
+          esp3d_usb_cdc_service.isConnected()) {
+        if (msg->target == ESP3DClientType::all_clients) {
+          // become the reference message
+          msg->target = ESP3DClientType::usb_cdc;
+        } else {
+          // duplicate message because current is  already pending
+          ESP3DMessage *copy_msg = esp3d_message_manager.copyMsg(*msg);
+          if (copy_msg) {
+            copy_msg->target = ESP3DClientType::usb_cdc;
+            dispatch(copy_msg);
+          } else {
+            esp3d_log_e("Cannot duplicate message for usb cdc");
+          }
+        }
+      }
+#endif  // USB_CDC_CLIENT_FEATURE
 
 #ifdef BLUETOOTH_FEATURE
       if (msg->origin != ESP3DClientType::bluetooth &&

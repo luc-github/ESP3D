@@ -35,6 +35,10 @@ Telnet_Server telnet_log;
 #include "../modules/websocket/websocket_server.h"
 WebSocket_Server websocket_log("log");
 #endif  // ESP_LOG_FEATURE == LOG_OUTPUT_WEBSOCKET
+// Native USB CDC
+#if ESP_LOG_FEATURE == LOG_OUTPUT_USB_CDC
+#include "../modules/usb-cdc/usb_cdc_port.h"
+#endif  // ESP_LOG_FEATURE == LOG_OUTPUT_USB_CDC
 
 #ifndef LOG_ESP3D_BAUDRATE
 #define LOG_ESP3D_BAUDRATE 115200
@@ -52,7 +56,12 @@ WebSocket_Server websocket_log("log");
 
 #ifndef ESP3DLIB_ENV
 #if ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL0
+#if defined(ARDUINO_ARCH_ESP32) && ARDUINO_USB_CDC_ON_BOOT
+// Serial is the native USB CDC, UART0 is Serial0
+#define LOG_OUTPUT_SERIAL Serial0
+#else
 #define LOG_OUTPUT_SERIAL Serial
+#endif  // ARDUINO_ARCH_ESP32 && ARDUINO_USB_CDC_ON_BOOT
 #endif  // LOG_OUTPUT_SERIAL0
 #if ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL1
 #define LOG_OUTPUT_SERIAL Serial1
@@ -73,6 +82,10 @@ void esp3d_logf(uint8_t level, const char* format, ...) {
      !defined(ESP3DLIB_ENV))
   if (!LOG_OUTPUT_SERIAL.availableForWrite()) return;
 #endif  // ((ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL0) || (ESP_...
+#if ESP_LOG_FEATURE == LOG_OUTPUT_USB_CDC
+  // no host connected
+  if (!ESP3D_USB_CDC_PORT) return;
+#endif  // ESP_LOG_FEATURE == LOG_OUTPUT_USB_CDC
 #if ESP_LOG_FEATURE == LOG_OUTPUT_TELNET
   if (!telnet_log.started() || !telnet_log.isConnected()) {
     return;
@@ -111,6 +124,10 @@ void esp3d_logf(uint8_t level, const char* format, ...) {
   LOG_OUTPUT_SERIAL.write((uint8_t*)buffer_ptr, strlen(buffer_ptr));
   LOG_OUTPUT_SERIAL.flush();
 #endif  // ((ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL0) || (ESP_...
+#if ESP_LOG_FEATURE == LOG_OUTPUT_USB_CDC
+  // no flush: it would block if host does not read
+  ESP3D_USB_CDC_PORT.write((uint8_t*)buffer_ptr, strlen(buffer_ptr));
+#endif  // ESP_LOG_FEATURE == LOG_OUTPUT_USB_CDC
 
 #if ESP_LOG_FEATURE == LOG_OUTPUT_TELNET
   telnet_log.writeBytes((uint8_t*)buffer_ptr, strlen(buffer_ptr));
@@ -197,6 +214,16 @@ void esp3d_log_init() {
 
 #endif  // (ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL0) || (ESP_LOG_FEATURE ==
         // LOG_OUTPUT_SERIAL1)||(ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL2)
+#if ESP_LOG_FEATURE == LOG_OUTPUT_USB_CDC
+  esp3d_usb_cdc_port_begin();
+#if defined(LOG_USB_CDC_WAIT_MS)
+  // give time to host to open port, to not lose boot logs
+  uint32_t start_wait = millis();
+  while (!ESP3D_USB_CDC_PORT && (millis() - start_wait) < LOG_USB_CDC_WAIT_MS) {
+    delay(10);
+  }
+#endif  // LOG_USB_CDC_WAIT_MS
+#endif  // ESP_LOG_FEATURE == LOG_OUTPUT_USB_CDC
 
 #endif  // ESP_LOG_FEATURE
 }

@@ -80,6 +80,13 @@
  */
 //#define USB_SERIAL_FEATURE
 
+/* Native USB serial client (USB CDC device)
+ * For boards without USB-UART chip (ex: Lolin S2 mini / S3 mini)
+ * Needs ARDUINO_USB_CDC_ON_BOOT=1, ESP32 S2/S3/C3/C6 only
+ * Not compatible with USB_SERIAL_FEATURE
+ */
+//#define USB_CDC_CLIENT_FEATURE
+
 /* Bridge Serial port (deprecated on esp8266 as second serial is)
  * which serial ESP use to bridge to another device (ESP32 has 3 serials
  * available, ESP8266 only 2) USE_SERIAL_0 //for ESP8266/32, also used by
@@ -655,6 +662,7 @@
 // LOG_OUTPUT_SERIAL2
 // LOG_OUTPUT_TELNET
 // LOG_OUTPUT_WEBSOCKET
+// LOG_OUTPUT_USB_CDC  (native USB, needs ARDUINO_USB_CDC_ON_BOOT=1)
 //#define ESP_LOG_FEATURE LOG_OUTPUT_SERIAL0
 
 //#define ESP3D_LOG_LEVEL LOG_LEVEL_DEBUG
@@ -662,6 +670,8 @@
 #ifdef ESP_LOG_FEATURE
 #define LOG_ESP3D_BAUDRATE 115200
 #define LOG_ESP3D_OUTPUT_PORT 8000
+// For LOG_OUTPUT_USB_CDC: wait up to x ms at boot for host to open port
+//#define LOG_USB_CDC_WAIT_MS 3000
 #endif  // ESP_LOG_FEATURE
 
 // Enable benchmark report in dev console

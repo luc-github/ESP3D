@@ -29,13 +29,20 @@
 
 #define SERIAL_COMMUNICATION_TIMEOUT 500
 
+// When ARDUINO_USB_CDC_ON_BOOT is enabled, Serial is the native USB CDC
+// and UART0 is Serial0
+#if ARDUINO_USB_CDC_ON_BOOT
+#define ESP3D_UART0 Serial0
+#else
+#define ESP3D_UART0 Serial
+#endif  // ARDUINO_USB_CDC_ON_BOOT
 #if defined(CONFIG_IDF_TARGET_ESP32C3) || \
     defined(CONFIG_IDF_TARGET_ESP32C6) || defined(CONFIG_IDF_TARGET_ESP32S2)
 #define MAX_SERIAL 2
-HardwareSerial *Serials[MAX_SERIAL] = {&Serial, &Serial1};
+HardwareSerial *Serials[MAX_SERIAL] = {&ESP3D_UART0, &Serial1};
 #else
 #define MAX_SERIAL 3
-HardwareSerial *Serials[MAX_SERIAL] = {&Serial, &Serial1, &Serial2};
+HardwareSerial *Serials[MAX_SERIAL] = {&ESP3D_UART0, &Serial1, &Serial2};
 #endif
 
 // Serial Parameters

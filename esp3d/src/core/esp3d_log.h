@@ -69,6 +69,10 @@ extern void esp3d_network_log_end();
 #define ESP3D_LOG_NETWORK_END_FN esp3d_network_log_end();
 #else
 #define esp3d_log_e(format, ...)
+#define ESP3D_LOG_INIT_FN esp3d_log_init();
+#define ESP3D_LOG_NETWORK_INIT_FN
+#define ESP3D_LOG_NETWORK_HANDLE_FN
+#define ESP3D_LOG_NETWORK_END_FN
 #endif  // ESP3D_LOG_LEVEL >= LOG_LEVEL_ERROR
 
 #else

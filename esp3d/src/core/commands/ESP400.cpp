@@ -426,6 +426,13 @@ void ESP3DCommands::ESP400(int cmd_params_pos, ESP3DMessage* msg) {
                   nullptr, true, target, requestId);
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
 
+#if defined(USB_CDC_CLIENT_FEATURE)
+  // Native USB CDC client service
+  dispatchSetting(json, "service/usb_cdc", ESP_USB_CDC_ON, "enable",
+                  YesNoValues, YesNoLabels, sizeof(YesNoValues) / sizeof(char*),
+                  -1, -1, -1, nullptr, true, target, requestId);
+#endif  // USB_CDC_CLIENT_FEATURE
+
 #ifdef TIMESTAMP_FEATURE
 
   // Internet Time

@@ -3324,6 +3324,54 @@ the admin password if authentication is enabled
 
 +++
 archetype = "section"
+title = "[ESP935]"
+weight = 800
++++
+Set native USB CDC client state which can be ON, OFF, CLOSE
+Only available on boards using native USB as serial (ESP32 S2/S3/C3/C6 built with `USB_CDC_CLIENT_FEATURE` and `ARDUINO_USB_CDC_ON_BOOT=1`)
+
+## Input
+`[ESP935]<state> json=<no> pwd=<admin password>`
+
+* json=no
+the output format
+
+* state
+  * if state is empty, it will display current state and if a host is connected
+  * if state is not empty, it will set the state
+  currently only these states are supported:
+    - ENABLE
+    - DISABLE (applied at next boot, or use CLOSE)
+    - CLOSE (stop the client until next boot or ENABLE)
+
+* pwd=<admin password>
+the admin password if authentication is enabled
+
+
+## Output
+
+- In json format
+
+```json
+{
+   "cmd":"935",
+   "status":"ok",
+   "data":"ENABLED - Connected"
+}
+```
+
+* `cmd` Id of requested command, should be `935`
+* `status` status of command, should be `ok`
+* `data` content of response, here the current state
+
+ - plain text format
+
+```Text
+ENABLED - Connected
+```
+
++++
+archetype = "section"
 title = "[ESP999]"
 weight = 800
 +++

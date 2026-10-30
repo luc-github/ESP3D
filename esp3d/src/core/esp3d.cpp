@@ -62,6 +62,9 @@
 #if defined(USB_SERIAL_FEATURE)
 #include "../modules/usb-serial/usb_serial_service.h"
 #endif  // USB_SERIAL_FEATURE
+#if defined(USB_CDC_CLIENT_FEATURE)
+#include "../modules/usb-cdc/usb_cdc_service.h"
+#endif  // USB_CDC_CLIENT_FEATURE
 
 bool Esp3D::restart = false;
 
@@ -141,6 +144,13 @@ bool Esp3D::begin() {
     res = false;
   }
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
+  // Native USB CDC client
+#if defined(USB_CDC_CLIENT_FEATURE)
+  if (!esp3d_usb_cdc_service.begin()) {
+    esp3d_log_e("Error with usb cdc service");
+    res = false;
+  }
+#endif  // USB_CDC_CLIENT_FEATURE
   // Setup Filesystem
 #if defined(FILESYSTEM_FEATURE)
   esp3d_log("Starting Filesystem feature");
@@ -196,6 +206,9 @@ void Esp3D::handle() {
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
   serial_bridge_service.handle();
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
+#if defined(USB_CDC_CLIENT_FEATURE)
+  esp3d_usb_cdc_service.handle();
+#endif  // USB_CDC_CLIENT_FEATURE
 #if COMMUNICATION_PROTOCOL == SOCKET_SERIAL
   Serial2Socket.handle();
 #endif  // COMMUNICATION_PROTOCOL == SOCKET_SERIAL
@@ -225,6 +238,9 @@ bool Esp3D::end() {
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
   serial_bridge_service.end();
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
+#if defined(USB_CDC_CLIENT_FEATURE)
+  esp3d_usb_cdc_service.end();
+#endif  // USB_CDC_CLIENT_FEATURE
 #if defined(WIFI_FEATURE) || defined(ETH_FEATURE)
   NetConfig::end();
 #endif  // WIFI_FEATURE || ETH_FEATURE
@@ -260,6 +276,12 @@ bool Esp3D::reset() {
     esp3d_log_e("Reset serial bridge error");
   }
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
+#if defined(USB_CDC_CLIENT_FEATURE)
+  if (!esp3d_usb_cdc_service.reset()) {
+    resetOk = false;
+    esp3d_log_e("Reset usb cdc error");
+  }
+#endif  // USB_CDC_CLIENT_FEATURE
   if (!ESP3DSettings::reset()) {
     esp3d_log_e("Reset settings error");
     resetOk = false;

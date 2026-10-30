@@ -141,6 +141,7 @@ Here the scope of right for each authentication level:
 | ESP910 | No | No | Get/Set | Get/Set |
 | ESP930 | No | No | Get | Get/Set |
 | ESP931 | No | No | Get | Get/Set |
+| ESP935 | No | No | Get | Get/Set |
 | ESP999 | No | No | No | Set |
 
 # API Description

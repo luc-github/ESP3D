@@ -26,6 +26,9 @@
 #if COMMUNICATION_PROTOCOL != SOCKET_SERIAL || defined(ESP_SERIAL_BRIDGE_OUTPUT)
 #include "../../modules/serial/serial_service.h"
 #endif  // COMMUNICATION_PROTOCOL != SOCKET_SERIAL
+#if defined(USB_CDC_CLIENT_FEATURE)
+#include "../../modules/usb-cdc/usb_cdc_service.h"
+#endif  // USB_CDC_CLIENT_FEATURE
 #ifdef SENSOR_DEVICE
 #include "../../modules/sensor/sensor.h"
 #endif  // SENSOR_DEVICE
@@ -151,6 +154,13 @@ void ESP3DCommands::ESP401(int cmd_params_pos, ESP3DMessage* msg) {
           }
           break;
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
+#if defined(USB_CDC_CLIENT_FEATURE)
+        case ESP_USB_CDC_ON:
+          if (!esp3d_usb_cdc_service.started()) {
+            esp3d_usb_cdc_service.begin();
+          }
+          break;
+#endif  // USB_CDC_CLIENT_FEATURE
         case ESP_VERBOSE_BOOT:
           ESP3DSettings::isVerboseBoot(true);
           break;

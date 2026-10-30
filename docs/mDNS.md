@@ -85,6 +85,7 @@ This service provides device identification and capability discovery. It carries
 | `sd` | `SPI`, `SDIO`, `SPI-SdFat` | `SD_DEVICE` | compile-time |
 | `lua` | `enabled` | `LUA_INTERPRETER_FEATURE` | compile-time |
 | `usb` | `enabled` | `USB_SERIAL_FEATURE` | compile-time |
+| `usb-cdc` | `enabled` | `USB_CDC_CLIENT_FEATURE` | compile-time |
 | `ssdp` | `enabled` | `SSDP_FEATURE` | compile-time |
 
 ---

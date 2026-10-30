@@ -43,6 +43,7 @@ enum class ESP3DClientType : uint8_t {
   remote_screen = 13,  // target only = M117
   mks_serial = 14,
   lua_script = 15,
+  usb_cdc = 16,  // native USB CDC (device mode)
   command,  // origin only
   system,   // origin only
   all_clients

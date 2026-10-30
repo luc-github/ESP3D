@@ -52,6 +52,9 @@
 #if (ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL2) && defined(ARDUINO_ARCH_ESP8266)
 #error Serial 2 is not available in ESP8266 for log
 #endif  // ESP_LOG_FEATURE == LOG_OUTPUT_SERIAL2 ) && ARDUINO_ARCH_ESP8266
+#if (ESP_LOG_FEATURE == LOG_OUTPUT_USB_CDC) && !ARDUINO_USB_CDC_ON_BOOT
+#error LOG_OUTPUT_USB_CDC needs ARDUINO_USB_CDC_ON_BOOT=1 (native USB board)
+#endif  // ESP_LOG_FEATURE == LOG_OUTPUT_USB_CDC && !ARDUINO_USB_CDC_ON_BOOT
 #endif  // ESP_LOG_FEATURE
 
 /**************************
@@ -86,6 +89,18 @@
  * ***********************/
 #if defined(USB_SERIAL_FEATURE) && (!defined(ARDUINO_ARCH_ESP32) || (!defined(CONFIG_IDF_TARGET_ESP32S2) && !defined(CONFIG_IDF_TARGET_ESP32S3)))
 #error USB-Serial is only available for ESP32 S2 and S3
+#endif
+
+/**************************
+ * USB-CDC (native USB device)
+ * ***********************/
+#if defined(USB_CDC_CLIENT_FEATURE) || (defined(ESP_LOG_FEATURE) && ESP_LOG_FEATURE == LOG_OUTPUT_USB_CDC)
+#if !defined(ARDUINO_ARCH_ESP32) || !ARDUINO_USB_CDC_ON_BOOT
+#error USB-CDC needs a native USB ESP32 (S2/S3/C3/C6) built with ARDUINO_USB_CDC_ON_BOOT=1
+#endif
+#if defined(USB_SERIAL_FEATURE)
+#error USB-CDC (device) and USB-Serial (host) cannot be used together
+#endif
 #endif
 
 

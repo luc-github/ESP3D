@@ -191,6 +191,9 @@ const char* help[] = {
     "[ESP930](ENABLE/DISABLE/CLOSE) - display/set serial bridge state",
     "[ESP931]<BAUD RATE> - display/set serial bridge baud rate",
 #endif  // defined(ESP_SERIAL_BRIDGE_OUTPUT)
+#if defined(USB_CDC_CLIENT_FEATURE)
+    "[ESP935](ENABLE/DISABLE/CLOSE) - display/set native USB CDC state",
+#endif  // defined(USB_CDC_CLIENT_FEATURE)
 #if defined(USB_SERIAL_FEATURE)
     "[ESP950]<SERIAL/USB> - display/set client output",
 #endif  // defined(USB_SERIAL_FEATURE)
@@ -321,6 +324,9 @@ const uint cmdlist[] = {
 #if defined(ESP_SERIAL_BRIDGE_OUTPUT)
     930, 931,
 #endif  // defined(ESP_SERIAL_BRIDGE_OUTPUT)
+#if defined(USB_CDC_CLIENT_FEATURE)
+    935,
+#endif  // defined(USB_CDC_CLIENT_FEATURE)
 #if defined(USB_SERIAL_FEATURE)
     950,
 #endif  // defined(USB_SERIAL_FEATURE)

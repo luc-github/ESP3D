@@ -92,6 +92,10 @@
 #include "../../modules/usb-serial/usb_serial_service.h"
 #endif  // defined(USB_SERIAL_FEATURE)
 
+#if defined(USB_CDC_CLIENT_FEATURE)
+#include "../../modules/usb-cdc/usb_cdc_service.h"
+#endif  // defined(USB_CDC_CLIENT_FEATURE)
+
 #if defined(ARDUINO_ARCH_ESP32)
 #include <esp_wifi.h>
 static String getWifiMac(wifi_interface_t iface) {
@@ -225,6 +229,8 @@ void ESP3DCommands::ESP420(int cmd_params_pos, ESP3DMessage* msg) {
   tmpstr = "telnet/";
 #elif ESP_LOG_FEATURE == LOG_OUTPUT_WEBSOCKET
   tmpstr = "websocket/";
+#elif ESP_LOG_FEATURE == LOG_OUTPUT_USB_CDC
+  tmpstr = "usb_cdc/";
 #else
   tmpstr = "unknown/";
 #endif
@@ -764,6 +770,19 @@ void ESP3DCommands::ESP420(int cmd_params_pos, ESP3DMessage* msg) {
     return;
   }
 #endif  // ESP_SERIAL_BRIDGE_OUTPUT
+#if defined(USB_CDC_CLIENT_FEATURE)
+  // native USB CDC client
+  if (esp3d_usb_cdc_service.started()) {
+    tmpstr = esp3d_usb_cdc_service.isConnected() ? "ON (connected)"
+                                                 : "ON (not connected)";
+  } else {
+    tmpstr = "OFF";
+  }
+  if (!dispatchIdValue(json, "usb_cdc", tmpstr.c_str(), target, requestId,
+                       false)) {
+    return;
+  }
+#endif  // USB_CDC_CLIENT_FEATURE
 
 #if defined(AUTHENTICATION_FEATURE)
   // authentication enabled

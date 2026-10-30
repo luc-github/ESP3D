@@ -410,6 +410,12 @@ void mDNS_Service::addESP3DServices(uint16_t port) {
     esp3d_log_e("Failed to add TXT usb");
   }
 #endif  // USB_SERIAL_FEATURE
+#if defined(USB_CDC_CLIENT_FEATURE)
+  if (!esp3d_mdns_add_txt(MDNS_DEVICE_INFO_SERVICE, MDNS_SERVICE_TYPE,
+                          "usb-cdc", "enabled")) {
+    esp3d_log_e("Failed to add TXT usb-cdc");
+  }
+#endif  // USB_CDC_CLIENT_FEATURE
 #if defined(AUTHENTICATION_FEATURE)
   if (!esp3d_mdns_add_txt(MDNS_DEVICE_INFO_SERVICE, MDNS_SERVICE_TYPE, "auth",
                           "enabled")) {

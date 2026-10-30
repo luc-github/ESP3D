@@ -585,7 +585,7 @@ const char* WiFiConfig::AP_Mask_String() {
   static String tmp;
 #ifdef ARDUINO_ARCH_ESP32
   esp_netif_ip_info_t ip_AP;
-  esp_netif_get_ip_info(get_esp_interface_netif(ESP_IF_WIFI_STA), &ip_AP);
+  esp_netif_get_ip_info(get_esp_interface_netif(ESP_IF_WIFI_AP), &ip_AP);
   tmp = IPAddress(ip_AP.netmask.addr).toString();
 #endif  // ARDUINO_ARCH_ESP32
 #ifdef ARDUINO_ARCH_ESP8266

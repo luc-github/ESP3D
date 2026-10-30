@@ -189,6 +189,9 @@ class ESP3DCommands {
   void ESP930(int cmd_params_pos, ESP3DMessage* msg);
   void ESP931(int cmd_params_pos, ESP3DMessage* msg);
 #endif  // defined (ESP_SERIAL_BRIDGE_OUTPUT)
+#if defined(USB_CDC_CLIENT_FEATURE)
+  void ESP935(int cmd_params_pos, ESP3DMessage* msg);
+#endif  // defined(USB_CDC_CLIENT_FEATURE)
 #ifdef BUZZER_DEVICE
   void ESP910(int cmd_params_pos, ESP3DMessage* msg);
   void ESP250(int cmd_params_pos, ESP3DMessage* msg);

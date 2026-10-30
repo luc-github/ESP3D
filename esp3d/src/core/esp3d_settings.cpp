@@ -135,6 +135,7 @@
 #define DEFAULT_HTTP_ON "1"
 #define DEFAULT_FTP_ON "1"
 #define DEFAULT_SERIAL_BRIDGE_ON "1"
+#define DEFAULT_USB_CDC_ON "1"
 #define DEFAULT_WEBDAV_ON "1"
 #define DEFAULT_TELNET_ON "1"
 #define DEFAULT_WEBSOCKET_ON "1"
@@ -269,7 +270,8 @@ uint16_t ESP3DSettingsData[] = {ESP_RADIO_MODE,
                                 ESP_WEBDAV_PORT,
                                 ESP_SERIAL_BRIDGE_BAUD,
                                 ESP_OUTPUT_CLIENT,
-                                ESP_USB_SERIAL_BAUD_RATE};
+                                ESP_USB_SERIAL_BAUD_RATE,
+                                ESP_USB_CDC_ON};
 #if defined(SD_DEVICE)
 const uint8_t SupportedSPIDivider[] = {1, 2, 4, 6, 8, 16, 32};
 const uint8_t SupportedSPIDividerSize =
@@ -969,6 +971,7 @@ bool ESP3DSettings::isValidByteSetting(uint8_t value,
     case ESP_FTP_ON:
     case ESP_AUTO_NOTIFICATION:
     case ESP_SERIAL_BRIDGE_ON:
+    case ESP_USB_CDC_ON:
     case ESP_VERBOSE_BOOT:
     case ESP_WEBDAV_ON:
     case ESP_SECURE_SERIAL:
@@ -1193,6 +1196,7 @@ const ESP3DSettingDescription *ESP3DSettings::getSettingPtr(
     case ESP_STA_FALLBACK_RETRY:
     case ESP_ETH_STA_FALLBACK_MODE:
     case ESP_SERIAL_BRIDGE_ON:
+    case ESP_USB_CDC_ON:
     case ESP_STA_IP_MODE:
     case ESP_ETH_STA_IP_MODE:
     case ESP_OUTPUT_CLIENT:
@@ -1282,6 +1286,7 @@ const ESP3DSettingDescription *ESP3DSettings::getSettingPtr(
     case ESP_STA_FALLBACK_MODE:
     case ESP_STA_FALLBACK_RETRY:
     case ESP_SERIAL_BRIDGE_ON:
+    case ESP_USB_CDC_ON:
     case ESP_ETH_STA_IP_MODE:
     case ESP_STA_IP_MODE:
     case ESP_OUTPUT_CLIENT:
@@ -1454,6 +1459,9 @@ const ESP3DSettingDescription *ESP3DSettings::getSettingPtr(
       break;
     case ESP_SERIAL_BRIDGE_ON:
       setting.default_val = DEFAULT_SERIAL_BRIDGE_ON;
+      break;
+    case ESP_USB_CDC_ON:
+      setting.default_val = DEFAULT_USB_CDC_ON;
       break;
     case ESP_SERIAL_BRIDGE_BAUD:
       setting.default_val = DEFAULT_SERIAL_BRIDGE_BAUD_RATE;

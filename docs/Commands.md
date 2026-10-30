@@ -318,5 +318,8 @@ label can be: light/framesize/quality/contrast/brightness/saturation/gainceiling
 * Get / Set Serial Bridge Baud Rate
     `[ESP931]<BAUD RATE> json=<no> pwd=<admin/user password>`
 
+* Get state / Set Enable / Disable / Close native USB CDC client
+    `[ESP935]<ENABLE/DISABLE/CLOSE> json=<no> pwd=<admin password>`
+
 * Set quiet boot if strapping pin is High   
     `[ESP999]QUIETBOOT pwd=<admin/user password>`
