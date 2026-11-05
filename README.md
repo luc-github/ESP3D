@@ -86,8 +86,12 @@ Please go to [esp3d.io](https://esp3d.io/esp3d/version-3x/) for documentation an
        <a href="https://luc-github.github.io/sponsors/esp3d/silver-9.html" target="_blank" rel="noopener noreferrer"><img src="https://luc-github.github.io/sponsors/esp3d/silver-9.svg" style="max-width:400px; width:auto; height:auto"></a>
    </div>
    Support ESP3D Development - <a href="https://esp3d.io/sponsoring" target="_blank" rel="noopener noreferrer">Become a Sponsor</a>
-</div>
 
+</div>     
+
+     
+
+<center><a href="https://esp3d.io/donate/?ESP3D"><img src="https://raw.githubusercontent.com/luc-github/luc-github/main/btn_donate.png"/></a></center>
 
 # Chat
 
